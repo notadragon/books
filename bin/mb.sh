@@ -19,9 +19,12 @@ if [ -z "${TOBUILD}" ] ; then
 else
     cd build/${TOBUILD}
     make || die "Failed to build"
+    TOSHOW=1
 fi
 
 cd ${ROOTDIR}
 ./bin/check_components.py ${TOBUILD} || die "Failure checking extracted components"
 
-xdg-open build/${TOBUILD}/generated/${TOBUILD}.pdf
+if [ -n "${TOSHOW}" ] ;  then
+   xdg-open build/${TOBUILD}/generated/${TOBUILD}.pdf
+fi
