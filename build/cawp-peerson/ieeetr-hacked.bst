@@ -1,0 +1,1 @@
+../../src/books/peerson-template/ieeetr-hacked.bst

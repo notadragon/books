@@ -33,7 +33,7 @@ namespace bsmch1 {
 
 //---------------------GENERATED EXTRACT : booksample-internal bsmch1_sample1_h
 // ----Listing start: booksample-ch1.tex:8-----
-  void foo();
+void foo();
 // ----Listing done: booksample-ch1.tex:10-----
 //-----------------END GENERATED EXTRACT : booksample-internal bsmch1_sample1_h
 
