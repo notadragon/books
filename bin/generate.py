@@ -160,7 +160,11 @@ for optionsFile in optionsFiles:
     for section,f in book.files:
         fname = f.name
         istemplate = fname.endswith(".mako")
+        isoutline = fname.endswith(".outline")
 
+        if isoutline:
+            continue
+        
         if istemplate:
             fname = fname[:-5]
 
