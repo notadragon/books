@@ -151,8 +151,10 @@ footskip=.025in}
 %%%%%%%%%  You will need to enter the file names of all your chapter files here.
 % These lines tell the xr package what chapters need to cross-reference one another.
 % You'll need to add your chapter file names here
-%T%% for f in book.outline.all:
+%T%% for section in [ "initial", "front", "body", "appendix" ]:
+%T%% for f in book.outline.sectionfiles(section):
 \externaldocument{${f}}
+%T%% endfor
 %T%% endfor
 
 %%%%% The front matter begins:
@@ -180,7 +182,7 @@ footskip=.025in}
 \include{${book.name}-author}                  % Add about the author page
 
 %T%% for f in book.outline.sectionfiles("front"):
-\include{$(f)}
+\include{${f}}
 %T%% endfor
 
 \cleardoublepage
@@ -210,10 +212,10 @@ footskip=.025in}
 
 \cleardoublepage
 \bibliographystyle{ieeetr-hacked}  % Your production editor and copy editor may want you to
-                                                          % use a different bibliography style file.
-                                                          % You can input that style file here.
-\bibliography{${book.name}-bib}  % Loading the bibliography file.
-\nocite{*}  % \nocite is used because no citations appear in this sample text
+                                   % use a different bibliography style file.
+                                   % You can input that style file here.
+\bibliography{${",".join(book.outline.sectionfiles("bib"))}}  % Loading the bibliography file.
+%\nocite{*}  % \nocite is used because no citations appear in this sample text
 
 \cleardoublepage
 \printindex   % If your book will include a LaTeX-generated index, you'll include it with this line.

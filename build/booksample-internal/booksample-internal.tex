@@ -109,16 +109,13 @@ footskip=.025in}
 %%%%%%%%%  You will need to enter the file names of all your chapter files here.
 % These lines tell the xr package what chapters need to cross-reference one another.
 % You'll need to add your chapter file names here
+\externaldocument{common-internal-initial}
 \externaldocument{booksample-p1}
 \externaldocument{booksample-ch1}
 \externaldocument{booksample-ch2}
 \externaldocument{booksample-p2}
 \externaldocument{booksample-ch3}
 \externaldocument{booksample-ch4}
-\externaldocument{booksample-appendix}
-\externaldocument{common-internal-initial}
-\externaldocument{common-internal-preamble}
-\externaldocument{common-internal-back}
 
 %%%%% The front matter begins:
 \pagenumbering{roman}             % Roman numbering
@@ -169,10 +166,10 @@ footskip=.025in}
 
 \cleardoublepage
 \bibliographystyle{ieeetr-hacked}  % Your production editor and copy editor may want you to
-                                                          % use a different bibliography style file.
-                                                          % You can input that style file here.
-\bibliography{booksample-bib}  % Loading the bibliography file.
-\nocite{*}  % \nocite is used because no citations appear in this sample text
+                                   % use a different bibliography style file.
+                                   % You can input that style file here.
+\bibliography{booksample-bib,wg21-bib}  % Loading the bibliography file.
+%\nocite{*}  % \nocite is used because no citations appear in this sample text
 
 \cleardoublepage
 \printindex   % If your book will include a LaTeX-generated index, you'll include it with this line.

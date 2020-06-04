@@ -93,7 +93,6 @@ def maprendered(r):
 class Outline:
     def __init__(self):
         self.configs = []
-        self.all = []
         self.sections = {}
 
     def addconfig(self,config):
@@ -102,7 +101,6 @@ class Outline:
             files = []
             for f in config.options(section):
                 files.append(f)
-            self.all.extend(files)
             if section in self.sections:
                 self.sections[section].extend(files)
             else:

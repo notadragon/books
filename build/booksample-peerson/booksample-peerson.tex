@@ -114,8 +114,6 @@ footskip=.025in}
 \externaldocument{booksample-p2}
 \externaldocument{booksample-ch3}
 \externaldocument{booksample-ch4}
-\externaldocument{booksample-appendix}
-\externaldocument{common-peerson-preamble}
 
 %%%%% The front matter begins:
 \pagenumbering{roman}             % Roman numbering
@@ -166,10 +164,10 @@ footskip=.025in}
 
 \cleardoublepage
 \bibliographystyle{ieeetr-hacked}  % Your production editor and copy editor may want you to
-                                                          % use a different bibliography style file.
-                                                          % You can input that style file here.
-\bibliography{booksample-bib}  % Loading the bibliography file.
-\nocite{*}  % \nocite is used because no citations appear in this sample text
+                                   % use a different bibliography style file.
+                                   % You can input that style file here.
+\bibliography{booksample-bib,wg21-bib}  % Loading the bibliography file.
+%\nocite{*}  % \nocite is used because no citations appear in this sample text
 
 \cleardoublepage
 \printindex   % If your book will include a LaTeX-generated index, you'll include it with this line.
