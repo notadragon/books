@@ -16,6 +16,8 @@
 % If your book will be 7 and 3/8 inches wide, use that documentclass statement and
 %            comment out the other one.
 
+%T%<% bookname = book.config.get("book", "name") %>
+
 %T%% if book.config.get("book","trim") in [ "1", "2" ]:
 \documentclass[twoside,10pt,letterpaper,usenames]{newstyle-PearsonGeneric-7}
 %T%% elif book.config.get("book","trim") == "3":
@@ -164,22 +166,22 @@ footskip=.025in}
                                   % our compiler that we want the next item
                                   % to start on a right-hand page, and it inserts a blank left-hand
                                   % page if needed.
-\include{${book.name}-half-title}              % The half-title page
-\include{${book.name}-series}                  % A placeholder for the series page. The publisher normally
+\include{${bookname}-half-title}              % The half-title page
+\include{${bookname}-series}                  % A placeholder for the series page. The publisher normally
                                   % creates this page and just adds it into the final PDF.
-\include{${book.name}-title}                   % The title page
-\include{${book.name}-CIP}                     % The cataloging-in-publication page
-\include{${book.name}-dedication}              % The dedication page
+\include{${bookname}-title}                   % The title page
+\include{${bookname}-CIP}                     % The cataloging-in-publication page
+\include{${bookname}-dedication}              % The dedication page
 \cleardoublepage
 \parskip .5ex                     % Add space between Contents items
 \tableofcontents                  % Make the Table of Contents
 \cleardoublepage
 \parskip 0in                      % Reset to zero interpar spacing
 
-\include{${book.name}-foreword}                % Add foreword
-\include{${book.name}-preface}                 % Add preface
-\include{${book.name}-ack}                     % Add acknowledgements
-\include{${book.name}-author}                  % Add about the author page
+\include{${bookname}-foreword}                % Add foreword
+\include{${bookname}-preface}                 % Add preface
+\include{${bookname}-ack}                     % Add acknowledgements
+\include{${bookname}-author}                  % Add about the author page
 
 %T%% for f in book.outline.sectionfiles("front"):
 \include{${f}}

@@ -1,0 +1,15 @@
+all:2020_06_10_guildweek_contracts.tex
+
+clean:
+	rm -rf _minted-* *.xtr *.out *.log *.fls *.aux *.ext *.fdb_latexmk *.toc *.pyg
+
+.PHONY: phony_explicit
+phony_explicit:
+
+2020_06_10_guildweek_contracts.tex: phony_explicit
+	latexmk -xelatex -shell-escape -pdf -interaction=nonstopmode $*.tex > out.log
+	{                                                     \
+		filebase=$$(echo $* | sed -e "s/.tex//");     \
+		mv $*.pdf generated/;                         \
+		pdftotext -eol unix -layout generated/$*.pdf; \
+	}

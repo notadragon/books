@@ -6,13 +6,14 @@ import pathlib
 import re
 import sys
 
+ignoreFileRe = re.compile("#.*")
+
 togenerate = []
 for f in sys.argv[1:]:
     togenerate.append(f)
     
 class GeneratedBook:
     def __init__(self, optionsFile, config):
-        self.name = None
         self.optionsFile = optionsFile
         self.config = config
 
@@ -27,11 +28,10 @@ class GeneratedBook:
             if f.is_dir():
                 continue
 
-            book.files.append( (section,f) )
+            if ignoreFileRe.match(f.name):
+                continue
 
-        if section.startswith("source"):
-            if not book.name:
-                book.name = sectiondir.name
+            book.files.append( (section,f) )
 
         outlinefile = sectiondir.joinpath(f"{sectiondir.name}.outline")
         if outlinefile.exists():
