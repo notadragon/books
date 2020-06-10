@@ -1,0 +1,422 @@
+%------------------------------------------------------------------------------
+\section{A Function}
+%------------------------------------------------------------------------------
+
+\setminted{texcomments}
+
+\begin{frame}[fragile]
+\begin{overprint}
+  \begin{itemize}
+  \item<1->{Let's say you want to write a function.}
+  \item<3->{With a contract.}
+  \item<5->{That is a narrow contract.}
+  \end{itemize}
+\end{overprint}
+
+\begin{overprint}
+\onslide<2-3>
+\begin{cppcodebox}
+int foo(int x, int y);
+\end{cppcodebox}
+
+\onslide<4-5>
+\begin{cppcodebox}
+int foo(int x, int y);
+  // \highlight{Do some foo with the specified 'x' and 'y'.  Return}
+  // \highlight{how fooable they were.}
+\end{cppcodebox}
+
+\onslide<6->
+\begin{cppcodebox}
+int foo(int x, int y);
+  // Do some foo with the specified 'x' and 'y'.  Return
+  // how fooable they were. \highlight{The behavior is undefined}
+  // \highlight{unless 'x <= y'.}
+\end{cppcodebox}
+
+\end{overprint}
+\end{frame}
+
+%------------------------------------------------------------------------------
+\section{Brand New Library}
+%------------------------------------------------------------------------------
+
+\begin{frame}[fragile]
+  \frametitle{Writing A New Library}
+  \begin{itemize}\pause
+  \item{In a new library, use \cc{BSLS_ASSERT}} \pause
+  \item{In a new function, use \cc{BSLS_ASSERT}} \pause
+  \item{When deploying a new application, use \cc{BSLS_ASSERT}} \pause
+  \end{itemize} 
+  \begin{itemize}
+  \item{Catch errors fast, run safer systems.}
+  \end{itemize}
+\end{frame}
+    
+
+\begin{frame}[fragile]
+\begin{overprint}
+  \begin{itemize}
+  \item<1->{Assume \cc{foo} is in a new library.}
+  \item<2->{We can assert our preconditions.}
+  \item<3->{We can invoke our function.}
+  \item<4->{... or have a very bad bug.}
+  \end{itemize}
+\end{overprint}
+
+\begin{overprint}
+\onslide<1>
+\begin{cppcodebox}
+#include <foo.h>
+  
+
+int foo(int x, int y)
+{
+
+  return fooability(x) * fooability(y);
+}  
+\end{cppcodebox}
+
+\onslide<2>
+\begin{cppcodebox*}{highlightlines={2,6}}
+#include <foo.h>
+#include <bsls\_assert.h>
+  
+int foo(int x, int y)
+{
+  BSLS_ASSERT(x <= y);
+  return fooability(x) * fooability(y);
+}  
+\end{cppcodebox*}
+
+\onslide<3>
+\begin{cppcodebox*}{highlightlines={6}}
+#include <foo.h>
+#include <bsl\_iostream.h>
+  
+int main()
+{
+  int fooishness = foo(3,5);
+  bsl::cout << fooishness << bsl::endl;
+  return 0;
+}
+\end{cppcodebox*}
+
+\onslide<4>
+\begin{cppcodebox}
+#include <foo.h>
+
+int main()
+{
+  int fooishness = foo(|\highlight{5,3}|);
+  bsl::cout << "My Fooishness is:" << fooishness << bsl::endl;
+  return 0;
+}
+\end{cppcodebox}
+
+\end{overprint}
+\end{frame}
+
+\begin{frame}[fragile]
+\begin{overprint}
+  \begin{itemize}
+  \item<1->{We can build our code with assertions enabled.}
+  \item<2->{Then run it.}
+  \item<3->{And kabooom.}
+  \end{itemize}
+\end{overprint}
+
+\begin{overprint}
+
+\onslide<1>
+\begin{shellbox}
+$ g++ -DBSLS\_ASSERT\_LEVEL\_ASSERT -o badmain.tsk foo.cpp badmain.cpp
+\end{shellbox}
+
+\onslide<2>
+\begin{shellbox}
+$ g++ -DBSLS\_ASSERT\_LEVEL\_ASSERT -o badmain.tsk foo.cpp badmain.cpp
+$ ./badmain.tsk
+\end{shellbox}
+
+\onslide<3>
+\begin{shellbox}
+$ g++ -DBSLS\_ASSERT\_LEVEL\_ASSERT -o badmain.tsk foo.cpp badmain.cpp
+$ ./badmain.tsk
+FATAL foo.cpp:6 Assertion failed: x <= y
+Aborted (core dumped)
+\end{shellbox}
+
+\end{overprint}
+\end{frame}
+
+\begin{frame}[fragile]
+  \frametitle{What Can a violation handler do?}
+  \begin{itemize}
+  \item{Violations can be configured to do a number of things} \pause
+  \end{itemize}
+  \begin{cppcodebox}
+    bsls::Assert:setViolationHandler
+  \end{cppcodebox}
+  \begin{itemize} \pause
+  \item{Handlers exist to abort, sleep, log, throw, or write your own}
+  \end{itemize}
+\end{frame}
+
+\begin{frame}[fragile]
+  \frametitle{What \emph{SHOULD} a violation handler do?}
+  \begin{itemize} \pause
+  \item{In production code: Abort.}\pause
+  \item{In development code: Abort.} \pause
+  \item{In unit tests: Abort. \pause or throw when explicitly tested.} \pause
+  \item{The source of a violation may be close or far.} \pause
+  \item The risk when continuing is unbounded. \pause
+    \begin{itemize}
+    \item{Best case is a quick failure with bad values} \pause
+    \item{Worst case is silent failure and spreading corruption.} \pause
+    \end{itemize} 
+  \item Fast failure has well known cost. \pause
+    \begin{itemize}
+    \item{Failures will be caught and escalated} \pause
+    \item{Software will not attempt to execute in a corrupt state} \pause
+    \end{itemize} 
+  \end{itemize}
+\end{frame}
+
+%------------------------------------------------------------------------------
+\section{Existing Software}
+%------------------------------------------------------------------------------
+
+\begin{frame}[fragile]
+  \frametitle{Checks In Old Code}
+  \begin{itemize}\pause
+  \item{New checks in old code?  use \cc{BSLS_REVIEW}} \pause
+  \item{Enabling dormant checks in old code?  use \cc{BSLS_REVIEW_LEVEL...}} \pause
+  \end{itemize}
+  \begin{itemize}
+  \item{Safely roll out checks before enforcing them.}
+  \end{itemize}
+\end{frame}
+
+\begin{frame}[fragile]
+  \begin{overprint}
+  \begin{itemize}
+  \item<1->{Let's say you wrote a function long ago.}
+  \item<3->{With a contract.}
+  \item<5->{That you want to narrow.}
+  \end{itemize}
+\end{overprint}
+
+\begin{overprint}
+\onslide<2-3>
+\begin{cppcodebox}
+int foo(int x, int y);
+\end{cppcodebox}
+
+\onslide<4-5>
+\begin{cppcodebox}
+int foo(int x, int y);
+  // \highlight{Do some foo with the specified 'x' and 'y'.  Return}
+  // \highlight{how fooable they were.}
+\end{cppcodebox}
+
+\onslide<6->
+\begin{cppcodebox}
+int foo(int x, int y);
+  // Do some foo with the specified 'x' and 'y'.  Return
+  // how fooable they were. \highlight{The behavior is undefined}
+  // \highlight{unless 'x <= y'.}
+\end{cppcodebox}
+
+\end{overprint}
+\end{frame}
+
+\begin{frame}[fragile]
+\begin{overprint}
+  \begin{itemize}
+  \item<1->{Assume \cc{foo} is old as dirt.}
+  \item<2->{We can review our new preconditions.}
+  \item<3->{Eventually, we migrate on to \cc{BSLS_ASSERT}.}
+  \end{itemize}
+\end{overprint}
+
+\begin{overprint}
+\onslide<1>
+\begin{cppcodebox}
+#include <foo.h>
+  
+
+int foo(int x, int y)
+{
+
+  return fooability(x) * fooability(y);
+}  
+\end{cppcodebox}
+
+\onslide<2>
+\begin{cppcodebox*}{highlightlines={2,6}}
+#include <foo.h>
+#include <bsls\_review.h>
+  
+int foo(int x, int y)
+{
+  BSLS_REVIEW(x <= y);
+  return fooability(x) * fooability(y);
+}  
+\end{cppcodebox*}
+
+\onslide<3>
+\begin{cppcodebox*}{highlightlines={2,6}}
+#include <foo.h>
+#include <bsls\_assert.h>
+  
+int foo(int x, int y)
+{
+  BSLS_ASSERT(x <= y);
+  return fooability(x) * fooability(y);
+}  
+\end{cppcodebox*}
+
+\end{overprint}
+\end{frame}
+
+\begin{frame}[fragile]
+\begin{overprint}
+  \begin{itemize}
+  \item<1->{We can build our code with assertions enabled}
+  \item<2->{This will enable reviews of the same type too.}
+  \item<3->{Then run it.}
+  \item<4->{And oopsie.}
+  \item<5->{...with a stack trace!.}
+  \item<6->{... or a more readable stack trace!.}
+  \end{itemize}
+\end{overprint}
+
+\begin{overprint}
+
+\onslide<1-2>
+\begin{shellbox}
+$ g++ -DBSLS\_ASSERT\_LEVEL\_ASSERT -o questionablemain.tsk
+  oldfoo.cpp questionablemain.cpp
+\end{shellbox}
+
+\onslide<3>
+\begin{shellbox}
+$ g++ -DBSLS\_ASSERT\_LEVEL\_ASSERT -o questionablemain.tsk
+  oldfoo.cpp questionablemain.cpp
+$ ./questionablemain.tsk
+\end{shellbox}
+
+\onslide<4>
+\begin{shellbox}
+$ g++ -DBSLS\_ASSERT\_LEVEL\_ASSERT -o questionablemain.tsk
+  oldfoo.cpp questionablemain.cpp
+$ ./questionablemain.tsk
+ERROR oldfoo.cpp:6 BSLS_REVIEW failure: (level:R-DBG) 'x <= y'
+Please run "/bb/bin/showfunc.tsk ./questionablemain.tsk 8048B28
+8048A07 8048A26" to see the stack trace.
+\end{shellbox}
+
+\onslide<5>
+\begin{shellbox}
+$ /bb/bin/showfunc.tsk ./questionablemain.tsk 8048B28 8048A07
+  8048A26 
+0x8048b28 _ZN11BloombergLP4bsls6Review9failByLogERKNS0
+  _15ReviewViolationE + 88
+0x8048a07 _Z3fooii + 81
+0x8048a26 main + 26
+\end{shellbox}
+
+\onslide<6>
+\begin{shellbox}
+$ /bb/bin/showfunc.tsk ./questionablemain.tsk 8048B28 8048A07
+  8048A26 | c++filt
+0x8048b28 BloombergLP::bsls::Review::failByLog(
+  BloombergLP::bsls::ReviewViolation const&) + 88
+0x8048a07 foo(int, int) + 81
+0x8048a26 main + 26
+\end{shellbox}
+
+\end{overprint}
+\end{frame}
+
+\begin{frame}
+  \frametitle{Tickets}
+  \begin{itemize} \pause
+  \item{Every \cc{BSLS_REVIEW} failure logged to \cc{act.log} will be processed by GUTS.} \pause
+  \item{Most will result in a DRQS created for the owner of the code that failed.} \pause
+  \item{Tickets are throttled, only \cc{act.log} is monitored, and GUTS routing can be
+    inaccurate. \pause
+    \begin{itemize}
+    \item{Keep your PWHO entries and procmgr ids set up correctly} \pause
+    \item{Monitor your own logs too.} \pause
+    \end{itemize} }
+  \end{itemize}
+\end{frame}
+
+\begin{frame}[fragile]
+\begin{overprint}
+  \begin{itemize}
+  \item<1->{You might be running with asserts off} 
+  \item<2->{If you switch to this, things might go boom} 
+  \item<3->{This will switch asserts to reviews first} 
+  \item<4->{Now deploy, monitor, fix bugs}
+  \item<5->{Then switch to this.}
+  \end{itemize}
+\end{overprint}
+
+\begin{overprint}
+\onslide<1>
+\begin{shellbox}
+$ g++ -DBSLS\_ASSERT\_LEVEL\_NONE -o badmain.tsk foo.cpp
+  badmain.cpp
+\end{shellbox}
+
+\onslide<2,5>
+\begin{shellbox}
+$ g++ -DBSLS\_ASSERT\_LEVEL\_ASSERT -o badmain.tsk foo.cpp
+  badmain.cpp
+\end{shellbox}
+
+\onslide<3-4>
+\begin{shellbox}
+$ g++ -DBSLS\_ASSERT\_LEVEL\_NONE -DBSLS_REVIEW_LEVEL_REVIEW
+  -o badmain.tsk foo.cpp badmain.cpp
+\end{shellbox}
+  
+\end{overprint}
+  
+\end{frame}
+
+%------------------------------------------------------------------------------
+\section{Other Reading}
+%------------------------------------------------------------------------------
+
+\begin{frame}[fragile]
+  \frametitle{Documentation}
+  \begin{itemize}
+  \item{BDE Starting point: \url{http://bde.bloomberg.com/} } \pause
+  \item{\cc{BSLS_ASSERT}: \url{https://bde.bloomberg.com/bde-resources/doxygen/bde_api_prod/group__bsls__assert.html} } \pause
+  \item{\cc{BSLS_REVIEW}: \url{https://bde.bloomberg.com/bde-resources/doxygen/bde_api_prod/group__bsls__review.html} } 
+  \end{itemize}
+\end{frame}
+  
+\begin{frame}[fragile]
+  \frametitle{Source Code}
+  \begin{itemize}
+  \item{BDE Starting point: \url{http://bbgithub.dev.bloomberg.com/bde/bde/} } \pause
+  \item{Or Open Source: \url{https://github.com/bloomberg/bde} } \pause
+  \item{\cc{BSLS_ASSERT}: \url{https://github.com/bloomberg/bde/blob/master/groups/bsl/bsls/bsls_assert.h} } \pause
+  \item{\cc{BSLS_REVIEW}: \url{https://github.com/bloomberg/bde/blob/master/groups/bsl/bsls/bsls_review.h} } 
+  \end{itemize}
+\end{frame}
+  
+\begin{frame}[fragile]
+  \frametitle{Things to Learn}
+  \begin{itemize}
+  \item{Build Targets: \cc{BDE_BUILD_TARGET_OPT}, \cc{BDE_BUILD_TARGET_DBG}, \cc{BDE_BUILD_TARGET_SAFE}.} \pause
+  \item{Build Levels, other macros: \cc{BSLS_ASSERT_LEVEL_*}, \cc{BSLS_REVIEW_LEVEL_*}, \cc{BSLS_ASSERT_*}, \cc{BSLS_REVIEW_*}.} \pause
+  \item{Testing: \cc{BSLS_ASSERTTEST} } 
+  \end{itemize}
+\end{frame}
+  

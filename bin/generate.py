@@ -144,10 +144,15 @@ for optionsFile in optionsFiles:
         print(f"  Making directory: {book.builddir}")
         book.builddir.mkdir(parents=True)
 
-    book.outdir = book.builddir.joinpath("generated")
+    book.outdir = pwd.joinpath("generated").joinpath(book.basename)
     if not book.outdir.is_dir():
         print(f"  Making directory: {book.outdir}")
         book.outdir.mkdir(parents=True)
+        
+    listingsdir = book.builddir.joinpath("listings")
+    if not listingsdir.is_dir():
+        print(f"  Making directory: {listingsdir}")
+        listingsdir.mkdir(parents=True)
         
     for section in config.sections():
         if section.startswith("source") or section.startswith("template"):

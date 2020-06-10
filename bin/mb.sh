@@ -26,5 +26,5 @@ cd ${ROOTDIR}
 ./bin/check_components.py ${TOBUILD} || die "Failure checking extracted components"
 
 if [ -n "${TOSHOW}" ] ;  then
-   xdg-open build/${TOBUILD}/generated/${TOBUILD}.pdf
+   xdg-open generated/${TOBUILD}/${TOBUILD}.pdf
 fi

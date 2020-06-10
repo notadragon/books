@@ -1,0 +1,1047 @@
+ Checking Contracts with BDE
+
+Joshua Berne - jberne4@bloomberg.net
+
+
+
+             2020-06-10
+
+
+
+
+                                       1 / 18   1 / 81
+                                 Copyright Notice
+
+
+
+©2020 Bloomberg L.P. Permission is granted to copy, distribute, and display this
+material, and to make derivative works and commercial use of it. The information in
+this material is provided “AS IS”, without warranty of any kind. Neither Bloomberg
+nor any employee guarantees the correctness or completeness of such information.
+Bloomberg, its employees, and its affiliated entities and persons shall not be liable,
+directly or indirectly, in any way, for any inaccuracies, errors or omissions in such
+information. Nothing herein should be interpreted as stating the opinions, policies,
+recommendations, or positions of Bloomberg.
+
+
+
+
+                                                                                     2 / 18   2 / 81
+1   A Function
+
+
+
+
+                 3 / 18   3 / 81
+1   A Function
+
+2   Brand New Library
+
+
+
+
+                        3 / 18   4 / 81
+1   A Function
+
+2   Brand New Library
+
+3   Existing Software
+
+
+
+
+                        3 / 18   5 / 81
+1   A Function
+
+2   Brand New Library
+
+3   Existing Software
+
+4   Other Reading
+
+
+
+
+                        3 / 18   6 / 81
+Let’s say you want to write a function.
+
+
+
+
+                                          4 / 18   7 / 81
+   Let’s say you want to write a function.
+
+
+
+
+int foo(int x, int y);
+
+
+
+
+                                             4 / 18   8 / 81
+   Let’s say you want to write a function.
+   With a contract.
+
+
+
+
+int foo(int x, int y);
+
+
+
+
+                                             4 / 18   9 / 81
+   Let’s say you want to write a function.
+   With a contract.
+
+
+
+
+int foo(int x, int y);
+  // Do some foo with the specified 'x' and 'y'.   Return
+  // how fooable they were.
+
+
+
+
+                                                            4 / 18   10 / 81
+   Let’s say you want to write a function.
+   With a contract.
+   That is a narrow contract.
+
+
+
+int foo(int x, int y);
+  // Do some foo with the specified 'x' and 'y'.   Return
+  // how fooable they were.
+
+
+
+
+                                                            4 / 18   11 / 81
+   Let’s say you want to write a function.
+   With a contract.
+   That is a narrow contract.
+
+
+
+int foo(int x, int y);
+  // Do some foo with the specified 'x' and 'y'. Return
+  // how fooable they were. The behavior is undefined
+  // unless 'x <= y'.
+
+
+
+
+                                                          4 / 18   12 / 81
+Writing A New Library
+
+
+
+
+                        5 / 18   13 / 81
+                       Writing A New Library
+
+
+
+
+In a new library, use BSLS_ASSERT
+
+
+
+
+                                               5 / 18   14 / 81
+                       Writing A New Library
+
+
+
+
+In a new library, use BSLS_ASSERT
+In a new function, use BSLS_ASSERT
+
+
+
+
+                                               5 / 18   15 / 81
+                       Writing A New Library
+
+
+
+
+In a new library, use BSLS_ASSERT
+In a new function, use BSLS_ASSERT
+When deploying a new application, use BSLS_ASSERT
+
+
+
+
+                                                    5 / 18   16 / 81
+                        Writing A New Library
+
+
+
+
+In a new library, use BSLS_ASSERT
+In a new function, use BSLS_ASSERT
+When deploying a new application, use BSLS_ASSERT
+
+Catch errors fast, run safer systems.
+
+
+
+
+                                                    5 / 18   17 / 81
+     Assume foo is in a new library.
+
+
+
+
+#include <foo.h>
+
+
+int foo(int x, int y)
+{
+
+    return fooability(x) * fooability(y);
+}
+
+
+                                            6 / 18   18 / 81
+   Assume foo is in a new library.
+   We can assert our preconditions.
+
+
+
+
+#include <foo.h>
+#include <bsls_assert.h>
+
+int foo(int x, int y)
+{
+  BSLS_ASSERT(x <= y);
+  return fooability(x) * fooability(y);
+}
+
+
+                                          6 / 18   19 / 81
+   Assume foo is in a new library.
+   We can assert our preconditions.
+   We can invoke our function.
+
+
+
+
+#include <foo.h>
+#include <bsl_iostream.h>
+
+int main()
+{
+  int fooishness = foo(3,5);
+  bsl::cout << fooishness << bsl::endl;
+  return 0;
+}
+
+                                          6 / 18   20 / 81
+   Assume foo is in a new library.
+   We can assert our preconditions.
+   We can invoke our function.
+   ... or have a very bad bug.
+
+
+
+#include <foo.h>
+
+int main()
+{
+  int fooishness = foo(5,3);
+  bsl::cout << "My Fooishness is:" << fooishness << bsl::endl;
+  return 0;
+}
+
+
+                                                                 6 / 18   21 / 81
+   We can build our code with assertions enabled.
+
+
+
+
+$ g++ -DBSLS\_ASSERT\_LEVEL\_ASSERT -o badmain.tsk foo.cpp badmain.cpp
+
+
+
+
+                                                                  7 / 18   22 / 81
+   We can build our code with assertions enabled.
+   Then run it.
+
+
+
+$ g++ -DBSLS\_ASSERT\_LEVEL\_ASSERT -o badmain.tsk foo.cpp badmain.cpp
+$ ./badmain.tsk
+
+
+
+
+                                                                  7 / 18   23 / 81
+   We can build our code with assertions enabled.
+   Then run it.
+   And kabooom.
+
+
+$ g++ -DBSLS\_ASSERT\_LEVEL\_ASSERT -o badmain.tsk foo.cpp badmain.cpp
+$ ./badmain.tsk
+FATAL foo.cpp:6 Assertion failed: x <= y
+Aborted (core dumped)
+
+
+
+
+                                                                  7 / 18   24 / 81
+                What Can a violation handler do?
+
+
+
+
+Violations can be configured to do a number of things
+
+
+
+
+                                                        8 / 18   25 / 81
+                What Can a violation handler do?
+
+
+
+
+Violations can be configured to do a number of things
+
+bsls::Assert:setViolationHandler
+
+
+
+
+                                                        8 / 18   26 / 81
+                 What Can a violation handler do?
+
+
+
+
+Violations can be configured to do a number of things
+
+bsls::Assert:setViolationHandler
+
+
+Handlers exist to abort, sleep, log, throw, or write your own
+
+
+
+
+                                                                8 / 18   27 / 81
+What SHOULD a violation handler do?
+
+
+
+
+                                      9 / 18   28 / 81
+             What SHOULD a violation handler do?
+
+
+In production code: Abort.
+
+
+
+
+                                                   9 / 18   29 / 81
+             What SHOULD a violation handler do?
+
+
+In production code: Abort.
+In development code: Abort.
+
+
+
+
+                                                   9 / 18   30 / 81
+              What SHOULD a violation handler do?
+
+
+In production code: Abort.
+In development code: Abort.
+In unit tests: Abort.
+
+
+
+
+                                                    9 / 18   31 / 81
+             What SHOULD a violation handler do?
+
+
+In production code: Abort.
+In development code: Abort.
+In unit tests: Abort. or throw when explicitly tested.
+
+
+
+
+                                                         9 / 18   32 / 81
+             What SHOULD a violation handler do?
+
+
+In production code: Abort.
+In development code: Abort.
+In unit tests: Abort. or throw when explicitly tested.
+The source of a violation may be close or far.
+
+
+
+
+                                                         9 / 18   33 / 81
+             What SHOULD a violation handler do?
+
+
+In production code: Abort.
+In development code: Abort.
+In unit tests: Abort. or throw when explicitly tested.
+The source of a violation may be close or far.
+The risk when continuing is unbounded.
+
+
+
+
+                                                         9 / 18   34 / 81
+             What SHOULD a violation handler do?
+
+
+In production code: Abort.
+In development code: Abort.
+In unit tests: Abort. or throw when explicitly tested.
+The source of a violation may be close or far.
+The risk when continuing is unbounded.
+    Best case is a quick failure with bad values
+
+
+
+
+                                                         9 / 18   35 / 81
+             What SHOULD a violation handler do?
+
+
+In production code: Abort.
+In development code: Abort.
+In unit tests: Abort. or throw when explicitly tested.
+The source of a violation may be close or far.
+The risk when continuing is unbounded.
+    Best case is a quick failure with bad values
+    Worst case is silent failure and spreading corruption.
+
+
+
+
+                                                             9 / 18   36 / 81
+             What SHOULD a violation handler do?
+
+
+In production code: Abort.
+In development code: Abort.
+In unit tests: Abort. or throw when explicitly tested.
+The source of a violation may be close or far.
+The risk when continuing is unbounded.
+    Best case is a quick failure with bad values
+    Worst case is silent failure and spreading corruption.
+Fast failure has well known cost.
+
+
+
+
+                                                             9 / 18   37 / 81
+             What SHOULD a violation handler do?
+
+
+In production code: Abort.
+In development code: Abort.
+In unit tests: Abort. or throw when explicitly tested.
+The source of a violation may be close or far.
+The risk when continuing is unbounded.
+    Best case is a quick failure with bad values
+    Worst case is silent failure and spreading corruption.
+Fast failure has well known cost.
+    Failures will be caught and escalated
+
+
+
+
+                                                             9 / 18   38 / 81
+             What SHOULD a violation handler do?
+
+
+In production code: Abort.
+In development code: Abort.
+In unit tests: Abort. or throw when explicitly tested.
+The source of a violation may be close or far.
+The risk when continuing is unbounded.
+    Best case is a quick failure with bad values
+    Worst case is silent failure and spreading corruption.
+Fast failure has well known cost.
+    Failures will be caught and escalated
+    Software will not attempt to execute in a corrupt state
+
+
+
+
+                                                              9 / 18   39 / 81
+             What SHOULD a violation handler do?
+
+
+In production code: Abort.
+In development code: Abort.
+In unit tests: Abort. or throw when explicitly tested.
+The source of a violation may be close or far.
+The risk when continuing is unbounded.
+    Best case is a quick failure with bad values
+    Worst case is silent failure and spreading corruption.
+Fast failure has well known cost.
+    Failures will be caught and escalated
+    Software will not attempt to execute in a corrupt state
+
+
+
+
+                                                              9 / 18   40 / 81
+Checks In Old Code
+
+
+
+
+                     10 / 18   41 / 81
+                       Checks In Old Code
+
+
+
+
+New checks in old code? use BSLS_REVIEW
+
+
+
+
+                                            10 / 18   42 / 81
+                       Checks In Old Code
+
+
+
+
+New checks in old code? use BSLS_REVIEW
+Enabling dormant checks in old code? use BSLS_REVIEW_LEVEL...
+
+
+
+
+                                                                10 / 18   43 / 81
+                          Checks In Old Code
+
+
+
+
+New checks in old code? use BSLS_REVIEW
+Enabling dormant checks in old code? use BSLS_REVIEW_LEVEL...
+
+Safely roll out checks before enforcing them.
+
+
+
+
+                                                                10 / 18   44 / 81
+Let’s say you wrote a function long ago.
+
+
+
+
+                                           11 / 18   45 / 81
+   Let’s say you wrote a function long ago.
+
+
+
+
+int foo(int x, int y);
+
+
+
+
+                                              11 / 18   46 / 81
+   Let’s say you wrote a function long ago.
+   With a contract.
+
+
+
+
+int foo(int x, int y);
+
+
+
+
+                                              11 / 18   47 / 81
+   Let’s say you wrote a function long ago.
+   With a contract.
+
+
+
+
+int foo(int x, int y);
+  // Do some foo with the specified 'x' and 'y'.   Return
+  // how fooable they were.
+
+
+
+
+                                                            11 / 18   48 / 81
+   Let’s say you wrote a function long ago.
+   With a contract.
+   That you want to narrow.
+
+
+
+int foo(int x, int y);
+  // Do some foo with the specified 'x' and 'y'.   Return
+  // how fooable they were.
+
+
+
+
+                                                            11 / 18   49 / 81
+   Let’s say you wrote a function long ago.
+   With a contract.
+   That you want to narrow.
+
+
+
+int foo(int x, int y);
+  // Do some foo with the specified 'x' and 'y'. Return
+  // how fooable they were. The behavior is undefined
+  // unless 'x <= y'.
+
+
+
+
+                                                          11 / 18   50 / 81
+     Assume foo is old as dirt.
+
+
+
+
+#include <foo.h>
+
+
+int foo(int x, int y)
+{
+
+    return fooability(x) * fooability(y);
+}
+
+
+                                            12 / 18   51 / 81
+   Assume foo is old as dirt.
+   We can review our new preconditions.
+
+
+
+
+#include <foo.h>
+#include <bsls_review.h>
+
+int foo(int x, int y)
+{
+  BSLS_REVIEW(x <= y);
+  return fooability(x) * fooability(y);
+}
+
+
+                                          12 / 18   52 / 81
+   Assume foo is old as dirt.
+   We can review our new preconditions.
+   Eventually, we migrate on to BSLS_ASSERT.
+
+
+
+#include <foo.h>
+#include <bsls_assert.h>
+
+int foo(int x, int y)
+{
+  BSLS_ASSERT(x <= y);
+  return fooability(x) * fooability(y);
+}
+
+
+                                               12 / 18   53 / 81
+   We can build our code with assertions enabled
+
+
+
+
+$ g++ -DBSLS\_ASSERT\_LEVEL\_ASSERT -o questionablemain.tsk
+  oldfoo.cpp questionablemain.cpp
+
+
+
+
+                                                              13 / 18   54 / 81
+   We can build our code with assertions enabled
+   This will enable reviews of the same type too.
+
+
+
+
+$ g++ -DBSLS\_ASSERT\_LEVEL\_ASSERT -o questionablemain.tsk
+  oldfoo.cpp questionablemain.cpp
+
+
+
+
+                                                              13 / 18   55 / 81
+   We can build our code with assertions enabled
+   This will enable reviews of the same type too.
+   Then run it.
+
+
+
+
+$ g++ -DBSLS\_ASSERT\_LEVEL\_ASSERT -o questionablemain.tsk
+  oldfoo.cpp questionablemain.cpp
+$ ./questionablemain.tsk
+
+
+
+
+                                                              13 / 18   56 / 81
+   We can build our code with assertions enabled
+   This will enable reviews of the same type too.
+   Then run it.
+   And oopsie.
+
+
+
+
+$ g++ -DBSLS\_ASSERT\_LEVEL\_ASSERT -o questionablemain.tsk
+  oldfoo.cpp questionablemain.cpp
+$ ./questionablemain.tsk
+ERROR oldfoo.cpp:6 BSLS_REVIEW failure: (level:R-DBG) 'x <= y'
+Please run "/bb/bin/showfunc.tsk ./questionablemain.tsk 8048B28
+8048A07 8048A26" to see the stack trace.
+
+
+                                                                  13 / 18   57 / 81
+   We can build our code with assertions enabled
+   This will enable reviews of the same type too.
+   Then run it.
+   And oopsie.
+   ...with a stack trace!.
+
+
+
+$ /bb/bin/showfunc.tsk ./questionablemain.tsk 8048B28 8048A07
+  8048A26
+0x8048b28 _ZN11BloombergLP4bsls6Review9failByLogERKNS0
+  _15ReviewViolationE + 88
+0x8048a07 _Z3fooii + 81
+0x8048a26 main + 26
+
+
+                                                                13 / 18   58 / 81
+   We can build our code with assertions enabled
+   This will enable reviews of the same type too.
+   Then run it.
+   And oopsie.
+   ...with a stack trace!.
+   ... or a more readable stack trace!.
+
+
+$ /bb/bin/showfunc.tsk ./questionablemain.tsk 8048B28 8048A07
+  8048A26 | c++filt
+0x8048b28 BloombergLP::bsls::Review::failByLog(
+  BloombergLP::bsls::ReviewViolation const&) + 88
+0x8048a07 foo(int, int) + 81
+0x8048a26 main + 26
+
+
+                                                                13 / 18   59 / 81
+Tickets
+
+
+
+
+          14 / 18   60 / 81
+                               Tickets
+
+
+
+Every BSLS_REVIEW failure logged to act.log will be processed by GUTS.
+
+
+
+
+                                                                         14 / 18   61 / 81
+                                  Tickets
+
+
+
+Every BSLS_REVIEW failure logged to act.log will be processed by GUTS.
+Most will result in a DRQS created for the owner of the code that failed.
+
+
+
+
+                                                                            14 / 18   62 / 81
+                                Tickets
+
+
+
+Every BSLS_REVIEW failure logged to act.log will be processed by GUTS.
+Most will result in a DRQS created for the owner of the code that failed.
+Tickets are throttled, only act.log is monitored, and GUTS routing can be
+inaccurate.
+
+
+
+
+                                                                            14 / 18   63 / 81
+                                  Tickets
+
+
+
+Every BSLS_REVIEW failure logged to act.log will be processed by GUTS.
+Most will result in a DRQS created for the owner of the code that failed.
+Tickets are throttled, only act.log is monitored, and GUTS routing can be
+inaccurate.
+    Keep your PWHO entries and procmgr ids set up correctly
+
+
+
+
+                                                                            14 / 18   64 / 81
+                                  Tickets
+
+
+
+Every BSLS_REVIEW failure logged to act.log will be processed by GUTS.
+Most will result in a DRQS created for the owner of the code that failed.
+Tickets are throttled, only act.log is monitored, and GUTS routing can be
+inaccurate.
+    Keep your PWHO entries and procmgr ids set up correctly
+    Monitor your own logs too.
+
+
+
+
+                                                                            14 / 18   65 / 81
+                                  Tickets
+
+
+
+Every BSLS_REVIEW failure logged to act.log will be processed by GUTS.
+Most will result in a DRQS created for the owner of the code that failed.
+Tickets are throttled, only act.log is monitored, and GUTS routing can be
+inaccurate.
+    Keep your PWHO entries and procmgr ids set up correctly
+    Monitor your own logs too.
+
+
+
+
+                                                                            14 / 18   66 / 81
+   You might be running with asserts off
+
+
+
+
+$ g++ -DBSLS\_ASSERT\_LEVEL\_NONE -o badmain.tsk foo.cpp
+  badmain.cpp
+
+
+
+
+                                                           15 / 18   67 / 81
+   You might be running with asserts off
+   If you switch to this, things might go boom
+
+
+
+
+$ g++ -DBSLS\_ASSERT\_LEVEL\_ASSERT -o badmain.tsk foo.cpp
+  badmain.cpp
+
+
+
+
+                                                             15 / 18   68 / 81
+   You might be running with asserts off
+   If you switch to this, things might go boom
+   This will switch asserts to reviews first
+
+
+
+
+$ g++ -DBSLS\_ASSERT\_LEVEL\_NONE -DBSLS_REVIEW_LEVEL_REVIEW
+  -o badmain.tsk foo.cpp badmain.cpp
+
+
+
+
+                                                               15 / 18   69 / 81
+   You might be running with asserts off
+   If you switch to this, things might go boom
+   This will switch asserts to reviews first
+   Now deploy, monitor, fix bugs
+
+
+
+$ g++ -DBSLS\_ASSERT\_LEVEL\_NONE -DBSLS_REVIEW_LEVEL_REVIEW
+  -o badmain.tsk foo.cpp badmain.cpp
+
+
+
+
+                                                               15 / 18   70 / 81
+   You might be running with asserts off
+   If you switch to this, things might go boom
+   This will switch asserts to reviews first
+   Now deploy, monitor, fix bugs
+   Then switch to this.
+
+
+$ g++ -DBSLS\_ASSERT\_LEVEL\_ASSERT -o badmain.tsk foo.cpp
+  badmain.cpp
+
+
+
+
+                                                             15 / 18   71 / 81
+                        Documentation
+
+
+
+
+BDE Starting point: http://bde.bloomberg.com/
+
+
+
+
+                                                16 / 18   72 / 81
+                        Documentation
+
+
+
+
+BDE Starting point: http://bde.bloomberg.com/
+BSLS_ASSERT: https://bde.bloomberg.com/bde-resources/doxygen/bde_
+api_prod/group__bsls__assert.html
+
+
+
+
+                                                              16 / 18   73 / 81
+                        Documentation
+
+
+
+
+BDE Starting point: http://bde.bloomberg.com/
+BSLS_ASSERT: https://bde.bloomberg.com/bde-resources/doxygen/bde_
+api_prod/group__bsls__assert.html
+BSLS_REVIEW: https://bde.bloomberg.com/bde-resources/doxygen/bde_
+api_prod/group__bsls__review.html
+
+
+
+
+                                                              16 / 18   74 / 81
+                         Source Code
+
+
+
+BDE Starting point: http://bbgithub.dev.bloomberg.com/bde/bde/
+
+
+
+
+                                                                 17 / 18   75 / 81
+                         Source Code
+
+
+
+BDE Starting point: http://bbgithub.dev.bloomberg.com/bde/bde/
+Or Open Source: https://github.com/bloomberg/bde
+
+
+
+
+                                                                 17 / 18   76 / 81
+                         Source Code
+
+
+
+BDE Starting point: http://bbgithub.dev.bloomberg.com/bde/bde/
+Or Open Source: https://github.com/bloomberg/bde
+BSLS_ASSERT: https://github.com/bloomberg/bde/blob/master/groups/
+bsl/bsls/bsls_assert.h
+
+
+
+
+                                                                 17 / 18   77 / 81
+                         Source Code
+
+
+
+BDE Starting point: http://bbgithub.dev.bloomberg.com/bde/bde/
+Or Open Source: https://github.com/bloomberg/bde
+BSLS_ASSERT: https://github.com/bloomberg/bde/blob/master/groups/
+bsl/bsls/bsls_assert.h
+BSLS_REVIEW: https://github.com/bloomberg/bde/blob/master/groups/
+bsl/bsls/bsls_review.h
+
+
+
+
+                                                                 17 / 18   78 / 81
+                        Things to Learn
+
+
+
+
+Build Targets: BDE_BUILD_TARGET_OPT, BDE_BUILD_TARGET_DBG,
+BDE_BUILD_TARGET_SAFE.
+
+
+
+
+                                                             18 / 18   79 / 81
+                         Things to Learn
+
+
+
+
+Build Targets: BDE_BUILD_TARGET_OPT, BDE_BUILD_TARGET_DBG,
+BDE_BUILD_TARGET_SAFE.
+Build Levels, other macros: BSLS_ASSERT_LEVEL_*, BSLS_REVIEW_LEVEL_*,
+BSLS_ASSERT_*, BSLS_REVIEW_*.
+
+
+
+
+                                                                    18 / 18   80 / 81
+                           Things to Learn
+
+
+
+
+Build Targets: BDE_BUILD_TARGET_OPT, BDE_BUILD_TARGET_DBG,
+BDE_BUILD_TARGET_SAFE.
+Build Levels, other macros: BSLS_ASSERT_LEVEL_*, BSLS_REVIEW_LEVEL_*,
+BSLS_ASSERT_*, BSLS_REVIEW_*.
+Testing: BSLS_ASSERTTEST
+
+
+
+
+                                                                    18 / 18   81 / 81
+

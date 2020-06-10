@@ -1,0 +1,108 @@
+%------------------------------------------------------------------------------
+\section{SG21}
+%------------------------------------------------------------------------------
+\begin{frame}
+  \tableofcontents[currentsection,hidesubsections]
+\end{frame}
+
+\begin{frame}
+  \frametitle{What happened?}
+  \begin{itemize}
+  \item Coming into Kona, contracts (in N4800) had a number of issues \pause
+    \begin{itemize}
+    \item Continuation was a global flag, and its very existence was contentious \pause
+    \item Assumption of any unchecked contracts \pause
+    \item Axiom was isomorphic to \cc{__builtin_assume} \pause
+    \item \cc{default}/\cc{audit}/\cc{axiom} were both too simplistic and too complicated for many \pause
+    \item Numerous edge case decisions had been made without publicizing clearly their reasoning
+    \end{itemize}
+  \end{itemize}
+\end{frame}
+
+\begin{frame}
+  \frametitle{What happened?}
+  \begin{itemize}
+  \item Numerous papers in Kona and Cologne attempted to fix these problems \pause
+  \item On Monday, July 15th in Cologne a number of options were presented to EWG \pause
+    \begin{itemize}
+    \item P1711, by Bjarne Stroustrup, proposed some small fixes \pause
+    \item P1429, revised after Kona, proposed adding literal semantics \pause
+    \item P1607 proposed two options - remove all but a nicer c assert, or remove all but add in literal semantics \pause
+    \end{itemize}
+  \item P1607's two options were the only consensus reached that day by EWG
+  \end{itemize}
+\end{frame}
+
+
+\begin{frame}
+  \frametitle{What happened?}
+  \begin{itemize}
+  \item On Wednesday, July 17th in Cologne P1823 was proposed and accepted by a massive margin \pause
+  \item On Saturday, July 20th, P1823 was ratified and SG21 was announced to pursue contracts again
+  \end{itemize}
+\end{frame}
+  
+
+\begin{frame}
+  \frametitle{What's the plan?}
+  \begin{itemize}
+  \item SG21 is getting off the ground: \pause
+    \begin{itemize}
+    \item Very active reflector \pause
+    \item One telecon so far \pause
+    \item First official meeting will be in Belfast \pause
+    \end{itemize}
+  \item Rough sketch of plan: \pause
+    \begin{itemize}
+    \item Gather use cases publicly \pause (Done!)\pause
+    \item Poll on prioritization of use cases \pause (In progress!) \pause
+    \item Gather proposed solutions (Future) \pause
+      \begin{itemize}
+      \item Refinements on P1607, N4830 \pause
+      \item Changes in syntax?  Scope?  Behaviors?  \pause
+      \end{itemize}
+    \item Review and vote on solutions based on satisfying use cases
+      \begin{itemize}
+      \item Hopefullly no more ``union of minimal solutions'' \pause
+      \item Hopefully no more ``I don't need this so it can't happen'' \pause
+      \end{itemize}
+    \end{itemize}
+    \item Land revised contracts in standard \pause (WG\textcolor{red}{21} SG\textcolor{red}{21} 20\textcolor{red}{21}!) 
+  \end{itemize}
+  
+\end{frame}
+
+\begin{frame}
+  \frametitle{Use Cases}
+
+  \begin{itemize}
+  \item Use cases were gathered from all SG21 participants and edited for clarity \pause
+  \item All of the form ``As an X in order to Y I need to Z''. \pause
+  \item This hopefully be the first wg21 paper published ``by'' SG21. \pause
+  \item 29 different classes of users with 196 different use cases \pause
+  \item Use cases range from very general to very specific: \pause
+    \begin{itemize}
+    \item As a Developer, in order to Have readable annotations, I want to Have annotations with a succinct and elegant syntax \pause
+    \item As a C++ API Developer, in order to Maintain a class hierarchy, I want to Ensure overriding methods have same or wider preconditions \pause
+    \end{itemize}
+  \item Some require vastly more than was possible before: \pause
+    \begin{itemize}
+    \item As a C++ API Developer  In Order to Enforce contracts in async code I want to Express contracts on callbacks such as std::function, function pointers, or references to functions, lambdas, or function objects
+    \end{itemize}
+  \end{itemize}
+
+\end{frame}
+
+\begin{frame}
+  \frametitle{Prioritization}
+  \begin{itemize}
+  \item SG21 members have been asked to rate each use case on behalf of whatever users they feel they best represent:
+    \begin{itemize}
+    \item Not important
+    \item Nice to have
+    \item Must have \pause
+    \end{itemize}
+  \item Expect these results to be ready to analyze and discuss by Belfast.
+  \end{itemize}
+\end{frame}
+

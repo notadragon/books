@@ -9,7 +9,7 @@ phony_explicit:
 ${book.basename}.tex: phony_explicit
 	latexmk -xelatex -shell-escape -pdf -interaction=nonstopmode $*.tex > out.log
 	{                                                     \\
-		filebase=\$\$(echo \$* | sed -e "s/.tex//");     \\
-		mv \$*.pdf generated/;                         \\
-		pdftotext -eol unix -layout generated/\$*.pdf; \\
+		filebase=\$\$(echo \$* | sed -e "s/.tex//");   \\
+		mv \$*.pdf ../../generated/${book.basename}/;  \\
+		pdftotext -eol unix -layout ../../generated/${book.basename}/\$*.pdf; \\
 	}

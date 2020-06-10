@@ -1,0 +1,3529 @@
+Contract Use: Past, Present, and Future
+
+   Joshua Berne - jberne4@bloomberg.net
+
+
+
+                2019-09-18
+
+
+
+
+                                          1 / 52   1 / 253
+                                 Copyright Notice
+
+
+
+©2019 Bloomberg L.P. Permission is granted to copy, distribute, and display this
+material, and to make derivative works and commercial use of it. The information in
+this material is provided “AS IS”, without warranty of any kind. Neither Bloomberg
+nor any employee guarantees the correctness or completeness of such information.
+Bloomberg, its employees, and its affiliated entities and persons shall not be liable,
+directly or indirectly, in any way, for any inaccuracies, errors or omissions in such
+information. Nothing herein should be interpreted as stating the opinions, policies,
+recommendations, or positions of Bloomberg.
+
+
+
+
+                                                                                    2 / 52   2 / 253
+1   Introduction
+
+
+
+
+                   3 / 52   3 / 253
+1   Introduction
+
+2   Basic Contracts
+
+
+
+
+                      3 / 52   4 / 253
+1   Introduction
+
+2   Basic Contracts
+
+3   Doing Stuff With Contracts
+
+
+
+
+                                 3 / 52   5 / 253
+1   Introduction
+
+2   Basic Contracts
+
+3   Doing Stuff With Contracts
+
+4   SG21
+
+
+
+
+                                 3 / 52   6 / 253
+1   Introduction
+
+2   Basic Contracts
+
+3   Doing Stuff With Contracts
+
+4   SG21
+
+5   Conclusion
+
+
+
+
+                                 3 / 52   7 / 253
+                                 Who am I?
+
+
+
+Software developer all century
+
+
+
+
+I have a purple house.
+First time presenting at CppCon
+First time presenting at a Conference
+
+
+
+
+                                             4 / 52   8 / 253
+                                 Who am I?
+
+
+
+Software developer all century
+
+
+
+
+I have a purple house.
+First time presenting at CppCon
+First time presenting at a Conference (Be gently please)
+
+
+
+
+                                                           4 / 52   9 / 253
+                              Who am I?
+
+
+
+
+Bloomberg LP since 2017
+Joined BDE team in 2018
+Contract checking and deployment with BSLS_REVIEW
+WG21 participation to make contracts better
+SG21 participation with same goal
+
+
+
+
+                                                    5 / 52   10 / 253
+1   Introduction
+
+2   Basic Contracts
+      English Contracts
+      In Code Contracts
+
+3   Doing Stuff With Contracts
+
+4   SG21
+
+5   Conclusion
+
+
+
+
+                                 6 / 52   11 / 253
+                              English Contracts
+Contracts are an agreement between two parties
+
+
+
+
+                                                  7 / 52   12 / 253
+                               English Contracts
+Software contracts are an agreement between a library writer and client
+
+
+
+
+                                                                          7 / 52   13 / 253
+                               English Contracts
+Function contracts can be rendered in english
+
+
+
+
+T* binsearch(T*begin, T*end, const T& val);
+  // Return a pointer to an element between the
+  // specified 'begin' and 'end' that is greater
+  // than or equal to the specified 'val', or 'end'
+  // if no such value exists. This function will
+  // perform no more than log(distance(begin,end))
+  // comparisons. The behavior is undefined
+  // unless '[begin,end)' is a contiguous sorted
+  // range.
+
+                                                      7 / 52   14 / 253
+                               English Contracts
+Describe what a function will do
+
+
+
+
+T* binsearch(T*begin, T*end, const T& val);
+  // Return a pointer to an element between the
+  // specified 'begin' and 'end' that is greater
+  // than or equal to the specified 'val', or 'end'
+  // if no such value exists. This function will
+  // perform no more than log(distance(begin,end))
+  // comparisons. The behavior is undefined
+  // unless '[begin,end)' is a contiguous sorted
+  // range.
+
+                                                      7 / 52   15 / 253
+                               English Contracts
+Describe what behavior is not supported
+
+
+
+
+T* binsearch(T*begin, T*end, const T& val);
+  // Return a pointer to an element between the
+  // specified 'begin' and 'end' that is greater
+  // than or equal to the specified 'val', or 'end'
+  // if no such value exists. This function will
+  // perform no more than log(distance(begin,end))
+  // comparisons. The behavior is undefined
+  // unless '[begin,end)' is a contiguous sorted
+  // range.
+
+                                                      7 / 52   16 / 253
+                      Undefined Behavior
+
+
+
+undefined behavior
+behavior for which this document imposes no requirements
+                   N4830 - Working Draft, Standard for Programming Language C++
+
+
+
+
+                                                                          8 / 52   17 / 253
+                       Undefined Behavior
+
+
+
+undefined behavior
+behavior for which this document imposes no requirements
+                   N4830 - Working Draft, Standard for Programming Language C++
+
+
+
+library undefined behavior
+behavior for which a library contract provides no guarantees
+                                                           John Lakos - CppCon 2014
+
+
+
+
+                                                                              8 / 52   18 / 253
+                       Undefined Behavior
+
+
+
+language undefined behavior
+behavior for which this document imposes no requirements
+                   N4830 - Working Draft, Standard for Programming Language C++
+
+
+
+library undefined behavior
+behavior for which a library contract provides no guarantees
+                                                           John Lakos - CppCon 2014
+
+
+
+
+                                                                              8 / 52   19 / 253
+                               English Contracts
+Describe what behavior is not supported
+
+
+
+
+T* binsearch(T*begin, T*end, const T& val);
+  // Return a pointer to an element between the
+  // specified 'begin' and 'end' that is greater
+  // than or equal to the specified 'val', or 'end'
+  // if no such value exists. This function will
+  // perform no more than log(distance(begin,end))
+  // comparisons. The behavior is undefined
+  // unless '[begin,end)' is a contiguous sorted
+  // range.
+
+                                                      9 / 52   20 / 253
+                         English Contracts
+Preconditions
+
+
+
+
+T* binsearch(T*begin, T*end, const T& val);
+  // Return a pointer to an element between the
+  // specified 'begin' and 'end' that is greater
+  // than or equal to the specified 'val', or 'end'
+  // if no such value exists. This function will
+  // perform no more than log(distance(begin,end))
+  // comparisons. The behavior is undefined
+  // unless '[begin,end)' is a contiguous sorted
+  // range.
+
+                                                      9 / 52   21 / 253
+                         English Contracts
+Postconditions
+
+
+
+
+T* binsearch(T*begin, T*end, const T& val);
+  // Return a pointer to an element between the
+  // specified 'begin' and 'end' that is greater
+  // than or equal to the specified 'val', or 'end'
+  // if no such value exists. This function will
+  // perform no more than log(distance(begin,end))
+  // comparisons. The behavior is undefined
+  // unless '[begin,end)' is a contiguous sorted
+  // range.
+
+                                                      9 / 52   22 / 253
+                         English Contracts
+Essential Behavior
+
+
+
+
+T* binsearch(T*begin, T*end, const T& val);
+  // Return a pointer to an element between the
+  // specified 'begin' and 'end' that is greater
+  // than or equal to the specified 'val', or 'end'
+  // if no such value exists. This function will
+  // perform no more than log(distance(begin,end))
+  // comparisons. The behavior is undefined
+  // unless '[begin,end)' is a contiguous sorted
+  // range.
+
+                                                      9 / 52   23 / 253
+Violating a contract is a bug
+
+
+
+
+                                10 / 52   24 / 253
+Violating a contract is a bug
+
+Bugs are contract violations
+
+
+
+
+                                10 / 52   25 / 253
+Violating a contract is a bug
+
+Bugs are contract violations
+
+   Possibly a contract no one wrote down
+
+
+
+
+                                           10 / 52   26 / 253
+                       What can be checked?
+
+
+
+
+Parts of the english contract might be checkable with standard C++ expressions.
+
+
+
+
+                                                                           11 / 52   27 / 253
+                       What can be checked?
+
+
+
+
+Parts of the english contract might be checkable with standard C++ expressions.
+Parts might have readbale representations that cannot be implemented
+
+
+
+
+                                                                           11 / 52   28 / 253
+                       What can be checked?
+
+
+
+
+Parts of the english contract might be checkable with standard C++ expressions.
+Parts might have readbale representations that cannot be implemented
+Parts might be statements beyond the scope of a single function execution
+
+
+
+
+                                                                            11 / 52   29 / 253
+                              In code contracts
+Some parts can be rendered with code
+
+
+
+
+T* binsearch(T*begin, T*end, const T& val);
+  // Return a pointer to an element between the
+  // specified 'begin' and 'end' that is greater
+  // than or equal to the specified 'val', or 'end'
+  // if no such value exists. This function will
+  // perform no more than log(distance(begin,end))
+  // comparisons. The behavior is undefined
+  // unless '[begin,end)' is a contiguous sorted
+  // range.
+
+                                                      12 / 52   30 / 253
+                            In code contracts
+Simple boolean predicates
+
+begin != nullptr
+end != nullptr
+begin <= end
+
+T* binsearch(T*begin, T*end, const T& val);
+  // Return a pointer to an element between the
+  // specified 'begin' and 'end' that is greater
+  // than or equal to the specified 'val', or 'end'
+  // if no such value exists. This function will
+  // perform no more than log(distance(begin,end))
+  // comparisons. The behavior is undefined
+  // unless '[begin,end)' is a contiguous sorted
+  // range.
+
+                                                      12 / 52   31 / 253
+                                  In code contracts
+Predicates about returned value
+
+return_val >= begin
+return_val <= end
+return_val == end *return_val >= val
+
+T* binsearch(T*begin, T*end, const T& val);
+  // Return a pointer to an element between the
+  // specified 'begin' and 'end' that is greater
+  // than or equal to the specified 'val', or 'end'
+  // if no such value exists. This function will
+  // perform no more than log(distance(begin,end))
+  // comparisons. The behavior is undefined
+  // unless '[begin,end)' is a contiguous sorted
+  // range.
+
+                                                      12 / 52   32 / 253
+                         In code contracts
+Hard to check things
+
+is_sorted(begin,end)
+
+
+
+
+T* binsearch(T*begin, T*end, const T& val);
+  // Return a pointer to an element between the
+  // specified 'begin' and 'end' that is greater
+  // than or equal to the specified 'val', or 'end'
+  // if no such value exists. This function will
+  // perform no more than log(distance(begin,end))
+  // comparisons. The behavior is undefined
+  // unless '[begin,end)' is a contiguous sorted
+  // range.
+
+                                                      12 / 52   33 / 253
+                         In code contracts
+Uncheckable things?
+
+is_reachable_from(begin,end)
+
+
+
+
+T* binsearch(T*begin, T*end, const T& val);
+  // Return a pointer to an element between the
+  // specified 'begin' and 'end' that is greater
+  // than or equal to the specified 'val', or 'end'
+  // if no such value exists. This function will
+  // perform no more than log(distance(begin,end))
+  // comparisons. The behavior is undefined
+  // unless '[begin,end)' is a contiguous sorted
+  // range.
+
+                                                      12 / 52   34 / 253
+                                   In code contracts
+Properties of repeated execution
+
+        ??????????????????
+
+
+
+
+T* binsearch(T*begin, T*end, const T& val);
+  // Return a pointer to an element between the
+  // specified 'begin' and 'end' that is greater
+  // than or equal to the specified 'val', or 'end'
+  // if no such value exists. This function will
+  // perform no more than log(distance(begin,end))
+  // comparisons. The behavior is undefined
+  // unless '[begin,end)' is a contiguous sorted
+  // range.
+
+                                                       12 / 52   35 / 253
+1   Introduction
+
+2   Basic Contracts
+
+3   Doing Stuff With Contracts
+      A Dream
+      Less Bugs
+      Deploying it
+      Faster Code
+
+4   SG21
+
+5   Conclusion
+
+
+                                 13 / 52   36 / 253
+                             Proven contracts
+
+
+Prove software correctness
+
+
+
+
+                                                14 / 52   37 / 253
+                          Proven contracts
+
+
+Prove software correctness
+Encode contracts completely
+
+
+
+
+                                             14 / 52   38 / 253
+                          Proven contracts
+
+
+Prove software correctness
+Encode contracts completely
+    All preconditions
+
+
+
+
+                                             14 / 52   39 / 253
+                          Proven contracts
+
+
+Prove software correctness
+Encode contracts completely
+    All preconditions
+    All postconditions
+
+
+
+
+                                             14 / 52   40 / 253
+                             Proven contracts
+
+
+Prove software correctness
+Encode contracts completely
+    All preconditions
+    All postconditions
+    All essential behavior
+
+
+
+
+                                                14 / 52   41 / 253
+                              Proven contracts
+
+
+Prove software correctness
+Encode contracts completely
+    All preconditions
+    All postconditions
+    All essential behavior
+Statically prove everything
+
+
+
+
+                                                 14 / 52   42 / 253
+                              Proven contracts
+
+
+Prove software correctness
+Encode contracts completely
+    All preconditions
+    All postconditions
+    All essential behavior
+Statically prove everything
+    For each function, prove postconditions and essential behavior
+
+
+
+
+                                                                     14 / 52   43 / 253
+                              Proven contracts
+
+
+Prove software correctness
+Encode contracts completely
+    All preconditions
+    All postconditions
+    All essential behavior
+Statically prove everything
+    For each function, prove postconditions and essential behavior
+    Use called functions contracst in proofs of larger functions
+
+
+
+
+                                                                     14 / 52   44 / 253
+                              Proven contracts
+
+
+Prove software correctness
+Encode contracts completely
+    All preconditions
+    All postconditions
+    All essential behavior
+Statically prove everything
+    For each function, prove postconditions and essential behavior
+    Use called functions contracst in proofs of larger functions
+PROFIT
+
+
+
+
+                                                                     14 / 52   45 / 253
+Dream Benefit #1 - Less Bugs
+
+
+
+
+                               15 / 52   46 / 253
+                   Dream Benefit #1 - Less Bugs
+
+
+
+
+Compiler identifies all violated contracts
+
+
+
+
+                                                  15 / 52   47 / 253
+                   Dream Benefit #1 - Less Bugs
+
+
+
+
+Compiler identifies all violated contracts
+Edge cases must be throught through
+
+
+
+
+                                                  15 / 52   48 / 253
+                   Dream Benefit #1 - Less Bugs
+
+
+
+
+Compiler identifies all violated contracts
+Edge cases must be throught through
+All assumptions are captured in compiled code
+
+
+
+
+                                                  15 / 52   49 / 253
+                   Dream Benefit #1 - Less Bugs
+
+
+
+
+Compiler identifies all violated contracts
+Edge cases must be throught through
+All assumptions are captured in compiled code
+Mostly, if it compiles, it doesn’t have bugs (contract violations)
+
+
+
+
+                                                                     15 / 52   50 / 253
+                   Dream Benefit #1 - Less Bugs
+
+
+
+
+Compiler identifies all violated contracts
+Edge cases must be throught through
+All assumptions are captured in compiled code
+Mostly, if it compiles, it doesn’t have bugs (contract violations)
+If there is a bug, contracts just need to be elaborated
+
+
+
+
+                                                                     15 / 52   51 / 253
+Dream Benefit #2 - Less Heat Generation
+
+
+
+
+                                          16 / 52   52 / 253
+          Dream Benefit #2 - Less Heat Generation
+
+
+
+No need for any checks
+
+
+
+
+                                                    16 / 52   53 / 253
+          Dream Benefit #2 - Less Heat Generation
+
+
+
+No need for any checks
+More knowledge for the compiler
+
+
+
+
+                                                    16 / 52   54 / 253
+          Dream Benefit #2 - Less Heat Generation
+
+
+
+No need for any checks
+More knowledge for the compiler
+    __builtin_assume
+
+
+
+
+                                                    16 / 52   55 / 253
+          Dream Benefit #2 - Less Heat Generation
+
+
+
+No need for any checks
+More knowledge for the compiler
+    __builtin_assume
+    Removing excess branches
+
+
+
+
+                                                    16 / 52   56 / 253
+           Dream Benefit #2 - Less Heat Generation
+
+
+
+No need for any checks
+More knowledge for the compiler
+    __builtin_assume
+    Removing excess branches
+    Vectorization/SIMD instructions
+
+
+
+
+                                                     16 / 52   57 / 253
+           Dream Benefit #2 - Less Heat Generation
+
+
+
+No need for any checks
+More knowledge for the compiler
+    __builtin_assume
+    Removing excess branches
+    Vectorization/SIMD instructions
+Smaller code size
+
+
+
+
+                                                     16 / 52   58 / 253
+           Realizing parts of the dream
+
+
+
+WARNING:
+
+
+
+
+                                          17 / 52   59 / 253
+              Realizing parts of the dream
+
+
+
+WARNING: MACROS INCOMING
+
+
+
+
+                                             17 / 52   60 / 253
+                   Realizing parts of the dream
+
+
+
+WARNING: MACROS INCOMING
+How to leverage contracts without a language feature
+
+
+
+
+                                                       17 / 52   61 / 253
+                   Realizing parts of the dream
+
+
+
+WARNING: MACROS INCOMING
+How to leverage contracts without a language feature
+Bloomberg has been doing this for 15 years
+
+
+
+
+                                                       17 / 52   62 / 253
+                    Realizing parts of the dream
+
+
+
+WARNING: MACROS INCOMING
+How to leverage contracts without a language feature
+Bloomberg has been doing this for 15 years
+See the BDE open source repostory for the real implementation
+    https://github.com/bloomberg/bde/blob/master/groups/bsl/bsls/bsls_assert.h
+    https://github.com/bloomberg/bde/blob/master/groups/bsl/bsls/bsls_review.h
+
+
+
+
+                                                                                 17 / 52   63 / 253
+What do you do if you can’t prove a contract is being followed?
+
+
+
+
+                                                                  18 / 52   64 / 253
+What do you do if you can’t prove a contract is being followed?
+
+
+
+                              Experiment
+
+
+
+                                                                  18 / 52   65 / 253
+1   Introduction
+
+2   Basic Contracts
+
+3   Doing Stuff With Contracts
+      A Dream
+      Less Bugs
+      Deploying it
+      Faster Code
+
+4   SG21
+
+5   Conclusion
+
+
+                                 19 / 52   66 / 253
+                       Documenting expectations
+Initial benefit of contracts in code
+
+
+
+
+                                                  20 / 52   67 / 253
+                          Documenting expectations
+   Initial benefit of contracts in code
+
+
+
+
+#define ASSERT(X)
+
+
+
+
+                                                     20 / 52   68 / 253
+                          Documenting expectations
+   Initial benefit of contracts in code
+   Bloomberg specific naming
+
+
+
+
+#define BSLS_ASSERT(X)
+
+
+
+
+                                                     20 / 52   69 / 253
+                          Documenting expectations
+   Initial benefit of contracts in code
+   Bloomberg specific naming
+   Avoid code rot
+
+
+
+
+#define BSLS_ASSERT(X) sizeof( (X)?true:false )
+
+
+
+
+                                                     20 / 52   70 / 253
+                          Documenting expectations
+   Initial benefit of contracts in code
+   Bloomberg specific naming
+   Avoid code rot
+   ... wish we had done that originally
+
+
+
+
+#ifdef BSLS_ASSERT_VALIDATE_DISABLED_MACROS
+#define BSLS_ASSERT(X) sizeof( (X)?true:false )
+#else
+#define BSLS_ASSERT(X)
+#endif
+
+                                                     20 / 52   71 / 253
+                          Documenting expectations
+   Initial benefit of contracts in code
+   Bloomberg specific naming
+   Avoid code rot
+   ... wish we had done that originally
+   ... or at least this to require a ;
+
+
+
+#define BSLS_ASSERT(X) ((void)0)
+
+
+
+
+                                                     20 / 52   72 / 253
+                          Documenting expectations
+   Initial benefit of contracts in code
+   Bloomberg specific naming
+   Avoid code rot
+   ... wish we had done that originally
+   ... or at least this to require a ;
+   For simplicity
+
+
+#define ASSERT(X)
+
+
+
+
+                                                     20 / 52   73 / 253
+                            Aborting on bugs
+
+
+
+Identifying violations would be nice
+
+
+
+
+                                               21 / 52   74 / 253
+                               Aborting on bugs
+
+
+
+   Identifying violations would be nice
+   The safest thing to do is stop immediately
+
+
+
+
+#define ASSERT(X) if (!(X)) { std::abort(); }
+
+
+
+
+                                                  21 / 52   75 / 253
+                               Aborting on bugs
+
+
+
+   Identifying violations would be nice
+   The safest thing to do is stop immediately
+   Nice if ASSERT(X) needs a semicolon
+
+
+
+#define ASSERT(X) do { if (!(X)) { std::abort(); } } while (false)
+
+
+
+
+                                                                21 / 52   76 / 253
+                               Aborting on bugs
+
+
+
+   Identifying violations would be nice
+   The safest thing to do is stop immediately
+   Nice if ASSERT(X) needs a semicolon
+   For simplicity
+
+
+#define ASSERT(X) if (!(X)) { std::abort(); }
+
+
+
+
+                                                  21 / 52   77 / 253
+                        ... only in some builds
+Checks of contracts are redundant if they’re not broken
+
+
+
+
+                                                          22 / 52   78 / 253
+                           ... only in some builds
+   Checks of contracts are redundant if they’re not broken
+   NDEBUG might be a way to control enablement
+
+
+
+
+#ifdef NDEBUG
+#define ASSERT(X)
+#else
+#define ASSERT(X) if (!(X)) { std::abort(); }
+#endif
+
+
+
+
+                                                             22 / 52   79 / 253
+                           ... only in some builds
+   Checks of contracts are redundant if they’re not broken
+   NDEBUG might be a way to control enablement
+   This reminds me of something
+
+
+
+#include <cassert>
+#define ASSERT(X) assert(X)
+
+
+
+
+                                                             22 / 52   80 / 253
+                           ... only in some builds
+   Checks of contracts are redundant if they’re not broken
+   NDEBUG might be a way to control enablement
+   This reminds me of something
+   Separating out controls from behavior helps
+
+
+#define ASSERT_IMP(X)                if (!(X)) { std::abort(); }
+
+
+
+
+                                                                   22 / 52   81 / 253
+                           ... only in some builds
+   Checks of contracts are redundant if they’re not broken
+   NDEBUG might be a way to control enablement
+   This reminds me of something
+   Separating out controls from behavior helps
+
+
+#define ASSERT_IMP(X)          if (!(X)) { std::abort(); }
+#define ASSERT_DISABLED_IMP(X)
+
+
+
+
+                                                             22 / 52   82 / 253
+                           ... only in some builds
+   Checks of contracts are redundant if they’re not broken
+   NDEBUG might be a way to control enablement
+   This reminds me of something
+   Separating out controls from behavior helps
+
+
+#define ASSERT_IMP(X)          if (!(X)) { std::abort(); }
+#define ASSERT_DISABLED_IMP(X)
+
+#ifdef ASSERT_LEVEL_ASSERT
+#define ASSERT(X) ASSERT_IMP(X)
+#else
+#define ASSERT(X) ASSERT_DISABLED_IMP(X)
+#endif
+
+                                                             22 / 52   83 / 253
+                         ... but what happened?
+
+   Aborting with no information sucks
+
+
+
+
+#define ASSERT_IMP(X) if (!(X)) {                           \
+    /*POOF*/ ;                                              \
+    std::abort();                                           \
+}
+
+
+
+
+                                                  23 / 52   84 / 253
+                          ... but what happened?
+
+    Aborting with no information sucks
+    Logging something helps
+
+
+
+
+#define ASSERT_IMP(X) if (!(X)) {                            \
+    printf("ASSERTION FAILED!\n");                           \
+                                                             \
+    std::abort();                                            \
+}
+
+
+
+                                                   23 / 52   85 / 253
+                         ... but what happened?
+
+   Aborting with no information sucks
+   Logging something helps
+   The preprocessor can give us more help
+
+
+
+
+#define ASSERT_IMP(X) if (!(X)) {                                  \
+    printf("ASSERTION FAILED (" __FILE__ ":%d): %s\n",             \
+                                __LINE__, #X);                     \
+    std::abort();                                                  \
+}
+
+
+
+                                                         23 / 52   86 / 253
+What about this guy?
+
+
+
+
+                       24 / 52   87 / 253
+                           ... but what happened?
+
+    Aborting with no information sucks
+    Logging something helps
+    The preprocessor can give us more help
+    Delegating to a pluggable function helps that
+
+
+
+#define ASSERT_IMP(X) if (!(X)) {                                         \
+    bb::Assert::invoke_violation_handler(__FILE__, __LINE__, #X);         \
+                                                                          \
+    std::abort();                                                         \
+}
+
+
+
+                                                                25 / 52   88 / 253
+                          ... but what happened?
+
+   Aborting with no information sucks
+   Logging something helps
+   The preprocessor can give us more help
+   Delegating to a pluggable function helps that
+
+
+
+#define ASSERT_IMP(X) if (!(X)) {                                         \
+    bb::assert_violation violation(__FILE__, __LINE__, #X); \
+    bb:Assert::invoke_violation_handler(violation);                       \
+    std::abort();                                                         \
+}
+
+
+
+                                                                25 / 52       89 / 253
+                          ... but what happened?
+
+   Aborting with no information sucks
+   Logging something helps
+   The preprocessor can give us more help
+   Delegating to a pluggable function helps that
+   Leave all behavior up to the violation handler
+
+
+#define ASSERT_IMP(X) if (!(X)) {                                       \
+    bb::assert_violation violation(__FILE__, __LINE__, #X);             \
+    bb::Assert::invoke_violation_handler(violation);                    \
+}
+
+
+
+
+                                                              25 / 52   90 / 253
+                          ... but what happened?
+
+   Aborting with no information sucks
+   Logging something helps
+   The preprocessor can give us more help
+   Delegating to a pluggable function helps that
+   Leave all behavior up to the violation handler
+
+
+void bb::Assert::invoke_violation_handler(
+                            const bb::assert_violation &violation) {
+    getViolationHandler()(violation);
+}
+
+
+
+
+                                                                25 / 52   91 / 253
+                          ... but what happened?
+
+   Aborting with no information sucks
+   Logging something helps
+   The preprocessor can give us more help
+   Delegating to a pluggable function helps that
+   Leave all behavior up to the violation handler
+
+
+void xkcd::violationHandler(const bb::assert_violation &violation) {
+  printf("Error\n");
+  printf("If you're seeing this, the code is in what\n");
+  printf("I thought was an unreachable state.");
+  //...
+}
+
+                                                                25 / 52   92 / 253
+                        ... but what happened?
+
+ Aborting with no information sucks
+ Logging something helps
+ The preprocessor can give us more help
+ Delegating to a pluggable function helps that
+ Leave all behavior up to the violation handler
+
+
+int main() {
+  bb::Assert::setViolationHandler(&xkcd::violationHandler);
+  //..
+}
+
+
+
+
+                                                              25 / 52   93 / 253
+                 ... that doesn’t work everywhere!
+
+
+The violation handler can notify in different ways
+
+
+
+
+                                                     26 / 52   94 / 253
+                 ... that doesn’t work everywhere!
+
+
+The violation handler can notify in different ways
+    Custom logging frameworks
+
+
+
+
+                                                     26 / 52   95 / 253
+                  ... that doesn’t work everywhere!
+
+
+The violation handler can notify in different ways
+    Custom logging frameworks
+    GUI messages (abort, retry, fail?)
+
+
+
+
+                                                      26 / 52   96 / 253
+                  ... that doesn’t work everywhere!
+
+
+The violation handler can notify in different ways
+    Custom logging frameworks
+    GUI messages (abort, retry, fail?)
+    Hardware notifications
+
+
+
+
+                                                      26 / 52   97 / 253
+                   ... that doesn’t work everywhere!
+
+
+The violation handler can notify in different ways
+     Custom logging frameworks
+     GUI messages (abort, retry, fail?)
+     Hardware notifications
+... do different things
+
+
+
+
+                                                       26 / 52   98 / 253
+                   ... that doesn’t work everywhere!
+
+
+The violation handler can notify in different ways
+     Custom logging frameworks
+     GUI messages (abort, retry, fail?)
+     Hardware notifications
+... do different things
+     std::abort()
+
+
+
+
+                                                       26 / 52   99 / 253
+                   ... that doesn’t work everywhere!
+
+
+The violation handler can notify in different ways
+     Custom logging frameworks
+     GUI messages (abort, retry, fail?)
+     Hardware notifications
+... do different things
+     std::abort()
+     while (true) {std::this_thread::sleep_for(std::chrono::years(1));}
+
+
+
+
+                                                                   26 / 52   100 / 253
+                   ... that doesn’t work everywhere!
+
+
+The violation handler can notify in different ways
+     Custom logging frameworks
+     GUI messages (abort, retry, fail?)
+     Hardware notifications
+... do different things
+     std::abort()
+     while (true) {std::this_thread::sleep_for(std::chrono::years(1));}
+     throw std:::exception("Oops?");
+
+
+
+
+                                                                   26 / 52   101 / 253
+                   ... that doesn’t work everywhere!
+
+
+The violation handler can notify in different ways
+     Custom logging frameworks
+     GUI messages (abort, retry, fail?)
+     Hardware notifications
+... do different things
+     std::abort()
+     while (true) {std::this_thread::sleep_for(std::chrono::years(1));}
+     throw std:::exception("Oops?");
+... or try to recover?
+
+
+
+
+                                                                   26 / 52   102 / 253
+                   ... that doesn’t work everywhere!
+
+
+The violation handler can notify in different ways
+     Custom logging frameworks
+     GUI messages (abort, retry, fail?)
+     Hardware notifications
+... do different things
+     std::abort()
+     while (true) {std::this_thread::sleep_for(std::chrono::years(1));}
+     throw std:::exception("Oops?");
+... or try to recover?
+main gets to decide
+
+
+
+
+                                                                   26 / 52   103 / 253
+                               Checking is slow!
+   Checks use state already in cache, are often very fast
+
+
+
+
+T* binsearch(T*begin, T*end, const T& val) {
+  ASSERT(begin);
+  ASSERT(end);
+  ASSERT(begin < end)7
+  //..
+}
+
+
+
+                                                            27 / 52   104 / 253
+                               Checking is slow!
+   Checks use state already in cache, are often very fast
+   Algorithmic complexity can still ruin that
+
+
+
+
+T* binsearch(T*begin, T*end, const T& val) {
+  ASSERT(is_sorted_range(begin,end));
+  //..
+}
+
+
+
+
+                                                            27 / 52   105 / 253
+                               Checking is slow!
+   Checks use state already in cache, are often very fast
+   Algorithmic complexity can still ruin that
+   3 levels of complexity
+
+
+
+
+#define ASSERT_OPT(X) ...
+#define ASSERT(X) ...
+#define ASSERT_SAFE(X) ...
+
+
+
+
+                                                            27 / 52   106 / 253
+                               Checking is slow!
+   Checks use state already in cache, are often very fast
+   Algorithmic complexity can still ruin that
+   3 levels of complexity
+   ... 2 levels probably sufficient
+
+
+
+
+[[ assert default : X ]];
+[[ assert audit : X ]];
+
+
+
+
+                                                            27 / 52   107 / 253
+                               Checking is slow!
+   Checks use state already in cache, are often very fast
+   Algorithmic complexity can still ruin that
+   3 levels of complexity
+   ... 2 levels probably sufficient
+   Linear scale of enablement
+
+
+
+#if defined(ASSERT_LEVEL_NONE)   ? 1 : 0 \
+  + defined(ASSERT_LEVEL_OPT)    ? 1 : 0 \
+  + defined(ASSERT_LEVEL_ASSERT) ? 1 : 0 \
+  + defined(ASSERT_LEVEL_SAFE)   ? 1 : 0 \
+  > 1
+#error Multiple ASSERT_LEVEL macros defined
+#endif
+
+                                                            27 / 52   108 / 253
+                               Checking is slow!
+   Checks use state already in cache, are often very fast
+   Algorithmic complexity can still ruin that
+   3 levels of complexity
+   ... 2 levels probably sufficient
+   Linear scale of enablement
+
+
+
+#if !defined(ASSERT_LEVEL_NONE)   \
+ && !defined(ASSERT_LEVEL_OPT)    \
+ && !defined(ASSERT_LEVEL_ASSERT) \
+ && !defined(ASSERT_LEVEL_SAFE)
+#define ASSERT_LEVEL_ASSERT
+#endif
+
+
+
+                                                            27 / 52   109 / 253
+                               Checking is slow!
+   Checks use state already in cache, are often very fast
+   Algorithmic complexity can still ruin that
+   3 levels of complexity
+   ... 2 levels probably sufficient
+   Linear scale of enablement
+
+
+
+#if defined(ASSERT_LEVEL_NONE)
+#define ASSERT_OPT(X) ASSERT_DISABLED_IMP(X)
+#define ASSERT(X)      ASSERT_DISABLED_IMP(X)
+#define ASSERT_SAFE(X) ASSERT_DISABLED_IMP(X)
+//..
+
+
+
+
+                                                            27 / 52   110 / 253
+                               Checking is slow!
+   Checks use state already in cache, are often very fast
+   Algorithmic complexity can still ruin that
+   3 levels of complexity
+   ... 2 levels probably sufficient
+   Linear scale of enablement
+
+
+
+//..
+#elif defined(ASSERT_LEVEL_OPT)
+#define ASSERT_OPT(X) ASSERT_IMP(X)
+#define ASSERT(X)      ASSERT_DISABLED_IMP(X)
+#define ASSERT_SAFE(X) ASSERT_DISABLED_IMP(X)
+//..
+
+
+
+                                                            27 / 52   111 / 253
+                               Checking is slow!
+   Checks use state already in cache, are often very fast
+   Algorithmic complexity can still ruin that
+   3 levels of complexity
+   ... 2 levels probably sufficient
+   Linear scale of enablement
+
+
+
+//..
+#elif defined(ASSERT_LEVEL_ASSERT)
+#define ASSERT_OPT(X) ASSERT_IMP(X)
+#define ASSERT(X)      ASSERT_IMP(X)
+#define ASSERT_SAFE(X) ASSERT_DISABLED_IMP(X)
+//..
+
+
+
+                                                            27 / 52   112 / 253
+                               Checking is slow!
+   Checks use state already in cache, are often very fast
+   Algorithmic complexity can still ruin that
+   3 levels of complexity
+   ... 2 levels probably sufficient
+   Linear scale of enablement
+
+
+
+//..
+#elif defined(ASSERT_LEVEL_SAFE)
+#define ASSERT_OPT(X) ASSERT_IMP(X)
+#define ASSERT(X)      ASSERT_IMP(X)
+#define ASSERT_SAFE(X) ASSERT_IMP(X)
+#endif
+
+
+
+                                                            27 / 52   113 / 253
+                               Checking is slow!
+   Checks use state already in cache, are often very fast
+   Algorithmic complexity can still ruin that
+   3 levels of complexity
+   ... 2 levels probably sufficient
+   Linear scale of enablement
+
+
+
+#if defined(ASSERT_LEVEL_OPT)    \
+  defined(ASSERT_LEVEL_ASSERT) \
+  defined(ASSERT_LEVEL_SAFE)
+#define ASSERT_OPT(X) ASSERT_IMP(X)
+#else
+ // defined(ASSERT_LEVEL_NONE)
+#define ASSERT_OPT(X) ASSERT_DISABLED_IMP(X)
+#endif
+                                                            27 / 52   114 / 253
+                               Checking is slow!
+   Checks use state already in cache, are often very fast
+   Algorithmic complexity can still ruin that
+   3 levels of complexity
+   ... 2 levels probably sufficient
+   Linear scale of enablement
+
+
+
+#if defined(ASSERT_LEVEL_ASSERT) \
+  defined(ASSERT_LEVEL_SAFE)
+#define ASSERT(X) ASSERT_IMP(X)
+#else
+ // defined(ASSERT_LEVEL_OPT)
+ // defined(ASSERT_LEVEL_NONE)
+#define ASSERT(X) ASSERT_DISABLED_IMP(X)
+#endif
+                                                            27 / 52   115 / 253
+                               Checking is slow!
+   Checks use state already in cache, are often very fast
+   Algorithmic complexity can still ruin that
+   3 levels of complexity
+   ... 2 levels probably sufficient
+   Linear scale of enablement
+   Bloomberg 2005-2018
+
+#if defined(ASSERT_LEVEL_SAFE)
+#define ASSERT_SAFE(X) ASSERT_IMP(X)
+#else
+ // defined(ASSERT_LEVEL_OPT)
+ // defined(ASSERT_LEVEL_ASSERT)
+ // defined(ASSERT_LEVEL_NONE)
+#define ASSERT_SAFE(X) ASSERT_DISABLED_IMP(X)
+#endif
+                                                            27 / 52   116 / 253
+1   Introduction
+
+2   Basic Contracts
+
+3   Doing Stuff With Contracts
+      A Dream
+      Less Bugs
+      Deploying it
+      Faster Code
+
+4   SG21
+
+5   Conclusion
+
+
+                                 28 / 52   117 / 253
+                       Choosing Levels in code
+
+
+Original Suggestion:
+
+
+
+
+                                                 29 / 52   118 / 253
+                        Choosing Levels in code
+
+
+Original Suggestion:
+    OPT: 5% most critical tests
+
+
+
+
+                                                  29 / 52   119 / 253
+                       Choosing Levels in code
+
+
+Original Suggestion:
+    OPT: 5% most critical tests
+    ASSERT: 90% tests <2x performance hit
+
+
+
+
+                                                 29 / 52   120 / 253
+                       Choosing Levels in code
+
+
+Original Suggestion:
+    OPT: 5% most critical tests
+    ASSERT: 90% tests <2x performance hit
+    SAFE: 5% anything slower
+
+
+
+
+                                                 29 / 52   121 / 253
+                       Choosing Levels in code
+
+
+Original Suggestion:
+    OPT: 5% most critical tests
+    ASSERT: 90% tests <2x performance hit
+    SAFE: 5% anything slower
+Current Suggestion:
+
+
+
+
+                                                 29 / 52   122 / 253
+                       Choosing Levels in code
+
+
+Original Suggestion:
+    OPT: 5% most critical tests
+    ASSERT: 90% tests <2x performance hit
+    SAFE: 5% anything slower
+Current Suggestion:
+    OPT: 0-0.5% absolutely critical and 0-impact
+
+
+
+
+                                                   29 / 52   123 / 253
+                       Choosing Levels in code
+
+
+Original Suggestion:
+    OPT: 5% most critical tests
+    ASSERT: 90% tests <2x performance hit
+    SAFE: 5% anything slower
+Current Suggestion:
+    OPT: 0-0.5% absolutely critical and 0-impact
+    ASSERT: 99% non O(n)-impacting
+
+
+
+
+                                                   29 / 52   124 / 253
+                       Choosing Levels in code
+
+
+Original Suggestion:
+    OPT: 5% most critical tests
+    ASSERT: 90% tests <2x performance hit
+    SAFE: 5% anything slower
+Current Suggestion:
+    OPT: 0-0.5% absolutely critical and 0-impact
+    ASSERT: 99% non O(n)-impacting
+    SAFE: 0.5-1% algorithmicly slow
+
+
+
+
+                                                   29 / 52   125 / 253
+                       Choosing Levels in code
+
+
+Original Suggestion:
+    OPT: 5% most critical tests
+    ASSERT: 90% tests <2x performance hit
+    SAFE: 5% anything slower
+Current Suggestion:
+    OPT: 0-0.5% absolutely critical and 0-impact
+    ASSERT: 99% non O(n)-impacting
+    SAFE: 0.5-1% algorithmicly slow
+Changing is hard
+
+
+
+
+                                                   29 / 52   126 / 253
+              Choosing Levels in builds
+
+
+What we did
+
+
+
+
+                                          30 / 52   127 / 253
+                    Choosing Levels in builds
+
+
+What we did
+    Developement - ASSERT_LEVEL_ASSERT
+
+
+
+
+                                                30 / 52   128 / 253
+                     Choosing Levels in builds
+
+
+What we did
+    Developement - ASSERT_LEVEL_ASSERT
+    Unit tests - ASSERT_LEVEL_ASSERT hopefully
+
+
+
+
+                                                 30 / 52   129 / 253
+                     Choosing Levels in builds
+
+
+What we did
+    Developement - ASSERT_LEVEL_ASSERT
+    Unit tests - ASSERT_LEVEL_ASSERT hopefully
+    Beta testing - ASSERT_LEVEL_ASSERT_OPT
+
+
+
+
+                                                 30 / 52   130 / 253
+                     Choosing Levels in builds
+
+
+What we did
+    Developement - ASSERT_LEVEL_ASSERT
+    Unit tests - ASSERT_LEVEL_ASSERT hopefully
+    Beta testing - ASSERT_LEVEL_ASSERT_OPT
+    Production - ASSERT_LEVEL_ASSERT_OPT
+
+
+
+
+                                                 30 / 52   131 / 253
+                     Choosing Levels in builds
+
+
+What we did
+    Developement - ASSERT_LEVEL_ASSERT
+    Unit tests - ASSERT_LEVEL_ASSERT hopefully
+    Beta testing - ASSERT_LEVEL_ASSERT_OPT
+    Production - ASSERT_LEVEL_ASSERT_OPT
+What we wanted
+
+
+
+
+                                                 30 / 52   132 / 253
+                     Choosing Levels in builds
+
+
+What we did
+    Developement - ASSERT_LEVEL_ASSERT
+    Unit tests - ASSERT_LEVEL_ASSERT hopefully
+    Beta testing - ASSERT_LEVEL_ASSERT_OPT
+    Production - ASSERT_LEVEL_ASSERT_OPT
+What we wanted
+    Developement - ASSERT_LEVEL_ASSERT or ASSERT_LEVEL_SAFE
+
+
+
+
+                                                              30 / 52   133 / 253
+                     Choosing Levels in builds
+
+
+What we did
+    Developement - ASSERT_LEVEL_ASSERT
+    Unit tests - ASSERT_LEVEL_ASSERT hopefully
+    Beta testing - ASSERT_LEVEL_ASSERT_OPT
+    Production - ASSERT_LEVEL_ASSERT_OPT
+What we wanted
+    Developement - ASSERT_LEVEL_ASSERT or ASSERT_LEVEL_SAFE
+    Unit tests - ASSERT_LEVEL_ASSERT or ASSERT_LEVEL_SAFE
+
+
+
+
+                                                              30 / 52   134 / 253
+                     Choosing Levels in builds
+
+
+What we did
+    Developement - ASSERT_LEVEL_ASSERT
+    Unit tests - ASSERT_LEVEL_ASSERT hopefully
+    Beta testing - ASSERT_LEVEL_ASSERT_OPT
+    Production - ASSERT_LEVEL_ASSERT_OPT
+What we wanted
+    Developement - ASSERT_LEVEL_ASSERT or ASSERT_LEVEL_SAFE
+    Unit tests - ASSERT_LEVEL_ASSERT or ASSERT_LEVEL_SAFE
+    Beta testing - ASSERT_LEVEL_ASSERT or ASSERT_LEVEL_SAFE
+
+
+
+
+                                                              30 / 52   135 / 253
+                     Choosing Levels in builds
+
+
+What we did
+    Developement - ASSERT_LEVEL_ASSERT
+    Unit tests - ASSERT_LEVEL_ASSERT hopefully
+    Beta testing - ASSERT_LEVEL_ASSERT_OPT
+    Production - ASSERT_LEVEL_ASSERT_OPT
+What we wanted
+    Developement - ASSERT_LEVEL_ASSERT or ASSERT_LEVEL_SAFE
+    Unit tests - ASSERT_LEVEL_ASSERT or ASSERT_LEVEL_SAFE
+    Beta testing - ASSERT_LEVEL_ASSERT or ASSERT_LEVEL_SAFE
+    Production - ASSERT_LEVEL_ASSERT
+
+
+
+
+                                                              30 / 52   136 / 253
+                      Choosing Levels in builds
+
+
+What we did
+    Developement - ASSERT_LEVEL_ASSERT
+    Unit tests - ASSERT_LEVEL_ASSERT hopefully
+    Beta testing - ASSERT_LEVEL_ASSERT_OPT
+    Production - ASSERT_LEVEL_ASSERT_OPT
+What we wanted
+    Developement - ASSERT_LEVEL_ASSERT or ASSERT_LEVEL_SAFE
+    Unit tests - ASSERT_LEVEL_ASSERT or ASSERT_LEVEL_SAFE
+    Beta testing - ASSERT_LEVEL_ASSERT or ASSERT_LEVEL_SAFE
+    Production - ASSERT_LEVEL_ASSERT
+... which is where we are
+
+
+
+                                                              30 / 52   137 / 253
+                         The Next Step
+
+
+Adding more assertions
+
+
+
+
+                                         31 / 52   138 / 253
+                         The Next Step
+
+
+Adding more assertions
+    ~bsl::string() { ASSERT(m_data[m_size] == 0); }
+
+
+
+
+                                                      31 / 52   139 / 253
+                         The Next Step
+
+
+Adding more assertions
+    ~bsl::string() { ASSERT(m_data[m_size] == 0); }
+    Time ABI change
+
+
+
+
+                                                      31 / 52   140 / 253
+                                The Next Step
+
+
+Adding more assertions
+    ~bsl::string() { ASSERT(m_data[m_size] == 0); }
+    Time ABI change
+Changing levels of assertions
+
+
+
+
+                                                      31 / 52   141 / 253
+                                The Next Step
+
+
+Adding more assertions
+    ~bsl::string() { ASSERT(m_data[m_size] == 0); }
+    Time ABI change
+Changing levels of assertions
+    SAFE to ASSERT
+
+
+
+
+                                                      31 / 52   142 / 253
+                                The Next Step
+
+
+Adding more assertions
+    ~bsl::string() { ASSERT(m_data[m_size] == 0); }
+    Time ABI change
+Changing levels of assertions
+    SAFE to ASSERT
+    ASSERT to OPT
+
+
+
+
+                                                      31 / 52   143 / 253
+                                The Next Step
+
+
+Adding more assertions
+    ~bsl::string() { ASSERT(m_data[m_size] == 0); }
+    Time ABI change
+Changing levels of assertions
+    SAFE to ASSERT
+    ASSERT to OPT
+Changing deployed assertion levels
+
+
+
+
+                                                      31 / 52   144 / 253
+                                The Next Step
+
+
+Adding more assertions
+    ~bsl::string() { ASSERT(m_data[m_size] == 0); }
+    Time ABI change
+Changing levels of assertions
+    SAFE to ASSERT
+    ASSERT to OPT
+Changing deployed assertion levels
+Everyone will need to do this in 202x!
+
+
+
+
+                                                      31 / 52   145 / 253
+                                The Next Step
+
+
+Adding more assertions
+    ~bsl::string() { ASSERT(m_data[m_size] == 0); }
+    Time ABI change
+Changing levels of assertions
+    SAFE to ASSERT
+    ASSERT to OPT
+Changing deployed assertion levels
+Everyone will need to do this in 202x!
+    Using language contracts when they come will be a case of adding new assertions to
+    existing code.
+
+
+
+
+                                                                                31 / 52   146 / 253
+                             Mis-Step #1
+
+
+
+
+Continuing violation handler (2008-2015)
+
+
+
+
+                                           32 / 52   147 / 253
+                              Mis-Step #1
+
+
+
+
+Continuing violation handler (2008-2015)
+    Requires cooperation from main
+
+
+
+
+                                            32 / 52   148 / 253
+                              Mis-Step #1
+
+
+
+
+Continuing violation handler (2008-2015)
+    Requires cooperation from main
+    Allows new bugs to go through unnoticed
+
+
+
+
+                                              32 / 52   149 / 253
+                              Mis-Step #1
+
+
+
+
+Continuing violation handler (2008-2015)
+    Requires cooperation from main
+    Allows new bugs to go through unnoticed
+    At least 1 major Bloomberg (WP) bug was because of this
+
+
+
+
+                                                              32 / 52   150 / 253
+                              Mis-Step #1
+
+
+
+
+Continuing violation handler (2008-2015)
+    Requires cooperation from main
+    Allows new bugs to go through unnoticed
+    At least 1 major Bloomberg (WP) bug was because of this
+    Blanket continuation unsafe
+
+
+
+
+                                                              32 / 52   151 / 253
+                             Mis-Step #2
+
+
+
+Extra Smart violation handler ( 2016)
+
+
+
+
+                                           33 / 52   152 / 253
+                               Mis-Step #2
+
+
+
+Extra Smart violation handler ( 2016)
+    Configuration to allow continuation
+
+
+
+
+                                             33 / 52   153 / 253
+                               Mis-Step #2
+
+
+
+Extra Smart violation handler ( 2016)
+    Configuration to allow continuation
+    Tracking failure counts
+
+
+
+
+                                             33 / 52   154 / 253
+                               Mis-Step #2
+
+
+
+Extra Smart violation handler ( 2016)
+    Configuration to allow continuation
+    Tracking failure counts
+    Alternate logging
+
+
+
+
+                                             33 / 52   155 / 253
+                                Mis-Step #2
+
+
+
+Extra Smart violation handler ( 2016)
+     Configuration to allow continuation
+     Tracking failure counts
+     Alternate logging
+Still unsuccessful
+
+
+
+
+                                              33 / 52   156 / 253
+                                Mis-Step #2
+
+
+
+Extra Smart violation handler ( 2016)
+     Configuration to allow continuation
+     Tracking failure counts
+     Alternate logging
+Still unsuccessful
+     Requires even more cooperation from main
+
+
+
+
+                                                33 / 52   157 / 253
+                                Mis-Step #2
+
+
+
+Extra Smart violation handler ( 2016)
+     Configuration to allow continuation
+     Tracking failure counts
+     Alternate logging
+Still unsuccessful
+     Requires even more cooperation from main
+     No way to indicate in code that a check is “new”
+
+
+
+
+                                                        33 / 52   158 / 253
+                                Mis-Step #2
+
+
+
+Extra Smart violation handler ( 2016)
+     Configuration to allow continuation
+     Tracking failure counts
+     Alternate logging
+Still unsuccessful
+     Requires even more cooperation from main
+     No way to indicate in code that a check is “new”
+     Rarely used, minimal progress
+
+
+
+
+                                                        33 / 52   159 / 253
+                     Step?
+
+
+
+
+BSLS_REVIEW (2018)
+
+
+
+
+                             34 / 52   160 / 253
+                                   Step?
+
+
+
+
+BSLS_REVIEW (2018)
+    No explicit cooperation from main needed
+
+
+
+
+                                               34 / 52   161 / 253
+                                  Step?
+
+
+
+
+BSLS_REVIEW (2018)
+    No explicit cooperation from main needed
+    Contracts can be marked as “new” in code
+
+
+
+
+                                               34 / 52   162 / 253
+                                     Step?
+
+
+
+
+BSLS_REVIEW (2018)
+    No explicit cooperation from main needed
+    Contracts can be marked as “new” in code
+    Build-time controls to mark all assertions at a level as “new”
+
+
+
+
+                                                                     34 / 52   163 / 253
+                                     Step?
+
+
+
+
+BSLS_REVIEW (2018)
+    No explicit cooperation from main needed
+    Contracts can be marked as “new” in code
+    Build-time controls to mark all assertions at a level as “new”
+
+
+
+
+                                                                     34 / 52   164 / 253
+                     BSLS_REVIEW overview
+
+
+
+
+Parallel structure to BSLS_ASSERT
+
+
+
+
+                                            35 / 52   165 / 253
+                      BSLS_REVIEW overview
+
+
+
+
+Parallel structure to BSLS_ASSERT
+Separate violation handler, defaults to logging
+
+
+
+
+                                                  35 / 52   166 / 253
+                      BSLS_REVIEW overview
+
+
+
+
+Parallel structure to BSLS_ASSERT
+Separate violation handler, defaults to logging
+Lifecycle BSLS_ASSERT_SAFE to BSLS_REVIEW to BSLS_ASSERT
+
+
+
+
+                                                           35 / 52   167 / 253
+                      BSLS_REVIEW overview
+
+
+
+
+Parallel structure to BSLS_ASSERT
+Separate violation handler, defaults to logging
+Lifecycle BSLS_ASSERT_SAFE to BSLS_REVIEW to BSLS_ASSERT
+Alternately, <nothing> to BSLS_REVIEW_? to BSLS_ASSERT_?
+
+
+
+
+                                                           35 / 52   168 / 253
+                                BSLS_REVIEW
+   Initially a copy of ASSERT
+
+
+
+
+#define REVIEW_IMP(X) if (!(X)) {                                       \
+    bb::assert_violation violation(__FILE__, __LINE__, #X);             \
+    bb::Review::invoke_violation_handler(violation);                    \
+}
+
+
+
+
+                                                              36 / 52   169 / 253
+                              BSLS_REVIEW
+   Initially a copy of ASSERT
+   Number of failures is important
+
+
+
+
+#define REVIEW_IMP(X) if (!(X)) {                                   \
+    static std::atomic<int> count;                                  \
+    bb::review_violation violation(__FILE__, __LINE__, ++count, #X);\
+    bb::Review::invoke_violation_handler(violation);                \
+}
+
+
+
+
+                                                                36 / 52   170 / 253
+                                BSLS_REVIEW
+   Initially a copy of ASSERT
+   Number of failures is important
+   Default violation handler logs only
+
+
+
+void Review::default_violation_handler(
+                              const bb::review_violation &violation)
+{
+  // Log a message, with contents of violation
+  // Log a stack trace
+  // Return
+}
+
+
+
+
+                                                                36 / 52   171 / 253
+                                BSLS_REVIEW
+   Initially a copy of ASSERT
+   Number of failures is important
+   Default violation handler logs only
+   With expeonential backoff
+
+void Review::default_violation_handler(
+                              const bb::review_violation &violation)
+{
+  int count = violation.count();
+  if (0 == (count & (count-1))) {
+    // Log a message, with contents of violation
+    // Log a stack trace
+  }
+  // Return
+}
+                                                                36 / 52   172 / 253
+                   BSLS_REVIEW Build time control
+   Mutually exlusive
+
+
+
+
+#if defined(REVIEW_LEVEL_NONE)   ? 1 : 0 \
+  + defined(REVIEW_LEVEL_OPT)    ? 1 : 0 \
+  + defined(REVIEW_LEVEL_REVIEW) ? 1 : 0 \
+  + defined(REVIEW_LEVEL_SAFE)   ? 1 : 0 \
+  > 1
+#error Multiple REVIEW_LEVEL macros defined
+#endif
+
+
+
+
+                                                    37 / 52   173 / 253
+                    BSLS_REVIEW Build time control
+   Mutually exlusive
+   Default to assert level
+
+
+
+#if defined(ASSERT_LEVEL_NONE)
+#define REVIEW_LEVEL_NONE
+#elif defined(ASSERT_LEVEL_OPT)
+#define REVIEW_LEVEL_OPT
+#elif defined(ASSERT_LEVEL_ASSERT)
+#define REVIEW_LEVEL_REVIEW
+#elif defined(ASSERT_LEVEL_SAFE)
+#define REVIEW_LEVEL_SAFE
+#else
+#define REVIEW_LEVEL_REVIEW
+#endif
+                                                     37 / 52   174 / 253
+                    BSLS_REVIEW Build time control
+   Mutually exlusive
+   Default to assert level (In reality copies assert logic)
+
+
+
+#if defined(ASSERT_LEVEL_NONE)
+#define REVIEW_LEVEL_NONE
+#elif defined(ASSERT_LEVEL_OPT)
+#define REVIEW_LEVEL_OPT
+#elif defined(ASSERT_LEVEL_ASSERT)
+#define REVIEW_LEVEL_REVIEW
+#elif defined(ASSERT_LEVEL_SAFE)
+#define REVIEW_LEVEL_SAFE
+#else
+#define REVIEW_LEVEL_REVIEW
+#endif
+                                                              37 / 52   175 / 253
+                  BSLS_REVIEW Build time control
+   Mutually exlusive
+   Default to assert level
+   Controls just like ASSERT
+
+#if defined(REVIEW_LEVEL_NONE)
+#define REVIEW_OPT(X) REVIEW_DISABLED_IMP(X)
+#define REVIEW(X)      REVIEW_DISABLED_IMP(X)
+#define REVIEW_SAFE(X) REVIEW_DISABLED_IMP(X)
+//..
+
+
+
+
+                                                   37 / 52   176 / 253
+                  BSLS_REVIEW Build time control
+   Mutually exlusive
+   Default to assert level
+   Controls just like ASSERT
+
+//..
+#elif defined(REVIEW_LEVEL_OPT)
+#define REVIEW_OPT(X) REVIEW_IMP(X)
+#define REVIEW(X)      REVIEW_DISABLED_IMP(X)
+#define REVIEW_SAFE(X) REVIEW_DISABLED_IMP(X)
+//..
+
+
+
+
+                                                   37 / 52   177 / 253
+                  BSLS_REVIEW Build time control
+   Mutually exlusive
+   Default to assert level
+   Controls just like ASSERT
+
+//..
+#elif defined(REVIEW_LEVEL_REVIEW)
+#define REVIEW_OPT(X) REVIEW_IMP(X)
+#define REVIEW(X)      REVIEW_IMP(X)
+#define REVIEW_SAFE(X) REVIEW_DISABLED_IMP(X)
+//..
+
+
+
+
+                                                   37 / 52   178 / 253
+                  BSLS_REVIEW Build time control
+   Mutually exlusive
+   Default to assert level
+   Controls just like ASSERT
+
+//..
+#elif defined(REVIEW_LEVEL_SAFE)
+#define REVIEW_OPT(X) REVIEW_IMP(X)
+#define REVIEW(X)      REVIEW_IMP(X)
+#define REVIEW_SAFE(X) REVIEW_IMP(X)
+#endif
+
+
+
+
+                                                   37 / 52   179 / 253
+                  BSLS_REVIEW Build time control
+   Mutually exlusive
+   Default to assert level
+   Controls just like ASSERT
+
+#if defined(REVIEW_LEVEL_OPT)    \
+  defined(REVIEW_LEVEL_REVIEW) \
+  defined(REVIEW_LEVEL_SAFE)
+#define REVIEW_OPT(X) REVIEW_IMP(X)
+#else
+ // defined(REVIEW_LEVEL_NONE)
+#define REVIEW_OPT(X) REVIEW_DISABLED_IMP(X)
+#endif
+
+
+
+
+                                                   37 / 52   180 / 253
+                  BSLS_REVIEW Build time control
+   Mutually exlusive
+   Default to assert level
+   Controls just like ASSERT
+
+#if defined(REVIEW_LEVEL_REVIEW) \
+  defined(REVIEW_LEVEL_SAFE)
+#define REVIEW(X) REVIEW_IMP(X)
+#else
+ // defined(REVIEW_LEVEL_OPT)
+ // defined(REVIEW_LEVEL_NONE)
+#define REVIEW(X) REVIEW_DISABLED_IMP(X)
+#endif
+
+
+
+
+                                                   37 / 52   181 / 253
+                  BSLS_REVIEW Build time control
+   Mutually exlusive
+   Default to assert level
+   Controls just like ASSERT
+
+#if defined(REVIEW_LEVEL_SAFE)
+#define REVIEW_SAFE(X) REVIEW_IMP(X)
+#else
+ // defined(REVIEW_LEVEL_OPT)
+ // defined(REVIEW_LEVEL_REVIEW)
+ // defined(REVIEW_LEVEL_NONE)
+#define REVIEW_SAFE(X) REVIEW_DISABLED_IMP(X)
+#endif
+
+
+
+
+                                                   37 / 52   182 / 253
+                 ASSERT and REVIEW interaction
+Changing build levels requires reviewing all asserts at the target level
+
+
+
+
+                                                                           38 / 52   183 / 253
+                    ASSERT and REVIEW interaction
+   Changing build levels requires reviewing all asserts at the target level
+   BSLS_ASSERT again
+
+
+
+#if defined(BSLS_ASSERT_LEVEL_ASSERT) \
+  defined(BSLS_ASSERT_LEVEL_SAFE)
+#define BSLS_ASSERT(X) ASSERT_IMP(X)
+#else
+#define BSLS_ASSERT(X)
+#endif
+
+
+
+
+                                                                              38 / 52   184 / 253
+                    ASSERT and REVIEW interaction
+   Changing build levels requires reviewing all asserts at the target level
+   BSLS_ASSERT again
+
+
+
+#if defined(BSLS_ASSERT_LEVEL_ASSERT) \
+  defined(BSLS_ASSERT_LEVEL_SAFE)
+#define BSLS_ASSERT(X) ASSERT_IMP(X)
+#elif defined(BSLS_REVIEW_LEVEL_REVIEW) \
+    defined(BSLS_REVIEW_LEVEL_SAFE)
+#define BSLS_ASSERT(X) REVIEW_IMP(X)
+#else
+#define BSLS_ASSERT(X) ASSERT_DISABLED_IMP(X)
+#endif
+
+
+
+                                                                              38 / 52   185 / 253
+                    ASSERT and REVIEW interaction
+   Changing build levels requires reviewing all asserts at the target level
+   BSLS_ASSERT again
+   Same for BSLS_ASSERT_OPT and BSLS_ASSERT_SAFE
+
+#if defined(BSLS_ASSERT_LEVEL_OPT)    \
+  defined(BSLS_ASSERT_LEVEL_ASSERT) \
+  defined(BSLS_ASSERT_LEVEL_SAFE)
+#define BSLS_ASSERT_OPT(X) ASSERT_IMP(X)
+#elif defined(BSLS_REVIEW_LEVEL_OPT) \
+  defined(BSLS_REVIEW_LEVEL_REVIEW) \
+  defined(BSLS_REVIEW_LEVEL_SAFE)
+#define BSLS_ASSERT_OPT(X) REVIEW_IMP(X)
+#else
+#define BSLS_ASSERT_OPT(X) ASSERT_DISABLED_IMP(X)
+#endif
+                                                                              38 / 52   186 / 253
+                    ASSERT and REVIEW interaction
+   Changing build levels requires reviewing all asserts at the target level
+   BSLS_ASSERT again
+   Same for BSLS_ASSERT_OPT and BSLS_ASSERT_SAFE
+
+#if defined(BSLS_ASSERT_LEVEL_SAFE)
+#define BSLS_ASSERT_SAFE(X) ASSERT_IMP(X)
+#elif defined(BSLS_REVIEW_LEVEL_SAFE)
+#define BSLS_ASSERT_SAFE(X) REVIEW_IMP(X)
+#else
+#define BSLS_ASSERT_SAFE(X) ASSERT_DISABLED_IMP(X)
+#endif
+
+
+
+
+                                                                              38 / 52   187 / 253
+                   BSLS_REVIEW Takeaways
+
+
+So far a success
+
+
+
+
+                                           39 / 52   188 / 253
+                   BSLS_REVIEW Takeaways
+
+
+So far a success
+    Thousands of BSLS_ASSERT_SAFE instances have become BSLS_REVIEW
+
+
+
+
+                                                                      39 / 52   189 / 253
+                   BSLS_REVIEW Takeaways
+
+
+So far a success
+    Thousands of BSLS_ASSERT_SAFE instances have become BSLS_REVIEW
+    More than 90% are now BSLS_ASSERT
+
+
+
+
+                                                                      39 / 52   190 / 253
+                   BSLS_REVIEW Takeaways
+
+
+So far a success
+    Thousands of BSLS_ASSERT_SAFE instances have become BSLS_REVIEW
+    More than 90% are now BSLS_ASSERT
+    Dozens of reported bugs have been fixed/are being fixed
+
+
+
+
+                                                                      39 / 52   191 / 253
+                   BSLS_REVIEW Takeaways
+
+
+So far a success
+    Thousands of BSLS_ASSERT_SAFE instances have become BSLS_REVIEW
+    More than 90% are now BSLS_ASSERT
+    Dozens of reported bugs have been fixed/are being fixed
+    No crashes have been introduced by these changes
+
+
+
+
+                                                                      39 / 52   192 / 253
+                   BSLS_REVIEW Takeaways
+
+
+So far a success
+    Thousands of BSLS_ASSERT_SAFE instances have become BSLS_REVIEW
+    More than 90% are now BSLS_ASSERT
+    Dozens of reported bugs have been fixed/are being fixed
+    No crashes have been introduced by these changes
+Why?
+
+
+
+
+                                                                      39 / 52   193 / 253
+                      BSLS_REVIEW Takeaways
+
+
+So far a success
+    Thousands of BSLS_ASSERT_SAFE instances have become BSLS_REVIEW
+    More than 90% are now BSLS_ASSERT
+    Dozens of reported bugs have been fixed/are being fixed
+    No crashes have been introduced by these changes
+Why?
+    Ability to make a check a review alongside existing asserts.
+
+
+
+
+                                                                      39 / 52   194 / 253
+                      BSLS_REVIEW Takeaways
+
+
+So far a success
+    Thousands of BSLS_ASSERT_SAFE instances have become BSLS_REVIEW
+    More than 90% are now BSLS_ASSERT
+    Dozens of reported bugs have been fixed/are being fixed
+    No crashes have been introduced by these changes
+Why?
+    Ability to make a check a review alongside existing asserts.
+    Can conrol from code
+
+
+
+
+                                                                      39 / 52   195 / 253
+                      BSLS_REVIEW Takeaways
+
+
+So far a success
+    Thousands of BSLS_ASSERT_SAFE instances have become BSLS_REVIEW
+    More than 90% are now BSLS_ASSERT
+    Dozens of reported bugs have been fixed/are being fixed
+    No crashes have been introduced by these changes
+Why?
+    Ability to make a check a review alongside existing asserts.
+    Can conrol from code
+    Can control at build time
+
+
+
+
+                                                                      39 / 52   196 / 253
+What do you do if you can’t prove a contract is being followed?
+
+
+
+
+                                                                  40 / 52   197 / 253
+What do you do if you can’t prove a contract is being followed?
+
+
+
+                                   Believe
+
+
+
+                                                                  40 / 52   198 / 253
+1   Introduction
+
+2   Basic Contracts
+
+3   Doing Stuff With Contracts
+      A Dream
+      Less Bugs
+      Deploying it
+      Faster Code
+
+4   SG21
+
+5   Conclusion
+
+
+                                 41 / 52   199 / 253
+                 We were promised performance
+
+
+
+Performance improvements come from the compiler knowing something will be
+true
+
+
+
+
+                                                                      42 / 52   200 / 253
+                 We were promised performance
+
+
+
+Performance improvements come from the compiler knowing something will be
+true
+[[noreturn]] on invoke_violation_handler lets you safely trade the cost of
+checking for the benefit of assumption
+
+
+
+
+                                                                      42 / 52   201 / 253
+                  We were promised performance
+
+
+
+Performance improvements come from the compiler knowing something will be
+true
+[[noreturn]] on invoke_violation_handler lets you safely trade the cost of
+checking for the benefit of assumption
+If you believe the contract is being followed, __builtin_assume can give you the
+benefit without the costt
+
+
+
+
+                                                                          42 / 52   202 / 253
+                   We were promised performance
+
+
+
+Performance improvements come from the compiler knowing something will be
+true
+[[noreturn]] on invoke_violation_handler lets you safely trade the cost of
+checking for the benefit of assumption
+If you believe the contract is being followed, __builtin_assume can give you the
+benefit without the costt
+The risk is the strength of your belief
+
+
+
+
+                                                                          42 / 52   203 / 253
+                 BSLS_ASSERT_LEVEL_ASSUME
+
+   Let’s add another choice for mapping the BSLS_ASSERT macros
+
+
+
+
+#define BSLS_ASSERT_ASSUME(X) if (!(X)) { std::unreachable(); }
+
+
+
+
+                                                                  43 / 52   204 / 253
+                   BSLS_ASSERT_LEVEL_ASSUME
+
+   Let’s add another choice for mapping the BSLS_ASSERT macros
+   Lots of ways to impelement, different tradeoffs and portability
+
+
+
+
+#define BSLS_ASSERT_ASSUME(X) if (!(X)) { std::unreachable(); }
+#define BSLS_ASSERT_ASSUME(X) __builtin_assume(X)
+#define BSLS_ASSERT_ASSUME(X) if (!(X)) { int *p = nullptr; *p = 17; }
+
+
+
+
+                                                                     43 / 52   205 / 253
+                   BSLS_ASSERT_LEVEL_ASSUME
+
+   Let’s add another choice for mapping the BSLS_ASSERT macros
+   Lots of ways to impelement, different tradeoffs and portability
+   This almost made it to the standard
+
+
+
+#define BSLS_ASSERT_ASSUME(X) [[ assert assume : X ]]
+
+
+
+
+                                                                     43 / 52   206 / 253
+                   BSLS_ASSERT_LEVEL_ASSUME
+
+   Let’s add another choice for mapping the BSLS_ASSERT macros
+   Lots of ways to impelement, different tradeoffs and portability
+   This almost made it to the standard
+   Coming to BDE with an extended BSLS_ASSERT_LEVEL scale
+
+
+//..
+#elif defined(ASSERT_LEVEL_ASSUME_OPT)
+#define ASSERT_OPT(X) ASSERT_ASSUME(X)
+#define ASSERT(X)      ASSERT_DISABLED_IMP(X)
+#define ASSERT_SAFE(X) ASSERT_DISABLED_IMP(X)
+//..
+
+
+                                                                     43 / 52   207 / 253
+                   BSLS_ASSERT_LEVEL_ASSUME
+
+   Let’s add another choice for mapping the BSLS_ASSERT macros
+   Lots of ways to impelement, different tradeoffs and portability
+   This almost made it to the standard
+   Coming to BDE with an extended BSLS_ASSERT_LEVEL scale
+
+
+//..
+#elif defined(ASSERT_LEVEL_ASSUME_OPT)
+#define ASSERT_OPT(X) ASSERT_ASSUME(X)
+#define ASSERT(X)      ASSERT_ASSUME(X)
+#define ASSERT_SAFE(X) ASSERT_DISABLED_IMP(X)
+//..
+
+
+                                                                     43 / 52   208 / 253
+                   BSLS_ASSERT_LEVEL_ASSUME
+
+   Let’s add another choice for mapping the BSLS_ASSERT macros
+   Lots of ways to impelement, different tradeoffs and portability
+   This almost made it to the standard
+   Coming to BDE with an extended BSLS_ASSERT_LEVEL scale
+
+
+//..
+#elif defined(ASSERT_LEVEL_ASSUME_OPT)
+#define ASSERT_OPT(X) ASSERT_ASSUME(X)
+#define ASSERT(X)      ASSERT_ASSUME(X)
+#define ASSERT_SAFE(X) ASSERT_ASSUME(X)
+//..
+
+
+                                                                     43 / 52   209 / 253
+1   Introduction
+
+2   Basic Contracts
+
+3   Doing Stuff With Contracts
+
+4   SG21
+
+5   Conclusion
+
+
+
+
+                                 44 / 52   210 / 253
+                          What happened?
+
+
+
+Coming into Kona, contracts (in N4800) had a number of issues
+
+
+
+
+                                                                45 / 52   211 / 253
+                             What happened?
+
+
+
+Coming into Kona, contracts (in N4800) had a number of issues
+    Continuation was a global flag, and its very existence was contentious
+
+
+
+
+                                                                             45 / 52   212 / 253
+                             What happened?
+
+
+
+Coming into Kona, contracts (in N4800) had a number of issues
+    Continuation was a global flag, and its very existence was contentious
+    Assumption of any unchecked contracts
+
+
+
+
+                                                                             45 / 52   213 / 253
+                             What happened?
+
+
+
+Coming into Kona, contracts (in N4800) had a number of issues
+    Continuation was a global flag, and its very existence was contentious
+    Assumption of any unchecked contracts
+    Axiom was isomorphic to __builtin_assume
+
+
+
+
+                                                                             45 / 52   214 / 253
+                           What happened?
+
+
+
+Coming into Kona, contracts (in N4800) had a number of issues
+    Continuation was a global flag, and its very existence was contentious
+    Assumption of any unchecked contracts
+    Axiom was isomorphic to __builtin_assume
+    default/audit/axiom were both too simplistic and too complicated for many
+
+
+
+
+                                                                            45 / 52   215 / 253
+                            What happened?
+
+
+
+Coming into Kona, contracts (in N4800) had a number of issues
+    Continuation was a global flag, and its very existence was contentious
+    Assumption of any unchecked contracts
+    Axiom was isomorphic to __builtin_assume
+    default/audit/axiom were both too simplistic and too complicated for many
+    Numerous edge case decisions had been made without publicizing clearly their
+    reasoning
+
+
+
+
+                                                                               45 / 52   216 / 253
+                         What happened?
+
+
+
+Numerous papers in Kona and Cologne attempted to fix these problems
+
+
+
+
+                                                                      46 / 52   217 / 253
+                         What happened?
+
+
+
+Numerous papers in Kona and Cologne attempted to fix these problems
+On Monday, July 15th in Cologne a number of options were presented to EWG
+
+
+
+
+                                                                      46 / 52   218 / 253
+                            What happened?
+
+
+
+Numerous papers in Kona and Cologne attempted to fix these problems
+On Monday, July 15th in Cologne a number of options were presented to EWG
+    P1711, by Bjarne Stroustrup, proposed some small fixes
+
+
+
+
+                                                                      46 / 52   219 / 253
+                             What happened?
+
+
+
+Numerous papers in Kona and Cologne attempted to fix these problems
+On Monday, July 15th in Cologne a number of options were presented to EWG
+    P1711, by Bjarne Stroustrup, proposed some small fixes
+    P1429, revised after Kona, proposed adding literal semantics
+
+
+
+
+                                                                      46 / 52   220 / 253
+                            What happened?
+
+
+
+Numerous papers in Kona and Cologne attempted to fix these problems
+On Monday, July 15th in Cologne a number of options were presented to EWG
+    P1711, by Bjarne Stroustrup, proposed some small fixes
+    P1429, revised after Kona, proposed adding literal semantics
+    P1607 proposed two options - remove all but a nicer c assert, or remove all but add
+    in literal semantics
+
+
+
+
+                                                                                 46 / 52   221 / 253
+                            What happened?
+
+
+
+Numerous papers in Kona and Cologne attempted to fix these problems
+On Monday, July 15th in Cologne a number of options were presented to EWG
+    P1711, by Bjarne Stroustrup, proposed some small fixes
+    P1429, revised after Kona, proposed adding literal semantics
+    P1607 proposed two options - remove all but a nicer c assert, or remove all but add
+    in literal semantics
+P1607’s two options were the only consensus reached that day by EWG
+
+
+
+
+                                                                                 46 / 52   222 / 253
+                         What happened?
+
+
+
+
+On Wednesday, July 17th in Cologne P1823 was proposed and accepted by a
+massive margin
+
+
+
+
+                                                                      47 / 52   223 / 253
+                          What happened?
+
+
+
+
+On Wednesday, July 17th in Cologne P1823 was proposed and accepted by a
+massive margin
+On Saturday, July 20th, P1823 was ratified and SG21 was announced to pursue
+contracts again
+
+
+
+
+                                                                        47 / 52   224 / 253
+                           What’s the plan?
+
+SG21 is getting off the ground:
+
+
+
+
+                                              48 / 52   225 / 253
+                            What’s the plan?
+
+SG21 is getting off the ground:
+    Very active reflector
+
+
+
+
+                                               48 / 52   226 / 253
+                            What’s the plan?
+
+SG21 is getting off the ground:
+    Very active reflector
+    One telecon so far
+
+
+
+
+                                               48 / 52   227 / 253
+                               What’s the plan?
+
+SG21 is getting off the ground:
+    Very active reflector
+    One telecon so far
+    First official meeting will be in Belfast
+
+
+
+
+                                                  48 / 52   228 / 253
+                               What’s the plan?
+
+SG21 is getting off the ground:
+    Very active reflector
+    One telecon so far
+    First official meeting will be in Belfast
+Rough sketch of plan:
+
+
+
+
+                                                  48 / 52   229 / 253
+                                What’s the plan?
+
+SG21 is getting off the ground:
+    Very active reflector
+    One telecon so far
+    First official meeting will be in Belfast
+Rough sketch of plan:
+    Gather use cases publicly
+
+
+
+
+                                                   48 / 52   230 / 253
+                               What’s the plan?
+
+SG21 is getting off the ground:
+    Very active reflector
+    One telecon so far
+    First official meeting will be in Belfast
+Rough sketch of plan:
+    Gather use cases publicly (Done!)
+
+
+
+
+                                                  48 / 52   231 / 253
+                               What’s the plan?
+
+SG21 is getting off the ground:
+    Very active reflector
+    One telecon so far
+    First official meeting will be in Belfast
+Rough sketch of plan:
+    Gather use cases publicly (Done!)
+    Poll on prioritization of use cases
+
+
+
+
+                                                  48 / 52   232 / 253
+                               What’s the plan?
+
+SG21 is getting off the ground:
+    Very active reflector
+    One telecon so far
+    First official meeting will be in Belfast
+Rough sketch of plan:
+    Gather use cases publicly (Done!)
+    Poll on prioritization of use cases (In progress!)
+
+
+
+
+                                                         48 / 52   233 / 253
+                               What’s the plan?
+
+SG21 is getting off the ground:
+    Very active reflector
+    One telecon so far
+    First official meeting will be in Belfast
+Rough sketch of plan:
+    Gather use cases publicly (Done!)
+    Poll on prioritization of use cases (In progress!)
+    Gather proposed solutions (Future)
+
+
+
+
+                                                         48 / 52   234 / 253
+                               What’s the plan?
+
+SG21 is getting off the ground:
+    Very active reflector
+    One telecon so far
+    First official meeting will be in Belfast
+Rough sketch of plan:
+    Gather use cases publicly (Done!)
+    Poll on prioritization of use cases (In progress!)
+    Gather proposed solutions (Future)
+         Refinements on P1607, N4830
+
+
+
+
+                                                         48 / 52   235 / 253
+                               What’s the plan?
+
+SG21 is getting off the ground:
+    Very active reflector
+    One telecon so far
+    First official meeting will be in Belfast
+Rough sketch of plan:
+    Gather use cases publicly (Done!)
+    Poll on prioritization of use cases (In progress!)
+    Gather proposed solutions (Future)
+         Refinements on P1607, N4830
+         Changes in syntax? Scope? Behaviors?
+
+
+
+
+                                                         48 / 52   236 / 253
+                               What’s the plan?
+
+SG21 is getting off the ground:
+    Very active reflector
+    One telecon so far
+    First official meeting will be in Belfast
+Rough sketch of plan:
+    Gather use cases publicly (Done!)
+    Poll on prioritization of use cases (In progress!)
+    Gather proposed solutions (Future)
+         Refinements on P1607, N4830
+         Changes in syntax? Scope? Behaviors?
+    Review and vote on solutions based on satisfying use cases
+         Hopefullly no more “union of minimal solutions”
+
+
+
+
+                                                                 48 / 52   237 / 253
+                               What’s the plan?
+
+SG21 is getting off the ground:
+    Very active reflector
+    One telecon so far
+    First official meeting will be in Belfast
+Rough sketch of plan:
+    Gather use cases publicly (Done!)
+    Poll on prioritization of use cases (In progress!)
+    Gather proposed solutions (Future)
+         Refinements on P1607, N4830
+         Changes in syntax? Scope? Behaviors?
+    Review and vote on solutions based on satisfying use cases
+         Hopefullly no more “union of minimal solutions”
+         Hopefully no more “I don’t need this so it can’t happen”
+
+
+
+
+                                                                    48 / 52   238 / 253
+                               What’s the plan?
+
+SG21 is getting off the ground:
+    Very active reflector
+    One telecon so far
+    First official meeting will be in Belfast
+Rough sketch of plan:
+    Gather use cases publicly (Done!)
+    Poll on prioritization of use cases (In progress!)
+    Gather proposed solutions (Future)
+         Refinements on P1607, N4830
+         Changes in syntax? Scope? Behaviors?
+    Review and vote on solutions based on satisfying use cases
+         Hopefullly no more “union of minimal solutions”
+         Hopefully no more “I don’t need this so it can’t happen”
+Land revised contracts in standard
+
+
+                                                                    48 / 52   239 / 253
+                               What’s the plan?
+
+SG21 is getting off the ground:
+    Very active reflector
+    One telecon so far
+    First official meeting will be in Belfast
+Rough sketch of plan:
+    Gather use cases publicly (Done!)
+    Poll on prioritization of use cases (In progress!)
+    Gather proposed solutions (Future)
+         Refinements on P1607, N4830
+         Changes in syntax? Scope? Behaviors?
+    Review and vote on solutions based on satisfying use cases
+         Hopefullly no more “union of minimal solutions”
+         Hopefully no more “I don’t need this so it can’t happen”
+Land revised contracts in standard (WG21 SG21 2021!)
+
+
+                                                                    48 / 52   240 / 253
+                                Use Cases
+
+Use cases were gathered from all SG21 participants and edited for clarity
+
+
+
+
+                                                                            49 / 52   241 / 253
+                                Use Cases
+
+Use cases were gathered from all SG21 participants and edited for clarity
+All of the form “As an X in order to Y I need to Z”.
+
+
+
+
+                                                                            49 / 52   242 / 253
+                                Use Cases
+
+Use cases were gathered from all SG21 participants and edited for clarity
+All of the form “As an X in order to Y I need to Z”.
+This hopefully be the first wg21 paper published “by” SG21.
+
+
+
+
+                                                                            49 / 52   243 / 253
+                                 Use Cases
+
+Use cases were gathered from all SG21 participants and edited for clarity
+All of the form “As an X in order to Y I need to Z”.
+This hopefully be the first wg21 paper published “by” SG21.
+29 different classes of users with 196 different use cases
+
+
+
+
+                                                                            49 / 52   244 / 253
+                                 Use Cases
+
+Use cases were gathered from all SG21 participants and edited for clarity
+All of the form “As an X in order to Y I need to Z”.
+This hopefully be the first wg21 paper published “by” SG21.
+29 different classes of users with 196 different use cases
+Use cases range from very general to very specific:
+
+
+
+
+                                                                            49 / 52   245 / 253
+                                 Use Cases
+
+Use cases were gathered from all SG21 participants and edited for clarity
+All of the form “As an X in order to Y I need to Z”.
+This hopefully be the first wg21 paper published “by” SG21.
+29 different classes of users with 196 different use cases
+Use cases range from very general to very specific:
+    As a Developer, in order to Have readable annotations, I want to Have annotations
+    with a succinct and elegant syntax
+
+
+
+
+                                                                                49 / 52   246 / 253
+                                 Use Cases
+
+Use cases were gathered from all SG21 participants and edited for clarity
+All of the form “As an X in order to Y I need to Z”.
+This hopefully be the first wg21 paper published “by” SG21.
+29 different classes of users with 196 different use cases
+Use cases range from very general to very specific:
+    As a Developer, in order to Have readable annotations, I want to Have annotations
+    with a succinct and elegant syntax
+    As a C++ API Developer, in order to Maintain a class hierarchy, I want to Ensure
+    overriding methods have same or wider preconditions
+
+
+
+
+                                                                                49 / 52   247 / 253
+                                 Use Cases
+
+Use cases were gathered from all SG21 participants and edited for clarity
+All of the form “As an X in order to Y I need to Z”.
+This hopefully be the first wg21 paper published “by” SG21.
+29 different classes of users with 196 different use cases
+Use cases range from very general to very specific:
+    As a Developer, in order to Have readable annotations, I want to Have annotations
+    with a succinct and elegant syntax
+    As a C++ API Developer, in order to Maintain a class hierarchy, I want to Ensure
+    overriding methods have same or wider preconditions
+Some require vastly more than was possible before:
+
+
+
+
+                                                                                49 / 52   248 / 253
+                                  Use Cases
+
+Use cases were gathered from all SG21 participants and edited for clarity
+All of the form “As an X in order to Y I need to Z”.
+This hopefully be the first wg21 paper published “by” SG21.
+29 different classes of users with 196 different use cases
+Use cases range from very general to very specific:
+    As a Developer, in order to Have readable annotations, I want to Have annotations
+    with a succinct and elegant syntax
+    As a C++ API Developer, in order to Maintain a class hierarchy, I want to Ensure
+    overriding methods have same or wider preconditions
+Some require vastly more than was possible before:
+    As a C++ API Developer In Order to Enforce contracts in async code I want to
+    Express contracts on callbacks such as std::function, function pointers, or references
+    to functions, lambdas, or function objects
+
+
+                                                                                    49 / 52   249 / 253
+                            Prioritization
+
+
+
+SG21 members have been asked to rate each use case on behalf of whatever users
+they feel they best represent:
+    Not important
+    Nice to have
+    Must have
+
+
+
+
+                                                                        50 / 52   250 / 253
+                              Prioritization
+
+
+
+SG21 members have been asked to rate each use case on behalf of whatever users
+they feel they best represent:
+    Not important
+    Nice to have
+    Must have
+Expect these results to be ready to analyze and discuss by Belfast.
+
+
+
+
+                                                                        50 / 52   251 / 253
+1   Introduction
+
+2   Basic Contracts
+
+3   Doing Stuff With Contracts
+
+4   SG21
+
+5   Conclusion
+
+
+
+
+                                 51 / 52   252 / 253
+                                Conclusion
+
+
+
+
+Bloomberg’s BSLS_ASSERT and BSLS_REVIEW provide a rich set of contract
+enforcement utility. Grab the open source BDE to play with it today
+The needs of that facility will hopefully be met by language level contracts in the
+future, SG21 is working hard to see that happen
+
+
+
+
+                                                                              52 / 52   253 / 253
+

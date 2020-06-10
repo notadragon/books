@@ -10,7 +10,7 @@ BSLS_IDENT_RCSID(bsmch1_sample1_cpp,"$Id$ $CSID$")
 //..
 //  #!/bin/bash
 //
-//  cat ../../../../build/$1/generated/$2.lst
+//  cat ../../../../build/$1/listings/$2.lst
 //--------------------------------------------------------END GENERATOR EXTRACT
 
 namespace BloombergLP {

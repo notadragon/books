@@ -2,6 +2,7 @@
 \usetheme{Pittsburgh}
 \useinnertheme{rounded}
 
+\usepackage{datetime2}
 \usepackage{amsmath}
 \usepackage{colortbl}
 \usepackage{xcolor}
@@ -56,16 +57,18 @@
 }
 
 \setminted{beameroverlays}
-\setminted{escapeinside=\\$\\$}
+\setminted{texcomments}
 \usemintedstyle{bw}
 
 \definecolor{HighlightBG}{RGB}{147,112,219}
 
-\def\mylexer{p1429_cpplexer.py:CppContractsLexer -x}
+\def\mylexer{presentation_cpplexer.py:CppPresentationLexer -x}
 \newcommand{\cc}[1]{\mintinline{\mylexer}{#1}}
 \newminted[cppcode]{\mylexer}{highlightcolor=HighlightBG!40}
-\newminted[cppcodebox]{\mylexer}{bgcolor=lightgray!10,highlightcolor=HighlightBG!40}
+\newminted[cppcodebox]{\mylexer}{bgcolor=lightgray!10,highlightcolor=HighlightBG!40,escapeinside=||}
 \newminted[cppcodebox2]{\mylexer}{bgcolor=pink!10,highlightcolor=HighlightBG!40}
+
+\newminted[shellbox]{bash}{}
 
 %wg21 stuff
 \newcommand{\Cpp}{\texorpdfstring{C\kern-0.05em\protect\raisebox{.35ex}{\textsmaller[2]{+\kern-0.05em+}}}{C++}\xspace}
@@ -85,13 +88,15 @@
 
 \include{${name}-title}
 
+\date{\DTMusedate{presentationdate}}
+
 \begin{document}
 
 \frame{\titlepage}
 
 \begin{frame}
 \frametitle{Copyright Notice}
-\textcopyright 2019 Bloomberg L.P. Permission is granted to copy, distribute, and display
+\textcopyright \DTMfetchyear{presentationdate} Bloomberg L.P. Permission is granted to copy, distribute, and display
 this material, and to make derivative works and commercial use of it. The
 information in this material is provided ``AS IS'', without warranty of any
 kind. Neither Bloomberg nor any employee guarantees the correctness or
@@ -105,6 +110,11 @@ recommendations, or positions of Bloomberg.
 \begin{frame}
   \tableofcontents[pausesections,hidesubsections]
 \end{frame}
+
+%T%% for f in book.outline.sectionfiles("frames"):
+\include{${f}}
+%T%% endfor
+
 
 \end{document}
 

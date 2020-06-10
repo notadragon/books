@@ -1,1 +1,0 @@
-../../src/books/peerson-template/newstyle-PearsonGeneric-7.cls

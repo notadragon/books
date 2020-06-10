@@ -25,7 +25,7 @@ BSLS_IDENT("$Id: $")
 //..
 //  #!/bin/bash
 //
-//  cat ../../../../build/$1/generated/$2.lst
+//  cat ../../../../build/$1/listings/$2.lst
 //--------------------------------------------------------END GENERATOR EXTRACT
 
 namespace BloombergLP {
