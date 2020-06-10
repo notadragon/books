@@ -3,13 +3,12 @@
 Joshua Berne - jberne4@bloomberg.net
 
 
-
              2020-06-10
 
 
 
 
-                                       1 / 21   1 / 83
+                                       1 / 21   1 / 87
                                  Copyright Notice
 
 
@@ -26,7 +25,7 @@ recommendations, or positions of Bloomberg.
 
 
 
-                                                                                     2 / 21   2 / 83
+                                                                                     2 / 21   2 / 87
 1   A Function
 
 2   Brand New Library
@@ -38,13 +37,13 @@ recommendations, or positions of Bloomberg.
 
 
 
-                        3 / 21   3 / 83
+                        3 / 21   3 / 87
 Let’s say you want to write a function.
 
 
 
 
-                                          4 / 21   4 / 83
+                                          4 / 21   4 / 87
    Let’s say you want to write a function.
 
 
@@ -55,7 +54,7 @@ int foo(int x, int y);
 
 
 
-                                             4 / 21   5 / 83
+                                             4 / 21   5 / 87
    Let’s say you want to write a function.
    With a contract.
 
@@ -67,7 +66,7 @@ int foo(int x, int y);
 
 
 
-                                             4 / 21   6 / 83
+                                             4 / 21   6 / 87
    Let’s say you want to write a function.
    With a contract.
 
@@ -81,7 +80,7 @@ int foo(int x, int y);
 
 
 
-                                                            4 / 21   7 / 83
+                                                            4 / 21   7 / 87
    Let’s say you want to write a function.
    With a contract.
    That is a narrow contract.
@@ -95,7 +94,7 @@ int foo(int x, int y);
 
 
 
-                                                            4 / 21   8 / 83
+                                                            4 / 21   8 / 87
    Let’s say you want to write a function.
    With a contract.
    That is a narrow contract.
@@ -110,7 +109,7 @@ int foo(int x, int y);
 
 
 
-                                                          4 / 21   9 / 83
+                                                          4 / 21   9 / 87
 1   A Function
 
 2   Brand New Library
@@ -122,13 +121,13 @@ int foo(int x, int y);
 
 
 
-                        5 / 21   10 / 83
+                        5 / 21   10 / 87
      Assume foo is in a new library.
 
 
 
 
-#include <foo.h>
+# include <foo.h>
 
 
 int foo(int x, int y)
@@ -138,15 +137,15 @@ int foo(int x, int y)
 }
 
 
-                                            6 / 21   11 / 83
+                                            6 / 21   11 / 87
    Assume foo is in a new library.
    We can assert our preconditions.
 
 
 
 
-#include <foo.h>
-#include <bsls_assert.h>
+# include <foo.h>
+# include <bsls_assert.h>
 
 int foo(int x, int y)
 {
@@ -155,7 +154,7 @@ int foo(int x, int y)
 }
 
 
-                                          6 / 21   12 / 83
+                                          6 / 21   12 / 87
 Assume foo is in a new library.
 We can assert our preconditions.
 We can invoke our function.
@@ -163,7 +162,7 @@ We can invoke our function.
 
 
 
-                                   6 / 21   13 / 83
+                                   6 / 21   13 / 87
    Assume foo is in a new library.
    We can assert our preconditions.
    We can invoke our function.
@@ -171,17 +170,17 @@ We can invoke our function.
 
 
 
-#include <foo.h>
-#include <bsl_iostream.h>
+# include <foo.h>
+# include <bsl_iostream.h>
 
 int main()
 {
   int fooishness = foo(3,5);
-  bsl::cout << "My Fooishness is:" << fooishness << bsl::endl;
+  bsl::cout << " My Fooishness is: " << fooishness << bsl::endl;
   return 0;
 }
 
-                                                                 6 / 21   14 / 83
+                                                                   6 / 21   14 / 87
    Assume foo is in a new library.
    We can assert our preconditions.
    We can invoke our function.
@@ -189,17 +188,17 @@ int main()
 
 
 
-#include <foo.h>
+# include <foo.h>
 
 int main()
 {
   int fooishness = foo(5,3);
-  bsl::cout << "My Fooishness is:" << fooishness << bsl::endl;
+  bsl::cout << " My Fooishness is: " << fooishness << bsl::endl;
   return 0;
 }
 
 
-                                                                 6 / 21   15 / 83
+                                                                   6 / 21   15 / 87
    We can build our code with assertions enabled.
 
 
@@ -210,7 +209,7 @@ $ g++ -DBSLS_ASSERT_LEVEL_ASSERT -o badmain.tsk foo.cpp badmain.cpp
 
 
 
-                                                                  7 / 21   16 / 83
+                                                                  7 / 21   16 / 87
    We can build our code with assertions enabled.
    Then run it.
 
@@ -222,7 +221,7 @@ $ ./badmain.tsk
 
 
 
-                                                                  7 / 21   17 / 83
+                                                                  7 / 21   17 / 87
    We can build our code with assertions enabled.
    Then run it.
    And kabooom.
@@ -236,7 +235,7 @@ Aborted (core dumped)
 
 
 
-                                                                  7 / 21   18 / 83
+                                                                  7 / 21   18 / 87
                 What Can a violation handler do?
 
 
@@ -246,7 +245,7 @@ Violations can be configured to do a number of things
 
 
 
-                                                        8 / 21   19 / 83
+                                                        8 / 21   19 / 87
                 What Can a violation handler do?
 
 
@@ -259,7 +258,7 @@ bsls::Assert:setViolationHandler(Assert::ViolationHandler function);
 
 
 
-                                                             8 / 21   20 / 83
+                                                             8 / 21   20 / 87
                  What Can a violation handler do?
 
 
@@ -275,7 +274,7 @@ Handlers exist to abort, sleep, log, throw, or write your own.
 
 
 
-                                                                 8 / 21   21 / 83
+                                                                 8 / 21   21 / 87
                  What Can a violation handler do?
 
 
@@ -292,13 +291,13 @@ The default handler aborts. Use that.
 
 
 
-                                                                 8 / 21   22 / 83
+                                                                 8 / 21   22 / 87
 What SHOULD a violation handler do?
 
 
 
 
-                                      9 / 21   23 / 83
+                                      9 / 21   23 / 87
              What SHOULD a violation handler do?
 
 
@@ -307,7 +306,7 @@ In production code: Abort.
 
 
 
-                                                   9 / 21   24 / 83
+                                                   9 / 21   24 / 87
              What SHOULD a violation handler do?
 
 
@@ -317,7 +316,7 @@ In development code: Abort.
 
 
 
-                                                   9 / 21   25 / 83
+                                                   9 / 21   25 / 87
               What SHOULD a violation handler do?
 
 
@@ -328,7 +327,7 @@ In unit tests: Abort.
 
 
 
-                                                    9 / 21   26 / 83
+                                                    9 / 21   26 / 87
              What SHOULD a violation handler do?
 
 
@@ -339,7 +338,7 @@ In unit tests: Abort. or throw when explicitly tested. (see BSLS_ASSERTTEST)
 
 
 
-                                                                               9 / 21   27 / 83
+                                                                               9 / 21   27 / 87
              What SHOULD a violation handler do?
 
 
@@ -351,7 +350,7 @@ The source of a violation may be close or far.
 
 
 
-                                                                               9 / 21   28 / 83
+                                                                               9 / 21   28 / 87
              What SHOULD a violation handler do?
 
 
@@ -364,7 +363,7 @@ The risk when continuing is unbounded.
 
 
 
-                                                                               9 / 21   29 / 83
+                                                                               9 / 21   29 / 87
              What SHOULD a violation handler do?
 
 
@@ -378,7 +377,7 @@ The risk when continuing is unbounded.
 
 
 
-                                                                               9 / 21   30 / 83
+                                                                               9 / 21   30 / 87
              What SHOULD a violation handler do?
 
 
@@ -393,7 +392,7 @@ The risk when continuing is unbounded.
 
 
 
-                                                                               9 / 21   31 / 83
+                                                                               9 / 21   31 / 87
              What SHOULD a violation handler do?
 
 
@@ -409,7 +408,7 @@ Fast failure has well known cost.
 
 
 
-                                                                               9 / 21   32 / 83
+                                                                               9 / 21   32 / 87
              What SHOULD a violation handler do?
 
 
@@ -426,7 +425,7 @@ Fast failure has well known cost.
 
 
 
-                                                                               9 / 21   33 / 83
+                                                                               9 / 21   33 / 87
              What SHOULD a violation handler do?
 
 
@@ -444,13 +443,13 @@ Fast failure has well known cost.
 
 
 
-                                                                               9 / 21   34 / 83
+                                                                               9 / 21   34 / 87
 Writing A New Library
 
 
 
 
-                        10 / 21   35 / 83
+                        10 / 21   35 / 87
                        Writing A New Library
 
 
@@ -461,7 +460,7 @@ In a new library, use BSLS_ASSERT
 
 
 
-                                               10 / 21   36 / 83
+                                               10 / 21   36 / 87
                        Writing A New Library
 
 
@@ -473,7 +472,7 @@ In a new function, use BSLS_ASSERT
 
 
 
-                                               10 / 21   37 / 83
+                                               10 / 21   37 / 87
                        Writing A New Library
 
 
@@ -486,7 +485,7 @@ When deploying a new application, use BSLS_ASSERT
 
 
 
-                                                    10 / 21   38 / 83
+                                                    10 / 21   38 / 87
                         Writing A New Library
 
 
@@ -501,7 +500,7 @@ Catch errors fast, run safer systems.
 
 
 
-                                                    10 / 21   39 / 83
+                                                    10 / 21   39 / 87
 1   A Function
 
 2   Brand New Library
@@ -513,13 +512,13 @@ Catch errors fast, run safer systems.
 
 
 
-                        11 / 21   40 / 83
+                        11 / 21   40 / 87
 Checks In Old Code
 
 
 
 
-                     12 / 21   41 / 83
+                     12 / 21   41 / 87
                        Checks In Old Code
 
 
@@ -530,7 +529,7 @@ New checks in old code? use BSLS_REVIEW
 
 
 
-                                            12 / 21   42 / 83
+                                            12 / 21   42 / 87
                        Checks In Old Code
 
 
@@ -542,7 +541,7 @@ Enabling dormant checks in old code? use BSLS_REVIEW_LEVEL...
 
 
 
-                                                                12 / 21   43 / 83
+                                                                12 / 21   43 / 87
                           Checks In Old Code
 
 
@@ -556,13 +555,13 @@ Safely roll out checks before enforcing them.
 
 
 
-                                                                12 / 21   44 / 83
+                                                                12 / 21   44 / 87
 Let’s say you wrote a function long ago.
 
 
 
 
-                                           13 / 21   45 / 83
+                                           13 / 21   45 / 87
    Let’s say you wrote a function long ago.
 
 
@@ -573,7 +572,7 @@ int foo(int x, int y);
 
 
 
-                                              13 / 21   46 / 83
+                                              13 / 21   46 / 87
    Let’s say you wrote a function long ago.
    With a contract.
 
@@ -585,7 +584,7 @@ int foo(int x, int y);
 
 
 
-                                              13 / 21   47 / 83
+                                              13 / 21   47 / 87
    Let’s say you wrote a function long ago.
    With a contract.
 
@@ -598,11 +597,11 @@ int foo(int x, int y);
 
 
 
-
-                                                            13 / 21   48 / 83
+                                                            13 / 21   48 / 87
    Let’s say you wrote a function long ago.
    With a contract.
    But it fails badly and subtly if x <= y, so you want to narrow the contract.
+
 
 
 
@@ -612,11 +611,81 @@ int foo(int x, int y);
 
 
 
-
-                                                                                  13 / 21   49 / 83
+                                                                                  13 / 21   49 / 87
    Let’s say you wrote a function long ago.
    With a contract.
    But it fails badly and subtly if x <= y, so you want to narrow the contract.
+       Returns a value out of range
+
+
+
+
+int foo(int x, int y);
+  // Do some foo with the specified 'x' and 'y'.             Return
+  // how fooable they were.
+
+
+
+                                                                                  13 / 21   50 / 87
+   Let’s say you wrote a function long ago.
+   With a contract.
+   But it fails badly and subtly if x <= y, so you want to narrow the contract.
+       Returns a value out of range
+       Writes and doesn’t delete a large temporary file on disk
+
+
+
+
+int foo(int x, int y);
+  // Do some foo with the specified 'x' and 'y'.                  Return
+  // how fooable they were.
+
+
+
+                                                                                  13 / 21   51 / 87
+   Let’s say you wrote a function long ago.
+   With a contract.
+   But it fails badly and subtly if x <= y, so you want to narrow the contract.
+       Returns a value out of range
+       Writes and doesn’t delete a large temporary file on disk
+       Takes seconds to complete instead of microseconds
+
+
+
+
+int foo(int x, int y);
+  // Do some foo with the specified 'x' and 'y'.                  Return
+  // how fooable they were.
+
+
+
+                                                                                  13 / 21   52 / 87
+   Let’s say you wrote a function long ago.
+   With a contract.
+   But it fails badly and subtly if x <= y, so you want to narrow the contract.
+       Returns a value out of range
+       Writes and doesn’t delete a large temporary file on disk
+       Takes seconds to complete instead of microseconds
+   All problems that could be going unnoticed in production
+
+
+
+
+int foo(int x, int y);
+  // Do some foo with the specified 'x' and 'y'.                  Return
+  // how fooable they were.
+
+
+
+                                                                                  13 / 21   53 / 87
+   Let’s say you wrote a function long ago.
+   With a contract.
+   But it fails badly and subtly if x <= y, so you want to narrow the contract.
+       Returns a value out of range
+       Writes and doesn’t delete a large temporary file on disk
+       Takes seconds to complete instead of microseconds
+   All problems that could be going unnoticed in production
+   So you want to narrow the contract
 
 
 
@@ -625,16 +694,13 @@ int foo(int x, int y);
   // how fooable they were. The behavior is undefined
   // unless 'x <= y'.
 
-
-
-
-                                                                                  13 / 21   50 / 83
+                                                                                  13 / 21   54 / 87
      Assume foo is old as dirt.
 
 
 
 
-#include <foo.h>
+# include <foo.h>
 
 
 int foo(int x, int y)
@@ -644,15 +710,15 @@ int foo(int x, int y)
 }
 
 
-                                            14 / 21   51 / 83
+                                            14 / 21   55 / 87
    Assume foo is old as dirt.
    We can review our new preconditions.
 
 
 
 
-#include <foo.h>
-#include <bsls_review.h>
+# include <foo.h>
+# include <bsls_review.h>
 
 int foo(int x, int y)
 {
@@ -661,7 +727,7 @@ int foo(int x, int y)
 }
 
 
-                                          14 / 21   52 / 83
+                                          14 / 21   56 / 87
    Assume foo is old as dirt.
    We can review our new preconditions.
    Eventually, we migrate on to BSLS_ASSERT.
@@ -669,8 +735,8 @@ int foo(int x, int y)
 
 
 
-#include <foo.h>
-#include <bsls_assert.h>
+# include <foo.h>
+# include <bsls_assert.h>
 
 int foo(int x, int y)
 {
@@ -679,7 +745,7 @@ int foo(int x, int y)
 }
 
 
-                                               14 / 21   53 / 83
+                                               14 / 21   57 / 87
   Assume foo is old as dirt.
   We can review our new preconditions.
   Eventually, we migrate on to BSLS_ASSERT.
@@ -691,7 +757,7 @@ KABOOM
 
 
 
-                                              14 / 21   54 / 83
+                                              14 / 21   58 / 87
    We can build our code with assertions enabled
 
 
@@ -703,7 +769,7 @@ $ g++ -DBSLS_ASSERT_LEVEL_ASSERT -o questionablemain.tsk
 
 
 
-                                                           15 / 21   55 / 83
+                                                           15 / 21   59 / 87
    We can build our code with assertions enabled
    This will enable reviews of the same type too.
 
@@ -716,7 +782,7 @@ $ g++ -DBSLS_ASSERT_LEVEL_ASSERT -o questionablemain.tsk
 
 
 
-                                                           15 / 21   56 / 83
+                                                           15 / 21   60 / 87
    We can build our code with assertions enabled
    This will enable reviews of the same type too.
    Then run it.
@@ -731,7 +797,7 @@ $ ./questionablemain.tsk
 
 
 
-                                                           15 / 21   57 / 83
+                                                           15 / 21   61 / 87
    We can build our code with assertions enabled
    This will enable reviews of the same type too.
    Then run it.
@@ -748,7 +814,7 @@ Please run "/bb/bin/showfunc.tsk ./questionablemain.tsk 8048B28
 8048A07 8048A26" to see the stack trace.
 My Fooishness is: 171717
 
-                                                                  15 / 21   58 / 83
+                                                                  15 / 21   62 / 87
    We can build our code with assertions enabled
    This will enable reviews of the same type too.
    Then run it.
@@ -765,7 +831,7 @@ $ /bb/bin/showfunc.tsk ./questionablemain.tsk 8048B28 8048A07
 0x8048a26 main + 26
 
 
-                                                                15 / 21   59 / 83
+                                                                15 / 21   63 / 87
    We can build our code with assertions enabled
    This will enable reviews of the same type too.
    Then run it.
@@ -782,13 +848,13 @@ $ /bb/bin/showfunc.tsk ./questionablemain.tsk 8048B28 8048A07
 0x8048a26 main + 26
 
 
-                                                                15 / 21   60 / 83
+                                                                15 / 21   64 / 87
 Tickets
 
 
 
 
-          16 / 21   61 / 83
+          16 / 21   65 / 87
                                Tickets
 
 
@@ -798,7 +864,7 @@ Every BSLS_REVIEW failure logged to act.log will be processed by GUTS.
 
 
 
-                                                                         16 / 21   62 / 83
+                                                                         16 / 21   66 / 87
                                   Tickets
 
 
@@ -809,7 +875,7 @@ Most will result in a DRQS created for the owner of the code that failed.
 
 
 
-                                                                            16 / 21   63 / 83
+                                                                            16 / 21   67 / 87
                                 Tickets
 
 
@@ -822,7 +888,7 @@ inaccurate.
 
 
 
-                                                                            16 / 21   64 / 83
+                                                                            16 / 21   68 / 87
                                   Tickets
 
 
@@ -836,22 +902,7 @@ inaccurate.
 
 
 
-                                                                            16 / 21   65 / 83
-                                  Tickets
-
-
-
-Every BSLS_REVIEW failure logged to act.log will be processed by GUTS.
-Most will result in a DRQS created for the owner of the code that failed.
-Tickets are throttled, only act.log is monitored, and GUTS routing can be
-inaccurate.
-    Keep your PWHO entries and procmgr ids set up correctly
-    Monitor your own logs too.
-
-
-
-
-                                                                            16 / 21   66 / 83
+                                                                            16 / 21   69 / 87
                                   Tickets
 
 
@@ -866,7 +917,22 @@ inaccurate.
 
 
 
-                                                                            16 / 21   67 / 83
+                                                                            16 / 21   70 / 87
+                                  Tickets
+
+
+
+Every BSLS_REVIEW failure logged to act.log will be processed by GUTS.
+Most will result in a DRQS created for the owner of the code that failed.
+Tickets are throttled, only act.log is monitored, and GUTS routing can be
+inaccurate.
+    Keep your PWHO entries and procmgr ids set up correctly
+    Monitor your own logs too.
+
+
+
+
+                                                                            16 / 21   71 / 87
    You might be running with asserts off
 
 
@@ -878,7 +944,7 @@ $ g++ -DBSLS_ASSERT_LEVEL_NONE -o badmain.tsk foo.cpp
 
 
 
-                                                        17 / 21   68 / 83
+                                                        17 / 21   72 / 87
    You might be running with asserts off
    If you switch to this, things might go boom
 
@@ -891,7 +957,7 @@ $ g++ -DBSLS_ASSERT_LEVEL_ASSERT -o badmain.tsk foo.cpp
 
 
 
-                                                          17 / 21   69 / 83
+                                                          17 / 21   73 / 87
    You might be running with asserts off
    If you switch to this, things might go boom
    This will switch asserts to reviews first
@@ -905,7 +971,7 @@ $ g++ -DBSLS_ASSERT_LEVEL_NONE -DBSLS_REVIEW_LEVEL_REVIEW
 
 
 
-                                                            17 / 21   70 / 83
+                                                            17 / 21   74 / 87
    You might be running with asserts off
    If you switch to this, things might go boom
    This will switch asserts to reviews first
@@ -919,7 +985,7 @@ $ g++ -DBSLS_ASSERT_LEVEL_NONE -DBSLS_REVIEW_LEVEL_REVIEW
 
 
 
-                                                            17 / 21   71 / 83
+                                                            17 / 21   75 / 87
    You might be running with asserts off
    If you switch to this, things might go boom
    This will switch asserts to reviews first
@@ -933,7 +999,7 @@ $ g++ -DBSLS_ASSERT_LEVEL_ASSERT -o badmain.tsk foo.cpp
 
 
 
-                                                          17 / 21   72 / 83
+                                                          17 / 21   76 / 87
 1   A Function
 
 2   Brand New Library
@@ -945,7 +1011,7 @@ $ g++ -DBSLS_ASSERT_LEVEL_ASSERT -o badmain.tsk foo.cpp
 
 
 
-                        18 / 21   73 / 83
+                        18 / 21   77 / 87
                         Documentation
 
 
@@ -956,7 +1022,7 @@ BDE Starting point: http://bde.bloomberg.com/
 
 
 
-                                                19 / 21   74 / 83
+                                                19 / 21   78 / 87
                         Documentation
 
 
@@ -969,7 +1035,7 @@ api_prod/group__bsls__assert.html
 
 
 
-                                                              19 / 21   75 / 83
+                                                              19 / 21   79 / 87
                         Documentation
 
 
@@ -984,7 +1050,7 @@ api_prod/group__bsls__review.html
 
 
 
-                                                              19 / 21   76 / 83
+                                                              19 / 21   80 / 87
                          Source Code
 
 
@@ -994,7 +1060,7 @@ BDE Starting point: http://bbgithub.dev.bloomberg.com/bde/bde/
 
 
 
-                                                                 20 / 21   77 / 83
+                                                                 20 / 21   81 / 87
                          Source Code
 
 
@@ -1005,7 +1071,7 @@ Or Open Source: https://github.com/bloomberg/bde
 
 
 
-                                                                 20 / 21   78 / 83
+                                                                 20 / 21   82 / 87
                          Source Code
 
 
@@ -1018,7 +1084,7 @@ bsl/bsls/bsls_assert.h
 
 
 
-                                                                 20 / 21   79 / 83
+                                                                 20 / 21   83 / 87
                          Source Code
 
 
@@ -1033,7 +1099,7 @@ bsl/bsls/bsls_review.h
 
 
 
-                                                                 20 / 21   80 / 83
+                                                                 20 / 21   84 / 87
                         Things to Learn
 
 
@@ -1045,7 +1111,7 @@ BDE_BUILD_TARGET_SAFE.
 
 
 
-                                                             21 / 21   81 / 83
+                                                             21 / 21   85 / 87
                          Things to Learn
 
 
@@ -1059,7 +1125,7 @@ BSLS_ASSERT_*, BSLS_REVIEW_*.
 
 
 
-                                                                    21 / 21   82 / 83
+                                                                    21 / 21   86 / 87
                            Things to Learn
 
 
@@ -1074,5 +1140,5 @@ Testing: BSLS_ASSERTTEST
 
 
 
-                                                                    21 / 21   83 / 83
+                                                                    21 / 21   87 / 87
 

@@ -215,6 +215,13 @@ Aborted (core dumped)
   \item<1->{Let's say you wrote a function long ago.}
   \item<3->{With a contract.}
   \item<5->{But it fails badly and subtly if \cc{x <= y}, so you want to narrow the contract.}
+    \begin{itemize}
+    \item<6->{Returns a value out of range}
+    \item<7->{Writes and doesn't delete a large temporary file on disk}
+    \item<8->{Takes seconds to complete instead of microseconds}
+    \end{itemize}
+  \item<9->{All problems that could be going unnoticed in production}
+  \item<10->{So you want to narrow the contract}
   \end{itemize}
 \end{overprint}
 
@@ -231,14 +238,14 @@ int foo(int x, int y);
   // \highlight{how fooable they were.}
 \end{cppcodebox}
 
-\onslide<5>
+\onslide<5-9>
 \begin{cppcodebox}
 int foo(int x, int y);
   // Do some foo with the specified 'x' and 'y'.  Return
   // how fooable they were.
 \end{cppcodebox}
 
-\onslide<6->
+\onslide<10->
 \begin{cppcodebox}
 int foo(int x, int y);
   // Do some foo with the specified 'x' and 'y'.  Return
