@@ -9,7 +9,7 @@ Joshua Berne - jberne4@bloomberg.net
 
 
 
-                                       1 / 18   1 / 81
+                                       1 / 21   1 / 83
                                  Copyright Notice
 
 
@@ -26,31 +26,7 @@ recommendations, or positions of Bloomberg.
 
 
 
-                                                                                     2 / 18   2 / 81
-1   A Function
-
-
-
-
-                 3 / 18   3 / 81
-1   A Function
-
-2   Brand New Library
-
-
-
-
-                        3 / 18   4 / 81
-1   A Function
-
-2   Brand New Library
-
-3   Existing Software
-
-
-
-
-                        3 / 18   5 / 81
+                                                                                     2 / 21   2 / 83
 1   A Function
 
 2   Brand New Library
@@ -62,13 +38,13 @@ recommendations, or positions of Bloomberg.
 
 
 
-                        3 / 18   6 / 81
+                        3 / 21   3 / 83
 Let’s say you want to write a function.
 
 
 
 
-                                          4 / 18   7 / 81
+                                          4 / 21   4 / 83
    Let’s say you want to write a function.
 
 
@@ -79,7 +55,7 @@ int foo(int x, int y);
 
 
 
-                                             4 / 18   8 / 81
+                                             4 / 21   5 / 83
    Let’s say you want to write a function.
    With a contract.
 
@@ -91,7 +67,7 @@ int foo(int x, int y);
 
 
 
-                                             4 / 18   9 / 81
+                                             4 / 21   6 / 83
    Let’s say you want to write a function.
    With a contract.
 
@@ -105,7 +81,7 @@ int foo(int x, int y);
 
 
 
-                                                            4 / 18   10 / 81
+                                                            4 / 21   7 / 83
    Let’s say you want to write a function.
    With a contract.
    That is a narrow contract.
@@ -119,7 +95,7 @@ int foo(int x, int y);
 
 
 
-                                                            4 / 18   11 / 81
+                                                            4 / 21   8 / 83
    Let’s say you want to write a function.
    With a contract.
    That is a narrow contract.
@@ -134,64 +110,19 @@ int foo(int x, int y);
 
 
 
-                                                          4 / 18   12 / 81
-Writing A New Library
+                                                          4 / 21   9 / 83
+1   A Function
+
+2   Brand New Library
+
+3   Existing Software
+
+4   Other Reading
 
 
 
 
-                        5 / 18   13 / 81
-                       Writing A New Library
-
-
-
-
-In a new library, use BSLS_ASSERT
-
-
-
-
-                                               5 / 18   14 / 81
-                       Writing A New Library
-
-
-
-
-In a new library, use BSLS_ASSERT
-In a new function, use BSLS_ASSERT
-
-
-
-
-                                               5 / 18   15 / 81
-                       Writing A New Library
-
-
-
-
-In a new library, use BSLS_ASSERT
-In a new function, use BSLS_ASSERT
-When deploying a new application, use BSLS_ASSERT
-
-
-
-
-                                                    5 / 18   16 / 81
-                        Writing A New Library
-
-
-
-
-In a new library, use BSLS_ASSERT
-In a new function, use BSLS_ASSERT
-When deploying a new application, use BSLS_ASSERT
-
-Catch errors fast, run safer systems.
-
-
-
-
-                                                    5 / 18   17 / 81
+                        5 / 21   10 / 83
      Assume foo is in a new library.
 
 
@@ -207,7 +138,7 @@ int foo(int x, int y)
 }
 
 
-                                            6 / 18   18 / 81
+                                            6 / 21   11 / 83
    Assume foo is in a new library.
    We can assert our preconditions.
 
@@ -224,7 +155,15 @@ int foo(int x, int y)
 }
 
 
-                                          6 / 18   19 / 81
+                                          6 / 21   12 / 83
+Assume foo is in a new library.
+We can assert our preconditions.
+We can invoke our function.
+
+
+
+
+                                   6 / 21   13 / 83
    Assume foo is in a new library.
    We can assert our preconditions.
    We can invoke our function.
@@ -238,11 +177,11 @@ int foo(int x, int y)
 int main()
 {
   int fooishness = foo(3,5);
-  bsl::cout << fooishness << bsl::endl;
+  bsl::cout << "My Fooishness is:" << fooishness << bsl::endl;
   return 0;
 }
 
-                                          6 / 18   20 / 81
+                                                                 6 / 21   14 / 83
    Assume foo is in a new library.
    We can assert our preconditions.
    We can invoke our function.
@@ -260,36 +199,36 @@ int main()
 }
 
 
-                                                                 6 / 18   21 / 81
+                                                                 6 / 21   15 / 83
    We can build our code with assertions enabled.
 
 
 
 
-$ g++ -DBSLS\_ASSERT\_LEVEL\_ASSERT -o badmain.tsk foo.cpp badmain.cpp
+$ g++ -DBSLS_ASSERT_LEVEL_ASSERT -o badmain.tsk foo.cpp badmain.cpp
 
 
 
 
-                                                                  7 / 18   22 / 81
+                                                                  7 / 21   16 / 83
    We can build our code with assertions enabled.
    Then run it.
 
 
 
-$ g++ -DBSLS\_ASSERT\_LEVEL\_ASSERT -o badmain.tsk foo.cpp badmain.cpp
+$ g++ -DBSLS_ASSERT_LEVEL_ASSERT -o badmain.tsk foo.cpp badmain.cpp
 $ ./badmain.tsk
 
 
 
 
-                                                                  7 / 18   23 / 81
+                                                                  7 / 21   17 / 83
    We can build our code with assertions enabled.
    Then run it.
    And kabooom.
 
 
-$ g++ -DBSLS\_ASSERT\_LEVEL\_ASSERT -o badmain.tsk foo.cpp badmain.cpp
+$ g++ -DBSLS_ASSERT_LEVEL_ASSERT -o badmain.tsk foo.cpp badmain.cpp
 $ ./badmain.tsk
 FATAL foo.cpp:6 Assertion failed: x <= y
 Aborted (core dumped)
@@ -297,9 +236,8 @@ Aborted (core dumped)
 
 
 
-                                                                  7 / 18   24 / 81
+                                                                  7 / 21   18 / 83
                 What Can a violation handler do?
-
 
 
 
@@ -308,42 +246,59 @@ Violations can be configured to do a number of things
 
 
 
-                                                        8 / 18   25 / 81
+                                                        8 / 21   19 / 83
                 What Can a violation handler do?
-
 
 
 
 Violations can be configured to do a number of things
 
-bsls::Assert:setViolationHandler
+typedef void (*ViolationHandler)(const AssertViolation&);
+bsls::Assert:setViolationHandler(Assert::ViolationHandler function);
 
 
 
 
-                                                        8 / 18   26 / 81
+                                                             8 / 21   20 / 83
                  What Can a violation handler do?
 
 
 
+Violations can be configured to do a number of things
+
+typedef void (*ViolationHandler)(const AssertViolation&);
+bsls::Assert:setViolationHandler(Assert::ViolationHandler function);
+
+
+Handlers exist to abort, sleep, log, throw, or write your own.
+
+
+
+
+                                                                 8 / 21   21 / 83
+                 What Can a violation handler do?
+
+
 
 Violations can be configured to do a number of things
 
-bsls::Assert:setViolationHandler
+typedef void (*ViolationHandler)(const AssertViolation&);
+bsls::Assert:setViolationHandler(Assert::ViolationHandler function);
 
 
-Handlers exist to abort, sleep, log, throw, or write your own
+Handlers exist to abort, sleep, log, throw, or write your own.
+The default handler aborts. Use that.
 
 
 
 
-                                                                8 / 18   27 / 81
+                                                                 8 / 21   22 / 83
 What SHOULD a violation handler do?
 
 
 
 
-                                      9 / 18   28 / 81
+                                      9 / 21   23 / 83
              What SHOULD a violation handler do?
 
 
@@ -352,7 +307,7 @@ In production code: Abort.
 
 
 
-                                                   9 / 18   29 / 81
+                                                   9 / 21   24 / 83
              What SHOULD a violation handler do?
 
 
@@ -362,7 +317,7 @@ In development code: Abort.
 
 
 
-                                                   9 / 18   30 / 81
+                                                   9 / 21   25 / 83
               What SHOULD a violation handler do?
 
 
@@ -373,129 +328,111 @@ In unit tests: Abort.
 
 
 
-                                                    9 / 18   31 / 81
+                                                    9 / 21   26 / 83
              What SHOULD a violation handler do?
 
 
 In production code: Abort.
 In development code: Abort.
-In unit tests: Abort. or throw when explicitly tested.
+In unit tests: Abort. or throw when explicitly tested. (see BSLS_ASSERTTEST)
 
 
 
 
-                                                         9 / 18   32 / 81
+                                                                               9 / 21   27 / 83
              What SHOULD a violation handler do?
 
 
 In production code: Abort.
 In development code: Abort.
-In unit tests: Abort. or throw when explicitly tested.
+In unit tests: Abort. or throw when explicitly tested. (see BSLS_ASSERTTEST)
 The source of a violation may be close or far.
 
 
 
 
-                                                         9 / 18   33 / 81
+                                                                               9 / 21   28 / 83
              What SHOULD a violation handler do?
 
 
 In production code: Abort.
 In development code: Abort.
-In unit tests: Abort. or throw when explicitly tested.
-The source of a violation may be close or far.
-The risk when continuing is unbounded.
-
-
-
-
-                                                         9 / 18   34 / 81
-             What SHOULD a violation handler do?
-
-
-In production code: Abort.
-In development code: Abort.
-In unit tests: Abort. or throw when explicitly tested.
+In unit tests: Abort. or throw when explicitly tested. (see BSLS_ASSERTTEST)
 The source of a violation may be close or far.
 The risk when continuing is unbounded.
-    Best case is a quick failure with bad values
 
 
 
 
-                                                         9 / 18   35 / 81
+                                                                               9 / 21   29 / 83
              What SHOULD a violation handler do?
 
 
 In production code: Abort.
 In development code: Abort.
-In unit tests: Abort. or throw when explicitly tested.
+In unit tests: Abort. or throw when explicitly tested. (see BSLS_ASSERTTEST)
 The source of a violation may be close or far.
 The risk when continuing is unbounded.
     Best case is a quick failure with bad values
-    Worst case is silent failure and spreading corruption.
 
 
 
 
-                                                             9 / 18   36 / 81
+                                                                               9 / 21   30 / 83
              What SHOULD a violation handler do?
 
 
 In production code: Abort.
 In development code: Abort.
-In unit tests: Abort. or throw when explicitly tested.
+In unit tests: Abort. or throw when explicitly tested. (see BSLS_ASSERTTEST)
 The source of a violation may be close or far.
 The risk when continuing is unbounded.
     Best case is a quick failure with bad values
     Worst case is silent failure and spreading corruption.
-Fast failure has well known cost.
 
 
 
 
-                                                             9 / 18   37 / 81
+                                                                               9 / 21   31 / 83
              What SHOULD a violation handler do?
 
 
 In production code: Abort.
 In development code: Abort.
-In unit tests: Abort. or throw when explicitly tested.
+In unit tests: Abort. or throw when explicitly tested. (see BSLS_ASSERTTEST)
 The source of a violation may be close or far.
 The risk when continuing is unbounded.
     Best case is a quick failure with bad values
     Worst case is silent failure and spreading corruption.
 Fast failure has well known cost.
-    Failures will be caught and escalated
 
 
 
 
-                                                             9 / 18   38 / 81
+                                                                               9 / 21   32 / 83
              What SHOULD a violation handler do?
 
 
 In production code: Abort.
 In development code: Abort.
-In unit tests: Abort. or throw when explicitly tested.
+In unit tests: Abort. or throw when explicitly tested. (see BSLS_ASSERTTEST)
 The source of a violation may be close or far.
 The risk when continuing is unbounded.
     Best case is a quick failure with bad values
     Worst case is silent failure and spreading corruption.
 Fast failure has well known cost.
     Failures will be caught and escalated
-    Software will not attempt to execute in a corrupt state
 
 
 
 
-                                                              9 / 18   39 / 81
+                                                                               9 / 21   33 / 83
              What SHOULD a violation handler do?
 
 
 In production code: Abort.
 In development code: Abort.
-In unit tests: Abort. or throw when explicitly tested.
+In unit tests: Abort. or throw when explicitly tested. (see BSLS_ASSERTTEST)
 The source of a violation may be close or far.
 The risk when continuing is unbounded.
     Best case is a quick failure with bad values
@@ -507,13 +444,82 @@ Fast failure has well known cost.
 
 
 
-                                                              9 / 18   40 / 81
+                                                                               9 / 21   34 / 83
+Writing A New Library
+
+
+
+
+                        10 / 21   35 / 83
+                       Writing A New Library
+
+
+
+
+In a new library, use BSLS_ASSERT
+
+
+
+
+                                               10 / 21   36 / 83
+                       Writing A New Library
+
+
+
+
+In a new library, use BSLS_ASSERT
+In a new function, use BSLS_ASSERT
+
+
+
+
+                                               10 / 21   37 / 83
+                       Writing A New Library
+
+
+
+
+In a new library, use BSLS_ASSERT
+In a new function, use BSLS_ASSERT
+When deploying a new application, use BSLS_ASSERT
+
+
+
+
+                                                    10 / 21   38 / 83
+                        Writing A New Library
+
+
+
+
+In a new library, use BSLS_ASSERT
+In a new function, use BSLS_ASSERT
+When deploying a new application, use BSLS_ASSERT
+
+Catch errors fast, run safer systems.
+
+
+
+
+                                                    10 / 21   39 / 83
+1   A Function
+
+2   Brand New Library
+
+3   Existing Software
+
+4   Other Reading
+
+
+
+
+                        11 / 21   40 / 83
 Checks In Old Code
 
 
 
 
-                     10 / 18   41 / 81
+                     12 / 21   41 / 83
                        Checks In Old Code
 
 
@@ -524,7 +530,7 @@ New checks in old code? use BSLS_REVIEW
 
 
 
-                                            10 / 18   42 / 81
+                                            12 / 21   42 / 83
                        Checks In Old Code
 
 
@@ -536,7 +542,7 @@ Enabling dormant checks in old code? use BSLS_REVIEW_LEVEL...
 
 
 
-                                                                10 / 18   43 / 81
+                                                                12 / 21   43 / 83
                           Checks In Old Code
 
 
@@ -550,13 +556,13 @@ Safely roll out checks before enforcing them.
 
 
 
-                                                                10 / 18   44 / 81
+                                                                12 / 21   44 / 83
 Let’s say you wrote a function long ago.
 
 
 
 
-                                           11 / 18   45 / 81
+                                           13 / 21   45 / 83
    Let’s say you wrote a function long ago.
 
 
@@ -567,7 +573,7 @@ int foo(int x, int y);
 
 
 
-                                              11 / 18   46 / 81
+                                              13 / 21   46 / 83
    Let’s say you wrote a function long ago.
    With a contract.
 
@@ -579,7 +585,7 @@ int foo(int x, int y);
 
 
 
-                                              11 / 18   47 / 81
+                                              13 / 21   47 / 83
    Let’s say you wrote a function long ago.
    With a contract.
 
@@ -593,24 +599,24 @@ int foo(int x, int y);
 
 
 
-                                                            11 / 18   48 / 81
+                                                            13 / 21   48 / 83
    Let’s say you wrote a function long ago.
    With a contract.
-   That you want to narrow.
+   But it fails badly and subtly if x <= y, so you want to narrow the contract.
 
 
 
 int foo(int x, int y);
-  // Do some foo with the specified 'x' and 'y'.   Return
+  // Do some foo with the specified 'x' and 'y'.             Return
   // how fooable they were.
 
 
 
 
-                                                            11 / 18   49 / 81
+                                                                                  13 / 21   49 / 83
    Let’s say you wrote a function long ago.
    With a contract.
-   That you want to narrow.
+   But it fails badly and subtly if x <= y, so you want to narrow the contract.
 
 
 
@@ -622,7 +628,7 @@ int foo(int x, int y);
 
 
 
-                                                          11 / 18   50 / 81
+                                                                                  13 / 21   50 / 83
      Assume foo is old as dirt.
 
 
@@ -638,7 +644,7 @@ int foo(int x, int y)
 }
 
 
-                                            12 / 18   51 / 81
+                                            14 / 21   51 / 83
    Assume foo is old as dirt.
    We can review our new preconditions.
 
@@ -655,10 +661,11 @@ int foo(int x, int y)
 }
 
 
-                                          12 / 18   52 / 81
+                                          14 / 21   52 / 83
    Assume foo is old as dirt.
    We can review our new preconditions.
    Eventually, we migrate on to BSLS_ASSERT.
+
 
 
 
@@ -672,32 +679,44 @@ int foo(int x, int y)
 }
 
 
-                                               12 / 18   53 / 81
+                                               14 / 21   53 / 83
+  Assume foo is old as dirt.
+  We can review our new preconditions.
+  Eventually, we migrate on to BSLS_ASSERT.
+  But that can’t be released safely.
+
+
+KABOOM
+
+
+
+
+                                              14 / 21   54 / 83
    We can build our code with assertions enabled
 
 
 
 
-$ g++ -DBSLS\_ASSERT\_LEVEL\_ASSERT -o questionablemain.tsk
+$ g++ -DBSLS_ASSERT_LEVEL_ASSERT -o questionablemain.tsk
   oldfoo.cpp questionablemain.cpp
 
 
 
 
-                                                              13 / 18   54 / 81
+                                                           15 / 21   55 / 83
    We can build our code with assertions enabled
    This will enable reviews of the same type too.
 
 
 
 
-$ g++ -DBSLS\_ASSERT\_LEVEL\_ASSERT -o questionablemain.tsk
+$ g++ -DBSLS_ASSERT_LEVEL_ASSERT -o questionablemain.tsk
   oldfoo.cpp questionablemain.cpp
 
 
 
 
-                                                              13 / 18   55 / 81
+                                                           15 / 21   56 / 83
    We can build our code with assertions enabled
    This will enable reviews of the same type too.
    Then run it.
@@ -705,14 +724,14 @@ $ g++ -DBSLS\_ASSERT\_LEVEL\_ASSERT -o questionablemain.tsk
 
 
 
-$ g++ -DBSLS\_ASSERT\_LEVEL\_ASSERT -o questionablemain.tsk
+$ g++ -DBSLS_ASSERT_LEVEL_ASSERT -o questionablemain.tsk
   oldfoo.cpp questionablemain.cpp
 $ ./questionablemain.tsk
 
 
 
 
-                                                              13 / 18   56 / 81
+                                                           15 / 21   57 / 83
    We can build our code with assertions enabled
    This will enable reviews of the same type too.
    Then run it.
@@ -721,15 +740,15 @@ $ ./questionablemain.tsk
 
 
 
-$ g++ -DBSLS\_ASSERT\_LEVEL\_ASSERT -o questionablemain.tsk
+$ g++ -DBSLS_ASSERT_LEVEL_ASSERT -o questionablemain.tsk
   oldfoo.cpp questionablemain.cpp
 $ ./questionablemain.tsk
 ERROR oldfoo.cpp:6 BSLS_REVIEW failure: (level:R-DBG) 'x <= y'
 Please run "/bb/bin/showfunc.tsk ./questionablemain.tsk 8048B28
 8048A07 8048A26" to see the stack trace.
+My Fooishness is: 171717
 
-
-                                                                  13 / 18   57 / 81
+                                                                  15 / 21   58 / 83
    We can build our code with assertions enabled
    This will enable reviews of the same type too.
    Then run it.
@@ -746,7 +765,7 @@ $ /bb/bin/showfunc.tsk ./questionablemain.tsk 8048B28 8048A07
 0x8048a26 main + 26
 
 
-                                                                13 / 18   58 / 81
+                                                                15 / 21   59 / 83
    We can build our code with assertions enabled
    This will enable reviews of the same type too.
    Then run it.
@@ -763,13 +782,13 @@ $ /bb/bin/showfunc.tsk ./questionablemain.tsk 8048B28 8048A07
 0x8048a26 main + 26
 
 
-                                                                13 / 18   59 / 81
+                                                                15 / 21   60 / 83
 Tickets
 
 
 
 
-          14 / 18   60 / 81
+          16 / 21   61 / 83
                                Tickets
 
 
@@ -779,7 +798,7 @@ Every BSLS_REVIEW failure logged to act.log will be processed by GUTS.
 
 
 
-                                                                         14 / 18   61 / 81
+                                                                         16 / 21   62 / 83
                                   Tickets
 
 
@@ -790,7 +809,7 @@ Most will result in a DRQS created for the owner of the code that failed.
 
 
 
-                                                                            14 / 18   62 / 81
+                                                                            16 / 21   63 / 83
                                 Tickets
 
 
@@ -803,7 +822,7 @@ inaccurate.
 
 
 
-                                                                            14 / 18   63 / 81
+                                                                            16 / 21   64 / 83
                                   Tickets
 
 
@@ -817,22 +836,7 @@ inaccurate.
 
 
 
-                                                                            14 / 18   64 / 81
-                                  Tickets
-
-
-
-Every BSLS_REVIEW failure logged to act.log will be processed by GUTS.
-Most will result in a DRQS created for the owner of the code that failed.
-Tickets are throttled, only act.log is monitored, and GUTS routing can be
-inaccurate.
-    Keep your PWHO entries and procmgr ids set up correctly
-    Monitor your own logs too.
-
-
-
-
-                                                                            14 / 18   65 / 81
+                                                                            16 / 21   65 / 83
                                   Tickets
 
 
@@ -847,32 +851,47 @@ inaccurate.
 
 
 
-                                                                            14 / 18   66 / 81
+                                                                            16 / 21   66 / 83
+                                  Tickets
+
+
+
+Every BSLS_REVIEW failure logged to act.log will be processed by GUTS.
+Most will result in a DRQS created for the owner of the code that failed.
+Tickets are throttled, only act.log is monitored, and GUTS routing can be
+inaccurate.
+    Keep your PWHO entries and procmgr ids set up correctly
+    Monitor your own logs too.
+
+
+
+
+                                                                            16 / 21   67 / 83
    You might be running with asserts off
 
 
 
 
-$ g++ -DBSLS\_ASSERT\_LEVEL\_NONE -o badmain.tsk foo.cpp
+$ g++ -DBSLS_ASSERT_LEVEL_NONE -o badmain.tsk foo.cpp
   badmain.cpp
 
 
 
 
-                                                           15 / 18   67 / 81
+                                                        17 / 21   68 / 83
    You might be running with asserts off
    If you switch to this, things might go boom
 
 
 
 
-$ g++ -DBSLS\_ASSERT\_LEVEL\_ASSERT -o badmain.tsk foo.cpp
+$ g++ -DBSLS_ASSERT_LEVEL_ASSERT -o badmain.tsk foo.cpp
   badmain.cpp
 
 
 
 
-                                                             15 / 18   68 / 81
+                                                          17 / 21   69 / 83
    You might be running with asserts off
    If you switch to this, things might go boom
    This will switch asserts to reviews first
@@ -880,13 +899,13 @@ $ g++ -DBSLS\_ASSERT\_LEVEL\_ASSERT -o badmain.tsk foo.cpp
 
 
 
-$ g++ -DBSLS\_ASSERT\_LEVEL\_NONE -DBSLS_REVIEW_LEVEL_REVIEW
+$ g++ -DBSLS_ASSERT_LEVEL_NONE -DBSLS_REVIEW_LEVEL_REVIEW
   -o badmain.tsk foo.cpp badmain.cpp
 
 
 
 
-                                                               15 / 18   69 / 81
+                                                            17 / 21   70 / 83
    You might be running with asserts off
    If you switch to this, things might go boom
    This will switch asserts to reviews first
@@ -894,13 +913,13 @@ $ g++ -DBSLS\_ASSERT\_LEVEL\_NONE -DBSLS_REVIEW_LEVEL_REVIEW
 
 
 
-$ g++ -DBSLS\_ASSERT\_LEVEL\_NONE -DBSLS_REVIEW_LEVEL_REVIEW
+$ g++ -DBSLS_ASSERT_LEVEL_NONE -DBSLS_REVIEW_LEVEL_REVIEW
   -o badmain.tsk foo.cpp badmain.cpp
 
 
 
 
-                                                               15 / 18   70 / 81
+                                                            17 / 21   71 / 83
    You might be running with asserts off
    If you switch to this, things might go boom
    This will switch asserts to reviews first
@@ -908,13 +927,25 @@ $ g++ -DBSLS\_ASSERT\_LEVEL\_NONE -DBSLS_REVIEW_LEVEL_REVIEW
    Then switch to this.
 
 
-$ g++ -DBSLS\_ASSERT\_LEVEL\_ASSERT -o badmain.tsk foo.cpp
+$ g++ -DBSLS_ASSERT_LEVEL_ASSERT -o badmain.tsk foo.cpp
   badmain.cpp
 
 
 
 
-                                                             15 / 18   71 / 81
+                                                          17 / 21   72 / 83
+1   A Function
+
+2   Brand New Library
+
+3   Existing Software
+
+4   Other Reading
+
+
+
+
+                        18 / 21   73 / 83
                         Documentation
 
 
@@ -925,7 +956,7 @@ BDE Starting point: http://bde.bloomberg.com/
 
 
 
-                                                16 / 18   72 / 81
+                                                19 / 21   74 / 83
                         Documentation
 
 
@@ -938,7 +969,7 @@ api_prod/group__bsls__assert.html
 
 
 
-                                                              16 / 18   73 / 81
+                                                              19 / 21   75 / 83
                         Documentation
 
 
@@ -953,7 +984,7 @@ api_prod/group__bsls__review.html
 
 
 
-                                                              16 / 18   74 / 81
+                                                              19 / 21   76 / 83
                          Source Code
 
 
@@ -963,7 +994,7 @@ BDE Starting point: http://bbgithub.dev.bloomberg.com/bde/bde/
 
 
 
-                                                                 17 / 18   75 / 81
+                                                                 20 / 21   77 / 83
                          Source Code
 
 
@@ -974,7 +1005,7 @@ Or Open Source: https://github.com/bloomberg/bde
 
 
 
-                                                                 17 / 18   76 / 81
+                                                                 20 / 21   78 / 83
                          Source Code
 
 
@@ -987,7 +1018,7 @@ bsl/bsls/bsls_assert.h
 
 
 
-                                                                 17 / 18   77 / 81
+                                                                 20 / 21   79 / 83
                          Source Code
 
 
@@ -1002,7 +1033,7 @@ bsl/bsls/bsls_review.h
 
 
 
-                                                                 17 / 18   78 / 81
+                                                                 20 / 21   80 / 83
                         Things to Learn
 
 
@@ -1014,7 +1045,7 @@ BDE_BUILD_TARGET_SAFE.
 
 
 
-                                                             18 / 18   79 / 81
+                                                             21 / 21   81 / 83
                          Things to Learn
 
 
@@ -1028,7 +1059,7 @@ BSLS_ASSERT_*, BSLS_REVIEW_*.
 
 
 
-                                                                    18 / 18   80 / 81
+                                                                    21 / 21   82 / 83
                            Things to Learn
 
 
@@ -1043,5 +1074,5 @@ Testing: BSLS_ASSERTTEST
 
 
 
-                                                                    18 / 18   81 / 81
+                                                                    21 / 21   83 / 83
 

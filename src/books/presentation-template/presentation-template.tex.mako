@@ -107,10 +107,6 @@ herein should be interpreted as stating the opinions, policies,
 recommendations, or positions of Bloomberg.
 \end{frame}
 
-\begin{frame}
-  \tableofcontents[pausesections,hidesubsections]
-\end{frame}
-
 %T%% for f in book.outline.sectionfiles("frames"):
 \include{${f}}
 %T%% endfor

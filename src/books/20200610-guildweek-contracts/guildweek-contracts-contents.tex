@@ -1,6 +1,9 @@
 %------------------------------------------------------------------------------
 \section{A Function}
 %------------------------------------------------------------------------------
+\begin{frame}
+  \tableofcontents[currentsection,hidesubsections]
+\end{frame}
 
 \setminted{texcomments}
 
@@ -40,19 +43,9 @@ int foo(int x, int y);
 %------------------------------------------------------------------------------
 \section{Brand New Library}
 %------------------------------------------------------------------------------
-
-\begin{frame}[fragile]
-  \frametitle{Writing A New Library}
-  \begin{itemize}\pause
-  \item{In a new library, use \cc{BSLS_ASSERT}} \pause
-  \item{In a new function, use \cc{BSLS_ASSERT}} \pause
-  \item{When deploying a new application, use \cc{BSLS_ASSERT}} \pause
-  \end{itemize} 
-  \begin{itemize}
-  \item{Catch errors fast, run safer systems.}
-  \end{itemize}
+\begin{frame}
+  \tableofcontents[currentsection,hidesubsections]
 \end{frame}
-    
 
 \begin{frame}[fragile]
 \begin{overprint}
@@ -60,7 +53,7 @@ int foo(int x, int y);
   \item<1->{Assume \cc{foo} is in a new library.}
   \item<2->{We can assert our preconditions.}
   \item<3->{We can invoke our function.}
-  \item<4->{... or have a very bad bug.}
+  \item<5->{... or have a very bad bug.}
   \end{itemize}
 \end{overprint}
 
@@ -89,7 +82,7 @@ int foo(int x, int y)
 }  
 \end{cppcodebox*}
 
-\onslide<3>
+\onslide<4>
 \begin{cppcodebox*}{highlightlines={6}}
 #include <foo.h>
 #include <bsl\_iostream.h>
@@ -97,12 +90,12 @@ int foo(int x, int y)
 int main()
 {
   int fooishness = foo(3,5);
-  bsl::cout << fooishness << bsl::endl;
+  bsl::cout << "My Fooishness is:" << fooishness << bsl::endl;
   return 0;
 }
 \end{cppcodebox*}
 
-\onslide<4>
+\onslide<5>
 \begin{cppcodebox}
 #include <foo.h>
 
@@ -130,18 +123,18 @@ int main()
 
 \onslide<1>
 \begin{shellbox}
-$ g++ -DBSLS\_ASSERT\_LEVEL\_ASSERT -o badmain.tsk foo.cpp badmain.cpp
+$ g++ -DBSLS_ASSERT_LEVEL_ASSERT -o badmain.tsk foo.cpp badmain.cpp
 \end{shellbox}
 
 \onslide<2>
 \begin{shellbox}
-$ g++ -DBSLS\_ASSERT\_LEVEL\_ASSERT -o badmain.tsk foo.cpp badmain.cpp
+$ g++ -DBSLS_ASSERT_LEVEL_ASSERT -o badmain.tsk foo.cpp badmain.cpp
 $ ./badmain.tsk
 \end{shellbox}
 
 \onslide<3>
 \begin{shellbox}
-$ g++ -DBSLS\_ASSERT\_LEVEL\_ASSERT -o badmain.tsk foo.cpp badmain.cpp
+$ g++ -DBSLS_ASSERT_LEVEL_ASSERT -o badmain.tsk foo.cpp badmain.cpp
 $ ./badmain.tsk
 FATAL foo.cpp:6 Assertion failed: x <= y
 Aborted (core dumped)
@@ -156,10 +149,12 @@ Aborted (core dumped)
   \item{Violations can be configured to do a number of things} \pause
   \end{itemize}
   \begin{cppcodebox}
-    bsls::Assert:setViolationHandler
+    typedef void (*ViolationHandler)(const AssertViolation&);
+    bsls::Assert:setViolationHandler(Assert::ViolationHandler function);
   \end{cppcodebox}
   \begin{itemize} \pause
-  \item{Handlers exist to abort, sleep, log, throw, or write your own}
+  \item{Handlers exist to abort, sleep, log, throw, or write your own.} \pause
+  \item{The default handler aborts.  Use that.} 
   \end{itemize}
 \end{frame}
 
@@ -168,7 +163,7 @@ Aborted (core dumped)
   \begin{itemize} \pause
   \item{In production code: Abort.}\pause
   \item{In development code: Abort.} \pause
-  \item{In unit tests: Abort. \pause or throw when explicitly tested.} \pause
+  \item{In unit tests: Abort. \pause or throw when explicitly tested. (see \cc{BSLS_ASSERTTEST})} \pause
   \item{The source of a violation may be close or far.} \pause
   \item The risk when continuing is unbounded. \pause
     \begin{itemize}
@@ -178,14 +173,30 @@ Aborted (core dumped)
   \item Fast failure has well known cost. \pause
     \begin{itemize}
     \item{Failures will be caught and escalated} \pause
-    \item{Software will not attempt to execute in a corrupt state} \pause
+    \item{Software will not attempt to execute in a corrupt state} 
     \end{itemize} 
   \end{itemize}
 \end{frame}
 
+\begin{frame}[fragile]
+  \frametitle{Writing A New Library}
+  \begin{itemize}\pause
+  \item{In a new library, use \cc{BSLS_ASSERT}} \pause
+  \item{In a new function, use \cc{BSLS_ASSERT}} \pause
+  \item{When deploying a new application, use \cc{BSLS_ASSERT}} \pause
+  \end{itemize} 
+  \begin{itemize}
+  \item{Catch errors fast, run safer systems.}
+  \end{itemize}
+\end{frame}
+    
+
 %------------------------------------------------------------------------------
 \section{Existing Software}
 %------------------------------------------------------------------------------
+\begin{frame}
+  \tableofcontents[currentsection,hidesubsections]
+\end{frame}
 
 \begin{frame}[fragile]
   \frametitle{Checks In Old Code}
@@ -203,7 +214,7 @@ Aborted (core dumped)
   \begin{itemize}
   \item<1->{Let's say you wrote a function long ago.}
   \item<3->{With a contract.}
-  \item<5->{That you want to narrow.}
+  \item<5->{But it fails badly and subtly if \cc{x <= y}, so you want to narrow the contract.}
   \end{itemize}
 \end{overprint}
 
@@ -213,11 +224,18 @@ Aborted (core dumped)
 int foo(int x, int y);
 \end{cppcodebox}
 
-\onslide<4-5>
+\onslide<4>
 \begin{cppcodebox}
 int foo(int x, int y);
   // \highlight{Do some foo with the specified 'x' and 'y'.  Return}
   // \highlight{how fooable they were.}
+\end{cppcodebox}
+
+\onslide<5>
+\begin{cppcodebox}
+int foo(int x, int y);
+  // Do some foo with the specified 'x' and 'y'.  Return
+  // how fooable they were.
 \end{cppcodebox}
 
 \onslide<6->
@@ -237,6 +255,7 @@ int foo(int x, int y);
   \item<1->{Assume \cc{foo} is old as dirt.}
   \item<2->{We can review our new preconditions.}
   \item<3->{Eventually, we migrate on to \cc{BSLS_ASSERT}.}
+  \item<4->{But that can't be released safely.}
   \end{itemize}
 \end{overprint}
 
@@ -277,6 +296,9 @@ int foo(int x, int y)
 }  
 \end{cppcodebox*}
 
+\onslide<4>
+KABOOM
+
 \end{overprint}
 \end{frame}
 
@@ -296,25 +318,26 @@ int foo(int x, int y)
 
 \onslide<1-2>
 \begin{shellbox}
-$ g++ -DBSLS\_ASSERT\_LEVEL\_ASSERT -o questionablemain.tsk
+$ g++ -DBSLS_ASSERT_LEVEL_ASSERT -o questionablemain.tsk
   oldfoo.cpp questionablemain.cpp
 \end{shellbox}
 
 \onslide<3>
 \begin{shellbox}
-$ g++ -DBSLS\_ASSERT\_LEVEL\_ASSERT -o questionablemain.tsk
+$ g++ -DBSLS_ASSERT_LEVEL_ASSERT -o questionablemain.tsk
   oldfoo.cpp questionablemain.cpp
 $ ./questionablemain.tsk
 \end{shellbox}
 
 \onslide<4>
 \begin{shellbox}
-$ g++ -DBSLS\_ASSERT\_LEVEL\_ASSERT -o questionablemain.tsk
+$ g++ -DBSLS_ASSERT_LEVEL_ASSERT -o questionablemain.tsk
   oldfoo.cpp questionablemain.cpp
 $ ./questionablemain.tsk
 ERROR oldfoo.cpp:6 BSLS_REVIEW failure: (level:R-DBG) 'x <= y'
 Please run "/bb/bin/showfunc.tsk ./questionablemain.tsk 8048B28
 8048A07 8048A26" to see the stack trace.
+My Fooishness is: 171717
 \end{shellbox}
 
 \onslide<5>
@@ -368,19 +391,19 @@ $ /bb/bin/showfunc.tsk ./questionablemain.tsk 8048B28 8048A07
 \begin{overprint}
 \onslide<1>
 \begin{shellbox}
-$ g++ -DBSLS\_ASSERT\_LEVEL\_NONE -o badmain.tsk foo.cpp
+$ g++ -DBSLS_ASSERT_LEVEL_NONE -o badmain.tsk foo.cpp
   badmain.cpp
 \end{shellbox}
 
 \onslide<2,5>
 \begin{shellbox}
-$ g++ -DBSLS\_ASSERT\_LEVEL\_ASSERT -o badmain.tsk foo.cpp
+$ g++ -DBSLS_ASSERT_LEVEL_ASSERT -o badmain.tsk foo.cpp
   badmain.cpp
 \end{shellbox}
 
 \onslide<3-4>
 \begin{shellbox}
-$ g++ -DBSLS\_ASSERT\_LEVEL\_NONE -DBSLS_REVIEW_LEVEL_REVIEW
+$ g++ -DBSLS_ASSERT_LEVEL_NONE -DBSLS_REVIEW_LEVEL_REVIEW
   -o badmain.tsk foo.cpp badmain.cpp
 \end{shellbox}
   
@@ -391,6 +414,9 @@ $ g++ -DBSLS\_ASSERT\_LEVEL\_NONE -DBSLS_REVIEW_LEVEL_REVIEW
 %------------------------------------------------------------------------------
 \section{Other Reading}
 %------------------------------------------------------------------------------
+\begin{frame}
+  \tableofcontents[currentsection,hidesubsections]
+\end{frame}
 
 \begin{frame}[fragile]
   \frametitle{Documentation}
