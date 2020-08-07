@@ -25,6 +25,15 @@ fi
 cd ${ROOTDIR}
 ./bin/check_components.py ${TOBUILD} || die "Failure checking extracted components"
 
+cd ${ROOTDIR}
+PGROUPS=( $(ls src/groups) )
+
+cd ${ROOTDIR}/..
+for PGROUP in "${PGROUPS[@]}" ; do
+    build.sh --tests=run --targets=${PGROUP} build
+done
+
+cd ${ROOTDIR}
 if [ -n "${TOSHOW}" ] ;  then
    xdg-open generated/${TOBUILD}/${TOBUILD}.pdf
 fi

@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 
 import configparser
+import mako.exceptions
 import mako.template
 import pathlib
 import re
@@ -18,8 +19,13 @@ class GeneratedBook:
         self.config = config
 
         self.files = []
+        self.sections = set()
 
     def adddir(self,section,sectiondir):
+        if sectiondir in self.sections:
+            return
+        self.sections.add(sectiondir)
+        
         #print(f"  Adding Directory: {section}:{sectiondir}")
         if not sectiondir.is_dir():
             print(f"Not a directory: {sectiondir}")
@@ -185,10 +191,22 @@ for optionsFile in optionsFiles:
         madefiles.add(tof)
         
         if istemplate:
-            t = mako.template.Template(f.open().read(),
+            templatedata = f.open().read()
+            t = mako.template.Template(templatedata,
                                        preprocessor=maptemplate)
 
-            r = maprendered(t.render(book=book))
+            try:
+                rendered = t.render(book=book)
+            except:
+                print(f"Exception handling template: {f}")
+                traceback = mako.exceptions.RichTraceback()
+                for (filename, lineno, function, line) in traceback.traceback:
+                    print(f"File {filename}, line {lineno}, in {function}")
+                    print(f"  {line}")
+                print(f"{str(traceback.error.__class__.__name__)}: {traceback.error}")
+                continue
+                
+            r = maprendered(rendered)
 
             if tof.exists():
                 currentdata = tof.open().read()

@@ -1,13 +1,50 @@
-\chapter{Introduction}
+\chapter{Foundations}
 
 \section{Motivation}
 
+\begin{itemize}
+\item Why local allocation can help
+\item Limits of global allocation
+\item Reference Emery's paper?
+\end{itemize}
+
 \subsection{The History of C++ Allocators}
 
-\subsection{Your Future with C++ Allocators}
+\begin{itemize}
+\item describe C++03 allocators
+\item \cite{wg21N1850} - Towards a better allocator model
+\item \cite{wg21N2387}, \cite{wg21N2436},
+\item Scoped allocators: \cite{wg21N2446}, \cite{wg21N2523}, 
+\item c++17, c++20  changes to PMR
+\end{itemize}
+
+\subsection{What we'll teach you about allocators}
+
+\begin{itemize}
+\item Summary of what each teaching chapter will teach
+\end{itemize}
+
+\subsection{Making money with allocators}
+
+\begin{itemize}
+\item Summary of how architecture can facilitate leveraging allocators
+\end{itemize}
 
 \section{Technical Basics}
 
+\subsection{Allocators}
+
+\begin{itemize}
+\item Go over the mess of c++03 style allocator types
+\end{itemize}
+
+
 \subsection{The std::pmr Interface}
 
-\subsection{Other Allocation-Related Aspects of Standard C++}
+\begin{itemize}
+\item Show std::pmr::polymorphic_allocator
+\item Show simplification to ALLOCATOR types
+\item Show the memory_resource interface, how to do an allocation
+\end{itemize}
+
+

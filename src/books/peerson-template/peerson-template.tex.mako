@@ -22,13 +22,12 @@
 \documentclass[twoside,10pt,letterpaper,usenames]{newstyle-PearsonGeneric-7}
 %T%% elif book.config.get("book","trim") == "3":
 \documentclass[twoside,10pt,letterpaper,usenames]{newstyle-PearsonGeneric-7-38}
+%T%% endif
 
 %T%% for f in book.outline.sectionfiles("initial"):
 \include{${f}}
 %T%% endfor
 
-
-%T%% endif
 \usepackage[twoside]{geometry} % to set the dimensions of the page
 
 %%%%%%%% Then, also select the trim size of the book here.
@@ -104,13 +103,13 @@ footskip=.025in}
 %%    These lines input packages that are used for this template.
 \usepackage[letter,cam,center]{crop-AlteredCamMarks}  % to add trim marks; updated Nov 2015 to allow more space between marks and trim edge
 \usepackage{graphicx} % for graphics layout
-\usepackage{float}      % to allow things to float even if they normally don't
-\usepackage{wrapfig} % to allow text to wrap around small figures
-\usepackage{outline} % to allow outline creation
+\usepackage{float}    % to allow things to float even if they normally don't
+\usepackage{wrapfig}  % to allow text to wrap around small figures
+\usepackage{outline}  % to allow outline creation
 \usepackage{framed-PearsonGeneric} % to create the leftside vertical bar for the example environment
 % The listings package isn't included in the template folder because
 %       it is part of any up-to-date TeX installation
-\usepackage{listings}  % for setting attractive computer code
+\usepackage{listings} % for setting attractive computer code
 \lstset{basicstyle=\ttfamily\small,framerule=0.5pt} % setting the code in small sans serif font and
                                                     % setting the margin for the code.  Nov 2015: setting the rules to be 0.5pt
                                                     % JMB: Changed font to Cousine, removed margin for Lakos books

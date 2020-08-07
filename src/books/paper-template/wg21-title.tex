@@ -1,0 +1,26 @@
+\renewcommand*{\title}[1]{\def\@title{#1}}
+
+\newcommand*{\docnumber}[1]{\def\@docnumber{#1}}
+
+\newcommand*{\audience}[1]{\def\@audience{#1}}
+
+\renewcommand*{\author}[2]{\def\@author{#1} \def\@email{#2}}
+\newcommand*{\authortwo}[2]{\def\@authortwo{#1} \def\@emailtwo{#2}}
+\newcommand*{\authorthree}[2]{\def\@authorthree{#1} \def\@emailthree{#2}}
+
+\renewcommand{\maketitle}{%
+  \newpage \null \vskip 2em%
+  {\center \LARGE \@title \par}%
+  \vskip 1.5em%
+  \begin{flushright}%
+    \begin{tabular}{ll}%
+      Document \#:&\@docnumber\\%
+      Date:       &\today\\%
+      Project:    &Programming Language C++\\%
+      Audience:   &\@audience\\%
+      Reply-to:   &\@author\ \textless\href{mailto:\@email}{\@email}\textgreater%
+                  \ifdef{\@authortwo}{\\&\@authortwo\ \textless\href{mailto:\@emailtwo}{\@emailtwo}\textgreater}{}%
+                  \ifdef{\@authorthree}{\\&\@authorthree\ \textless\href{mailto:\@emailthree}{\@emailthree}\textgreater}{}%
+    \end{tabular}%
+  \end{flushright}%
+}

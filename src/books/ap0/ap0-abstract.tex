@@ -1,0 +1,27 @@
+\emph{NOTE: This white paper (i.e., this is not a proposal) is intended to motivate continued investment
+in developing and maturing better memory allocators in the C++ Standard as well as to counter
+misinformation about allocators, their costs and benefits, and whether they should have a
+continuing role in the C++ library and language.}
+
+\begin{abstract}
+The \emph{performance benefits} of employing local memory allocators are well known and
+substantial. Still, the real-world costs associated with integrating allocators
+throughout a code base, including related training, tools, interface and contract
+complexity, and increased potential for inadvertent misuse, cannot be ignored. A
+fully \emph{allocator-aware} (AA) software infrastructure (SI) offers a convincing value
+proposition despite substantial upfront costs. The \emph{collateral benefits} for clients, such
+as object-based instrumentation and effective means of testing allocations, make
+investing in AASI even more compelling. Yet many other unwarranted concerns —
+based on hearsay or specious conjecture — remain.
+
+In this paper, we discuss all three currently available AA software models, C++11,
+BDE, and PMR (C++17)\footnote{The BDE (Bloomberg Development Environment) and PMR (polymorphic memory resource) models
+are very similar (the latter being derived from the former), and we often refer to them together as the
+BDE/PMR model.}— each of which provides basically the same essential
+benefits but requires widely varying development and maintenance effort. We then
+separate real from imagined costs, presenting some of the many collateral benefits of
+AASI along the way. After all aspects are considered, we continue to advocate for the
+adoption of AA software today for all libraries that potentially have performancesensitive clients and specifically for the BDE/PMR model, even as we continue to
+research a language-based solution that might someday all but eliminate the costs
+while amplifying the benefit.
+\end{abstract}

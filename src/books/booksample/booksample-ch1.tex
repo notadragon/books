@@ -6,7 +6,11 @@ This is some code that is typeset inline \cppcode{void foo() \{return;\}}
 
 The header would contain
 \begin{cppcodeblock}{bsmch1_sample1_h}
-void foo();
+  void foo(); // this is a comment
+
+  /*
+  This is a multi-line comment.
+  */
 \end{cppcodeblock}
 
 The implementation file would contain

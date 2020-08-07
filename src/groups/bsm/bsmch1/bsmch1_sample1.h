@@ -33,8 +33,12 @@ namespace bsmch1 {
 
 //---------------------GENERATED EXTRACT : booksample-internal bsmch1_sample1_h
 // ----Listing start: booksample-ch1.tex:8-----
-void foo();
-// ----Listing done: booksample-ch1.tex:10-----
+  void foo(); // this is a comment
+
+  /*
+  This is a multi-line comment.
+  */
+// ----Listing done: booksample-ch1.tex:14-----
 //-----------------END GENERATED EXTRACT : booksample-internal bsmch1_sample1_h
 
 }  // close package namespace

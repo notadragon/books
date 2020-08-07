@@ -38,8 +38,9 @@ for optionsFile in optionsFiles:
     basename = optionsFile.name[:-len(optionsFile.suffix)]
     
     builddir = pwd.joinpath("build").joinpath(basename)
-
-    listingsFiles = builddir.glob("generated/*.lst")
+    listingsdir = builddir.joinpath("listings")
+    
+    listingsFiles = listingsdir.glob("*.lst")
 
     componentFiles = {}
     

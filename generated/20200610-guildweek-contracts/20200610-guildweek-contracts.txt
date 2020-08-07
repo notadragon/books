@@ -3,6 +3,7 @@
 Joshua Berne - jberne4@bloomberg.net
 
 
+
              2020-06-10
 
 
@@ -127,7 +128,7 @@ int foo(int x, int y);
 
 
 
-# include <foo.h>
+#include <foo.h>
 
 
 int foo(int x, int y)
@@ -144,8 +145,8 @@ int foo(int x, int y)
 
 
 
-# include <foo.h>
-# include <bsls_assert.h>
+#include <foo.h>
+#include <bsls_assert.h>
 
 int foo(int x, int y)
 {
@@ -170,17 +171,17 @@ We can invoke our function.
 
 
 
-# include <foo.h>
-# include <bsl_iostream.h>
+#include <foo.h>
+#include <bsl_iostream.h>
 
 int main()
 {
   int fooishness = foo(3,5);
-  bsl::cout << " My Fooishness is: " << fooishness << bsl::endl;
+  bsl::cout << "My Fooishness is:" << fooishness << bsl::endl;
   return 0;
 }
 
-                                                                   6 / 21   14 / 87
+                                                                 6 / 21   14 / 87
    Assume foo is in a new library.
    We can assert our preconditions.
    We can invoke our function.
@@ -188,17 +189,17 @@ int main()
 
 
 
-# include <foo.h>
+#include <foo.h>
 
 int main()
 {
   int fooishness = foo(5,3);
-  bsl::cout << " My Fooishness is: " << fooishness << bsl::endl;
+  bsl::cout << "My Fooishness is:" << fooishness << bsl::endl;
   return 0;
 }
 
 
-                                                                   6 / 21   15 / 87
+                                                                 6 / 21   15 / 87
    We can build our code with assertions enabled.
 
 
@@ -700,7 +701,7 @@ int foo(int x, int y);
 
 
 
-# include <foo.h>
+#include <foo.h>
 
 
 int foo(int x, int y)
@@ -717,8 +718,8 @@ int foo(int x, int y)
 
 
 
-# include <foo.h>
-# include <bsls_review.h>
+#include <foo.h>
+#include <bsls_review.h>
 
 int foo(int x, int y)
 {
@@ -735,8 +736,8 @@ int foo(int x, int y)
 
 
 
-# include <foo.h>
-# include <bsls_assert.h>
+#include <foo.h>
+#include <bsls_assert.h>
 
 int foo(int x, int y)
 {

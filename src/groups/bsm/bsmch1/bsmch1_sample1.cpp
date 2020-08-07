@@ -17,11 +17,11 @@ namespace BloombergLP {
 namespace bsmch1 {
 
 //-------------------GENERATED EXTRACT : booksample-internal bsmch1_sample1_cpp
-// ----Listing start: booksample-ch1.tex:13-----
+// ----Listing start: booksample-ch1.tex:17-----
 void foo() {
   return;                                                             // RETURN
 }
-// ----Listing done: booksample-ch1.tex:17-----
+// ----Listing done: booksample-ch1.tex:21-----
 //---------------END GENERATED EXTRACT : booksample-internal bsmch1_sample1_cpp
 
 }  // close package namespace

@@ -9,10 +9,10 @@ url = sys.argv[2]
 sourcefile = sys.argv[3]
 
 try:
-    if year >= 2012:
-        soup = bs4.BeautifulSoup(open(sourcefile), "html5lib")
+    if year >= 2004:
+        soup = bs4.BeautifulSoup(open(sourcefile,"rb").read().decode('latin1'), "html5lib")
     
-    if year >= 2012:
+    if year >= 2004:
         tables = soup.find_all("table")
     
         for table in tables:
@@ -26,7 +26,7 @@ try:
                     continue
                 link = link[0]
 
-                if year == 2012:
+                if year in [ 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, ]:
                     titlecell = cells[2]
                     authorcell = cells[3]
                     datecell = cells[4]
