@@ -19,12 +19,11 @@
 \newfontface{\ParaCode}[Ligatures=NoCommon,Scale=.9]{Cousine-Bold}
 \newfontface{\SubparaCode}[Ligatures=NoCommon,Scale=.9]{Cousine-Regular}
 
-\usepackage{listings} % for setting attractive computer code
-\lstset{basicstyle=\ttfamily\small,framerule=0.5pt} % setting the code in small sans serif font and
-                                                    % setting the margin for the code.  Nov 2015: setting the rules to be 0.5pt
-
 \usepackage{titleref} % to allow cross-referencing by title
 \usepackage{xr} % to allow cross-referencing between files
+\usepackage{tablefootnote} % to allow footnotes in tables
+
+\include{lstsetup}
 
 %T%% for f in book.outline.sectionfiles("preamble"):
 \include{${f}}

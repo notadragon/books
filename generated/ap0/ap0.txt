@@ -1,6 +1,6 @@
 Value Proposition: Allocator-Aware (AA) Software
         Document #:   P2035R0
-        Date:         2020-08-07
+        Date:         2020-08-10
         Project:      Programming Language C++
         Reply-to:     Pablo Halpern <phalpern@halpernwightsoftware.com>
                       John Lakos <jlakos@bloomberg.net>
@@ -65,7 +65,7 @@ similar (the latter being derived from the former), and we often refer to them t
 
 A Likening AA Software To Airline Business Class                                                19
   A.1 Technical Details (for the Mathematically Inclined) . . . . . . . . . . . . . . . . . . . 20
-  A.2 Appendix Summary . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 21
+  A.2 Appendix Summary . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 22
 
 
 
@@ -936,6 +936,17 @@ performance or other requirements into creating custom data structures, may rejo
 their development efforts with easy-to-implement, component-based AA solutions (our Business
 Class service) that effectively address their typical requirements far more economically than any
 custom (First Class) alternative.
+  Seat           Cost/Benefit                                     Analogous Meaning
+  Economy        Minimal cost but little (if any) flexibil-       Creating/using allocator-unaware ob-
+                 ity                                              jects
+  Premium        Costs slightly more than Economy yet             Creating/using AA software rather
+  Economy        affords substantially increased flexibil-        than (classical) allocator-unaware ob-
+                 ity                                              jects
+  Business       Costs far less than First Class yet af-          Creating/using AA software rather
+  Class          fords nearly everything one might rea-           than (classical) bespoke data structures
+                 sonably want
+  First          As good as it gets but prohibitively ex-         Creating/using bespoke data structures
+  Class          pensive
 Just as Business Class greatly lowers the cost for some would-be First-Class customers and Premium
 Economy lures less indulgent (yet discerning) Economy customers, making an appropriate subset of
 our software infrastructure allocatoraware would provide essentially all the benefits typically sought
@@ -952,7 +963,14 @@ possible local memory management. Components at the extreme left of the graph wo
 little or no benefit from supplying a custom allocator (no matter how easy providing one would
 be), and components on the extreme right simply cannot fulfill their purpose absent handcrafted,
 custom-tuned memory allocation. In between these extremes lies a unique threshold percentile a,
-at which the perceived marginal value of customization first exceeds its marginal cost and rational
+  73
+    Although all of the allocator models are significantly less costly for clients than custom data structures, the
+C++11 model is still difficult to use and prohibitively expensive for SI implementers. The BDE and PMR models
+are much less costly for clients and SI implementers alike.
+
+
+                                                        20
+at which the perceived marginal value of customization first exceeds its marginal cost and rational
 and capable clients (absent an AASI) would theoretically be indifferent to creating customized,
 memory management data structures.74
 Once we introduce an AASI, two other important percentiles on the x-axis materialize. To the left
@@ -962,17 +980,7 @@ custom allocators and hence derive no benefit from the new AASI. To the right of
 α+, above which (First-Class) clients will choose to write their own custom data structures, re-
 gardless of any reusable AASI alternative, and hence they too will gain no benefit from our new
 AASI.
-  73
-     Although all of the allocator models are significantly less costly for clients than custom data structures, the
-C++11 model is still difficult to use and prohibitively expensive for SI implementers. The BDE and PMR models
-are much less costly for clients and SI implementers alike.
-  74
-     A variant of this graph, with thorough narration, appears in [?] starting at 4:50.
-
-
-
-                                                        20
-Introducing an AASI adds value enjoyed by clients in the percentile range (α-, α+) who actively
+Introducing an AASI adds value enjoyed by clients in the percentile range (α-, α+) who actively
 choose to exploit the AA aspects. The light gray block in the range (α, α+) shows the consistently
 significant potential cost savings over providing fullcustom solutions and retains almost the same
 derived value.75 (Compare this case to the cost savings of choosing Business Class rather than
@@ -992,9 +1000,25 @@ having truly extreme performance requirements or those in need of special memory
 (e.g., shared memory, proxies) would remain. Ideally, all client components that would naturally
 fall into category (2) would actively exploit AASI by providing (typically) pre-existing custom
 allocators as appropriate.
+  74
+     A variant of this graph, with thorough narration, appears in [?] starting at 4:50.
+  75
+     Note that the relative heights of the cost and value curves shown in the graph are irrelevant because they are
+measured on separate vertical axes (having distinct units that are not even directly comparable). Moreover, this
+graph is not to scale (the vertical axes are not even labeled) because value and cost can be evaluated and traded
+off in myriad ways. What’s more, the actual client development costs will vary substantially, depending on which
+allocator model is chosen (C++11 or BDE/PMR).
+  76
+     Also note that the cost of developing the AASI itself is not pictured in the graph. This image is intended to
+suggest qualitatively the enormous potential value and relatively small incremental cost for application clients’ using
+a company-provided AA infrastructure once those fixed costs have been paid compared to ongoing (marginal) client
+costs associated with developing custom data structures ad hoc.
 
 
-A.2     Appendix Summary
+
+
+                                                          21
+A.2     Appendix Summary
 
 We assert that virtually all reasonable clients who, absent an AASI, would have chosen to write
 their own data structures would now instead opt for a readily available AASI (or at least use it for
@@ -1009,21 +1033,7 @@ be heavily influenced by (1) the client’s ease-of-use of the particular alloca
 (2) the sophistication and training of clients, where training might need to involve inculcating a
 certain culture of altruism.
 So far, we have discussed cost/benefit entirely from the application clients’ perspective. To sup-
-  75
-     Note that the relative heights of the cost and value curves shown in the graph are irrelevant because they are
-measured on separate vertical axes (having distinct units that are not even directly comparable). Moreover, this
-graph is not to scale (the vertical axes are not even labeled) because value and cost can be evaluated and traded
-off in myriad ways. What’s more, the actual client development costs will vary substantially, depending on which
-allocator model is chosen (C++11 or BDE/PMR).
-  76
-     Also note that the cost of developing the AASI itself is not pictured in the graph. This image is intended to
-suggest qualitatively the enormous potential value and relatively small incremental cost for application clients’ using
-a company-provided AA infrastructure once those fixed costs have been paid compared to ongoing (marginal) client
-costs associated with developing custom data structures ad hoc.
-
-
-                                                          21
-port this new class of AA service, significant additional (albeit comparatively fixed) per-library-
+port this new class of AA service, significant additional (albeit comparatively fixed) per-library-
 component development and maintenance costs would be borne by SI developers (analogous to that
 for an airline) but, unlike the airline industry, a large-scale software company (such as Bloomberg)
 comprises both SI along with its own application clients; hence, the company as a whole benefits

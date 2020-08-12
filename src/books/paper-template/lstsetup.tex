@@ -1,0 +1,24 @@
+\usepackage{listings} % for setting attractive computer code
+\usepackage{lstlinebgrd}
+\lstset{basicstyle=\ttfamily\small,framerule=0.5pt} % setting the code in small sans serif font and
+                                                    % setting the margin for the code.  Nov 2015: setting the rules to be 0.5pt
+
+% All code samples that should be tested are going to be written within the
+% following environment
+%
+% Source for initial implementation for dumping to files:
+% https://tex.stackexchange.com/questions/284189/how-to-dump-listings-to-a-file
+\usepackage{currfile}
+\makeatletter
+\lst@RequireAspects{writefile}
+
+\lstnewenvironment{cppcodeblock}[1]
+{\lstset{language=[11]C++}%
+ \lst@BeginAlsoWriteFile{listings/\detokenize{#1}.lst}
+ \immediate\write\lst@WF{// ----Listing start: \currfilename:\the\inputlineno-----}%
+}
+{ \immediate\write\lst@WF{// ----Listing done: \currfilename:\the\inputlineno-----}%
+  \lst@EndWriteFile
+}
+
+\newcommand{\cppcode}[1]{\lstinline[language=C++]{#1}}

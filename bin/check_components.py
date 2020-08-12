@@ -64,7 +64,7 @@ for optionsFile in optionsFiles:
         if not groupdir.exists():
             print(f"Creating package group {groupdir}")
             toexec = [ "make_packagegroup.py", packagegroup ]
-            subprocess.check_call( toexec, cwd=srcdir )
+            subprocess.check_call( toexec, cwd=groupsdir )
 
         packagedir = groupdir.joinpath(f"{packagegroup}{package}")
         if not packagedir.exists():

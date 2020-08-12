@@ -85,7 +85,7 @@ instantiate if instead passed, for example, two vectors employing different allo
 subsystems requires a distinct allocator, the development and usability costs
 required to support this model are so high that many organizations (including the
 C++ Standards Committee\footnote{C++11-model allocators are not currently used in every class within the Standard Library where
-allocators would be appropriate (e.g., \lstinline{std::path}).}) will not adopt it universally.
+allocators would be appropriate (e.g., \cppcode{std::path}).}) will not adopt it universally.
 
 \item[BDE model (moderate cost).] A pointer to an allocator base class is embedded in
 every object that might directly allocate memory, even when using the default
@@ -96,7 +96,7 @@ throughout an object’s constructors is substantially reduced. Moreover, becaus
 polymorphic allocators do not invade their (compile-time) types, objects using
 distinct allocator types can interoperate naturally in nontemplated contexts.\footnote{In
   particular, objects employing BDE-model allocators can serve as output parameters where proxy
-objects, such as \lstinline{std::string_view}, would be unsuitable.}
+objects, such as \cppcode{std::string_view}, would be unsuitable.}
 Furthermore, this classically object-oriented model enables clients to request an
 object’s allocator (via its base-class address) without the clients themselves being
 templates.
@@ -271,7 +271,7 @@ those same experienced software engineers become less available for other
 tasks.
 
 \item The concomitant additional risk of introducing AA-related software defects is
-mitigated by the use of static-analysis tools such as \lstinline{bde_verify},\footnote{\lstinline{bde_verify} is a
+mitigated by the use of static-analysis tools such as \cppcode{bde_verify},\footnote{\cppcode{bde_verify} is a
 Bloomberg tool that checks code for deviations from a number of best practices
 and style guidelines, in particular ensuring that AA components are put together
 correctly.} which can
@@ -279,7 +279,7 @@ alert developers to missing or misapplied transformations. A prototype of
 bde_verify that automatically transforms typical\footnote{I.e., components that
 are not especially difficult, e.g., those \emph{not} implementing (general-purpose)
 \emph{generic}, \emph{templated}, or \emph{container} types.} components to BDE-model 
-allocator awareness is available today. Enhancing \lstinline{bde_verify} is a onetime
+allocator awareness is available today. Enhancing \cppcode{bde_verify} is a onetime
 technological-advancement cost that, although substantial, is expected
 to substantially reduce risk along with other upfront costs.
 
@@ -314,7 +314,7 @@ C++ language itself automatically guarantees that the lifetime of the allocator 
 objects that depend on it.} Much more commonly, however,
 a client will try to employ a special-purpose allocator that is ill-suited to their
 needs.\footnote{That monotonic allocators necessarily consume excessive memory when used with containers, such
-as \lstinline{std::vector} and \lstinline{std::string}, that grow geometrically is a popular misconception; the
+as \cppcode{std::vector} and \cppcode{std::string}, that grow geometrically is a popular misconception; the
 consumption of memory for such a container when coupled with a monotonic allocator is in fact
 always just a constant factor larger (i.e., similar in magnitude to that of a single extra reallocation)}
 For example, declaring a monotonic allocator outside of a loop and
@@ -323,7 +323,7 @@ then using that allocator to construct an object defined within the loop’s bod
 consumption to grow without bound. The likelihood of client misuse is
 exacerbated when a (substandard) implementation unexpectedly allocates
 temporary memory.\footnote{An especially insidious case of this sort of inadvertent “misuse” involved assignment between two
-\lstinline{BitArray} objects within a loop. Assuming two \lstinline{BitArray} objects hold the same number of bits, no
+\cppcode{BitArray} objects within a loop. Assuming two \cppcode{BitArray} objects hold the same number of bits, no
 reallocation is needed. As a development expedient, however, it is not uncommon to use the idiom of
 always first creating a temporary object (using the original object’s allocator) to build the result before
 swapping it with the object being assigned to (thereby automatically establishing the strongexception-safety
@@ -348,12 +348,12 @@ overloads), nor can such types be constructed using aggregate initialization.
 object must not exceed the lifetime of its allocator. This \emph{lifetime management}
 not only requires additional care from the developer, but also limits allocator
 applicability when using standard-library facilities that manage object
-lifetimes, such as \lstinline{shared_ptr} and \lstinline{weak_ptr}, since they neither track nor
+lifetimes, such as \cppcode{shared_ptr} and \cppcode{weak_ptr}, since they neither track nor
 extend allocator lifetime. This cost, though non-zero, is typically less than the
 cost of avoiding dangling pointers or references in general because the normal
 structure of a program that uses local allocators is such that an allocator and
 the objects that use it are created and destroyed in a nested fashion within
-the same scope. Preventing dangling allocators when using \lstinline{shared_ptr} is
+the same scope. Preventing dangling allocators when using \cppcode{shared_ptr} is
 simply a matter of using the default allocator or, better, designing the program
 well enough that the maximum scope of the shared objects is well understood.
 
@@ -361,7 +361,7 @@ well enough that the maximum scope of the shared objects is well understood.
 significant administrative costs in \emph{education}, \emph{tools}, and \emph{governance}. Code
 reviews, proper training, and allocator-use policies are essential costs that
 must be borne by any organization hoping to realize the full advantage
-afforded by an AASI. Investment in static-analysis tools (such as \lstinline{bde_verify})
+afforded by an AASI. Investment in static-analysis tools (such as \cppcode{bde_verify})
 that detect erroneous or unwise allocator use (such as objects that outlive
 their allocators or a monotonic allocator servicing objects created repeatedly
 within a loop) are essential to reducing the burden on client programmers and
@@ -410,7 +410,7 @@ gathering, and monitoring.
 \item[Testing and instrumentation.] A test allocator\footnote{Since Lakos (employed at the time by the F.A.S.T. group at Bear Stearns \& Co., Inc.) first conceived
 (c. 1997) of the BDE-model test allocators, they have caught innumerable memory- and exceptionrelated bugs
 early in the software development life cycle.} can be an indispensable tool for
-ensuring the correctness of AA types. A \lstinline{bslma::TestAllocator},\footnote{A proposal for a PMR-model test allocator — based on our \lstinline{bslma::TestAllocator} — has been
+ensuring the correctness of AA types. A \cppcode{bslma::TestAllocator},\footnote{A proposal for a PMR-model test allocator — based on our \cppcode{bslma::TestAllocator} — has been
 submitted for consideration as part of the C++ Standard Library \cite{feher18}.} for example, can
 be used to log memory-management-related activity, match deallocation with known
 allocations, check for memory leaks, or confirm exception safety, e.g., by throwing
@@ -421,8 +421,8 @@ patterns needed to tune memory allocators in production
 systems.\footnote{The ubiquitous BDE-model AASI at Bloomberg was leveraged particularly effectively by what is
 known as the tagged allocator store (TAS), a framework Brock Peabody invented at Bloomberg (c.
 2011) to track memory usage within individual instances of subsystems of a running application. In
-addition to \lstinline{bslma::Allocator}, the custom allocator (which was also inherited from
-\lstinline{gtkma::AllocatorStore}) allowed client objects that were aware of the possibility of such
+addition to \cppcode{bslma::Allocator}, the custom allocator (which was also inherited from
+\cppcode{gtkma::AllocatorStore}) allowed client objects that were aware of the possibility of such
 instrumentation to attempt a lateral dynamic_cast. If the cast succeed, client objects could use the
 alternate interface to report their subsystem memory usage on a per-object basis. These fine-grained
 per-object metrics (compared to typical static, scoped, or type-based ones) readily enabled real-time,
@@ -441,8 +441,8 @@ over the placement of (entire) objects in special types of memory with relative 
 One can readily arrange for objects to reside in high-bandwidth memory, memory
 that is hardware protected (no read and/or write access), or persistent or
 filemapped (mmap) memory.\footnote{BDE-model allocators were a natural fit with Bloomberg’s home-grown approach to saving/sharing
-(identical) process state on disk via saverange on fnch memory using the \lstinline{GmallocAllocator}, which
-implements the \lstinline{bslma::Allocator} protocol \cite{lakos17b}, Part I, approximately 6:40.}
+(identical) process state on disk via saverange on fnch memory using the \cppcode{GmallocAllocator}, which
+implements the \cppcode{bslma::Allocator} protocol \cite{lakos17b}, Part I, approximately 6:40.}
 The same wink-out mechanism typically used to avoid
 calling individual destructors on a collection of AA objects can also be used
 for nonperformance-related purposes, such as a form of garbage collection: An entire set of
@@ -519,7 +519,7 @@ when employing the underlying allocation model need not necessarily increase
 object footprint size. Some or all of it (and potentially even other object state
 that would normally reside in the footprint) may be relocated to the
 dynamically allocated memory itself.\footnote{On older Sun platforms supporting natural alignment [\cite{lakos96}, Section 10.1.1, “Natural
-Alignment,” pp. 662–665], for example, the footprint of an \lstinline{std::vector} consisted of just a single
+Alignment,” pp. 662–665], for example, the footprint of an \cppcode{std::vector} consisted of just a single
 word (e.g., four bytes) unless the sizeof the contained element was 1, in which case the template
 was specialized to yield two words instead of one. This design tradeoff favors compactness for the
 empty vector and therefore immense performance gains for sparse matrices (i.e., vectors of vectors)
@@ -737,8 +737,8 @@ techniques serve a valuable purpose, they are not a general substitute for fineg
 and destroying objects across disparate uses, thereby also reducing the frequency
 with which individual piece parts are allocated. Object pools and associated factories
 are often ideal for application-level purposes. For innumerable other purposes,
-however — e.g., implementing contiguous-storage containers, such as \lstinline{std::vector}
-or \lstinline{std::deque} — they are simply not applicable. Moreover, their utility in programs
+however — e.g., implementing contiguous-storage containers, such as \cppcode{std::vector}
+or \cppcode{std::deque} — they are simply not applicable. Moreover, their utility in programs
 having high \emph{utilization} (U) of the type being pooled would be dubious.\footnote{Memory utilization and its effects on performance are described in detail at 55:15 in Part I of
 \cite{lakos17b}. See also \cite{lakos16} and \cite{bleaney16}.}
 
@@ -831,7 +831,7 @@ expensive.
 Software that allocates memory could have analogous categories. First Class would
 be custom data structures, which offer maximal performance and flexibility
 managing memory for the few clients who can justify such exorbitant engineering
-costs. Economy would provide \lstinline{new} and \lstinline{delete} only, i.e., basic memory
+costs. Economy would provide \cppcode{new} and \cppcode{delete} only, i.e., basic memory
 management for those clients who cannot justify writing custom data structures
 themselves though they might appreciate the added benefits such customizations (or
 suitable alternatives) offer were they able to afford them.
@@ -846,7 +846,7 @@ The relationships among the new seating categories and the analogous category fo
 software memory allocation are summarized in the table below. For software that
 allocates memory dynamically, our proposed AASI offers an analogous category that
 combines the two new classes of seats. Like airline-seat categories, this middle AASI
-will draw customers from both extremes: \lstinline{new}/\lstinline{delete} and full-custom. Projects that
+will draw customers from both extremes: \cppcode{new}/\cppcode{delete} and full-custom. Projects that
 might never have been considered for custom memory management now have
 another option because the incremental cost (to clients) of exploiting available AA
 types (i.e., by supplying preexisting specialized memory allocators to AA objects) is
@@ -857,7 +857,22 @@ easy-to-implement, component-based AA solutions (our Business Class service) tha
 effectively address their typical requirements far more economically than any
 custom (First Class) alternative.
 
-%TODO: P21 table
+\begin{center}
+\begin{tabular}{| p{.1\textwidth} p{.4\textwidth} p{.4\textwidth} |}
+\hline 
+Seat & Cost/Benefit & Analogous Meaning \\
+\hline
+Economy & Minimal cost but little (if any) flexibility & Creating/using allocator-unaware objects \\
+\hline
+\hline
+Premium Economy & Costs slightly more than Economy yet affords substantially increased flexibility & Creating/using AA software rather than (classical) allocator-unaware objects \\
+Business Class & Costs far less than First Class yet affords nearly everything one might reasonably want & Creating/using AA software rather than (classical) bespoke data structures \\
+\hline
+\hline
+First Class & As good as it gets but prohibitively expensive & Creating/using bespoke data structures \\
+\hline
+\end{tabular}
+\end{center}
 
 Just as Business Class greatly lowers the cost for some would-be First-Class
 customers and Premium Economy lures less indulgent (yet discerning) Economy
@@ -950,8 +965,10 @@ comparatively fixed) per-\emph{library}-component development and maintenance co
 would be borne by SI developers (analogous to that for an airline) but, unlike the
 airline industry, a large-scale software company (such as Bloomberg) comprises
 both SI along with its own application clients; hence, the company as a whole
-benefits directly whenever its SI customers are more productive. To reduce percomponent costs for SI and clients alike, we need to invest heavily in new compiler
-technology that might someday automate the task of creating AA components.\footnote{Cars (like C++20 compilers in our analogy) enable a licensed driver (experienced programmer) to
+benefits directly whenever its SI customers are more productive. To reduce
+per-component costs for SI and clients alike, we need to invest heavily in new compiler
+technology that might someday automate the task of creating AA
+components.\footnote{Cars (like C++20 compilers in our analogy) enable a licensed driver (experienced programmer) to
 get to a desired destination (efficient application-specific custom memory management). Yet, with
 each new journey, the car’s owner (company comprising application and library developers) must
 bear a substantial ongoing and recurring opportunity cost: Either the owner (an application
@@ -964,9 +981,12 @@ these modern cars will essentially disappear, rendering conventional (human-driv
 entirely obsolete. What's more, as this burgeoning technology continues to improve over time, so too
 will the risk — i.e., the accident (defect and/or crash) rate due to the unchanging inevitability of
 human driver (programmer) error. tl;dr: Compiler support for AA software in C++ is a game changer.}
-Bloomberg’s \lstinline{bde_verify} tool already supports an approximation of what will
+Bloomberg’s \cppcode{bde_verify} tool already supports an approximation of what will
 eventually become an ultra-efficient, language-supported model for realizing AA
 software at essentially no additional cost over a (classical) allocator-unaware SI,
 thereby eliminating any plausible argument against supporting ubiquitous control
 over fine-grained memory management throughout any library software from which
 clients might eventually benefit
+
+%TODO: inter-section references cleanup
+%TODO: references

@@ -10,8 +10,9 @@ function(bdeproj_project_process_uors proj listDir)
 
     bde_project_process_package_groups(
         ${proj}
-        ${listDir}/src/groups/bsm
+        ${listDir}/src/groups/ap1
         ${listDir}/src/groups/awp
+        ${listDir}/src/groups/bsm
     )
 
     set_target_properties(awp PROPERTIES LINKER_LANGUAGE CXX)

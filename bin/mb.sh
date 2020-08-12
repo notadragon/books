@@ -26,12 +26,10 @@ cd ${ROOTDIR}
 ./bin/check_components.py ${TOBUILD} || die "Failure checking extracted components"
 
 cd ${ROOTDIR}
-PGROUPS=( $(ls src/groups) )
+PGROUPS=$(cd src/groups; echo * | tr ' ' ',')
 
 cd ${ROOTDIR}/..
-for PGROUP in "${PGROUPS[@]}" ; do
-    build.sh --tests=run --targets=${PGROUP} build
-done
+build.sh --tests=run --targets=${PGROUPS} build || die "Failed to build ${PGROUPS}"
 
 cd ${ROOTDIR}
 if [ -n "${TOSHOW}" ] ;  then

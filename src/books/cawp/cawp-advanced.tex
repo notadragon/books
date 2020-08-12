@@ -7,3 +7,14 @@ Here we would be discussing the approach we have to benchmarking.  \todo{Determi
 \section{Optimizing Large Allocator-Aware Systems}
 \section{Designing Effective Allocator-Aware Architectures}
 
+\begin{cppcodeblock}{awpadv_sample1_h}
+  struct S {
+    void foo();
+  };
+\end{cppcodeblock}
+
+\begin{cppcodeblock}{awpadv_sample1_cpp}
+  void S::foo()
+  {
+  }
+\end{cppcodeblock}
