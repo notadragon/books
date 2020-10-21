@@ -17,11 +17,11 @@ namespace BloombergLP {
 namespace awpadv {
 
 //-------------------------GENERATED EXTRACT : cawp-internal awpadv_sample1_cpp
-// ----Listing start: cawp-advanced.tex:16-----
+// ----Listing start: cawp-advanced.tex:13-----
   void S::foo()
   {
   }
-// ----Listing done: cawp-advanced.tex:20-----
+// ----Listing done: cawp-advanced.tex:17-----
 //---------------------END GENERATED EXTRACT : cawp-internal awpadv_sample1_cpp
 
 }  // close package namespace

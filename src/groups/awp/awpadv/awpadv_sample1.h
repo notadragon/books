@@ -32,11 +32,11 @@ namespace BloombergLP {
 namespace awpadv {
 
 //---------------------------GENERATED EXTRACT : cawp-internal awpadv_sample1_h
-// ----Listing start: cawp-advanced.tex:10-----
+// ----Listing start: cawp-advanced.tex:7-----
   struct S {
     void foo();
   };
-// ----Listing done: cawp-advanced.tex:14-----
+// ----Listing done: cawp-advanced.tex:11-----
 //-----------------------END GENERATED EXTRACT : cawp-internal awpadv_sample1_h
 
 }  // close package namespace

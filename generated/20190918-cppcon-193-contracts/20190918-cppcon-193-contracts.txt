@@ -10,7 +10,7 @@ Contract Use: Past, Present, and Future
 
 
                                           1 / 51   1 / 248
-                                 Copyright Notice
+                                Copyright Notice
 
 
 
@@ -18,7 +18,7 @@ Contract Use: Past, Present, and Future
 material, and to make derivative works and commercial use of it. The information in
 this material is provided “AS IS”, without warranty of any kind. Neither Bloomberg
 nor any employee guarantees the correctness or completeness of such information.
-Bloomberg, its employees, and its affiliated entities and persons shall not be liable,
+Bloomberg, its employees, and its aﬀiliated entities and persons shall not be liable,
 directly or indirectly, in any way, for any inaccuracies, errors or omissions in such
 information. Nothing herein should be interpreted as stating the opinions, policies,
 recommendations, or positions of Bloomberg.
@@ -26,7 +26,7 @@ recommendations, or positions of Bloomberg.
 
 
 
-                                                                                    2 / 51   2 / 248
+                                                                                   2 / 51   2 / 248
                                  Who am I?
 
 
@@ -62,7 +62,6 @@ First time presenting at a Conference (Be gently please)
 
                                                            3 / 51   4 / 248
                               Who am I?
-
 
 
 
@@ -586,7 +585,6 @@ PROFIT
 
 
 
-
 Compiler identifies all violated contracts
 
 
@@ -594,7 +592,6 @@ Compiler identifies all violated contracts
 
                                                   14 / 51   42 / 248
                    Dream Benefit #1 - Less Bugs
-
 
 
 
@@ -606,7 +603,6 @@ Edge cases must be throught through
 
                                                   14 / 51   43 / 248
                    Dream Benefit #1 - Less Bugs
-
 
 
 
@@ -622,7 +618,6 @@ All assumptions are captured in compiled code
 
 
 
-
 Compiler identifies all violated contracts
 Edge cases must be throught through
 All assumptions are captured in compiled code
@@ -633,7 +628,6 @@ Mostly, if it compiles, it doesn’t have bugs (contract violations)
 
                                                                      14 / 51   45 / 248
                    Dream Benefit #1 - Less Bugs
-
 
 
 
@@ -877,6 +871,7 @@ Initial benefit of contracts in code
 #else
 #define BSLS_ASSERT(X)
 #endif
+
 
                                                      19 / 51   66 / 248
                           Documenting expectations
@@ -1194,6 +1189,7 @@ void xkcd::violationHandler(const bb::assert_violation &violation) {
   //...
 }
 
+
                                                                 24 / 51   87 / 248
                         ... but what happened?
 
@@ -1400,7 +1396,7 @@ T* binsearch(T*begin, T*end, const T& val) {
    Checks use state already in cache, are often very fast
    Algorithmic complexity can still ruin that
    3 levels of complexity
-   ... 2 levels probably sufficient
+   ... 2 levels probably suﬀicient
 
 
 
@@ -1416,7 +1412,7 @@ T* binsearch(T*begin, T*end, const T& val) {
    Checks use state already in cache, are often very fast
    Algorithmic complexity can still ruin that
    3 levels of complexity
-   ... 2 levels probably sufficient
+   ... 2 levels probably suﬀicient
    Linear scale of enablement
 
 
@@ -1429,12 +1425,13 @@ T* binsearch(T*begin, T*end, const T& val) {
 #error Multiple ASSERT_LEVEL macros defined
 #endif
 
+
                                                             26 / 51   103 / 248
                                Checking is slow!
    Checks use state already in cache, are often very fast
    Algorithmic complexity can still ruin that
    3 levels of complexity
-   ... 2 levels probably sufficient
+   ... 2 levels probably suﬀicient
    Linear scale of enablement
 
 
@@ -1453,7 +1450,7 @@ T* binsearch(T*begin, T*end, const T& val) {
    Checks use state already in cache, are often very fast
    Algorithmic complexity can still ruin that
    3 levels of complexity
-   ... 2 levels probably sufficient
+   ... 2 levels probably suﬀicient
    Linear scale of enablement
 
 
@@ -1472,7 +1469,7 @@ T* binsearch(T*begin, T*end, const T& val) {
    Checks use state already in cache, are often very fast
    Algorithmic complexity can still ruin that
    3 levels of complexity
-   ... 2 levels probably sufficient
+   ... 2 levels probably suﬀicient
    Linear scale of enablement
 
 
@@ -1491,7 +1488,7 @@ T* binsearch(T*begin, T*end, const T& val) {
    Checks use state already in cache, are often very fast
    Algorithmic complexity can still ruin that
    3 levels of complexity
-   ... 2 levels probably sufficient
+   ... 2 levels probably suﬀicient
    Linear scale of enablement
 
 
@@ -1510,7 +1507,7 @@ T* binsearch(T*begin, T*end, const T& val) {
    Checks use state already in cache, are often very fast
    Algorithmic complexity can still ruin that
    3 levels of complexity
-   ... 2 levels probably sufficient
+   ... 2 levels probably suﬀicient
    Linear scale of enablement
 
 
@@ -1529,7 +1526,7 @@ T* binsearch(T*begin, T*end, const T& val) {
    Checks use state already in cache, are often very fast
    Algorithmic complexity can still ruin that
    3 levels of complexity
-   ... 2 levels probably sufficient
+   ... 2 levels probably suﬀicient
    Linear scale of enablement
 
 
@@ -1547,7 +1544,7 @@ T* binsearch(T*begin, T*end, const T& val) {
    Checks use state already in cache, are often very fast
    Algorithmic complexity can still ruin that
    3 levels of complexity
-   ... 2 levels probably sufficient
+   ... 2 levels probably suﬀicient
    Linear scale of enablement
 
 
@@ -1565,7 +1562,7 @@ T* binsearch(T*begin, T*end, const T& val) {
    Checks use state already in cache, are often very fast
    Algorithmic complexity can still ruin that
    3 levels of complexity
-   ... 2 levels probably sufficient
+   ... 2 levels probably suﬀicient
    Linear scale of enablement
    Bloomberg 2005-2018
 
@@ -2847,6 +2844,7 @@ The risk is the strength of your belief
 //..
 
 
+
                                                                      42 / 51   202 / 248
                    BSLS_ASSERT_LEVEL_ASSUME
 
@@ -2864,6 +2862,7 @@ The risk is the strength of your belief
 //..
 
 
+
                                                                      42 / 51   203 / 248
                    BSLS_ASSERT_LEVEL_ASSUME
 
@@ -2879,6 +2878,7 @@ The risk is the strength of your belief
 #define ASSERT(X)      ASSERT_ASSUME(X)
 #define ASSERT_SAFE(X) ASSERT_ASSUME(X)
 //..
+
 
 
                                                                      42 / 51   204 / 248
@@ -3102,35 +3102,35 @@ SG21 is getting off the ground:
 
 
                                                47 / 51   222 / 248
-                               What’s the plan?
+                              What’s the plan?
 
 SG21 is getting off the ground:
     Very active reflector
     One telecon so far
-    First official meeting will be in Belfast
+    First oﬀicial meeting will be in Belfast
 
 
 
 
-                                                  47 / 51   223 / 248
-                               What’s the plan?
+                                                 47 / 51   223 / 248
+                              What’s the plan?
 
 SG21 is getting off the ground:
     Very active reflector
     One telecon so far
-    First official meeting will be in Belfast
+    First oﬀicial meeting will be in Belfast
 Rough sketch of plan:
 
 
 
 
-                                                  47 / 51   224 / 248
+                                                 47 / 51   224 / 248
                                 What’s the plan?
 
 SG21 is getting off the ground:
     Very active reflector
     One telecon so far
-    First official meeting will be in Belfast
+    First oﬀicial meeting will be in Belfast
 Rough sketch of plan:
     Gather use cases publicly
 
@@ -3138,25 +3138,25 @@ Rough sketch of plan:
 
 
                                                    47 / 51   225 / 248
-                               What’s the plan?
+                              What’s the plan?
 
 SG21 is getting off the ground:
     Very active reflector
     One telecon so far
-    First official meeting will be in Belfast
+    First oﬀicial meeting will be in Belfast
 Rough sketch of plan:
     Gather use cases publicly (Done!)
 
 
 
 
-                                                  47 / 51   226 / 248
-                               What’s the plan?
+                                                 47 / 51   226 / 248
+                              What’s the plan?
 
 SG21 is getting off the ground:
     Very active reflector
     One telecon so far
-    First official meeting will be in Belfast
+    First oﬀicial meeting will be in Belfast
 Rough sketch of plan:
     Gather use cases publicly (Done!)
     Poll on prioritization of use cases
@@ -3164,13 +3164,13 @@ Rough sketch of plan:
 
 
 
-                                                  47 / 51   227 / 248
-                               What’s the plan?
+                                                 47 / 51   227 / 248
+                              What’s the plan?
 
 SG21 is getting off the ground:
     Very active reflector
     One telecon so far
-    First official meeting will be in Belfast
+    First oﬀicial meeting will be in Belfast
 Rough sketch of plan:
     Gather use cases publicly (Done!)
     Poll on prioritization of use cases (In progress!)
@@ -3179,12 +3179,12 @@ Rough sketch of plan:
 
 
                                                          47 / 51   228 / 248
-                               What’s the plan?
+                              What’s the plan?
 
 SG21 is getting off the ground:
     Very active reflector
     One telecon so far
-    First official meeting will be in Belfast
+    First oﬀicial meeting will be in Belfast
 Rough sketch of plan:
     Gather use cases publicly (Done!)
     Poll on prioritization of use cases (In progress!)
@@ -3194,12 +3194,12 @@ Rough sketch of plan:
 
 
                                                          47 / 51   229 / 248
-                               What’s the plan?
+                              What’s the plan?
 
 SG21 is getting off the ground:
     Very active reflector
     One telecon so far
-    First official meeting will be in Belfast
+    First oﬀicial meeting will be in Belfast
 Rough sketch of plan:
     Gather use cases publicly (Done!)
     Poll on prioritization of use cases (In progress!)
@@ -3210,12 +3210,12 @@ Rough sketch of plan:
 
 
                                                          47 / 51   230 / 248
-                               What’s the plan?
+                              What’s the plan?
 
 SG21 is getting off the ground:
     Very active reflector
     One telecon so far
-    First official meeting will be in Belfast
+    First oﬀicial meeting will be in Belfast
 Rough sketch of plan:
     Gather use cases publicly (Done!)
     Poll on prioritization of use cases (In progress!)
@@ -3227,12 +3227,12 @@ Rough sketch of plan:
 
 
                                                          47 / 51   231 / 248
-                               What’s the plan?
+                              What’s the plan?
 
 SG21 is getting off the ground:
     Very active reflector
     One telecon so far
-    First official meeting will be in Belfast
+    First oﬀicial meeting will be in Belfast
 Rough sketch of plan:
     Gather use cases publicly (Done!)
     Poll on prioritization of use cases (In progress!)
@@ -3246,12 +3246,12 @@ Rough sketch of plan:
 
 
                                                                  47 / 51   232 / 248
-                               What’s the plan?
+                              What’s the plan?
 
 SG21 is getting off the ground:
     Very active reflector
     One telecon so far
-    First official meeting will be in Belfast
+    First oﬀicial meeting will be in Belfast
 Rough sketch of plan:
     Gather use cases publicly (Done!)
     Poll on prioritization of use cases (In progress!)
@@ -3266,12 +3266,12 @@ Rough sketch of plan:
 
 
                                                                     47 / 51   233 / 248
-                               What’s the plan?
+                              What’s the plan?
 
 SG21 is getting off the ground:
     Very active reflector
     One telecon so far
-    First official meeting will be in Belfast
+    First oﬀicial meeting will be in Belfast
 Rough sketch of plan:
     Gather use cases publicly (Done!)
     Poll on prioritization of use cases (In progress!)
@@ -3285,12 +3285,12 @@ Land revised contracts in standard
 
 
                                                                     47 / 51   234 / 248
-                               What’s the plan?
+                              What’s the plan?
 
 SG21 is getting off the ground:
     Very active reflector
     One telecon so far
-    First official meeting will be in Belfast
+    First oﬀicial meeting will be in Belfast
 Rough sketch of plan:
     Gather use cases publicly (Done!)
     Poll on prioritization of use cases (In progress!)

@@ -5,12 +5,30 @@
 \subsection{Identifying short-lived objects}
 
 \begin{itemize}
-\item Automated tooling to help discover?
+\item escape analysis
+\item recursive functions
+\item Automated tooling to help discover?  
+\end{itemize}
+
+\subsection{Replacing many allocations with few}
+
+\begin{itemize}
+\item identify 
 \end{itemize}
 
 \section{Designing for allocator usage}
 
 \subsection{Shaping tasks for allocators}
 
+\begin{itemize}
+\item Differentiating between long and short lived data.
+\item Message processing in local allocators, updating persistent state in
+  global allocator
+\item Structuruing persistent data for advantageous cache usage
+\end{itemize}
+
 \subsection{Keeping allocators with subsystems}
   
+\begin{itemize}
+\item Moving allocators with their data - queues of smart pointers,
+\end{itemize}

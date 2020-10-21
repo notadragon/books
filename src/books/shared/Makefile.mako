@@ -7,7 +7,7 @@ clean:
 phony_explicit:
 
 ${book.basename}.tex: phony_explicit
-	latexmk -xelatex -shell-escape -pdf -interaction=nonstopmode $*.tex > out.log
+	latexmk -xelatex -shell-escape -pdfxe -interaction=nonstopmode $*.tex > out.log
 	{                                                     \\
 		filebase=\$\$(echo \$* | sed -e "s/.tex//");   \\
 		mv \$*.pdf ../../generated/${book.basename}/;  \\

@@ -8,6 +8,29 @@
 \item Reference Emery's paper?
 \end{itemize}
 
+\subsection{What is an Allocator}
+\begin{itemize}
+\item an allocator allocates and deallocates memory
+\item what is a ``general purpose'' allocator
+  \begin{itemize}
+  \item same contract and requirements as new/delete malloc/free
+  \item thread-safe - allocate concurrently, deallocate from any thread
+  \item objects of any size
+  \item overhead constant in terms of currently allocated memory
+  \end{itemize}
+\item types of ``special purpose'' allocators
+  \begin{itemize}
+  \item Unsynchronized
+  \item Monotonic
+  \end{itemize}
+\item Global vs. Local allocators
+  \begin{itemize}
+  \item global allocators can be specialized
+  \item local allocators can be general purpose
+  \end{itemize}
+\end{itemize}
+
+
 \subsection{The History of C++ Allocators}
 
 \begin{itemize}
@@ -21,7 +44,7 @@
 \subsection{What we'll teach you about allocators}
 
 \begin{itemize}
-\item Summary of what each teaching chapter will teach
+\item Summary of what each chapter will teach
 \end{itemize}
 
 \subsection{Making money with allocators}
@@ -32,8 +55,7 @@
 
 \section{Technical Basics}
 
-\subsection{Allocators}
-
+\subsection{C++ Allocators}
 \begin{itemize}
 \item Go over the mess of c++03 style allocator types
 \end{itemize}

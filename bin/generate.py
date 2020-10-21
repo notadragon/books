@@ -43,7 +43,7 @@ class GeneratedBook:
         if outlinefile.exists():
             #print(f"    Adding outline file {outlinefile}")
             outline = configparser.ConfigParser()
-            outline.readfp(outlinefile.open())
+            outline.read_file(outlinefile.open())
             book.outline.addconfig(outline)
         
 def symlink_to(link, target):
@@ -137,7 +137,7 @@ for optionsFile in optionsFiles:
     print(f"Options file {optionsFile}")
 
     config = configparser.RawConfigParser(allow_no_value=True)
-    config.readfp(optionsFile.open())
+    config.read_file(optionsFile.open())
 
     book = GeneratedBook(optionsFile,config)
     book.outline = Outline()

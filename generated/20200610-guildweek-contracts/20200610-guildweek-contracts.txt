@@ -10,7 +10,7 @@ Joshua Berne - jberne4@bloomberg.net
 
 
                                        1 / 21   1 / 87
-                                 Copyright Notice
+                                Copyright Notice
 
 
 
@@ -18,7 +18,7 @@ Joshua Berne - jberne4@bloomberg.net
 material, and to make derivative works and commercial use of it. The information in
 this material is provided “AS IS”, without warranty of any kind. Neither Bloomberg
 nor any employee guarantees the correctness or completeness of such information.
-Bloomberg, its employees, and its affiliated entities and persons shall not be liable,
+Bloomberg, its employees, and its aﬀiliated entities and persons shall not be liable,
 directly or indirectly, in any way, for any inaccuracies, errors or omissions in such
 information. Nothing herein should be interpreted as stating the opinions, policies,
 recommendations, or positions of Bloomberg.
@@ -26,7 +26,7 @@ recommendations, or positions of Bloomberg.
 
 
 
-                                                                                     2 / 21   2 / 87
+                                                                                    2 / 21   2 / 87
 1   A Function
 
 2   Brand New Library
@@ -226,7 +226,6 @@ $ ./badmain.tsk
    We can build our code with assertions enabled.
    Then run it.
    And kabooom.
-
 
 $ g++ -DBSLS_ASSERT_LEVEL_ASSERT -o badmain.tsk foo.cpp badmain.cpp
 $ ./badmain.tsk
@@ -495,7 +494,6 @@ When deploying a new application, use BSLS_ASSERT
 In a new library, use BSLS_ASSERT
 In a new function, use BSLS_ASSERT
 When deploying a new application, use BSLS_ASSERT
-
 Catch errors fast, run safer systems.
 
 
@@ -550,7 +548,6 @@ Enabling dormant checks in old code? use BSLS_REVIEW_LEVEL...
 
 New checks in old code? use BSLS_REVIEW
 Enabling dormant checks in old code? use BSLS_REVIEW_LEVEL...
-
 Safely roll out checks before enforcing them.
 
 
@@ -695,6 +692,7 @@ int foo(int x, int y);
   // how fooable they were. The behavior is undefined
   // unless 'x <= y'.
 
+
                                                                                   13 / 21   54 / 87
      Assume foo is old as dirt.
 
@@ -735,7 +733,6 @@ int foo(int x, int y)
 
 
 
-
 #include <foo.h>
 #include <bsls_assert.h>
 
@@ -751,7 +748,6 @@ int foo(int x, int y)
   We can review our new preconditions.
   Eventually, we migrate on to BSLS_ASSERT.
   But that can’t be released safely.
-
 
 KABOOM
 
@@ -839,7 +835,6 @@ $ /bb/bin/showfunc.tsk ./questionablemain.tsk 8048B28 8048A07
    And oopsie.
    ...with a stack trace!.
    ... or a more readable stack trace!.
-
 
 $ /bb/bin/showfunc.tsk ./questionablemain.tsk 8048B28 8048A07
   8048A26 | c++filt
@@ -992,7 +987,6 @@ $ g++ -DBSLS_ASSERT_LEVEL_NONE -DBSLS_REVIEW_LEVEL_REVIEW
    This will switch asserts to reviews first
    Now deploy, monitor, fix bugs
    Then switch to this.
-
 
 $ g++ -DBSLS_ASSERT_LEVEL_ASSERT -o badmain.tsk foo.cpp
   badmain.cpp
