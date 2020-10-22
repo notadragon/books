@@ -52,7 +52,7 @@ int foo(int x)
   [[ pre : x >= 0 ]]
   [[ post r : r >= 0 ]]
 {
-  [[ assert : x * x > x ]];
+  [[ assert : x * x >= 0 ]];
   return x;
 }
 
