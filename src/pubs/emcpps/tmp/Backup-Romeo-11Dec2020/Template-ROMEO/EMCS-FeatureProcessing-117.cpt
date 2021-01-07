@@ -1,0 +1,6 @@
+Note that if the template constructor for \texttt{A} were a \emph{copy} or \emph{move} constructor for \texttt{A}, then it would be excluded from being an inherited constructor and this odd behavior would be avoided. The by-value parameter of this constructor is also why \texttt{"copy"} is output twice in this example.
+\begin{lstlisting}[language=C++, basicstyle={\ttfamily\footnotesize}]
+A x;
+B y = x;  // Surprise! This compiles, and it prints (ù{\codeincomments{"copy"}}ù) twice!
+\end{lstlisting}
+    ^^E^^L 

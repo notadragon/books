@@ -1,0 +1,6 @@
+Attempting to
+restore a \texttt{union}'s implicitly deleted special member
+functions by using the \texttt{=}~\texttt{default} syntax (see
+Section~\ref{Defaulted-Special-Member-Functions}, ``\titleref{Defaulted-Special-Member-Functions}") will still result in their being deleted because
+the compiler cannot know which member of the union is active without a
+  discriminator.^^E^^L 

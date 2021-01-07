@@ -1,0 +1,12 @@
+Note that, since C++14, all
+the standard type traits defined in the \texttt{<type\_traits>} header
+provide a corresponding alias template with the goal of reducing
+boilerplate code. For instance, C++14 introduces the
+\texttt{std::remove\_reference\_t} alias template for the C++11
+\texttt{std::remove\_reference} type trait:
+
+\begin{lstlisting}[language=C++, basicstyle={\ttfamily\footnotesize}]
+typename std::remove_reference<int&>::type i0 = 5; // OK in both C++11 and C++14
+std::remove_reference_t<int&> i1 = 5;              // OK in C++14
+\end{lstlisting}
+      ^^E^^L 

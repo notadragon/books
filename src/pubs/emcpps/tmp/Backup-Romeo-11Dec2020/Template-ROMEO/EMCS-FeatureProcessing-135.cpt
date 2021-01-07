@@ -1,0 +1,14 @@
+In C++20, the
+Designated Initializers feature adds flexibility (e.g., for
+configuration \texttt{struct}s, such as
+\texttt{HTTPRequestHandlerConfig}) by enabling explicit specification
+of the names of the data members:
+
+\begin{lstlisting}[language=C++, basicstyle={\ttfamily\footnotesize}]
+HTTPRequestHandlerConfig lowTimeout{.timeout = 15};
+    // (ù{\codeincomments{maxQueuedRequests}}ù), (ù{\codeincomments{minThreads}}ù), and (ù{\codeincomments{maxThreads}}ù) have their default value.
+
+HTTPRequestHandlerConfig highPerformance{.timeout = 120, .maxThreads = 16};
+    // (ù{\codeincomments{maxQueuedRequests}}ù) and (ù{\codeincomments{minThreads}}ù) have their default value.
+\end{lstlisting}
+      ^^E^^L 

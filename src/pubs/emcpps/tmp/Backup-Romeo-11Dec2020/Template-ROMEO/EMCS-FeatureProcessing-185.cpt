@@ -1,0 +1,11 @@
+A
+well-designed unit test will typically be imbued with \emph{expected
+values}, rather than values that were produced by the previous run.
+The latter is sometimes referred to as a \textbf{benchmark test}, and such tests are often implemented as \emph{diffs} against
+a file containing output from a previous run. This file has
+presumably been reviewed and is known (believed) to be correct and is sometimes called the \textbf{golden file}. Though ill advised, when trying to get a new version of the software to pass the benchmark test and when the precise format of the output of a system
+changes subtly, the \textbf{golden file} may be summarily jettisoned --- and the new
+output installed in its stead --- with little if any detailed review.
+Hence, well-designed unit tests will often hard code exactly what is
+to be expected (nothing more or less) directly in the
+  \textbf{test-driver} source code.^^E^^L 

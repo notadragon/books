@@ -1,0 +1,45 @@
+%
+% This file is included before the document is begun.  Anything here should
+% either be included in the publisher-specific preambles or should be mocked
+% there to turn any commands that might be used from that preamble into no-ops.
+
+\usepackage[colorinlistoftodos]{todonotes}
+\usepackage{letltxmacro}
+\GlobalLetLtxMacro{\todoraw}{\todo}
+\renewcommand{\todo}[2][]{\todoraw[#1]{\thesection{}. #2}}
+
+\setlength{\marginparwidth}{3.7cm} % needed to make todo notes fill margin
+
+%\usepackage{relsize}               % needed for \textsmaller
+
+% These macros are to match the typesetting used in the C++ standard for the various C++ versions.
+% This should be the following, but getting \textsmaller to work consistently with all fonts is nontrivial.
+% \newcommand{\Cpp}{\texorpdfstring{C\kern-0.05em\protect\raisebox{.35ex}{\textsmaller[2]{+\kern-0.05em+}}}{C++}}
+\newcommand{\Cpp}{C\kern-0.2em\protect\raisebox{.15ex}{+\kern-0.2em+}}
+\newcommand{\CppIII}{\Cpp{} 2003}
+\newcommand{\CppXI}{\Cpp{} 2011}
+\newcommand{\CppXIV}{\Cpp{} 2014}
+\newcommand{\CppXVII}{\Cpp{} 2017}
+\newcommand{\CppXX}{\Cpp{} 2020}
+
+% All code samples that should be tested are going to be written within the
+% following environment
+%
+% Source for initial implementation for dumping to files:
+% https://tex.stackexchange.com/questions/284189/how-to-dump-listings-to-a-file
+\usepackage{currfile}
+\makeatletter
+\lst@RequireAspects{writefile}
+
+\lstnewenvironment{cppcodeblock}[1]
+{\lstset{language=[11]C++}%
+ \lst@BeginAlsoWriteFile{listings/#1.lst}
+ \immediate\write\lst@WF{// ----Listing start: \currfilename:\the\inputlineno-----}%
+}
+{ \immediate\write\lst@WF{// ----Listing done: \currfilename:\the\inputlineno-----}%
+  \lst@EndWriteFile
+}
+
+\newcommand{\cppcode}[1]{\lstinline[language=C++]{#1}}
+
+\makeatother

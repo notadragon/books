@@ -1,0 +1,8 @@
+While
+specifying an enumeration's underlying type was impossible before
+C++11, the compiler could be forced to choose at least a 32-bit or
+64-bit signed integral type by adding an enumerator having a
+sufficiently large negative value --- e.g.,
+\texttt{-1}~\texttt{<<}~\texttt{31} for a 32-bit and
+\texttt{-1}~\texttt{<<}~\texttt{63} for a 64-bit \emph{signed} integer
+  (assuming such is available on the target platform).^^E^^L 

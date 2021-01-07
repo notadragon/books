@@ -1,0 +1,333 @@
+
+
+Delegating constructors are constructors of a class that delegate initialization to another
+constructor of the same class.
+
+\subsection[Description]{Description}\label{description}
+
+A \textbf{delegating constructor} is a constructor of a
+\textbf{user-defined type} (i.e., \texttt{class}, \texttt{struct}, or
+\texttt{union}) that invokes another constructor defined for the same
+\textbf{UDT} as part of its initialization of an object of that type.
+The syntax for invoking another constructor within a type is to specify
+the name of the type as the only element in the \textbf{member
+initializer list}:
+
+\begin{lstlisting}[language=C++]
+struct S0
+{
+    int d_i;
+
+    S0(int i) : d_i(i)        { }  // non-delegating constructor
+    S0()      : S0(0)         { }  // OK, delegates to (ù{\codeincomments{S0(int)}}ù)
+    S0(bool)  : S0(0), d_i(0) { }  // error: delegation must be on its own
+};
+\end{lstlisting}
+    
+\noindent Multiple delegating constructors can be chained together (one calling
+exactly one other) so long as cycles are avoided (see
+{\it\titleref{ctordelegrating-potential-pitfalls}:} {\it\titleref{delegation-cycles}} on page~\pageref{delegation-cycles}). Once a \emph{target} (i.e., invoked via delegation) constructor returns,
+the body of the delegator is invoked:
+
+\begin{lstlisting}[language=C++]
+#include <iostream>  // (ù{\codeincomments{std::cout}}ù)
+
+struct S1
+{
+    S1(int, int)            { std::cout << 'a'; }
+    S1(int)      : S1(0, 0) { std::cout << 'b'; }
+    S1()         : S1(0)    { std::cout << 'c'; }
+};
+
+void f()
+{
+    S1 s;  // OK, prints (ù{\codeincomments{"abc"}}ù) to (ù{\codeincomments{stdout}}ù)
+}
+\end{lstlisting}
+    
+\noindent If an exception is thrown while executing a nondelegating constructor,
+the object being initialized is considered only \textbf{partially
+constructed} (i.e., the object is not yet known to be in a valid state)
+and hence its destructor will \emph{not} be
+invoked{\cprotect\footnote{The destructor of a \textbf{partially
+constructed} object will not be invoked. However, the destructors of
+each successfully constructed base and of data members will still be
+invoked:
+
+\begin{lstlisting}[language=C++, basicstyle={\ttfamily\footnotesize}]
+#include <iostream>
+
+using std::cout;
+struct A { A() { cout << "A() "; } ~A() { cout << "~A() "; } };
+struct B { B() { cout << "B() "; } ~B() { cout << "~B() "; } };
+
+struct C : B
+{
+    A d;
+
+    C()  { cout << "C() "; throw 0; }  // non-delegating constructor that throws
+    ~C() { cout << "~C() ";         }  // destructor that never gets called
+};
+
+void f() try { C c; } catch(int) { }
+    // prints (ù{\codeincomments{"B() A() C() \textasciitilde A() \textasciitilde B()"}}ù) to (ù{\codeincomments{stdout}}ù)
+\end{lstlisting}
+    
+\noindent Notice that base-class \texttt{B} and member \texttt{d} of type
+\texttt{a} were fully constructed, and so their respective destructors
+are called, even though the destructor for class \texttt{C} itself is
+  never executed.}}:
+
+\begin{lstlisting}[language=C++]
+#include <iostream>  // (ù{\codeincomments{std::cout}}ù)
+
+struct S2
+{
+    S2()  { std::cout << "S2() ";  throw 0; }
+    ~S2() { std::cout << "~S2() ";          }
+};
+
+void f() try { S2 s; } catch(int) { }
+    // prints only "(ù{\codeincomments{S2() }}ù)" to (ù{\codeincomments{stdout}}ù) (i.e., the destructor of (ù{\codeincomments{S2}}ù) is never
+    // invoked)
+\end{lstlisting}
+    
+\noindent However, if an exception is thrown in the body of a delegating
+constructor, the object being initialized is considered \textbf{fully
+constructed}, as the target constructor must have returned control to
+the delegator; hence the overall object's destructor \emph{will} be
+invoked:
+
+\begin{lstlisting}[language=C++]
+#include <iostream>  // (ù{\codeincomments{std::cout}}ù)
+
+struct S3
+{
+    S3()           { std::cout << "S3() "              }
+    S3(int) : S3() { std::cout << "S3(int) "; throw 0; }
+    ~S3()          { std::cout << "~S3() "             }
+};
+
+void f() try { S3 s(0); } catch(int) { }
+    // prints "(ù{\codeincomments{S3() S3(int) \texttt{\~{}}S3() }}ù)" to (ù{\codeincomments{stdout}}ù)
+\end{lstlisting}
+    
+
+\subsection[Use Cases]{Use Cases}\label{ctordelegating-use-cases}
+
+\subsubsection[Avoiding code duplication among constructors]{Avoiding code duplication among constructors}\label{avoiding-code-duplication-among-constructors}
+
+Avoiding gratuitous code duplication is considered by many to be a best
+practice. Having one ordinary member function call another has always
+been an option, but having one constructor invoke another constructor
+directly has not. Classic workarounds included repeating the code or
+else factoring the code into a private member function that would be
+called from multiple constructors. The drawback with this workaround is
+that the private method, not being a constructor, would be unable to
+make use of \textbf{member initialization lists} to construct base-class
+and member objects efficiently. As of C++11, \emph{delegating
+constructors} can be used to minimize code duplication when some of
+the same operations are performed across multiple constructors without
+having to forgo efficient initialization.
+
+As an example, consider an \texttt{IPV4Host} class representing a
+network endpoint that can either be constructed by (1) a 32-bit address
+and a 16-bit port or (2) an IPV4 string with
+\texttt{XXX.XXX.XXX.XXX:XXXXX} format{\cprotect\footnote{Note that
+this initial design might itself be suboptimal in that the
+representation of the IPV4 address and port value might profitably be
+factored out into a separate \textbf{value-semantic} class, say,
+\texttt{IPV4Host}, that itself might be constructed in multiple ways;
+  see {\it\titleref{ctordelegrating-potential-pitfalls}:} {\it\titleref{suboptimal-factoring}} on page~\pageref{suboptimal-factoring}.}}:
+
+\begin{lstlisting}[language=C++]
+#include <cstdint>  // (ù{\codeincomments{std::uint16\_t}}ù), (ù{\codeincomments{std::uint32\_t}}ù)
+
+class IPV4Host
+{
+    // ...
+
+public:
+    IPV4Host(std::uint32_t address, std::uint16_t port)
+    {
+        if (!connect(address, port))  // code repetition: BAD IDEA
+        {
+            throw ConnectionException{address, port};
+        }
+    }
+
+    IPV4Host(const std::string& ip)
+    {
+        std::uint32_t address = extractAddress(ip);
+        std::uint16_t port = extractPort(ip);
+
+        if (!connect(address, port))  // code repetition: BAD IDEA
+        {
+            throw ConnectionException{address, port};
+        }
+    }
+};
+\end{lstlisting}
+    
+\noindent Prior to C++11, working around such code duplication would require the
+introduction of a separate, subordinate (private) helper function, that
+would, in turn, be called by each of the constructors:
+
+\begin{lstlisting}[language=C++]
+#include <cstdint>  // (ù{\codeincomments{std::uint16\_t}}ù), (ù{\codeincomments{std::uint32\_t}}ù)
+
+class IPV4Host
+{
+    // ...
+
+private:
+    void validate(std::uint32_t address, std::uint16_t port)  // helper function
+    {
+        if (!connect(address, port))  // factored implementation of needed logic
+        {
+            throw ConnectionException{address, port};
+        }
+    }
+
+public:
+    IPV4Host(std::uint32_t address, std::uint16_t port)
+    {
+        validate(address, port);  // Invoke factored private helper function.
+    }
+
+    IPV4Host(const std::string& ip)
+    {
+        std::uint32_t address = extractAddress(ip);
+        std::uint16_t port = extractPort(ip);
+
+        validate(address, port);  // Invoke factored private helper function.
+    }
+};
+\end{lstlisting}
+    
+\noindent Alternatively, the constructor accepting a string can be rewritten to
+delegate to the one accepting \texttt{address} and \texttt{port},
+avoiding repetition without having to delegate to a private function:
+
+\begin{lstlisting}[language=C++]
+#include <cstdint>  // (ù{\codeincomments{std::uint16\_t}}ù), (ù{\codeincomments{std::uint32\_t}}ù)
+
+class IPV4Host
+{
+    // ...
+
+public:
+    IPV4Host(std::uint32_t address, std::uint16_t port)
+    {
+        if(!connect(address, port))
+        {
+            throw ConnectionException{address, port};
+        }
+    }
+
+    IPV4Host(const std::string& ip)
+        : IPV4Host{extractAddress(ip), extractPort(ip)}
+    {
+    }
+};
+\end{lstlisting}
+    
+\noindent Compared to the pre-C++11 workaround of introducing a private
+\texttt{init} function containing the duplicated logic, use of
+delegating constructors results in less boilerplate and fewer run-time
+operations, as data members (and base classes) can be initialized
+directly through the \textbf{member initialization list}, rather than be
+\emph{assigned-to} in the body of \texttt{init} (assuming copy
+assignment is even supported on that type), but see
+{\it\titleref{ctordelegrating-potential-pitfalls}:} {\it\titleref{suboptimal-factoring}} on page~\pageref{suboptimal-factoring}. 
+
+\subsection[Potential Pitfalls]{Potential Pitfalls}\label{ctordelegrating-potential-pitfalls}
+
+\subsubsection[Delegation cycles]{Delegation cycles}\label{delegation-cycles}
+
+If a constructor delegates to itself either directly or indirectly, the
+program is \textbf{ill-formed, no diagnostic required}. While some
+compilers can detect delegation cycles at compile time, they are not
+required (nor necessarily able) to do so. For example, consider a simple
+delegation cycle comprising two constructors:
+
+\begin{lstlisting}[language=C++]
+struct S  // Object
+{
+    S(int)  : S(true) { }  // delegating constructor
+    S(bool) : S(0)    { }  // delegating constructor
+};
+\end{lstlisting}
+    
+\noindent Not all popular compilers will warn you that the program above is
+ill-formed.{\cprotect\footnote{GCC 10.x does not detect this delegation
+cycle at compile time and produces a binary that, if run, will
+necessarily exhibit \textbf{undefined behavior}. Clang 10.x, on the
+other hand, halts compilation with a helpful error message:
+
+\begin{lstlisting}[language=C++, basicstyle={\ttfamily\footnotesize}]
+error: constructor for (ù{\codeincomments{S}}ù) creates a delegation cycle
+\end{lstlisting}\vspace*{-1ex}
+      }} Therefore the programmer is responsible for ensuring that
+no delegation cycles are present.
+
+\subsubsection[Suboptimal factoring]{Suboptimal factoring}\label{suboptimal-factoring}
+
+The need for delegating constructors might result from initially
+suboptimal factoring --- e.g., in the case where the same \textbf{value}
+is being presented in different forms to a variety of different
+\textbf{mechanisms}. For example, consider the \texttt{IPV4Host} class
+in {\it\titleref{ctordelegating-use-cases}} (which starts on page~\pageref{ctordelegating-use-cases}). While having two constructors to
+initialize the host might be appropriate, if either (1) the number of
+ways of expressing the same value increases or (2) the number of
+consumers of that value increases, we might be well advised to create a
+separate \textbf{value semantic} type, e.g., \texttt{IPV4Address}, to
+represent that value{\cprotect\footnote{The notion that each component
+in a subsystem ideally performs one focused function well is sometimes
+referred to as separation of (logical) concerns or
+  fine-grained (physical) factoring; see \textbf{{lakos20}},
+  sections 0.4, 3.2.7, and 3.5.9, pp.~20--28, 529--530, and 674--676,
+  respectively.}}:
+
+\begin{lstlisting}[language=C++]
+#include <cstdint>  // (ù{\codeincomments{std::uint16\_t}}ù), (ù{\codeincomments{std::uint32\_t}}ù)
+
+struct IPV4Address
+{
+    std::uint32_t d_address;
+    std::uint16_t d_port;
+
+    IPV4Address(std::uint32_t address, std::uint16_t port)
+        : d_address{address}, d_port{port}
+    {
+    }
+
+    IPV4Address(const std::string& ip)
+        : IPV4Address{extractAddress(ip), extractPort(ip)}
+    {
+    }
+};
+\end{lstlisting}
+    
+\noindent Note that \texttt{IPV4Address} itself makes use of delegating
+constructors but as a purely private, encapsulated implementation
+detail. With the introduction of \texttt{IPV4Address} into the codebase,
+\texttt{IPV4Host} (and similar components requiring an
+\texttt{IPV4Address} value) can be redefined to have a single
+constructor (or other previously overloaded member function) accepting
+an \texttt{IPV4Address} object as an argument.
+
+\subsection[Annoyances]{Annoyances}\label{annoyances}
+
+None so far
+
+\subsection[See Also]{See Also}\label{see-also}
+
+None so far
+
+\subsection[Further Reading]{Further Reading}\label{further-reading}
+
+None so far
+
+
+

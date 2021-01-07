@@ -1,0 +1,20 @@
+Conceptually, the cache is often thought of as
+being able to hold any arbitrary subset of the most recently accessed
+cache lines. This kind of cache is known as \textbf{fully
+associative}. Although it provides the best hit rate, a \textbf{fully
+associative} cache requires the most power along with significant
+additional chip area to perform the fully parallel lookup. \textbf{Direct-mapped} cache associativity is at the
+other extreme. In direct mapped, each memory location has exactly one location
+available to it in the cache. If another memory location mapping to
+that location is needed, the current cache line must be flushed from
+the cache. Although this approach has the lowest hit rate, lookup
+times, chip area, and power consumption are all minimized (optimally).
+Between these two extremes is a continuum that is referred to as
+\textbf{set associative}. A \textbf{set associate} cache has more than
+  one (typically 2, 4, or 8; see \textbf{solihin15}, section~5.2.1, ``Placement Policy," pp. 136--141, and \textbf{hruska20})
+  location in which each memory location in main memory can reside.
+  Note that, even with a relatively small $N$, as $N$ increases, an $N$-way
+  \textbf{set associative} cache quickly approaches the hit rate of a fully
+  associative cache at greatly reduced collateral cost; for most
+  software-design purposes, any loss in hit rate due to set
+  associativity of a cache can be safely ignored.^^E^^L 

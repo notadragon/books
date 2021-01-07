@@ -1,0 +1,5 @@
+On 64-bit systems, \texttt{sizeof(long)}
+is typically 8~bytes. Compiling with the \texttt{-m32} flag on either
+GCC or Clang emulates compiling on a 32-bit platform:
+\texttt{sizeof(long)} is likely to be~4, while
+  \texttt{sizeof(long}~\texttt{long)} remains~8.^^E^^L 

@@ -1,0 +1,130 @@
+\setminted{texcomments}
+
+%------------------------------------------------------------------------------
+\section{}
+%------------------------------------------------------------------------------
+\begin{frame}[fragile]
+  \frametitle{Why standardize contracts?}
+\begin{itemize}
+
+\item Make the world a better place
+\item Tooling support - having third party static analysis tools able to
+  verify contract checks for us
+\item Consistent and controllable third-party library behaviors
+\item Compiler support for optimizations based on contracts, and
+  potentially to AVOID optimizatinos interfering with contracts.
+\end{itemize}
+\end{frame}
+
+\begin{frame}[fragile]
+  \frametitle{Current Phase - MVP}
+
+  \begin{itemize}
+  \item Ability to declare \cc{[[pre]]}, \cc{[[post]]}, \cc{[[assert]]} annotations
+  \item Central violation handler invoked when ``on'' and violated
+  \item No other semantics
+  \end{itemize}
+
+  \begin{cppcodebox}
+  int foo(int x)
+    [[ pre : x >= 0 ]]
+    [[ post r : r >= 0 ]]
+  {
+    [[ assert : x * x >= 0 ]];
+    return x;
+  }
+  \end{cppcodebox}
+
+\end{frame}
+
+\begin{frame}[fragile]
+  \frametitle{Current Phase - MVP}
+
+  \begin{cppcodebox}
+    [[ assert : x > 0 ]];
+
+    if (x > 0) {
+      invoke_violation_handler();
+    }
+  \end{cppcodebox}
+
+  \begin{itemize}
+  \item Partial solution
+  \item No ``levels'' - contracts on might break complexity guarantees, or
+    those checks have to not be written
+  \item No differentiating between ``new'' and ``preexiting'' contracts
+  \item No extensibility
+  \item No language-based ability to take more advantage of contracts
+  \item Some usefulness can be embedded in a smart enough violation handler,
+    but many of our use cases will not yet be met
+  \end{itemize}
+\end{frame}
+
+\begin{frame}[fragile]
+  \frametitle{Fallen Heroes - C++20 Contracts}
+
+  \begin{itemize}
+  \item P0542 - contracts that were merged - MVP + \cc{audit}, \cc{axiom}
+  \item P1332 - introduced semantics
+  \item P1429 - full semantic-supporting proposal on top of P0542
+  \item P1607 - minimized, JUST semantics, accepted by EWG
+  \end{itemize} \pause
+
+  \begin{itemize}
+  \item ignore - An ``OFF'' contract that has no impact on execution
+  \item observe - An ``ON'' contract that lets the violation handler observe a violation.
+  \item enforce - An ``ON'' contract that aborts if the violation handler returns.
+  \item assume - A contract where violation is hard UB
+  \end{itemize}
+
+\end{frame}
+
+\begin{frame}
+  \frametitle{What is needed}
+
+  \begin{itemize}
+  \item SG21 has 196 use cases for contracts defined (P1995)
+  \item A plan to enabled satisfying most/all of them needs to be developed
+  \item Our desire to migrate \cc{BSLS_ASSERT} and \cc{BSLS_REVIEW} to language-based contracts
+    should be met (it is a subset of the SG21 use cases)
+  \item Contract semantics should be selectable based on a combination of locally specified
+    meta-attributes about a contract and build-time specified choices made by the person assembling
+    an application.
+  \end{itemize}
+\end{frame}
+
+\begin{frame}[fragile]
+  \frametitle{Next Phase - Levels, Roles, Labels?}
+
+  \begin{cppcodebox}
+    BSLS_ASSERT_SAFE(X);
+    [[ assert audit : X ]];
+
+    BSLS_REVIEW(X)
+    [[ assert review : X ]];
+
+    BSLS_REVIEW_SAFE(X)
+    [[ assert audit review : X ]];
+  \end{cppcodebox}
+
+  \begin{itemize}
+  \item We need to independentaly control the semantics of each of these
+  \item \cc{review}'s logic could be captured in code
+  \item lots of other things we have identified uses for labelling contracts
+  \end{itemize}
+\end{frame}
+
+\begin{frame}
+  \frametitle{Next Phase - Plan }
+
+  \begin{itemize}
+  \item Working with lock3 we have a prototype that supports everything in P0542+P1429+P1607
+  \item That work can be leveraged with \cc{BSLS_ASSERT} and \cc{BSLS_REVIEW} today
+  \item We are developing a similar proposal and prototype that subsumes P1429/P1607 and
+    meets more use cases from P1995.  That will hopefully begin review rounds and prototype implementation
+    internally and with SG21 members over the next few months.    
+  \end{itemize}
+
+\end{frame}
+
+\end{document}

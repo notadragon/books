@@ -1,0 +1,72 @@
+\chapter{Foundations}
+
+\section{Motivation}
+
+\begin{itemize}
+\item Why local allocation can help
+\item Limits of global allocation
+\item Reference Emery's paper?
+\end{itemize}
+
+\subsection{What is an Allocator}
+\begin{itemize}
+\item an allocator allocates and deallocates memory
+\item what is a ``general purpose'' allocator
+  \begin{itemize}
+  \item same contract and requirements as new/delete malloc/free
+  \item thread-safe - allocate concurrently, deallocate from any thread
+  \item objects of any size
+  \item overhead constant in terms of currently allocated memory
+  \end{itemize}
+\item types of ``special purpose'' allocators
+  \begin{itemize}
+  \item Unsynchronized
+  \item Monotonic
+  \end{itemize}
+\item Global vs. Local allocators
+  \begin{itemize}
+  \item global allocators can be specialized
+  \item local allocators can be general purpose
+  \end{itemize}
+\end{itemize}
+
+
+\subsection{The History of C++ Allocators}
+
+\begin{itemize}
+\item describe C++03 allocators
+\item \cite{wg21N1850} - Towards a better allocator model
+\item \cite{wg21N2387}, \cite{wg21N2436},
+\item Scoped allocators: \cite{wg21N2446}, \cite{wg21N2523}, 
+\item c++17, c++20  changes to PMR
+\end{itemize}
+
+\subsection{What we'll teach you about allocators}
+
+\begin{itemize}
+\item Summary of what each chapter will teach
+\end{itemize}
+
+\subsection{Making money with allocators}
+
+\begin{itemize}
+\item Summary of how architecture can facilitate leveraging allocators
+\end{itemize}
+
+\section{Technical Basics}
+
+\subsection{C++ Allocators}
+\begin{itemize}
+\item Go over the mess of c++03 style allocator types
+\end{itemize}
+
+
+\subsection{The std::pmr Interface}
+
+\begin{itemize}
+\item Show std::pmr::polymorphic\_allocator
+\item Show simplification to ALLOCATOR types
+\item Show the memory\_resource interface, how to do an allocation
+\end{itemize}
+
+

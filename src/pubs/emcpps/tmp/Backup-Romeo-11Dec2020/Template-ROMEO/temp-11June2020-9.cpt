@@ -1,0 +1,9 @@
+Absolutely
+  no external state changes are allowed in a function decorated with
+  \texttt{[[gnu::const]]}, including global state changes or mutation
+  via any of the function's arguments (the arguments themselves are
+  considered local state, and hence can be modified). The (more lenient)
+  \texttt{[[gnu::pure]]} allows changes to the state of the function's
+  arguments, but still forbids any global state mutation. For example,
+  any sort of (even temporary) global memory allocation would be
+  emphatically disallowed.^^E^^L 

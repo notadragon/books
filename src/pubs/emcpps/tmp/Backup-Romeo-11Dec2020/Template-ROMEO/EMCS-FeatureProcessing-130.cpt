@@ -1,0 +1,16 @@
+GCC version 7.4.0
+incorrectly diagnoses both ambiguity errors as warnings, although it
+states in the warning that it is an error:
+
+\begin{lstlisting}[language=C++, basicstyle={\ttfamily\footnotesize}]
+warning: ISO C++ says that these are ambiguous, even though the worst conversion for the
+         first is better than the worst conversion for the second:
+
+note: candidate 1: void clearScreen(int, int)
+void clearScreen(int pattern, int orientation);
+     ^~~~~~~~~~~
+note: candidate 2: void clearScreen(Color::Enum, double)
+void clearScreen(Color::Enum background, double alpha;
+     ^~~~~~~~~~~
+\end{lstlisting}
+      ^^E^^L 

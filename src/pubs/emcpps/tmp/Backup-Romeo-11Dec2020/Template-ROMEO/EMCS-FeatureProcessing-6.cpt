@@ -1,0 +1,5 @@
+As of this writing, GCC is lax and merely
+warns when it sees the standard \texttt{noreturn} attribute in an
+unauthorized syntactic position, whereas Clang (correctly) fails to
+compile. Hence creative use of even a standard attribute might
+  lead to different behavior on different compilers.^^E^^L 

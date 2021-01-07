@@ -1,0 +1,12 @@
+A so-called \textbf{strong
+  \texttt{typedef}} is similar to a classic, C-style enumeration in
+  that it is (1) its own type and (2) implicitly convertible to its
+  base type (which for enumerators corresponds to its
+  \textbf{underlying type}; see ``\titleref{explicit-enumeration-underlying-type}" on page~\pageref{explicit-enumeration-underlying-type}). Unlike a classic
+  \texttt{enum}, however, a typical implementation of a \textbf{strong
+  \texttt{typedef}} allows only for explicit conversion from its base
+  type. An analogy to the more strongly typed
+\texttt{enum}~\texttt{class} (see ``\titleref{enumclass}" on page~\pageref{enumclass}) would suppress conversion
+  in either direction, e.g., via private inheritance and then
+  \texttt{explicit} conversion constructors and
+ \texttt{explicit} conversion operators (see ``\titleref{explicit-conversion-operators}" on page~\pageref{explicit-conversion-operators}).^^E^^L 

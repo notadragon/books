@@ -1,0 +1,8 @@
+In the C Standard, the macro \texttt{NULL} is
+defined as an \textbf{implementation-defined} integral or \texttt{void*}
+constant. Unlike C, C++ forbids conversions from \texttt{void*} to
+arbitrary pointer types and instead, prior to C++11, defined
+\texttt{NULL} as an \emph{``integral constant expression rvalue of
+integer type that evaluates to zero''}; any integer literal (e.g.,
+\texttt{0}, \texttt{0L}, \texttt{0U}, \texttt{0LLU}) satisfies this
+  criterion.^^E^^L 

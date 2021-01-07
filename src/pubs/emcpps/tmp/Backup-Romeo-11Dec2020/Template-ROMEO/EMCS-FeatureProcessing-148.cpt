@@ -1,0 +1,7 @@
+The compiler-generated version for a
+special member function is required to call the corresponding special
+member functions on (1) every base class in base-class-declaration
+order and then (2) every data member of the encapsulating type in
+declaration order (regardless of any access specifiers). Note that the
+destructor calls will be in exactly the opposite order of the
+  other special-member-function calls.^^E^^L 

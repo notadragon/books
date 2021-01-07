@@ -1,0 +1,64 @@
+Chapterhead does not count in the Level counting; it is its own separate thing
+
+\section[C++xx with {\tt Code}]{C++xx with {\SecCode Code}--- This is a Level 1 Head} 
+
+\subsection[{\tt auto}]{{\SubsecCode auto} --- This is a Level 2 Head}
+
+text here
+
+\subsubsection[Description with {\tt Code}]{Description with {\SubsubsecCode Code} --- This is a Level 3 Head}
+
+text here
+
+\begin{leftbar}
+{And now we need to make sure the Example will flow nicely across pages.  Phasellus nibh lectus, lacinia vitae mollis at, lobortis lobortis sapien. Phasellus vestibulum mi sit amet ante pulvinar mattis. Praesent rhoncus iaculis metus at faucibus. Maecenas in sem et mauris scelerisque scelerisque eget vel neque. In placerat pharetra nisi sit amet vestibulum. See Listing \ref{listingexample} for a listing with a title. 
+% this is the code for a listing with a title and a number. 
+\begin{lstlisting}[caption={This is the Listing Title.},label={listingexample},frame=tb]
+Now a bit more code, with a title and a number and some
+lines to set it off             
+\end{lstlisting}
+\begin{lstlisting}[caption={And if the title is long enough to run over two lines, then it is set flushleft rather than centered.},label={listingexample},frame=tb]
+Now a bit more code, with a longer title 
+123456789A123456789B123456789C123456789D123456789E123456789F123456789G123456789H
+Testing the line length           
+\end{lstlisting}
+Sed faucibus rhoncus nisl id dignissim. Quisque sed metus justo. Aliquam aliquet molestie condimentum. Nulla ac libero tellus. }
+\end{leftbar}
+and then testing a listing outside of the Example environment.\cprotect\footnote{\textbf{lakos20},
+  section 0.5, pp 34-42
+
+ \begin{lstlisting}[language=C++, label={ testlabel },basicstyle={\footnotesize\tt}]
+  template <typename Range>
+  auto sortRangeImpl(Range& range, int) -> decltype(range.sort(), void());
+      // The comma operator is used to force the return type to `void`,
+      // regardless of the return type of `range.sort()`.
+
+  template <typename Range, typename = decltype(std::declval<Range&>().sort()>
+  auto sortRangeImpl(Range& range, int);
+      // `std::declval` is used to generate a reference to `Range` that can be
+      // used in an unevaluated expression
+  \end{lstlisting}
+      } Maybe we don't want to use the Example environment. 
+\begin{lstlisting}[caption={Caption.},label={listingexample},frame=tb]
+Now a bit more code, with a longer title 
+123456789A123456789B123456789C123456789D123456789E123456789F123456789G123456789H
+Testing the line length           
+\end{lstlisting}
+
+\subsubsection{Potential Pitfalls}
+
+\paragraph[Performance Concerns with {\tt Code}]{Performance Concerns with {\ParaCode Code} --- This is a Level 4 Head}
+
+\paragraph{Issues at Scale}
+
+\paragraph{Language/Feature Deficiencies}
+
+\paragraph{Annoyances}
+
+\paragraph{Related Information}
+
+\paragraph{See Also}
+
+\paragraph{Further Reading}
+
+

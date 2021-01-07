@@ -1,0 +1,10 @@
+The briefly adopted
+--- and then \emph{unadopted} --- contract-checking facility proposed
+for C++20 contemplated incorporating a feature similar in spirit to
+\texttt{[[gnu::const]]} in which preconditions (in addition to being
+runtime checked or ignored) could be \emph{assumed} to be true by the
+compiler for the purposes of optimization; this unique use of
+attribute-like syntax also required that a conforming implementation
+could not unilaterally ignore these precondition-checking attributes
+since that would make attempting to test them result in hard
+  (\emph{language}) \textbf{undefined behavior}.^^E^^L 

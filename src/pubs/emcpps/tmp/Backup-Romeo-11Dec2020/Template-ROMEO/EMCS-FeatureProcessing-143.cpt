@@ -1,0 +1,13 @@
+As of C++17, the Standard Library provides a
+more convenient way of inspecting the result of a type trait, by
+introducing variable templates named the same way as the corresponding
+traits but with an additional \texttt{\_v} suffix:
+
+\begin{lstlisting}[language=C++, basicstyle={\ttfamily\footnotesize}]
+// C++11/14
+std::is_default_constructible<T>::value
+
+// C++17
+std::is_default_constructible_v<T>
+\end{lstlisting}
+      ^^E^^L 

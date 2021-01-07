@@ -1,0 +1,34 @@
+Though possible, it is surprisingly difficult
+in C++11 to \emph{move} from an existing variable into a closure.
+Programmers are either forced to pay the price of an unnecessary copy or to employ esoteric and fragile techniques, such as writing a wrapper
+that hijacks the behavior of its copy constructor to do a \emph{move}
+instead:
+
+\begin{lstlisting}[language=C++, basicstyle={\ttfamily\footnotesize}]
+template <typename T>
+struct MoveOnCopy  // wrapper template used to hijack copy ctor to do move
+{
+    T d_obj;
+
+    MoveOnCopy(T&& object) : d_obj{std::move(object)} { }
+    MoveOnCopy(MoveOnCopy& rhs) : d_obj{std::move(rhs.d_obj)} { }
+};
+
+void f()
+{
+    std::unique_ptr<int> handle{new int(100)};  // move-only
+        // Create an example of a handle type with a large body.
+
+    MoveOnCopy<decltype(handle)> wrapper(std::move(handle));
+        // Create an instance of a wrapper that moves on copy.
+
+    auto lambda = [wrapper](){ /* use (ù{\codeincomments{wrapper.d\_obj}}ù) */ };
+        // Create a "copy" from a wrapper that is captured by value.
+}
+\end{lstlisting}
+
+\noindent In the example above, we make use of the bespoke (``hacked'')
+\texttt{MoveOnCopy} class template to wrap a movable object;
+when the lambda-capture expression tries to \emph{copy} the wrapper (\textit{by value}),
+the wrapper in turn \emph{moves} the wrapped
+  \texttt{handle} into the body of the closure.^^E^^L 

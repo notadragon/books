@@ -1,0 +1,24 @@
+Variadic templates are a C++11
+  feature having many valuable and practical uses. In this case, the
+  variadic feature enables us to easily describe a template that takes
+  an arbitrary number of C++ type arguments by specifying an ellipsis
+  (\texttt{...}) immediately following \texttt{typename}. Emulating such
+  functionality in C++98/03 would have required significantly more
+  effort: A typical workaround for this use case would have been to
+  create a template having some fixed maximum number of arguments (e.g.,
+  20), each defaulted to some unused (incomplete) type (e.g.,
+  \texttt{Nil}):
+
+  \begin{lstlisting}[language=C++, basicstyle={\ttfamily\footnotesize}]
+  struct Nil;  // arbitrary unused (incomplete) type
+
+  template <typename = Nil, typename = Nil, typename = Nil, typename = Nil>
+  struct TypeList { };
+      // emulates the variadic (ù{\codeincomments{TypeList}}ù) template (ù{\codeincomments{struct}}ù) for up to four
+      // type arguments
+  \end{lstlisting}
+
+\vspace*{-1ex}
+\noindent Another theoretically appealing approach is to implement a Lisp-like
+  recursive data structure; the compile-time overhead for such
+  implementations, however, often makes them impractical.^^E^^L 

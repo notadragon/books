@@ -1,0 +1,14 @@
+A decidedly more
+complex alternative affording a different set of tradeoffs would
+  involve variadic template constructors (see ``\titleref{variadictemplate}" on page~\pageref{variadictemplate}) having
+ forwarding references (see ``\titleref{forwardingref}" on page~\pageref{forwardingref}) as parameters. In this
+  alternative approach, all of the constructors from the
+  \mbox{\texttt{public}}, \mbox{\texttt{protected}}, and \mbox{\texttt{private}} regions of the
+  bases class would now appear under the same access specifier --- i.e.,
+  the one in which the perfectly forwarding constructor is declared.
+  What's more, this approach would not retain other constructor
+  characteristics, such as \texttt{explicit}, \texttt{noexcept},
+  \texttt{constexpr}, and so on. The forwarding can, however, be restricted to
+  inheriting just the \texttt{public} constructors (without
+  characteristics) by constraining on \texttt{std::is\_constructible}
+  using \textbf{SFINAE}; see \textit{\titleref{annoyances-inheritingctor}: \titleref{access-levels-of-inherited-constructors-are-same-as-in-base-class}} on page~\pageref{access-levels-of-inherited-constructors-are-same-as-in-base-class}.^^E^^L 

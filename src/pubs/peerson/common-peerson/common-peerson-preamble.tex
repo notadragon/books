@@ -1,0 +1,26 @@
+%
+% This file is included before the document is begun.  All entries put in here
+% likely need to be approved by the publisher.
+%
+
+\newcommand{\todo}[1]{}
+
+% C++ deserves being well-typeset in a fashion matching the standard document
+\newcommand{\Cpp}{C\kern-0.2em\protect\raisebox{.15ex}{+\kern-0.2em+}}
+\newcommand{\CppIII}{\Cpp{} 2003}
+\newcommand{\CppXI}{\Cpp{} 2011}
+\newcommand{\CppXIV}{\Cpp{} 2014}
+\newcommand{\CppXVII}{\Cpp{} 2017}
+\newcommand{\CppXX}{\Cpp{} 2020}
+
+% All code samples use this block to mark for other build modes that they
+% should be written out for compiling
+%
+
+\lstnewenvironment{cppcodeblock}[1]
+{\lstset{language=[11]C++}%
+}
+{
+}
+
+\newcommand{\cppcode}[1]{\lstinline[language=C++]{#1}}

@@ -1,0 +1,479 @@
+
+
+The \texttt{static\_assert} keyword allows programmers to intentionally terminate compilation whenever a given compile-time predicate
+ evaluates to \texttt{false}.
+
+\subsection[Description]{Description}\label{description}
+
+Assumptions are
+inherent in every program, whether we explicitly document them or not. A common way of validating certain
+assumptions at runtime is to use the classic \texttt{assert} macro found
+in \texttt{<cassert>}. Such runtime assertions are not always ideal
+because (1) the program must already be built and running for them to
+even have a chance of being triggered and (2) executing a
+\textbf{redundant check}\glossary{redundant check} at runtime typically{\cprotect\footnote{It is
+not unheard of for a program having assertions to run faster with them
+enabled than disabled --- e.g., when asserting that a pointer is not
+null, thereby enabling the optimizer to elide all code branches that
+  can be reached only if that pointer were null.}} results in a slower
+program. Being able to validate an assertion at compile time avoids
+several drawbacks:
+
+\begin{enumerate}
+\item{Validation occurs at compile time within a single translation unit, and therefore doesn’t need to wait until a complete program is linked and executed.}
+\item{Compile-time assertions can exist in many more places than runtime assertions and are unrelated to program control flow.}
+\item{No runtime code will be generated due to a \texttt{static\_assert}, so program performance will not be impacted.}
+\end{enumerate}
+
+\subsubsection[Syntax and semantics]{Syntax and semantics}\label{syntax-and-semantics}
+
+We can use \emph{static assertion declarations} to conditionally trigger
+controlled compilation failures depending on the truthiness of a
+\textbf{constant expression}\glossary{constant expression}. Such declarations are introduced by the
+\texttt{static\_assert} keyword, followed by a parenthesized list
+consisting of (1) a constant Boolean expression and (2) a mandatory (see
+{\it\titleref{static-annoyances}: \titleref{mandatory-string-literal}} on page~\pageref{mandatory-string-literal}) \textbf{string literal}\glossary{string literal}, which will be
+part of the compiler diagnostics if the compiler determines that the
+assertion fails to hold:
+
+\begin{lstlisting}[language=C++]
+static_assert(true, "Never fires.");
+static_assert(false, "Always fires.");
+\end{lstlisting}
+    
+\noindent Static assertions can be placed anywhere in the scope of a namespace,
+block, or class:
+
+\begin{lstlisting}[language=C++]
+static_assert(1 + 1 == 2, "Never fires.");  // (global) namespace scope
+
+template <typename T>
+struct S
+{
+    void f0()
+    {
+        static_assert(1 + 1 == 3, "Always fires.");  // block scope
+    }
+
+    static_assert(!Predicate<T>::value, "Might fire.");  // class scope
+};
+\end{lstlisting}
+    
+\noindent Providing a non-constant expression to a \texttt{static\_assert} is
+itself a compile-time error:
+
+\begin{lstlisting}[language=C++]
+extern bool x;
+static_assert(x, "Nice try.");  // Error: (ù{\codeincomments{x}}ù) is not a compile-time constant.
+\end{lstlisting}
+    
+
+\subsubsection[Evaluation of static assertions in templates]{Evaluation of static assertions in templates}\label{evaluation-of-static-assertions-in-templates}
+
+The C++ Standard does not explicitly specify at precisely what point (during
+the compilation process) static assertion declarations are
+evaluated.{\cprotect\footnote{By ``evaluated'' here, we mean that the
+  asserted expression is processed and its semantic truth\linebreak[4] determined.}}
+In particular, when used within the body of a template, a
+\texttt{static\_assert} declaration might not be evaluated until
+\textbf{template instantiation time}\glossary{template instantiation time}. In practice, however, a
+\texttt{static\_assert} that does not depend on any template parameters
+is essentially always{\cprotect\footnote{E.g.,
+GCC~10.1, Clang~10.0, and MSVC~19.24}} evaluated immediately --- i.e., as
+soon as it is parsed and irrespective of whether any subsequent template
+instantiations occur:
+
+\begin{lstlisting}[language=C++]
+void f1()
+{
+    static_assert(false, "Impossible!");  // always evaluated immediately...
+}                                         // even if (ù{\codeincomments{f1()}}ù) is never invoked
+
+template <typename T>
+void f2()
+{
+    static_assert(false, "Impossible!");  // always evaluated immediately...
+}                                         // even if (ù{\codeincomments{f2()}}ù) is never instantiated
+\end{lstlisting}
+    
+\noindent The evaluation of a static assertion that is (1) located within the
+body of a class or function template and (2) depends on at least one
+template parameter is almost always bypassed during its initial parse since
+the value --- true or false --- of the assertion will (in general) depend on the nature
+of the template argument:
+
+\begin{lstlisting}[language=C++]
+template <typename T>
+void f3()
+{
+    static_assert(sizeof(T) >= 8, "Size < 8.");  // depends on (ù{\codeincomments{T}}ù)
+}
+\end{lstlisting}
+    
+\noindent (However, see {\it\titleref{static-potential-pitfalls}: \titleref{static-assertions-in-templates-can-trigger-unintended-compilation-failures}} on page~\pageref{static-potential-pitfalls}.) In the example above, the compiler has no choice but to wait until each
+time \texttt{f3} is instantiated because the truth of the predicate will
+vary depending on the type provided:
+
+\begin{lstlisting}[language=C++]
+void g()
+{
+    f3<double>();               // OK
+    f3<long double>();          // OK
+    f3<std::complex<float>>();  // OK
+    f3<char>();                 // Error: static assertion failed: Size < 8.
+}
+\end{lstlisting}
+    
+\noindent The standard does, however, specify that a program containing any
+template definition for which no valid specialization exists is
+\textbf{ill formed}\glossary{ill formed} (no diagnostic required), which was the case for
+\texttt{f2} but not \texttt{f3}, above. Contrast each of the
+\texttt{h*n*} definitions (below) with its correspondingly numbered
+\texttt{f*n*} definition (above):
+
+\begin{lstlisting}[language=C++]
+void h1()
+{
+    int a[!sizeof(int) - 1];  // same as (ù{\codeincomments{int a[-1];}}ù) and is ill formed
+}
+
+template <typename T>
+void h2()
+{
+    int a[!sizeof(int) - 1];  // always reported as a compile-time error
+}
+
+template <typename T>
+void h3()
+{
+    int a[!sizeof(T) - 1];    // typically reported only if instantiated
+}
+\end{lstlisting}
+    
+\noindent Both \texttt{f1} and \texttt{h1} are ill-formed, non-template functions,
+and both will always be reported at compile time, albeit typically with
+decidedly different error messages as demonstrated by GCC 10.x's output:
+
+\begin{lstlisting}[language=C++]
+f1: error: static assertion failed: Impossible!
+h1: error: size (ù{\codeincomments{-1}}ù) of array (ù{\codeincomments{a}}ù) is negative
+\end{lstlisting}
+    
+\noindent Both \texttt{f2} and \texttt{h2} are ill-formed template functions; the cause of their being ill formed has nothing to do with the
+template type and hence will always be reported as a compile-time error
+in practice. Finally, \texttt{f3} can be only contextually ill formed
+whereas \texttt{h3} is always necessarily ill formed, and yet neither is
+reported by typical compilers as such unless and until it has been
+instantiated. Reliance on a compiler not to notice that a program is
+ill formed is dubious; see {\it\titleref{static-potential-pitfalls}: \titleref{static-assertions-in-templates-can-trigger-unintended-compilation-failures}} on page~\pageref{static-assertions-in-templates-can-trigger-unintended-compilation-failures}.
+
+\subsection[Use Cases]{Use Cases}\label{use-cases}
+
+\subsubsection[Verifying assumptions about the target platform]{Verifying assumptions about the target platform}\label{verifying-assumptions-about-the-target-platform}
+
+Some programs rely on specific properties of the native types provided
+by their target platform. Static assertions can help ensure portability
+and prevent such programs from being compiled (into a malfunctioning
+binary) on, say, an unsupported platform. As an example, consider a
+program that relies on the size of an \texttt{int} to be exactly 32
+bits (e.g., due to the use of inline \texttt{asm} blocks). Placing a
+\texttt{static\_assert} in namespace scope in any of the program's
+translation units will (1) ensure that the assumption regarding the size
+of \texttt{int} is valid and (2) serve as documentation for readers:
+
+\begin{lstlisting}[language=C++]
+#include <ctype>  // (ù{\codeincomments{CHAR\_BIT}}ù)
+
+static_assert(sizeof(int) * CHAR_BIT == 32,
+    "An (ù{\codeincomments{int}}ù) must have exactly 32 bits for this program to work correctly.");
+\end{lstlisting}
+    
+\noindent More typically, statically asserting the \emph{size} of an \texttt{int}
+avoids having to write code to handle an \texttt{int} type's having
+greater or fewer bytes when no such platforms are likely ever to
+materialize:
+
+\begin{lstlisting}[language=C++]
+static_assert(sizeof(int) == 4, "An (ù{\codeincomments{int}}ù) must have exactly 4 bytes.");
+\end{lstlisting}
+    
+
+\subsubsection[Preventing misuse of class and function templates]{Preventing misuse of class and function templates}\label{preventing-misuse-of-class-and-function-templates}
+
+Static assertions are often used in practice to constrain class or
+function templates to prevent their being instantiated with unsupported
+types by either (1) substantially improving compile-time
+diagnostics{\cprotect\footnote{Syntactically incompatible types often
+lead to absurdly long and notoriously hard-to-read diagnostic messages, especially when deeply nested template expressions are involved.}} or, more critically, (2) actively avoiding
+erroneous runtime behavior.
+%%%  VR WANTS TO COME BACK TO THIS FOOTNOTE AND ADD A SEE ALSO. 
+
+As an example, consider the \texttt{SmallObjectBuffer<N>} class
+templates, which provide storage for arbitrary objects whose size does
+not exceed \texttt{N}{\cprotect\footnote{A \texttt{SmallObjectBuffer} is
+  similar to C++17's \texttt{std::any} (\textbf{{cppref\_stdany}}) in
+  that it can store any object of any type. Instead of performing
+  dynamic allocation to support arbitrarily sized objects, however,
+  \texttt{SmallObjectBuffer} uses an internal fixed-size buffer, which
+  can lead to better performance and cache locality provided (the
+  maximum size of) all of the types involved is known.}}:
+
+\begin{lstlisting}[language=C++]
+template <std::size_t N>
+class SmallObjectBuffer
+{
+private:
+    char d_buffer[N];
+
+public:
+    template <typename T>
+    void set(const T& object);
+
+    // ...
+};
+\end{lstlisting}
+    
+\noindent To prevent buffer overruns, it is important that \texttt{set} accepts
+only those objects that will fit in \texttt{d\_buffer}. The use of a
+static assertion in the \texttt{set} member function template catches
+--- at compile time --- any such misuse:
+
+\begin{lstlisting}[language=C++]
+template <std::size_t N>
+template <typename T>
+void SmallObjectBuffer<N>::set(const T& object)
+{
+    static_assert(sizeof(T) <= N, "(ù{\codeincomments{object}}ù) does not fit in the small buffer.");
+    new (&d_buffer) T(object);
+}
+\end{lstlisting}
+    
+
+The principle of constraining inputs can be applied to most class and
+function templates. \texttt{static\_assert} is particularly useful in
+conjunction with standard \textbf{type traits}\glossary{type traits} provided in
+\texttt{<type\_traits>}. In the \texttt{rotateLeft} function template
+(below), we have used two static assertions to ensure that only unsigned
+integral types will be accepted:
+
+\begin{lstlisting}[language=C++]
+#include <ctype>  // (ù{\codeincomments{CHAR\_BIT}}ù)
+
+template <typename T>
+T rotateLeft(T x)
+{
+    static_assert(std::is_integral<T>::value, "(ù{\codeincomments{T}}ù) must be an integral type.");
+    static_assert(std::is_unsigned<T>::value, "(ù{\codeincomments{T}}ù) must be an unsigned type.");
+
+    return (x << 1) | (x >> (sizeof(T) * CHAR_BIT - 1));
+}
+\end{lstlisting}
+    
+
+\subsection[Potential Pitfalls]{Potential Pitfalls}\label{static-potential-pitfalls}
+
+\subsubsection[Static assertions in templates can trigger unintended compilation failures]{Static assertions in templates can trigger unintended compilation failures}\label{static-assertions-in-templates-can-trigger-unintended-compilation-failures}
+
+As mentioned in the description, any program containing a template for
+which no valid specialization can be generated is (by definition)
+\textbf{ill formed}\glossary{ill formed} (no diagnostic required). Attempting to prevent the
+use of, say, a particular function template overload by using a static
+assertion that never holds produces such a program:
+
+\begin{lstlisting}[language=C++]
+template <bool>
+struct SerializableTag { };
+
+template <typename T>
+void serialize(char* buffer, const T& object, SerializableTag<true>);  // (1)
+
+template <typename T>
+void serialize(char* buffer, const T& object, SerializableTag<false>)  // (2)
+{
+    static_assert(false, "T must be serializable.");  // independent of (ù{\codeincomments{T}}ù)
+        // too obviously ill formed: always a compile-time error
+}
+\end{lstlisting}
+    
+\noindent In the example above, the second overload (2) of \texttt{serialize} is
+provided with the intent of eliciting a meaningful compile-time error
+message in the event that an attempt is made to serialize a
+nonserializable type. The program, however, is technically
+\emph{ill-formed} and, in this simple case, will likely result in a
+compilation failure --- irrespective of whether either overload of
+\texttt{serialize} is ever instantiated. 
+
+A commonly attempted workaround
+is to make the predicate of the assertion somehow dependent on a
+template parameter, ostensibly forcing the compiler to withhold
+evaluation of the \texttt{static\_assert} unless and until the template
+is actually instantiated (a.k.a. \textbf{instantiation time}\glossary{instantiation time}):
+
+\begin{lstlisting}[language=C++]
+template <typename>  // N.B., we make no use of the (nameless) type parameter:
+struct AlwaysFalse   // This class exists only to "outwit" the compiler.
+{
+    enum { value = false };
+};
+
+template <typename T>
+void serialize(char* buffer, const T& object, SerializableTag<false>)  // (2)
+{
+    static_assert(AlwaysFalse<T>::value, "T must be serializable.");  // OK
+        // less obviously ill formed: compile-time error when instantiated
+}
+\end{lstlisting}
+    
+\noindent To implement this version of the second overload, we have provided an
+intermediary class template \texttt{AlwaysFalse} that, when instantiated
+on any type, contains an enumerator named \texttt{value}, whose value is
+\texttt{false}. Although this second implementation is more likely to
+produce the desired result (i.e., a controlled compilation failure
+only when \texttt{serialize} is invoked with unsuitable arguments),
+sufficiently ``smart'' compilers looking at just the current translation
+unit would still be able to know that no valid instantiation of
+\texttt{serialize} exists and would therefore be well within their
+rights to refuse to compile this still technically \emph{ill-formed}
+program. 
+
+Equivalent workarounds achieving the same result without a
+helper class are possible.
+
+\begin{lstlisting}[language=C++]
+template <typename T>
+void serialize(char* buffer, const T& object, SerializableTag<false>)  // (2)
+{
+    static_assert(0 == sizeof(T), "T must be serializable.");  // OK
+         // not too obviously ill formed: compile-time error when instantiated
+}
+\end{lstlisting}
+    
+\noindent Know that use of this sort of obfuscation is not guaranteed to be either
+portable or future-proof: \emph{caveat emptor}.
+
+\subsubsection[Misuse of static assertions to restrict overload sets]{Misuse of static assertions to restrict overload sets}\label{misuse-of-static-assertions-to-restrict-overload-sets}
+
+Even if we are careful to \emph{fool} the compiler into thinking that a
+specialization is wrong \emph{only} if instantiated, we still cannot use
+this approach to remove a candidate from an overload set because translation
+will terminate if the static assertion is triggered. Consider this
+(flawed) attempt at writing a \texttt{process} function that will behave
+differently depending on the size of the given argument:
+
+\begin{lstlisting}[language=C++]
+template <typename T>
+void process(const T& x)  // (1) first definition of (ù{\codeincomments{process}}ù) function
+{
+    static_assert(sizeof(T) <= 32, "Overload for small types");  // BAD IDEA
+    // ... (process small types)
+}
+
+template <typename T>
+void process(const T& x)  // (2) compile-time error: redefinition of function
+{
+    static_assert(sizeof(T) > 32, "Overload for big types");     // BAD IDEA
+    // ... (process big types)
+}
+\end{lstlisting}
+    
+\noindent While the intention of the developer might have been to statically
+dispatch to one of the two mutually exclusive overloads, the ill-fated
+implementation above will not compile because the signatures of the two
+overloads are identical, leading to a redefinition error. The semantics
+of \texttt{static\_assert} are not suitable for the purposes of
+\textbf{compile-time dispatch}\glossary{compile-time dispatch}. 
+
+To achieve the goal of removing (up
+front) a specialization from consideration, we will need to employ
+\textbf{SFINAE}\glossary{SFINAE}. To do that, we must instead find a way to get the
+failing compile-time expression to be part of the function's
+\textbf{declaration}\glossary{declaration}{\cprotect\footnote{\textbf{Concepts}\glossary{Concepts} --- a
+language feature introduced in C++20 --- provides a far less baroque
+alternative to SFINAE that allows for overload sets to be governed by
+  the syntactic properties of their (compile-time) template arguments.}}:
+
+\begin{lstlisting}[language=C++]
+template <bool> struct Check { };
+    // helper class template having a (non-type) boolean template parameter
+    // representing a compile-time predicate
+
+template <> struct Check<true> { typedef int Ok; };
+    // specialization of (ù{\codeincomments{Check}}ù) that makes the type (ù{\codeincomments{Ok}}ù) manifest *only* if
+    // the supplied predicate (boolean template argument) evaluates to (ù{\codeincomments{true}}ù)
+
+template <typename T,
+          typename Check<(sizeof(T) <= 32)>::Ok = 0>  // SFINAE
+void process(const T& x)  // (1)
+{
+    // ... (process small types)
+}
+
+template <typename T,
+          typename Check<(sizeof(T) > 32)>::Ok = 0>  // SFINAE
+void process(const T& x)  // (2)
+{
+    // ... (process big types)
+}
+\end{lstlisting}
+    
+\noindent The (empty) \texttt{Check} helper class template in conjunction with
+just one of its two possible specializations (above) conditionally
+exposes the \texttt{Ok} type alias \emph{only} if the provided boolean
+template parameter evaluates to \texttt{true}. (Otherwise, by default, it
+does not.) 
+
+During the substitution phase of template instantiation,
+exactly one of the two overloads of the \texttt{process} function will
+attempt to access a nonexisting \texttt{Ok} type alias via the
+\texttt{Check<false>} instantiation, which again, by default, is
+nonexistent. Although such an error would typically result in a
+compilation failure, in the context of template argument substitution it
+will instead result in only the offending overload's being discarded,
+giving other (valid) overloads a chance to be selected:
+
+\begin{lstlisting}[language=C++]
+void client()
+{
+    process(SmallType());  // discards (2), selects (1)
+    process(BigType());    // discards (1), selects (2)
+}
+\end{lstlisting}
+    
+\noindent This general technique of pairing template specializations is used widely
+in modern C++ programming. For another, often more convenient way of
+constraining overloads using \textbf{expression SFINAE}\glossary{expression SFINAE}, see Section~\ref{trailing-function-return-types}, ``\titleref{trailing-function-return-types}."
+
+\subsection[Annoyances]{Annoyances}\label{static-annoyances}
+
+\subsubsection[Mandatory string literal]{Mandatory string literal}\label{mandatory-string-literal}
+
+Many compilation failures caused by static assertions are
+self-explanatory since the offending line (which necessarily contains the
+predicate code) is displayed as part of the compiler diagnostic. In
+those situations, the message required{\cprotect\footnote{As of C++17,
+  the message argument of a static assertion is optional.}} as part of
+\texttt{static\_assert}'s grammar is redundant:
+
+\begin{lstlisting}[language=C++]
+static_assert(std::is_integral<T>::value, "(ù{\codeincomments{T}}ù) must be an integral type.");
+\end{lstlisting}
+    
+\noindent Developers commonly provide an empty string literal in these
+cases:
+
+\begin{lstlisting}[language=C++]
+static_assert(std::is_integral<T>::value, "");
+\end{lstlisting}
+    
+
+\subsection[See Also]{See Also}\label{see-also}
+
+\begin{itemize}
+\item{Section~\ref{trailing-function-return-types}, ``\titleref{trailing-function-return-types}" — Safe C++11 feature that allows fine-grained control over overload resolution by enabling \textbf{expression SFINAE}\glossary{expression SFINAE} as part of a function’s \textbf{declaration}\glossary{declaration}}
+\end{itemize}
+
+\subsection[Further reading]{Further reading}\label{further-reading}
+
+None so far
+
+

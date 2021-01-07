@@ -1,0 +1,9 @@
+Also note that, since the
+deduced \texttt{char} member variable, \texttt{i}, is not materially
+used (\textbf{ODR-used}) in the body of the lambda expression assigned
+(bound) to \texttt{fC}, some compilers, e.g., Clang, may warn:
+
+\begin{lstlisting}[language=C++, basicstyle={\ttfamily\footnotesize}]
+warning: lambda capture 'i' is not required to be captured for this use
+\end{lstlisting}
+      ^^E^^L 

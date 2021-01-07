@@ -1,0 +1,29 @@
+\emph{NOTE: This white paper (i.e., this is not a proposal) is intended to motivate continued investment
+in developing and maturing better memory allocators in the C++ Standard as well as to counter
+misinformation about allocators, their costs and benefits, and whether they should have a
+continuing role in the C++ library and language.}
+
+\begin{abstract}
+Local (arena) memory allocators have been demonstrated to be effective at
+improving runtime performance both empirically in repeated controlled
+experiments and anecdotally in a variety of real-world applications. The initial
+development and subsequent maintenance effort of implementing bespoke data
+structures using custom memory allocation, however, are typically substantial
+and often untenable, especially in the limited timeframes that urgent business
+needs impose. To address such recurring performance needs effectively across
+the enterprise, Bloomberg has adopted a consistent, ubiquitous allocator-aware
+software infrastructure (AASI) based on the PMR-style\footnote{polymorphic memory resource model} plug-in memory
+allocator protocol pioneered at Bloomberg and adopted into the C++17
+Standard Library.
+
+In this paper, we highlight the essential mechanics and subtle nuances of
+programing on top of Bloomberg’s AASI platform. In addition to delineating how
+to obtain performance gains safely at minimal development cost, we explore
+many of the inherent collateral benefits — such as object placement, metrics
+gathering, testing, debugging, and so on — that an AASI naturally affords. After
+reading this paper and surveying the available concrete allocators (provided in
+Appendix A), a competent C++ developer should be adequately equipped to
+extract substantial performance and other collateral benefits immediately using
+our AASI.
+
+\end{abstract}

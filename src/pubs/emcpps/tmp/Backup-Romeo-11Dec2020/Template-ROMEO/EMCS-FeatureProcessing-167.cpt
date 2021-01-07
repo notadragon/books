@@ -1,0 +1,17 @@
+The use of class-template
+specialization (let alone partial specialization) might be unfamiliar
+to those not accustomed to writing low-level template metaprograms, but the point of this use case is to obviate such
+unfamiliar use. As a brief refresher, a general class template is what
+the client typically sees at the user interface. A specialization is
+typically an implementation detail consistent with the
+\textbf{contract} specified in the general template but somehow more
+restrictive. A partial specialization (possible for \emph{class} but
+not \emph{function} templates) is itself a template but with one or
+more of the general template parameters resolved. An \textbf{explicit}
+or \textbf{full specialization} of a template is one in which
+\emph{all} of the template parameters have been resolved and, hence, is
+not itself a template. Note that a \textbf{full specialization} is a
+stronger candidate for a match than a partial specialization, which is
+a stronger match candidate than a simple template specialization,
+which, in turn, is a better match than the general template (which, in
+  this example, happens to be an \textbf{incomplete type}).^^E^^L 

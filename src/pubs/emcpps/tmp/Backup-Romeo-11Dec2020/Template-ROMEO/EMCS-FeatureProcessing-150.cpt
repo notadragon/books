@@ -1,0 +1,4 @@
+Note that a move constructor will be preferred
+over a copy constructor when the type category of the argument is an
+\emph{xvalue} (i.e., expiring value) or \emph{prvalue} (i.e., pure rvalue), which
+are the value categories to which a temporary can pertain. See Section~\ref{Rvalue-References}, ``\titleref{Rvalue-References}," for more information.^^E^^L 

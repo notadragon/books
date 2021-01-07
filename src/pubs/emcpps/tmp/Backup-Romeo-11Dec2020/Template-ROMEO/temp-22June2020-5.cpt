@@ -1,0 +1,9 @@
+There are rare edge cases in which an
+  entity (e.g., an anonymous union or \texttt{enum}) is ``declared''`
+  without a name:
+
+  \begin{lstlisting}[language=C++, basicstyle={\ttfamily\footnotesize}]
+  struct S { union [[attribute_name]] { int a; float b }; };
+  enum [[attribute_name]] { SUCCESS, FAIL } result;
+  \end{lstlisting}
+      ^^E^^L 

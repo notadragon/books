@@ -1,0 +1,156 @@
+
+\chapter[Safe Features]{Safe Features}\label{ch-safe}
+
+Intro text should be here. 
+
+%%%%%%%%%%%% C++11
+\stepcounter{cppxx}
+\cftaddnumtitleline{toc}{section}{\thechapter.\thecppxx}{C++11}{\thepage}
+% to add to the TOC at the section level
+\renewcommand{\cppxx}{C++11}
+\addtocontents{toc}{\protect\renewcommand*\protect\cftsecindent{4.5em}}
+%\addtocontents{toc}{\protect\renewcommand*\protect\cftsubsecindent{5em}}
+
+\newpage
+%\cftaddtitleline{toc}{section}{\protect\hspace*{-5em}\framebox{\sffamily\itshape\cppxx}\vspace*{-3ex}}{}
+%\section[Attributes]{Attributes\checkoddpage\Cbox}\label{attributes}
+\section[Attributes\hspace*{1em}(Long Title)]{Attributes\sectionmark{Attributes}}\label{attributes}\sectionmark{Attributes}
+\input{attribute}
+
+
+\newpage
+%\cftaddtitleline{toc}{section}{\protect\hspace*{-5em}\framebox{\sffamily\itshape\cppxx}\vspace*{-3ex}}{}
+%\section[Binary Literals]{Binary Literals\checkoddpage\Cbox}\label{binary-literals}
+\section[Binary Literals\hspace*{1em}(Long Title)]{Binary Literals\sectionmark{Binary Literals}}\label{binary-literals}\sectionmark{Binary Literals}
+\input{binaryliteral}
+
+\newpage
+%\cftaddtitleline{toc}{section}{\protect\hspace*{-5em}\framebox{\sffamily\itshape\cppxx}\vspace*{-3ex}}{}
+%\section[Consecutive Right Angle Brackets]{Consecutive Right Angle Brackets\sectionmark{Adjacent {\tt >}s}\checkoddpage\Cbox}\label{consecutive-right-angle-brackets}\sectionmark{Adjacent {\tt >}s}
+
+%\newcommand{\shorttitle}[1]{#1}
+%\newcommand{\longtitle}[1]{#1}
+%\newsavebox{\shortbox}
+%\newsavebox{\longbox}
+%\savebox{\shortbox}[.3\textwidth][l]{\hspace*{\fill}}
+%\savebox{\longbox}[.6\textwidth][l]{\longtitle{YYYYY}\hspace*{\fill}}
+%\usebox{\shortbox}\usebox{\longbox}
+
+
+\section[Adjacent {\tt >}s\hspace*{1em}(Consecutive Right Angle Brackets)]{Consecutive Right Angle Brackets\sectionmark{Adjacent {\tt >}s}}\label{consecutive-right-angle-brackets}\sectionmark{Adjacent {\tt >}s}
+\input{consecutiveangle}
+
+\newpage
+%\cftaddtitleline{toc}{section}{\protect\hspace*{-5em}\framebox{\sffamily\itshape\cppxx}\vspace*{-3ex}}{}
+%\section[{\tt decltype}]{{\SecCode decltype}\checkoddpage\Cbox}\label{decltype}
+\section[{\tt decltype}\hspace*{1em}(Long Title)]{{\SecCode decltype}}\label{decltype}
+\input{decltype}
+
+\newpage
+%\cftaddtitleline{toc}{section}{\protect\hspace*{-5em}\framebox{\sffamily\itshape\cppxx}\vspace*{-3ex}}{}
+%\section[Deleted Functions]{Deleted Functions\checkoddpage\Cbox}\label{deleted-functions}
+\section[Deleted Functions\hspace*{1em}(Long Title)]{Deleted Functions}\label{deleted-functions}
+\input{delete}
+
+\newpage
+%\cftaddtitleline{toc}{section}{\protect\hspace*{-5em}\framebox{\sffamily\itshape\cppxx}\vspace*{-3ex}}{}
+%\section[{\tt override}]{{\SecCode override}\checkoddpage\Cbox}\label{override}
+\section[{\tt override}\hspace*{1em}(Long Title)]{{\SecCode override}}\label{override}
+\input{override}
+
+\newpage
+%\cftaddtitleline{toc}{section}{\protect\hspace*{-5em}\framebox{\sffamily\itshape\cppxx}\vspace*{-3ex}}{}
+%\section[Compile-Time Assertions ({\tt static\_assert})]{Compile-Time Assertions ({\SecCode static\_assert})\checkoddpage\Cbox\sectionmark{{\tt static\_assert}}}\label{compile-time-assertions-(static_assert)}\sectionmark{{\tt static\_assert}}
+\section[{\tt static\_assert}\hspace*{1em}(Compile-Time Assertions)]{Compile-Time Assertions ({\SecCode static\_assert})\sectionmark{{\tt static\_assert}}}\label{compile-time-assertions-(static_assert)}\sectionmark{{\tt static\_assert}}
+\input{staticassert}
+
+\newpage
+%\cftaddtitleline{toc}{section}{\protect\hspace*{-5em}\framebox{\sffamily\itshape\cppxx}\vspace*{-3ex}}{}
+%\section[Trailing Function Return Types]{Trailing Function Return Types\sectionmark{Trailing Function}\checkoddpage\Cbox}\label{trailing-function-return-types}\sectionmark{Trailing Function}
+\section[Short Title\hspace*{1em}(Trailing Function Return Types)]{Trailing Function Return Types\sectionmark{Trailing Function}}\label{trailing-function-return-types}\sectionmark{Trailing Function}
+\input{trailingreturn}
+
+\newpage
+%\cftaddtitleline{toc}{section}{\protect\hspace*{-5em}\framebox{\sffamily\itshape\cppxx}\vspace*{-3ex}}{}
+%\section[Unrestricted Unions]{Unrestricted Unions\checkoddpage\Cbox}\label{unrestricted-unions}
+\section[Unrestricted Unions\hspace*{1em}(Long Title)]{Unrestricted Unions}\label{unrestricted-unions}
+\input{unrestrictedunion}
+
+\newpage
+\section*{The {\SecCode [[noreturn]]} Attribute\sectionmark{{\tt[[noreturn]]}}}\label{the-noreturn-attribute}\sectionmark{{\tt[[noreturn]]}}
+\addcontentsline{toc}{section}{{\tt[[noreturn]]}\hspace*{1em}(The {\tt [[noreturn]]} Attribute)}
+\input{noreturn}
+
+\newpage
+\section[\tt{alignas}]{{\SecCode alignas} Long Title}\label{alignas}
+\input{alignas}
+
+\newpage
+\section[{\tt [[deprecated]]}]{The Standard {\SecCode [[deprecated]]} Attribute\sectionmark{{\RHCode [[deprecated]]}}}\label{deprecated}\label{the-standard-[[deprecated]]-attribute}\sectionmark{{\RHCode [[deprecated]]}}
+\input{deprecated}
+
+
+%\newpage
+%\section[The \tt{[[noreturn]]} Attribute]{The {\SecCode [[noreturn]]} Attribute}\label{the-[[noreturn]]-attribute}
+%\input{noreturn}
+%
+%\newpage
+%\section[Null Pointer Literal (\tt{nullptr})]{Null Pointer Literal ({\SecCode nullptr})}\label{null-pointer-literal-(nullptr)}
+%\input{nullptr}
+%
+%\newpage
+%\section[\tt{alignas}]{{\SecCode alignas}}\label{alignas}
+%\input{alignas}
+%
+%\newpage
+%\section[Delegating Constructors]{Delegating Constructors}\label{delegating-constructors}
+%\input{ctordelegating}
+%
+%
+%\newpage
+%\section[alignof]{alignof}\label{alignof}
+%\input{alignof-placeholder}
+
+
+%%%%%%%%%%%%%%% C++14
+%\cftaddtitleline{toc}{chapter}{\sffamily\itshape C++14}{}
+% to add to the TOC at the section level
+\addtocontents{toc}{\protect\renewcommand*\protect\cftsecindent{1.25em}}
+\stepcounter{cppxx}
+\cftaddnumtitleline{toc}{section}{\thechapter.\thecppxx}{C++11}{\thepage}
+\renewcommand{\cppxx}{C++14}
+
+\newpage
+\addtocontents{toc}{\protect\renewcommand*\protect\cftsecindent{4.5em}}
+%\cftaddtitleline{toc}{section}{\protect\hspace*{-5em}\framebox{\sffamily\itshape\cppxx}\vspace*{-3ex}}{}
+%\section[TOC Version of Title]{Longer Wordier Feature Title\sectionmark{RH Version of Title}\checkoddpage\Cbox}\label{Feature}\sectionmark{RH Version of Title}
+\section[Short Title\hspace*{1em}(Long Title)]{Longer Wordier Feature Title\sectionmark{RH Version of Title}}\label{Feature}\sectionmark{RH Version of Title}
+\label{testmaterial}
+\input{testmaterial}
+
+
+%\newpage
+%\section[Aggregate Member Initialization Relaxation]{Aggregate Member Initialization Relaxation}\label{aggregate-member-initialization-relaxation}
+%\input{aggregateinit}
+%
+%\newpage
+%\section[Digit Separators]{Digit Separators}
+%\label{digitseparator} % used with placeholder file
+%\label{digit-separators} % label had changed when actual file arrived
+%\input{digitseparator}
+%
+%\newpage
+%\section[Variable Templates]{Variable Templates}
+%\label{variable-templates}
+%\input{variabletemplate}
+%
+%\newpage
+%\section[Defaulted Special Member Functions]{Defaulted Special Member Functions}\label{Defaulted-Special-Member-Functions}
+%\input{default-placeholder}
+%
+%\newpage
+%\section[The {\tt [[deprecated]]} Attribute]{The {\SecCode [[deprecated]]} Attribute}\label{deprecated}
+%\input{deprecated-placeholder}
+
+
+

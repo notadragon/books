@@ -1,0 +1,9 @@
+GCC 10.x does not detect this delegation
+cycle at compile time and produces a binary that, if run, will
+necessarily exhibit \textbf{undefined behavior}. Clang 10.x, on the
+other hand, halts compilation with a helpful error message:
+
+\begin{lstlisting}[language=C++, basicstyle={\ttfamily\footnotesize}]
+error: constructor for (ù{\codeincomments{S}}ù) creates a delegation cycle
+\end{lstlisting}\vspace*{-1ex}
+      ^^E^^L 

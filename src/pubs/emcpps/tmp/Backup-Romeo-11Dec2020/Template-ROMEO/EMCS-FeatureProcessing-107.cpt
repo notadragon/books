@@ -1,0 +1,7 @@
+Note that we use
+ braced initialization (see ``\titleref{bracedinit}" on page~\pageref{bracedinit}) in \texttt{D0}~\texttt{x(B0{});}
+  to ensure that a variable \texttt{x} of type \texttt{D0} is declared.
+  \texttt{D0}~\texttt{x(B0());} would instead be interpreted as a
+  declaration of a function \texttt{x} returning \texttt{D0} and
+  accepting a pointer to a nullary function returning \texttt{B0}, which
+  is referred to as the \textbf{most vexing parse}.^^E^^L 
