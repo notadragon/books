@@ -119,7 +119,7 @@ class Outline:
             return []
 
 
-pwd = pathlib.Path(".")
+pwd = pathlib.Pathls(".")
 booksdir = pwd.joinpath("src").joinpath("books")
 
 if togenerate:
