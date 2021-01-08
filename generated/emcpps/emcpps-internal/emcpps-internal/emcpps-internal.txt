@@ -1,0 +1,408 @@
+    i                                                          i
+          “emcpps-internal” — 2021/1/8 — 18:26 — page i — #1
+
+i
+
+
+
+
+        Embracing Modern C++ Safely
+
+
+
+
+i
+
+
+
+    i                                                          i
+    i                                                                                                 i
+                        “emcpps-internal” — 2021/1/8 — 18:26 — page ii — #2
+
+i
+
+
+
+
+            This is simply a placeholder. Your production team will replace this page with the real
+        series page.
+
+
+
+
+i
+
+
+
+    i                                                                                                 i
+    i                                                                                                 i
+                  “emcpps-internal” — 2021/1/8 — 18:26 — page iii — #3
+
+i
+
+
+
+
+             Embracing Modern C++ Safely
+
+
+
+
+                                            John Lakos
+                                        Vittorio Romeo
+
+
+
+
+          Boston • Columbus • Indianapolis • New York • San Francisco • Amsterdam • Cape Town
+        Dubai • London • Madrid • Milan • Munich • Paris • Montreal • Toronto • Delhi • Mexico City
+                    Sao Paulo • Sidney • Hong Kong • Seoul • Singapore • Taipei • Tokyo
+
+
+
+
+i
+
+
+
+    i                                                                                                 i
+    i                                                                                                                    i
+                           “emcpps-internal” — 2021/1/8 — 18:26 — page iv — #4
+
+i
+
+
+
+
+        Many of the designations used by manufacturers and sellers to distinguish their products are claimed as
+        trademarks. Where those designations appear in this book, and the publisher was aware of a trademark
+        claim, the designations have been printed with initial capital letters or in all capitals.
+
+        The authors and publisher have taken care in the preparation of this book, but make no expressed or
+        implied warranty of any kind and assume no responsibility for errors or omissions. No liability is assumed
+        for incidental or consequential damages in connection with or arising out of the use of the information or
+        programs contained herein.
+
+        For information about buying this title in bulk quantities, or for special sales opportunities (which may in-
+        clude electronic versions; custom cover designs; and content particular to your business, training goals, mar-
+        keting focus, or branding interests), please contact our corporate sales department at corpsales@pearsoned
+        .com or (800) 382-3419.
+
+        For government sales inquiries, please contact governmentsales@pearsoned.com.
+
+        For questions about sales outside the United States, please contact international@pearsoned.com.
+
+        Visit us on the Web: informit.com/aw
+
+        Library of Congress Cataloging-in-Publication Data
+        LIBRARY OF CONGRESS CIP DATA WILL GO HERE; MUST BE ALIGNED AS INDI-
+        CATED BY LOC
+        Copyright © 2016 Pearson Education, Inc.
+
+        All rights reserved. Printed in the United States of America. This publication is protected by copyright, and
+        permission must be obtained from the publisher prior to any prohibited reproduction, storage in a retrieval
+        system, or transmission in any form or by any means, electronic, mechanical, photocopying, recording,
+        or likewise. For information regarding permissions, request forms and the appropriate contacts within the
+        Pearson Education Global Rights & Permissions Department, please visit www.pearsoned.com/permissions/.
+
+
+        ISBN-13: NUMBER HERE
+        ISBN-10: NUMBER HERE
+        Text printed in the United States on recycled paper at PRINTER INFO HERE.
+        First printing, MONTH YEAR
+
+
+
+
+i
+
+
+
+    i                                                                                                                    i
+    i                                                                   i
+        “emcpps-internal” — 2021/1/8 — 18:26 — page v — #5
+
+i
+
+
+
+
+         This is John’s dedication to Vittorio for being so great and
+                          writing this book so well.
+                                      JL
+
+
+
+                This is Vittorio dedication to something else.
+                                     VR
+
+
+
+                This is Slava’s dedication to something else.
+                                     RK
+
+
+
+               This is Alisdair’s dedication to something else.
+                                     AM
+
+
+
+
+i
+
+
+
+    i                                                                   i
+    i                                                         i
+        “emcpps-internal” — 2021/1/8 — 18:26 — page vi — #6
+
+i
+
+
+
+
+i
+
+
+
+    i                                                         i
+    i                                                                             i
+                    “emcpps-internal” — 2021/1/8 — 18:26 — page vii — #7
+
+i
+
+
+
+
+        Contents
+
+        Foreword                                                            ix
+
+        Preface                                                             xi
+
+        Acknowledgements                                                   xiii
+
+        About the Authors                                                  xv
+
+        Todo list                                                            1
+
+
+
+
+                                                                            vii
+
+
+i
+
+
+
+    i                                                                             i
+    i                                                           i
+        “emcpps-internal” — 2021/1/8 — 18:26 — page viii — #8
+
+i
+
+
+
+
+i
+
+
+
+    i                                                           i
+    i                                                                           i
+                     “emcpps-internal” — 2021/1/8 — 18:26 — page ix — #9
+
+i
+
+
+
+
+        Foreword
+        The text of the foreword will go here.
+
+
+
+
+                                                                           ix
+
+
+i
+
+
+
+    i                                                                           i
+    i                                                         i
+        “emcpps-internal” — 2021/1/8 — 18:26 — page x — #10
+
+i
+
+
+
+
+i
+
+
+
+    i                                                         i
+    i                                                                            i
+                     “emcpps-internal” — 2021/1/8 — 18:26 — page xi — #11
+
+i
+
+
+
+
+        Preface
+        The text of the preface will go here.
+
+
+
+
+                                                                            xi
+
+
+i
+
+
+
+    i                                                                            i
+    i                                                           i
+        “emcpps-internal” — 2021/1/8 — 18:26 — page xii — #12
+
+i
+
+
+
+
+i
+
+
+
+    i                                                           i
+    i                                                                               i
+                    “emcpps-internal” — 2021/1/8 — 18:26 — page xiii — #13
+
+i
+
+
+
+
+        Acknowledgements
+        The text of the author’s acknowledgements will go here.
+
+
+
+
+                                                                             xiii
+
+
+i
+
+
+
+    i                                                                               i
+    i                                                           i
+        “emcpps-internal” — 2021/1/8 — 18:26 — page xiv — #14
+
+i
+
+
+
+
+i
+
+
+
+    i                                                           i
+    i                                                                                                     i
+                     “emcpps-internal” — 2021/1/8 — 18:26 — page xv — #15
+
+i
+
+
+
+
+        About the Authors
+
+                                   John Lakos, author of Large-Scale C++ Software Design
+                                   (Addison-Wesley, 1996) and Large-Scale C++ Volume I: Process
+                                   and Architecture (Addison-Wesley, 2019), serves at Bloomberg
+                                   in New York City as a senior architect and mentor for C++
+                                   software development worldwide. He is also an active voting
+                                   member of the C++ Standards Committee’s Evolution Working
+                                   Group. From 1997 to 2001, Dr. Lakos directed the design and
+                                   development of infrastructure libraries for proprietary analytic
+                                   financial applications at Bear Stearns. From 1983 to 1997, Dr.
+                                   Lakos was employed at Mentor Graphics, where he developed
+                                   large frameworks and advanced ICCAD applications for which
+        he holds multiple software patents. His academic credentials include a Ph.D. in Computer
+        Science (1997) and an Sc.D. in Electrical Engineering (1989) from Columbia University. Dr.
+        Lakos received his undergraduate degrees from MIT in Mathematics (1982) and Computer
+        Science (1981).
+
+
+          Vittorio Romeo (B.Sc., Computer Science, 2016) is a senior software engineer at
+          Bloomberg in London, working on mission-critical C++ middleware and delivering mod-
+          ern C++ training to hundreds of fellow employees. He began programming at the age
+          of 8 and quickly fell in love with C++. Vittorio has created several open-source C++
+          libraries and games, has published many video courses and tutorials, and actively par-
+          ticipates in the ISO C++ standardization process. He is an active member of the C++
+          community with an ardent desire to share his knowledge and learn from others: He
+          presented more than 20 times at international C++ conferences (including CppCon,
+          C++Now, ++it, ACCU, C++ On Sea, C++ Russia, and Meeting C++), covering top-
+          ics from game development to template metaprogramming. Vittorio maintains a web-
+          site (https://vittorioromeo.info/) with advanced C++ articles and a YouTube channel
+        (https://www.youtube.com/channel/UC1XihgHdkNOQd5IBHnIZWbA) featuring well re-
+        ceived modern C++11/14 tutorials. He is active on StackOverflow, taking great care in
+        answering interesting C++ questions (75k+ reputation). When he is not writing code, Vit-
+        torio enjoys weightlifting and fitness-related activities as well as computer gaming and sci-fi
+        movies.
+
+
+
+
+                                                                                                    xv
+
+
+i
+
+
+
+    i                                                                                                     i
+    i                                                           i
+        “emcpps-internal” — 2021/1/8 — 18:26 — page xvi — #16
+
+i
+
+
+
+
+i
+
+
+
+    i                                                           i
+    i                                                                  i
+             “emcpps-internal” — 2021/1/8 — 18:26 — page 1 — #17
+
+i
+
+
+
+
+        Todo list
+
+
+
+
+                                                                   1
+
+
+i
+
+
+
+    i                                                                  i
+

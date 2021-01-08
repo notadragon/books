@@ -91,15 +91,6 @@ footskip=.025in}
 \usepackage{amsfonts} % to ensure attractive mathematics
 \usepackage{amssymb} % to ensure attractive mathematics
 
-%JMB: Using Cousine as code font
-\usepackage{mathspec}
-\setmonofont[Ligatures=NoCommon,Scale=.9,SlantedFont={Cousine-Italic},BoldFont={Cousine Bold},BoldSlantedFont={Cousine-Bold Italic}]{Cousine-Regular} % to set our code font
-\newfontface{\SecCode}[Ligatures=NoCommon,Scale=1.3]{Cousine-Bold}
-\newfontface{\SubsecCode}[Ligatures=NoCommon,Scale=1.1]{Cousine-Bold}
-\newfontface{\SubsubsecCode}[Ligatures=NoCommon,Scale=.91]{Cousine-Bold}
-\newfontface{\ParaCode}[Ligatures=NoCommon,Scale=.9]{Cousine-Bold}
-\newfontface{\SubparaCode}[Ligatures=NoCommon,Scale=.9]{Cousine-Regular}
-
 %%    These lines input packages that are used for this template.
 \usepackage[letter,cam,center]{crop-AlteredCamMarks}  % to add trim marks; updated Nov 2015 to allow more space between marks and trim edge
 \usepackage{graphicx} % for graphics layout
@@ -112,7 +103,6 @@ footskip=.025in}
 \usepackage{listings} % for setting attractive computer code
 \lstset{basicstyle=\ttfamily\small,framerule=0.5pt} % setting the code in small sans serif font and
                                                     % setting the margin for the code.  Nov 2015: setting the rules to be 0.5pt
-                                                    % JMB: Changed font to Cousine, removed margin for Lakos books
 \usepackage[stable,bottom]{footmisc} % to stabilize the footnote environment and to ensure footnotes
                                      % appear at the bottom of the page, even if a figure or table
                                      % appears at the bottom
@@ -215,7 +205,7 @@ footskip=.025in}
 \bibliographystyle{ieeetr-hacked}  % Your production editor and copy editor may want you to
                                    % use a different bibliography style file.
                                    % You can input that style file here.
-\bibliography{${",".join(pub.outline.sectionfiles("bib"))}}  % Loading the bibliography file.
+%\bibliography{${",".join(pub.outline.sectionfiles("bib"))}}  % Loading the bibliography file.
 %\nocite{*}  % \nocite is used because no citations appear in this sample text
 
 \cleardoublepage

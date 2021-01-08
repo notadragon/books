@@ -1,0 +1,73 @@
+\usepackage{amsmath}
+\usepackage{mathspec}
+
+% Configure various code font commands and the default mono font
+\setmonofont[Ligatures=NoCommon,Scale=.9,SlantedFont={Cousine Italic},BoldFont={Cousine Bold},BoldSlantedFont={Cousine Bold Italic}]{Cousine Regular} % to set our code font
+\newfontface{\SecCode}[Ligatures=NoCommon,Scale=1.3]{Cousine Bold}
+\newfontface{\SubsecCode}[Ligatures=NoCommon,Scale=1.1]{Cousine Bold}
+\newfontface{\SubsubsecCode}[Ligatures=NoCommon,Scale=.99]{Cousine Bold}
+\newfontface{\ParaCode}[Ligatures=NoCommon,Scale=.9]{Cousine Bold}
+\newfontface{\SubparaCode}[Ligatures=NoCommon,Scale=.9]{Cousine Regular}
+\newfontface{\RHCode}[Ligatures=NoCommon,Scale=.81]{Cousine Regular}
+
+% Changing sans serif font to Gill Sans Nova
+\setsansfont[Ligatures=Common,Scale=1,SlantedFont={Gill Sans Nova Medium Italic},BoldFont={Gill Sans Nova Bold},BoldSlantedFont={Gill Sans Nova Bold Italic}]{Gill Sans Nova Medium} % to set our sans font
+%%
+\newfontface{\sfbHugeRomeo}[Ligatures=Common,Scale=2.5]{Gill Sans Nova Bold}
+\newfontface{\cmssbxparttocRomeo}[Ligatures=Common,Scale=1.2]{Gill Sans Nova Bold}
+\newfontface{\cmssbxsectionRomeo}[Ligatures=Common,Scale=1.4]{Gill Sans Nova Bold}
+\newfontface{\cmssbxelevenRomeo}[Ligatures=Common,Scale=1.1]{Gill Sans Nova Bold}
+\newfontface{\cmssbxchaptocRomeo}[Ligatures=Common,Scale=1]{Gill Sans Nova Bold}
+\newfontface{\cmssbxchaptitleRomeo}[Ligatures=Common,Scale=3.0]{Gill Sans Nova Bold}
+\newfontface{\cmsschapnameRomeo}[Ligatures=Common,Scale=2.6]{Gill Sans Nova Medium}
+\newfontface{\cmssbxpartRomeo}[Ligatures=Common,Scale=4.4]{Gill Sans Nova Bold}
+\newfontface{\cmssparttitleRomeo}[Ligatures=Common,Scale=3.4]{Gill Sans Nova Medium}
+\newfontface{\sfiHuge}[Ligatures=Common,Scale=2.5]{Gill Sans Nova Medium Italic}
+\newfontface{\sfititleRomeo}[Ligatures=Common,Scale=2.4]{Gill Sans Nova Medium Italic}
+\newfontface{\sfihalftitleRomeo}[Ligatures=Common,Scale=2.0]{Gill Sans Nova Medium Italic}
+\newfontface{\sfiauthorRomeo}[Ligatures=Common,Scale=1.6]{Gill Sans Nova Medium Italic}
+\newfontface{\sfblargeRomeo}[Ligatures=Common,Scale=1.2]{Gill Sans Nova Bold}
+\newfontface{\sfbelevenRomeo}[Ligatures=Common,Scale=1.1]{Gill Sans Nova Bold}
+\newfontface{\sfbRomeo}[Ligatures=Common,Scale=1]{Gill Sans Nova Bold}
+\newfontface{\sfeightRomeo}[Ligatures=Common,Scale=.8]{Gill Sans Nova Medium}
+\newfontface{\sfnineRomeo}[Ligatures=Common,Scale=.9]{Gill Sans Nova Medium}
+\newfontface{\defnemRomeo}[Ligatures=Common,Scale=1]{Gill Sans Nova Bold}
+%%%%%
+\newfontface{\sfbsectionRomeo}[Ligatures=Common,Scale=1.3]{Gill Sans Nova Bold}
+\newfontface{\sfbsubsecRomeo}[Ligatures=Common,Scale=1.2]{Gill Sans Nova Bold}
+\newfontface{\sfbsubsubRomeo}[Ligatures=Common,Scale=1.1]{Gill Sans Nova Bold}
+\newfontface{\sfbparaRomeo}[Ligatures=Common,Scale=1]{Gill Sans Nova Bold}
+\newfontface{\sfbsectionitalRomeo}[Ligatures=Common,Scale=1.3]{Gill Sans Nova Bold Italic}
+\newfontface{\sfbsubsecitalRomeo}[Ligatures=Common,Scale=1.2]{Gill Sans Nova Bold Italic}
+\newfontface{\sfbsubsubsecitalRomeo}[Ligatures=Common,Scale=1.1]{Gill Sans Nova Bold Italic}
+
+%% redefining existing sans serif font commands
+\renewcommand{\sfbHuge}{\sfbHugeRomeo}       
+\renewcommand{\cmssbxparttoc}{\cmssbxparttocRomeo}
+\renewcommand{\cmssbxsection}{\cmssbxsectionRomeo}
+\renewcommand{\cmssbxeleven}{\cmssbxelevenRomeo}
+\renewcommand{\cmssbxchaptoc}{\cmssbxchaptocRomeo}    
+\renewcommand{\cmssbxchaptitle}{\cmssbxchaptitleRomeo}
+\renewcommand{\cmsschapname}{\cmsschapnameRomeo}
+\renewcommand{\cmssbxpart}{\cmssbxpartRomeo}
+\renewcommand{\cmssparttitle}{\cmssparttitleRomeo} 
+\renewcommand{\sfiHuge}{\sfiHugeRomeo}
+\renewcommand{\sfititle}{\sfititleRomeo}
+\renewcommand{\sfihalftitle}{\sfihalftitleRomeo} 
+\renewcommand{\sfiauthor}{\sfiauthorRomeo} 
+\renewcommand{\sfblarge}{\sfblargeRomeo} 
+\renewcommand{\sfbeleven}{\sfbelevenRomeo}  
+\renewcommand{\sfb}{\sfbRomeo} 
+\renewcommand{\sfeight}{\sfeightRomeo}
+\renewcommand{\sfnine}{\sfnineRomeo}
+\renewcommand{\defnem}{\defnemRomeo}                  
+%%%%
+\renewcommand{\sfbsection}{\sfbsectionRomeo}
+\renewcommand{\sfbsubsec}{\sfbsubsecRomeo}
+\renewcommand{\sfbsubsub}{\sfbsubsubRomeo}
+\renewcommand{\sfbpara}{\sfbparaRomeo}
+
+
+%%%%%%% emoji fonts
+\newcommand{\martini}{\includegraphics[scale=.0125]{1F378_color}}
+% this is an open source emoji image.  Make sure to note for Right & Reprints. 

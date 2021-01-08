@@ -6,6 +6,13 @@ function die()
     exit 1
 }
 
+function diecat()
+{
+    echo "${1}"
+    cat "${2}"
+    exit 1
+}
+
 ROOTDIR=$(pwd)
 while [ ! -f "${ROOTDIR}/project.cmake" ] ; do
     ROOTDIR=$(cd ${ROOTDIR}/..; pwd)
@@ -63,7 +70,7 @@ for togen in "${TOGEN[@]}" ; do
     fi
 
     cd ${bdir}
-    make || die "Failed to build ${togen}"
+    make || diecat "Failed to build ${togen}" ${togen##*/}.log
 
     if [ -d "${gdir}" ] ; then
         PDFS+=( $(ls ${gdir}/*.pdf) )

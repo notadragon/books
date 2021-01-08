@@ -1,5 +1,5 @@
-    i                                                        i
-          “cawp-internal” — 2021/1/8 — 20:22 — page i — #1
+    i                                                       i
+          “cawp-peerson” — 2021/1/8 — 16:37 — page i — #1
 
 i
 
@@ -16,9 +16,9 @@ i
 
 
 
-    i                                                        i
+    i                                                       i
     i                                                                                                 i
-                         “cawp-internal” — 2021/1/8 — 20:22 — page ii — #2
+                         “cawp-peerson” — 2021/1/8 — 16:37 — page ii — #2
 
 i
 
@@ -36,8 +36,8 @@ i
 
 
     i                                                                                                 i
-    i                                                                                                               i
-                    “cawp-internal” — 2021/1/8 — 20:22 — page iii — #3
+    i                                                                                                 i
+                    “cawp-peerson” — 2021/1/8 — 16:37 — page iii — #3
 
 i
 
@@ -45,8 +45,7 @@ i
 
 
              C++ Allocators for the Working
-                     Programmer                                                                       0.0. Identify if we do
-                                                                                                      want a subtitle
+                     Programmer
 
 
 
@@ -56,8 +55,6 @@ i
 
 
 
-
-                                                                                                      0.0. PH or AW?
 
           Boston • Columbus • Indianapolis • New York • San Francisco • Amsterdam • Cape Town
         Dubai • London • Madrid • Milan • Munich • Paris • Montreal • Toronto • Delhi • Mexico City
@@ -70,9 +67,9 @@ i
 
 
 
-    i                                                                                                               i
+    i                                                                                                 i
     i                                                                                                                    i
-                            “cawp-internal” — 2021/1/8 — 20:22 — page iv — #4
+                            “cawp-peerson” — 2021/1/8 — 16:37 — page iv — #4
 
 i
 
@@ -125,7 +122,7 @@ i
 
     i                                                                                                                    i
     i                                                               i
-        “cawp-internal” — 2021/1/8 — 20:22 — page v — #5
+        “cawp-peerson” — 2021/1/8 — 16:37 — page v — #5
 
 i
 
@@ -151,8 +148,8 @@ i
 
 
     i                                                               i
-    i                                                       i
-        “cawp-internal” — 2021/1/8 — 20:22 — page vi — #6
+    i                                                      i
+        “cawp-peerson” — 2021/1/8 — 16:37 — page vi — #6
 
 i
 
@@ -163,9 +160,9 @@ i
 
 
 
-    i                                                       i
-    i                                                                             i
-                      “cawp-internal” — 2021/1/8 — 20:22 — page vii — #7
+    i                                                      i
+    i                                                                            i
+                      “cawp-peerson” — 2021/1/8 — 16:37 — page vii — #7
 
 i
 
@@ -174,99 +171,97 @@ i
 
         Contents
 
-        Foreword                                                            ix
+        Foreword                                                           ix
 
-        Preface                                                             xi
+        Preface                                                            xi
 
-        Acknowledgements                                                   xiii
+        Acknowledgements                                                  xiii
 
-        About the Authors                                                  xv
+        About the Authors                                                 xv
 
-        Chapter 1 Foundations                                                1
-        1.1 Motivation                                                       1
-                1.1.1 What is an Allocator                                   1
-                1.1.2 The History of C++ Allocators                          1
-                1.1.3 What we’ll teach you about allocators                  2
-                1.1.4 Making money with allocators                           2
-        1.2 Technical Basics                                                 2
-                1.2.1 C++ Allocators                                         2
-                1.2.2 The std::pmr Interface                                 2
+        Chapter 1 Foundations                                               1
+        1.1 Motivation                                                      1
+                1.1.1 What is an Allocator                                  1
+                1.1.2 The History of C++ Allocators                         1
+                1.1.3 What we’ll teach you about allocators                 2
+                1.1.4 Making money with allocators                          2
+        1.2 Technical Basics                                                2
+                1.2.1 C++ Allocators                                        2
+                1.2.2 The std::pmr Interface                                2
 
-        Chapter 2 Application Developers                                     3
-        2.1 What is an Allocator-Aware Type?                                 3
-                2.1.1 Defining a PMR Allocator-Aware Type                    3
-                2.1.2 std::pmr Collections                                   3
-        2.2 Using Allocator-Aware Types                                      3
-                2.2.1 How to use a Custom Memory Resource                    3
-                2.2.2 How to Choose an Allocator                             3
-                2.2.3 Testing Code that Allocates                            3
-        2.3 Case Study 1: Unique Value Counting                              3
+        Chapter 2 Application Developers                                    3
+        2.1 What is an Allocator-Aware Type?                                3
+                2.1.1 Defining a PMR Allocator-Aware Type                   3
+                2.1.2 std::pmr Collections                                  3
+        2.2 Using Allocator-Aware Types                                     3
+                2.2.1 How to use a Custom Memory Resource                   3
+                2.2.2 How to Choose an Allocator                            3
+                2.2.3 Testing Code that Allocates                           3
+        2.3 Case Study 1: Unique Value Counting                             3
 
-        Chapter 3 Library Writers                                            4
-        3.1 Writing Allocator-Aware Types                                    4
-                3.1.1 Aggregating Other Allocator-Aware Types                4
-                3.1.2 Doing Allocation                                       4
-                3.1.3 Testing Allocator-Aware Types                          4
-        3.2 Case Study 3: PMR Optional and Variant                           4
-                                                                            vii
-
-
-i
-
-
-
-    i                                                                             i
-    i                                                                                    i
-                        “cawp-internal” — 2021/1/8 — 20:22 — page viii — #8
-
-i
-
-
-
-        viii                                                                  Contents
-
-
-        Chapter 4 Writing Allocators                                                5
-        4.1 Implementation                                                          5
-                4.1.1 Learning from Global Alocators                                5
-                4.1.2 Thread-Unsafe Allocators                                      5
-                4.1.3 Reuse Free Allocators                                         5
-                4.1.4 Wrapping Other Allocators for Utility                         5
-        4.2 Benchmarking Allocators                                                 5
-        4.3 Case Study 4: A Buffered Sequential Allocator                           5
-
-        Chapter 5 Making Money                                                      6
-        5.1 Optimizing exisitng software                                            6
-                5.1.1 Identifying short-lived objects                               6
-                5.1.2 Replacing many allocations with few                           6
-        5.2 Designing for allocator usage                                           6
-                5.2.1 Shaping tasks for allocators                                  6
-                5.2.2 Keeping allocators with subsystems                            6
-
-        Chapter 6 Advanced                                                          7
-        6.1 Modern Hardware                                                         7
-        6.2 Effective Benchmarking                                                  7
-
-        Chapter A Other Libraries                                                   9
-        A.1 BDE                                                                     9
-        A.2 Thrust                                                                  9
-
-        Chapter B Future Developments                                              10
-        B.1 More PMR Types                                                         10
-        B.2 Automating Allocator Suppoer                                           10
-
-        Todo list                                                                  11
-
-
+        Chapter 3 Library Writers                                           4
+        3.1 Writing Allocator-Aware Types                                   4
+                3.1.1 Aggregating Other Allocator-Aware Types               4
+                3.1.2 Doing Allocation                                      4
+                3.1.3 Testing Allocator-Aware Types                         4
+        3.2 Case Study 3: PMR Optional and Variant                          4
+                                                                           vii
 
 
 i
 
 
 
-    i                                                                                    i
-    i                                                                           i
-                       “cawp-internal” — 2021/1/8 — 20:22 — page ix — #9
+    i                                                                            i
+    i                                                                                   i
+                        “cawp-peerson” — 2021/1/8 — 16:37 — page viii — #8
+
+i
+
+
+
+        viii                                                                 Contents
+
+
+        Chapter 4 Writing Allocators                                               5
+        4.1 Implementation                                                         5
+                4.1.1 Learning from Global Alocators                               5
+                4.1.2 Thread-Unsafe Allocators                                     5
+                4.1.3 Reuse Free Allocators                                        5
+                4.1.4 Wrapping Other Allocators for Utility                        5
+        4.2 Benchmarking Allocators                                                5
+        4.3 Case Study 4: A Buffered Sequential Allocator                          5
+
+        Chapter 5 Making Money                                                     6
+        5.1 Optimizing exisitng software                                           6
+                5.1.1 Identifying short-lived objects                              6
+                5.1.2 Replacing many allocations with few                          6
+        5.2 Designing for allocator usage                                          6
+                5.2.1 Shaping tasks for allocators                                 6
+                5.2.2 Keeping allocators with subsystems                           6
+
+        Chapter 6 Advanced                                                         7
+        6.1 Modern Hardware                                                        7
+        6.2 Effective Benchmarking                                                 7
+
+        Chapter A Other Libraries                                                  9
+        A.1 BDE                                                                    9
+        A.2 Thrust                                                                 9
+
+        Chapter B Future Developments                                             10
+        B.1 More PMR Types                                                        10
+        B.2 Automating Allocator Suppoer                                          10
+
+
+
+
+i
+
+
+
+    i                                                                                   i
+    i                                                                          i
+                       “cawp-peerson” — 2021/1/8 — 16:37 — page ix — #9
 
 i
 
@@ -279,16 +274,16 @@ i
 
 
 
-                                                                           ix
+                                                                          ix
 
 
 i
 
 
 
-    i                                                                           i
-    i                                                       i
-        “cawp-internal” — 2021/1/8 — 20:22 — page x — #10
+    i                                                                          i
+    i                                                      i
+        “cawp-peerson” — 2021/1/8 — 16:37 — page x — #10
 
 i
 
@@ -299,9 +294,9 @@ i
 
 
 
-    i                                                       i
-    i                                                                           i
-                      “cawp-internal” — 2021/1/8 — 20:22 — page xi — #11
+    i                                                      i
+    i                                                                          i
+                      “cawp-peerson” — 2021/1/8 — 16:37 — page xi — #11
 
 i
 
@@ -314,16 +309,16 @@ i
 
 
 
-                                                                           xi
+                                                                          xi
 
 
 i
 
 
 
-    i                                                                           i
-    i                                                         i
-        “cawp-internal” — 2021/1/8 — 20:22 — page xii — #12
+    i                                                                          i
+    i                                                        i
+        “cawp-peerson” — 2021/1/8 — 16:37 — page xii — #12
 
 i
 
@@ -334,9 +329,9 @@ i
 
 
 
-    i                                                         i
-    i                                                                              i
-                     “cawp-internal” — 2021/1/8 — 20:22 — page xiii — #13
+    i                                                        i
+    i                                                                             i
+                     “cawp-peerson” — 2021/1/8 — 16:37 — page xiii — #13
 
 i
 
@@ -349,16 +344,16 @@ i
 
 
 
-                                                                            xiii
+                                                                           xiii
 
 
 i
 
 
 
-    i                                                                              i
-    i                                                         i
-        “cawp-internal” — 2021/1/8 — 20:22 — page xiv — #14
+    i                                                                             i
+    i                                                        i
+        “cawp-peerson” — 2021/1/8 — 16:37 — page xiv — #14
 
 i
 
@@ -369,9 +364,9 @@ i
 
 
 
-    i                                                         i
+    i                                                        i
     i                                                                                                   i
-                      “cawp-internal” — 2021/1/8 — 20:22 — page xv — #15
+                      “cawp-peerson” — 2021/1/8 — 16:37 — page xv — #15
 
 i
 
@@ -420,8 +415,8 @@ i
 
 
     i                                                                                                   i
-    i                                                         i
-        “cawp-internal” — 2021/1/8 — 20:22 — page xvi — #16
+    i                                                        i
+        “cawp-peerson” — 2021/1/8 — 16:37 — page xvi — #16
 
 i
 
@@ -432,9 +427,9 @@ i
 
 
 
-    i                                                         i
+    i                                                        i
     i                                                                                   i
-                        “cawp-internal” — 2021/1/8 — 20:22 — page 1 — #17
+                        “cawp-peerson” — 2021/1/8 — 16:37 — page 1 — #17
 
 i
 
@@ -490,7 +485,7 @@ i
 
     i                                                                                   i
     i                                                                                              i
-                         “cawp-internal” — 2021/1/8 — 20:22 — page 2 — #18
+                         “cawp-peerson” — 2021/1/8 — 16:37 — page 2 — #18
 
 i
 
@@ -526,8 +521,8 @@ i
 
 
     i                                                                                              i
-    i                                                                       i
-                    “cawp-internal” — 2021/1/8 — 20:22 — page 3 — #19
+    i                                                                      i
+                    “cawp-peerson” — 2021/1/8 — 16:37 — page 3 — #19
 
 i
 
@@ -551,16 +546,16 @@ i
 
 
 
-                                                                        3
+                                                                       3
 
 
 i
 
 
 
-    i                                                                       i
-    i                                                                    i
-                     “cawp-internal” — 2021/1/8 — 20:22 — page 4 — #20
+    i                                                                      i
+    i                                                                   i
+                     “cawp-peerson” — 2021/1/8 — 16:37 — page 4 — #20
 
 i
 
@@ -588,9 +583,9 @@ i
 
 
 
-    i                                                                    i
-    i                                                                       i
-                    “cawp-internal” — 2021/1/8 — 20:22 — page 5 — #21
+    i                                                                   i
+    i                                                                      i
+                    “cawp-peerson” — 2021/1/8 — 16:37 — page 5 — #21
 
 i
 
@@ -613,16 +608,16 @@ i
 
 
 
-                                                                        5
+                                                                       5
 
 
 i
 
 
 
-    i                                                                       i
+    i                                                                      i
     i                                                                                                 i
-                          “cawp-internal” — 2021/1/8 — 20:22 — page 6 — #22
+                          “cawp-peerson” — 2021/1/8 — 16:37 — page 6 — #22
 
 i
 
@@ -666,8 +661,8 @@ i
 
 
     i                                                                                                 i
-    i                                                                                       i
-                      “cawp-internal” — 2021/1/8 — 20:22 — page 7 — #23
+    i                                                                           i
+                      “cawp-peerson” — 2021/1/8 — 16:37 — page 7 — #23
 
 i
 
@@ -680,10 +675,9 @@ i
         6.1    Modern Hardware
 
         6.2    Eﬀective Benchmarking
-        Here we would be discussing the approach we have to benchmarking.       6.2. Determine a
+        Here we would be discussing the approach we have to benchmarking.
           struct S {
-                                                                                better location for
-             void foo();                                                        benchmarking section
+             void foo();
           };
 
           void S::foo()
@@ -700,9 +694,9 @@ i
 
 
 
-    i                                                                                       i
-    i                                                       i
-        “cawp-internal” — 2021/1/8 — 20:22 — page 8 — #24
+    i                                                                           i
+    i                                                      i
+        “cawp-peerson” — 2021/1/8 — 16:37 — page 8 — #24
 
 i
 
@@ -713,9 +707,9 @@ i
 
 
 
-    i                                                       i
-    i                                                                    i
-                 “cawp-internal” — 2021/1/8 — 20:22 — page 9 — #25
+    i                                                      i
+    i                                                                   i
+                 “cawp-peerson” — 2021/1/8 — 16:37 — page 9 — #25
 
 i
 
@@ -732,16 +726,16 @@ i
 
 
 
-                                                                     9
+                                                                    9
 
 
 i
 
 
 
-    i                                                                    i
-    i                                                                  i
-                  “cawp-internal” — 2021/1/8 — 20:22 — page 10 — #26
+    i                                                                   i
+    i                                                                 i
+                  “cawp-peerson” — 2021/1/8 — 16:37 — page 10 — #26
 
 i
 
@@ -766,29 +760,5 @@ i
 
 
 
-    i                                                                  i
-    i                                                                                                        i
-                      “cawp-internal” — 2021/1/8 — 20:22 — page 11 — #27
-
-i
-
-
-
-
-        Todo list
-        o 0.0. Identify if we do want a subtitle . . . . . . . . . . . . . . . . . . . . . . . . . .   iii
-        o 0.0. PH or AW? . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .     iii
-        o 6.2. Determine a better location for benchmarking section . . . . . . . . . . . . . .         7
-
-
-
-
-                                                                                                       11
-
-
-i
-
-
-
-    i                                                                                                        i
+    i                                                                 i
 
