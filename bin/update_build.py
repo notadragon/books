@@ -137,28 +137,36 @@ class PublicationOutline:
 class PublicationSource:
     def __init__(self,package):
         self.package = package
-        self.rename = False
         
         outlinefile = package.pdir.joinpath(f"{package.id}.outline")
         if outlinefile.exists():
-            outline = configparser.ConfigParser()
+            outline = configparser.ConfigParser(allow_no_value=True)
             outline.read_file(outlinefile.open())
             self.outline = outline
         else:
             self.outline = None
 
+        optionsfile = package.pdir.joinpath(f"{package.id}.options")
+        if optionsfile.exists():
+            options = configparser.ConfigParser(allow_no_value=True)
+            options.read_file(optionsfile.open())
+            self.options = options
+        else:
+            self.options = None
+
         self.files = []
-        for f in package.pdir.iterdir():
-            if f.is_dir():
-                continue
+        if package.pdir.is_dir():
+            for f in package.pdir.iterdir():
+                if f.is_dir():
+                    continue
 
-            if ignoreFileRe.match(f.name):
-                continue
+                if ignoreFileRe.match(f.name):
+                    continue
 
-            if f.name.endswith(".outline") or f.name.endswith(".options"):
-                continue
+                if f.name.endswith(".outline") or f.name.endswith(".options"):
+                    continue
             
-            self.files.append( f )
+                self.files.append( f )
 
     def __str__(self):
         return f"PublicationSource: {self.package.fqid}"
@@ -206,22 +214,27 @@ def maprendered(r):
 class Publication:
     # Capture the options used to generate a publication
     
-    def __init__(self,package,pub,optionsFile,config):
+    def __init__(self,package,pub):
         self.package = package
         self.pub = pub
         self.basename = self.pub.split("/")[-1]
-        self.optionsFile = optionsFile
-        self.config = config
 
-        self.sources = [PublicationSource(self.package)]
-        for section in self.config.sections():
-            if section.startswith("source"):
-                spackage = self.config.get(section,"package",fallback=None)
-                if not spackage:
-                    print("No package in section: %s" % (section,))
-                    continue
+        self.source = PublicationSource(self.package)
+        self.config = self.source.options
 
-                spubpackage = self.package.findpackage(spackage)
+        self.sources = []
+        self.addSource(self.source)
+
+        self.outline = PublicationOutline()
+        for source in self.sources:
+            if source.outline:
+                self.outline.addconfig(source.outline)
+
+    def addSource(self,source):
+        self.sources.append(source)
+        if source.options and source.options.has_section("dep"):
+            for spackage in source.options["dep"]:
+                spubpackage = source.package.findpackage(spackage)
                 if not spubpackage:
                     print("Unknown package: %s" % (spubpackage,))
                     continue
@@ -231,18 +244,10 @@ class Publication:
                         print("Duplicate package: %s" % (spackage,))
                         continue
 
-                source = PublicationSource(spubpackage)
+                subsource = PublicationSource(spubpackage)
 
-                if self.config.getboolean(section,"rename",fallback=False):
-                    source.rename = True
+                self.addSource(subsource)
                 
-                self.sources.append(source)
-
-        self.outline = PublicationOutline()
-        for source in self.sources:
-            if source.outline:
-                self.outline.addconfig(source.outline)
-
     def makeBuildDir(self,verbose):
         if not self.makeDirs(self.builddir):
             return False
@@ -262,8 +267,7 @@ class Publication:
                 if istemplate:
                     fname = fname[:-5]
 
-                if source.rename:
-                    fname = fname.replace(source.package.id,self.package.id)
+                fname = fname.replace(f"{source.package.id}-xxxxx",self.package.id)
 
                 tof = self.builddir.joinpath(fname)
 
@@ -292,7 +296,6 @@ class Publication:
         if not self.makeDirs(link.parent):
             return False
         
-        print(f"Link {link} -> {target}")
         lparents = list(link.parents)
         tparents = list(target.parents)
         if lparents[-1] == tparents[-1]:
@@ -314,7 +317,7 @@ class Publication:
         if link.resolve() != target.resolve():
             if link.is_symlink() or link.exists():
                 link.unlink()
-            print(f"    Making Link {link} -> {rel}")
+            #print(f"    Making Link {link} -> {rel}")
             link.symlink_to(rel)
 
         return True
@@ -323,8 +326,6 @@ class Publication:
         if not self.makeDirs(outfile.parent):
             return False
 
-        print(f"Generating template {templatefile} -> {outfile}")
-        
         templatedata = templatefile.open().read()
         t = mako.template.Template(templatedata,
                                    preprocessor=maptemplate)
@@ -348,7 +349,7 @@ class Publication:
             currentdata = None
 
         if r != currentdata:
-            print(f"    Updating template:{templatefile}->{outfile}")
+            #print(f"    Updating template:{templatefile}->{outfile}")
             outfile.open("w").write(r)
 
         return True
@@ -362,10 +363,7 @@ def updateBuild(args):
 
     pubPackage = env.package("/".join(args.pub.split("/")[0:2]))
 
-    config = configparser.RawConfigParser(allow_no_value=True)
-    config.read_file(args.pubfile.open())
-
-    pub = Publication(pubPackage,args.pub,args.pubfile,config)
+    pub = Publication(pubPackage,args.pub)
     pub.builddir = args.builddir
     pub.gendir = args.gendir
 

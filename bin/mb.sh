@@ -65,7 +65,7 @@ for togen in "${TOGEN[@]}" ; do
     bdir="${ROOTDIR}/build/${togen}"
     gdir="${ROOTDIR}/generated/${togen}"
     if [ ! -d ${bdir} ] ; then
-        echo "No build dir: ${bdir}"
+        #echo "No build dir: ${bdir}"
         continue
     fi
 

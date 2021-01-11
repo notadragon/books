@@ -136,9 +136,6 @@ footskip=.025in}
 
 %%%%%%%%% Now the document begins
 
-\begin{document}
-\input{cft-definitions-PearsonGeneric} % Loading a few commands related to the tocloft package
-
 %%%%%%%%%  You will need to enter the file names of all your chapter files here.
 % These lines tell the xr package what chapters need to cross-reference one another.
 % You'll need to add your chapter file names here
@@ -147,6 +144,9 @@ footskip=.025in}
 \externaldocument{${f}}
 %T%% endfor
 %T%% endfor
+
+\begin{document}
+\input{cft-definitions-PearsonGeneric} % Loading a few commands related to the tocloft package
 
 %%%%% The front matter begins:
 \pagenumbering{roman}             % Roman numbering
