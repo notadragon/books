@@ -19,9 +19,9 @@
 %T%<% bookname = pub.config.get("book", "name") %>
 
 %T%% if pub.config.get("book","trim") in [ "1", "2" ]:
-\documentclass[twoside,10pt,letterpaper,usenames]{newstyle-PearsonGeneric-7}
+\documentclass[twoside,10pt,letterpaper,usenames]{${pub.config.get("book","style",fallback="newstyle-PearsonGeneric-7")}}
 %T%% elif pub.config.get("book","trim") == "3":
-\documentclass[twoside,10pt,letterpaper,usenames]{newstyle-PearsonGeneric-7-38}
+\documentclass[twoside,10pt,letterpaper,usenames]{${pub.config.get("book","style",fallback="newstyle-PearsonGeneric-7-38")}}
 %T%% endif
 
 %T%% for f in pub.outline.sectionfiles("initial"):
@@ -134,11 +134,6 @@ footskip=.025in}
 \include{${f}}
 %T%% endfor
 
-%%%%%%%%% Now the document begins
-
-\begin{document}
-\input{cft-definitions-PearsonGeneric} % Loading a few commands related to the tocloft package
-
 %%%%%%%%%  You will need to enter the file names of all your chapter files here.
 % These lines tell the xr package what chapters need to cross-reference one another.
 % You'll need to add your chapter file names here
@@ -147,6 +142,11 @@ footskip=.025in}
 \externaldocument{${f}}
 %T%% endfor
 %T%% endfor
+
+%%%%%%%%% Now the document begins
+
+\begin{document}
+\input{cft-definitions-PearsonGeneric} % Loading a few commands related to the tocloft package
 
 %%%%% The front matter begins:
 \pagenumbering{roman}             % Roman numbering
@@ -161,6 +161,7 @@ footskip=.025in}
 \include{${bookname}-title}                   % The title page
 \include{${bookname}-CIP}                     % The cataloging-in-publication page
 \include{${bookname}-dedication}              % The dedication page
+
 \cleardoublepage
 \parskip .5ex                     % Add space between Contents items
 \tableofcontents                  % Make the Table of Contents

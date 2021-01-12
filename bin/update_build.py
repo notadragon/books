@@ -374,9 +374,10 @@ def updateBuild(args):
                 print("    File: %s" % (f,))
 
 
-    success = pub.makeBuildDir(args.verbose)
-    if not success:
-        sys.exit(1)
+    if not pub.config.getboolean("lib","lib",fallback=False):
+        success = pub.makeBuildDir(args.verbose)
+        if not success:
+            sys.exit(1)
                 
 if not checkArgs(args):
     sys.exit(1)
