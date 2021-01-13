@@ -62,6 +62,7 @@ echo build.sh --tests=run --targets=${PGROUPS} build || die "Failed to build ${P
 
 PDFS=()
 for togen in "${TOGEN[@]}" ; do
+    echo "Building: ${togen}"
     bdir="${ROOTDIR}/build/${togen}"
     gdir="${ROOTDIR}/generated/${togen}"
     if [ ! -d ${bdir} ] ; then

@@ -1,0 +1,733 @@
+\newpage
+\section[Defaulted Special Member Functions]{Defaulted Special Member Functions}\label{Defaulted-Special-Member-Functions}\label{defaulted-special-member-functions}
+
+
+Use of \texttt{=}~\texttt{default} in a \textbf{special member function}'s
+declaration instructs the compiler to attempt generating the function
+automatically.
+
+\subsection[Description]{Description}\label{description}
+
+Intrinsic to the design of C++ classes is the understanding that the
+compiler will attempt to generate certain member functions pertaining to
+\emph{creating}, \emph{copying}, \emph{destroying}, and now
+\emph{moving} (see Section~\ref{Rvalue-References}, ``\titleref{Rvalue-References}") an object unless
+developers intercede by implementing some or all of these functions
+themselves. Determining which of the \textbf{special member functions}
+will continue to be generated and which will be suppressed in the
+presence of other \textbf{user-provided special member functions}
+requires remembering the same rules the compiler uses.
+
+\subsubsection[Declaring a special member function explicitly]{Declaring a special member function explicitly}\label{declaring-a-special-member-function-explicitly}
+
+The rules specifying what happens in the presence of one or more
+user-provided special member functions are inherently complex and not
+necessarily intuitive; in fact, some are already
+deprecated.{\cprotect\footnote{Even in the presence of a user-provided
+destructor, both the copy constructor and copy-assignment operator
+have historically been generated implicitly. Relying on such generated
+behavior is not recommended because it is unlikely that a class
+requiring a user-provided destructor will function correctly without
+corresponding user-provided copy operations. As of C++11, reliance on
+such dubious implicitly generated behavior is deprecated.}} Here, we
+will briefly illustrate a few common cases and then refer you to Howard
+Hinnant's now famous table (see page~\pageref{default-table1} of {\it\titleref{appendix:-implicit-generation-of-special-member-functions}}) to
+demystify what's going on under the hood.
+
+\paragraph[Example 1: Providing just the default constructor]{Example 1: Providing just the default constructor}\label{example-1:-providing-just-the-default-constructor}
+
+Consider a \texttt{struct} with a user-provided default constructor:
+
+\begin{lstlisting}[language=C++]
+struct S1
+{
+S1();  // user-provided default constructor
+};
+\end{lstlisting}
+
+\noindent A user-provided default constructor has no effect on other special
+member functions. Providing any other constructor, however, will
+suppress automatic declaration{\cprotect\footnote{A nondeclared
+function is nonexistent, which means that it will \emph{not}
+participate in overload resolution at all. In contrast, a
+\textbf{deleted function} participates in overload resolution and, if
+selected, results in a compilation failure; see Section~\ref{deleted-functions}, ``\titleref{deleted-functions}."}} of the default constructor. We can, however, use
+\texttt{=}~\texttt{default} to restore the constructor as a \textbf{trivial
+operation}; see {\it\titleref{default-use-cases}: \titleref{restoring-the-generation-of-a-special-member-function-suppressed-by-another}} on page~\pageref{restoring-the-generation-of-a-special-member-function-suppressed-by-another}.
+
+\paragraph[Example 2: Providing just a copy constructor]{Example 2: Providing just a copy constructor}\label{example-2:-providing-just-a-copy-constructor}
+
+Now, consider a \texttt{struct} with a user-provided copy constructor:
+
+\begin{lstlisting}[language=C++]
+struct S2
+{
+S2(const S2&);  // user-provided copy constructor
+};
+\end{lstlisting}
+
+\noindent A user-provided copy constructor (1) suppresses the declaration of the
+default constructor and both move operations and (2) allows implicit
+generation of both the copy-assignment operator and the destructor.
+Similarly, providing just the copy-assignment operator would allow the
+compiler to implicitly generate both the copy constructor and the
+destructor, but, in this case, it would also generate the default
+constructor (see \texttt{S6} in the \texttt{example.h} code snippet on page~\pageref{default-exampleh-code}). Note that --- in either of these
+cases --- relying on the compiler's implicitly generated copy operation
+is deprecated.
+
+\paragraph[Example 3: Providing just the destructor]{Example 3: Providing just the destructor}\label{example-3:-providing-just-the-destructor}
+
+Finally, consider a \texttt{struct} with a user-provided destructor:
+
+
+\begin{lstlisting}[language=C++]
+struct S3
+{
+~S3();  // user-provided destructor
+};
+\end{lstlisting}
+
+\noindent A user-provided destructor suppresses the declaration of move
+operations but still allows copy operations to be generated. Again,
+relying on either of these (implicitly) compiler-generated copy
+operations is deprecated.
+
+\paragraph[Example 4: Providing more than one special member function]{Example 4: Providing more than one special member function}\label{example-4:-providing-more-than-one-special-member}
+
+When more than one special member function is declared explicitly, the
+\emph{union} of their respective declaration suppressions and the
+\emph{intersection} of their respective implicit generations pertain ---
+e.g., if just the default constructor and destructor are provided
+(\texttt{S1} + \texttt{S3} in Examples 1 and 3), then the declarations of both move
+operations are suppressed and both copy operations are generated
+implicitly.
+
+\subsubsection[Defaulting the first declaration of a special member function explicitly]{Defaulting the first declaration of a special member function explicitly}\label{defaulting-the-first-declaration-of-a-special-member-function-explicitly}
+
+Using the \texttt{=}~\texttt{default} syntax with the first declaration
+of a special member function instructs the compiler to synthesize such a
+function automatically (if possible) without treating it as being
+user provided.{\cprotect\footnote{The compiler-generated version for a
+special member function is required to call the corresponding special
+member functions on (1) every base class in base-class-declaration
+order and then (2) every data member of the encapsulating type in
+declaration order (regardless of any access specifiers). Note that the
+destructor calls will be in exactly the opposite order of the
+other special-member-function calls.}}
+
+For example, consider struct \texttt{S4} (in the code snippet below) in which we have chosen
+to make explicit that the copy operations are to be autogenerated by
+the compiler; note, in particular, that implicit declaration and generation
+of each of the other special member functions is left unaffected.
+
+\begin{lstlisting}[language=C++]
+struct S4
+{
+S4(const S4&) = default;             // copy constructor
+S4& operator=(const S4&) = default;  // copy-assignment operator
+
+// has no effect on other other four special member functions, i.e.,
+// implicitly generates the default constructor, the destructor,
+// the move constructor, and the move-assignment operator
+};
+\end{lstlisting}
+
+\noindent A defaulted declaration may appear with any \textbf{access specifier} ---
+i.e., \texttt{private},\linebreak[4] \texttt{protected}, or \texttt{public} --- and,
+hence, access to that generated function will be regulated accordingly:
+
+\begin{lstlisting}[language=C++]
+struct S5
+{
+private:
+S5(const S5&) = default;             // private copy constructor
+S5& operator=(const S1&) = default;  // private copy-assignment operator
+
+protected:
+~S5() = default;                     // protected destructor
+
+public:
+S5() = default;                     // public default constructor
+};
+\end{lstlisting}
+
+\noindent In the example above, copy operations exist for use by \emph{member} and
+\emph{friend} functions only. Declaring the destructor
+\texttt{protected} or \texttt{private} limits which functions can create
+automatic variables of the specified type to those functions with the
+appropriately privileged access to the class. Declaring the default
+constructor \texttt{public} is necessary to avoid its declaration's
+being suppressed by another constructor (e.g., the private copy
+constructor in the code snippet above) or \emph{any} move operation.
+
+In short, use of \texttt{=}~\texttt{default} on first declaration
+denotes that a special member function is intended to be generated by
+the compiler --- irrespective of any user-provided declarations; in
+conjunction with {\texttt{=}~\texttt{delete}} (see Section~\ref{deleted-functions}, ``\titleref{deleted-functions}"),
+use of
+\texttt{=}~\texttt{default} affords the fine-grained control over which
+special member functions are to be generated and/or made publicly
+available.
+
+\subsubsection[Defaulting the implementation of a user-provided special member function]{Defaulting the implementation of a user-provided special member function}\label{defaulting-the-implementation-of-a-user-provided-special-member-function}
+
+The \texttt{=}~\texttt{default} syntax can also be used after the first
+declaration, but with a distinctly different meaning: The compiler will
+treat the first declaration as a \textbf{user-provided special member
+function} and thus will suppress the generation of other
+\textbf{special member functions} accordingly.
+
+\begin{lstlisting}[language=C++,label=default-exampleh-code]
+// example.h
+
+struct S6
+{
+S6& operator=(const S6&);  // user-provided copy-assignment operator
+
+// suppresses the declaration of both move operations
+// implicitly generates the default and copy constructors, and destructor
+};
+
+inline S6& S6::operator=(const S6&) = default;
+// Explicitly request the compiler to generate the default implementation
+// for this copy-assignment operator. This request might fail (e.g., if (ù{\codeincomments{S6}}ù)
+// were to contain a non-copyable-assignable data member).
+\end{lstlisting}
+
+\noindent Alternatively, an explicitly defaulted non-inline implementation of this
+copy-assignment operator may appear in a separate (\texttt{.cpp}) file;
+see {\it\titleref{default-use-cases}: \titleref{physically-decoupling-the-interface-from-the-implementation}} on page~\pageref{physically-decoupling-the-interface-from-the-implementation}.
+
+\subsection[Use Cases]{Use Cases}\label{default-use-cases}
+
+\subsubsection[Restoring the generation of a special member function suppressed by another]{Restoring the generation of a special member function suppressed by another}\label{restoring-the-generation-of-a-special-member-function-suppressed-by-another}
+
+Incorporating \texttt{=}~\texttt{default} in the declaration of a
+special member function instructs the compiler to generate its
+definition regardless of any other user-provided special member
+functions. As an example, consider a \textbf{value-semantic}
+\texttt{SecureToken} class that wraps a standard string
+(\texttt{std::string}) and an arbitrary-precision-integer
+(\texttt{BigInt}) token code that satisfy certain invariants:
+
+\begin{lstlisting}[language=C++]
+class SecureToken
+{
+std::string d_value;  // The default-constructed value is the empty string.
+BigInt d_code;        // The default-constructed value is the integer zero.
+
+public:
+// All six special member functions are (implicitly) defaulted.
+
+void setValue(const char* value);
+const char* value() const;
+BigInt code() const;
+};
+\end{lstlisting}
+
+\noindent By default, a secure token's \texttt{value} will be the empty-string
+value and the token's \texttt{code} will be the numerical value of zero
+(because those are, respectively, the \textbf{default initialized} values
+of the two data members, \texttt{d\_value} and \texttt{d\_tokenCode}):
+
+\begin{lstlisting}[language=C++,label=default-voidf-code]
+void f()
+{
+SecureToken token;                       // default constructed         (1)
+assert(token.value() == std::string());  // default value: empty string (2)
+assert(token.code() == BigInt());        // default value: zero         (3)
+}
+\end{lstlisting}
+
+\noindent Now suppose that we get a request to add a \textbf{value constructor}
+that creates and initializes a \texttt{SecureToken} from a specified
+token string:
+
+\begin{lstlisting}[language=C++]
+class SecureToken
+{
+std::string d_value;  // The default-constructed value is the empty string.
+BigInt d_tokenCode;   // The default-constructed value is the integer zero.
+
+public:
+SecureToken(const char* value);  // newly added value constructor
+
+// suppresses the declaration of just the default constructor --- i.e.,
+// implicitly generates all of the other five special member functions
+
+void setValue(const char* value);
+const char* value() const;
+const BigInt& code() const;
+};
+\end{lstlisting}
+
+\noindent Attempting to compile function \texttt{f} (from page~\pageref{default-voidf-code}) would now fail on the
+first line, where it attempts to default-construct the token. Using
+the \texttt{=}~\texttt{default} feature, however, we can reinstate the
+default constructor to work trivially, just as
+it did before:
+
+\begin{lstlisting}[language=C++]
+class SecureToken
+{
+std::string d_value;  // The default-constructed value is the empty string.
+BigInt d_code;        // The default-constructed value is the integer zero.
+
+public:
+SecureToken() = default;         // newly defaulted default constructor
+SecureToken(const char *value);  // newly added value constructor
+
+// implicitly generates all of the other five special member functions
+
+void setValue(const char *value);
+const char *value() const;
+const BigInt& code() const;
+};
+\end{lstlisting}
+
+
+\subsubsection[Making class APIs explicit at no runtime cost]{Making class APIs explicit at no runtime cost}\label{making-class-apis-explicit-at-no-runtime-cost}
+
+In the early days of C++, coding standards sometimes
+required that each special member function be declared explicitly so
+that it could be documented or even just to know that it hadn't been
+forgotten:
+
+\begin{lstlisting}[language=C++]
+class C1
+{
+// ...
+
+public:
+C1();
+// Create an empty object.
+
+C1(const C1& rhs);
+// Create an object having the same value as the specified (ù{\codeincomments{rhs}}ù) object.
+
+~C1();
+// Destroy this object.
+
+C1& operator=(const C1& rhs);
+// Assign to this object the value of the specified (ù{\codeincomments{rhs}}ù) object.
+};
+\end{lstlisting}
+
+\noindent Over time, explicitly writing out what the compiler
+could do more reliably itself became more clearly an inefficient use of developer time.
+What's more, even if the function definition was empty, implementing it
+explicitly often had performance implications over allowing
+implementations to provide a \textbf{trivial} default. Hence, such
+standards tended to evolve toward conventionally commenting out (e.g.,
+using \texttt{//!}) the declarations of a function having an empty
+body rather than providing it explicitly:
+
+\begin{lstlisting}[language=C++]
+class C2
+a{
+// ...
+
+public:
+//! C2();
+// Create an empty object.
+
+//! C2(const C2& rhs);
+// Create an object having the same value as the specified (ù{\codeincomments{rhs}}ù) object.
+
+//! ~C2();
+// Destroy this object.
+
+//! C2& operator=(const C2& rhs);
+// Assign to this object the value of the specified (ù{\codeincomments{rhs}}ù) object.
+};
+\end{lstlisting}
+
+\noindent Note, however, that the compiler does not check the commented code, which is easily susceptible to copy-paste and other errors. By
+uncommenting the code and defaulting it explicitly in class scope, we
+regain the compiler's syntactic checking of the function signatures
+without incurring the cost of turning what would have been
+\textbf{trivial} (i.e., compiler-generated) functions into equivalent
+non-\textbf{trivial} ones:
+
+\begin{lstlisting}[language=C++]
+class C3
+{
+// ...
+
+public:
+C3() = default;
+// Create an empty object.
+
+C3(const C3& rhs) = default;
+// Create an object having the same value as the specified (ù{\codeincomments{rhs}}ù) object.
+
+~C3() = default;
+// Destroy this object.
+
+C3& operator=(const C3& rhs) = default;
+// Assign to this object the value of the specified (ù{\codeincomments{rhs}}ù) object.
+};
+\end{lstlisting}
+
+
+\subsubsection[Preserving trivial copyability]{Preserving trivial copyability}\label{preserving-trivial-copyability}
+
+In some situations, a particular type \textit{must} be
+usable with \texttt{std::memcpy} (e.g., runtime performance,
+serialization to binary, or interoperability with C code). Only
+\textbf{trivially copyable} types are safe to use with
+\texttt{std::memcpy}; use with any other types results in
+\textbf{undefined behavior}. A type \texttt{T} is \textbf{trivially
+copyable} if it exposes a \textbf{trivial copy constructor}:
+\begin{enumerate}
+\item{the copy constructor for \texttt{T} is not user provided}
+\item{the type \texttt{T} itself has no \texttt{virtual} member functions or
+\texttt{virtual} base classes}
+\item{any member or base class of
+\texttt{T} is itself \textbf{trivially copyable} (recursively).}
+\end{enumerate}
+
+As an example, the \texttt{EntityHandle} class (in the code snippet below) represents an
+integer handle (to an entity of opaque type) that must be usable with
+\texttt{std::memcpy} for the purpose of efficient serialization (the
+capacity of the encapsulated fundamental integral type is subject to
+change){\cprotect\footnote{Objects of this type are sometimes said to
+hold ``dumb data''; see \textbf{{lakos20}}, section~3.5.5,
+pp.~629--633.}}:
+
+\begin{lstlisting}[language=C++]
+class EntityHandle
+{
+short int d_id;  // Note: Implementation size may increase over time.
+
+public:
+EntityHandle(int id);  // value constructor
+
+// suppresses the declaration of just the default constructor --- i.e.,
+// implicitly generates all of the other five special member functions
+
+// ...
+}
+\end{lstlisting}
+
+\noindent The presence of any other constructor, except a \emph{move constructor},
+never affects implicit generation of a copy constructor, and
+\texttt{short}~\texttt{int} (like all \emph{enumerated}, \emph{pointer},
+and other \emph{fundamental} types) is a \textbf{trivial type}, thus
+establishing the \emph{triviality} of copying an \texttt{EntityHandle}.
+Now imagine that, to monitor the places in the codebase where
+\emph{temporary} entity handles are exchanged (with the goal of
+ultimately optimizing those), a user-provided \emph{move constructor} is
+added{\cprotect\footnote{Note that a move constructor will be preferred
+over a copy constructor when the type category of the argument is an
+\emph{xvalue} (i.e., expiring value) or \emph{prvalue} (i.e., pure rvalue), which
+are the value categories to which a temporary can pertain. See Section~\ref{Rvalue-References}, ``\titleref{Rvalue-References}," for more information.}}:
+
+\begin{lstlisting}[language=C++]
+class EntityHandle
+{
+short int d_id;  // Note: Implementation size may increase over time.
+
+public:
+EntityHandle(int id);              // value constructor
+EntityHandle(EntityHandle&& rhs);  // user-provided move constructor
+
+// implicitly generates only the destructor
+// suppresses synthesis of all four other special member functions
+
+// ...
+};
+\end{lstlisting}
+
+\noindent As illustrated by Table~\ref{default-table1} on page~\pageref{default-table1}, the
+presence of a user-provided \emph{move constructor} suppressed the
+automatic generation of a copy constructor along with the destructor
+and both the copy- and move-assignment operators, thereby rendering the
+\texttt{EntityHandle} unusable. Replacing these four previously
+generated functions with seemingly equivalent user-provided ones might
+appear to work as intended:
+
+\begin{lstlisting}[language=C++]
+class EntityHandle
+{
+short int d_id;  // Note: Implementation size may increase over time.
+
+public:
+EntityHandle(int id);  // value constructor
+
+EntityHandle(const EntityHandle& rhs);  // user-provided copy constructor
+EntityHandle(EntityHandle&& rhs);       // user-provided move constructor
+
+EntityHandle& operator=(const EntityHandle& rhs);
+// user-provided copy-assignment operator
+
+EntityHandle& operator=(EntityHandle&& rhs);
+// user-provided move-assignment operator
+
+// implicitly generates only the destructor
+// suppresses synthesis of the default constructor
+
+// ...
+};
+\end{lstlisting}
+
+\noindent The user-provided nature of the copy constructor, however, renders the
+\texttt{EntityHandle} class ineligible for copy triviality --- even if
+the definitions are identical! Hence, any direct use of
+\texttt{std::memcpy} with an \texttt{EntityHandle} object will result in
+\textbf{undefined behavior}. We could have instead explicitly requested
+that these four special member functions be generated using
+\texttt{=}~\texttt{default}:
+
+\begin{lstlisting}[language=C++]
+class EntityHandle
+{
+short int d_id;  // Note: Implementation size may increase over time.
+
+public:
+EntityHandle(int id);  // value constructor
+
+EntityHandle(const EntityHandle& rhs) = default;
+// defaulted (trivial) copy constructor
+
+EntityHandle(EntityHandle&& rhs);
+// user-provided move constructor
+
+EntityHandle& operator=(const EntityHandle& rhs) = default;
+// default (trivial) copy-assignment operator
+
+EntityHandle& operator=(EntityHandle&& rhs);
+// user-provided move-assignment operator
+
+// Implicitly generates only the destructor.
+// suppresses synthesis of the default constructor
+
+// ...
+};
+\end{lstlisting}
+
+\noindent By explicitly defaulting these three special member functions {in class
+scope}, we (1) re-enable their generation and (2) preserve the
+\emph{copy triviality} of the class.
+
+\subsubsection[Physically decoupling the interface from the implementation]{Physically decoupling the interface from the implementation}\label{physically-decoupling-the-interface-from-the-implementation}
+
+Sometimes, especially during large-scale development, avoiding compile-time coupling clients to the
+implementations of individual methods offers distinct maintenance advantages. Specifying that a special member
+function is defaulted on its first declaration (i.e., in class scope)
+implies that making any change to this implementation will force all
+clients to recompile{\cprotect\footnote{The issue here is not just
+compile time, per se, but compile-time \emph{coupling}; see
+\textbf{{lakos20}}, section 3.10.5, pp.~783--789.}}:
+
+\begin{lstlisting}[language=C++]
+// smallscale.h
+
+struct SmallScale
+{
+SmallScale() = default;  // explicitly defaulted default constructor
+};
+\end{lstlisting}
+
+\noindent Alternatively, we can choose to declare the function but deliberately
+\emph{not} default it in class scope (or anywhere in the \texttt{.h}
+file):
+
+\begin{lstlisting}[language=C++]
+// largescale.h
+
+struct LargeScale
+{
+LargeScale();  // user-provided default constructor
+};
+\end{lstlisting}
+
+\noindent We can then default just the (non-inline) implementation in a
+corresponding{\cprotect\footnote{In practice, every \texttt{.cpp} file
+(other than the one containing \texttt{main}) typically has a unique
+associated header (\texttt{.h}) file and often vice versa (a.k.a., a
+\textbf{component}); see \textbf{{lakos20}}, sections 1.6 and 1.11,
+pages 209--216 and 256--259, respectively.}}~\texttt{.cpp} file:
+
+\begin{lstlisting}[language=C++]
+// largescale.cpp
+#include <largescale.h>
+
+LargeScale::LargeScale() = default;
+// Generate the default implementation for this default destructor.
+\end{lstlisting}
+
+\noindent Using this \emph{insulation} technique, we are free to change our minds
+and implement the default constructor ourselves in any way we see fit
+without necessarily forcing our clients to recompile.
+
+\subsection[Potential Pitfalls]{Potential Pitfalls}\label{potential-pitfalls}
+
+\subsubsection[Generation of defaulted functions is not guaranteed]{Generation of defaulted functions is not guaranteed}\label{generation-of-defaulted-functions-is-not-guaranteed}
+
+Use of \texttt{=}~\texttt{default} does not guarantee that the special
+member function of a type, \texttt{T}, will be generated. For example, a
+noncopyable member variable (or base class) of \texttt{T} will inhibit
+generation of \texttt{T}'s copy constructor even when
+\texttt{=}~\texttt{default} is used. Such behavior can be observed in
+the presence of a \texttt{std::unique\_ptr}{\cprotect\footnote{\texttt{std::unique\_ptr<T>}
+is a move-only (movable but noncopyable) class template introduced in
+C++11. It models unique ownership over a dynamically allocated
+\texttt{T} instance, leveraging rvalue references (see Section~\ref{Rvalue-References}, ``\titleref{Rvalue-References}") to represent ownership transfer between instances:
+%%% question
+
+\begin{lstlisting}[language=C++, basicstyle={\ttfamily\footnotesize}]
+int* p = new int(42);
+std::unique_ptr<int> up(p);                   // OK, take ownership of (ù{\codeincomments{p}}ù).
+std::unique_ptr<int> upCopy = up;             // compile-time error
+std::unique_ptr<int> upMove = std::move(up);  // OK, transfer ownership.
+\end{lstlisting}
+}} data member:
+
+\begin{lstlisting}[language=C++]
+class Connection
+{
+private:
+std::unique_ptr<Impl> d_impl;  // noncopyable data member
+
+public:
+Connection() = default;
+Connection(const Connection&) = default;
+};
+\end{lstlisting}
+
+\noindent Despite the defaulted copy constructor, \texttt{Connection} will not be
+copy-constructible as\linebreak[4] \texttt{std::unique\_ptr} is a noncopyable type.
+Some compilers \emph{may} produce a warning on the declaration of
+{\texttt{Connection(const} \texttt{Connection\&)}, but they are not
+required to do so since the example code above is well formed and would produce a
+compilation failure only if an attempt were made to default-construct or
+copy \texttt{Connection}.{\cprotect\footnote{Clang 8.x
+produces a diagnostic with no warning flags specified.
+GCC~8.x produces no warning, even with both
+\texttt{-Wall} and \texttt{-Wextra} enabled.}}
+
+If desired, a possible way to ensure that a defaulted special member
+function has indeed been generated is to use
+{\texttt{static\_assert}} (see Section~\ref{compile-time-assertions-(static_assert)}, ``\titleref{compile-time-assertions-(static_assert)}")
+in conjunction with an
+appropriate trait from the \texttt{<type\_traits>} header:
+
+\begin{lstlisting}[language=C++]
+class IdCollection
+{
+std::vector<int> d_ids;
+
+public:
+IdCollection() = default;
+IdCollection(const IdCollection&) = default;
+// ...
+};
+
+static_assert(std::is_default_constructible<IdCollection>::value,
+"(ù{\codeincomments{IdCollection}}ù) must be default constructible.");
+
+static_assert(std::is_copy_constructible<IdCollection>::value,
+"(ù{\codeincomments{IdCollection}}ù) must be copy constructible.");
+
+// ...
+\end{lstlisting}
+
+\noindent Routine use of such compile-time testing techniques can help to ensure
+that a type will continue to behave as expected (at no additional
+runtime cost) even when member (and base) types evolve as a result
+of ongoing software maintenance.
+
+\subsection[See Also]{See Also}\label{see-also}
+
+\begin{itemize}
+\item{Section~\ref{Rvalue-References}, ``\titleref{Rvalue-References}" — Conditionally Safe C++11 feature that is the foundation of \textbf{move semantics} — the move-constructor and move-assignment special member functions can be defaulted}
+\item{Section~\ref{deleted-functions}, ``\titleref{deleted-functions}" — Safe C++11 feature that, among other use cases, allows the prevention of generation of special member functions, providing fine-grained control over the interface of a class if used in conjunction with \texttt{=}~\texttt{default}}
+\item{Section~\ref{compile-time-assertions-(static_assert)}, ``\titleref{compile-time-assertions-(static_assert)}" — Safe C++11 feature that checks a predicate at compile time; useful to verify that a class’s special copy and move operations are available as expected}
+\end{itemize}
+
+\subsection[Further Reading]{Further Reading}\label{further-reading}
+
+\begin{itemize}
+\item{Howard Hinnant, ``Everything You Ever Wanted to Know About Move Semantics (and Then Some)," \textbf{hinnant14}}
+\item{Howard Hinnant, ``Everything You Ever Wanted to Know About Move Semantics," \textbf{hinnant16}}
+\end{itemize}
+
+\subsection[Appendix: Implicit Generation of Special Member Functions]{Appendix: Implicit Generation of Special Member Functions}\label{appendix:-implicit-generation-of-special-member-functions}
+
+The rules a compiler uses to decide if a special member function
+should be generated implicitly are not entirely intuitive. Howard
+Hinnant, lead designer and author of the C++11 proposal for move
+semantics\footnote{\textbf{hinnant02}} (among other proposals), produced a tabular representation of
+such rules in the situation where the user provides a single special
+member function and leaves the rest to the compiler. To understand Table~\ref{default-table1}, after picking a special member function in the first
+column, the corresponding row will show what is implicitly generated by
+the compiler. (When selecting multiple rows, the intersection of the
+defaulted functions results.)
+
+
+
+\begin{table}[h!]  %%% PRODUCTION: REQUIRES REPRINT PERMISSION;
+\begin{center}
+\begin{threeparttable}
+\caption{Implicit generation of special member functions. NEEDS A CREDIT LINE TO HINNANT.}\label{default-table1}
+{\footnotesize %%% setting smaller to fit
+\begin{tabular}{p{.12\textwidth}|p{.1\textwidth}|p{.11\textwidth}|p{.1\textwidth}|p{.12\textwidth}|p{.1\textwidth}|p{.12\textwidth}}
+\thickhline
+% header
+\rowcolor[gray]{.9}    & {\sffamily\bfseries Default\linebreak[4] Ctor} & {\sffamily\bfseries Destructor} & {\sffamily\bfseries Copy\linebreak[4] Ctor} & {\sffamily\bfseries Copy\linebreak[4] Assignment} & {\sffamily\bfseries Move\linebreak[4] Ctor} & {\sffamily\bfseries Move\linebreak[4] Assignment} \tabularnewline \hline
+% row 1
+\cellcolor[gray]{.9}{\sffamily\bfseries Nothing} & Defaulted & Defaulted & Defaulted & Defaulted
+& Defaulted & Defaulted \\ \hline
+% row 2
+\cellcolor[gray]{.9}{\sffamily\bfseries Any\linebreak[4] Ctor} & Not\linebreak[4] Declared &
+Defaulted & Defaulted & Defaulted & Defaulted & Defaulted \\ \hline
+% row 3
+\cellcolor[gray]{.9}{\sffamily\bfseries Default\linebreak[4] Ctor} & User\linebreak[4] Declared & Defaulted & Defaulted &
+Defaulted & Defaulted & Defaulted \\ \hline
+% row 4
+\cellcolor[gray]{.9}{\sffamily\bfseries Destructor} &
+Defaulted & User\linebreak[4] Declared & Defaulted\tnote{a} & Defaulted\tnote{a} & Not\linebreak[4] Declared &
+Not\linebreak[4] Declared \tabularnewline \hline
+% row 5
+\cellcolor[gray]{.9}{\sffamily\bfseries Copy\linebreak[4] Ctor} & Not\linebreak[4] Declared & Defaulted &
+User\linebreak[4] Declared & Defaulted\tnote{a} & Not\linebreak[4] Declared & Not\linebreak[4] Declared \tabularnewline \hline
+% row 6
+\cellcolor[gray]{.9}{\sffamily\bfseries Copy\linebreak[4] Assignment} & Defaulted & Defaulted & Defaulted\tnote{a} & User\linebreak[4]
+Declared & Not\linebreak[4] Declared & Not\linebreak[4] Declared \tabularnewline \hline
+% row 7
+\cellcolor[gray]{.9}{\sffamily\bfseries Move\linebreak[4] Ctor} &
+Not\linebreak[4] Declared & Defaulted & Deleted & Deleted & User\linebreak[4] Declared & Not\linebreak[4]
+Declared \tabularnewline \hline
+% row 8
+\cellcolor[gray]{.9}{\sffamily\bfseries Move\linebreak[4] Assignment} & Defaulted & Defaulted & Deleted
+& Deleted & Not\linebreak[4] Declared & User\linebreak[4] Declared \tabularnewline
+\thickhline
+\end{tabular}
+} % end small
+\begin{tablenotes}{\footnotesize
+\item[a]{Deprecated behavior: compilers might warn upon reliance of this
+implicitly generated member \mbox{function}.}
+} % end footnotesize
+\end{tablenotes} % we end the table footnotes
+\end{threeparttable}
+\end{center}
+\end{table}
+
+As an example, explicitly declaring a \emph{copy-assignment} operator
+would result in the \emph{default constructor}, \emph{destructor}, and
+\emph{copy constructor} being defaulted and in the \emph{move}
+operations not being declared. If more than one \emph{special member
+function} is user declared (regardless of whether or how it is
+implemented), the remaining generated member functions are those in the
+intersection of the corresponding rows. For example, explicitly
+declaring both the destructor and the default constructor would still
+result in the copy constructor and the copy-assignment operator being
+defaulted and both move operations not being declared. Relying on the
+compiler-generated copy operations when the destructor is anything but
+defaulted is dubious; if correct, defaulting them explicitly makes both
+their existence and intended definition clear.
+
+
+

@@ -1,3 +1,4 @@
+\cleardoublepage
 
 \chapter[Safe Features]{Safe Features}\label{ch-safe}
 
@@ -20,3 +21,4 @@ Intro text should be here.
 %T%% for f in pub.outline.sectionfiles("safe_cpp14"):
 \input{${f}}
 %T%% endfor
+

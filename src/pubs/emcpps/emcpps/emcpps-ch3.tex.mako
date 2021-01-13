@@ -1,5 +1,6 @@
+\cleardoublepage
 
-\chapter[Conditionally Safe Features]{Conditionally Safe Features}\label{ch-conditional}
+\chapter[Unsafe Features]{Unsafe Features}\label{ch-unsafe}
 
 Intro text should be here.
 
@@ -10,7 +11,7 @@ Intro text should be here.
 % to add to the TOC at the section level
 \renewcommand{\cppxx}{C++11}
 
-%T%% for f in pub.outline.sectionfiles("conditionallysafe_cpp11"):
+%T%% for f in pub.outline.sectionfiles("unsafe_cpp11"):
 \input{${f}}
 %T%% endfor
 
@@ -21,6 +22,6 @@ Intro text should be here.
 % to add to the TOC at the section level
 \renewcommand{\cppxx}{C++14}
 
-%T%% for f in pub.outline.sectionfiles("conditionallysafe_cpp14"):
+%T%% for f in pub.outline.sectionfiles("unsafe_cpp14"):
 \input{${f}}
 %T%% endfor

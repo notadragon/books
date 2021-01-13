@@ -1,0 +1,371 @@
+\newpage
+\section[Explicit Conversions]{Explicit Conversion Operators\sectionmark{Explicit Conversions}}\label{explicit-conversion-operators}\sectionmark{Explicit Conversions}
+
+
+Ensure that a (user-defined) type is convertible to another type only in
+contexts where the conversion is made obvious in the code.
+
+\subsection[Description]{Description}\label{description-explicitconv}
+
+Though sometimes desirable, implicit conversions achieved via (user-defined) \emph{conversion
+functions} --- either (1) \textbf{converting constructors} (accepting a
+single argument) or (2) \textbf{conversion operators} --- can also be problematic, especially when the
+conversion involves a commonly used type (e.g., \texttt{int} or
+\texttt{double}){\cprotect\footnote{Use of a conversion operator to
+calculate distance from the origin in this unrealistically simple \texttt{Point}
+example is for didactic purposes only. In practice, we would typically
+use a named function for this purpose; see {\it\titleref{potential-pitfalls-explicitconv}: \titleref{sometimes-a-named-function-is-better}} on page~\pageref{sometimes-a-named-function-is-better}.}}:
+
+\begin{lstlisting}[language=C++]
+class Point  // implicitly convertible from an (ù{\codeincomments{int}}ù) or to a (ù{\codeincomments{double}}ù)
+{
+int d_x, d_y;
+
+public:
+Point(int x = 0, int y = 0);  // default, conversion, & value constructor
+// ...
+operator double() const;  // Return distance from origin as a (ù{\codeincomments{double}}ù).
+};
+\end{lstlisting}
+
+\noindent As ever, calling a function \texttt{g} that takes a \texttt{Point} but
+accidentally passing an \texttt{int} can lead to surprises:
+
+\begin{lstlisting}[language=C++]
+void g0(Point p);         // arbitrary function taking a (ù{\codeincomments{Point}}ù) object by value
+void g1(const Point& p);  // arbitrary function taking a (ù{\codeincomments{Point}}ù) by (ù{\codeincomments{const}}ù) reference
+
+void f1(int i)
+{
+g0(i);  // oops, called (ù{\codeincomments{g0}}ù) with (ù{\codeincomments{Point(i, 0)}}ù) by mistake
+g1(i);  // oops, called (ù{\codeincomments{g1}}ù) with (ù{\codeincomments{Point(i, 0)}}ù) by mistake
+}
+\end{lstlisting}
+
+\noindent This problem could have been solved even in C++98 by declaring the
+constructor to be \texttt{explicit}:
+
+\begin{lstlisting}[language=C++]
+explicit Point(int x = 0, int y = 0);  // explicit converting constructor
+\end{lstlisting}
+
+\noindent If the conversion is desired, it must now be specified explicitly:
+
+\begin{lstlisting}[language=C++]
+void f2(int i)
+{
+g0(i)          // error: could not convert (ù{\codeincomments{i}}ù) from (ù{\codeincomments{int}}ù) to (ù{\codeincomments{Point}}ù)
+g1(i);         // error: invalid initialization of reference type
+g0(Point(i));  // OK
+g1(Point(i));  // OK
+}
+\end{lstlisting}
+
+\noindent The companion problem stemming from an \emph{implicit conversion
+operator}, albeit less severe, remained:
+
+\begin{lstlisting}[language=C++]
+void h(double d);
+
+double f3(const P& p)
+{
+h(p);      // OK? Or maybe called (ù{\codeincomments{h}}ù) with a "hypotenuse" by mistake
+return p;  // OK? Or maybe this is a mistake too.
+}
+\end{lstlisting}
+
+\noindent As of C++11, we can now use the \textbf{\texttt{explicit} specifier}
+when declaring \textbf{conversion operators} (as well as
+\textbf{converting constructors}), thereby forcing the client to request
+conversion explicitly --- e.g., using \textbf{direct initialization} or
+\texttt{static\_cast}):
+
+\begin{lstlisting}[language=C++]
+struct S0 { explicit operator int(); };
+
+void g()
+{
+S0 s0;
+int i = s0;                    // error (copy initialization)
+double d = s0;                 // error (copy initialization)
+int j = static_cast<int>(s0);  // OK (static cast)
+if (s0) { }                    // error (contextual conversion to (ù{\codeincomments{bool}}ù))
+int k(s0);                     // OK (direct initialization)
+double e(s0);                  // error (direct initialization)
+}
+\end{lstlisting}
+
+\noindent In contrast, had the conversion operator above not been declared to be
+\texttt{explicit}, all conversions shown above would compile:
+
+\begin{lstlisting}[language=C++]
+struct S1 { /* implicit */ operator int(); };
+
+void f()
+{
+S1 s1;
+int i = s1;                    // OK (copy initialization)
+double d = s1;                 // OK (copy initialization)
+int j = static_cast<int>(s1);  // OK (static cast)
+if (s1) { }                    // OK (contextual conversion to (ù{\codeincomments{bool}}ù))
+int k(s1);                     // OK (direct initialization)
+double e(s1);                  // OK (direct initialization)
+}
+\end{lstlisting}
+
+\noindent Additionally, the notion of \textbf{contextual convertibility to
+\texttt{bool}}{\cprotect\footnote{Since the early days of C++, a common
+idiom to test for validity of an object has been to use it in a
+context where it can (implicitly) convert itself to a type whose value
+can be interpreted (contextually) as a boolean, with \texttt{true}
+implying validity (and \texttt{false} otherwise). Implicit conversion
+to \texttt{bool} (an integral type) was considered too dangerous,
+so the cumbersome \textbf{safe-\texttt{bool} idiom} was used instead,
+converting to a type that --- while contextually convertible to
+\texttt{bool} --- could not (by design) participate in any other
+operations. While making the conversion to \texttt{bool} (or
+\texttt{const}~\texttt{bool}) \texttt{explicit} solves the safety
+issue, the benefit of the idiom would be entirely lost if an explicit
+cast would have to be performed to test for validity. To address this,
+C++11 extends contextual conversion to \texttt{bool} for a given
+expression \texttt{E} to include an application of
+\texttt{static\_cast<const}~\texttt{volatile}~\texttt{bool>} to
+\texttt{E}, thus enabling explicit conversion to \texttt{bool} to be
+used in lieu of the (now deprecated) \textbf{safe-\texttt{bool} idiom}; see
+\textbf{{sharpe13}}.}} applicable to arguments of logical operations
+(e.g., \texttt{\&\&}, \texttt{||}, and \texttt{!}) and conditions of
+most control-flow constructs (e.g., \texttt{if}, \texttt{while}) was
+extended in C++11 to admit \emph{explicit} (user-defined) \texttt{bool}
+conversion operators (see {\it\titleref{use-cases-explicitconv}: \titleref{enabling-contextual-conversions-to-bool-as-a-test-for-validity}} on page~\pageref{enabling-contextual-conversions-to-bool-as-a-test-for-validity}):
+
+\begin{lstlisting}[language=C++]
+struct S2 { explicit operator bool(); };
+
+void h()
+{
+S2 s2;
+int i = s2;                    // error (copy initialization)
+double d = s2;                 // error (copy initialization)
+int j = static_cast<int>(s2);  // error (static cast)
+if (s2) { }                    // OK (contextual conversion to (ù{\codeincomments{bool}}ù))
+int k(s2);                     // error (direct initialization)
+double fd(s2);                 // error (direct initialization)
+}
+\end{lstlisting}
+
+\noindent Prior to C++11, essentially the same effect as having an \emph{explicit}
+\texttt{operator}~\texttt{bool()} member was achieved (albeit far less
+conveniently) via the \textbf{safe-\texttt{bool} idiom}.
+
+\subsection[Use Cases]{Use Cases}\label{use-cases-explicitconv}
+
+\subsubsection[Enabling contextual conversions to {\tt bool} as a test for validity]{Enabling contextual conversions to {\SubsubsecCode bool} as a test for validity}\label{enabling-contextual-conversions-to-bool-as-a-test-for-validity}
+
+Having a conventional test for validity that involves testing whether the object itself evaluates to \texttt{true} or \texttt{false} is an idiom that goes back to the
+origins of C++. The \texttt{<iostream>} library, for example, uses this
+idiom to determine if a given stream is valid:
+
+\begin{lstlisting}[language=C++]
+// C++03
+#include <iostream>  // (ù{\codeincomments{std::ostream}}ù)
+
+std::ostream& printTypeValue(std::ostream& stream, double value)
+{
+if (stream)  // relies on an implicit conversion to (ù{\codeincomments{bool}}ù)
+{
+stream << "double(" << value << ')';
+}
+else
+{
+// ... (handle stream failure)
+}
+
+return stream;
+}
+\end{lstlisting}
+
+\noindent Implementing the implicit conversion to \texttt{bool} was, however,
+problematic as the straight\-forward approach of using a
+\textbf{conversion operator} could easily allow accidental misuse to go
+undetected:
+
+\begin{lstlisting}[language=C++]
+class ostream
+{
+// ...
+
+/* implicit */ operator bool();  // hypothetical (bad) idea
+};
+
+int client(std::ostream& out)
+{
+// ...
+return out + 1;  // likely a latent runtime bug: always returns 1 or 2
+}
+\end{lstlisting}
+
+\noindent The classic workaround, the \textbf{safe-\texttt{bool} idiom},
+was to return some obscure pointer\linebreak[4] %%%%%
+type (e.g., \textbf{pointer to
+member}) that could not possibly be useful in any context other\linebreak[4] %%%%%
+than one in which \texttt{false} and a null pointer-to-member value (e.g.,\linebreak[4] %%%%%
+\texttt{static\_cast<(ostream*::operator}~\texttt{bool)()>(0)}) are
+treated equivalently.
+
+When implementing this idiom in a user-defined type ourselves, we need not go to such lengths to avoid inviting unintended use
+via an \emph{implicit} conversion to \texttt{bool}. As discussed in \textit{\titleref{description-explicitconv}} on page~\pageref{description-explicitconv}, a conversion operator to type
+\texttt{bool} that is declared \texttt{explicit} continues to act as if
+it were \emph{implicit} only in those places where we might want it to
+do so and nowhere else --- i.e., exactly those places that enable
+\textbf{contextual conversion to \texttt{bool}}.{\cprotect\footnote{Note that two
+consecutive \texttt{!} operators can be used to synthesize a
+\textbf{contextual conversion to \texttt{bool}} --- i.e., if \texttt{X} is an
+expression that is explicitly convertible to \texttt{bool}, then
+\texttt{(!!(X))} will be \texttt{(true)} or \texttt{(false)}
+accordingly.}}
+
+As a concrete example, consider a \texttt{ConnectionHandle} class that
+can be in either a \emph{valid} or \emph{invalid} state. For the user's
+convenience and consistency with other proxy types (e.g., raw pointers)
+that have a similar \emph{invalid} state, representing the invalid (or null) state via an explicit conversion to
+\texttt{bool} might be desirable:
+
+\begin{lstlisting}[language=C++]
+struct ConnectionHandle
+{
+std::size_t maxThroughput() const;
+// Return the maximum throughput (in bytes) of the connection.
+
+explicit operator bool() const;
+// Return (ù{\codeincomments{true}}ù) if the handle is valid and (ù{\codeincomments{false}}ù) otherwise.
+};
+\end{lstlisting}
+
+\noindent Instances of \texttt{ConnectionHandle} will convert to \texttt{bool}
+only where one might reasonably want them to do so, say, as the
+predicate of an \texttt{if} statement:
+
+\begin{lstlisting}[language=C++]
+int ping(const ConnectionHandle& handle)
+{
+if (handle)  // OK (contextual conversion to bool)
+{
+// ...
+return 0;  // success
+}
+
+std::cerr << "Invalid connection handle.\n";
+return -1;  // failure
+}
+\end{lstlisting}
+
+\noindent Having an \texttt{explicit} conversion operator prevents unwanted
+conversions to \texttt{bool} that might otherwise happen inadvertently:
+
+\begin{lstlisting}[language=C++]
+bool hasEnoughThroughput(const ClientConnection& connection,
+const ResourceHandle&   handle)
+{
+return connection.throughput() <= handle;  // Compilation error, thankfully
+//                                    ^~~~~~
+}
+\end{lstlisting}
+
+\noindent After the relational operator (\texttt{<=}) in the example above, the
+programmer mistakenly wrote \texttt{handle} instead of
+\mbox{\texttt{handle.maxThroughput()}}. Fortunately the conversion operation of\linebreak[4] %%%%%
+\mbox{\texttt{ResourceHandle}} was declared to be \texttt{explicit} and a
+compile-time error (thankfully) ensued; if the conversion had
+been \emph{implicit}, the example code above would have compiled, and,
+if executed, the very same source for the \mbox{\texttt{hasEnoughThroughput}}
+function would have silently exhibited well-defined but incorrect
+behavior.
+
+\subsection[Potential Pitfalls]{Potential Pitfalls}\label{potential-pitfalls-explicitconv}
+
+\subsubsection[Sometimes implicit conversion is indicated]{Sometimes implicit conversion is indicated}\label{sometimes-implicit-conversion-is-indicated}
+
+Implicit conversions to and from common arithmetic types, especially
+\texttt{int} are generally ill advised, given the likelihood of
+accidental misuse. However, sometimes \emph{implicit}
+conversion is exactly what is needed. Such cases occur frequently with
+wrapper and proxy types that might need to interoperate with a large
+legacy codebase. Consider, for example, an initial implementation of
+memory allocators in which each constructor takes, as an optional
+trailing argument, a pointer to an abstract memory resource that itself
+provides pure virtual \texttt{allocate} and \texttt{deallocate} member
+functions. Later, we decide to move in the direction of the
+\texttt{std::pmr} (C++17) standard and wrap those pointers in classes
+that support additional operations. Making such constructors on the
+wrapper explicit would force every client supplying an allocator to a
+container to rework their code (e.g., by using \texttt{static\_cast}).
+An implicit conversion in this case is further justified because the
+likelihood of accidental spontaneous conversion to an \texttt{Allocator}
+is all but nonexistent.
+
+The same sort of stability argument favors implicit conversion for proxy
+types intended to be dropped in and used in existing codebases. If, for
+example, we wanted to provide a proxy for a writeable
+\texttt{std::string} that, say, also logged, we might want an implicit
+conversion to a \texttt{std::string\&\&} (perhaps using
+{\intraref{{reference qualifiers}}}). In such cases, making the
+conversion explicit would entirely defeat the purpose of the proxy,
+which is to achieve new functionality with minimal effect on existing
+client code.
+
+\subsection[Sometimes a named function is better]{Sometimes a named function is better}\label{sometimes-a-named-function-is-better}
+
+Other kinds of overuses of even \emph{explicit} conversion
+operators exist. Like any user defined operator, when the operation being
+implemented is not somehow either canonical or ubiquitously idiomatic
+for that operator, expressing that operation by a
+named (i.e., non-operator) function is often better. Recall from
+{\it\titleref{description-explicitconv}} on page~\pageref{description-explicitconv} that we used a conversion operator of
+class \texttt{Point} to represent the distance from the origin. This
+example serves both to illustrate how conversion operators \emph{can} be
+used and also how they probably should \emph{not} be. Consider that (1)
+many mathematical operations on a 2-D integral point might return a \texttt{double} (e.g., \texttt{magnitude},
+\texttt{angle}) and (2) we might want to represent the same
+information but in different units (e.g., \texttt{angleInDegrees},
+\texttt{angleInRadians}).{\cprotect\footnote{Another valid design
+decision is returning an object of type \texttt{Angle} that captures
+the amplitude and provides named accessory to the different units
+(e.g., \texttt{asDegrees}, \texttt{asRadians}).}}
+
+Rather than employing any conversion \emph{operator} (\texttt{explicit}
+or otherwise), consider instead providing a named function, which (1) is
+automatically \texttt{explicit} and (2) affords both flexibility (in
+writing) and clarity (in reading) for a variety of domain-specific
+functions --- now and in the future --- that might well have had
+overlapping return types:
+
+\begin{lstlisting}[language=C++]
+class Point  // only explicitly convertible (and from only an (ù{\codeincomments{int}}ù))
+{
+int d_x, d_y;
+
+public:
+explicit Point(int x = 0, int y = 0);  // explicit converting constructor
+// ...
+double magnitude() const;  // Return distance from origin as a (ù{\codeincomments{double}}ù).
+};
+\end{lstlisting}
+
+\noindent Note that defining \textbf{nonprimitive functionality}, like
+\texttt{magnitude}, in a separate \emph{utility} at a higher level in the
+physical hierarchy might be better still.{\cprotect\footnote{For more on
+separating out \textbf{nonprimitive functionality}, see
+\textbf{{lakos20}}, sections 3.2.7--3.2.8, pp 529--552.}}
+
+\subsection[Annoyances]{Annoyances}\label{annoyances}
+
+None so far
+
+\subsection[See Also]{See Also}\label{see-also}
+
+None so far
+
+\subsection[Further Reading]{Further Reading}\label{further-reading}
+
+None so far
+

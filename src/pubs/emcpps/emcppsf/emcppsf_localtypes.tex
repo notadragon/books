@@ -1,0 +1,247 @@
+\newpage
+\section[Local Types as Template Arguments]{Local Types as Template Arguments}\label{local-types-as-template-arguments}
+
+Local (i.e., function-scope) and unnamed (e.g., \textit{lambda
+expression}, a.k.a. ``closure'') types can, as of C++11, be used (like all other
+types) as arguments to templates.
+
+\subsection[Description]{Description}\label{description}
+
+Historically, types without \textbf{linkage} (i.e., local and unnamed
+types) were forbidden as template arguments due to implementability
+concerns using the compiler technology available at that
+time.{\cprotect\footnote{TODO: Alisdair}} Modern C++ lifts this
+restriction, making use of local or unnamed types consistent with
+nonlocal, named ones, thereby obviating the need to gratuitously name
+or enlarge the scope of a type.
+
+\begin{lstlisting}[language=C++]
+template <typename T>
+void f(T) { };            // function template
+
+template <typename T>
+class C { };              // class template
+
+struct { } obj;           // object (ù{\codeincomments{obj}}ù) of unnamed C++ type
+
+void g()
+{
+struct S { };         // local type
+
+f(S());               // OK in C++11; was error in C++03
+f(obj);               // OK in C++11; was error in C++03
+
+C<S>             cs;  // OK in C++11; was error in C++03
+C<decltype(obj)> co;  // OK in C++11; was error in C++03
+}
+\end{lstlisting}
+
+\noindent Notice that we have used the (C++11) {\it \texttt{decltype}
+keyword} (see Section~\ref{decltype}, ``\titleref{decltype}") to extract the unnamed type of the object \texttt{obj}.
+
+These new relaxed rules for template arguments are essential to the
+ergonomics of {\it lambda expressions} (see Section~\ref{lambda}, ``\titleref{lambda}"), as such types are both
+unnamed and local in typical usage:
+
+\begin{lstlisting}[language=C++]
+#include <algorithm>  // (ù{\codeincomments{std::sort}}ù)
+
+struct Person { std::string d_name; };
+
+void sortByName(std::vector<Person>& people)
+{
+std::sort(people.begin(), people.end(),
+[](const Person& lhs, const Person& rhs)
+{
+return lhs.d_name < rhs.d_name;
+});
+}
+\end{lstlisting}
+
+\noindent In the example above, the lambda expression passed to the
+\texttt{std::sort} algorithm is a local unnamed type, and the algorithm
+itself is a function template.
+
+\subsection[Use Cases]{Use Cases}\label{use-cases}
+
+\subsubsection[Encapsulating a type within a function]{Encapsulating a type within a function}\label{encapsulating-a-type-within-a-function}
+
+Limiting the scope and visibility of an \textbf{entity} to the body of a
+function actively prevents its direct use, even when the function body
+is exposed widely --- say, as an \texttt{inline} function or function
+template defined within a header file.
+
+Consider, for instance, an implementation of Dijkstra's algorithm that
+uses a local type to keep track of metadata for each vertex in the input
+graph (i.e., the distance of a vertex from the source of the search and
+whether a vertex is included in the shortest path or not):
+
+\begin{lstlisting}[language=C++]
+// dijkstra.h
+
+inline int dijkstra(std::vector<Vertex>* path, const Graph& graph)
+{
+struct VertexMetadata         // implementation-specific helper class
+{
+int  d_distanceFromSource;
+bool d_inShortestPath;
+};
+
+std::vector<VertexMetadata> vertexMetadata(graph.numNodes());
+// standard vector of local (ù{\codeincomments{VertexMetadata}}ù) objects -- one per vertex
+
+// ... (body of algorithm)
+}
+\end{lstlisting}
+
+\noindent Defining \texttt{VertexMetadata} outside of the body of
+\texttt{dijkstra} --- e.g., to comply with C++03 restrictions --- would
+make that implementation-specific helper class directly accessible to
+anyone including the \texttt{dijkstra.h} header file. As Hyrum's
+law{\cprotect\footnote{``With a sufficient number
+of users of an API, it does not matter what you promise in the
+contract: all observable behaviors of your system will be depended on
+by somebody'': see \textbf{wight}.}} suggests, if the
+imple\-men\-tation-specific \texttt{VertexMetadata} detail is defined
+outside the function body, it is to be expected that some user somewhere
+will depend on it in its current form, making it problematic, if not
+impossible, to change.\footnote{The C++20 \emph{modules} facility enables the
+encapsulation of helper types (such as \texttt{metadata} in the \mbox{\texttt{dijkstra.h}} example on this page) used in
+the implementation of other locally defined types or functions, even
+when the helper types appear at namespace scope within the module.} Conversely, encapsulating
+the type within the function body avoids unintended use by clients,
+while improving human cognition by colocating the definition of the
+type with its sole purpose.{\cprotect\footnote{For a detailed
+discussion of malleable  versus stable software, see \textbf{{lakos20}},
+section 0.5, pp.~29-43.}}
+
+\subsubsection[Instantiating templates with local function objects as type arguments]{Instantiating templates with local function objects as type arguments}\label{instantiating-templates-with-local-function-objects-as-type-arguments}
+
+Suppose that we have a program that makes wide use of an aggregate data
+type, \texttt{City}:
+
+\begin{lstlisting}[language=C++]
+struct City
+{
+int         d_uniqueId;
+std::string d_name;
+};
+\end{lstlisting}
+
+\noindent Consider now the task of writing a function to print unique elements of
+an\linebreak[4] \texttt{std::vector<City>}, ordered by name:
+
+\begin{lstlisting}[language=C++]
+void printUniqueCitiesOrderedByName(const std::vector<City>& cities)
+{
+struct OrderByName
+{
+bool operator()(const City& lhs, const City& rhs) const
+{
+return lhs.d_name < rhs.d_name;
+// increasing order (subject to change)
+}
+};
+
+const std::set<City, OrderByName> tmp(cities.begin(), cities.end());
+
+std::copy(tmp.begin(), tmp.end(),
+std::ostream_iterator<City>(std::cout, '\n'));
+}
+\end{lstlisting}
+
+\noindent Absent any countervailing reasons to make the \texttt{OrderByName}
+function object more generally available, rendering its definition
+alongside the one place where it is used --- i.e., directly within
+function scope --- again enforces and readily communicates its tightly
+encapsulated (and therefore \emph{malleable}) status.
+
+\subsubsection[Configuring algorithms via lambda expressions]{Configuring algorithms via lambda expressions}\label{configuring-algorithms-via-lambda-expressions}
+
+Suppose we are representing a 3D environment using a \emph{scene
+graph}{\cprotect\footnote{A \emph{scene graph} data structure, commonly
+used in computer games and 3D-modeling software, represents the
+logical and spatial hierarchy of objects in a scene.}} and managing
+the graph's nodes via an \texttt{std::vector} of \texttt{SceneNode}
+objects. Our \texttt{SceneNode} class supports a variety of
+\texttt{const} member functions used to query its status (e.g.,
+\texttt{isDirty} and \texttt{isNew}). Our task is to implement a
+\textbf{predicate function}, \texttt{mustRecalculateGeometry}, that
+returns \texttt{true} if and only if at least one of the nodes is either
+``dirty'' or ``new.''
+
+These days, we might reasonably elect to implement this functionality
+using the (C++11) standard algorithm
+\texttt{std::any\_of}{\cprotect\footnote{\textbf{cppreferencea}}}:
+
+\begin{lstlisting}[language=C++]
+template <typename InputIterator, typename UnaryPredicate>
+bool any_of(InputIterator first, InputIterator last, UnaryPredicate pred);
+// Return (ù{\codeincomments{true}}ù) if any of the elements in the range satisfies (ù{\codeincomments{pred}}ù).
+\end{lstlisting}
+
+\noindent Prior to C++11, however, use of a function template, such as
+\texttt{any\_of}, would have required a separate function or
+function object (defined \emph{outside} of the scope of the function):
+
+\begin{lstlisting}[language=C++]
+namespace {
+
+struct IsNodeDirtyOrNew
+{
+bool operator()(const SceneNode& node) const
+{
+return node.isDirty() || node.isNew();
+}
+};
+
+}  // close unnamed namespace
+
+bool mustRecalculateGeometry(const std::vector<SceneNode>& nodes)
+{
+return std::any_of(nodes.begin(), nodes.end(), IsNodeDirtyOrNew());
+}
+\end{lstlisting}
+
+\noindent In C++11, not only can we embed the function object within the scope of
+the function but, by using a lambda expression, we can
+remove much of the boilerplate, including the enclosing \texttt{struct}:
+
+\begin{lstlisting}[language=C++]
+bool mustRecalculateGeometry(const std::vector<SceneNode>& nodes)
+{
+return std::any_of(nodes.begin(),             // start of range
+nodes.end(),               // end of range
+[](const SceneNode& node)  // lambda expression
+{
+return node.isDirty() || node.isNew();
+}
+);
+}
+\end{lstlisting}
+
+\noindent By creating a \textbf{closure} of unnamed type via a lambda
+expression, unnecessary boilerplate, excessive scope, and even local
+symbol visibility are avoided.
+
+\subsection[Potential Pitfalls]{Potential Pitfalls}\label{potential-pitfalls}
+
+None so far
+
+\subsection[Annoyances]{Annoyances}\label{annoyances}
+
+None so far
+
+\subsection[See Also]{See Also}\label{see-also}
+
+\begin{itemize}
+\item{Section~\ref{lambda}, ``\titleref{lambda}" — Conditionally safe C++11 feature providing strong practical motivation for the relaxations discussed here}
+\item{Section~\ref{decltype}, ``\titleref{decltype}" — Safe C++11 feature that allows developers to query the type of any expression or entity, including objects with unnamed types}
+\end{itemize}
+
+\subsection[Further Reading]{Further Reading}\label{further-reading}
+
+None so far
+
+
+

@@ -1,0 +1,1113 @@
+\newpage
+\section[Inheriting Constructors]{Inheriting Constructors}\label{ctorinheriting}\label{inheriting-constructors}
+
+
+The term \textit{inheriting constructors} refers to the use of a
+\textbf{{\ttfamily\bfseries using}-declaration} to expose nearly all of the
+constructors of a base class in the scope of a derived class.
+
+\subsection[Description]{Description}\label{description-inheritingctor}
+
+In a class definition, a \textbf{{\ttfamily\bfseries using} declaration} naming a
+base class's constructor results in the derived class ``inheriting'' all
+of the nominated base class's constructors, except for \emph{copy} and
+\emph{move} constructors. Just like other \texttt{using} declarations, the nominated base class's
+constructors will be searched when no matching constructor is found in
+the derived class. When a base class constructor is selected in this way,
+that constructor will be used to construct the base class and the
+remaining bases and data members of the subclass will be initialized as
+if by the default constructor (e.g., applying default initializers;
+see ``\titleref{Default-Member-Initializers}" on page~\pageref{Default-Member-Initializers}).
+
+\begin{lstlisting}[language=C++]
+struct B0
+{
+B0() = default;      // public, default constructor
+B0(int)         { }  // public, one argument (implicit) value constructor
+B0(int, int)    { }  // public, two argument value constructor
+
+private:
+B0(const char*) { }  // private, one argument constructor
+};
+
+struct D0 : B0
+{
+using B0::B0;  // (ù{\codeincomments{using}}ù) declaration
+D0(double d);  // suppress implicit default constructor
+};
+
+D0 t(1);     // OK, inherited from (ù{\codeincomments{B0::B0(int)}}ù)
+D0 u(2, 3);  // OK, inherited from (ù{\codeincomments{B0::B0(int, int)}}ù)
+D0 v("hi");  // Error: Base constructor is declared (ù{\codeincomments{private}}ù).
+\end{lstlisting}
+
+\noindent The only constructors that are explicitly \emph{not} inheritable by the
+derived class are the (potentially compiler-generated) \emph{copy} and
+\emph{move} constructors{\cprotect\footnote{Note that we use
+braced initialization (see ``\titleref{bracedinit}" on page~\pageref{bracedinit}) in \texttt{D0}~\texttt{x(B0{});}
+to ensure that a variable \texttt{x} of type \texttt{D0} is declared.
+\texttt{D0}~\texttt{x(B0());} would instead be interpreted as a
+declaration of a function \texttt{x} returning \texttt{D0} and
+accepting a pointer to a nullary function returning \texttt{B0}, which
+is referred to as the \textbf{most vexing parse}.}}:
+
+\begin{lstlisting}[language=C++]
+#include <utility>  // (ù{\codeincomments{std::move}}ù)
+
+B0 b1(1);              // OK, base-class object can be created.
+B0 b2(2, 3);           // OK, base-class object can be created.
+B0 b3(b1);             // OK, base-class object can be copied (from *lvalue*).
+B0 b4(std::move(b1));  // OK, base-class object can be moved (from *rvalue).
+
+D0 w(b1);    // Error: Base-class copy constructor is not inherited.
+D0 v;        // OK, base-class default constructor is inherited.
+D0 x(B0{});  // Error: Base-class move constructor is not inherited.
+
+D0 y(B0(4));  // Error: Base-class move constructor is not inherited.
+D0 z(t);      // OK, uses compiler-generated (ù{\codeincomments{D0::D0(const D0\&)}}ù)
+D0 j(D0(5));  // OK, uses compiler-generated (ù{\codeincomments{DO::D0(D\&\&)}}ù)
+\end{lstlisting}
+
+\noindent The constructors inherited by the derived class have the same effect on
+whether the compiler implicitly generates special member functions as
+explicitly implemented ones would. For example, \texttt{D0}'s default
+constructor would be implicitly \emph{deleted} (see ``\titleref{deleted-functions}" on page~\pageref{deleted-functions}) if
+\texttt{B0} doesn't have a default constructor. Note that since the copy
+and move constructors are \emph{not} inherited, their presence in the
+base class wouldn't suppress implicit generation of copy and move
+assignment in the derived class. For instance, \texttt{D0}'s implicitly
+generated assignment operators obliviously \textbf{hide} their
+counterparts in \texttt{B0}:
+
+\begin{lstlisting}[language=C++]
+void f()
+{
+B0 b(0), bb(0);  // Create destination and source (ù{\codeincomments{B0}}ù) objects.
+D0 d(0), dd(0);  //   "         "       "    "    (ù{\codeincomments{D0}}ù)    ".
+
+b = bb;          // OK, assign base from lvalue base.
+b = B0(0);       // OK,   "       "   "  rvalue   "
+
+d = bb;          // Error: (ù{\codeincomments{B0::operator=}}ù) is hidden by (ù{\codeincomments{D0::operator=}}ù).
+d = B0(0);       // Error:       "         "    "     "        "
+
+d.B0::operator=(bb);     // OK, explicit slicing is still possible.
+d.B0::operator=(B0(0));  // OK,    "         "      "   "      "
+
+d = dd;          // OK, assign derived from lvalue derived.
+d = D0(0);       // OK,   "        "     "  rvalue    "
+}
+\end{lstlisting}
+
+\noindent Note that, when inheriting constructors, private constructors in the
+base class are accessed as private constructors of that base class and
+are subject to the same access controls; see \textit{\titleref{annoyances-inheritingctor}: \titleref{access-levels-of-inherited-constructors-are-same-as-in-base-class}} on page~\pageref{access-levels-of-inherited-constructors-are-same-as-in-base-class}.
+
+Inheriting constructors having the same \textbf{signature} from multiple
+base classes lead to ambiguity errors:
+
+\begin{lstlisting}[language=C++]
+struct B1A { B1A(int); };
+struct B1B { B1B(int); };
+
+struct D1 : B1A, B1B
+{
+using B1A::B1A;
+using B1B::B1B;
+};
+
+D1 d1(0);  // Error: Call of overloaded (ù{\codeincomments{D1(int)}}ù) is ambiguous.
+\end{lstlisting}
+
+\noindent Each inherited constructor shares the same characteristics as the
+corresponding one in the nominated base class's constructors and then
+delegates to it. This means the \textbf{access specifiers}, the
+\texttt{explicit} specifier, the \texttt{constexpr} specifier, the
+default arguments, and the exception specification are also preserved by
+constructor inheritance; see ``\titleref{noexcept}" on page~\pageref{noexcept} and ``\titleref{constexprfunc}" on page~\pageref{constexprfunc}. For template
+constructors, the template parameter list and the default template
+arguments are preserved as well:
+
+\begin{lstlisting}[language=C++]
+struct B2
+{
+template <typename T = int>
+explicit B2(T) { }
+};
+
+struct D2 : B2 { using B2::B2; };
+\end{lstlisting}
+
+\noindent The declaration \texttt{using}~\texttt{B2::B2} above behaves as if a
+constructor template that delegates to its nominated base class's
+template was provided in \texttt{D2}:
+
+\begin{lstlisting}[language=C++]
+// pseudocode
+struct D2 : B2
+{
+template <typename T = int>
+explicit D2(T i) : B2(i) { }
+}
+\end{lstlisting}
+
+\noindent When deriving from a base class in which inheriting most
+(but not all) of its constructors is desirable, suppressing
+inheritance of one or more of them is possible by providing constructors in the
+derived class having the same signature as the ones that would be
+inherited:
+
+\begin{lstlisting}[language=C++]
+struct B2
+{
+B2()         { std::cout << "B2()\n"; }
+B2(int)      { std::cout << "B2(int)\n"; }
+B2(int, int) { std::cout << "B2(int, int)\n"; }
+};
+
+struct D2 : B2
+{
+using B2::B2;
+D2(int) { std::cout << "D2(int)\n"; }
+};
+
+D2 d;        // prints (ù{\codeincomments{"B2()"}}ù)
+D2 e(0);     // Prints (ù{\codeincomments{"D2(int)"}}ù) --- The derived constructor is invoked.
+D2 f(0, 0);  // prints (ù{\codeincomments{"B2(int, int)"}}ù)
+\end{lstlisting}
+
+\noindent In other words, we can suppress what would otherwise be an inherited
+constructor from a nominated base class by simply declaring a
+replacement with the same signature in the derived class. We can then
+choose to either implement it ourselves, default it (see ``\titleref{defaulted-special-member-functions}" on page~\pageref{defaulted-special-member-functions}), or \texttt{delete} it (see ``\titleref{deleted-functions}" on page~\pageref{deleted-functions}).
+
+If we have chosen to inherit the constructors from multiple
+base classes, we can disambiguate conflicts by declaring the offending
+constructor(s) explicitly in the derived class and then delegating to
+the base classes if and as appropriate:
+
+\begin{lstlisting}[language=C++]
+struct B1A { B1A(int); };  // Here we have two bases classes, each of which
+struct B1B { B1B(int); };  // provides a conversion constructor from an (ù{\codeincomments{int}}ù).
+
+struct D1 : B1A, B1B
+{
+using B1A::B1A;  // Inherit the (ù{\codeincomments{int}}ù) constructor from base class (ù{\codeincomments{B1A}}ù).
+using B1B::B1B;  // Inherit the (ù{\codeincomments{int}}ù) constructor from base class (ù{\codeincomments{B1B}}ù).
+
+D1(int i) : B1A(i), B1B(i) { }  // Declare the (ù{\codeincomments{int}}ù) conversion constructor
+};                                  // explicitly, and then delegate to bases.
+
+D1 d1(0);  // OK, calls (ù{\codeincomments{D1(int)}}ù)
+\end{lstlisting}
+
+\noindent Lastly, inheriting constructors from a \textbf{dependent
+type} affords a capability over C++03 that is more than just convenience
+and avoidance of boilerplate code.{\cprotect\footnote{A decidedly more
+complex alternative affording a different set of tradeoffs would
+involve variadic template constructors (see ``\titleref{variadictemplate}" on page~\pageref{variadictemplate}) having
+forwarding references (see ``\titleref{forwardingref}" on page~\pageref{forwardingref}) as parameters. In this
+alternative approach, all of the constructors from the
+\mbox{\texttt{public}}, \mbox{\texttt{protected}}, and \mbox{\texttt{private}} regions of the
+bases class would now appear under the same access specifier --- i.e.,
+the one in which the perfectly forwarding constructor is declared.
+What's more, this approach would not retain other constructor
+characteristics, such as \texttt{explicit}, \texttt{noexcept},
+\texttt{constexpr}, and so on. The forwarding can, however, be restricted to
+inheriting just the \texttt{public} constructors (without
+characteristics) by constraining on \texttt{std::is\_constructible}
+using \textbf{SFINAE}; see \textit{\titleref{annoyances-inheritingctor}: \titleref{access-levels-of-inherited-constructors-are-same-as-in-base-class}} on page~\pageref{access-levels-of-inherited-constructors-are-same-as-in-base-class}.}} In all of the example code in \textit{\titleref{description-inheritingctor}} thus far, we know how to spell the
+base-class constructor; we are simply automating some drudge work. In
+the case of a \emph{dependent} base class, however, we do \emph{not}
+know how to spell the constructors, so we \emph{must} rely on
+\textbf{inheriting constructors} if that is the forwarding semantic we
+seek:
+
+\begin{lstlisting}[language=C++]
+template <class T>
+struct S : T  // The base type, (ù{\codeincomments{T}}ù), is a *dependent type*.
+{
+using T::T;  // inheriting constructors (generically) from a dependent type
+};
+
+#include <string>
+#include <vector>
+
+S<std::string>        ss("hello");     // OK, uses constructor from base
+S<std::vector<char>> svc("goodbye");  // Error: no suitable constructor in base
+\end{lstlisting}
+
+\noindent In this example, we created a class template, \texttt{S}, that
+derived publicly from its template argument, \texttt{T}. Then, when
+creating an object of type \texttt{S} parameterized by
+\texttt{std::string}, we were able to pass it a string literal via
+the inherited \texttt{std::string} constructor overloaded on a
+\texttt{const}~\texttt{char*}. Notice, however, that no such constructor
+is available in \texttt{std::vector}; hence, attempting to create the
+derived class from a literal string results in a compile-time error. See \textit{\titleref{use-cases-ctorinheriting}: \titleref{incorporating-reusable-functionality-via-a-mix-in-class}} on page~\pageref{incorporating-reusable-functionality-via-a-mix-in-class}.
+
+\subsection[Use Cases]{Use Cases}\label{use-cases-ctorinheriting}
+
+\subsubsection[Abstract use case]{Abstract use case}\label{abstract-use-case}
+
+Use of this form of \texttt{using} declaration to inherit a nominated
+base class's constructors --- essentially verbatim --- suggests that one
+or more of those constructors is sufficient to initialize the
+\emph{entire} derived-class object to a valid useful state. Typically,
+such will pertain only when the derived class adds no member data of its
+own. While additional derived-class member data could possibly
+default, this state must be \emph{orthogonal} to
+any modifiable state initialized in the base class, as such state is
+subject to independent change via \textbf{slicing}, which might in turn
+invalidate \textbf{object invariants}. Derived-class data will need either
+to default or to have its value set using member
+initializers (see ``\titleref{Default-Member-Initializers}" on page~\pageref{Default-Member-Initializers}). Hence, most typical use cases will involve wrapping an
+existing class by deriving from it (either publicly or privately),
+adding only defaulted data members having orthogonal values, and then
+adjusting the derived class's behavior via \textbf{overriding} its virtual
+or \textbf{hiding} its and non-virtual member functions.
+
+\subsubsection[Avoiding boilerplate code when employing structural inheritance]{Avoiding boilerplate code when employing structural inheritance}\label{avoiding-boilerplate-code-code-when-employing-structural-inheritance}
+
+A key indication for the use of inheriting constructors is that the
+derived class addresses only auxiliary or optional, rather than required
+or necessary, functionality to its self-sufficient base class. As an
+interesting, albeit mostly pedagogical,{\cprotect\footnote{Although this
+example might be compelling, it suffers from inherent deficiencies
+making it insufficient for general use in practice: Passing the
+derived class to a function --- whether by value or reference -- will
+strip it of its auxiliary functionality. The best-known solution --- a
+C++2x language-based contract-checking facility --- is exactly what's
+needed ubiquitously. We plan to cover this topic in \textbf{lakos23}.}} example, suppose we
+want to provide a proxy for a \texttt{std::vector} that performs
+explicit checking of indices supplied to its index operator:
+
+\begin{lstlisting}[language=C++]
+#include <vector>
+#include <cassert>
+
+template <typename T>
+struct CheckedVector : std::vector<T>
+{
+using std::vector<T>::vector;      // Inherit (ù{\codeincomments{std::vector}}ù)'s constructors.
+
+T& operator[](std::size_t index)   // Hide (ù{\codeincomments{std::vector}}ù)'s index operator.
+{
+assert(index < std::vector<T>::size());
+return std::vector<T>::operator[](index);
+}
+
+const T& operator[](std::size_t index) const  // Hide (ù{\codeincomments{const}}ù) index operator.
+{
+assert(index < std::vector<T>::size());
+return std::vector<T>::operator[](index);
+}
+};
+\end{lstlisting}
+
+\noindent In the example above, inheriting constructors allowed us to use public
+(structural) inheritance to readily create a distinct new type having
+all of the functionality of its base type except for a couple of
+functions where we chose to augment the original behavior.
+
+\subsubsection[Avoiding boilerplate code when employing implementation inheritance]{Avoiding boilerplate code when employing implementation inheritance}\label{avoiding-boilerplate-code-when-employing-implementation-inheritance}
+
+Sometimes it can be cost effective to adapt \textbf{concrete class}
+having virtual functions{\cprotect\footnote{Useful design patterns
+exist where a \textbf{partial implementation} class, derived from a
+pure abstract interface (a.k.a. a \textbf{protocol}), contains data,
+constructors, and pure virtual functions; see
+\textbf{lakos2a}, section~4.7.}} to a specialized purpose
+using inheritance.{\cprotect\footnote{Such inheritance, known as
+\textbf{implementation inheritance} is decidedly distinct from pure
+\textbf{interface inheritance}, which is often the preferred design
+pattern in practice; see \textbf{{lakos2b}}, section~4.6.}}
+As an example, consider a \textbf{concrete} base class,
+\texttt{NetworkDataStream}, that allows overriding its virtual functions
+for processing a stream of data from an expanding variety of arbitrary
+sources over the network:
+
+\begin{lstlisting}[language=C++]
+class NetworkDataStream
+{
+private:
+// ...                   (member data)
+
+public:
+explicit NetworkDataStream(TCPConnection* tcpConnection);
+explicit NetworkDataStream(UDPConnection* udpConnection);
+explicit NetworkDataStream(RawDataStreamHandle* rawDataStreamHandle);
+
+virtual ~NetworkDataStream();
+
+virtual void onPacketReceived(DataPacket& dataPacket) = 0;
+// Derived classes must override this method.
+\end{lstlisting}
+
+\noindent The concrete class above now provides three constructors (with more
+under development) that can be used assuming no per-packet processing is
+required. Now, imagine the need for logging information about received
+packets (e.g., for auditing purposes). Inheriting constructors make
+deriving from \texttt{NetworkDataStream} and overriding (see
+``\titleref{override}" on page~\pageref{override})
+\texttt{onPacketReceived(DataPacket\&)} more convenient --- i.e.,
+without having to reimplement each of the constructors, which are
+anticipated to increase in number over time:
+
+\begin{lstlisting}[language=C++]
+class LoggedNetworkDataStream : public NetworkDataStream
+{
+public:
+using NetworkDataStream::NetworkDataStream;
+
+void onPacketReceived(DataPacket& dataPacket) override
+{
+LOG_TRACE << "Received packet " << dataPacket;    // local log facility
+NetworkDataStream::onPacketReceived(dataPacket);  // Delegate to base.
+}
+};
+\end{lstlisting}
+
+
+\subsubsection[Implementing a strong {\tt typedef}]{Implementing a strong {\SubsubsecCode typedef}}\label{implementing-a-strong-typedef}
+
+Classic \texttt{typedef} declarations --- just like C++11
+\texttt{using} declarations (see ``\titleref{alias-declarations-and-alias-templates}" on page~\pageref{alias-declarations-and-alias-templates}) --- are just synonyms; they
+offer absolutely no type safety. A commonly desired capability is to
+provide an alias to an existing type \texttt{T} that is uniquely
+interoperable with itself, explicitly convertible from \texttt{T}, but
+not implicitly convertible from \texttt{T}. This somewhat \emph{more}
+``type-safe'' form of alias is sometimes referred to as a \textbf{strong
+\texttt{typedef}}.{\cprotect\footnote{A so-called \textbf{strong
+\texttt{typedef}} is similar to a classic, C-style enumeration in
+that it is (1) its own type and (2) implicitly convertible to its
+base type (which for enumerators corresponds to its
+\textbf{underlying type}; see ``\titleref{explicit-enumeration-underlying-type}" on page~\pageref{explicit-enumeration-underlying-type}). Unlike a classic
+\texttt{enum}, however, a typical implementation of a \textbf{strong
+\texttt{typedef}} allows only for explicit conversion from its base
+type. An analogy to the more strongly typed
+\texttt{enum}~\texttt{class} (see ``\titleref{enumclass}" on page~\pageref{enumclass}) would suppress conversion
+in either direction, e.g., via private inheritance and then
+\texttt{explicit} conversion constructors and
+\texttt{explicit} conversion operators (see ``\titleref{explicit-conversion-operators}" on page~\pageref{explicit-conversion-operators}).}}
+
+As a practical example, suppose we are exposing, to a fairly wide and varied audience, a class,
+\texttt{PatientInfo}, that associates two \texttt{Date} objects to a
+given hospital patient:
+
+\begin{lstlisting}[language=C++]
+class Date
+{
+// ...
+
+public:
+Date(int year, int month, int day);
+
+// ...
+};
+
+class PatientInfo
+{
+private:
+Date d_birthday;
+Date d_appointment;
+
+public:
+PatientInfo(Date birthday, Date appointment);
+// Please pass the birthday as the first date and the appointment as
+// the second one!
+};
+\end{lstlisting}
+
+\noindent For the sake of argument, imagine that our users are not as assiduous as
+they should be in reading documentation to know which constructor
+argument is which:
+
+\begin{lstlisting}[language=C++]
+PatientInfo client1(Date birthday, Date appointment)
+{
+return PatientInfo(birthday, appointment);  // OK
+}
+
+int client2(PatientInfo* result, Date birthday, Date appointment)
+{
+*result = PatientInfo(appointment, birthday);  // Oops! wrong order
+return 0;
+}
+\end{lstlisting}
+
+\noindent Now suppose that we continue to get complaints, from folks like
+\texttt{client2} in the example above, that our code doesn't work. What can we
+do?{\cprotect\footnote{Although this example is presented lightheartedly, misuse by clients is a perennial problem in large-scale
+software organizations. Choosing the same type for both arguments
+might well be the right choice in some environments but not in others.
+We are not advocating use of this technique; we are merely
+acknowledging that it exists.}}
+
+One way is to force clients to make a conscious and explicit decision in
+their own source code as to which \texttt{Date} is the birthday and
+which is the appointment. Employing a \textbf{strong \texttt{typedef}}
+can help us to achieve this goal. Inheriting constructors provide a
+concise way to define a \textbf{strong \texttt{typedef}}; for
+the example above, they can be used to define two new types to
+represent, uniquely, a birthday and an appointment date:
+
+\begin{lstlisting}[language=C++]
+struct Birthday : Date  // somewhat type-safe alias for a (ù{\codeincomments{Date}}ù)
+{
+using Date::Date;  // inherit (ù{\codeincomments{Date}}ù)'s three integer ctor
+explicit Birthday(Date d) : Date(d) { }  // (ù{\codeincomments{explicit}}ù) conversion from (ù{\codeincomments{Date}}ù)
+};
+
+struct Appointment : Date  // somewhat type-safe alias for a (ù{\codeincomments{Date}}ù)
+{
+using Date::Date;  // inherit (ù{\codeincomments{Date}}ù)'s three integer ctor
+explicit Appointment(Date d) : Date(d) { }  // (ù{\codeincomments{explicit}}ù) conv. from (ù{\codeincomments{Date}}ù)
+};
+\end{lstlisting}
+
+\noindent The \texttt{Birthday} and \texttt{Appointment} types expose the same
+interface of \texttt{Date}, yet, given our inheritance-based design,
+\texttt{Date} is not implicitly convertible to either. Most importantly,
+however, these two new types are not implicitly convertible to each
+other:
+
+\begin{lstlisting}[language=C++]
+Birthday b0(1994, 10, 4);  // OK, thanks to inheriting constructors
+Date d0 = b0;              // OK, thanks to public inheritance
+Birthday b1 = d0;          // error: no implicit conversion from (ù{\codeincomments{Date}}ù)
+Appointment a0;            // Error: (ù{\codeincomments{Appointment}}ù) has no default ctor.
+Appointment a1 = b0;       // error: no implicit conversion from (ù{\codeincomments{Birthday}}ù)
+Birthday n2(d0);           // OK, thanks to an (ù{\codeincomments{explicit}}ù) constructor in (ù{\codeincomments{Birthday}}ù)
+Birthday b3(a0);           // OK, an (ù{\codeincomments{Appointment}}ù) (unfortunately) is a (ù{\codeincomments{Date}}ù).
+\end{lstlisting}
+
+\noindent We can now reimagine a \texttt{PatientInfo} class that exploits this
+newfound (albeit artificially manufactured{\cprotect\footnote{Replicating
+types that have identical behavior in the name of type safety can run
+afoul of interoperability. Distinct types that are otherwise
+physically similar are often most appropriate when their respective
+behaviors are inherently distinct and unlikely to interact in practice
+(e.g., a \mbox{\texttt{CartesianPoint}} and a \mbox{\texttt{RationalNumber}},
+each implemented as having two integral data members); see
+\textbf{{lakos2a}}, section~4.4.}}) type-safety:
+
+\begin{lstlisting}[language=C++]
+class PatientInfo
+{
+private:
+Birthday d_birthday;
+Appointment d_appointment;
+
+public:
+PatientInfo(Birthday birthday, Appointment appointment);
+// Why should I bother to write documentation you won't read anyway!?
+};
+\end{lstlisting}
+
+\noindent Now our clients have no choice but to make their intentions clear at the
+call site:
+
+\begin{lstlisting}[language=C++]
+PatientInfo client0(Date birthday, Date appointment)
+{
+return PatientInfo(birthday, appointment);  // Sorry, doesn't compile.
+}
+
+int client1(PatientInfo* result, Date birthday, Date appointment)
+{
+*result = PatientInfo(appointment, birthday);  // Nope! Doesn't compile.
+return 0;
+}
+
+PatientInfo client3(Date birthday, Date appointment)
+{
+return PatientInfo(Birthday(birthday), Appointment(appointment));  // OK
+}
+
+int client4(PatientInfo* result, Date birthday, Date appointment)
+{
+Birthday b(birthday);
+Appointment a(appointment)
+*result = PatientInfo(b, a);  // OK
+}
+\end{lstlisting}
+
+\noindent This example works because the \textbf{value constructor} takes three
+arguments and cannot be invoked as part of an implicit conversion
+sequence; see \textit{\titleref{potential-pitfalls-ctorinheriting}: \titleref{beware-of-inheriting-implicit-constructors}} on page~\pageref{beware-of-inheriting-implicit-constructors}. Note that, in an ideal
+world where thorough unit testing is ubiquitous, such machinations would
+most likely be supererogatory.
+
+\subsubsection[Incorporating reusable functionality via a mix-in]{Incorporating reusable functionality via a mix-in}\label{incorporating-reusable-functionality-via-a-mix-in-class}
+
+Some classes are designed to generically enhance the behavior of a class
+just by inheriting from it; such classes are sometimes referred to as
+\emph{mix-ins}. If we wish to adapt a class to support the additional
+behavior of the mix-in, with no other change to its behavior, we can use
+simple \textbf{structural inheritance} (e.g., to preserve reference
+compatibility through function calls). To preserve the public interface,
+however, we will need it to inherit the constructors as well.
+
+Consider, for example, a simple class to track the total number of
+objects created:
+
+\begin{lstlisting}[language=C++]
+template <typename T>
+struct CounterImpl  // mix-in used to augment implementation of arbitrary type
+{
+static int s_constructed;  // count of the number of (ù{\codeincomments{T}}ù) objects constructed
+
+CounterImpl()                   { ++s_constructed; }
+CounterImpl(const CounterImpl&) { ++s_constructed; }
+};
+
+template <typename T>
+CounterImpl<T>::s_constructed;  // required member definition
+\end{lstlisting}
+
+\noindent The class template \texttt{CounterImpl}, in the example above, counts the number of
+times an object of type \texttt{T} was constructed during a run of the
+program. We can then write a generic adapter, \texttt{Counted}, to
+facilitate use of \texttt{CounterImpl} as a \emph{mix-in}:
+
+\begin{lstlisting}[language=C++]
+template <class T>
+struct Counted : T, CounterImpl<T>
+{
+using T::T;
+};
+\end{lstlisting}
+
+\noindent Note that the \texttt{Counted} adaptor class inherits all of the
+constructors of the \emph{dependent} class, \texttt{T}, that it wraps,
+without its having to know what those constructors are:
+
+\begin{lstlisting}[language=C++]
+#include <string>   // (ù{\codeincomments{std::string}}ù)
+#include <vector>   // (ù{\codeincomments{std::vector}}ù)
+#include "myfoo.h"  // (ù{\codeincomments{MyFoo}}ù)
+
+Counted<std::string>        cs;  // Construct a counted string.
+Counted<std::vector<char>> cvc;  // Construct a counted vector of (ù{\codeincomments{char}}ù).
+Counted<MyFoo>             cmf;  // Construct a counted (ù{\codeincomments{MyFoo}}ù) object.
+\end{lstlisting}
+
+\noindent While inheriting constructors are a convenience in nongeneric
+programming, they can be an essential tool for generic idioms.
+
+\subsection[Potential Pitfalls]{Potential Pitfalls}\label{potential-pitfalls-ctorinheriting}
+
+\subsubsection[Newly introduced constructors in the base class can silently alter program behavior]{Newly introduced constructors in the base class can silently alter\\[0.5ex] program behavior}\label{newly-introduced-constructors-in-the-base-class-can-silently-alter-program-behavior}
+
+The introduction of a new constructor in a base class might silently
+change a program's run-time behavior if that constructor happens to be a
+better match during overload resolution of an existing instantiation of
+a derived class. Consider a \texttt{Session} class that initially provides only two constructors:
+
+\begin{lstlisting}[language=C++]
+struct Session
+{
+Session();
+explicit Session(RawSessionHandle* rawSessionHandle);
+};
+\end{lstlisting}
+
+\noindent Now, imagine that a class, \texttt{AuthenticatedSession}, derived from
+\texttt{Session}, inherits the two constructors of its base class and provides its own constructor that accepts an integral
+authentication token:
+
+\begin{lstlisting}[language=C++]
+struct AuthenticatedSession : Session
+{
+using Session::Session;
+explicit AuthenticatedSession(long long authToken);
+};
+\end{lstlisting}
+
+\noindent Finally, consider an instantiation of \texttt{AuthenticatedSession} in
+user-facing code:
+
+\begin{lstlisting}[language=C++]
+AuthenticatedSession authSession(45100);
+\end{lstlisting}
+
+\noindent In the line above and the example above that, \texttt{authSession} will be initialized by
+invoking the constructor accepting a \texttt{long}~\texttt{long} (see ``\titleref{long-long}" on page~\pageref{long-long}) authentication token. If, however, a new
+constructor, having the signature \texttt{Session(int)} is added to the
+base class, it will be invoked instead because it is a better match to the
+literal \texttt{45100} (of type \texttt{int}) than the constructor
+taking a \texttt{long}~\texttt{long} supplied explicitly in the derived
+class; hence, adding a constructor to a base class might lead to a
+potential latent (runtime) defect that would go unreported at compile
+time.
+
+Note that this problem with shifting implicit conversions is not unique
+to inheriting constructors; any form of \texttt{using} declaration or
+invocation of an overloaded function carries a similar risk. Imposing
+stronger typing --- e.g., by using \textbf{strong \texttt{typedef}s} (see \textit{\titleref{use-cases-ctorinheriting}: \titleref{implementing-a-strong-typedef}} on page~\pageref{implementing-a-strong-typedef}) --- might sometimes, however, help to prevent such
+unfortunate missteps.
+
+\subsubsection[Beware of inheriting implicit constructors]{Beware of inheriting implicit constructors}\label{beware-of-inheriting-implicit-constructors}
+
+Inheriting from a class that has implicit constructors can cause
+surprises. Consider again the use of inheriting constructors to
+implement a \textbf{strong \texttt{typedef}} from \textit{\titleref{use-cases-ctorinheriting}: \titleref{implementing-a-strong-typedef}} on page~\pageref{implementing-a-strong-typedef}. This time, however, let's suppose we are
+exposing, to a fairly wide and varied audience, a class
+\texttt{PointOfInterest}, that associates the name and address of a
+given popular tourist attraction:
+
+\begin{lstlisting}[language=C++]
+#include <string>  // (ù{\codeincomments{std::string}}ù)
+
+class PointOfInterest
+{
+private:
+std::string d_name;
+std::string d_address;
+
+public:
+PointOfInterest(const std::string& name, const std::string& address);
+// Please pass the (ù{\codeincomments{name}}ù) as the *first* and the (ù{\codeincomments{address}}ù) *second*!
+};
+\end{lstlisting}
+
+\noindent Again imagine that our users are not always careful about inspecting the
+function prototype:
+
+\begin{lstlisting}[language=C++]
+PointOfInterested client1(const char* name, const char* address)
+{
+return PointOfInterest(name, address);  // OK
+}
+
+int client2(PointOfInterest* result, const char* name, const char* address)
+{
+*result = PointOfInterest(address, name);  // Oops! wrong order
+return 0;
+}
+\end{lstlisting}
+
+\noindent We might think to again use \textbf{strong \texttt{typedef}s} here as we
+did for \texttt{PatientAppointment} in \textit{\titleref{use-cases-ctorinheriting}: \titleref{implementing-a-strong-typedef}} on page~\pageref{implementing-a-strong-typedef}:
+
+\begin{lstlisting}[language=C++]
+struct Name : std::string  // somewhat type-safe alias for a (ù{\codeincomments{std::string}}ù)
+{
+using std::string::string;  // Inherit, as is, all of (ù{\codeincomments{std::string}}ù)'s ctors.
+explicit Name(const std::string& s) : std::string(s) { }  // conversion
+};
+
+struct Address : std::string  // somewhat type-safe alias for a (ù{\codeincomments{std::string}}ù)
+{
+using std::string::string;  // Inherit, as is, all of (ù{\codeincomments{std::string}}ù)'s ctors.
+explicit Address(const std::string& s) : std::string(s) { }  // conversion
+};
+\end{lstlisting}
+
+\noindent The \texttt{Name} and \texttt{Address} types are not interconvertible; they expose the same interfaces as \texttt{std::string} but are not
+implicitly convertible from it:
+
+\begin{lstlisting}[language=C++]
+Name n0 = "Big Tower";  // OK, thanks to inheriting constructors
+std::string s0 = n0;    // OK, thanks to public inheritance
+Name n1 = s0;           // error: no implicit conversion from (ù{\codeincomments{std::string}}ù)
+Address a0;             // OK, unfortunately a (ù{\codeincomments{std::string}}ù) has a default ctor.
+Address a1 = n0;        // error: no implicit conversion from (ù{\codeincomments{Name}}ù)
+Name n2(s0);            // OK, thanks to an (ù{\codeincomments{explicit}}ù) constructor in (ù{\codeincomments{Name}}ù)
+Name b3(a0);            // OK, an (ù{\codeincomments{Address}}ù) (unfortunately) is a (ù{\codeincomments{std::string}}ù).
+\end{lstlisting}
+
+\noindent We can rework the \texttt{PointOfInterest} class to use the the
+\textbf{strong \texttt{typedef}} idiom:
+
+\begin{lstlisting}[language=C++]
+class PointOfInterest
+{
+private:
+Name    d_name;
+Address d_address;
+
+public:
+PointOfInterest(const Name& name, const Address& address);
+};
+\end{lstlisting}
+
+\noindent Now if our clients use the base class itself as a parameter, they will
+again need to make their intentions known:
+
+\begin{lstlisting}[language=C++]
+PointOfInterested client1(const std::string& name, const std::string address)
+{
+return PointOfInterest(address, name);  // sorry, doesn't compile
+}
+
+PointOfInterested client2(const char* name, const char* address)
+{
+return PointOfInterest(Name(name), Address(address));  // OK
+}
+\end{lstlisting}
+
+\noindent But suppose that some clients instead pass the arguments by
+\texttt{const}~\texttt{char*} instead of\linebreak[4]
+\mbox{\texttt{const}~\texttt{std::string\&}}:
+
+\begin{lstlisting}[language=C++]
+PointOfInterested client3(const char* name, const char* address)
+{
+return PointOfInterest(address, name);  // Oops! compiles but runtime error
+}
+\end{lstlisting}
+
+\noindent In the case of \texttt{client3} in the code snippet above, passing the arguments through
+\emph{does} compile because the \texttt{const}~\texttt{char*}
+constructors are inherited; hence, there is no attempt to convert
+to a \texttt{std::string} before matching the \emph{implicit} conversion
+constructor. Had the \texttt{std::string} conversion
+constructor been declared to be \texttt{explicit}, the code would not
+have compiled. In short, inheriting constructors from types that perform implicit
+conversions seriously undermine the effectiveness of the \textbf{strong
+\texttt{typedef}} idiom.
+
+\subsection[Annoyances]{Annoyances}\label{annoyances-inheritingctor}
+
+\subsubsection[Inherited constructors cannot be selected individually]{Inherited constructors cannot be selected individually}\label{inherited-constructors-cannot-be-selected-individually}
+
+The inheriting-constructors feature does not allow the programmer
+to select a subset of constructors to inherit; all of the base
+class's eligible constructors are always inherited unless a constructor
+with the same signature is provided in the derived class. If the
+programmer desires to inherit all constructors of a base class except
+for perhaps one or two, the straightforward workaround would be to
+declare the undesired constructors in the derived class and then use
+deleted functions (see ``\titleref{deleted-functions}" on page~\pageref{deleted-functions}) to explicitly exclude them.
+
+For example, suppose we have a general class, \texttt{Datum}, that can
+be constructed from a variety of types:
+
+\begin{lstlisting}[language=C++]
+struct Datum
+{
+Datum(bool);
+Datum(char);
+Datum(short);
+Datum(int);
+Datum(long);
+Datum(long long);
+};
+\end{lstlisting}
+
+\noindent If we wanted to create a version of \texttt{Datum}, call it
+\texttt{NumericalDatum}, that inherits all but the one constructor
+taking a \texttt{bool}, our derived class would (1) inherit publicly,
+(2) declare the unwanted constructor, and then (3) mark it with
+\texttt{=}~\texttt{delete}:
+
+\begin{lstlisting}[language=C++]
+struct NumericalDatum : Datum
+{
+using Datum::Datum;             // Inherit all the constructors...
+NumericalDatum(bool) = delete;  // ...except the one taking a (ù{\codeincomments{bool}}ù).
+};
+\end{lstlisting}
+
+\noindent Note that the subsequent addition of any non-numerical constructor to
+\texttt{Datum} (e.g., a constructor taking \texttt{std::string}) would
+defeat the purpose of \texttt{NumericalDatum}.
+
+\subsubsection[Access levels of inherited constructors are the same as in base class]{Access levels of inherited constructors are the same as in base class}\label{access-levels-of-inherited-constructors-are-same-as-in-base-class}
+
+Unlike base-class member functions that can be introduced with a
+\texttt{using} directive with an arbitrary access level into the derived
+class (as long as they are accessible by the derived class), the access
+level of the \texttt{using} declaration for inherited constructors is
+ignored.{\cprotect\footnote{Alisdair Meredith, one of the authors of the
+Standards paper that proposed this feature (\textbf{meredith08}) suggests that
+placing the \texttt{using} declaration for \textbf{inheriting
+constructors} as the very first member declaration and preceding any
+\textbf{access specifiers} might be the least confusing location. Programmers might still be confused by
+the disparate default access levels of \texttt{class} versus
+\texttt{struct}.}} The inherited constructor overload is instead
+accessible \emph{if} the corresponding base-class constructor would be
+accessible:
+
+\begin{lstlisting}[language=C++]
+struct Base
+{
+private:
+Base(int) { }  // This constructor is declared (ù{\codeincomments{private}}ù) in the base class.
+void pvt0() { }
+void pvt1() { }
+
+public:
+Base() { }     // This constructor is declared (ù{\codeincomments{public}}ù) in the base class.
+void pub0() { }
+void pub1() { }
+};
+\end{lstlisting}
+
+\noindent Note that, when employing \texttt{using} to (1) inherit constructors or
+(2) elevate base-class definitions in the presence of private
+inheritance, public clients of the class might find it necessary
+to look at what are ostensibly private implementation details of the
+derived class to make proper use of that type through its
+public interface:
+
+\begin{lstlisting}[language=C++]
+struct Derived : private Base
+{
+using Base::Base;  // OK, inherited (ù{\codeincomments{Base()}}ù) as (ù{\codeincomments{public}}ù) constructor
+// and (ù{\codeincomments{Base(int)}}ù) as (ù{\codeincomments{private}}ù) constructor
+
+private:
+using Base::pub0;  // OK, (ù{\codeincomments{pub0}}ù) is declared (ù{\codeincomments{private}}ù) in derived class.
+using Base::pvt0;  // Error: (ù{\codeincomments{pvt0}}ù) was declared private in base class.
+
+public:
+using Base::pub1;  // OK, (ù{\codeincomments{pub1}}ù) is declared (ù{\codeincomments{public}}ù) in derived class.
+using Base::pvt1;  // Error: (ù{\codeincomments{pvt1}}ù) was declared (ù{\codeincomments{private}}ù) in base class.
+};
+
+void client()
+{
+Derived x(0);  // Error: Constructor was declared private in base class.
+Derived d;     // OK, constructor was declared (ù{\codeincomments{public}}ù) in base class.
+d.pub0();      // Error: (ù{\codeincomments{pub0}}ù) was declared (ù{\codeincomments{private}}ù) in derived class.
+d.pub1();      // OK, (ù{\codeincomments{pub1}}ù) was declared (ù{\codeincomments{public}}ù) in derived class.
+d.pvt0();      // Error: (ù{\codeincomments{pvt0}}ù) was declared private in base class.
+d.pvt1();      // Error: (ù{\codeincomments{pvt1}}ù) was declared private in base class.
+}
+\end{lstlisting}
+
+\noindent This C++11 feature was itself created because the previously proposed
+solution --- which also involved a couple of features new in C++11, namely
+forwarding the arguments to base-class constructors with
+forwarding references (see ``\titleref{forwardingref}" on page~\pageref{forwardingref}) and variadic
+templates (see ``\titleref{variadictemplate}" on page~\pageref{variadictemplate}) --- made somewhat different tradeoffs and was
+considered too onerous and fragile to be practically useful:
+
+\begin{lstlisting}[language=C++]
+#include <utility>  // (ù{\codeincomments{std::forward}}ù)
+
+struct Base
+{
+Base(int) { }
+};
+
+struct Derived : private Base
+{
+protected:
+template <typename... Args>
+Derived(Args&&... args) : Base(std::forward<Args>(args)...)
+{
+}
+};
+\end{lstlisting}
+
+\noindent In the example above, we have used forwarding references (see ``\titleref{forwardingref}" on page~\pageref{forwardingref})
+to properly delegate the implementation of a constructor that is
+declared \mbox{\texttt{protected}} in the derived class to a \texttt{public}
+constructor of a privately inherited base class. Although this approach
+fails to preserve many of the characteristics of the inheriting
+constructors (e.g., \texttt{explicit}, \texttt{constexpr},
+\texttt{noexcept}, and so on), the functionality described in the code snippet above is
+simply not possible using the C++11 inheriting-constructors feature.
+
+\subsection[See Also]{See Also}\label{see-also}
+
+\begin{itemize}
+\item{``\titleref{override}" on page~\pageref{override} — Used to ensure that a member function intended to override a virtual function actual does}
+\item{``\titleref{deleted-functions}" on page~\pageref{deleted-functions} — Can be used to exclude inherited constructors that are unwanted entirely}
+\item{``\titleref{Defaulted-Special-Member-Functions}" on page~\pageref{Defaulted-Special-Member-Functions} — Used to implement functions that might otherwise have been suppressed by inherited constructors}
+\item{``\titleref{delegating-constructors}" on page~\pageref{delegating-constructors} — Related feature used to call one constructor from another from within the same user-defined type}
+\item{``\titleref{Default-Member-Initializers}" on page~\pageref{Default-Member-Initializers} — Useful in conjunction with this feature when a derived class adds member data}
+\item{``\titleref{forwardingref}" on page~\pageref{forwardingref} — Used in alternative (workaround) when access levels differ from those for base-class constructors}
+\item{``\titleref{variadictemplate}" on page~\pageref{variadictemplate} — Used in alternative (workaround) when access levels differ from those for base-class constructors}
+\item{``\titleref{Default-Member-Initializers}" on page~\pageref{Default-Member-Initializers} — Can be used to provide nondefault values for data members in derived classes that make use of inheriting constructors}
+\end{itemize}
+
+\subsection[Further Reading]{Further Reading}\label{further-reading}
+
+None so far
+
+\subsection[Appendix: C++17 Improvements Made Retroactive to C++11/14]{Appendix: C++17 Improvements Made Retroactive to C++11/14}\label{appendix}\label{c++17-improvements-made-retroactive-to-c++11/14}
+
+The original specification of inheriting constructors in C++11 had a
+significant number of problems with general use. As originally specified,
+inherited constructors were treated as if they were redeclared in
+the derived class. For C++17, a significant rewording of this feature\footnote{\textbf{smith15b}}
+happened to instead find the base class
+constructors and then define how they are used to construct an instance
+of the derived class, as we have presented here. With a final fix in
+C++20 with the resolution of CWG issue \#2356,\footnote{\textbf{smith18}} a complete
+working feature was specified. All of these fixes for C++17 were
+accepted as defect reports and thus apply retroactively to C++11 and
+C++14. For the major compilers, this was either standardizing already
+existing practice or quickly adopting the changes.{\cprotect\footnote{For example, GCC versions above 7.0
+and Clang versions above 4.0 all have the modern behavior
+fully implemented regardless of which standard version is chosen when
+compiling.}}
+
+The subsections that follow describe the subtle bugs that came with the previous
+specification, both for completeness and to give a better
+understanding of what to expect on very old compilers, though none fully
+implemented the original specification as written.
+
+\subsubsection[Inheriting constructors declared with a C-style ellipsis]{Inheriting constructors declared with a C-style ellipsis}
+
+Forwarding arguments from a constructor declared using a C-style ellipsis cannot forward correctly. Arguments passed through the ellipsis are not available as named arguments but must instead be accessed through the \texttt{va\_arg} family of macros. Without named arguments, no easily supported way is available to call the base-class constructor with the additional arguments:
+\begin{lstlisting}[language=C++]
+struct Base
+{
+Base(int x, ...) { }  // constructor taking C-style variadic args
+};
+
+struct Derived : Base
+{
+using Base::Base;  // Error: Prior to C++17 fixes, standard wording
+// does not allow forwarding C-style variadic args.
+};
+\end{lstlisting}
+This problem is sidestepped in C++17 because the base-class constructor becomes available just like any other base-class function made available through a \texttt{using} declaration in the derived class.
+
+\subsubsection[Inheriting constructors that rely on friendship to declare function parameters]{Inheriting constructors that rely on friendship to declare\\ function parameters}
+
+When a constructor depends on access to a \texttt{private} member of a class (e.g., a \texttt{typedef}), an inheriting constructor does not implicitly grant friendship that the base class might have that makes the constructor valid. For example, consider the following class template, which grants friendship to class \texttt{B}:
+\begin{lstlisting}[language=C++]
+template <typename T>
+struct S
+{
+private:
+typedef int X;
+friend struct B;
+};
+\end{lstlisting}
+Then, we can create a class with a constructor that relies on that friendship. In this case, we consider a constructor template using the dependent member \texttt{X}, assuming that, in the normal case, \texttt{X} would be publicly accessible:
+\begin{lstlisting}[language=C++]
+struct B
+{
+template <typename T>
+B(T, typename T::X);
+};
+\end{lstlisting}
+Now consider class \texttt{D} derived from \texttt{B} and inheriting its constructors:
+\begin{lstlisting}[language=C++]
+struct D : B
+{
+using B::B;
+};
+\end{lstlisting}
+Without friendship, we cannot construct a \texttt{D} from an \texttt{S}, but we can construct a \texttt{B} from an \texttt{S}, suggesting something is wrong with the inheritance. Note that the SFINAE rules for templates mean that the inheriting constructor is a problem only if we try to construct an \texttt{S} with the problem type and does not cause a hard error without that use case. The following example illustrates the problematic usage:
+\begin{lstlisting}[language=C++]
+S<int> s;   // full specialization of (ù{\codeincomments{S}}ù) for type (ù{\codeincomments{int}}ù)
+B b(s, 2);  // OK, thanks to friendship
+D d(s, 2);  // Error: Prior to C++17 fixes, friendship is not inherited.
+\end{lstlisting}
+As C++17 redefines the semantics of the inheriting constructor as if the base class’s constructors were merely exposed in the derived one, friendship is evaluated within the scope of the base class.
+
+\subsubsection[Inheriting constructor templates would be ill formed for a local class]{Inheriting constructor templates would be ill formed for a local class}
+
+A class declared within a function is a \textbf{local class}. Local classes have many restrictions, one of which is that they cannot declare member templates. If we inherit constructors from a base class with constructor templates, even \texttt{private} ones, the implicit declaration of a constructor template to forward arguments to the base-class constructor would be \textbf{ill formed}:
+\begin{lstlisting}[language=C++]
+struct Base
+{
+template <typename T>
+Base(T);
+};
+
+void f()
+{
+class Local : Base
+{
+using Base::Base;  // Error: Prior to C++17 fixes, we cannot redeclare
+// the constructor template in local class.
+};
+}
+\end{lstlisting}
+C++17 resolves this by directly exposing the base class constructors, rather than defining new constructors to forward arguments.
+
+\subsubsection[SFINAE evaluation context with default function arguments]{SFINAE evaluation context with default function arguments}
+
+Constructors that employ \textbf{SFINAE} tricks in default function arguments perform \mbox{\textbf{SFINAE}} checks in the wrong context and therefore inherit ill-formed constructors. No such issues occur when these \textbf{SFINAE} tricks are performed on default template arguments instead. As an example, consider a class template \texttt{Wrap} that has a template constructor with a \textbf{SFINAE} constraint:
+\begin{lstlisting}[language=C++]
+struct S { };
+
+template <typename T>
+struct Wrap
+{
+template <typename U>
+Wrap(U, typename std::enable_if<
+std::is_constructible<T, U>::value>::type* = nullptr)
+// This constructor is enabled only if (ù{\codeincomments{T}}ù) is constructible from (ù{\codeincomments{U}}ù).
+{
+std::cout << "SFINAE ctor\n";
+}
+
+Wrap(S)
+{
+std::cout << "S ctor\n";
+}
+};
+\end{lstlisting}
+If we derive from \texttt{Wrap} and inherit its constructors, we would expect the \textbf{SFINAE} constraint to behave exactly as in the base class, i.e., the template constructor overload would be silently discarded if \texttt{std::is\_constructible<T,}~\texttt{U>::value} evaluates to \texttt{false}:
+\begin{lstlisting}[language=C++]
+template <typename T>
+struct Derived : Wrap<T>
+{
+using Wrap<T>::Wrap;
+};
+\end{lstlisting}
+However, prior to C++17’s retroactive fixes, \textbf{SFINAE} was triggered only for \texttt{Wrap}, not for \texttt{Derived}:
+\begin{lstlisting}[language=C++]
+void f()
+{
+S s;
+Wrap<int> w(s);     // prints (ù{\codeincomments{"S ctor"}}ù)
+Derived<int> d(s);  // error prior to fixes; prints (ù{\codeincomments{"S ctor"}}ù) afterward
+}
+\end{lstlisting}
+
+\subsubsection[Suppression of constructors in the presence of default arguments]{Suppression of constructors in the presence of default arguments}
+
+A constructor having one or more default arguments in the derived class does not suppress any corresponding constructors matching only the nondefaulted arguments in the base class, leading to ambiguities:
+\begin{lstlisting}[language=C++]
+struct B          // base class
+{
+B(int, int);  // value constructor with two (required) (ù{\codeincomments{int}}ù) parameters
+};
+
+struct D : B
+{
+using B::B;
+D(int, int, int = 0);  // doesn't suppress (ù{\codeincomments{D(int, int)}}ù) from (ù{\codeincomments{B(int, int)}}ù)
+};
+\end{lstlisting}
+In the code example above, the original defective behavior was that there would be two overloaded constructors in \texttt{D}; attempting to construct a \texttt{D} from two integers became ambiguous. In the corrected behavior, the inheriting \texttt{D(int,}~\texttt{int)} from the base-class constructor \texttt{B(int,}~\texttt{int)}, whose domain is fully subsumed by the derived class’s explicitly specified constructor \texttt{D(int,}~\texttt{int,}~\texttt{int}~\texttt{=}~\texttt{0)}, is suppressed.
+
+\subsubsection[Suprising behavior with unary constructor templates]{Suprising behavior with unary constructor templates}
+
+Because inherited constructors are redeclarations within the derived class and expect to forward properly to the corresponding base-class constructors, constructor templates may do very surprising things. In particular, a gregarious, templated constructor can appear to cause inheritance of a base-class copy constructor. Consider the following class with a constructor template:
+\begin{lstlisting}[language=C++]
+struct A
+{
+A() = default;
+A(const A&) { std::cout << "copy\n"; }
+
+template <typename T>
+A(T) { std::cout << "convert\n"; }
+};
+\end{lstlisting}
+This simple class can convert from any type and prints those of its constructors that were called. Now consider we want to make a \textbf{strong \texttt{typedef}} for \texttt{A}:
+\begin{lstlisting}[language=C++]
+struct B : A
+{
+using A::A;  // inherited base class (ù{\codeincomments{A}}ù)'s constructors
+};
+\end{lstlisting}
+The problem is that because \texttt{A} can convert from anything, when \texttt{B} inherits \texttt{A}'s constructor template, \texttt{B} can then use the inherited constructor to construct an instance of \texttt{B} from \texttt{A}. Perhaps more surprising, because the definition of the inherited constructor in \texttt{B} is to initialize the \texttt{A} subobject with its parameters, the nontemplate inherited constructor will be chosen as the best match, not the templated, converting constructor!\cprotect\footnote{Note that if the template constructor for \texttt{A} were a \emph{copy} or \emph{move} constructor for \texttt{A}, then it would be excluded from being an inherited constructor and this odd behavior would be avoided. The by-value parameter of this constructor is also why \texttt{"copy"} is output twice in this example.
+\begin{lstlisting}[language=C++, basicstyle={\ttfamily\footnotesize}]
+A x;
+B y = x;  // Surprise! This compiles, and it prints (ù{\codeincomments{"copy"}}ù) twice!
+\end{lstlisting}
+}
+

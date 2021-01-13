@@ -1,0 +1,583 @@
+\newpage
+\section[{\tt alignof}]{{\SecCode alignof}}\label{alignof}
+
+
+The keyword \texttt{alignof} serves as a compile-time operator used to
+query the \textbf{alignment requirements} of a type on the current
+platform.
+
+\subsection[Description]{Description}\label{description}
+
+The \texttt{alignof} operator, when applied to a type, evaluates to an
+\textbf{integral constant expression} that represents the
+\textbf{alignment requirements} of its argument type. Similar to
+\texttt{sizeof}, the (compile-time) value of \texttt{alignof} is of type
+\texttt{std::size\_t}; unlike \texttt{sizeof} (which can accept an
+arbitrary expressions), \texttt{alignof} is defined (in the C++
+Standard) on only a type identifier but often works on expressions
+anyway (see \textit{\titleref{annoyances-alignof}} on page~\pageref{annoyances-alignof}). The argument type,
+\texttt{T}, supplied to \texttt{alignof} must be either a
+\textbf{complete type}, a \textbf{reference type}, or an \textbf{array
+type}. If \texttt{T} is a \textbf{complete type}, the result is the
+alignment requirement for \texttt{T}. If \texttt{T} is a
+\textbf{reference type}, the result is the alignment requirement for the
+referenced type. If \texttt{T} is an \textbf{array type}, the
+result is the alignment requirement for every element in the array{\cprotect\footnote{According to the C++11 Standard, ``An object of \textbf{array type} contains a contiguously allocated
+non-empty set of \texttt{N} subobjects of type \texttt{T}''  (\textbf{cpp11}, section 8.3.4, ``Arrays," paragraph 1, p. 188). Note
+that, for every type \texttt{T}, \texttt{sizeof(T)} is always a
+multiple of \texttt{alignof(T)}; otherwise storing multiple \texttt{T} instances in an array would be impossible without padding,
+and the Standard explicitly prohibits padding between array elements.}}:
+
+\begin{lstlisting}[language=C++]
+static_assert(alignof(short)    == 2, "");  // complete type   ((ù{\codeincomments{sizeof}}ù) is 2)
+static_assert(alignof(short&)   == 2, "");  // reference type  ((ù{\codeincomments{sizeof}}ù) is 2)
+static_assert(alignof(short[5]) == 2, "");  // array type      ((ù{\codeincomments{sizeof}}ù) is 2)
+static_assert(alignof(short[])  == 2, "");  // array type      ((ù{\codeincomments{sizeof}}ù) fails)
+\end{lstlisting}
+
+
+\subsubsection[\tt{alignof} Fundamental Types]{{\SubsubsecCode alignof} Fundamental Types}\label{alignof-fundamental-types}
+
+Like their size, the alignment requirements of a \texttt{char},
+\texttt{signed}~\texttt{char}, and \texttt{unsigned}~\texttt{char} are
+all guaranteed to be 1 (i.e., 1-byte aligned) on every conforming
+platform. For any other fundamental or pointer type \texttt{FPT},
+\texttt{alignof(FPT)} (like \texttt{sizeof(FPT)}) is platform-dependent but is typically approximated well by the type's \textbf{natural
+alignment} --- i.e.,
+\texttt{sizeof(FPT)}~\texttt{==}~\texttt{alignof(FPT)}:
+
+\begin{lstlisting}[language=C++]
+static_assert(alignof(char)   == 1, "");  // guaranteed to be 1
+static_assert(alignof(short)  == 2, "");  // platform-dependent
+static_assert(alignof(int)    == 4, "");  //    "         "
+static_assert(alignof(double) == 8, "");  //    "         "
+static_assert(alignof(void*)  >= 4, "");  //    "         "
+\end{lstlisting}
+
+
+\subsubsection[\tt{alignof} User-Defined Types]{{\SubsubsecCode alignof} User-Defined Types}\label{alignof-user-defined-types}
+
+When applied to user-defined types, alignment is always at least that of
+the strictest alignment of any of its arguments' base or member objects.
+Empty types are defined to have a size (and alignment) of 1 to
+ensure that every object has a unique address.{\cprotect\footnote{An
+exception is made for an object of a type derived from an empty (base)
+class in that neither the size nor the alignment of the derived object
+is affected by the derivation:
+
+\begin{lstlisting}[language=C++, basicstyle={\ttfamily\footnotesize}]
+struct S { int i; }      // size = 4; alignment = 4
+struct E { };            // size = 1; alignment = 1
+struct D : E { int i };  // size = 4; alignment = 4
+\end{lstlisting}
+}} Compilers will (by default) avoid nonessential padding because any
+extra padding would be wasteful of (e.g., cache)
+memory{\cprotect\footnote{Compilers are permitted to increase alignment
+(e.g., in the presence of virtual functions) but have certain restrictions
+on padding. For example, they must ensure that each comprised type is
+itself sufficiently aligned and that the alignment of the parent type
+divides its size. This ensures that the fundamental identity for
+arrays holds for all types, \texttt{T}, and positive integers,
+\texttt{N}:
+
+\begin{lstlisting}[language=C++, basicstyle={\ttfamily\footnotesize}]
+T a[N]; static_assert(n == sizeof(a) / sizeof(*a));  // guaranteed
+\end{lstlisting}
+
+\noindent The alignment of user-defined types can be made artificially stricter
+(but not weaker) using the {\tt alignas} (see ``\titleref{alignas}" on page~\pageref{alignas}) specifier.
+Also note that, for \textbf{standard-layout types}, the address of the
+first member object is guaranteed to be the same as that of the parent
+object:
+
+\begin{lstlisting}[language=C++, basicstyle={\ttfamily\footnotesize}]
+struct S { int i; }
+class T { public: S s; }
+T t;
+static_assert(&t.s == &t,     "");  // guaranteed
+static_assert(&t.s == &t.s.i, "");  // guaranteed
+\end{lstlisting}
+
+\noindent This property also holds for (e.g., anonymous) unions:
+
+\begin{lstlisting}[language=C++, basicstyle={\ttfamily\footnotesize}]
+struct { union { char c; float f; double d; } } u;
+static_assert(&u == &u.c, "");  // guaranteed
+static_assert(&u == &u.f, "");  // guaranteed
+static_assert(&u == &u.d, "");  // guaranteed
+\end{lstlisting}
+}}:
+
+\begin{lstlisting}[language=C++]
+struct S0 { };                          // (ù{\codeincomments{sizeof(S0)}}ù) is  (ù{\codeincomments{1}}ù); (ù{\codeincomments{alignof(S0)}}ù) is  (ù{\codeincomments{1}}ù)
+struct S1 { char c; };                  // (ù{\codeincomments{sizeof(S1)}}ù) is  (ù{\codeincomments{1}}ù); (ù{\codeincomments{alignof(S1)}}ù) is  (ù{\codeincomments{1}}ù)
+struct S2 { short s; };                 // (ù{\codeincomments{sizeof(S2)}}ù) is  (ù{\codeincomments{2}}ù); (ù{\codeincomments{alignof(S2)}}ù) is  (ù{\codeincomments{2}}ù)
+struct S3 { char c; short s; };         // (ù{\codeincomments{sizeof(S3)}}ù) is  (ù{\codeincomments{4}}ù); (ù{\codeincomments{alignof(S3)}}ù) is  (ù{\codeincomments{2}}ù)
+struct S4 { short s1; short s2; };      // (ù{\codeincomments{sizeof(S4)}}ù) is  (ù{\codeincomments{4}}ù); (ù{\codeincomments{alignof(S4)}}ù) is  (ù{\codeincomments{2}}ù)
+struct S5 { int i; char c; };           // (ù{\codeincomments{sizeof(S5)}}ù) is  (ù{\codeincomments{8}}ù); (ù{\codeincomments{alignof(S5)}}ù) is  (ù{\codeincomments{4}}ù)
+struct S6 { char c1; int i; char c2};   // (ù{\codeincomments{sizeof(S6)}}ù) is (ù{\codeincomments{12}}ù); (ù{\codeincomments{alignof(S6)}}ù) is  (ù{\codeincomments{4}}ù)
+struct S7 { char c; short s; int i; };  // (ù{\codeincomments{sizeof(S7)}}ù) is  (ù{\codeincomments{8}}ù); (ù{\codeincomments{alignof(S7)}}ù) is  (ù{\codeincomments{4}}ù)
+struct S8 { double d; };                // (ù{\codeincomments{sizeof(S8)}}ù) is  (ù{\codeincomments{8}}ù); (ù{\codeincomments{alignof(S8)}}ù) is  (ù{\codeincomments{8}}ù)
+struct S9 { double d; char c};          // (ù{\codeincomments{sizeof(S9)}}ù) is (ù{\codeincomments{16}}ù); (ù{\codeincomments{alignof(S9)}}ù) is  (ù{\codeincomments{8}}ù)
+struct SA { long double; };             // (ù{\codeincomments{sizeof(SA)}}ù) is (ù{\codeincomments{16}}ù); (ù{\codeincomments{alignof(SA)}}ù) is (ù{\codeincomments{16}}ù)
+struct SB { long double; char c};       // (ù{\codeincomments{sizeof(SB)}}ù) is (ù{\codeincomments{32}}ù); (ù{\codeincomments{alignof(SB)}}ù) is (ù{\codeincomments{16}}ù)
+\end{lstlisting}
+
+
+\subsection[Use Cases]{Use Cases}\label{use-cases}
+
+\subsubsection[Probing the alignment of a type during development]{Probing the alignment of a type during development}\label{probing-the-alignment-of-a-type-during-development}
+
+Both \texttt{sizeof} and \texttt{alignof} are often used informally
+during development and debugging to confirm the compiler's understanding
+of those attributes for a given type on the current platform. For
+example:
+
+\begin{lstlisting}[language=C++]
+#include <iostream>
+
+void f()
+{
+std::cout << " sizeof(double): " <<  sizeof(double) << '\n';  //  always 8
+std::cout << "alignof(double): " << alignof(double) << '\n';  // usually 8
+}
+\end{lstlisting}
+
+\noindent Printing the size and alignment of a \texttt{struct} along with those of
+each of its individual data members can lead to the discovery of
+suboptimal ordering of data members (resulting in wasteful extra
+padding). As an example, consider two \texttt{struct}s,
+\texttt{Wasteful} and \texttt{Optimal}, having the same three data members but
+in different order:
+
+\begin{lstlisting}[language=C++]
+struct Wasteful
+{
+char   d_c;  // size =  1;  alignment = 1
+double d_d;  // size =  8;  alignment = 8
+int    d_i;  // size =  4;  alignment = 4
+};               // size = 24;  alignment = 8
+
+struct Optimal
+{
+double d_d;  // size =  8;  alignment = 8
+int    d_i;  // size =  4;  alignment = 4
+char   d_c;  // size =  1;  alignment = 1
+};               // size = 16;  alignment = 8
+\end{lstlisting}
+
+\noindent Both \texttt{alignof(Wasteful)} and \texttt{alignof(Optimal)} are
+\texttt{8} but \texttt{sizeof(Wasteful)} is \texttt{24}, whereas
+\texttt{sizeof(Optimal)} is only \texttt{16}. Even though these two
+\texttt{struct}s contain the very same data members, the individual
+alignment requirements of these members forces the compiler to insert
+more total padding between the data members in \texttt{Wasteful} than is
+necessary in \texttt{Optimal}:
+
+\begin{lstlisting}[language=C++]
+struct Wasteful
+{
+char   d_c;           // size =  1;  alignment = 1
+char   padding_0[7];  // size =  7
+double d_d;           // size =  8;  alignment = 8
+int    d_i;           // size =  4;  alignment = 4
+char   padding_1[4];  // size =  4
+};                        // size = 24;  alignment = 8
+
+struct Optimal
+{
+double d_d;           // size =  8;  alignment = 8
+int    d_i;           // size =  4;  alignment = 4
+char   d_c;           // size =  1;  alignment = 1
+char   padding_0[3];  // size =  3
+};                        // size = 16;  alignment = 8
+\end{lstlisting}
+
+
+\subsubsection[Determining if a given buffer is sufficiently aligned]{Determining if a given buffer is sufficiently aligned}\label{determining-if-a-given-buffer-is-sufficiently-aligned}
+
+The \texttt{alignof} operator can be used to determine if a given (e.g.,
+\texttt{char}) buffer is suitably aligned for storing an object of
+arbitrary type. As an example, consider the task of creating a
+\textbf{value-semantic} class, \texttt{MyAny}, that represents an object
+of arbitrary type{\cprotect\footnote{The C++17 Standard Library provides
+the (nontemplate) class \texttt{std::any}, which is a type-safe
+container for single values of \emph{any} \textbf{regular type}. The
+implementation strategies surrounding alignment for \texttt{std::any}
+in both \texttt{libstdc++} and \texttt{libc++} closely mirror those
+used to implement the simplified \texttt{MyAny} class presented here.
+Note that \texttt{std::any} also records the current \texttt{typeid}
+(on construction or assignment) so that it can implement a
+\texttt{const} template member function,
+\texttt{bool}~\texttt{is<T>()}~\texttt{const}, to query, at runtime,
+whether a specified type is currently the active one:
+
+\begin{lstlisting}[language=C++, basicstyle={\ttfamily\footnotesize}]
+void f(const std::any& object)
+{
+if (object.is<int>()) { /* ... */ }
+}
+\end{lstlisting}
+}}:
+
+\begin{lstlisting}[language=C++]
+void f()
+{
+MyAny obj = 10;               // can be initialized with values of any type
+assert(obj.as<int>() == 10);  // inner data can be retrieved at runtime
+
+obj = std::string{"hello"};   // can be reassigned from a value of any type
+assert(obj.as<std::string>() == "hello");
+}
+\end{lstlisting}
+
+\noindent A straightforward implementation of \texttt{MyAny} would be to allocate
+an appropriately sized block of dynamic memory each time a value of a
+new type is assigned. Such a naive implementation would force memory
+allocations even though the vast majority of values assigned in practice
+are small (e.g., fundamental types), most of which would fit within the
+space that would otherwise be occupied by just the pointer needed to
+refer to dynamic memory. As a practical optimization, we might instead
+consider reserving a small buffer (say, roughly{\cprotect\footnote{We
+would likely choose a slightly larger value, e.g., 35 or 39, if that
+space would otherwise be filled with essential padding due to overall
+alignment requirements.}} 32 bytes) within the footprint of the
+\texttt{MyAny} object to hold the value provided (1) it will fit and (2)
+the buffer is sufficiently aligned. The natural implementation of this
+type --- the union of a char array and a \texttt{struct} (containing a
+\texttt{char} pointer and a size) --- will naturally result in the minimal
+alignment requirement of the \texttt{char*} (i.e., 4 on a 32-bit
+platform and 8 on a 64-bit one){\cprotect\footnote{We could, in
+addition, use the {\tt alignas} attribute to ensure that
+the minimal alignment of \texttt{d\_buffer} was at least 8 (or even
+16):
+
+\begin{lstlisting}[language=C++, basicstyle={\ttfamily\footnotesize}]
+// ...
+alignas(8) char d_buffer[39];  // small buffer aligned to (at least) 8
+// ...
+\end{lstlisting}
+}}:
+
+\begin{lstlisting}[language=C++]
+class MyAny  // nontemplate class
+{
+union
+{
+struct
+{
+char*       d_buf_p;  // pointer to dynamic memory if needed
+std::size_t d_size;   // for (ù{\codeincomments{d\_buf\_p}}ù); same alignment as (ù{\codeincomments{(char*)}}ù)
+} d_imp;  // Size/alignment of (ù{\codeincomments{d\_imp}}ù) is (ù{\codeincomments{sizeof(d\_buf\_p)}}ù) (e.g., 4 or 8).
+
+char d_buffer[39];         // small buffer aligned as a (ù{\codeincomments{(char*)}}ù)
+};  // Size of (ù{\codeincomments{union}}ù) is (ù{\codeincomments{39}}ù); alignment of (ù{\codeincomments{union}}ù) is (ù{\codeincomments{alignof(char*)}}ù).
+
+bool d_onHeapFlag;             // boolean (discriminator) for union (above)
+
+public:
+template <typename T>
+MyAny(const T& x);               // (member template) constructor
+
+template <typename T>
+MyAny& operator=(const T& rhs);  // (member template) assignment operator
+
+template <typename T>
+const T& as() const;             // (member template) accessor
+
+// ...
+
+};  // Size of (ù{\codeincomments{MyAny}}ù) is (ù{\codeincomments{40}}ù); alignment of (ù{\codeincomments{MyAny}}ù) is (ù{\codeincomments{alignof(char*)}}ù) (e.g., 8).
+\end{lstlisting}
+
+\noindent The (templated) constructor{\cprotect\footnote{In a real-world
+implementation, a \emph{forwarding reference} would be used as the
+parameter type of \texttt{MyAny}'s constructor to
+\emph{perfectly forward} the argument object into the appropriate
+storage; see ``\titleref{forwardingref}" on page~\ref{forwardingref}.}} of \texttt{MyAny}
+can then decide (potentially at compile time) whether to store the given
+object \texttt{x} in the internal small buffer storage or on the heap,
+depending on \texttt{x}'s size and alignment:
+
+\begin{lstlisting}[language=C++]
+template <typename T>
+MyAny::MyAny(const T& x)
+{
+if (sizeof(x) <= 39 && alignof(T) <= alignof(char*))
+{
+// Store (ù{\codeincomments{x}}ù) in place in the small buffer.
+new(d_buffer) T(x);
+d_onHeapFlag = false;
+}
+else
+{
+// Store (ù{\codeincomments{x}}ù) on the heap and a pointer to it in the small buffer.
+d_imp.d_buf_p = new T(x);
+d_imp.d_size = sizeof(x);
+d_onHeapFlag = true;
+}
+}
+\end{lstlisting}
+
+\noindent Using the (compile-time) \texttt{alignof} operator in the constructor
+above to check whether the alignment of \texttt{T} is compatible with
+the alignment of the small buffer is necessary to avoid attempting to
+store overly aligned objects in place --- even if they would fit in the
+39-byte buffer. As an example, consider \texttt{long}~\texttt{double},
+which on typical platforms has both a size and alignment of
+\texttt{16}. Even though \texttt{sizeof(long}~\texttt{double)} (16) is not greater
+than 39, \texttt{alignof(long}~\texttt{double)} (16) is greater than
+that of \texttt{d\_buffer} (8); hence, attempting to store an instance
+of \texttt{long}~\texttt{double} in the small buffer, \texttt{d\_buffer}, might
+--- depending on where the \texttt{MyAny} object resides in memory --- result
+in \textbf{undefined behavior}. User-defined types that either contain
+a \texttt{long}~\texttt{double} or have had their alignments
+artificially extended beyond 8 bytes are also unsuitable candidates for the
+internal buffer even if they might otherwise fit:
+
+\begin{lstlisting}[language=C++]
+struct Unsuitable1 { long double d_value };
+// Size is 16 (<= 39), but alignment is 16 (> 8).
+
+struct alignas(32) Unsuitable2 { };
+// Size is  1 (<= 39), but alignment is 32 (> 8).
+\end{lstlisting}
+
+\subsubsection[Monotonic memory allocation]{Monotonic memory allocation}\label{monotonic-memory-allocation}
+
+A common pattern in software --- e.g., request/response in client/server
+architectures --- is to quickly build up a complex data structure,
+use it, and then quickly destroy it. A \textbf{monotonic allocator} is
+a special-purpose memory allocator that returns a monotonically
+increasing sequence of addresses into an arbitrary buffer subject to
+specific size and alignment requirements.{\cprotect\footnote{C++17
+introduces an alternate interface to supply memory allocators via an
+abstract base class. The C++17 Standard Library provides a complete
+version of standard containers using this more interoperable design in
+a sub-namespace, \texttt{std::pmr}, where \texttt{pmr} stands for
+\textbf{polymorphic memory resource}. Also adopted as part of C++17
+are two concrete memory resources,
+\texttt{std::pmr::monotonic\_buffer\_resource} and
+\texttt{std::pmr::unsynchronized\_pool\_resource}.}} Especially when
+the memory is allocated by a single thread, there are prodigious\footnote{see
+\textbf{lakos16}} performance benefits to having unsynchronized raw
+memory to be taken directly off the (always hot) program stack. In what
+follows, we will provide the building blocks of a monotonic memory
+allocator wherein the \texttt{alignof} operator plays an essential role.
+
+As a practically useful example, suppose that we want to create a
+lightweight\linebreak[4] \mbox{\texttt{MonotonicBuffer}} class template that will allow us
+to allocate raw memory directly from the footprint of the object. Just
+by creating an object of an (appropriately sized) instance of this type
+on the program stack, memory will natural come from the stack. For
+didactic reasons, we will start with a first pass at this class ---
+ignoring alignment --- and then go back and fix it using
+\texttt{alignof} so that it returns properly aligned memory:
+
+\begin{lstlisting}[language=C++]
+template <std::size_t N>
+struct MonotonicBuffer  // first pass at a monotonic memory buffer
+{
+char  d_buffer[N];  // fixed-size buffer
+char* d_top_p;      //  next available address
+
+MonotonicBuffer() : d_top_p(d_buffer) { }
+// Initialize the next available address to be the start of the buffer.
+
+template <typename T>
+void* allocate()             // BAD IDEA --- doesn't address alignment
+{
+void* result = d_top_p;  // Remember the current next-available address.
+d_top_p += sizeof(T);    // Reserve just enough space for this type.
+return result;           // Return the address of the reserved space.
+}
+};
+\end{lstlisting}
+
+\noindent \texttt{MonotonicBuffer} is a class template with one integral template
+parameter that controls the size of the \texttt{d\_buffer} member from
+which it will dispense memory. Note that, while \texttt{d\_buffer} has
+an alignment of 1, the \texttt{d\_top\_p} member, used to keep track of
+the next available address, has an alignment that is typically 4 or 8
+(corresponding to 32-bit and 64-bit architectures, respectively). The
+constructor merely initializes the next-address pointer,
+\texttt{d\_top\_p} to the start of the local memory pool,
+\texttt{d\_buffer[N]}. The interesting part is how the \texttt{allocate}
+function manages to return a sequence of addresses corresponding to
+objects allocated sequentially from the local pool:
+
+\begin{lstlisting}[language=C++]
+MonotonicBuffer<20> mb;  // On a 64-bit platform, the alignment will be 8.
+char*   cp = static_cast<char*  >(mb.allocate<char  >());  // &d_buffer[ 0]
+double* dp = static_cast<double*>(mb.allocate<double>());  // &d_buffer[ 1]
+short*  sp = static_cast<short* >(mb.allocate<short >());  // &d_buffer[ 9]
+int*    ip = static_cast<int*   >(mb.allocate<int   >());  // &d_buffer[11]
+float*  fp = static_cast<float* >(mb.allocate<float >());  // &d_buffer[15]
+\end{lstlisting}
+
+\noindent The predominant problem with this first attempt at an implementation of
+\texttt{allocate} is that the addresses returned do not necessarily
+satisfy the minimum alignment requirements of the supplied type. A
+secondary concern is that there is no internal check to see if
+sufficient room remains. To patch this faulty implementation,
+we will need a function that, given an initial address and an alignment
+requirement, returns the amount by which the address must be rounded up
+(i.e., necessary padding) for an object having that alignment
+requirement to be properly aligned:
+
+\begin{lstlisting}[language=C++]
+std::size_t calculatePadding(const char* address, std::size_t alignment)
+// Requires: alignment is a (non-negative, integral) power of 2.
+{
+// rounding up (ù{\codeincomments{X}}ù) to (ù{\codeincomments{N}}ù) (where (ù{\codeincomments{N}}ù) is a power of 2): (ù{\codeincomments{(x + N - 1) \& \textasciitilde(N - 1)}}ù)
+const std::size_t maxA = alignof(std::max_align_t);
+const std::size_t a = reinterpret_cast<std::size_t>(address) & (maxA - 1);
+const std::size_t am1 = alignment - 1;
+const std::size_t alignedAddress = (a + am1) & ~am1;  // round up
+return alignedAddress - a;                            // return padding
+}
+\end{lstlisting}
+
+\noindent Armed with the
+\texttt{calculatePadding} helper function (above), we are all set to write the final (correct) version of the \texttt{allocate} method of the \texttt{MonotonicBuffer} class template:
+
+\begin{lstlisting}[language=C++]
+template <typename T>
+void* MonotonicBuffer::allocate()
+{
+// Calculate just the padding space needed for alignment.
+const std::size_t padding = calculatePadding(d_top_p, alignof(T));
+
+// Calculate the total amount of space needed.
+const std::size_t delta = padding + sizeof(T);
+
+// Check to make sure the properly aligned object will fit.
+if (delta > d_buffer + N - d_top_p)  // if (Needed > Total - Used)
+{
+return 0;  // not enough properly aligned unused space remaining
+}
+
+// Reserve needed space; return the address for a properly aligned object.
+void* alignedAddress = d_top_p + padding;  // Align properly for (ù{\codeincomments{T}}ù) object.
+d_top_p += delta;                          // Reserve memory for (ù{\codeincomments{T}}ù) object.
+return alignedAddress;                     // Return memory for (ù{\codeincomments{T}}ù) object.
+}
+\end{lstlisting}
+
+\noindent Using this corrected implementation that uses \texttt{alignof} to pass
+the alignment of the supplied type \texttt{T} to the
+\texttt{calculatePadding} function, the addresses returned from the
+benchmark example (above) would be different{\cprotect\footnote{Note
+that on a 32-bit architecture, the \texttt{d\_top\_p} character
+pointer would be only four-byte aligned, which means that the entire
+buffer might be only four-byte aligned. In that case, the respective
+offsets for \texttt{cp}, \texttt{dp}, \texttt{sp}, \texttt{ip}, and
+\texttt{bp} in the example for the aligned use case might sometimes
+instead be 0, 4, 12, 16, and \texttt{nullptr}, respectively. If
+desired, we can use the \texttt{alignas}
+attribute/keyword to artificially constrain the \texttt{d\_buffer}
+data member always to reside on a maximally aligned address boundary,
+thereby improving consistency of behavior, especially on 32-bit
+platforms.}}:
+
+\begin{lstlisting}[language=C++]
+MonotonicBuffer<20> mb;  // Assume 64-bit platform (8-byte aligned).
+char*   cp = static_cast<char*  >(mb.allocate<char  >());  // &d_buffer[ 0]
+double* dp = static_cast<double*>(mb.allocate<double>());  // &d_buffer[ 8]
+short*  sp = static_cast<short* >(mb.allocate<short >());  // &d_buffer[16]
+int*    ip = static_cast<int*   >(mb.allocate<int   >());  // 0 (out of space)
+bool*   bp = static_cast<bool*  >(mb.allocate<bool  >());  // &d_buffer[18]
+\end{lstlisting}
+
+\noindent In practice, an object that allocates memory, such as a \texttt{vector}
+or a \texttt{list} will be constructed with an object that allocates and
+deallocates memory that is guaranteed to be either \textbf{maximally
+aligned}, \textbf{naturally aligned}, or sufficiently aligned to satisfy
+an optionally specified alignment requirement.
+
+Finally, instead of returning a null pointer when the buffer was
+exhausted, we would typically have the concrete allocator fall back to a
+geometrically growing sequence of dynamically allocated blocks; the
+\texttt{allocate} method would then fail (i.e., a
+\texttt{std::bad\_alloc} exception would somehow be thrown) only if all
+of available memory were exhausted and the \textbf{\texttt{new} handler}
+were unable to acquire more memory yet still opted to return control
+to its caller.
+
+\subsection[Annoyances]{Annoyances}\label{annoyances-alignof}
+
+\subsubsection[\tt{alignof} (unlike \tt{sizeof}) is defined only on types]{{\SubsubsecCode alignof} (unlike {\SubsubsecCode sizeof}) is defined only on types}\label{alignof-(unlike-sizeof)-is-defined-only-on-types}
+
+The (compile-time) \texttt{sizeof} operator comes in two different
+forms: one accepting a \emph{type} and the other accepting an
+\emph{expression}. The C++ Standard currently requires that
+\texttt{alignof} support only the former{\cprotect\footnote{Although
+the Standard does not require \texttt{alignof} to work on arbitrary
+expressions, \texttt{alignof} is a common GNU extension and most compilers support
+it. Both Clang and GCC will warn only if \texttt{-Wpedantic} is set.}}:
+
+\begin{lstlisting}[language=C++]
+static_assert(sizeof(int)  == 4, "");     // OK, (ù{\codeincomments{int}}ù) is a type.
+static_assert(alignof(int) == 4, "");     // OK, (ù{\codeincomments{int}}ù) is a type.
+static_assert(sizeof(3 + 2))  == 4, "");  // OK, (ù{\codeincomments{3 + 2}}ù) is an expression.
+static_assert(alignof(3 + 2)) == 4, "");  // Error, (ù{\codeincomments{3 + 2}}ù) is not a type.
+\end{lstlisting}
+
+\noindent This asymmetry can result in a need to leverage
+\texttt{decltype} (see ``\titleref{decltype}" on page~\pageref{decltype}) when inspecting an expression instead
+of a type:
+
+\begin{lstlisting}[language=C++]
+int f()
+{
+enum { e_SUCCESS, e_FAILURES } result;
+std::cout << "size: " << sizeof(result) << '\n';
+std::cout << "alignment:" << alignof(decltype(result)) << '\n';
+}
+\end{lstlisting}
+
+\noindent The same sort of issue occurs in conjunction with modern \textbf{type
+inference} features such as \texttt{auto} (see ``\titleref{auto-feature}" on page~\pageref{auto-feature}) and
+generic lambdas (see ``\titleref{genericlambda}" on page~\pageref{genericlambda}). As a real-world example, consider the
+generic lambda (C++14) being used to introduce a small
+\emph{local function} that prints out information regarding the size and
+alignment of a given \texttt{object}, likely for debugging purposes:
+
+\begin{lstlisting}[language=C++]
+auto printTypeInformation = [](auto object)
+{
+std::cout << "     size: " << sizeof(object) << '\n'
+<< "alignment: " << alignof(decltype(object)) << '\n';
+};
+\end{lstlisting}
+
+\noindent Because there is no explicit type available within the body of the
+\texttt{printTypeInformation} lambda,{\cprotect\footnote{In C++20, referring to the type of a generic lambda parameter explicitly is possible (due to the addition to lambdas of some familiar template syntax):
+
+\begin{lstlisting}[language=C++, basicstyle={\ttfamily\footnotesize}]
+auto printTypeInformation = []<typename T>(T object)
+{
+std::cout << "     size: " << sizeof(T) << '\n'
+<< "alignment: " << alignof(T) << '\n';
+};
+\end{lstlisting}
+}} a programmer wishing to remain entirely within the C++
+standard{\cprotect\footnote{Note that \texttt{alignof(object)} will work
+on every major compiler (GCC~10.x, Clang~10.x, and MSVC~19.x) as a
+nonstandard extension.}} is forced to use the
+\texttt{decltype} construct explicitly to first obtain
+the type of \texttt{object} before passing it on to \texttt{alignof}.
+
+\subsection[See Also]{See Also}\label{see-also}
+
+\begin{itemize}
+\item{``\titleref{alignas}" — Safe C++11 feature that can be used to provide an artificially stricter alignment (e.g., more than \textbf{natural alignment}).}
+\item{``\titleref{decltype}" — Safe C++11 feature that helps work around \texttt{alignof}'s limitation of accepting only a type, not an expression (see \textit{\titleref{annoyances-alignof}} on page~\pageref{annoyances-alignof}).}
+\end{itemize}
+
+\subsection[Further Reading]{Further Reading}\label{further-reading}
+
+None so far
+
+
+

@@ -1,0 +1,133 @@
+\newpage
+\section[\tt{override}]{{\SecCode override}}\label{override}
+
+
+The \texttt{override} keyword ensures that a member function overrides a corresponding \texttt{virtual} member function in a base class.
+
+\subsection[Description]{Description}\label{description}
+
+The \textbf{contextual keyword}\glossary{contextual keyword} \texttt{override} can be provided at the
+end of a member-function declaration to ensure that the decorated
+function is indeed \textbf{overriding}\glossary{overriding} a corresponding \texttt{virtual}
+member function in a base class (i.e., not \textbf{hiding}\glossary{hiding} it or
+otherwise inadvertently introducing a distinct function declaration):
+
+\begin{lstlisting}[language=C++]
+struct Base
+{
+virtual void f(int);
+void g(int);
+};
+
+struct Derived : Base
+{
+void f();              // hides (ù{\codeincomments{Base::f(int)}}ù) (likely mistake)
+void f() override;     // error: (ù{\codeincomments{Base::f()}}ù) not found
+
+void f(int);           // implicitly overrides (ù{\codeincomments{Base::f(int)}}ù)
+void f(int) override;  // explicitly overrides (ù{\codeincomments{Base::f(int)}}ù)
+
+void g();              // hides (ù{\codeincomments{Base::g(int)}}ù) (likely mistake)
+void g() override;     // error: (ù{\codeincomments{Base::g()}}ù) not found
+
+void g(int);           // hides (ù{\codeincomments{Base::g(int)}}ù) (likely mistake)
+void g(int) override;  // Error: (ù{\codeincomments{Base::g()}}ù) is not (ù{\codeincomments{virtual}}ù).
+};
+\end{lstlisting}
+
+\noindent Use of this feature expresses design intent so that (1) human readers
+are aware of it and (2) compilers can validate it.
+
+\subsection[Use Cases]{Use Cases}\label{use-cases}
+
+\subsubsection[Ensuring that a member function of a base class is being overridden]{Ensuring that a member function of a base class is being overridden}\label{ensuring-that-a-member-function-of-a-base-class-is-being-overridden}
+
+Consider the following polymorphic hierarchy of error-category classes
+(as we might have defined them using C++03):
+
+\begin{lstlisting}[language=C++]
+struct ErrorCategory
+{
+virtual bool equivalent(const ErrorCode& code, int condition);
+virtual bool equivalent(int code, const ErrorCondition& condition);
+};
+
+struct AutomotiveErrorCategory : ErrorCategory
+{
+virtual bool equivalent(const ErrorCode& code, int condition);
+virtual bool equivolent(int code, const ErrorCondition& condition);
+};
+\end{lstlisting}
+
+\noindent Notice that there is a defect in the last line of the example above:
+\texttt{equivalent} has been misspelled. Moreover, the compiler did not
+catch that error. Clients calling \texttt{equivalent} on
+\texttt{AutomotiveErrorCategory} will incorrectly invoke the base-class
+function. If the function in the base class happens to be defined, the
+code might compile and behave unexpectedly at runtime. Now, suppose
+that over time the interface is changed by marking the
+equivalence-checking function \texttt{const} to bring the interface
+closer to that of \texttt{std::error\_category}:
+
+\begin{lstlisting}[language=C++]
+struct ErrorCategory
+{
+virtual bool equivalent(const ErrorCode& code, int condition) const;
+virtual bool equivalent(int code, const ErrorCondition& condition) const;
+};
+\end{lstlisting}
+
+Without applying the corresponding modification to all classes deriving
+from\linebreak[4] \texttt{ErrorCategory}, the semantics of the program change due to
+the derived classes now hiding (instead of overriding) the base class's
+\texttt{virtual} member function. Both of the errors discussed above
+would be detected automatically by decorating the \texttt{virtual}
+functions in all derived classes with \texttt{override}:
+
+\begin{lstlisting}[language=C++]
+struct AutomotiveErrorCategory : ErrorCategory
+{
+bool equivalent(const ErrorCode& code, int condition) override;
+// compile-time error when base class changed
+
+bool equivolent(int code, const ErrorCondition& code) override;
+// compile-time error when first written
+};
+\end{lstlisting}
+
+\noindent What's more, \texttt{override} serves as a clear indication to the human
+reader of the derived class's author's intent to customize the
+behavior of \texttt{ErrorCategory}. For any given member function, use
+of \texttt{override} necessarily renders any use of \texttt{virtual} for
+that function syntactically and semantically redundant. The only
+(cosmetic) reason for retaining \texttt{virtual} in the presence of
+\texttt{override} would be that \texttt{virtual} appears to the left of
+the function declaration (as it always has) instead of all the way to
+the right (as \texttt{override} does now).
+
+\subsection[Potential Pitfalls]{Potential Pitfalls}\label{potential-pitfalls}
+
+\subsubsection[Lack of consistency across a code base]{Lack of consistency across a code base}\label{lack-of-consistency-across-a-codebase}
+
+Relying on \texttt{override} as a means of ensuring that changes to
+base-class interfaces are propagated across a codebase can prove
+unreliable if this feature is used inconsistently --- i.e., statically
+verified in every circumstance where its use would be appropriate. In
+particular, altering the signature of a \texttt{virtual} member function
+in a base class and then compiling ``the world'' will always flag (as an
+error) any nonmatching derived-class function where \texttt{override}
+was used but might fail (even to warn) where it is not.
+
+\subsection[Annoyances]{Annoyances}\label{annoyances}
+
+None so far
+
+\subsection[See Also]{See Also}\label{see-also}
+
+None so far
+
+\subsection[Further Reading]{Further Reading}\label{further-reading}
+
+None so far
+
+
