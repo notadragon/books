@@ -1,0 +1,392 @@
+
+
+Alias declarations and alias templates provide an expanded use of the
+\texttt{using} keyword, offering an alternative syntax (to
+\texttt{typedef}) for creating a \textbf{type alias} that can itself be
+a template.
+
+\subsection[Description]{Description}\label{description}
+
+The keyword \texttt{using} has historically supported the introduction
+of an alias for a named entity (e.g., type, function, or data) from some
+named scope into the current one; see {\it\titleref{appendix:-brief-review-of-(c++03)-using-declarations}} on page~\pageref{appendix:-brief-review-of-(c++03)-using-declarations}. As of C++11, we can
+employ the \texttt{using} keyword to achieve everything that could
+previously be accomplished with a \texttt{typedef} declaration but in a
+syntactic form that many people find more natural and intuitive (but
+that offers nothing profoundly new):
+
+\begin{lstlisting}[language=C++]
+using Type1 = int;     // equivalent to (ù{\codeincomments{typedef int Type1;}}ù)
+using Type2 = double;  // equivalent to (ù{\codeincomments{typedef double Type2;}}ù)
+\end{lstlisting}
+    
+\noindent In contrast to \texttt{typedef}, the name of the synonym created via the
+\texttt{using} syntax always appears on the left side of the \texttt{=}
+token and separate from the type declaration itself --- the advantage of
+which becomes apparent with more involved types, such as 
+\emph{pointer-to-functions}, \emph{pointer-to-member-function}, or
+\emph{pointer-to-data-member}:
+
+\begin{lstlisting}[language=C++]
+struct S { int i; void f(); };  // user-defined type (ù{\codeincomments{S}}ù) defined at file scope
+
+using Type3 = void(*)();        // equivalent to (ù{\codeincomments{typedef void(*Type3)();}}ù)
+using Type4 = void(S::*)();     // equivalent to (ù{\codeincomments{typedef void(S::*Type4)();}}ù)
+using Type5 = int S::*;         // equivalent to (ù{\codeincomments{typedef int S::*Type5;}}ù)
+\end{lstlisting}
+    
+\noindent Just as with a \texttt{typedef}, the name representing the type can be
+qualified, but the symbol representing the synonym cannot:
+
+\begin{lstlisting}[language=C++]
+namespace N { struct S { }; }  // original type (ù{\codeincomments{S}}ù) defined with namespace (ù{\codeincomments{N}}ù)
+
+using Type6 = N::S;            // equivalent to (ù{\codeincomments{typedef N::S Type6;}}ù)
+using ::Type7 = int;           // Error: the alias's name must be unqualified.
+\end{lstlisting}
+    
+\noindent Unlike a \texttt{typedef}, however, a type alias employing
+\texttt{using} can itself be a template, known as an \emph{alias
+template}:
+
+\begin{lstlisting}[language=C++]
+template <typename T>
+using Type8 = T;  // "identity" alias template
+
+Type8<int>    i;  // equivalent to (ù{\codeincomments{int i;}}ù)
+Type8<double> d;  // equivalent to (ù{\codeincomments{double d;}}ù)
+\end{lstlisting}
+    
+\noindent Note, however, that neither partial nor explicit specialization of alias
+templates is supported:
+
+\begin{lstlisting}[language=C++]
+template <typename, typename>   // general alias template
+using Type9 = char;             // OK
+
+template <typename T>           // attempted partial specialization of above
+using Type9<T, int> = char;     // error: expected (ù{\codeincomments{=}}ù) before (ù{\codeincomments{<}}ù) token
+
+template <>                     // attempted full specialization of above
+using Type10<int, int> = char;  // error: expected unqualified-id before (ù{\codeincomments{using}}ù)
+\end{lstlisting}
+    
+\noindent Used in conjunction with existing class templates, alias templates allow
+programmers to \emph{bind} one or more template parameters to a fixed
+type, while leaving others open:
+
+\begin{lstlisting}[language=C++]
+#include <utility>  // (ù{\codeincomments{std::pair}}ù)
+
+template <typename T>
+using PairOfCharAnd = std::pair<char, T>;
+    // alias template that binds (ù{\codeincomments{char}}ù) to the first type parameter of (ù{\codeincomments{std::pair}}ù)
+
+PairOfCharAnd<int>    pci;  // equivalent to (ù{\codeincomments{std::pair<char, int> pci;}}ù)
+PairOfCharAnd<double> pcd;  // equivalent to (ù{\codeincomments{std::pair<char, double> pcd;}}ù)
+\end{lstlisting}
+    
+\noindent Finally, note that the equivalent functionality of alias templates can be
+achieved in C++03, though with additional boilerplate code at both the
+point of definition and the call site:
+
+\begin{lstlisting}[language=C++]
+template <typename T>
+struct PairOfCharAnd
+    // template class holding an alias, (ù{\codeincomments{Type}}ù), to (ù{\codeincomments{std::pair<char, T>}}ù)
+{
+    typedef std::pair<char, T> Type;
+        // type alias binding (ù{\codeincomments{char}}ù) to the first type parameter of (ù{\codeincomments{std::pair}}ù)
+};
+
+PairOfCharAnd<int>::Type    pci;  // equivalent to (ù{\codeincomments{std::pair<char, int> pci;}}ù)
+PairOfCharAnd<double>::Type pcd;  // equivalent to (ù{\codeincomments{std::pair<char, double> pcd;}}ù)
+\end{lstlisting}
+    
+
+\subsection[Use Cases]{Use Cases}\label{use-cases}
+
+\subsubsection[Simplifying convoluted {\tt typedef} declarations]{Simplifying convoluted {\SubsubsecCode typedef} declarations}\label{simplifying-convoluted-typedef-declarations}
+
+Complex \texttt{typedef} declarations involving pointers to functions,
+member functions, or data members require looking in the middle of the
+declaration to find the alias name. As an example, consider a
+\emph{callback} type alias intended to be used with asynchronous functions:
+
+\begin{lstlisting}[language=C++]
+typedef void(*CompletionCallback)(void* userData);
+\end{lstlisting}
+    
+\noindent Developers coming from a background other than C or C++03 might find the
+above declaration hard to parse since the name of the alias
+(\texttt{CompletionCallback}) is embedded in the function pointer type.
+Replacing \texttt{typedef} with \texttt{using} results in a simpler,
+more consistent formulation of the same alias:
+
+\begin{lstlisting}[language=C++]
+using CompletionCallback = void(*)(void* userData);
+\end{lstlisting}
+    
+\noindent The \texttt{CompletionCallback} alias declaration (above) reads almost
+completely left-to-right,{\cprotect\footnote{In order to make the
+\texttt{CompletionCallback} alias read left-to-right, a
+  trailing return (see Section~\ref{trailing-function-return-types}, ``\titleref{trailing-function-return-types}") can be used:
+
+  \begin{lstlisting}[language=C++, basicstyle={\ttfamily\footnotesize}]
+  using CompletionCallback = auto(*)(void* userData) -> void;
+  \end{lstlisting}\vspace*{-1ex}
+      
+\noindent The alias declaration above can be read as,
+  ``\texttt{CompletionCallback} is an alias for a pointer to a
+  function taking a \texttt{void*} parameter named \texttt{userData} and
+  returning \texttt{void}.''}} and the name of the alias is clearly
+specified after the \texttt{using} keyword.
+
+\subsubsection[Binding template arguments]{Binding template arguments}\label{binding-template-arguments}
+
+An alias template can be used to \emph{bind} one or more template
+parameters of, say, a commonly used class template, while leaving the
+other parameters open to variation. Suppose, for example, we have a class, \texttt{UserData}, that contains
+several (e.g., four) distinct instances of \texttt{std::map} --- each
+having the same key type, \texttt{UserId}, but with different payloads:
+
+\begin{lstlisting}[language=C++]
+class UserData  // class having excessive code repetition (BAD IDEA)
+{
+private:
+    std::map<UserId, Message>          d_messages;
+    std::map<UserId, Photos>           d_photos;
+    std::map<UserId, Article>          d_articles;
+    std::map<UserId, std::set<UserId>> d_friends;
+};
+\end{lstlisting}
+    
+\noindent The example above, though clear and regular, involves significant
+repetition, making it more difficult to maintain should we later opt to
+change data structures. If we were to instead use an \textbf{alias
+template} to bind the \texttt{UserId} type to the first type
+parameter of \texttt{std::map}, we could both (1) reduce code repetition
+and (2) enable the programmer to consistently replace \texttt{std::map}
+to another container
+(e.g., \texttt{std::unordered\_map}{\cprotect\footnote{An
+\texttt{std::unordered\_map} is an STL container type that became
+available on all conforming platforms along with C++11. The
+functionality is similar except that, since it is not required to
+support ordered traversal or (worst case) \texttt{O[log(n)]} lookups
+and \texttt{O[n*log(n)]} insertions, \texttt{std::unordered\_map} can
+be implemented as a hash table instead of a balanced tree, yielding
+significantly faster average access times. See
+  \textbf{cppreferenceb}.}}) by performing the change in only
+one place:
+
+\begin{lstlisting}[language=C++]
+class UserData  // class with well-factored implementation (GOOD IDEA)
+{
+private:
+    template <typename V>                  // using a template alias to bind
+    using Mapping = std::map<UserId, V>;   // (ù{\codeincomments{UserId}}ù) as the key type
+
+    Mapping<Message>          d_messages;
+    Mapping<Photos>           d_photos;
+    Mapping<Article>          d_articles;
+    Mapping<std::set<UserId>> d_friends;
+};
+\end{lstlisting}
+    
+
+\subsubsection[Providing a shorthand notation for type traits]{Providing a shorthand notation for type traits}\label{providing-a-shorthand-notation-for-type-traits}
+
+Alias templates can provide a shorthand notation for \textbf{type
+traits}, avoiding \textbf{boilerplate code} in the usage site. As an
+example, consider a simple type trait that adds a pointer to a given
+type (akin to \texttt{std::add\_pointer}):
+
+\begin{lstlisting}[language=C++]
+template <typename T>
+struct AddPointer
+{
+    typedef T* Type;
+};
+\end{lstlisting}
+    
+\noindent To use the trait above, the \texttt{AddPointer} class template
+must be instantiated and its nested \texttt{Type} alias must be
+accessed by prepending the \texttt{typename} keyword:
+
+\begin{lstlisting}[language=C++]
+void f()
+{
+    int i;
+    typename AddPointer<int>::Type p = &i;
+}
+\end{lstlisting}
+    
+\noindent The syntactical overhead of \texttt{AddPointer} can be removed by
+creating an alias template for its nested type alias, such as
+\texttt{AddPointer\_t}{\cprotect\footnote{Note that, since C++14, all
+the standard type traits defined in the \texttt{<type\_traits>} header
+provide a corresponding alias template with the goal of reducing
+boilerplate code. For instance, C++14 introduces the
+\texttt{std::remove\_reference\_t} alias template for the C++11
+\texttt{std::remove\_reference} type trait:
+
+\begin{lstlisting}[language=C++, basicstyle={\ttfamily\footnotesize}]
+typename std::remove_reference<int&>::type i0 = 5; // OK in both C++11 and C++14
+std::remove_reference_t<int&> i1 = 5;              // OK in C++14
+\end{lstlisting}
+      }}:
+
+\begin{lstlisting}[language=C++]
+template <typename T>
+using AddPointer_t = typename AddPointer<T>::Type;
+\end{lstlisting}
+    
+\noindent Using \texttt{AddPointer\_t} instead of \texttt{AddPointer} results in
+shorter code devoid of boilerplate:
+
+\begin{lstlisting}[language=C++]
+void g()
+{
+    int i;
+    AddPointer_t<int> p = &i;
+}
+\end{lstlisting}
+    
+
+\subsection[Potential Pitfalls]{Potential Pitfalls}\label{potential-pitfalls}
+
+None so far
+
+\subsection[Annoyances]{Annoyances}\label{annoyances}
+
+None so far
+
+\subsection[See Also]{See Also}\label{see-also}
+
+\begin{itemize}
+\item{Section~\ref{ctorinheriting}, ``\titleref{ctorinheriting}" — Safe C++11 feature providing another meaning for the \texttt{using} keyword to allow base-class constructors to be invoked as part of the derived class}
+\item{Section~\ref{trailing-function-return-types}, ``\titleref{trailing-function-return-types}" — Safe C++11 feature providing an alternative syntax for function declaration, which can help improve readability in type aliases and alias templates involving function types}
+\end{itemize}
+
+\subsection[Further Reading]{Further Reading}\label{further-reading}
+
+None so far
+
+\subsection[Appendix: Brief Review of (C++03) {\tt using} Declarations]{Appendix: Brief Review of (C++03) {\SubsecCode using} Declarations}\label{appendix:-brief-review-of-(c++03)-using-declarations}
+
+The \texttt{using} keyword serves another, similar purpose: It introduces an
+alias for a (named) entity from a distinct (named) scope into the
+current scope. The first usage category for employing \texttt{using} to
+create local aliases is with respect to other namespaces:
+
+\begin{lstlisting}[language=C++]
+namespace N  // namespace containing various named constructs
+{
+   void f();        // (0) overloaded function (ù{\codeincomments{f}}ù) declared at namespace scope
+   void f(int);     // (1)      "        "      "      "    "      "       "
+   void f(double);  // (2)      "        "      "      "    "      "       "
+   void g();        // (3) function (ù{\codeincomments{g}}ù) declared at namespace scope
+   void h();        // (4)     "    (ù{\codeincomments{h}}ù)    "      "     "       "
+   int x;           // (5) integer variable (ù{\codeincomments{x}}ù) declared at namespace scope
+   int y;           // (6)      "      "     (ù{\codeincomments{y}}ù)     "     "     "      "
+   class C;         // (7) class (ù{\codeincomments{C}}ù) declared but not defined at namespace scope
+};
+
+void h();           // (8) function (ù{\codeincomments{h}}ù) declared at file (aka global) scope
+
+void client1()      // client illustrating usage w.r.t. namespaces
+{
+    N::f();         // OK, invokes (0) above
+    N::f(1);        // OK, invokes (1) above
+    N::f(2.0);      // OK, invokes (2) above
+    f(2.0);         // Error: function (ù{\codeincomments{f}}ù) is not found.
+    using N::f();   // Error: using must apply to all overloads at once.
+    using N::f;     // OK, creates local aliases for all three (ù{\codeincomments{f}}ù) overloads
+    f();            // OK, invokes (0) above
+    f(1);           // OK, invokes (1) above
+    f(2.0);         // OK, invokes (2) above
+
+    x = 3;          // error: variable (ù{\codeincomments{x}}ù) not found
+    N::x = 3;       // OK, assigns 3 to (5) above
+
+    using N::x;     // OK, creates local alias for (ù{\codeincomments{x}}ù)
+    x = 4;          // OK, assigns 4 to (5) above
+    y = 5;          // error: variable (ù{\codeincomments{y}}ù) not found
+    g();            // error: function (ù{\codeincomments{g}}ù) not found
+    C *p;           // error: Class (ù{\codeincomments{C}}ù) not found
+    N::C *p;        // OK, creates pointer (ù{\codeincomments{p}}ù) to incomplete type (ù{\codeincomments{C}}ù) (8) above
+
+    using namespace N;
+        // OK, create local aliases for all named entities in (ù{\codeincomments{namespace}}ù) (ù{\codeincomments{N}}ù).
+
+    y = 6;         // OK, assigns 6 to (6) above
+    g();           // OK, invokes (3) above
+    h();           // Error: alias for (ù{\codeincomments{h}}ù) is ambiguous; (4) or (8) above.
+    ::h();         // OK, invokes (4) above
+    N::h();        // OK, invokes (8) above
+    C *q;          // // OK, creates pointer (ù{\codeincomments{q}}ù) to incomplete type (ù{\codeincomments{C}}ù) (8) above
+}
+\end{lstlisting}
+    
+\noindent The second usage category for employing \texttt{using} to create local
+aliases is with respect to \texttt{public} (or \texttt{protected})
+members of \emph{privately} (or \emph{protectedly}) inherited base
+classes into a \texttt{public} (or \texttt{protected}) region of the
+derived class{\cprotect\footnote{The alternatives, shown here in
+parentheses, are provided for technical accuracy but are unlikely to
+  be useful in practice.}}:
+
+\begin{lstlisting}[language=C++]
+struct B   // base class having various (ù{\codeincomments{public}}ù) named entities
+{
+    void fb();         // (10) overloaded member function
+    void fb(int);      // (11)     "        "       "
+    void fb(double);   // (12)     "        "       "
+    void gb();         // (13) member function
+    static void hb();  // (14) static member function
+    typedef int Tb;    // (15) type alias for an integer
+    int xb;            // (16) integer data member
+    int yb;            // (17) integer data member
+};
+
+struct D : private B  // class aliasing private constructs via (ù{\codeincomments{using}}ù)
+{
+    using B::fb;      // local aliases for all three overloads of (ù{\codeincomments{fb}}ù)
+    using B::hb;      // local alias for (ù{\codeincomments{static}}ù) member function (ù{\codeincomments{hb}}ù)
+    using B::xb;      // local alias for (ù{\codeincomments{int}}ù) data member (ù{\codeincomments{xb}}ù)
+    using B::Tb;      // local alias for (ù{\codeincomments{int}}ù) type alias
+
+protected:
+    using B::yb;      // (ù{\codeincomments{protected}}ù) local alias for (ù{\codeincomments{int}}ù) data member (ù{\codeincomments{yb}}ù)
+};
+
+void client2()  // client illustrating usage w.r.t. inheritance
+{
+    D d;        // Create an instance of derived type (ù{\codeincomments{D}}ù).
+    d.fb();     // OK, alias created by (ù{\codeincomments{using B::fb}}ù)  invokes (10) above.
+    d.fb(1);    // OK,   "     "     "     "     "     invokes (11) above.
+    d.fb(2.0);  // OK,   "     "     "     "     "     invokes (12) above.
+    d.gb();     // Error: (ù{\codeincomments{gb}}ù) is privately inherited without using declaration.
+    d.hb();     // OK, alias created by (ù{\codeincomments{using B::hb}}ù)  invokes (14) above.
+    D::hb();    // OK,   "      "    "     "     "     invokes (14) above.
+    D::Tb i;    // OK,   "      "    "     "  (ù{\codeincomments{B::Tb}}ù)  aliases (15) above.
+    D::xb = 1;  // OK,   "      "    "     "  (ù{\codeincomments{B::xb}}ù)  assigns (16) above.
+    D::yb = 1;  // Error, using for (ù{\codeincomments{yb}}ù) is (ù{\codeincomments{protected}}ù), not (ù{\codeincomments{public}}ù).
+}
+\end{lstlisting}
+    
+\noindent Finally, for completeness, we note that the using directive for
+\texttt{yb} in the \texttt{protected} region of \texttt{D} leaves the
+local alias for \texttt{yb} in \texttt{D} accessible to classes that are
+derived from \texttt{D}:
+
+\begin{lstlisting}[language=C++]
+struct DD : D  // doubly derived class accessing protected alias
+{
+    DD(int v) { yb = v };
+        // OK, (ù{\codeincomments{using yb}}ù) in (ù{\codeincomments{D}}ù) exposes (ù{\codeincomments{protected}}ù) alias; assigns (17).
+};
+\end{lstlisting}
+    
+
+

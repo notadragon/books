@@ -1,0 +1,60 @@
+\glossaryentry{fancyhdr v1.4> =General:>Correction for use with \cs  {reversemarginpar}}{39}
+\glossaryentry{fancyhdr v1.5> =General:>Added the \cs  {iftopfloat}, \cs  {ifbotfloat} and \cs  {iffloatpage} commands}{39}
+\glossaryentry{fancyhdr v1.6> =General:>Reset single spacing in headers/footers for use with \textsf  {setspace.sty} or \textsf  {doublespace.sty}}{39}
+\glossaryentry{fancyhdr v1.7> =General:>Changed \cs  {let}\cs  {@mkboth}\cs  {markboth} to \texttt  {\cs  {def}\cs  {@mkboth}\{\cs  {protect}\cs  {markboth}\}} to make it more robust.}{39}
+\glossaryentry{fancyhdr v1.8> =General:>corrections for \textsf  {amsbook}/\textsf  {amsart}: define \cs  {@chapapp} and (more importantly) use the \cs  {chapter/sectionmark} definitions from \texttt  {ps@headings} if they exist (which should be true for all standard classes).}{39}
+\glossaryentry{fancyhdr v1.9> =General:>The proposed \texttt  {\cs  {renewcommand}\{\cs  {headrulewidth}\}} \texttt  {\{\cs  {iffloatpage}\dots  } construction in the doc did not work properly with the \texttt  {fancyplain} style.}{39}
+\glossaryentry{fancyhdr v1.91> =General:>The definition of \cs  {@mkboth} wasn't restored on subsequent \texttt  {\cs  {pagestyle}\{fancy\}}'s.}{39}
+\glossaryentry{fancyhdr v1.92> =General:>The sequence \texttt  {\cs  {pagestyle}\{fancyplain\} \cs  {pagestyle}\{plain\} \cs  {pagestyle}\{fancy\}} would erroneously select the plain version.}{39}
+\glossaryentry{fancyhdr v1.93> =General:>\cs  {fancypagestyle} command added.}{39}
+\glossaryentry{fancyhdr v1.94> =General:>(suggested by Conrad Hughes \texttt  {<chughes@maths.tcd.ie!>}): added \cs  {footruleskip} to allow control over footrule position (old hardcoded value of .3\cs  {normalbaselineskip} is far too high when used with very small footer fonts).}{39}
+\glossaryentry{fancyhdr v1.95> =General:>call \cs  {@normalsize} in the reset code if that is defined, otherwise \cs  {normalsize}. This is to solve a problem with \textsf  {ucthesis.cls}, as this doesn't define \cs  {@currsize}. Unfortunately for latex209 calling \cs  {normalsize} doesn't work as this is optimized to do very little, so there \cs  {@normalsize} should be called. Hopefully this code works for all versions of LaTeX known to mankind.}{39}
+\glossaryentry{fancyhdr v1.96> =General:>Initialize \cs  {headwidth} to a magic (negative) value to catch most common cases that people change it before calling \texttt  {\cs  {pagestyle}\{fancy\}}. Note it can't be initialized when reading in this file, because \cs  {textwidth} could be changed afterwards. This is quite probable. We also switch to \cs  {MakeUppercase} rather than \cs  {uppercase} and introduce a \cs  {nouppercase} command for use in headers. and footers.}{39}
+\glossaryentry{fancyhdr v1.97> =General:>Two changes: \\ 1. Undo the change in version 1.8 (using the \texttt  {\cs  {pagestyle}\{headings\}} defaults for the chapter and section marks). The current version of amsbook and amsart classes don't seem to need them anymore. Moreover the standard \LaTeX  {} classes don't use \cs  {markboth} if twoside isn't selected, and this is confusing as \cs  {leftmark} doesn't work as expected.\\ 2. Include a call to \cs  {ps@empty} in \cs  {ps@@fancy}. This is to solve a problem in the amsbook and amsart classes, that make global changes to \cs  {topskip}, which are reset in \cs  {ps@empty}. Hopefully this doesn't break other things.}{39}
+\glossaryentry{fancyhdr v1.98> =General:>Added \% after the line \cs  {def}\cs  {nouppercase}}{39}
+\glossaryentry{fancyhdr v1.99> =General:>This is the alpha version of fancyhdr 2.0\\ Introduced the new commands \cs  {fancyhead}, \cs  {fancyfoot}, and \cs  {fancyhf}. Changed \cs  {headrulewidth}, \cs  {footrulewidth}, \cs  {footruleskip} to macros rather than length parameters, In this way they can be conditionalized and they don't consume length registers. There is no need to have them as length registers unless you want to do calculations with them, which is unlikely. Note that this may make some uses of them incompatible (i.e. if you have a file that uses \cs  {setlength} or \cs  {xxxx}!=)}{39}
+\glossaryentry{fancyhdr v1.99a> =General:>Added a few more \% signs.}{39}
+\glossaryentry{fancyhdr v1.99b> =General:>Changed the syntax of \cs  {f@nch@for} to be resistent to catcode changes of \texttt  {:!=}.\\ Removed the \texttt  {[1]} from the defs of \cs  {lhead} etc. because the parameter is consumed by the \cs  {@[xy]lhead} etc. macros.}{39}
+\glossaryentry{fancyhdr v1.99c> =General:>Corrected \cs  {nouppercase} to also include the protected form of \cs  {MakeUppercase}.\\ \cs  {global} added to manipulation of \cs  {headwidth}.\\ \cs  {iffootnote} command added.\\ Some comments added about \cs  {f@nch@head} and \cs  {f@nch@foot}.}{39}
+\glossaryentry{fancyhdr v1.99d> =General:>Changed the default \cs  {ps@empty} to \cs  {ps@@empty} in order to allow \texttt  {\cs  {fancypagestyle}\{empty\}} redefinition.}{39}
+\glossaryentry{fancyhdr v2.0> =General:>Added LPPL license clause.\\ A check for \cs  {headheight} is added. An errormessage is given (once) if the header is too large. Empty headers don't generate the error even if \cs  {headheight} is very small or even 0pt. \\ Warning added for the use of '\texttt  {E}' option when twoside option is not used. In this case the '\texttt  {E}' fields will never be used.}{39}
+\glossaryentry{fancyhdr v2.1beta> =General:>New command: \texttt  {\cs  {fancyhfoffset}[place]\{length\}} defines offsets to be applied to the header/footer to let it stick into the margins (if length $!>$ 0). \texttt  {place} is like in \cs  {fancyhead}, except that only \texttt  {E,O,L,R} can be used. This replaces the old calculation based on \cs  {headwidth} and the marginpar area. \cs  {headwidth} will be dynamically calculated in the headers/footers when this is used.}{39}
+\glossaryentry{fancyhdr v2.1beta2> =General:>\cs  {fancyhfoffset} now also takes \texttt  {H,F} as possible letters in the argument to allow the header and footer widths to be different.\\ New commands \cs  {fancyheadoffset} and \cs  {fancyfootoffset} added comparable to \cs  {fancyhead} and \cs  {fancyfoot}.\\ Errormessages and warnings have been made more informative.}{39}
+\glossaryentry{fancyhdr v2.1x=fancyhdr v2.1> =General:>The defaults for \cs  {footrulewidth}, \cs  {plainheadrulewidth} and \cs  {plainfootrulewidth} are changed from \cs  {z@skip} to 0pt. In this way when someone inadvertantly uses \cs  {setlength} to change any of these, the value of \cs  {z@skip} will not be changed, rather an errormessage will be given.}{39}
+\glossaryentry{fancyhdr v3.0> =General:>Release of version 3.0.}{39}
+\glossaryentry{fancyhdr v3.1> =General:>Added '\texttt  {\cs  {endlinechar}!=13}' to \cs  {f@nch@reset} to prevent problems with \cs  {includegraphics} in header/footer when \texttt  {verbatiminput} is active.}{39}
+\glossaryentry{fancyhdr v3.2> =General:>Reset \cs  {everypar} (the real one) in \cs  {f@nch@reset} because spanish.ldf does strange things with \cs  {everypar} between \guillemotleft \ and \guillemotright .}{39}
+\glossaryentry{fancyhdr v3.3> =General:>Replace `\texttt  {\cs  {@ifundefined}\{chapter\}}' with `\cs  {ifx}\cs  {chapter}\cs  {@undefined}' because the former subtly makes \cs  {chapter} equal to \cs  {relax}, which may be undesirable in some cases.}{39}
+\glossaryentry{fancyhdr v3.4> =General:>Replace \cs  {rm} by \cs  {normalfont}\cs  {rmfamily} and \cs  {sl} by \cs  {normalfont}\cs  {slshape}.}{39}
+\glossaryentry{fancyhdr v3.5> =General:>Don't define \cs  {footruleskip} if it is already defined.}{39}
+\glossaryentry{fancyhdr v3.6> =General:>Added a \cs  {ProvidesPackage} line.\\ Updated contact information.}{39}
+\glossaryentry{fancyhdr v3.7> =General:>Removed \cs  {normalfont} from default values, as every field is already initialised with \cs  {normalfont}.\\ Set \cs  {hsize} to \cs  {headwidth} in header/footer.}{39}
+\glossaryentry{fancyhdr v3.8> =General:>Reset \cs  {\char `\\}, \cs  {raggedleft}, \cs  {raggedright} and \cs  {centering} to their default values to avoid a clash with the tabu package.\\ Move the redefinition of \cs  {@makecol} to \texttt  {\cs  {begin}\{document\}} to avoid a clash with the \textsf  {footmisc} package (and maybe others).\\ Define a working \cs  {iffootnote} command.}{39}
+\glossaryentry{fancyhdr v3.9> =General:>Put everything in a \texttt  {.dtx} file.}{39}
+\glossaryentry{fancyhdr v3.9> =General:>Rename some macros to have 'f@nch@' in their names, to get a more uniform naming scheme for internal macros.}{39}
+\glossaryentry{fancyhdr v3.10>\f@nch@warning=\verb!*+\f@nch@warning+:>Use \cs  {f@nch@ifundefined} instead of \cs  {ifx}.}{40}
+\glossaryentry{fancyhdr v3.10>\f@nch@warning=\verb!*+\f@nch@warning+:>Use \cs  {newcommand} instead of \cs  {def}.}{40}
+\glossaryentry{fancyhdr v3.9>\fancyhead=\verb!*+\fancyhead+:>Let \cs  {newcommand} do the handling of the optional parameter.}{40}
+\glossaryentry{fancyhdr v3.9>\fancyfoot=\verb!*+\fancyfoot+:>Let \cs  {newcommand} do the handling of the optional parameter.}{40}
+\glossaryentry{fancyhdr v3.9>\fancyhf=\verb!*+\fancyhf+:>Let \cs  {newcommand} do the handling of the optional parameter.}{40}
+\glossaryentry{fancyhdr v3.9>\fancyheadoffset=\verb!*+\fancyheadoffset+:>Let \cs  {newcommand} do the handling of the optional parameter.}{40}
+\glossaryentry{fancyhdr v3.9>\fancyfootoffset=\verb!*+\fancyfootoffset+:>Let \cs  {newcommand} do the handling of the optional parameter.}{40}
+\glossaryentry{fancyhdr v3.9>\fancyhfoffset=\verb!*+\fancyhfoffset+:>Let \cs  {newcommand} do the handling of the optional parameter.}{40}
+\glossaryentry{fancyhdr v3.9>\lhead=\verb!*+\lhead+:>Let \cs  {newcommand} do the handling of the optional parameter.}{42}
+\glossaryentry{fancyhdr v3.9>\chead=\verb!*+\chead+:>Let \cs  {newcommand} do the handling of the optional parameter.}{42}
+\glossaryentry{fancyhdr v3.9>\rhead=\verb!*+\rhead+:>Let \cs  {newcommand} do the handling of the optional parameter.}{42}
+\glossaryentry{fancyhdr v3.9>\lfoot=\verb!*+\lfoot+:>Let \cs  {newcommand} do the handling of the optional parameter.}{42}
+\glossaryentry{fancyhdr v3.9>\cfoot=\verb!*+\cfoot+:>Let \cs  {newcommand} do the handling of the optional parameter.}{42}
+\glossaryentry{fancyhdr v3.9>\rfoot=\verb!*+\rfoot+:>Let \cs  {newcommand} do the handling of the optional parameter.}{42}
+\glossaryentry{fancyhdr v3.10>\f@nch@vbox=\verb!*+\f@nch@vbox+:>Don't use \cs  {global}\cs  {setlength}.}{44}
+\glossaryentry{fancyhdr v3.10>\f@nch@vbox=\verb!*+\f@nch@vbox+:>Use \cs  {newcommand} instead of \cs  {def}.}{44}
+\glossaryentry{fancyhdr v3.10>\f@nch@foot=\verb!*+\f@nch@foot+:>Put \cs  {footrule} in a \cs  {vbox} to accommodate for flexible footrules.}{45}
+\glossaryentry{fancyhdr v3.10>\f@nch@foot=\verb!*+\f@nch@foot+:>Use \cs  {unvbox} on the footrule \cs  {vbox} to preserve vertical spacing.}{45}
+\glossaryentry{fancyhdr v3.10>\f@nch@foot=\verb!*+\f@nch@foot+:>Move \cs  {footruleskip} outside of the \cs  {footrule} definition.}{45}
+\glossaryentry{fancyhdr v3.10>\footrule=\verb!*+\footrule+:>Move \cs  {footruleskip} outside of the \cs  {footrule} definition and remove useless \cs  {vskip} at the top.}{45}
+\glossaryentry{extramarks v1.99e> =General:>Added a few \% marks to get rid of unwanted spaces, and \cs  {endinput}. \\ Added LPPL license clause.}{48}
+\glossaryentry{extramarks v2.0beta> =General:>Adapted for the new implementation of marks in \LaTeX  {} to solve bug latex/3203. \\ Added symmetric commands \cs  {firstrightmark}, \cs  {lastleftmark}, \cs  {firstleftxmark}, \cs  {firstrightxmark}, \cs  {lastrightxmark}, \cs  {lastleftxmark}, \cs  {topleftxmark} and \cs  {toprightxmark}.}{48}
+\glossaryentry{extramarks v2.0x=fancyhdr v 2.0> =General:>version 2.0 Release.}{48}
+\glossaryentry{extramarks v2.1> =General:>Added a \cs  {ProvidesPackage} line.\\ Updated contact information.}{48}
+\glossaryentry{extramarks v3.9> =General:>Unify version number with \textsf  {fancyhdr.sty}.}{48}
+\glossaryentry{extramarks v3.9a> =General:>Restore \cs  {newtoks}\cs  {@temptokenb}}{48}

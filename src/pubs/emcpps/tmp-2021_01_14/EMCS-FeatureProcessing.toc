@@ -1,0 +1,513 @@
+\contentsline {chapter}{{Foreword}}{xi}{}%
+\contentsline {chapter}{{Preface}}{xiii}{}%
+\contentsline {chapter}{{Acknowledgments}}{xvii}{}%
+\contentsline {chapter}{{About the Authors}}{xix}{}%
+\contentsline {chapter}{\numberline {Chapter\nobreakspace {}0}{Introduction}}{1}{}%
+\contentsline {section}{What Makes This Book Different}{1}{}%
+\contentsline {section}{Scope for the First Edition}{2}{}%
+\contentsline {section}{The {\itshape EMC++S} White Paper}{3}{}%
+\contentsline {subsection}{Facts (Not Opinions)}{3}{}%
+\contentsline {subsection}{Elucidation (Not Prescription)}{3}{}%
+\contentsline {subsection}{Brevity (Not Verbosity)}{3}{}%
+\contentsline {subsection}{Real-World (Not Contrived) Examples}{4}{}%
+\contentsline {subsection}{At Scale (Not Overly Simplistic) Programs}{4}{}%
+\contentsline {section}{What Do We Mean by {\sffamily \itshape Safely}?}{4}{}%
+\contentsline {section}{A {\sffamily \itshape Safe} Feature}{5}{}%
+\contentsline {section}{A {\sffamily \itshape Conditionally Safe} Feature}{5}{}%
+\contentsline {section}{An {\sffamily \itshape Unsafe} Feature}{6}{}%
+\contentsline {section}{Modern C++ Feature Catalog}{6}{}%
+\contentsline {subsection}{Organization}{6}{}%
+\contentsline {section}{How To Use This Book}{7}{}%
+\contentsline {chapter}{\numberline {Chapter\nobreakspace {}1}{Safe Features}}{9}{}%
+\renewcommand *\cftsecindent {1.25em}
+\contentsline {section}{\numberline {1.1}C++11}{9}
+\renewcommand *\cftsecindent {4.5em}
+\contentsline {section}{\tt alignof}{10}{}%
+\contentsline {subsection}{Description}{10}{}%
+\contentsline {subsubsection}{\tt {alignof} Fundamental Types}{10}{}%
+\contentsline {subsubsection}{\tt {alignof} User-Defined Types}{10}{}%
+\contentsline {subsection}{Use Cases}{11}{}%
+\contentsline {subsubsection}{Probing the alignment of a type during development}{11}{}%
+\contentsline {subsubsection}{Determining if a given buffer is sufficiently aligned}{13}{}%
+\contentsline {subsubsection}{Monotonic memory allocation}{15}{}%
+\contentsline {subsection}{Annoyances}{18}{}%
+\contentsline {subsubsection}{\tt {alignof} (unlike \tt {sizeof}) is defined only on types}{18}{}%
+\contentsline {subsection}{See Also}{19}{}%
+\contentsline {subsection}{Further Reading}{19}{}%
+\contentsline {section}{Attribute Syntax}{20}{}%
+\contentsline {subsection}{Description}{20}{}%
+\contentsline {subsubsection}{C++ attribute syntax}{20}{}%
+\contentsline {subsubsection}{C++ attribute placement}{21}{}%
+\contentsline {subsubsection}{Common compiler-dependent attributes}{22}{}%
+\contentsline {subsection}{Use Cases}{23}{}%
+\contentsline {subsubsection}{Eliciting useful compiler diagnostics}{23}{}%
+\contentsline {subsubsection}{Hinting at additional optimization opportunities}{24}{}%
+\contentsline {subsubsection}{Delineating explicit assumptions in code to achieve better optimizations}{25}{}%
+\contentsline {subsubsection}{Using attributes to control external static analysis}{26}{}%
+\contentsline {subsubsection}{Creating new attributes to express semantic properties}{27}{}%
+\contentsline {subsubsection}{Probing where attributes are permitted in the compiler’s C++ grammar}{27}{}%
+\contentsline {subsection}{Potential Pitfalls}{28}{}%
+\contentsline {subsubsection}{Unrecognized attributes have implementation-defined behavior}{28}{}%
+\contentsline {subsubsection}{Some attributes, if misused, can affect program correctness}{28}{}%
+\contentsline {subsubsection}{Not every syntactic location is viable for an attribute}{29}{}%
+\contentsline {subsection}{Annoyances}{29}{}%
+\contentsline {subsection}{See Also}{29}{}%
+\contentsline {subsection}{Further Reading}{29}{}%
+\contentsline {section}{Consecutive {\tt >}s}{30}{}%
+\contentsline {subsection}{Description}{30}{}%
+\contentsline {subsubsection}{Using the greater-than or right-shift operators within template-argument expressions}{30}{}%
+\contentsline {subsection}{Use Cases}{31}{}%
+\contentsline {subsubsection}{Avoiding annoying whitespace when composing template types}{31}{}%
+\contentsline {subsection}{Potential Pitfalls}{31}{}%
+\contentsline {subsubsection}{Some C++03 programs may stop compiling in C++11}{31}{}%
+\contentsline {subsubsection}{The meaning of a C++03 program can, in theory, silently change in C++11}{31}{}%
+\contentsline {subsection}{Annoyances}{32}{}%
+\contentsline {subsection}{See Also}{32}{}%
+\contentsline {subsection}{Further Reading}{32}{}%
+\contentsline {section}{Delegating Ctors}{33}{}%
+\contentsline {subsection}{Description}{33}{}%
+\contentsline {subsection}{Use Cases}{34}{}%
+\contentsline {subsubsection}{Avoiding code duplication among constructors}{34}{}%
+\contentsline {subsection}{Potential Pitfalls}{37}{}%
+\contentsline {subsubsection}{Delegation cycles}{37}{}%
+\contentsline {subsubsection}{Suboptimal factoring}{37}{}%
+\contentsline {subsection}{Annoyances}{38}{}%
+\contentsline {subsection}{See Also}{38}{}%
+\contentsline {subsection}{Further Reading}{38}{}%
+\contentsline {section}{Inheriting Ctors}{39}{}%
+\contentsline {subsection}{Description}{39}{}%
+\contentsline {subsection}{Use Cases}{43}{}%
+\contentsline {subsubsection}{Abstract use case}{43}{}%
+\contentsline {subsubsection}{Avoiding boilerplate code when employing structural inheritance}{43}{}%
+\contentsline {subsubsection}{Avoiding boilerplate code when employing implementation inheritance}{44}{}%
+\contentsline {subsubsection}{Implementing a strong {\tt typedef}}{45}{}%
+\contentsline {subsubsection}{Incorporating reusable functionality via a mix-in}{47}{}%
+\contentsline {subsection}{Potential Pitfalls}{48}{}%
+\contentsline {subsubsection}{Newly introduced constructors in the base class can silently alter program behavior}{48}{}%
+\contentsline {subsubsection}{Beware of inheriting implicit constructors}{49}{}%
+\contentsline {subsection}{Annoyances}{51}{}%
+\contentsline {subsubsection}{Inherited constructors cannot be selected individually}{51}{}%
+\contentsline {subsubsection}{Access levels of inherited constructors are the same as in base class}{52}{}%
+\contentsline {subsection}{See Also}{53}{}%
+\contentsline {subsection}{Further Reading}{54}{}%
+\contentsline {subsection}{Appendix: C++17 Improvements Made Retroactive to C++11/14}{54}{}%
+\contentsline {subsubsection}{Inheriting constructors declared with a C-style ellipsis}{54}{}%
+\contentsline {subsubsection}{Inheriting constructors that rely on friendship to declare function parameters}{55}{}%
+\contentsline {subsubsection}{Inheriting constructor templates would be ill formed for a local class}{56}{}%
+\contentsline {subsubsection}{SFINAE evaluation context with default function arguments}{56}{}%
+\contentsline {subsubsection}{Suppression of constructors in the presence of default arguments}{57}{}%
+\contentsline {subsubsection}{Suprising behavior with unary constructor templates}{57}{}%
+\contentsline {section}{\tt {decltype}}{59}{}%
+\contentsline {subsection}{Description}{59}{}%
+\contentsline {subsubsection}{Use with (typically named) entities}{59}{}%
+\contentsline {subsubsection}{Use with expressions (unnamed entities)}{59}{}%
+\contentsline {subsection}{Use Cases}{60}{}%
+\contentsline {subsubsection}{Avoiding unnecessary use of explicit typenames}{60}{}%
+\contentsline {subsubsection}{Expressing type-consistency explicitly}{61}{}%
+\contentsline {subsubsection}{Creating an auxiliary variable of generic type}{61}{}%
+\contentsline {subsubsection}{Determining the validity of a generic expression}{62}{}%
+\contentsline {subsection}{Potential pitfalls}{63}{}%
+\contentsline {subsection}{Annoyances}{64}{}%
+\contentsline {subsubsection}{Mechanical repetition of expressions might be required}{64}{}%
+\contentsline {subsection}{See Also}{64}{}%
+\contentsline {subsection}{Further reading}{65}{}%
+\contentsline {section}{Defaulted Functions}{66}{}%
+\contentsline {subsection}{Description}{66}{}%
+\contentsline {subsubsection}{Declaring a special member function explicitly}{66}{}%
+\contentsline {paragraph}{Example 1: Providing just the default constructor}{66}{}%
+\contentsline {paragraph}{Example 2: Providing just a copy constructor}{66}{}%
+\contentsline {paragraph}{Example 3: Providing just the destructor}{67}{}%
+\contentsline {paragraph}{Example 4: Providing more than one special member function}{67}{}%
+\contentsline {subsubsection}{Defaulting the first declaration of a special member function explicitly}{67}{}%
+\contentsline {subsubsection}{Defaulting the implementation of a user-provided special member function}{68}{}%
+\contentsline {subsection}{Use Cases}{69}{}%
+\contentsline {subsubsection}{Restoring the generation of a special member function suppressed by another}{69}{}%
+\contentsline {subsubsection}{Making class APIs explicit at no runtime cost}{70}{}%
+\contentsline {subsubsection}{Preserving trivial copyability}{72}{}%
+\contentsline {subsubsection}{Physically decoupling the interface from the implementation}{74}{}%
+\contentsline {subsection}{Potential Pitfalls}{75}{}%
+\contentsline {subsubsection}{Generation of defaulted functions is not guaranteed}{75}{}%
+\contentsline {subsection}{See Also}{76}{}%
+\contentsline {subsection}{Further Reading}{76}{}%
+\contentsline {subsection}{Appendix: Implicit Generation of Special Member Functions}{76}{}%
+\contentsline {section}{Deleted Functions}{78}{}%
+\contentsline {subsection}{Description}{78}{}%
+\contentsline {subsection}{Use Cases}{78}{}%
+\contentsline {subsubsection}{Suppressing special member function generation}{78}{}%
+\contentsline {subsubsection}{Preventing a particular implicit conversion}{79}{}%
+\contentsline {subsubsection}{Preventing all implicit conversions}{80}{}%
+\contentsline {subsubsection}{Hiding a structural (nonpolymorphic) base class's member function}{81}{}%
+\contentsline {subsection}{Potential Pitfalls}{82}{}%
+\contentsline {subsection}{Annoyances}{82}{}%
+\contentsline {subsection}{See Also}{82}{}%
+\contentsline {subsection}{Further Reading}{82}{}%
+\contentsline {section}{{\tt explicit} Operators}{83}{}%
+\contentsline {subsection}{Description}{83}{}%
+\contentsline {subsection}{Use Cases}{85}{}%
+\contentsline {subsubsection}{Enabling contextual conversions to {\tt bool} as a test for validity}{85}{}%
+\contentsline {subsection}{Potential Pitfalls}{87}{}%
+\contentsline {subsubsection}{Sometimes implicit conversion is indicated}{87}{}%
+\contentsline {subsection}{Sometimes a named function is better}{88}{}%
+\contentsline {subsection}{Annoyances}{88}{}%
+\contentsline {subsection}{See Also}{88}{}%
+\contentsline {subsection}{Further Reading}{88}{}%
+\contentsline {section}{{\tt extern} {\tt template}}{89}{}%
+\contentsline {section}{Function {\tt static} '11}{90}{}%
+\contentsline {section}{{\tt inline} {\tt namespace}}{91}{}%
+\contentsline {subsection}{Description}{91}{}%
+\contentsline {subsubsection}{Loss of access to duplicate names in enclosing namespace}{92}{}%
+\contentsline {subsubsection}{Argument-dependent–lookup interoperability across {\tt inline} {\tt namespace} boundaries}{94}{}%
+\contentsline {subsubsection}{The ability to specialize templates declared in a nested {\tt inline} namespace}{95}{}%
+\contentsline {subsubsection}{Reopening namespaces can reopen nested {\tt inline} ones}{96}{}%
+\contentsline {subsection}{Use Cases}{97}{}%
+\contentsline {subsubsection}{Facilitating API migration}{97}{}%
+\contentsline {subsubsection}{Link-safe ABI versioning}{102}{}%
+\contentsline {subsubsection}{Build modes and ABI link safety}{106}{}%
+\contentsline {subsubsection}{Enabling selective {\tt using} directives for short-named entities}{109}{}%
+\contentsline {subsection}{Potential Pitfalls}{110}{}%
+\contentsline {subsubsection}{{\tt inline}-namespace-based versioning doesn’t scale}{110}{}%
+\contentsline {subsubsection}{Specializing templates in {\tt std} can be problematic}{112}{}%
+\contentsline {subsubsection}{Inconsistent use of {\tt inline} keyword is \textbf {ill formed, no diagnostic required}}{113}{}%
+\contentsline {subsection}{Annoyances}{113}{}%
+\contentsline {subsubsection}{Inability to redeclare across namespaces impedes code factoring}{113}{}%
+\contentsline {subsubsection}{Only one namespace can contain any given {\tt inline} namespace}{116}{}%
+\contentsline {subsection}{See Also}{116}{}%
+\contentsline {subsection}{Further Reading}{117}{}%
+\contentsline {subsection}{Appendix: Case study of using {\tt inline} namespaces for versioning}{117}{}%
+\contentsline {section}{Local Types '11}{119}{}%
+\contentsline {subsection}{Description}{119}{}%
+\contentsline {subsection}{Use Cases}{120}{}%
+\contentsline {subsubsection}{Encapsulating a type within a function}{120}{}%
+\contentsline {subsubsection}{Instantiating templates with local function objects as type arguments}{121}{}%
+\contentsline {subsubsection}{Configuring algorithms via lambda expressions}{121}{}%
+\contentsline {subsection}{Potential Pitfalls}{122}{}%
+\contentsline {subsection}{Annoyances}{122}{}%
+\contentsline {subsection}{See Also}{122}{}%
+\contentsline {subsection}{Further Reading}{123}{}%
+\contentsline {section}{{\tt long} {\tt long}}{124}{}%
+\contentsline {subsection}{Description}{124}{}%
+\contentsline {subsection}{Use Cases}{124}{}%
+\contentsline {subsubsection}{When your pedestrian four-byte {\tt int} might not cut it}{124}{}%
+\contentsline {subsection}{Potential Pitfalls}{126}{}%
+\contentsline {subsubsection}{Relying on the relative sizes of {\tt int}, {\tt long}, and {\tt long}\nobreakspace {}{\tt long}}{126}{}%
+\contentsline {subsection}{See Also}{127}{}%
+\contentsline {subsection}{Further Reading}{127}{}%
+\contentsline {subsection}{Appendix: Historical Perspective on the Evolution of Use of Fundamental Integral Types}{127}{}%
+\contentsline {section}{\tt noreturn}{129}{}%
+\contentsline {subsection}{Description}{129}{}%
+\contentsline {subsection}{Use Cases}{129}{}%
+\contentsline {subsubsection}{Better compiler diagnostics}{129}{}%
+\contentsline {subsubsection}{Improved runtime performance}{130}{}%
+\contentsline {subsection}{Potential Pitfalls}{131}{}%
+\contentsline {subsubsection}{\tt {[[noreturn]]} can inadvertently break an otherwise working program}{131}{}%
+\contentsline {subsubsection}{Misuse of {\tt [[noreturn]]} on function pointers}{131}{}%
+\contentsline {subsection}{Annoyances}{131}{}%
+\contentsline {subsection}{See Also}{132}{}%
+\contentsline {subsection}{Further Reading}{132}{}%
+\contentsline {section}{\tt nullptr}{133}{}%
+\contentsline {subsection}{Description}{133}{}%
+\contentsline {subsection}{Use Cases}{134}{}%
+\contentsline {subsubsection}{Improvement of type safety}{134}{}%
+\contentsline {subsubsection}{Disambiguation of \lstinline !(int)0! vs. \lstinline !(T*)0! during overload resolution}{135}{}%
+\contentsline {subsubsection}{Overloading for a literal null pointer}{136}{}%
+\contentsline {subsection}{Potential Pitfalls}{136}{}%
+\contentsline {subsection}{Annoyances}{136}{}%
+\contentsline {subsection}{See Also}{136}{}%
+\contentsline {subsection}{Further Reading}{136}{}%
+\contentsline {section}{\tt override}{137}{}%
+\contentsline {subsection}{Description}{137}{}%
+\contentsline {subsection}{Use Cases}{138}{}%
+\contentsline {subsubsection}{Ensuring that a member function of a base class is being overridden}{138}{}%
+\contentsline {subsection}{Potential Pitfalls}{139}{}%
+\contentsline {subsubsection}{Lack of consistency across a codebase}{139}{}%
+\contentsline {subsection}{Annoyances}{139}{}%
+\contentsline {subsection}{See Also}{139}{}%
+\contentsline {subsection}{Further Reading}{139}{}%
+\contentsline {section}{Raw String Literals '14}{140}{}%
+\contentsline {subsection}{Description}{140}{}%
+\contentsline {subsubsection}{Collisions}{141}{}%
+\contentsline {subsection}{Use Cases}{143}{}%
+\contentsline {subsubsection}{Embedding code in a C++ program}{143}{}%
+\contentsline {subsection}{Potential Pitfalls}{143}{}%
+\contentsline {subsubsection}{Unexpected indentation}{143}{}%
+\contentsline {subsubsection}{Encoding of new lines and whitespace}{144}{}%
+\contentsline {subsection}{Annoyances}{145}{}%
+\contentsline {subsection}{See Also}{145}{}%
+\contentsline {subsection}{Further Reading}{145}{}%
+\contentsline {section}{\tt static\_assert}{146}{}%
+\contentsline {subsection}{Description}{146}{}%
+\contentsline {subsubsection}{Syntax and semantics}{146}{}%
+\contentsline {subsubsection}{Evaluation of static assertions in templates}{147}{}%
+\contentsline {subsection}{Use Cases}{148}{}%
+\contentsline {subsubsection}{Verifying assumptions about the target platform}{148}{}%
+\contentsline {subsubsection}{Preventing misuse of class and function templates}{149}{}%
+\contentsline {subsection}{Potential Pitfalls}{150}{}%
+\contentsline {subsubsection}{Static assertions in templates can trigger unintended compilation failures}{150}{}%
+\contentsline {subsubsection}{Misuse of static assertions to restrict overload sets}{151}{}%
+\contentsline {subsection}{Annoyances}{153}{}%
+\contentsline {subsubsection}{Mandatory string literal}{153}{}%
+\contentsline {subsection}{See Also}{153}{}%
+\contentsline {subsection}{Further reading}{153}{}%
+\contentsline {section}{Trailing Return}{154}{}%
+\contentsline {subsection}{Description}{154}{}%
+\contentsline {subsection}{Use Cases}{156}{}%
+\contentsline {subsubsection}{Function template whose return type depends on a parameter type}{156}{}%
+\contentsline {subsubsection}{Avoiding having to qualify names redundantly in return types}{156}{}%
+\contentsline {subsubsection}{Improving readability of declarations involving function pointers}{157}{}%
+\contentsline {subsection}{Potential Pitfalls}{157}{}%
+\contentsline {subsection}{Annoyances}{157}{}%
+\contentsline {subsection}{See Also}{158}{}%
+\contentsline {subsection}{Further Reading}{158}{}%
+\contentsline {section}{Unicode Literals}{159}{}%
+\contentsline {subsection}{Description}{159}{}%
+\contentsline {subsection}{Use Cases}{160}{}%
+\contentsline {subsubsection}{Guaranteed-portable encodings of literals}{160}{}%
+\contentsline {subsection}{Potential Pitfalls}{160}{}%
+\contentsline {subsubsection}{Embedding Unicode graphemes}{160}{}%
+\contentsline {subsubsection}{Lack of library support for Unicode}{160}{}%
+\contentsline {subsubsection}{UTF-8 quirks}{161}{}%
+\contentsline {subsection}{Annoyances}{161}{}%
+\contentsline {subsection}{See Also}{161}{}%
+\contentsline {subsection}{Further Reading}{161}{}%
+\contentsline {section}{{\tt using} Aliases}{162}{}%
+\contentsline {subsection}{Description}{162}{}%
+\contentsline {subsection}{Use Cases}{163}{}%
+\contentsline {subsubsection}{Simplifying convoluted {\tt typedef} declarations}{163}{}%
+\contentsline {subsubsection}{Binding template arguments}{164}{}%
+\contentsline {subsubsection}{Providing a shorthand notation for type traits}{164}{}%
+\contentsline {subsection}{Potential Pitfalls}{165}{}%
+\contentsline {subsection}{Annoyances}{165}{}%
+\contentsline {subsection}{See Also}{165}{}%
+\contentsline {subsection}{Further Reading}{166}{}%
+\contentsline {subsection}{Appendix: Brief Review of (C++03) {\tt using} Declarations}{166}{}%
+\renewcommand *\cftsecindent {1.25em}
+\contentsline {section}{\numberline {1.2}C++14}{168}
+\renewcommand *\cftsecindent {4.5em}
+\contentsline {section}{Aggregate Init '14}{169}{}%
+\contentsline {subsection}{Description}{169}{}%
+\contentsline {subsection}{Use Cases}{170}{}%
+\contentsline {subsubsection}{Configuration \tt {struct}s}{170}{}%
+\contentsline {subsection}{Potential Pitfalls}{170}{}%
+\contentsline {subsection}{Annoyances}{171}{}%
+\contentsline {subsubsection}{Syntactical ambiguity in the presence of \textbf {brace elision}}{171}{}%
+\contentsline {subsection}{See Also}{171}{}%
+\contentsline {subsection}{Further Reading}{172}{}%
+\contentsline {section}{Binary Literals}{173}{}%
+\contentsline {subsection}{Description}{173}{}%
+\contentsline {subsection}{Use Cases}{174}{}%
+\contentsline {subsubsection}{Bit masking and bitwise operations}{174}{}%
+\contentsline {subsubsection}{Replicating constant binary data}{175}{}%
+\contentsline {subsection}{Potential Pitfalls}{176}{}%
+\contentsline {subsection}{Annoyances}{176}{}%
+\contentsline {subsection}{See Also}{177}{}%
+\contentsline {subsection}{Further Reading}{177}{}%
+\contentsline {section}{\tt deprecated}{178}{}%
+\contentsline {subsection}{Description}{178}{}%
+\contentsline {subsection}{Use Cases}{179}{}%
+\contentsline {subsubsection}{Discouraging use of an obsolete or unsafe \textbf {entity}}{179}{}%
+\contentsline {subsection}{Potential Pitfalls}{180}{}%
+\contentsline {subsubsection}{Interaction with {\tt -Werror} (e.g., GCC, Clang) or {\tt /WX} (MSVC)}{180}{}%
+\contentsline {subsection}{Annoyances}{181}{}%
+\contentsline {subsection}{See Also}{181}{}%
+\contentsline {subsection}{Further Reading}{181}{}%
+\contentsline {section}{Digit Separators}{182}{}%
+\contentsline {subsection}{Description}{182}{}%
+\contentsline {subsection}{Use Cases}{183}{}%
+\contentsline {subsubsection}{Grouping digits together in large constants}{183}{}%
+\contentsline {subsection}{Potential Pitfalls}{183}{}%
+\contentsline {subsection}{See Also}{183}{}%
+\contentsline {subsection}{Further Reading}{184}{}%
+\contentsline {subsection}{Appendix: Silent Loss of Precision in Floating-Point Literals}{184}{}%
+\contentsline {section}{Lambda Captures}{187}{}%
+\contentsline {subsection}{Description}{187}{}%
+\contentsline {subsection}{Use Cases}{189}{}%
+\contentsline {subsubsection}{Moving (as opposed to copying) objects into a closure}{189}{}%
+\contentsline {subsubsection}{Providing mutable state for a closure}{190}{}%
+\contentsline {subsubsection}{Capturing a modifiable copy of an existing {\ttfamily const} variable}{190}{}%
+\contentsline {subsection}{Potential Pitfalls}{192}{}%
+\contentsline {subsubsection}{Forwarding an existing variable into a closure always results in an object (never a reference)}{192}{}%
+\contentsline {subsection}{Annoyances}{193}{}%
+\contentsline {subsubsection}{There’s no easy way to synthesize a {\ttfamily const} data member}{193}{}%
+\contentsline {subsubsection}{{\ttfamily std::function} supports only copyable callable objects}{193}{}%
+\contentsline {subsection}{See Also}{194}{}%
+\contentsline {subsection}{Further Reading}{194}{}%
+\contentsline {section}{Variable Templates}{195}{}%
+\contentsline {subsection}{Description}{195}{}%
+\contentsline {subsection}{Use Cases}{197}{}%
+\contentsline {subsubsection}{Parameterized constants}{197}{}%
+\contentsline {subsubsection}{Reducing verbosity of type traits}{198}{}%
+\contentsline {subsection}{Potential Pitfalls}{199}{}%
+\contentsline {subsubsection}{Recursive variable template initializations require {\tt const} or {\tt constexpr}}{199}{}%
+\contentsline {subsection}{Annoyances}{201}{}%
+\contentsline {subsubsection}{Variable templates do not support template template parameters}{201}{}%
+\contentsline {subsection}{See Also}{202}{}%
+\contentsline {subsection}{Further Reading}{202}{}%
+\contentsline {section}{{\tt constexpr} Functions '14}{203}{}%
+\contentsline {subsection}{Description}{203}{}%
+\contentsline {subsection}{Use Cases}{204}{}%
+\contentsline {subsubsection}{Nonrecursive {\tt constexpr} algorithms}{204}{}%
+\contentsline {subsubsection}{Optimized metaprogramming algorithms}{206}{}%
+\contentsline {subsection}{Potential Pitfalls}{209}{}%
+\contentsline {subsection}{Annoyances}{209}{}%
+\contentsline {subsection}{See Also}{209}{}%
+\contentsline {subsection}{Further Reading}{210}{}%
+\contentsline {subsection}{Appendix: Optimized C++11 Example Algorithms}{210}{}%
+\contentsline {subsubsection}{Recursive Fibonacci}{210}{}%
+\contentsline {subsubsection}{{\ttfamily constexpr} type list {\ttfamily Count} algorithm}{210}{}%
+\contentsline {chapter}{\numberline {Chapter\nobreakspace {}2}{Conditionally Safe Features}}{213}{}%
+\renewcommand *\cftsecindent {1.25em}
+\contentsline {section}{\numberline {2.1}C++11}{213}
+\renewcommand *\cftsecindent {4.5em}
+\contentsline {section}{\tt alignas}{214}{}%
+\contentsline {subsection}{Description}{214}{}%
+\contentsline {subsubsection}{Restricting the alignment of a particular object}{214}{}%
+\contentsline {subsubsection}{Restricting the alignment of a user-defined type}{215}{}%
+\contentsline {subsubsection}{Restricting the alignment of individual data members}{216}{}%
+\contentsline {subsubsection}{Matching the alignment of another type}{216}{}%
+\contentsline {subsection}{Use Cases}{217}{}%
+\contentsline {subsubsection}{Creating a sufficiently aligned object buffer}{217}{}%
+\contentsline {subsubsection}{Ensuring proper alignment for architecture-specific instructions}{218}{}%
+\contentsline {subsubsection}{Avoiding \textbf {false sharing} among distinct objects in a multi-threaded program}{219}{}%
+\contentsline {subsubsection}{Avoiding \textbf {false sharing} within a single thread-aware object}{220}{}%
+\contentsline {subsection}{Potential Pitfalls}{220}{}%
+\contentsline {subsubsection}{Underspecifying alignment is not universally reported}{220}{}%
+\contentsline {subsubsection}{Incompatibly specifying alignment is \textbf {IFNDR}}{221}{}%
+\contentsline {subsubsection}{Stricter alignment might reduce cache utilization}{222}{}%
+\contentsline {subsection}{See Also}{222}{}%
+\contentsline {subsection}{Further Reading}{222}{}%
+\contentsline {subsection}{Appendix}{222}{}%
+\contentsline {subsubsection}{Natural Alignment}{222}{}%
+\contentsline {subsubsection}{Cache lines; L1, L2, and L3 cache; pages; and virtual memory}{224}{}%
+\contentsline {section}{{\tt auto} Variables}{227}{}%
+\contentsline {section}{Braced Init}{228}{}%
+\contentsline {section}{{\tt constexpr} Functions}{229}{}%
+\contentsline {section}{{\tt constexpr} Variables}{230}{}%
+\contentsline {section}{Default Member Init}{231}{}%
+\contentsline {section}{{\tt enum}\nobreakspace {}{\tt class}}{232}{}%
+\contentsline {subsection}{Description}{232}{}%
+\contentsline {subsubsection}{Drawbacks and workarounds relating to unscoped C++03 enumerations}{232}{}%
+\contentsline {subsubsection}{Drawbacks relating to weakly typed, C++03 enumerators}{233}{}%
+\contentsline {subsubsection}{Introducing the C++11 {\tt enum class}}{234}{}%
+\contentsline {subsubsection}{{\tt enum} {\tt class} and underlying type}{236}{}%
+\contentsline {subsection}{Use Cases}{236}{}%
+\contentsline {subsubsection}{Avoiding unintended implicit conversions to arithmetic types}{236}{}%
+\contentsline {subsubsection}{Avoiding namespace pollution}{238}{}%
+\contentsline {subsubsection}{Improving overloading disambiguation}{239}{}%
+\contentsline {subsubsection}{Encapsulating implementation details within the enumerators themselves}{242}{}%
+\contentsline {subsection}{Potential Pitfalls}{243}{}%
+\contentsline {subsubsection}{Strong typing of an {\tt enum} {\tt class} can be counterproductive}{243}{}%
+\contentsline {subsubsection}{Misuse of {\tt enum} {\tt class} for collections of named constants}{244}{}%
+\contentsline {subsubsection}{Misuse of {\tt enum} {\tt class} in association with bit flags}{245}{}%
+\contentsline {subsubsection}{Misuse of {\tt enum} {\tt class} in association with iteration}{246}{}%
+\contentsline {subsubsection}{External use of opaque enumerators}{248}{}%
+\contentsline {subsection}{Annoyances}{248}{}%
+\contentsline {subsubsection}{Scoped enumerations do not necessarily add value}{248}{}%
+\contentsline {subsection}{See Also}{249}{}%
+\contentsline {subsection}{Further Reading}{249}{}%
+\contentsline {section}{Opaque {\tt enum}s}{250}{}%
+\contentsline {subsection}{Description}{250}{}%
+\contentsline {subsection}{Use Cases}{252}{}%
+\contentsline {subsubsection}{Using opaque enumerations within a header file}{252}{}%
+\contentsline {subsubsection}{Cookie: Insulating all external clients from the enumerator list}{254}{}%
+\contentsline {subsubsection}{Dual-Access: Insulating some external clients from the enumerator list}{260}{}%
+\contentsline {subsection}{Potential Pitfalls}{263}{}%
+\contentsline {subsubsection}{Redeclaring an externally defined enumeration locally}{263}{}%
+\contentsline {subsubsection}{Inciting local enumeration declarations — an attractive nuisance}{264}{}%
+\contentsline {subsection}{Annoyances}{265}{}%
+\contentsline {subsubsection}{Opaque enumerations are not completely type-safe}{265}{}%
+\contentsline {subsection}{See Also}{265}{}%
+\contentsline {subsection}{Further Reading}{265}{}%
+\contentsline {section}{Underlying Type '11}{267}{}%
+\contentsline {subsection}{Description}{267}{}%
+\contentsline {subsubsection}{Specifying underlying type explicitly}{267}{}%
+\contentsline {subsection}{Use Cases}{268}{}%
+\contentsline {subsubsection}{Ensuring a compact representation where enumerator values are salient}{268}{}%
+\contentsline {subsection}{Potential Pitfalls}{269}{}%
+\contentsline {subsubsection}{External use of opaque enumerators}{269}{}%
+\contentsline {subsubsection}{Subtleties of integral promotion}{270}{}%
+\contentsline {subsection}{See Also}{271}{}%
+\contentsline {subsection}{Further Reading}{271}{}%
+\contentsline {section}{{\tt friend} '11}{272}{}%
+\contentsline {subsection}{Description}{272}{}%
+\contentsline {subsection}{Use Cases}{274}{}%
+\contentsline {subsubsection}{Safely declaring a previously declared type to be a friend}{274}{}%
+\contentsline {subsubsection}{Befriending a type alias used as a customization point}{275}{}%
+\contentsline {subsubsection}{Using the {\tt PassKey} idiom to enforce initialization}{276}{}%
+\contentsline {subsubsection}{Granting a specific type access to a single {\tt private} function}{278}{}%
+\contentsline {subsubsection}{Curiously recurring template pattern}{281}{}%
+\contentsline {subsection}{Potential Pitfalls}{281}{}%
+\contentsline {subsubsection}{Long-distance friendship}{281}{}%
+\contentsline {subsection}{See Also}{281}{}%
+\contentsline {subsection}{Further Reading}{281}{}%
+\contentsline {subsection}{Appendix: Curiously Recurring Template Pattern Use Cases}{282}{}%
+\contentsline {subsubsection}{Refactoring using the curiously recurring template pattern}{282}{}%
+\contentsline {subsubsection}{Synthesizing equality using the curiously recurring template pattern}{284}{}%
+\contentsline {subsubsection}{Compile-time polymorphism using the curiously recurring template pattern}{286}{}%
+\contentsline {subsubsection}{Compile-time visitor using the curiously recurring template pattern}{289}{}%
+\contentsline {section}{Forwarding References}{294}{}%
+\contentsline {subsection}{Description}{294}{}%
+\contentsline {subsubsection}{A brief review of function template argument deduction}{296}{}%
+\contentsline {subsubsection}{Reference collapsing}{297}{}%
+\contentsline {subsubsection}{Identifying forwarding references}{298}{}%
+\contentsline {subsubsection}{{\tt auto\&\&} --- a forwarding reference in a non-parameter context}{299}{}%
+\contentsline {subsubsection}{Forwarding references without forwarding}{300}{}%
+\contentsline {subsubsection}{The {\tt std::forward} utility}{301}{}%
+\contentsline {subsection}{Use Cases}{301}{}%
+\contentsline {subsubsection}{Perfectly forwarding an expression to a downstream consumer}{301}{}%
+\contentsline {subsubsection}{Handling multiple parameters concisely}{302}{}%
+\contentsline {subsubsection}{Perfect forwarding for generic factory functions}{303}{}%
+\contentsline {subsubsection}{Wrapping initialization in a generic factory function}{304}{}%
+\contentsline {subsubsection}{Emplacement}{305}{}%
+\contentsline {subsubsection}{Decomposing complex expressions}{306}{}%
+\contentsline {subsection}{Potential Pitfalls}{308}{}%
+\contentsline {subsubsection}{Surprising number of template instantiations with string literals}{308}{}%
+\contentsline {subsubsection}{{\tt std::forward<T>} can enable move operations}{310}{}%
+\contentsline {subsubsection}{A perfect-forwarding constructor can hijack the copy constructor}{310}{}%
+\contentsline {subsection}{Annoyances}{312}{}%
+\contentsline {subsubsection}{Forwarding references look just like rvalue references}{312}{}%
+\contentsline {subsubsection}{Metafunctions are required in constraints}{313}{}%
+\contentsline {subsection}{See Also}{314}{}%
+\contentsline {subsection}{Further Reading}{314}{}%
+\contentsline {section}{Generalized PODs}{315}{}%
+\contentsline {section}{\tt initializer\_list}{316}{}%
+\contentsline {section}{Lambdas}{317}{}%
+\contentsline {section}{{\tt noexcept} Operator}{318}{}%
+\contentsline {section}{Range {\tt for}}{319}{}%
+\contentsline {section}{{\itshape rvalue} References}{320}{}%
+\contentsline {section}{{\tt union} '11}{321}{}%
+\contentsline {subsection}{Description}{321}{}%
+\contentsline {subsection}{Use Cases}{324}{}%
+\contentsline {subsubsection}{Implementing a \textbf {sum type} as a discriminated (or tagged) {\tt union}}{324}{}%
+\contentsline {subsection}{Potential Pitfalls}{326}{}%
+\contentsline {subsubsection}{Inadvertent misuse can lead to latent \textbf {undefined behavior} at runtime}{326}{}%
+\contentsline {subsection}{Annoyances}{327}{}%
+\contentsline {subsection}{See Also}{327}{}%
+\contentsline {subsection}{Further Reading}{327}{}%
+\contentsline {section}{User-Defined Literals}{328}{}%
+\contentsline {section}{Variadic Templates}{329}{}%
+\renewcommand *\cftsecindent {1.25em}
+\contentsline {section}{\numberline {2.2}C++14}{329}
+\renewcommand *\cftsecindent {4.5em}
+\contentsline {section}{{\itshape Generic} Lambdas}{330}{}%
+\renewcommand *\cftsecindent {4.5em}
+\contentsline {section}{Short Title}{331}{}%
+\contentsline {chapter}{\numberline {Chapter\nobreakspace {}3}{Unsafe Features}}{333}{}%
+\renewcommand *\cftsecindent {1.25em}
+\contentsline {section}{\numberline {3.1}C++11}{333}
+\renewcommand *\cftsecindent {4.5em}
+\contentsline {section}{\tt carries\_dependency}{334}{}%
+\contentsline {section}{\tt final}{336}{}%
+\contentsline {section}{{\tt noexcept} Specifier}{337}{}%
+\contentsline {section}{Ref-Qualifiers}{338}{}%
+\renewcommand *\cftsecindent {1.25em}
+\contentsline {section}{\numberline {3.2}C++14}{338}
+\renewcommand *\cftsecindent {4.5em}
+\contentsline {section}{Deduced Return Type}{339}{}%
+\contentsline {section}{\tt decltypeauto}{340}{}%
+\contentsline {chapter}{\numberline {Chapter\nobreakspace {}4}{Parting Thoughts}}{341}{}%
+\renewcommand *\cftsecindent {1.25em}
+\contentsline {section}{Testing Section}{341}{}%
+\contentsline {section}{Testing Another Section}{341}{}%
+\contentsline {chapter}{{Bibliography}}{343}{}%
+\contentsline {chapter}{{Glossary}}{349}{}%
+\contentsline {chapter}{Index}{367}{}%

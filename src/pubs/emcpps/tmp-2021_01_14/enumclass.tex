@@ -1,0 +1,1111 @@
+
+
+\texttt{enum}~\texttt{class} is an alternative to the classic
+\texttt{enum} construct that simultaneously provides both stronger
+typing and an enclosing scope for its enumerated values.
+
+\subsection[Description]{Description}\label{description-enumclass}
+
+Classic, C-style enumerations are useful and continue to fulfill
+important engineering needs:
+
+\begin{lstlisting}[language=C++]
+enum EnumName { e_Enumerator0 /*= value0 */, e_EnumeratorN /* = valueN */ };
+    // classic, C-style (ù{\codeincomments{enum}}ù): enumerators are neither type-safe nor scoped
+\end{lstlisting}
+    
+\noindent For more examples where the classic \texttt{enum} shines, see \textit{\titleref{potential-pitfalls-enumclass}: \titleref{strong-typing-of-an-enum-class-can-be-counterproductive}} on page~\pageref{strong-typing-of-an-enum-class-can-be-counterproductive} and \textit{\titleref{annoyances-enumclass}: \titleref{scoped-enumerations-do-not-necessarily-add-value}} on page~\pageref{scoped-enumerations-do-not-necessarily-add-value}. Still,
+innumerable practical situations occur in which enumerators that are
+both scoped and more type-safe would be preferred; see \textit{\titleref{introducing-the-c++11-enum-class}} on page~\pageref{introducing-the-c++11-enum-class}.
+
+\subsubsection[Drawbacks and workarounds relating to unscoped C++03 enumerations]{Drawbacks and workarounds relating to unscoped C++03 enumerations}\label{drawbacks-and-workarounds-relating-to-unscoped-c++03-enumerations}
+
+Since the enumerators of a classic \texttt{enum} leak out into the
+enclosing scope, if two unrelated enumerations that happen to use the
+same enumerator name appear in the same scope, an ambiguity could ensue:
+
+\begin{lstlisting}[language=C++]
+enum Color { e_RED, e_ORANGE, e_YELLOW };    // OK
+enum Fruit { e_APPLE, e_ORANGE, e_BANANA };  // Error: (ù{\codeincomments{e\_ORANGE}}ù) is redefined.
+\end{lstlisting}
+    
+\noindent The problems associated with the use of unscoped enumerations is
+exacerbated when those enumerations are placed in their own respective
+header files in the global or some other large namespace scope, such as
+\texttt{std}, for general reuse. In such cases, latent defects will
+typically not manifest unless and until the two enumerations are
+included in the same translation unit.{\cprotect\footnote{Note that
+we use a lowercase, single-letter prefix, such as \texttt{e\_}, to
+ensure that the uppercase enumerator name is less likely to collide
+  with a legacy macro, which is especially useful in header files.}}
+
+If the only issue were the leakage of the enumerators into the enclosing
+scope, then the long-established workaround of enclosing the enumeration
+within a \texttt{struct} would suffice:
+
+\begin{lstlisting}[language=C++]
+struct Color { enum Enum { e_RED, e_ORANGE, e_YELLOW };  };   // OK
+struct Fruit { enum Enum { e_APPLE, e_ORANGE, e_BANANA }; };  // OK (scoped)
+\end{lstlisting}
+    
+\noindent Employing the C++03 workaround in the above code snippet implies that,
+when passing such an explicitly scoped, classical \texttt{enum} into a
+function, the distinguishing name of the \texttt{enum} is subsumed by
+its enclosing \texttt{struct} and the \texttt{enum} name itself, such as
+\texttt{Enum}, becomes \textbf{boilerplate code}:
+
+\begin{lstlisting}[language=C++]
+int enumeratorValue1 = Color::e_ORANGE;  // OK
+int enumeratorValue2 = Fruit::e_ORANGE;  // OK
+
+void colorFunc(Color::Enum color);  // enumerated (scoped) (ù{\codeincomments{Color}}ù) parameter
+void fruitFunc(Fruit::Enum fruit);  // enumerated (scoped) (ù{\codeincomments{Fruit}}ù) parameter
+\end{lstlisting}
+    
+\noindent Hence, adding \emph{just} scope to a classic, C++03 \texttt{enum} is
+easily doable and might be exactly what is indicated; see
+\textit{\titleref{potential-pitfalls-enumclass}: \titleref{strong-typing-of-an-enum-class-can-be-counterproductive}} on page~\pageref{strong-typing-of-an-enum-class-can-be-counterproductive}.
+
+\subsubsection[Drawbacks relating to weakly typed, C++03 enumerators]{Drawbacks relating to weakly typed, C++03 enumerators}\label{drawbacks-relating-to-weakly-typed,-c++03-enumerators}
+
+Historically, C++03 enumerations have been employed to represent at
+least two distinct concepts:
+
+\begin{enumerate}
+\item{A collection of related, but not necessarily unique, named integral values}
+\item{A pure, perhaps ordered, set of named entities in which cardinal value has no relevance}
+\end{enumerate}
+
+\noindent It will turn out that the modern \texttt{enum}~\texttt{class} feature,
+which we will discuss in \textit{\titleref{description-enumclass}: \titleref{introducing-the-c++11-enum-class}}, is more closely aligned with this second
+concept.
+
+A classic enumeration, by default, has an implementation-defined
+\textbf{underlying type} (see ``\titleref{explicit-enumeration-underlying-type}" on page~\pageref{explicit-enumeration-underlying-type}), which it uses to represent
+variables of that enumerated type as well as the values of its
+enumerators. While implicit conversion \emph{to} an enumerated type is
+never permitted, when implicitly converting \emph{from} a classical
+\texttt{enum} type to some arithmetic type, the \texttt{enum} promotes
+to integral types in a way similar to how its underlying type would
+promote using the rules of \textbf{integral promotion} and
+\textbf{standard conversion}:
+
+\begin{lstlisting}[language=C++]
+void f()
+{
+    enum A { e_A0, e_A1, e_A2 };  // classic, C-style C++03 (ù{\codeincomments{enum}}ù)
+    enum B { e_B0, e_B1, e_B2 };  //    "       "       "     "
+
+    A a;  // Declare object (ù{\codeincomments{a}}ù) to be of type (ù{\codeincomments{A}}ù).
+    B b;  //   "       "    (ù{\codeincomments{b}}ù)  " "  "       (ù{\codeincomments{B}}ù).
+
+    a = e_B2;  // error: cannot convert (ù{\codeincomments{e\_B2}}ù) to (ù{\codeincomments{enum}}ù) type (ù{\codeincomments{A}}ù)
+    b = e_B2;  // OK, assign the value (ù{\codeincomments{e\_B2}}ù) (numerically 2) to (ù{\codeincomments{b}}ù).
+    a = b;     // error: cannot convert enumerator (ù{\codeincomments{b}}ù) to (ù{\codeincomments{enum}}ù) type (ù{\codeincomments{A}}ù)
+    b = b;     // OK, self-assignment
+    a = 1;     // error: invalid conversion from (ù{\codeincomments{int 1}}ù) to (ù{\codeincomments{enum}}ù) type (ù{\codeincomments{A}}ù)
+    a = 0;     // error: invalid conversion from (ù{\codeincomments{int 0}}ù) to (ù{\codeincomments{enum}}ù) type (ù{\codeincomments{A}}ù)
+
+    bool     v = a;     // OK
+    char     w = e_A0;  // OK
+    unsigned y = e_B1;  // OK
+    float    x = b;     // OK
+    double   z = e_A2;  // OK
+    char*    p = e_B0;  // error: unable to convert (ù{\codeincomments{e\_B0}}ù) to (ù{\codeincomments{char*}}ù)
+    char*    q = +e_B0; // error: invalid conversion of (ù{\codeincomments{int}}ù) to (ù{\codeincomments{char*}}ù)
+}
+\end{lstlisting}
+    
+\noindent Notice that, in this example, the final two diagnostics for the
+attempted initializations of \texttt{p} and \texttt{q}, respectively,
+differ slightly. In the first, we are trying to initialize a pointer,
+\texttt{p}, with an enumerated type, \texttt{B}. In the second, we have
+creatively used the built-in unary-plus operator to explicitly promote
+the enumerator to an integral type before attempting to assign it to a
+pointer, \texttt{q}. Even though the numerical value of the enumerator
+is \texttt{0} and such is known at at compile time, implicit
+conversion to a pointer type from anything but the literal integer
+constant \texttt{0}{\cprotect\footnote{Excluding esoteric user-defined
+types, only a literal \texttt{0} or, as of C++11, a value of type
+\texttt{std::nullptr\_t} is implicitly convertible to an arbitrary
+  pointer type; see ``\titleref{null-pointer-literal-(nullptr)}" on page~\pageref{null-pointer-literal-(nullptr)}.}} is not
+permitted.
+
+C++ fully supports comparing values of \emph{classic} \texttt{enum}
+types with values of arbitrary \textbf{arithmetic type} as well as those
+of the same enumerated type; the operands of a comparator will be
+promoted to a sufficiently large integer type and the comparison will be
+done with those values. Comparing values having distinct enumerated
+types, however, is deprecated and will typically elicit a
+warning.{\cprotect\footnote{As of C++20, attempting to compare two values of distinct classically enumerated
+types is a compile-time error. Note that explicitly converting at least one of them to an
+integral type --- for example, using built-in unary plus --- both
+makes our intentions clear and avoids warnings.
+
+\begin{lstlisting}[language=C++, basicstyle={\ttfamily\footnotesize}]
+if (e_A0 < 0)       { /* ... */ }  // OK, comparison with integral type
+if (1.0 != e_B1)    { /* ... */ }  // OK, comparison with arithmetic type
+if (A() <= e_A2)    { /* ... */ }  // OK, comparison with same enumerated type
+if (e_A0 == e_B0)   { /* ... */ }  // warning, deprecated (error as of C++20)
+if ( e_A0 == +e_B0) { /* ... */ }  // OK, unary (ù{\codeincomments{+}}ù) converts to integral type
+if (+e_A0 ==  e_B0) { /* ... */ }  // OK,   "        "     "     "      "
+if (+e_A0 == +e_B0) { /* ... */ }  // OK,   "        "     "     "      "
+\end{lstlisting}
+      }}
+
+\subsubsection[Introducing the C++11 {\tt enum class}]{Introducing the C++11 {\SubsubsecCode enum class}}\label{introducing-the-c++11-enum-class}
+
+With the advent of modern C++, we now have a new, alternative
+enumeration construct, \texttt{enum}~\texttt{class}, that simultaneously
+addresses strong type safety and lexical scoping, two distinct and often
+desirable properties:
+
+\begin{lstlisting}[language=C++]
+enum class Name { e_Enumerator0 /* = value0 */, e_EnumeratorN /* = valueN */ };
+    // (ù{\codeincomments{enum class}}ù) enumerators are both type-safe and scoped
+\end{lstlisting}
+    
+\noindent Another major distinction is that the default
+\textbf{underlying type} for a C-style \texttt{enum} is
+\textbf{implementation defined}, whereas, for an
+\texttt{enum}~\texttt{class}, it is always an \texttt{int}. See
+\textit{\titleref{description-enumclass}: \titleref{enum-class-and-underlying-type}} on page~\pageref{enum-class-and-underlying-type} and
+\textit{\titleref{potential-pitfalls-enumclass}: \titleref{external-use-of-opaque-enumerators}} on page~\pageref{external-use-of-opaque-enumerators}.
+
+The enumerators within an \texttt{enum}~\texttt{class} are all scoped by
+its name, while classic enumerations leak the enumerators into the
+enclosing scope:
+
+\begin{lstlisting}[language=C++]
+enum Vehicle  { e_CAR,   e_TRAIN, e_PLANE };
+enum Geometry { e_POINT, e_LINE,  e_PLANE };  // Error: (ù{\codeincomments{e\_PLANE}}ù) is redefined.
+\end{lstlisting}
+    
+\noindent Unlike unscoped enumerations, \texttt{enum}~\texttt{class} does not leak
+its enumerators into the enclosing scope and can therefore help avoid
+collisions with other enumerations having like-named enumerators defined
+in the same scope:
+
+\begin{lstlisting}[language=C++]
+enum       VehicleUnscoped  { e_CAR, e_TRAIN, e_PLANE };
+struct     VehicleScopedExplicitly { enum { e_CAR, e_TRAIN, e_PLANE }; };
+enum class VehicleScopedImplicitly { e_CAR, e_BOAT,  e_PLANE };
+\end{lstlisting}
+    
+\noindent Just like an unscoped \texttt{enum} type, an object of type
+\texttt{enum}~\texttt{class} is passed as a parameter to a function
+using the enumerator name itself{\cprotect\footnote{If we use the approach for
+adding scope to enumerators that is described in \textit{\titleref{description-enumclass}: \titleref{drawbacks-relating-to-weakly-typed,-c++03-enumerators}} on page~\pageref{drawbacks-relating-to-weakly-typed,-c++03-enumerators}, the name of the enclosing \texttt{struct} together with a
+  consistent tag, such as \texttt{Enum}, has to be used to indicate an
+  enumerated type:
+
+  \begin{lstlisting}[language=C++, basicstyle={\ttfamily\footnotesize}]
+  void f1(VehicleScopedExplicitly::Enum value);
+      // classically scoped (ù{\codeincomments{enum}}ù) passed by value
+  \end{lstlisting}
+      }}:
+
+\begin{lstlisting}[language=C++]
+void f1(VehicleUnscoped value);          // classic enumeration passed by value
+void f2(VehicleScopedImplicitly value);  // modern enumeration passed by value
+\end{lstlisting}
+   
+\noindent Qualifying the enumerators of a scoped enumeration is the same,
+irrespective of whether the scoping is explicit or implicit:
+
+\begin{lstlisting}[language=C++]
+void g()
+{
+    f1(VehicleUnscoped::e_PLANE);
+        // call (ù{\codeincomments{f1}}ù) with an explicitly scoped enumerator
+
+    f2(VehicleScopedImplicitly::e_PLANE);
+        // call (ù{\codeincomments{f2}}ù) with an implicitly scoped enumerator
+}
+\end{lstlisting}
+    
+\noindent Apart from implicit scoping, the modern, C++11
+\texttt{enum}~\texttt{class} deliberately does \emph{not} support
+implicit conversion, in any context, to its \textbf{underlying type}:
+
+\begin{lstlisting}[language=C++]
+int i1 = VehicleScopedExplicitly::e_PLANE;
+    // OK, scoped C++03 (ù{\codeincomments{enum}}ù) (implicit conversion)
+
+int i2 = VehicleScopedImplicitly::e_PLANE;
+    // error: no implicit conversion to underlying type
+
+if (VehicleScopedExplicitly::e_PLANE > 3) { /* OK */ }
+if (VehicleScopedImplicitly::e_PLANE > 3) { /* error: implicit conversion */ }
+\end{lstlisting}
+    
+\noindent Enumerators of an \texttt{enum}~\texttt{class} do, however, admit
+equality and ordinal comparisons within their own type:
+
+\begin{lstlisting}[language=C++]
+enum class E { e_A, e_B, e_C };  // By default, enumerators increase from 0.
+
+static_assert(E::e_A < E::e_C, "");  // OK, comparison between same-type values
+static_assert(0 == E::e_A, "");      // error: no implicit conversion from (ù{\codeincomments{E}}ù)
+static_assert(0 == static_cast<int>(E::e_A), "");  // OK, explicit conversion
+
+void f(E v)
+{
+    if (v > E::e_A) { /* ... */ }  // OK, comparing values of same type, (ù{\codeincomments{E}}ù)
+}
+\end{lstlisting}
+    
+\noindent Note that incrementing an enumerator variable from one strongly typed
+enumerator's value to the next requires an explicit cast; see \textit{\titleref{potential-pitfalls-enumclass}: \titleref{strong-typing-of-an-enum-class-can-be-counterproductive}} on page~\pageref{strong-typing-of-an-enum-class-can-be-counterproductive}. 
+
+\subsubsection[{\tt enum} {\tt class} and underlying type]{{\SubsubsecCode enum} {\SubsubsecCode class} and underlying type}\label{enum-class-and-underlying-type}
+
+Since C++11, both scoped and unscoped enumerations permit explicit
+specification of their integral \textbf{underlying type}:
+
+\begin{lstlisting}[language=C++]
+enum Ec : char { e_X, e_Y, e_Z };
+    // underlying type is (ù{\codeincomments{char}}ù)
+
+static_assert(1 == sizeof(Ec),     "");
+static_assert(1 == sizeof Ec::E_X, "");
+
+enum class Es : short { e_X, e_Y, e_Z };
+    // underlying type is (ù{\codeincomments{short int}}ù)
+
+static_assert(sizeof(short) == sizeof(Es),     "");
+static_assert(sizeof(short) == sizeof Es::E_X, "");
+\end{lstlisting}
+    
+\noindent Unlike a classic \texttt{enum}, which has an
+\textbf{implementation-defined} default \textbf{underlying type}, the
+default \textbf{underlying type} for an \texttt{enum}~\texttt{class} is
+always \texttt{int}:
+
+\begin{lstlisting}[language=C++]
+enum class Ei { e_X, e_Y, e_Z };
+    // When not specified the underlying type of an (ù{\codeincomments{enum class}}ù) is (ù{\codeincomments{int}}ù).
+
+static_assert(sizeof(int) == sizeof(Ei),     "");
+static_assert(sizeof(int) == sizeof Ei::E_X, "");
+\end{lstlisting}
+    
+\noindent Note that, because the default \textbf{underlying type} of an
+\texttt{enum}~\texttt{class} is specified by the Standard, eliding the
+enumerators\footnote{See ``\titleref{enumopaque}" on page~\pageref{enumopaque}.} of an \texttt{enum}~\texttt{class} in
+a local redeclaration is \emph{always} possible; see
+\textit{\titleref{potential-pitfalls-enumclass}: \titleref{external-use-of-opaque-enumerators}} on page~\pageref{external-use-of-opaque-enumerators}.
+
+\subsection[Use Cases]{Use Cases}\label{use-cases-enumclass}
+
+\subsubsection[Avoiding unintended implicit conversions to arithmetic types]{Avoiding unintended implicit conversions to arithmetic types}\label{avoiding-unintended-implicit-conversions-to-arithmetic-types}
+
+Suppose that we want to represent the result of selecting one of a fixed
+number of alternatives from a drop-down menu as a simple unordered set
+of uniquely valued named integers. For example, this might be the case
+when configuring a product, such as a vehicle, for purchase:
+
+\begin{lstlisting}[language=C++]
+struct Trans
+{
+    enum Enum { e_MANUAL, e_AUTOMATIC };  // classic, C++03 scoped (ù{\codeincomments{enum}}ù)
+};
+\end{lstlisting}
+    
+\noindent Although automatic promotion of a classic enumerator to \texttt{int}
+works well when typical use of the enumerator involves knowing its
+cardinal value, such promotions are less than ideal when cardinal values
+have no role in intended usage:
+
+\begin{lstlisting}[language=C++]
+class Car { /* ... */ };
+
+struct Trans
+{                                         // explicitly scoped
+    enum Enum { e_MANUAL, e_AUTOMATIC };  // classic (ù{\codeincomments{enum}}ù)
+};                                        // (BAD IDEA)
+
+int buildCar(Car* result, int numDoors, Trans::Enum trans)
+{
+    int status = Trans::e_MANUAL;    // Oops, accidental misuse!
+
+    for (int i = 0; i < trans; ++i)  // Oops, accidental misuse!
+    {
+         attachDoor(i);
+    }
+
+    return status;
+}
+\end{lstlisting}
+    
+\noindent As shown in the example above, it is never correct for a value of type
+\texttt{Trans::Enum} to be assigned to, compared with, or otherwise
+modified like an integer; hence, \emph{any} such use would necessarily
+be considered a mistake and, ideally, flagged by the compiler as an
+error. The stronger typing provided by \texttt{enum}~\texttt{class}
+achieves this goal:
+
+\begin{lstlisting}[language=C++]
+class Car { /* ... */ };
+
+enum class Trans { e_MANUAL, e_AUTOMATIC };  // modern (ù{\codeincomments{enum class}}ù) (GOOD IDEA)
+
+int buildCar(Car* result, int numDoors, Trans trans)
+{
+    int status = Trans::e_MANUAL;    // error: incompatible types
+
+    for (int i = 0; i < trans; ++i)  // error: incompatible types
+    {
+         attachDoor(i);
+    }
+
+    return status;
+}
+\end{lstlisting}
+    
+\noindent By deliberately choosing the \texttt{enum}~\texttt{class} over the
+\emph{classic} \texttt{enum} above, we automate the detection of many common
+kinds of accidental misuse. Secondarily, we slightly simplify the interface of the function signature by removing the extra \texttt{::Enum} boilerplate qualifications required of an explicitly
+scoped, less-type-safe, classic \texttt{enum}, but see \textit{\titleref{potential-pitfalls-enumclass}: \titleref{strong-typing-of-an-enum-class-can-be-counterproductive}} on page~\pageref{strong-typing-of-an-enum-class-can-be-counterproductive}. 
+
+In an unlikely event that the numeric value of a strongly typed
+enumerator is needed (e.g., for serialization), it can be extracted
+explicitly via a \texttt{static\_cast}:
+
+\begin{lstlisting}[language=C++]
+const int manualIntegralValue    = static_cast<int>(Trans::e_MANUAL);
+const int automaticIntegralValue = static_cast<int>(Trans::e_AUTOMATIC);
+static_assert(0 == manualIntegralValue,    "");
+static_assert(1 == automaticIntegralValue, "");
+\end{lstlisting}
+    
+\subsubsection[Avoiding namespace pollution]{Avoiding namespace pollution}\label{avoiding-namespace-pollution}
+
+Classic, C-style enumerations do not provide scope for their
+enumerators, leading to unintended latent name collisions:
+
+\begin{lstlisting}[language=C++]
+// vehicle.h
+// ...
+enum Vehicle  { e_CAR, e_TRAIN, e_PLANE };  // classic, C-style (ù{\codeincomments{enum}}ù)
+// ...
+
+// geometry.h
+// ...
+enum Geometry { e_POINT, e_LINE,  e_PLANE };  // classic, C-style (ù{\codeincomments{enum}}ù)
+// ...
+
+// client
+#include <vehicle.h>  // OK
+#include <geometry.h> // error: (ù{\codeincomments{e\_PLANE}}ù) redefined
+// ...
+\end{lstlisting}
+    
+\noindent The common workaround is to wrap the \texttt{enum} in a \texttt{struct}
+or \texttt{namespace}:
+
+\begin{lstlisting}[language=C++]
+// vehicle.h
+// ...
+struct Vehicle {                            // explicitly scoped
+    enum Enum { e_CAR, e_TRAIN, e_PLANE };  // classic, C-style (ù{\codeincomments{enum}}ù)
+};
+// ...
+
+// geometry.h
+// ...
+struct Geometry {                            // explicitly scoped
+    enum Enum { e_POINT, e_LINE, e_PLANE };  // classic, C-style (ù{\codeincomments{enum}}ù)
+};
+// ...
+
+// client
+#include <vehicle.h>    // OK
+#include <geometry.h>   // OK, enumerators are scoped explicitly.
+// ...
+\end{lstlisting}
+    
+\noindent If implicit conversions of enumerators to integral types are not
+required, we can achieve the same scoping effect with much more type
+safety and slightly less boilerplate --- i.e., without the
+\texttt{::Enum} when declaring a variable --- by employing
+\texttt{enum}~\texttt{class} instead:
+
+\begin{lstlisting}[language=C++]
+// vehicle.h
+// ...
+enum class Vehicle { e_CAR, e_TRAIN, e_PLANE };
+// ...
+
+// geometry.h
+// ...
+enum class Geometry { e_POINT, e_LINE, e_PLANE };
+// ...
+
+// client
+#include <vehicle.h>  // OK
+#include <geometry.h>   // OK, enumerators are scoped implicitly.
+// ...
+\end{lstlisting}
+
+\subsubsection[Improving overloading disambiguation]{Improving overloading disambiguation}\label{improving-overloading-disambiguation}
+
+Overloaded functions are notorious for providing opportunities for
+misuse. Maintenance difficulties are exacerbated when arguments for
+these overloads are convertible to more than a single parameter in the
+function. As an illustration of the compounding of such maintenance
+difficulties, suppose that we have a widely used, named type,
+\texttt{Color}, and the numeric values of its enumerators are small,
+unique, and irrelevant. Imagine we have chosen to represent
+\texttt{Color} as a \emph{classic} \texttt{enum}:
+
+\begin{lstlisting}[language=C++]
+struct Color
+{                                           // explicitly scoped
+    enum Enum { e_RED, e_BLUE /*, ...*/ };  // classic, C-style (ù{\codeincomments{enum}}ù)
+};                                          // (BAD IDEA)
+\end{lstlisting}
+    
+\noindent Suppose further that we have provided two overloaded functions, each
+having two parameters, with one signature's parameters including the
+enumeration \texttt{Color}:
+
+\begin{lstlisting}[language=C++]
+void clearScreen(int pattern, int orientation);          // (0)
+void clearScreen(Color::Enum background, double alpha);  // (1)
+\end{lstlisting}
+    
+\noindent Depending on the types of the arguments supplied, one or the other
+functions will be selected or else the call will be ambiguous and the
+program will fail to compile{\cprotect\footnote{GCC version 7.4.0
+incorrectly diagnoses both ambiguity errors as warnings, although it
+states in the warning that it is an error:
+
+\begin{lstlisting}[language=C++, basicstyle={\ttfamily\footnotesize}]
+warning: ISO C++ says that these are ambiguous, even though the worst conversion for the
+         first is better than the worst conversion for the second:
+
+note: candidate 1: void clearScreen(int, int)
+void clearScreen(int pattern, int orientation);
+     ^~~~~~~~~~~
+note: candidate 2: void clearScreen(Color::Enum, double)
+void clearScreen(Color::Enum background, double alpha;
+     ^~~~~~~~~~~
+\end{lstlisting}
+      }}:
+
+\begin{lstlisting}[language=C++]
+void f0()
+{
+    clearScreen(1           , 1           );  // calls (0) above
+    clearScreen(1           , 1.0         );  // calls (0) above
+    clearScreen(1           , Color::e_RED);  // calls (0) above
+
+    clearScreen(1.0         , 1           );  // calls (0) above
+    clearScreen(1.0         , 1.0         );  // calls (0) above
+    clearScreen(1.0         , Color::e_RED);  // calls (0) above
+
+    clearScreen(Color::e_RED, 1           );  // error: ambiguous call
+    clearScreen(Color::e_RED, 1.0         );  // calls (1) above
+    clearScreen(Color::e_RED, Color::e_RED);  // error: ambiguous call
+}
+\end{lstlisting}
+    
+\noindent Now suppose that we had instead defined our \texttt{Color} enumeration
+as a modern \texttt{enum}~\texttt{class}:
+
+\begin{lstlisting}[language=C++]
+enum class Color { e_RED, e_BLUE /*, ...*/ };
+
+void clearScreen(int pattern, int orientation);    // (2)
+void clearScreen(Color background, double alpha);  // (3)
+\end{lstlisting}
+    
+\noindent The function that will be called from a given set of arguments becomes
+clear:
+
+\begin{lstlisting}[language=C++]
+void f1()
+{
+    clearScreen(1           , 1           );  // calls (2) above
+    clearScreen(1           , 1.0         );  // calls (2) above
+    clearScreen(1           , Color::e_RED);  // error: no matching function
+
+    clearScreen(1.0         , 1           );  // calls (2) above
+    clearScreen(1.0         , 1.0         );  // calls (2) above
+    clearScreen(1.0         , Color::e_RED);  // error: no matching function
+
+    clearScreen(Color::e_RED, 1           );  // calls (3) above
+    clearScreen(Color::e_RED, 1.0         );  // calls (3) above
+    clearScreen(Color::e_RED, Color::e_RED);  // error: no matching function
+}
+\end{lstlisting}
+    
+\noindent Returning to our original, classic-\texttt{enum} design, suppose that we
+find we need to add a third parameter, \texttt{bool}~\texttt{z}, to the
+second overload:
+
+\begin{lstlisting}[language=C++]
+void clearScreen(int pattern, int orientation);                  // (0)
+void clearScreen(Color::Enum background, double alpha, bool z);  // (4) classic
+\end{lstlisting}
+    
+\noindent If our plan is that any existing client calls involving
+\texttt{Color::Enum} will now be flagged as errors, we are going to be
+very disappointed:
+
+\begin{lstlisting}[language=C++]
+void f2()
+{
+    clearScreen(Color::e_RED, 1.0);  // calls (0) above
+}
+\end{lstlisting}
+    
+\noindent In fact, every combination of arguments above --- all nine of them ---
+will call function (0) above with no warnings at all:
+
+\begin{lstlisting}[language=C++]
+void f3()
+{
+    clearScreen(1           , 1           );  // calls (0) above
+    clearScreen(1           , 1.0         );  // calls (0) above
+    clearScreen(1           , Color::e_RED);  // calls (0) above
+
+    clearScreen(1.0         , 1           );  // calls (0) above
+    clearScreen(1.0         , 1.0         );  // calls (0) above
+    clearScreen(1.0         , Color::e_RED);  // calls (0) above
+
+    clearScreen(Color::e_RED, 1           );  // calls (0) above
+    clearScreen(Color::e_RED, 1.0         );  // calls (0) above
+    clearScreen(Color::e_RED, Color::e_RED);  // calls (0) above
+}
+\end{lstlisting}
+    
+\noindent Finally, let's suppose again that we have used
+\texttt{enum}~\texttt{class} to implement our \texttt{Color}\linebreak[4]
+\mbox{enumeration}:
+
+\begin{lstlisting}[language=C++]
+void clearScreen(int pattern, int orientation);            // (2)
+void clearScreen(Color background, double alpha, bool z);  // (5) modern
+
+void f4()
+{
+    clearScreen(Color::e_RED, 1.0);  // error: no matching function
+}
+\end{lstlisting}
+    
+\noindent And in fact, the \emph{only} calls that succeed unmodified are precisely
+those that do not involve the enumeration \texttt{Color}, as desired:
+
+\begin{lstlisting}[language=C++]
+void f5()
+{
+    clearScreen(1           , 1           );  // calls (2) above
+    clearScreen(1           , 1.0         );  // calls (2) above
+    clearScreen(1           , Color::e_RED);  // error: no matching function
+
+    clearScreen(1.0         , 1           );  // calls (2) above
+    clearScreen(1.0         , 1.0         );  // calls (2) above
+    clearScreen(1.0         , Color::e_RED);  // error: no matching function
+
+    clearScreen(Color::e_RED, 1           );  // error: no matching function
+    clearScreen(Color::e_RED, 1.0         );  // error: no matching function
+    clearScreen(Color::e_RED, Color::e_RED);  // error: no matching function
+}
+\end{lstlisting}
+    
+\noindent Bottom line: Having a \emph{pure} enumeration --- such as
+\texttt{Color}, used widely in function signatures --- be strongly typed
+can only help to expose accidental misuse but, again, see
+\textit{\titleref{potential-pitfalls-enumclass}: \titleref{strong-typing-of-an-enum-class-can-be-counterproductive}} on page~\pageref{strong-typing-of-an-enum-class-can-be-counterproductive}.
+
+Note that strongly typed enumerations help to avoid accidental misuse by
+requiring an explicit \emph{cast} should conversion to an arithmetic
+type be desired:
+
+\begin{lstlisting}[language=C++]
+void f6()
+{
+    clearScreen(Color::e_RED, 1.0);                   // error: no match
+    clearScreen(static_cast<int>(Color::e_RED), 1.0); // OK, calls (2) above
+    clearScreen(Color::e_RED, 1.0, false);            // OK, calls (5) above
+}
+\end{lstlisting}
+    
+
+\subsubsection[Encapsulating implementation details within the enumerators themselves]{Encapsulating implementation details within the enumerators themselves}\label{encapsulating-implementation-details-within-the-enumerators-themselves}
+
+In rare cases, providing a pure, ordered enumeration having unique, but
+not necessarily contiguous, numerical values that exploit lower-order
+bits{\cprotect\footnote{To preserve the ordinality of the enumerators
+overall, the higher-level bits must encode their relative order. The
+lower-level bits are then available for arbitrary use in the
+  implementation.}} to categorize (and make readily available) important
+individual properties might offer an advantage, such as in performance.
+
+For example, suppose that we have a \texttt{MonthOfYear} enumeration
+that encodes the months that have 31 days in their least-significant bit
+and an accompanying \texttt{inline} function to quickly determine
+whether a given enumerator represents such a month{\cprotect\footnote{In this example, we are using a new cross-cutting
+feature of all enumerated types that allows the client defining the
+type to specify its underlying type precisely. In this case, we have
+chosen an \texttt{unsigned}~\texttt{char} to maximize the number of
+flag bits while keeping the overall size to a single byte. Three bits
+remain available. Had we needed more flag bits, we could have just as
+easily used a larger underlying type, such as
+  \texttt{unsigned}~\texttt{short}; see ``\titleref{explicit-enumeration-underlying-type}" on page~\pageref{explicit-enumeration-underlying-type}.}}:
+
+\begin{lstlisting}[language=C++]
+enum class MonthOfYear : unsigned char  // optimized to flag long months
+{
+    e_JAN = ( 1 << 4) + 0x1,
+    e_FEB = ( 2 << 4) + 0x0,
+    e_MAR = ( 3 << 4) + 0x1,
+    e_APR = ( 4 << 4) + 0x0,
+    e_MAY = ( 5 << 4) + 0x1,
+    e_JUN = ( 6 << 4) + 0x0,
+    e_JUL = ( 7 << 4) + 0x1,
+    e_AUG = ( 8 << 4) + 0x1,
+    e_SEP = ( 9 << 4) + 0x0,
+    e_OCT = (10 << 4) + 0x1,
+    e_NOV = (11 << 4) + 0x0,
+    e_DEC = (12 << 4) + 0x1
+};
+
+bool hasThirtyOneDays(MonthOfYear month)
+{
+    return static_cast<std::underlying_type<MonthOfYear>::type>(month) & 0x1;
+}
+\end{lstlisting}
+    
+\noindent In such cases, the public clients are not intended to make use of the
+cardinal values; hence clients are well advised to treat them as
+implementation details, potentially subject to change without notice.
+Representing this enumeration using the modern
+\texttt{enum}~\texttt{class}, instead of an explicitly scoped classic
+\texttt{enum}, deters clients from making any use (apart from same-type
+comparisons) of the cardinal values assigned to the enumerators. Notice
+that implementors of the \texttt{hasThirtyOneDays} function will require
+a verbose but runtime efficient \texttt{static\_cast} to resolve the
+cardinal value of the enumerator and thus make the requested
+determination as efficiently as possible.
+
+\subsection[Potential Pitfalls]{Potential Pitfalls}\label{potential-pitfalls-enumclass}
+
+\subsubsection[Strong typing of an {\tt enum} {\tt class} can be counterproductive]{Strong typing of an {\SubsubsecCode enum} {\SubsubsecCode class} can be counterproductive}\label{strong-typing-of-an-enum-class-can-be-counterproductive}
+
+The additive value in using a modern \texttt{enum}~\texttt{class} is
+governed \emph{solely} by whether its stronger typing, \emph{not} its
+implicit scoping, of its enumerators would be beneficial in its
+anticipated typical usage. If the expectation is that the client will
+never to need to know the specific values of the enumerators, then use
+of the modern \texttt{enum}~\texttt{class} is often just what's needed.
+But if the cardinal values themselves are ever needed during typical
+use, extracting them will require the client to perform an explicit
+cast. Beyond mere inconvenience, encouraging clients to use casts
+invites defects.
+
+Suppose, for example, we have a function, \texttt{setPort}, from an
+external library that takes an integer port number:
+
+\begin{lstlisting}[language=C++]
+int setPort(int portNumber);
+    // Set the current port; return (ù{\codeincomments{0}}ù) on success and a nonzero value otherwise.
+\end{lstlisting}
+    
+\noindent Suppose further that we have used the modern
+\texttt{enum}~\texttt{class} feature to implement an enumeration,
+\texttt{SysPort}, that identifies well-known ports on our system:
+
+\begin{lstlisting}[language=C++]
+enum class SysPort { e_INPUT = 27, e_OUTPUT = 29, e_ERROR = 32, e_CTRL = 6 };
+    // enumerated port values used to configure our systems
+\end{lstlisting}
+    
+\noindent Now suppose we want to call the function \texttt{f} using one of these
+enumerated values:
+
+\begin{lstlisting}[language=C++]
+void setCurrentPortToCtrl()
+{
+    setPort(SysPort::e_CTRL);  // error: cannot convert (ù{\codeincomments{SetPort}}ù) to (ù{\codeincomments{int}}ù)
+}
+\end{lstlisting}
+    
+\noindent Unlike the situation for a \emph{classic} \texttt{enum}, no implicit
+conversion occurs from an \texttt{enum}~\texttt{class} to its underlying
+integral type, so anyone using this enumeration will be forced to
+somehow explicitly \textbf{cast} the enumerator to some arithmetic type.
+There are, however, multiple choices for performing this cast:
+
+\begin{lstlisting}[language=C++]
+#include <type_traits>  // (ù{\codeincomments{std::underlying\_type}}ù)
+
+setPort(int(SysPort::e_CTRL));                                           // (1)
+setPort((int)SysPort::e_CTRL);                                           // (2)
+setPort(static_cast<int>(SysPort::e_CTRL));                              // (3)
+setPort(static_cast<std::underlying_type<SysPort>::type>(                // (4)
+                                                         SysPort::e_CTRL));
+setPort(static_cast<int>(                                                // (5)
+         static_cast<std::underlying_type<SysPort>::type>(SysPort::e_CTRL)));
+\end{lstlisting}
+    
+\noindent Any of the above casts would work in this case, but consider a future
+where a platform changed \texttt{setPort} to take a \texttt{long} and
+the control port was changed to a value that cannot be represented as an
+\texttt{int}:
+
+\begin{lstlisting}[language=C++]
+int setPort(long portNumber);
+enum class SysPort : unsigned { e_INPUT = 27, e_OUTPUT = 29, e_ERROR = 32,
+                                e_CTRL = 0x80000000 };
+    // enumerated port values used to configure our systems
+\end{lstlisting}
+    
+\noindent Only casting method (4) above will pass the correct value for
+\texttt{e\_CTRL} to this new \texttt{setPort} implementation. The other
+variations will all pass a negative number for the port, which would
+certainly not be the intention of the user writing this code. A classic
+C-style \texttt{enum} would have avoided any manually written cast
+entirely and the proper value would propagate into \texttt{setPort} even
+as the range of values used for ports changes:
+
+\begin{lstlisting}[language=C++]
+struct SysPort  // explicit scoping for a classic, C-style (ù{\codeincomments{enum}}ù)
+{
+    enum Enum { e_INPUT = 27, e_OUTPUT = 29, e_ERROR = 32,
+                e_CTRL = 0x80000000 };
+
+    // Note that the underlying type of (ù{\codeincomments{Enum}}ù) is implicit and will be
+    // large enough to represent all of these values.
+    static_assert(
+        std::is_same<std::underlying_type<Enum>::type,unsigned>::value, "");
+};
+
+void setCurrentPortToCtrl()
+{
+    setPort(SysPort::e_CTRL);  // OK, (ù{\codeincomments{SysPort::Enum}}ù) promotes to (ù{\codeincomments{long}}ù).
+}
+\end{lstlisting}
+    
+\noindent When the intended client will depend on the cardinal values of the
+enumerators during routine use, we can avoid tedious, error-prone, and
+repetitive casting by instead employing a classic, C-style
+\texttt{enum}, possibly nested within a \texttt{struct} to achieve
+explicit scoping of its enumerators. The subsections that follow
+highlight specific cases in which classic, C-style, C++03
+\texttt{enum}s are appropriate.
+
+\subsubsection[Misuse of {\tt enum} {\tt class} for collections of named constants]{Misuse of {\SubsubsecCode enum} {\SubsubsecCode class} for collections of named constants}\label{misuse-of-enum-class-for-collections-of-named-constants}
+
+When constants are truly independent, we are often encouraged to avoid
+enumerations altogether, preferring instead individual constants; see
+``\titleref{Default-Member-Initializers}" on page~\pageref{Default-Member-Initializers}. On the other hand, when the constants all participate within a coherent
+theme, the expressiveness achieved using a \emph{classic} \texttt{enum}
+to aggregate those values is compelling.{\cprotect\footnote{Another
+advantage of an enumerator over an individual constant is that the
+enumerator is guaranteed to be a \textbf{compile-time constant} (see
+  ``\titleref{constexprvar}" on page~\pageref{constexprvar}) and a \textbf{prvalue} (see
+  ``\titleref{Rvalue-References}" on page~\pageref{Rvalue-References}), which never needs static storage
+  and cannot have its address taken.}}
+
+For example, suppose we want to collect the coefficients for various
+numerical suffixes representing \emph{thousands}, \emph{millions}, and
+\emph{billions} using an enumeration:
+
+\begin{lstlisting}[language=C++]
+enum class S0 { e_K = 1000, e_M = e_K * e_K, e_G = e_M * e_K };  // (BAD IDEA)
+\end{lstlisting}
+    
+\noindent A client trying to access one of these enumerated values would need to
+cast it explicitly:
+
+\begin{lstlisting}[language=C++]
+void client0()
+{
+    int distance = 5 * static_cast<int>(S0::e_K);  // casting is error-prone
+    // ...
+}
+\end{lstlisting}
+    
+\noindent By instead making the enumeration an explicitly scoped, \emph{classic}
+\texttt{enum} nested within a \texttt{struct}, no casting is needed
+during typical use:
+
+\begin{lstlisting}[language=C++]
+struct S1  // scoped
+{
+    enum Enum { e_K = 1000, e_M = e_K * e_K, e_G = e_M * e_K };
+        // *classic* (ù{\codeincomments{enum}}ù) (GOOD IDEA)
+};
+
+void client1()
+{
+    int distance = 5 * S1::e_K;  // no casting required during typical use
+    // ...
+}
+\end{lstlisting}
+    
+\noindent If the intent is that these constants will be specified and used in a
+purely local context, we might choose to drop the enclosing scope, along
+with the name of the enumeration itself\footnote{See
+``\titleref{local-types-as-template-arguments}" on page~\pageref{local-types-as-template-arguments}.}{\cprotect\footnote{We sometimes use the
+lowercase prefix \texttt{k\_} instead of \texttt{e\_} to indicate
+salient \textbf{compile-time constants} that are not considered part
+of an enumerated set, irrespective of whether they are implemented as
+enumerators:
+
+\begin{lstlisting}[language=C++, basicstyle={\ttfamily\footnotesize}]
+enum { k_NUM_PORTS = 500, k_PAGE_SIZE = 512 };     // compile-time constants
+static const double k_PRICING_THRESHOLD = 0.03125; // compile-time constant
+\end{lstlisting}
+      }}:
+
+\begin{lstlisting}[language=C++]
+void client2()
+{
+    enum { e_K = 1000, e_M = e_K * e_K, e_G = e_M * e_K };  // function scoped
+
+    double salary = 95 * e_K;
+    double netWorth = 0.62 * e_M;
+    double companyRevenue = 47.2 * e_G;
+    // ...
+}
+\end{lstlisting}
+    
+
+\subsubsection[Misuse of {\tt enum} {\tt class} in association with bit flags]{Misuse of {\SubsubsecCode enum} {\SubsubsecCode class} in association with bit flags}\label{misuse-of-enum-class-in-association-with-bit-flags}
+
+Using \texttt{enum}~\texttt{class} to implement enumerators that are
+intended to interact closely with arithmetic types will typically
+require the definition of arithmetic and bitwise operator overloads
+between values of the same enumeration and between the enumeration and
+arithmetic types, leading to yet more code that needs to be written,
+tested, and maintained. This is often the case for bit flags. Consider, for example, an
+enumeration used to control a file system:
+
+\begin{lstlisting}[language=C++]
+enum class Ctrl { e_READ = 0x1, e_WRITE = 0x2, e_EXEC = 0x4 };  // (BAD IDEA)
+    // low-level bit flags used to control file system
+
+void chmodFile(int fd, int access);
+    // low-level function used to change privileges on a file
+\end{lstlisting}
+    
+\noindent We could conceivably write a series of functions to combine the
+individual flags in a type-safe manner:
+
+\begin{lstlisting}[language=C++]
+#include <type_traits>  // (ù{\codeincomments{std::underlying\_type}}ù)
+
+int flags() { return 0; }
+int flags(Ctrl a) { return static_cast<std::underlying_type<a>::type>(a); }
+int flags(Ctrl a, Ctrl b) { return flags(a) | flags(b); }
+int flags(Ctrl a, Ctrl b, Ctrl c) { return flags(a, b) | flags(c); }
+
+void setRW(int fd)
+{
+    chmodFile(fd, flags(Ctrl::e_READ, Ctrl::e_WRITE));  // (BAD IDEA)
+}
+\end{lstlisting}
+    
+\noindent Alternatively, a \emph{classic}, C-style \texttt{enum} nested within a
+\texttt{struct} achieves what's needed:
+
+\begin{lstlisting}[language=C++]
+struct Ctrl // scoped
+{
+    enum Enum { e_READ = 0x1, e_WRITE = 0x2, e_EXEC = 0x4 };  // classic (ù{\codeincomments{enum}}ù)
+        // low-level bit flags used to control file system (GOOD IDEA)
+};
+
+void chmodFile(int fd, int access);
+    // low-level function used to change privileges on a file
+
+void setRW(int fd)
+{
+    chmodFile(fd, Ctrl::e_READ | Ctrl::e_WRITE);  // (GOOD IDEA)
+}
+\end{lstlisting}
+    
+
+\subsubsection[Misuse of {\tt enum} {\tt class} in association with iteration]{Misuse of {\SubsubsecCode enum} {\SubsubsecCode class} in association with iteration}\label{misuse-of-enum-class-in-association-with-iteration}
+
+Sometimes the relative values of enumerators are considered important as
+well. For example, let's again consider enumerating the months of the
+year:
+
+\begin{lstlisting}[language=C++]
+enum class MonthOfYear  // modern, strongly typed enumeration
+{
+    e_JAN, e_FEB, e_MAR,  // winter
+    e_APR, e_MAY, e_JUN,  // spring
+    e_JUL, e_AUG, e_SEP,  // summer
+    e_OCT, e_NOV, e_DEC,  // autumn
+};
+\end{lstlisting}
+    
+\noindent If all we need to do is compare the ordinal values of the enumerators,
+there's no problem:
+
+\begin{lstlisting}[language=C++]
+bool isSummer(MonthOfYear month)
+{
+    return MonthOfYear::e_JUL <= month && month <= MonthOfYear::e_AUG;
+}
+\end{lstlisting}
+    
+\noindent Although the \texttt{enum}~\texttt{class} features allow for relational
+and equality operations between like-typed enumerators, no arithmetic
+operations are supported directly, which becomes problematic when we
+need to iterate over the enumerated values:
+
+\begin{lstlisting}[language=C++]
+void doSomethingWithEachMonth()
+{
+    for (MonthOfYear i =  MonthOfYear::e_JAN;
+                     i <= MonthOfYear::e_DEC;
+                   ++i)  // error: no match for (ù{\codeincomments{++}}ù)
+    {
+        // ...
+    }
+}
+\end{lstlisting}
+    
+\noindent To make this code compile, an explicit cast from and to the enumerated
+type will be required:
+
+\begin{lstlisting}[language=C++]
+void doSomethingWithEachMonth()
+{
+    for (MonthOfYear i =  MonthOfYear::e_JAN;
+                     i <= MonthOfYear::e_DEC;
+                     i = static_cast<MonthOfYear>(static_cast<int>(i) + 1)
+    {
+        // ...
+    }
+}
+\end{lstlisting}
+    
+\noindent Alternatively, an auxiliary, helper function could be supplied to allow
+clients to bump the enumerator:
+
+\begin{lstlisting}[language=C++]
+MonthOfYear nextMonth(MonthOfYear value)
+{
+    return static_cast<MonthOfYear>(static_cast<int>(value) + 1);
+}
+
+void doSomethingWithEachMonth()
+{
+    for (MonthOfYear i =  MonthOfYear::e_JAN;
+                     i <= MonthOfYear::e_DEC;
+                     i = nextMonth(i)
+    {
+        // ...
+    }
+}
+\end{lstlisting}
+    
+\noindent If, however, the cardinal value of the \texttt{MonthOfYear} enumerators
+is likely to be relevant to clients, an explicitly scoped \emph{classic}
+\texttt{enum} should be considered as a viable alternative:
+
+\begin{lstlisting}[language=C++]
+struct MonthOfYear  // explicit scoping for (ù{\codeincomments{enum}}ù)
+{
+    enum Enum
+    {
+        e_JAN, e_FEB, e_MAR,  // winter
+        e_APR, e_MAY, e_JUN,  // spring
+        e_JUL, e_AUG, e_SEP,  // summer
+        e_OCT, e_NOV, e_DEC,  // autumn
+    };
+};
+
+bool isSummer(MonthOfYear::Enum month)  // must now pass nested (ù{\codeincomments{Enum}}ù) type
+{
+    return MonthOfYear::e_JUL <= month && month <= MonthOfYear::e_AUG;
+}
+
+void doSomethingWithEachMonth()
+{
+    for (int i =  MonthOfYear::e_JAN;  // iteration variable is now an (ù{\codeincomments{int}}ù)
+             i <= MonthOfYear::e_DEC;
+           ++i)  // OK, convert to underlying type
+    {
+        // ... (might require cast back to enumerated type)
+    }
+}
+\end{lstlisting}
+    
+\noindent Note that such code presumes that the enumerated values will (1) remain
+in the same order and (2) have contiguous numerical values irrespective
+of the implementation choice.
+
+\subsubsection[External use of opaque enumerators]{External use of opaque enumerators}\label{external-use-of-opaque-enumerators}
+
+Since \texttt{enum}~\texttt{class} types have an \textbf{underlying
+type} of \texttt{int} by default, clients are always able to (re)declare
+it, as a \textbf{complete type}, without its enumerators. Unless the
+opaque form of an \texttt{enum}~\texttt{class}'s definition is exported
+in a header file separate from the one implementing the publicly
+accessible full definition, external clients wishing to exploit the
+opaque version will experience an \emph{attractive nuisance} in that
+they can provide it locally, along with its \textbf{underlying type}, if
+any.
+
+If the underlying type of the full definition were to subsequently
+change, any program incorporating the original elided definition locally
+and also the new, full one from the header would become silently \textbf{ill formed, no diagnostic required (IFNDR)}; see ``\titleref{enumopaque}" on page~\pageref{enumopaque}.
+
+\subsection[Annoyances]{Annoyances}\label{annoyances-enumclass}
+
+\subsubsection[Scoped enumerations do not necessarily add value]{Scoped enumerations do not necessarily add value}\label{scoped-enumerations-do-not-necessarily-add-value}
+
+When the enumeration is local, say, within the scope of a given
+function, forcing an additional scope on the enumerators is superfluous.
+For example, consider a function that returns an integer status
+\texttt{0} on success and a nonzero value otherwise:
+
+\begin{lstlisting}[language=C++]
+int f()
+{
+    enum { e_ERROR = -1, e_OK = 0 } result = e_OK;
+    // ...
+    if (/* error 1 */) { result = e_ERROR; }
+    // ...
+    if (/* error 2 */) { result = e_ERROR; }
+    // ...
+    return result;
+}
+\end{lstlisting}
+    
+\noindent Use of \texttt{enum}~\texttt{class} in this context would require
+potentially needless qualification --- and perhaps even casting ---
+where it might not be warranted:
+
+\begin{lstlisting}[language=C++]
+int f()
+{
+    enum class RC { e_ERROR = -1, e_OK = 0 } result = RC::e_OK;
+    // ...
+    if (/* error 1 */) { result = RC::e_ERROR; } // undesirable qualification
+    // ...
+    if (/* error 2 */) { result = RC::e_ERROR; } // undesirable qualification
+    // ...
+    return static_cast<int>(result);  // undesirable explicit cast
+}
+\end{lstlisting}
+    
+\subsection[See Also]{See Also}\label{see-also}
+
+\begin{itemize}
+\item{``\titleref{explicit-enumeration-underlying-type}" on page~\pageref{explicit-enumeration-underlying-type} --- The underlying integral representation enumerator variables and values}
+\item{``\titleref{enumopaque}" on page~\pageref{enumopaque} --- A means of \textbf{insulating} individual enumerators from clients}
+\end{itemize}
+
+\subsection[Further Reading]{Further Reading}\label{further-reading}
+
+TODO
