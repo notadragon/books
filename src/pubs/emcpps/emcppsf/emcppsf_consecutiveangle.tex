@@ -1,7 +1,9 @@
 \newpage
-\section[Consecutive Right Angle Brackets]{Consecutive Right Angle Brackets}\label{consecutive-right-angle-brackets}
-In the context of template argument lists, \texttt{>>} is parsed as two
-(separate) closing angle brackets.
+\section[Consecutive {\tt >}s]{Consecutive Right-Angle Brackets}\label{consecutive-right-angle-brackets}
+% 13 Jan 2021 copyedits in and proofed
+
+In the context of template argument lists, \lstinline!>>! is parsed as two
+separate closing angle brackets.
 
 \subsection[Description]{Description}\label{description}
 
@@ -18,8 +20,8 @@ std::vector<std::vector<int> > v1;  // OK
 
 \noindent To facilitate the common use case above, a special rule was added
 whereby, when parsing a template-argument expression, \emph{non-nested}
-(i.e., within parentheses) appearances of \texttt{>}, \texttt{>>},
-\texttt{>>>}, and so on are to be treated as separate closing angle brackets:
+(i.e., within parentheses) appearances of \lstinline!>!, \lstinline!>>!,
+\lstinline!>>>!, and so on are to be treated as separate closing angle brackets:
 
 \begin{lstlisting}[language=C++]
 // C++11
@@ -27,13 +29,13 @@ std::vector<std::vector<int>> v0;               // OK
 std::vector<std::vector<std::vector<int>>> v1;  // OK
 \end{lstlisting}
 
-\subsubsection[Using the greater-than or right-shift operators within template-argument expressions]{Using the greater-than or right-shift operators within template-argument expressions}\label{using-the-greater-than-or-right-shift-operators-within-template-argument-expressions}
+\subsubsection[Using the greater-than or right-shift operators within template-argument expressions]{Using the greater-than or right-shift operators\\[0.5ex] within template-argument expressions}\label{using-the-greater-than-or-right-shift-operators-within-template-argument-expressions}
 
 For templates that take only type parameters, there's no issue. When the
-template parameter is a non-type, however, the greater-than or right-shift operators might possibly be
+template parameter is a non-type, however, the greater-than or right-shift operators might be
 useful. In the unlikely event that we need either the greater-than
-operator (\texttt{>}) or the right-shift operator (\texttt{>>}) within a
-(non-type) template-argument expression, we can achieve our goal by
+operator (\lstinline!>!) or the right-shift operator (\lstinline!>>!) within a
+non-type template-argument expression, we can achieve our goal by
 nesting that expression within parentheses:
 
 \begin{lstlisting}[language=C++]
@@ -49,13 +51,13 @@ C<(i >> j)> b2;  // OK
 \end{lstlisting}
 
 
-\noindent In the definition of \texttt{a1} above, the first \texttt{>} is
-interpreted as a closing angle bracket and the subsequent \texttt{j} is
-(and always has been) a syntax error. In the case of \texttt{b1}, the
-\texttt{>>} is, as of C++11, parsed as a pair of separate tokens in this
-context, so the second \texttt{>} is now considered an error. For
-both \texttt{a2} and \texttt{b2}, however, the would-be operators appear
-nested (within parentheses) and thus are blocked from matching any
+\noindent In the definition of \lstinline!a1! above, the first \lstinline!>! is
+interpreted as a closing angle bracket, and the subsequent \lstinline!j! is
+(and always has been) a syntax error. In the case of \lstinline!b1!, the
+\lstinline!>>! is, as of C++11, parsed as a pair of separate tokens in this
+context, so the second \lstinline!>! is now considered an error. For
+both \lstinline!a2! and \lstinline!b2!, however, the would-be operators appear
+nested within parentheses and thus are blocked from matching any
 active open angle bracket to the left of the parenthesized expression.
 
 \subsection[Use Cases]{Use Cases}\label{use-cases}
@@ -65,10 +67,10 @@ active open angle bracket to the left of the parenthesized expression.
 When using nested templated types (e.g.,~nested containers) in C++03,
 having to remember to insert an intervening space between trailing angle
 brackets added no value. What made it even more galling was that every
-popular compiler was able to tell you straight-up that you had forgotten
+popular compiler was able to tell you confidently that you had forgotten
 to leave the space. With this new
 feature (rather, this repaired defect), we can now render closing angle
-brackets --- just like parentheses and square brackets --- contiguously:
+brackets contiguously, just like parentheses and square brackets:
 
 \begin{lstlisting}[language=C++]
 // OK in both C++03 and C++11
@@ -79,7 +81,7 @@ std::list<std::map<int, std::vector<std::string>>> idToNameMappingList;
 \end{lstlisting}
 
 
-\subsection[Potential pitfalls]{Potential pitfalls}\label{potential-pitfalls}
+\subsection[Potential Pitfalls]{Potential Pitfalls}\label{potential-pitfalls}
 
 \subsubsection[Some C++03 programs may stop compiling in C++11]{Some C++03 programs may stop compiling in C++11}\label{some-c++03-programs-may-stop-working-in-c++11}
 
@@ -97,13 +99,13 @@ T<1 >> 5>;  // worked in C++03, compile-time error in C++11
 T<(1 >> 5)>;  // OK
 \end{lstlisting}
 
-\noindent This rare syntax error is invariably caught at compile-time, avoiding undetected surprises at runtime.
+\noindent This rare syntax error is invariably caught at compile time, avoiding undetected surprises at run time.
 
-\subsubsection[The meaning of a C++03 program can (in theory) silently change in C++11]{The meaning of a C++03 program can (in theory) silently change in C++11}\label{the-meaning-of-a-c++03-program-can-(in-theory)-silently-change-in-c++11}
+\subsubsection[The meaning of a C++03 program can, in theory, silently change in C++11]{The meaning of a C++03 program can, in theory, silently change in C++11}\label{the-meaning-of-a-c++03-program-can-(in-theory)-silently-change-in-c++11}
 
-Though pathologically rare, the same valid expression can (in theory) have a different interpretation in C++11 than it had when compiled for C++03.
-Consider the case{\cprotect\footnote{Adaptation of an example from \textbf{{gustedt13}}}} where the
-\texttt{>>} token is embedded as part of an expression involving
+Though pathologically rare, the same valid expression can, in theory, have a different interpretation in C++11 than it had when compiled for C++03.
+Consider the case{\cprotect\footnote{Example adapted from \cite{gustedt13}}} where the
+\lstinline!>>! token is embedded as part of an expression involving
 templates:
 
 \begin{lstlisting}[language=C++]
@@ -111,9 +113,9 @@ S<G< 0 >>::c>::b>::a
 //   ^~~~~~~
 \end{lstlisting}
 
-\noindent In the expression above, \texttt{0}~\texttt{>>::c} will be interpreted
+\noindent In the expression above, \lstinline!0!~\lstinline!>>::c! will be interpreted
 as a \emph{bitwise right-shift operator} in C++03 but not in C++11. Writing a program that (1) compiles under both C++03 and
-C++11 and (2) exposes the difference in parsing rules, is possible:
+C++11 and (2) exposes the difference in parsing rules is possible:
 
 \begin{lstlisting}[language=C++]
 enum Outer { a = 1, b = 2, c = 3 };
@@ -134,8 +136,8 @@ std::cout << (S<G< 0 >>::c>::b>::a) << '\n';
 }
 \end{lstlisting}
 
-\noindent The program above will print \texttt{100} when compiled for C++03 and
-\texttt{0} for C++11:
+\noindent The program above will print \lstinline!100! when compiled for C++03 and
+\lstinline!0! for C++11:
 
 \begin{lstlisting}[language=C++]
 // C++03
@@ -166,22 +168,22 @@ S< G< 0 >>::c > ::b >::a
 //
 \end{lstlisting}
 
-\noindent Though theoretically possible, programs that are (1) syntactically valid
+\noindent Though theoretically possible, programs that (1) are syntactically valid
 in both C++03 and C++11 and (2) have distinct semantics have not
 emerged in practice anywhere that we are aware of.
 
 \subsection[Annoyances]{Annoyances}\label{annoyances}
 
-None so far
+\hspace{\fill}
 
 \subsection[See Also]{See Also}\label{see-also}
 
-None so far
+\hspace{\fill}
 
 \subsection[Further Reading]{Further Reading}\label{further-reading}
 
 \begin{itemize}
-\item{Daveed Vandevoorde, \textit{Right Angle Brackets,} \textbf{vandevoorde05}}
+\item{Daveed Vandevoorde, \textit{Right Angle Brackets,} \cite{vandevoorde05}}
 \end{itemize}
 
 

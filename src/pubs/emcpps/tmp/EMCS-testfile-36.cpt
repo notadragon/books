@@ -1,7 +1,0 @@
-A \texttt{SmallObjectBuffer} is
-  similar to C++17's \texttt{std::any} (\textbf{{cppref\_stdany}}) in
-  that it can store any object of any type. Instead of performing
-  dynamic allocation to support arbitrarily sized objects, however,
-  \texttt{SmallObjectBuffer} uses an internal fixed-size buffer, which
-  can lead to better performance and cache locality provided (the
-  maximum size of) all of the types involved is known.^^E^^L 

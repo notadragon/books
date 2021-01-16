@@ -1,0 +1,1253 @@
+\newpage
+\section[Forwarding References]{Forwarding {\SecCode \&\&} References}\label{forwardingref}\label{forwarding-references}
+
+A forwarding reference (\texttt{T\&\&}) --- distinguishable from an
+rvalue reference (\texttt{\&\&}) (see ``\titleref{Rvalue-References}" on page~\pageref{Rvalue-References}) only based on context
+--- is a distinct, special kind of reference that (1) binds
+(universally) to the result of an expression of \emph{any} \textbf{value
+category} and (2) preserves aspects of that \textbf{value category} so
+that the bound object can be \emph{moved from}, if appropriate.
+
+\subsection[Description]{Description}\label{description-forwardingref}
+
+Sometimes we'll want the same reference to be able to bind to either an
+\emph{lvalue} or an \emph{rvalue} and then later be able to discern,
+from the reference itself, whether the result of the original expression
+was eligible to be \emph{moved from}. A \emph{forwarding reference}
+(e.g., \texttt{forRef}) used in the interface of a function
+\emph{template} (e.g., \texttt{myFunc}) affords precisely this
+capability and will prove invaluable for the purpose of conditionally
+moving (or else copying) an object from within the function template's
+body:
+
+\begin{lstlisting}[language=C++]
+template <typename T>
+void myFunc(T&& forRef)
+{
+// It is possible to check if (ù{\codeincomments{forRef}}ù) is eligible to be moved from or not
+// from within the body of (ù{\codeincomments{myFunc}}ù).
+}
+\end{lstlisting}
+
+\noindent In the definition of the \texttt{myFunc} function template in the example above, the
+parameter \texttt{forRef} syntactically appears to be a
+non-\texttt{const} reference to an \emph{rvalue} of type \texttt{T}; in
+this very precise context,{\cprotect\footnote{The \texttt{T\&\&} syntax
+represents a \emph{forwarding} reference (as opposed to an
+\emph{rvalue} reference) whenever an \emph{individual} (possibly
+member) function template has a type parameter (e.g., \texttt{T}) and
+an unqualified function parameter of type that is exactly
+\texttt{T\&\&} (e.g., \texttt{const}~\texttt{T\&\&} would be an
+\emph{rvalue} reference).}} however, the same \texttt{T\&\&} syntax
+designates a \textbf{forwarding reference}, with the effect of retaining
+the original value category of the object bound to the argument
+\texttt{forRef}; see \textit{\titleref{description-forwardingref}: \titleref{identifying-forwarding-references}} on page~\pageref{identifying-forwarding-references}.
+
+Consider, for example, a function \texttt{f} that takes a single
+argument by reference and then attempts to use it to invoke one of two
+overloads of a function \texttt{g}, depending on whether the original
+argument was an \emph{lvalue} or \emph{rvalue}{\cprotect\footnote{In
+theory, we could have chosen a non-\texttt{const} \emph{lvalue}
+reference along with a (modifiable) \emph{rvalue} reference here for
+\emph{pedagogical} symmetry; such an inherently unharmonious overload
+set would, however, not typically occur in practice; see ``\titleref{Rvalue-References}" on page~\pageref{Rvalue-References}.}}:
+
+\begin{lstlisting}[language=C++]
+struct S { /* some UDT that might benefit from being able to be moved */ };
+
+void g(const S&);  // target function - overload for (ù{\codeincomments{const}}ù) (ù{\codeincomments{int}}ù) lvalues
+void g(S&&);       // target function - overload for (ù{\codeincomments{int}}ù) rvalues only
+
+template <typename T>
+void f(T&& forRef); // forwards to target overload (ù{\codeincomments{g}}ù) based on value category
+\end{lstlisting}
+
+\noindent In this specific case --- where \texttt{f} is a function template,
+\texttt{T} is a template type parameter, and the type of the parameter
+itself is exactly \texttt{T\&\&} --- the \texttt{forRef} function
+parameter (in the code snippet above) denotes a \emph{forwarding reference}. If \texttt{f}\label{f-invoked-example}
+is invoked with an \emph{lvalue}, \texttt{forRef} is an \emph{lvalue}
+reference; otherwise \texttt{forRef} is an \emph{rvalue} reference.
+Given the dual nature of \texttt{forRef}, one (overly verbose) way of
+determining the original value category of the passed argument would be
+to use the \texttt{std::is\_lvalue\_reference} \textbf{type trait} on
+\texttt{forRef} itself:
+
+\begin{lstlisting}[language=C++]
+#include <type_traits>  // (ù{\codeincomments{std::is\_lvalue\_reference}}ù)
+
+template <typename T>
+void f(T&& forRef)      // (ù{\codeincomments{forRef}}ù) is a forwarding reference.
+{
+if (std::is_lvalue_reference<T>::value)  // using a C++11 type trait
+{
+g(forRef);             // propagates (ù{\codeincomments{forRef}}ù) as an *lvalue*
+}                          // invokes (ù{\codeincomments{g(const S\&)}}ù)
+else
+{
+g(std::move(forRef));  // propagates (ù{\codeincomments{forRef}}ù) as an *rvalue*
+}                          // invokes (ù{\codeincomments{g(S\&\&)}}ù)
+}
+\end{lstlisting}
+
+\noindent The \texttt{std::is\_lvalue\_reference<T>::value} predicate above asks
+the question, ``Did the object bound to \texttt{fRef} originate
+from an lvalue expression?'' allowing the developer to branch on the
+answer. A more concise but otherwise equivalent implementation is
+generally preferred; see \textit{\titleref{description-forwardingref}: \titleref{the-std::forward-utility}} on page~\pageref{the-std::forward-utility}:
+
+\begin{lstlisting}[language=C++]
+#include <utility>  // (ù{\codeincomments{std::forward}}ù)
+
+template <typename T>
+void f(T&& forRef)
+{
+g(std::forward<T>(forRef));
+// same as (ù{\codeincomments{g(std::move(forRef))}}ù) if and only if (ù{\codeincomments{forRef}}ù) is an *rvalue*
+// reference; otherwise, equivalent to (ù{\codeincomments{g(forRef)}}ù)
+}
+\end{lstlisting}
+
+\noindent A \texttt{client} function invoking \texttt{f} will enjoy the same
+behavior with either of the two implementation alternatives offered
+above:
+
+\begin{lstlisting}[language=C++]
+void client()
+{
+S s;
+f(s);    // Instantiates (ù{\codeincomments{f<S\&>}}ù) -- (ù{\codeincomments{fRef}}ù) is an lvalue reference ((ù{\codeincomments{S\&}}ù)).
+// The function (ù{\codeincomments{f<S\&>}}ù) will end up invoking (ù{\codeincomments{g(S\&)}}ù).
+
+f(S());  // Instantiates (ù{\codeincomments{f<S\&\&>}}ù) -- (ù{\codeincomments{fRef}}ù) is an rvalue reference ((ù{\codeincomments{S\&\&}}ù)).
+// The function (ù{\codeincomments{f<S\&\&>}}ù) will end up invoking (ù{\codeincomments{g(S\&\&)}}ù).
+}
+\end{lstlisting}
+
+\noindent Use of \texttt{std::forward} in combination with forwarding references
+is typical in the implementation of industrial-strength generic
+libraries; see \textit{\titleref{use-cases-forwardingref}} on page~\pageref{use-cases-forwardingref}.
+
+\subsubsection[A brief review of function template argument deduction]{A brief review of function template argument deduction}\label{a-brief-review-of-function-template-argument-deduction}
+
+Invoking a function template without explicitly providing template
+arguments at the call site will compel the compiler to attempt, if
+possible, to \emph{deduce} those template \emph{type} arguments from the
+function arguments:
+
+\begin{lstlisting}[language=C++]
+template <typename T> void f();
+template <typename T> void g(T x);
+template <typename T> void h(T y, T z);
+
+void example0()
+{
+f();        // error: couldn't infer template argument (ù{\codeincomments{T}}ù)
+g(0);       // OK, (ù{\codeincomments{T}}ù) deduced as (ù{\codeincomments{int}}ù) from literal (ù{\codeincomments{0}}ù) -- (ù{\codeincomments{x}}ù) is an (ù{\codeincomments{int}}ù).
+h(0, 'a');  // error: deduced conflicting types for (ù{\codeincomments{T}}ù) ((ù{\codeincomments{int}}ù) vs. (ù{\codeincomments{char}}ù))
+}
+\end{lstlisting}
+
+\noindent Any \textbf{cv-qualifiers} (\texttt{const}, \texttt{volatile}, or both)
+on a \emph{deduced} function parameter will be applied \emph{after} type
+deduction is performed:
+
+\begin{lstlisting}[language=C++]
+template <typename T> void cf(const T x);
+template <typename T> void vf(volatile T y);
+template <typename T> void wf(const volatile T z);
+
+void example1()
+{
+cf(0);  // OK, (ù{\codeincomments{T}}ù) deduced as (ù{\codeincomments{int}}ù) -- (ù{\codeincomments{x}}ù) is a (ù{\codeincomments{const int}}ù).
+vf(0);  // OK, (ù{\codeincomments{T}}ù) deduced as (ù{\codeincomments{int}}ù) -- (ù{\codeincomments{y}}ù) is a (ù{\codeincomments{volatile int}}ù).
+wf(0);  // OK, (ù{\codeincomments{T}}ù) deduced as (ù{\codeincomments{int}}ù) -- (ù{\codeincomments{z}}ù) is a (ù{\codeincomments{const}}ù) (ù{\codeincomments{volatile}}ù) (ù{\codeincomments{int}}ù).
+}
+\end{lstlisting}
+
+\noindent Similarly, \textbf{ref-qualifiers} other than \texttt{\&\&}
+(\texttt{\&} or \texttt{\&\&} along with any cv-qualifier) do not
+alter the deduction process, and they too are applied after deduction:
+
+\begin{lstlisting}[language=C++]
+template <typename T> void rf(T& x);
+template <typename T> void crf(const T& x);
+
+void example2()
+{
+int i;
+rf(i);   // OK, (ù{\codeincomments{T}}ù) is deduced as (ù{\codeincomments{int}}ù) -- (ù{\codeincomments{x}}ù) is an (ù{\codeincomments{int\&}}ù).
+crf(i);  // OK, (ù{\codeincomments{T}}ù) is deduced as (ù{\codeincomments{int}}ù) -- (ù{\codeincomments{x}}ù) is a (ù{\codeincomments{const int\&}}ù).
+
+rf(0);   // error: expects an lvalue for 1st argument
+crf(0);  // OK, (ù{\codeincomments{T}}ù) is deduced as (ù{\codeincomments{int}}ù) -- (ù{\codeincomments{x}}ù) is a (ù{\codeincomments{const int\&}}ù).
+}
+\end{lstlisting}
+
+\noindent Type deduction works differently for \emph{forwarding} references
+where the only qualifier on the template argument is \texttt{\&\&}. For
+the sake of exposition, consider a function template declaration,
+\texttt{f}, accepting a forwarding reference, \texttt{forRef}:
+
+\begin{lstlisting}[language=C++]
+template <typename T> void f(T&& forRef);
+\end{lstlisting}
+
+%%%%%%%% PRODUCTION: make sure we are as precise as we can be with this xref on FPPs.
+\noindent We have seen in the example on page~\pageref{f-invoked-example} that,
+when \texttt{f} is invoked with an
+\emph{lvalue} of type \texttt{S}, then \texttt{T} is deduced as
+\texttt{S\&} and \texttt{forRef} becomes an \emph{lvalue} reference.
+When \texttt{f} is instead invoked with an \emph{xvalue} of type
+\texttt{S}, then \texttt{T} is deduced as \texttt{S} and
+\texttt{forRef} becomes an \emph{rvalue} reference. The underlying
+process that results in this ``duality'' relies on a special rule (known
+as \textbf{reference collapsing}; see the next section) introduced as part of
+\textbf{type deduction}. When the type \texttt{T} of a
+\emph{forwarding} reference is being deduced from an expression
+\texttt{E}, \texttt{T} itself will be deduced as an \emph{lvalue}
+reference if \texttt{E} is an \emph{lvalue}; otherwise normal
+type-deduction rules will apply and \texttt{T} will be deduced an \emph{rvalue}
+reference:
+
+\begin{lstlisting}[language=C++]
+void g()
+{
+int i;
+f(i);  // (ù{\codeincomments{i}}ù) is an *lvalue* expression.
+// (ù{\codeincomments{T}}ù) is therefore deduced as (ù{\codeincomments{int\&}}ù) -- special rule!
+// (ù{\codeincomments{T\&\&}}ù) becomes (ù{\codeincomments{int\& \&\&}}ù), which collapses to (ù{\codeincomments{int\&}}ù).
+
+f(0)  // (ù{\codeincomments{0}}ù) is an *rvalue* expression.
+// (ù{\codeincomments{T}}ù) is therefore deduced as (ù{\codeincomments{int}}ù).
+// (ù{\codeincomments{T\&\&}}ù) becomes (ù{\codeincomments{int\&\&}}ù), which is an *rvalue* reference.
+}
+\end{lstlisting}
+
+\noindent For more on on general type deduction, see ``\titleref{auto-feature}" on page~\pageref{auto-feature}.
+
+\subsubsection[Reference collapsing]{Reference collapsing}\label{reference-collapsing}
+
+As we saw in the previous section, when a function having a
+\emph{forwarding} reference parameter, \texttt{forRef}, is invoked with
+a corresponding \emph{lvalue} argument, an interesting phenomenon
+occurs: After type deduction, we temporarily get what appears
+syntactically to be an \emph{rvalue} reference to an \emph{lvalue}
+reference. As references to references are \emph{not} allowed in C++,
+the compiler employs \textbf{reference collapsing} to resolve the
+\emph{forwarding}-reference parameter, \texttt{forRef}, into a single
+reference, thus providing a way to infer, from \texttt{T} itself, the
+original \textbf{value category} of the argument passed to \texttt{f}.
+
+The process of \textbf{reference collapsing} takes place automatically
+in any situation where a reference to a reference is formed. Table~\ref{forwardingref-table1}
+illustrates the simple rules for collapsing ``unstable" references
+into ``stable" ones. Notice, in particular, that an \emph{lvalue}
+reference always overpowers an \emph{rvalue} reference. The only
+situation in which two references collapse into an \emph{rvalue}
+reference is when they are both \emph{rvalue} references.
+\begin{table}[h!]
+\begin{center}
+\begin{threeparttable}
+\caption{Collapsing ``unstable'' reference pairs into a single
+``stable'' one}\label{forwardingref-table1}\vspace{1.5ex}
+{\small \begin{tabular}{c|c|c}\thickhline
+\rowcolor[gray]{.9}   {\sffamily\bfseries 1st Reference Type} & {\sffamily\bfseries 2nd Reference Type} &
+{\sffamily\bfseries Result of Reference Collapsing} \\ \hline
+{\tt \&} &{\tt \&} & {\tt \&} \\ \hline
+{\tt \&} & {\tt \&\&} &{\tt \&} \\ \hline
+{\tt \&\&} & {\tt \&} & {\tt \&} \\ \hline
+{\tt \&\&} & {\tt \&\&} & {\tt \&\&} \\ \thickhline
+\end{tabular}
+}
+\end{threeparttable}
+\end{center}
+\end{table}
+
+Finally, note that it is not possible to write a reference-to-reference
+type in C++\linebreak%%%%%
+\mbox{explicitly}:
+
+\begin{lstlisting}[language=C++]
+int    i   = 0;   // OK
+int&   ir  = i;   // OK
+int& & irr = ir;  // error: (ù{\codeincomments{irr}}ù) declared as a reference to a reference
+\end{lstlisting}
+
+\noindent It is, however, easy to do so with type aliases and template parameters,
+and that is where reference collapsing will come into play:
+
+\begin{lstlisting}[language=C++]
+using i = int&;  // OK
+using j = i&;    // OK, (ù{\codeincomments{int\& \&}}ù) becomes (ù{\codeincomments{int\&}}ù).
+static_assert(std::is_same_v<j,int&>);
+\end{lstlisting}
+
+\noindent During computations involving \textbf{metafunctions}, or as part of
+language rules (such as type deduction), however, references to
+references can occur spontaneously:
+
+\begin{lstlisting}[language=C++]
+template <typename T>
+struct AddLvalueRef { typedef T& type; };
+// metafunction that transforms to an *lvalue* reference to (ù{\codeincomments{T}}ù)
+
+template <typename T>
+void f(T input)
+{
+typename AddLvalueRef<T>::type ir1 = input;    // OK, adds (ù{\codeincomments{\&}}ù) to make (ù{\codeincomments{T\&}}ù)
+typename AddLvalueRef<T&>::type ir2 = input;   // OK, collapses to (ù{\codeincomments{T\&}}ù)
+typename AddLvalueRef<T&&>::type ir3 = input;  // OK, collapses to (ù{\codeincomments{T\&}}ù)
+}
+\end{lstlisting}
+
+\noindent Notice that we are using the \texttt{typename} keyword in the example above as a
+generalized way of indicating, during \textbf{template instantiation},
+that a dependent name is a type (as opposed to a value).
+
+\subsubsection[Identifying forwarding references]{Identifying forwarding references}\label{identifying-forwarding-references}
+
+The syntax for a \emph{forwarding} reference (\texttt{\&\&}) is the same
+as that for \emph{rvalue} references; the only way to discern one from
+the other is by observing the surrounding context. When used in a manner
+where \textbf{type deduction} can take place, the \texttt{T\&\&} syntax
+does \emph{not} designate an \emph{rvalue} reference; instead, it
+represents a \emph{forwarding} reference; for type deduction to be in
+effect, an \emph{individual} (possibly member) function \emph{template}
+must have a type parameter (e.g., \texttt{T}) and a function parameter of
+type that exactly matches that parameter followed by \texttt{\&\&}
+(e.g., \texttt{T\&\&}):
+
+\begin{lstlisting}[language=C++]
+struct S0
+{
+template <typename T>
+void f(T&& forRef);
+// OK, fully eligible for template-argument type deduction: (ù{\codeincomments{forRef}}ù)
+// is a forwarding reference.
+}
+\end{lstlisting}
+
+\noindent Note that if the function parameter is qualified, the syntax reverts to
+the usual meaning of \emph{rvalue} reference:
+
+\begin{lstlisting}[language=C++]
+struct S1
+{
+template <typename T>
+void f(const T&& crRef);
+// Eligible for type deduction but is not a forwarding reference: due
+// to the (ù{\codeincomments{const}}ù) qualifier, (ù{\codeincomments{crRef}}ù) is an *rvalue* reference.
+}
+\end{lstlisting}
+
+\noindent If a member function of a class template is not itself also a template,
+then its template type parameter will not be deduced:
+
+\begin{lstlisting}[language=C++]
+template <typename T>
+struct S2
+{
+void f(T&& rRef);
+// Not eligible for type deduction because (ù{\codeincomments{T}}ù) is fixed and known as part
+// of the instantiation of (ù{\codeincomments{S2}}ù): (ù{\codeincomments{rRef}}ù) is an *rvalue* reference.
+};
+\end{lstlisting}
+
+\noindent More generally, note that the \texttt{\&\&} syntax can \emph{never}
+imply a \emph{forwarding} reference for a function that is not itself a
+template; see \textit{\titleref{annoyances-forwardingref}:
+\titleref{forwarding-references-look-just-like-rvalue-references}} on page~\pageref{forwarding-references-look-just-like-rvalue-references}.
+
+\subsubsection[{\tt auto\&\&} --- a forwarding reference in a non-parameter context]{{\SubsubsecCode auto\&\&}~{\subsubemdash}~a forwarding reference in a non-parameter context}\label{auto-a-forwarding-reference-in-a-non-parameter-context}
+
+Outside of template function parameters, \emph{forwarding} references
+can also appear in the context of variable definitions using the
+\texttt{auto} variable (see ``\titleref{auto-feature}" on page~\pageref{auto-feature}) because they too are subject to type
+deduction:
+
+\begin{lstlisting}[language=C++]
+void f()
+{
+auto&& i = 0;  // (ù{\codeincomments{i}}ù) is a forwarding reference because the type of (ù{\codeincomments{i}}ù) must
+// be deduced from the initialization expression (ù{\codeincomments{0}}ù).
+}
+\end{lstlisting}
+
+\noindent Just like function parameters, \texttt{auto\&\&} resolves to either an
+\emph{lvalue} reference or \emph{rvalue} reference depending on the
+\textbf{value category} of the initialization expression:
+
+\begin{lstlisting}[language=C++]
+void g()
+{
+int i;
+auto&& lv = i;  // (ù{\codeincomments{lv}}ù) is an (ù{\codeincomments{int\&}}ù).
+
+auto&& rv = 0;  // (ù{\codeincomments{rv}}ù) is an (ù{\codeincomments{int\&\&}}ù).
+}
+\end{lstlisting}
+
+\noindent Similarly to \texttt{const}~\texttt{auto\&}, the \texttt{auto\&\&}
+syntax binds to anything. In \texttt{auto\&\&}, however, the
+\texttt{const}-ness of the bound object is \emph{preserved} rather than
+always enforced:
+
+\begin{lstlisting}[language=C++]
+void h()
+{
+int        i = 0;
+const int ci = 0;
+
+auto&& lv  = i;   // (ù{\codeincomments{lv}}ù) is an (ù{\codeincomments{int\&}}ù).
+auto&& clv = ci;  // (ù{\codeincomments{clv}}ù) is a (ù{\codeincomments{const int\&}}ù).
+}
+\end{lstlisting}
+
+\noindent Just as with function parameters, the original \textbf{value category}
+of the expression used to initialize a \emph{forwarding} reference
+variable can be propagated during subsequent function invocation --
+e.g., using \texttt{std::forward} (see \textit{\titleref{description-forwardingref}: \titleref{the-std::forward-utility}} on page~\pageref{the-std::forward-utility}):
+
+\begin{lstlisting}[language=C++]
+template <typename T>
+void use(T&& t); // Here (ù{\codeincomments{use}}ù) also takes a forwarding reference parameter
+// to do with as it pleases.
+
+template <typename T>
+void l()
+{
+auto&& fr = get<T>();
+// (ù{\codeincomments{get<T>()}}ù) might be either an *lvalue* or *rvalue* depending on (ù{\codeincomments{T}}ù).
+
+use(std::forward<decltype(fr)>(fr));  // (ù{\codeincomments{decltype}}ù) is a C++11 feature.
+// Propagate the original value category of (ù{\codeincomments{get<T>()}}ù) into (ù{\codeincomments{use}}ù).
+}
+\end{lstlisting}
+
+\noindent Notice that, because (1) \texttt{std::forward} (see the next section) requires the
+type of the object that's going to be forwarded as a user-provided
+template argument and (2) it is not possible to name the type of
+\texttt{fr}, \texttt{decltype} (see ``\titleref{decltype}" on page~\pageref{decltype}) was used in the example above
+to retrieve the type of \texttt{fr}.
+
+\subsubsection[Forwarding references without forwarding]{Forwarding references without forwarding}\label{forwarding-references-without-forwarding}
+
+Sometimes deliberately \emph{not} forwarding (see \textit{\titleref{description-forwardingref}: \titleref{the-std::forward-utility}} on page~\pageref{the-std::forward-utility}) an \texttt{auto\&\&} variable or
+a forwarding reference function parameter at all can be useful, instead employing
+\emph{forwarding} references solely for their \texttt{const}-preserving
+and universal binding semantics. As an example, consider the task of
+obtaining iterators over a range of an unknown \textbf{value category}:
+
+\begin{lstlisting}[language=C++]
+template <typename T>
+void m()
+{
+auto&& r = getRange<T>();
+// (ù{\codeincomments{getRange<T>()}}ù) might be either an lvalue or rvalue depending on (ù{\codeincomments{T}}ù).
+
+auto b = std::begin(r);
+auto e = std::end(r);
+
+traverseRange(b, e);
+}
+\end{lstlisting}
+
+\noindent Using \texttt{std::forward} in the initialization of both \texttt{b} and
+\texttt{e} might result in moving from \texttt{r} twice, which is
+potentially unsafe (see ``\titleref{Rvalue-References}" on page~\pageref{Rvalue-References}). Forwarding
+\texttt{r} only in the initialization of \texttt{e} might avoid issues
+caused by moving an object twice but might result in inconsistent
+behavior with \texttt{b}, especially if the implementation of \texttt{r}
+makes use of reference qualifiers (see ``\titleref{refqualifiers}" on page~\pageref{refqualifiers}).
+
+\subsubsection[The {\tt std::forward} utility]{The {\SubsubsecCode std::forward} utility}\label{the-std::forward-utility}
+
+The final piece of the forwarding reference puzzle is the
+\texttt{std::forward} utility function. Since the expression naming a
+forwarding reference \texttt{x} is always an \emph{lvalue} (due to its
+reachability either by name or address in virtual memory) and since our
+intention is to move \texttt{x} in case it was an \emph{rvalue} to begin
+with, we need a conditional \emph{move} operation that will move
+\texttt{x} only in that case and otherwise let \texttt{x} pass through as
+an \emph{lvalue}.
+
+The declaration for \texttt{std::forward<T>} is as follows (in
+\texttt{<utility>}):
+
+\begin{lstlisting}[language=C++]
+template <class T> T&& forward(typename remove_reference<T>::type& t) noexcept;
+template <class T> T&& forward(typename remove_reference<T>::type&& t) noexcept;
+\end{lstlisting}
+
+\noindent The second overload is ill-formed if invoked when \texttt{T} is an
+\emph{lvalue} reference type.
+
+Remember that the type \texttt{T} associated with a forwarding reference
+is deduced as a reference type if given an \emph{lvalue} reference and
+as a non-reference type otherwise. So for a forwarding reference
+\texttt{forRef} of type \texttt{T\&\&}, we have two cases:
+\begin{itemize}
+\item{An \emph{lvalue} of type \texttt{U} was used for initializing \texttt{forRef}, so \texttt{T} is \texttt{U\&}, thus the first overload of \texttt{forward} will be selected and will be of the form \texttt{U\&}~\texttt{forward(U\&}~\texttt{u)}~\texttt{noexcept}, thus just returning the original \emph{lvalue} reference.}
+\item{An \emph{rvalue} of type \texttt{U} was used for initializing \texttt{forRef}, so \texttt{T} is \texttt{U}, so the second overload of \texttt{forward} will be selected and will be of the form \texttt{U\&\&}~\texttt{forward(U\&}~\texttt{u)}~\texttt{noexcept}, essentially equivalent to \texttt{std::move}.}
+\end{itemize}
+Note that, in the body of a function template accepting a forwarding
+reference \texttt{T\&\&} named \texttt{x}, \texttt{std::forward<T>(x)}
+could be replaced with \texttt{static\_cast<T\&\&>(x)} to achieve the
+same effect. Due to \textbf{reference collapsing} rules, \texttt{T\&\&}
+will resolve to \texttt{T\&} whenever the original \textbf{value
+category} of \texttt{x} was an \emph{lvalue} and to \texttt{T\&\&}
+otherwise, thus achieving the \emph{conditional move} behavior
+elucidated in \textit{\titleref{description-forwardingref}} on page~\pageref{description-forwardingref}. Using \texttt{std::forward} over \texttt{static\_cast}
+will, however, ensure that the types of \texttt{T} and \texttt{x} match,
+preventing accidental unwanted conversions and, separately, perhaps also
+more clearly expressing the programmer's intent.
+
+\subsection[Use Cases]{Use Cases}\label{use-cases-forwardingref}
+
+\subsubsection[Perfectly forwarding an expression to a downstream consumer]{Perfectly forwarding an expression to a downstream consumer}\label{perfectly-forwarding-an-expression-to-a-downstream-consumer}
+
+A frequent use of forwarding references and \texttt{std::forward} is to
+propagate an object, whose \textbf{value category} is
+invocation-dependent, down to one or more service providers that will
+behave differently depending on the \textbf{value category} of the
+original argument.
+
+As an example, consider an overload set for a function, \texttt{sink},
+that accepts a \texttt{std::string} either by \texttt{const}
+\emph{lvalue} reference (e.g., with the intention of \textit{copying} from it) or
+\emph{rvalue} reference (e.g., with the intention of \textit{moving} from it):
+
+\begin{lstlisting}[language=C++]
+void sink(const std::string& s) { target = s; }
+void sink(std::string&& s)      { target = std::move(s); }
+\end{lstlisting}
+
+\noindent Now, let's assume that we want to create an intermediary function
+template, \texttt{pipe}, that will accept an \texttt{std::string} of any
+\textbf{value category} and will dispatch its argument to the
+corresponding overload of \texttt{sink}. By accepting a
+\emph{forwarding} reference as a function parameter and invoking
+\texttt{std::forward} as part of \texttt{pipe}'s body, we can achieve
+our original goal without any code duplication:
+
+\begin{lstlisting}[language=C++]
+template <typename T>
+void pipe(T&& x)
+{
+sink(std::forward<T>(x));
+}
+\end{lstlisting}
+
+\noindent Invoking \texttt{pipe} with an \emph{lvalue} will result in \texttt{x}
+being an \emph{lvalue} reference and thus\linebreak[4]%%%%%%%%
+\mbox{\texttt{sink(const}~\texttt{std::string\&)}'s} being called. Otherwise,
+\texttt{x} will be an \emph{rvalue} reference and
+\texttt{sink(std::string\&\&)} will be called. This idea of enabling
+\emph{move} operations without code duplication (as \texttt{pipe} does)
+is commonly referred to as \textit{\titleref{use-cases-forwardingref}: \titleref{perfect-forwarding-for-generic-factory-functions}} on page~\pageref{perfect-forwarding-for-generic-factory-functions}.
+
+\subsubsection[Handling multiple parameters concisely]{Handling multiple parameters concisely}\label{handling-multiple-parameters-concisely}
+
+Suppose you have a \textbf{value-Semantic type (VST)} that holds a
+collection of attributes where some (not necessarily proper) subset of
+them need to be changed together{\cprotect\footnote{This type of
+value-semantic type can be classified more specifically as a
+\emph{complex}-\emph{constrained} attribute class; see \textbf{lakos2a}, section~4.2.}}:
+
+\begin{lstlisting}[language=C++]
+struct Person { /* UDT that benefits from move semantics */ };
+
+class StudyGroup
+{
+Person d_a;
+Person d_b;
+Person d_c;
+Person d_d;
+// ...
+
+public:
+bool isValid(const Person& a, const Person& b, const Person& c, const Person& d);
+// Return (ù{\codeincomments{true}}ù) if these specific people form a valid study group under
+// the guidelines of the study-group commission, and false otherwise.
+// ...
+
+template <typename PA, typename PB, typename PC, typename PD,
+typename = typename std::enable_if<
+std::is_same<typename std::decay<PA>::type, Person>::value &&
+std::is_same<typename std::decay<PB>::type, Person>::value &&
+std::is_same<typename std::decay<PC>::type, Person>::value &&
+std::is_same<typename std::decay<PD>::type, Person>::value>::type>
+int setPersonsIfValid(PA&& a, PB&& b, PC&& c, PD&& d)
+{
+enum { e_SUCCESS = 0, e_FAIL };
+
+if (!isValid(a, b, c, d))
+{
+return e_FAIL;  // bad choice; no change
+}
+
+// Move or copy each person into this object's (ù{\codeincomments{Person}}ù) data members:
+d_a = std::forward<PA>(a);
+d_b = std::forward<PB>(b);
+d_c = std::forward<PC>(c);
+d_d = std::forward<PD>(d);
+
+return e_SUCCESS;  // Study group was updated successfully.
+}
+};
+\end{lstlisting}
+
+\noindent The \texttt{setPersonsIfValid} function is producing the full crossproduct of instantiations for every variation of qualifiers that can be
+on a \texttt{Person} object. Any combination of \emph{lvalue} and
+\emph{rvalue} \texttt{Person}s can be passed, and a template will be
+instantiated that will copy the \emph{lvalues} and move from the
+\emph{rvalues}. To make sure the \texttt{Person} objects are
+created externally, the function is restricted, using
+\texttt{std::enable\_if}, to instantiate only for types that decay to
+\texttt{Person} (i.e., types that are cv-qualified or ref-qualified
+\texttt{Person}). Because each parameter is a forwarding reference, they
+can all implicitly convert to \texttt{const}~\texttt{Person\&} to pass
+to \texttt{isValid}, creating no additional temporaries. Finally,
+\texttt{std::forward} is then used to do the actual moving or copying as
+appropriate to data members.
+
+\subsubsection[Perfect forwarding for generic factory functions]{Perfect forwarding for generic factory functions}\label{perfect-forwarding-for-generic-factory-functions}
+
+Consider the prototypical standard-library generic factory function,
+\texttt{std::make\_shared<T>}. On the surface, the requirements for this
+function are fairly simple --- allocate a place for a \texttt{T} and
+then construct it with the same arguments that were passed to
+\texttt{make\_shared}. This, however, gets reasonably complex to
+implement efficiently when \texttt{T} can have a wide variety of ways in
+which it might be initialized.
+
+For simplicity, we will show how a two-argument \texttt{my::make\_shared}
+might be defined, knowing that a full implementation would employ
+variadic template arguments for this purpose --- see ``\titleref{variable-templates}" on page~\pageref{variable-templates}. We will also implement a simpler
+version of \texttt{make\_shared} that simply creates the element on the
+heap with \texttt{new} and constructs a \texttt{std::shared\_ptr} to
+manage the lifetime of that element. The declaration of this form of
+make shared would be structured like this:
+
+\begin{lstlisting}[language=C++]
+template <typename ELEMENT_TYPE, typename ARG1, typename ARG2>
+std::shared_ptr<ELEMENT_TYPE> my::make_shared(ARG1&& arg1, ARG2&& arg2)
+\end{lstlisting}
+
+\noindent As you can see, we have two forwarding reference arguments ---
+\texttt{arg1} and \texttt{arg2} --- with deduced types \texttt{ARG1} and
+\texttt{ARG2}. Now, the body of our function needs to carefully
+construct our \texttt{ELEMENT\_TYPE} object on the heap and then create
+our output \texttt{shared\_ptr}:
+
+\begin{lstlisting}[language=C++]
+template <typename ELEMENT_TYPE, typename ARG1, typename ARG2>
+std::shared_ptr<ELEMENT_TYPE> my::make_shared(ARG1&& arg1, ARG2&& arg2)
+{
+ELEMENT_TYPE *element_p = new ELEMENT_TYPE(std::forward<ARG1>(arg1),
+std::forward<ARG2>(arg2));
+try
+{
+return std::shared_ptr<ELEMENT_TYPE>(element_p);
+}
+catch (...)
+{
+delete element_p;
+throw;
+}
+}
+\end{lstlisting}
+
+\noindent Note that this simplified implementation needs to take care that the
+constructor for the return value does not throw, cleaning up the
+allocated element if that should happen; normally a \textbf{RAII}
+proctor to manage this ownership would be a more robust solution to this
+problem.
+
+Importantly, the use of \texttt{std::forward} to construct the element
+means that the arguments passed to \texttt{make\_shared} will be used to
+find the appropriate matching two-argument constructor of
+\texttt{ELEMENT\_TYPE}. When those arguments were \emph{rvalues}, the
+constructor found will again search for one that takes an \emph{rvalue}
+and the arguments will be moved from. Even more, because this function
+wants to forward exactly the \texttt{const}-ness and reference type of
+the input arguments, we would have to write 12 distinct overloads for
+each argument if we were not using perfect forwarding -- the full cross
+product of \texttt{const} (or not), \texttt{volatile} (or not), and
+\texttt{\&}, \texttt{\&\&}, (or not). This would mean a full
+implementation of just this two-argument variation would require 144
+distinct overloads, all almost identical and most never actually
+instantiated. The use of forwarding references reduces that to just 1
+overload for each number of arguments.
+
+\subsubsection[Wrapping initialization in a generic factory function]{Wrapping initialization in a generic factory function}\label{wrapping-initialization-in-a-generic-factory-function}
+
+Occasionally we might want to initialize an object with an intervening
+function call wrapping the actual construction of that object. Suppose
+we have a tracking system that we want to use to monitor how many times
+certain initializers have been invoked:
+
+\begin{lstlisting}[language=C++]
+struct TrackingSystem
+{
+template <typename T>
+static void trackInitialization(int numArgs);
+// Track the creation of a (ù{\codeincomments{T}}ù) with a constructor taking (ù{\codeincomments{numArgs}}ù)
+// arguments.
+};
+\end{lstlisting}
+
+\noindent Now we want to write a general utility function that can be used to
+construct an arbitrary object and notify the tracking system of the
+construction for us. Here we will use a variadic pack (see
+``\titleref{variable-templates}" on page~\pageref{variable-templates}) of forwarding references to handle
+calling the constructor for us:
+
+\begin{lstlisting}[language=C++]
+template <class ELEMENT_TYPE, typename... ARGS>
+ELEMENT_TYPE trackConstruction(ARGS&&... args)
+{
+TrackingSystem::trackInitialization<ELEMENT_TYPE>(sizeof...(args));
+return ELEMENT_TYPE(std::forward<ARGS>(args)...);
+}
+\end{lstlisting}
+
+\noindent This let's us add tracking easily to convert any initialization to a
+tracked one by inserting a call to this function around the constructor
+arguments.
+
+\begin{lstlisting}[language=C++]
+void myFunction()
+{
+BigObject untracked("Hello", "World");
+BigObject tracked = trackConstruction("Hello","World");
+}
+\end{lstlisting}
+
+\noindent On the surface there does seem to be a difference between how
+\texttt{untracked} and \texttt{tracked} are initialized. The first
+variable is having its constructor directly invoked, while the second is
+being constructed from an object being returned by-value from
+\texttt{trackConstruction}. This construction, however, has long been
+something that has been optimized away to avoid any additional objects
+and construct the object in question just once. In this case, because
+the element being returned is initialized by the \texttt{return}
+statement of \texttt{trackConstruction}, the optimization is called
+\textbf{return value optimization (RVO)}. C++ has always
+allowed this optimization by enabling \textbf{copy elision}. In C++17,
+this elision can even be guaranteed and is allowed to be done for
+objects that have no copy or move constructors. Prior to C++17, this
+elision can still be guaranteed (on all compilers that the authors are
+aware of) by \textbf{declaring} but not \textbf{defining} the copy
+constructor for \texttt{BigObject}. You'll find that this code will
+still compile and link with such an object, providing observable proof
+that the copy constructor is never actually invoked with this pattern.
+
+\subsubsection[Emplacement]{Emplacement}\label{emplacement}
+
+Prior to C++11, inserting an object into a standard library container
+always required the programmer to first create such object and then
+copy it inside the container's storage. As an example, consider a
+inserting a temporary \texttt{std::string} object in a\linebreak[4]
+\mbox{\texttt{std::vector<std::string>}}:
+
+\begin{lstlisting}[language=C++]
+void f(std::vector<std::string>& v)
+{
+v.push_back(std::string("hello world"));
+// invokes (ù{\codeincomments{std::string::string(const char*)}}ù) and the copy-constructor
+}
+\end{lstlisting}
+
+\noindent In the function above, a temporary \texttt{std::string} object is
+created in the stack frame of \texttt{f} and is then copied to the
+dynamically allocated buffer managed by \texttt{v}. Additionally, the
+buffer might have insufficient capacity and hence might require
+reallocation, which would in turn require every element of \texttt{v} to
+be somehow copied from the old buffer to the new, larger one.
+
+In C++11, the situation is significantly better thanks to
+rvalue references. The temporary will be moved into
+\texttt{v}, and any buffer reallocation will \emph{move} the elements
+between buffers rather copying them, assuming that the element's
+move-constructor is a noexcept specifier (see ``\titleref{noexcept-specifier}" on page~\pageref{noexcept-specifier}). The amount of work
+can, however, be further minimized: What if, instead of first creating
+an object externally, we constructed the new \texttt{std::string} object
+directly in \texttt{v}'s buffer?
+
+This is where \textbf{emplacement} comes into play. All standard library
+containers (including \texttt{std::vector}) now provide an
+\textbf{emplacement} API powered by variadic templates (see ``\titleref{variadictemplate}" on page~\pageref{variadictemplate})
+and perfect forwarding (see \textit{\titleref{use-cases-forwardingref}: \titleref{perfect-forwarding-for-generic-factory-functions}} o page~\pageref{perfect-forwarding-for-generic-factory-functions}). Rather than accepting a
+fully-constructed element, \textbf{emplacement} operations accept an
+arbitrary number of arguments, which will in turn be used to construct a
+new element directly in the container's storage, thereby avoiding
+unnecessary copies or even moves:
+
+\begin{lstlisting}[language=C++]
+void g(std::vector<std::string>& v)
+{
+v.emplace_back("hello world");
+// invokes only the (ù{\codeincomments{std::string::string(const char*)}}ù) constructor
+}
+\end{lstlisting}
+
+\noindent Calling \texttt{std::vector<std::string>::emplace\_back} with a
+\texttt{const}~\texttt{char*} argument results in a new
+\texttt{std::string} object being created in-place in the next suitable
+spot of the vector's storage. Internally,
+\texttt{std::allocator\_traits::construct} is invoked, which typically
+employs \textbf{placement \texttt{new}} to construct the object in raw
+dynamically allocated memory. As previously mentioned,
+\texttt{emplace\_back} makes use of both variadic
+templates and forwarding references; it accepts any
+number of forwarding references and internally \textit{perfectly forwards} them
+to the constructor of \texttt{T} via \texttt{std::forward}:
+
+\begin{lstlisting}[language=C++]
+template <typename T>
+template <typename... Args>
+void std::vector<T>::emplace_back(Args&&... args)
+{
+// ...
+new (&freeLocationInBuffer) T(std::forward<Args>(args)...);  // pseudocode
+// ...
+}
+\end{lstlisting}
+
+\noindent \textbf{Emplacement} operations remove the need for copy or move
+operations when inserting elements into containers, potentially
+increasing the performance of a program and sometimes (depending on the
+container) even allowing even noncopyable or nonmovable objects to be stored
+in a container.\footnote{As previously mentioned,
+declaring (but not defining) the \emph{copy} or \emph{move} ctor of a
+noncopyable or nonmovable type to be private is often a way to guarantee that
+a C++11/14 compiler constructed an object in place.
+Containers that might need to move elements around for other operations
+(such as \texttt{std::vector} or \texttt{std::deque}) will still need
+movable elements, while node-based containers that never move the
+elements themselves after initial construction (such as
+\texttt{std::list} or \texttt{std::map}) can use emplace along with
+noncopyable or nonmovable objects.}
+
+\subsubsection[Decomposing complex expressions]{Decomposing complex expressions}\label{decomposing-complex-expressions}
+
+Many modern C++ libraries have adopted a more ``functional'' style of
+programming, chaining the output of one function as the arguments of
+another function to produce very complex expressions that accomplish a
+great deal in relatively concise fashion. Consider the way in which the
+C++20 ranges library encapsulates containers and arbitrary pairs of
+iterators into objects that can be adapted and manipulated through long
+chains of functions. Let's say you have a function that reads a file,
+does some spellchecking for every unique word in the file, and gives you a
+list of incorrect words and corresponding suggested proper spellings,
+and you have a range-like library with common utilities similar to
+standard UNIX processing utilities:
+
+\begin{lstlisting}[language=C++]
+SpellingSuggestion checkSpelling(const std::string& word);
+
+std::map<std::string, SpellingSuggestion> checkFileSpelling(
+const std::string& filename)
+{
+return makeMap(
+filter(transform(
+uniq(sort(filterRegex(splitRegex(openFile(filename),"\S+"),"\w+")))
+[](const std::string& x)
+{
+return std::tuple<std::string, SpellingSuggestion>(x,
+checkSpelling(x));
+}
+), [](auto&& x) { return !std::get<1>(x).isCorrect(); }));
+}
+\end{lstlisting}
+
+\noindent Upon doing code review for this amazing use of a modern library produced
+by the smart, new programmer on your team, you discover that you actually
+have a very hard time understanding what is going on. On top of that,
+the usual tools you have to poke and prod at the code by adding
+\texttt{printf} statements or even breakpoints in your debugger are very
+hard to apply to the complex set of nested templates involved.
+
+Each of the functions in this range library -- \texttt{makeMap},
+\texttt{transform}, \texttt{uniq}, \texttt{sort}, \texttt{filterRegex},
+\texttt{splitRegex}, and \texttt{openFile} -- is a set of complex
+templated overloads and deeply subtle metaprogramming that becomes hard
+to unravel for a nonexpert C++ programmer. On the other hand, you have
+also looked at the code generated for this function and the abstractions
+amazingly get compiled away to a very robust implementation.
+
+To better understand, document, and debug what is happening
+here, you want to decompose this expression into many, capturing the
+implicit temporaries returned by all of these functions and ideally not
+changing the actual semantics of what is being done. To do that
+properly, you need to capture the type and value category of each
+subexpression appropriately, without necessarily being able to easily
+decode it manually from the expression. Here is where \texttt{auto\&\&}
+forwarding references can be used effectively to decompose and document
+this expression while achieving the same:
+
+\begin{lstlisting}[language=C++]
+std::map<std::string, SpellingSuggestion> checkFileSpelling(
+const std::string& filename)
+{
+// Create a range over the contents of (ù{\codeincomments{filename}}ù).
+auto&& openedFile = openFile(filename);
+
+// Split the file by whitespace.
+auto&& potentialWords = splitRegex(
+std::forward<decltype(openedFile)>(openedFile), "\S+");
+
+// Filter out only words made from word-characters.
+auto&& words = filterRegex(
+std::forward<decltype(potentialWords)>(potentialWords), "\w+");
+
+// Sort all words.
+auto&& sortedWords = sort(std::forward<decltype(words)>(words));
+
+// Skip adjacent identical words. (This is now a sequence of unique words.)
+auto&& uniqueWords = uniq(std::forward<decltype(sortedWords)>(sortedWords));
+
+// Get a (ù{\codeincomments{SpellingSuggestion}}ù) for every word.
+auto&& suggestions = transform(
+std::forward<decltype(uniqueWords)>(uniqueWords),
+[](const std::string&x) {
+return std::tuple<std::string,SpellingSuggestion>(
+x,checkSpelling(x));
+});
+
+// Filter out correctly spelled words, keeping only elements where the
+// second element of the tuple, which is a (ù{\codeincomments{SpellingSuggestion}}ù), is not
+// (ù{\codeincomments{correct}}ù).
+auto&& corrections = filter(
+std::forward<decltype(corrections)>(corrections),
+[](auto&& suggestion){ return !std::get<1>(suggestion).isCorrect(); });
+
+// Return a map made from these 2-element tuples:
+return makeMap(std::forward<decltype(corrections)>(corrections));
+}
+\end{lstlisting}
+
+\noindent Now each step of this complex expression is documented, each temporary
+has a name, but the net result of the lifetimes of each object is
+functionally the same. No new conversions have been introduced, and
+every object that was used as an \emph{rvalue} in the original
+expression will still be used as an \emph{rvalue} in this much longer
+(and more descriptive) implementation of the same functionality.
+
+\subsection[Potential Pitfalls]{Potential Pitfalls}\label{potential-pitfalls}
+
+\subsubsection[Surprising number of template instantiations with string literals]{Surprising number of template instantiations with string literals}\label{surprising-number-of-template-instantiations-with-string-literals}
+
+When forwarding references are used as a means to avoid code repetition
+between exactly two overloads of the same function (one accepting a
+\texttt{const}~\texttt{T\&} and the other a \texttt{T\&\&}), it can be
+surprising to see more than two template instantiations for that
+particular template function, in particular when the function is invoked
+using string literals.
+
+Consider, as an example, a \texttt{Dictionary} class containing two
+overloads of an \texttt{addWord} member function:
+
+\begin{lstlisting}[language=C++]
+class Dictionary
+{
+// ...
+
+public:
+void addWord(const std::string& word);  // (0) copy (ù{\codeincomments{word}}ù) in the dictionary
+void addWord(std::string&& word);       // (1) move (ù{\codeincomments{word}}ù) in the dictionary
+};
+
+void f()
+{
+Dictionary d;
+
+std::string s = "car";
+d.addWord(s);                    // invokes (0)
+
+const std::string cs = "toy";
+d.addWord(cs);                   // invokes (0)
+
+d.addWord("house");              // invokes (1)
+d.addWord("garage");             // invokes (1)
+d.addWord(std::string{"ball"});  // invokes (1)
+}
+\end{lstlisting}
+
+\noindent Now, imagine replacing the two overloads of \texttt{addWord} with a
+single \textit{perfectly forwarding} template member function, with the intention
+of avoiding code repetition between the two overloads:
+
+\begin{lstlisting}[language=C++]
+class Dictionary
+{
+// ...
+
+public:
+template <typename T>
+void addWord(T&& word);
+};
+\end{lstlisting}
+
+\noindent Perhaps surprisingly, the number of template instantiations skyrockets:
+
+\begin{lstlisting}[language=C++]
+void f()
+{
+Dictionary d;
+
+std::string s = "car";
+d.addWord(s);  // instantiates (ù{\codeincomments{addWord<std::string\&>}}ù)
+
+const std::string cs = "toy";
+d.addWord(cs);  // instantiates (ù{\codeincomments{addWord<const std::string\&>}}ù)
+
+d.addWord("house");              // instantiates (ù{\codeincomments{addWord<char const(\&)[6]>}}ù)
+d.addWord("garage");             // instantiates (ù{\codeincomments{addWord<char const(\&)[7]>}}ù)
+d.addWord(std::string{"ball"});  // instantiates (ù{\codeincomments{addWord<std::string\&\&>}}ù)
+}
+\end{lstlisting}
+
+\noindent Depending on the variety of argument types supplied to \texttt{addWord},
+having many call sites could result in an undesirably large number of
+distinct template instantiations, perhaps significantly increasing
+object code size, compilation time, or both.
+
+\subsubsection[{\tt std::forward<T>} can enable move operations]{{\SubsubsecCode std::forward<T>} can enable move operations}\label{std::forward<t>-can-enable-move-operations}
+
+Invoking \texttt{std::forward<T>(x)} is equivalent to conditionally
+invoking \texttt{std::move} (if \texttt{T} is an
+\emph{lvalue} reference). Hence, any subsequent use of \texttt{x} is
+subject to the same caveats that would apply to an \emph{lvalue} cast to
+an (unnamed) \emph{rvalue} reference; see ``\titleref{Rvalue-References}" on page~\pageref{Rvalue-References}:
+
+\begin{lstlisting}[language=C++]
+template <typename T>
+void f(T&& x)
+{
+g(std::forward<T>(x));  // OK
+g(x);                   // Oops! (ù{\codeincomments{x}}ù) could have already been moved from.
+}
+\end{lstlisting}
+
+\noindent Once an object has been passed as an argument using
+\texttt{std::forward}, it should typically not be accessed again
+(without first assigning it a new value) because it could now be in a
+moved-from state.
+
+\subsubsection[A perfect-forwarding constructor can hijack the copy constructor]{A perfect-forwarding constructor can hijack the copy constructor}\label{a-perfect-forwarding-constructor-can-hijack-the-copy-constructor}
+
+A single-parameter constructor of a class \texttt{S} accepting a
+forwarding reference can unexpectedly be a better match during overload
+resolution compared to \texttt{S}'s copy constructor:
+
+\begin{lstlisting}[language=C++]
+struct S
+{
+template <typename T> S(T&&);  // forwarding constructor
+S(const S&);                   // copy constructor
+};
+
+void f()
+{
+S a;
+const S b;
+
+S x(a);  // invokes forwarding constructor
+S y(b);  // invokes copy constructor
+}
+\end{lstlisting}
+
+\noindent Despite the programmer's intention to copy from \texttt{a} into
+\texttt{x}, the forwarding constructor of \texttt{S} was invoked
+instead, because \texttt{a} is a non-\texttt{const} \emph{lvalue}
+expression, and instantiating the forwarding constructor with
+\texttt{T}~\texttt{=}~\texttt{S\&} results in a better match than even
+the copy constructor.
+
+This potential pitfall can arise in practice, for example, when writing
+a value-semantic wrapper template (e.g., \texttt{Wrapper}) that can be
+initialized by \textit{perfectly forwarding} the object to be wrapped into it:
+
+\begin{lstlisting}[language=C++]
+template <typename T>
+class Wrapper  // wrapper for an object of arbitrary type 'T'
+{
+private:
+T d_datum;
+
+public:
+template <typename U>
+Wrapper(U&& datum) : d_datum(std::forward<U>(datum)) { }
+// perfect-forwarding constructor (to optimize runtime performance)
+
+// ...
+};
+
+void f()
+{
+std::string s("hello world");
+Wrapper<std::string> w0(s);  // OK, (ù{\codeincomments{s}}ù) is copied into (ù{\codeincomments{d\_datum}}ù).
+
+Wrapper<std::string> w1(std::string("hello world"));
+// OK, the temporary string is moved into (ù{\codeincomments{d\_datum}}ù).
+}
+\end{lstlisting}
+
+\noindent Similarly to the example involving class \texttt{S} (above), attempting
+to copy-construct a non-\texttt{const} instance of \texttt{Wrapper}
+(e.g., \texttt{wr}, above) results in an error:
+
+\begin{lstlisting}[language=C++]
+void g(Wrapper<int>& wr)  // The same would happen if (ù{\codeincomments{wr}}ù) were passed by value.
+{
+Wrapper<int> w2(10);  // OK, invokes perfect-forwarding constructor
+Wrapper<int> w3(wr);  // error: no conversion from (ù{\codeincomments{Wrapper<int>}}ù) to (ù{\codeincomments{int}}ù)
+}
+\end{lstlisting}
+
+\noindent The compilation failure above occurs because the perfect-forwarding
+constructor template, instantiated with \texttt{Wrapper<int>\&}, is a
+better match than the implicitly generated copy constructor, which
+accepts a \texttt{const}~\texttt{Wrapper<int>\&}. Constraining the
+perfect forwarding constructor via \textbf{SFINAE} (e.g., with
+\texttt{std::enable\_if}) to explicitly \emph{not} accept objects whose
+type is \texttt{Wrapper} fixes this problem:
+
+\begin{lstlisting}[language=C++]
+template <typename T>
+class Wrapper
+{
+private:
+T d_datum;
+
+public:
+template <typename U,
+typename = typename std::enable_if<
+!std::is_same<typename std::decay<U>::type, Wrapper>::value
+>::type
+>
+Wrapper(U&& datum) : d_datum(std::forward<U>(datum)) { }
+// This constructor participates in overload resolution only if (ù{\codeincomments{U}}ù),
+// after being decayed, is not the same as (ù{\codeincomments{Wrapper}}ù).
+};
+
+void h(Wrapper<int>& wr)  // The same would happen if (ù{\codeincomments{wr}}ù) were passed by value.
+{
+Wrapper<int> w4(10);  // OK, invokes the perfect-forwarding constructor
+Wrapper<int> w5(wr);  // OK, invokes the copy constructor
+}
+\end{lstlisting}
+
+\noindent Notice that the \texttt{std::decay} \textbf{metafunction} was used as
+part of the constraint; for more information on the using
+\texttt{std::decay}, see \textit{\titleref{annoyances-forwardingref}: \titleref{metafunctions-are-required-in-constraints}} on page~\pageref{metafunctions-are-required-in-constraints}.
+
+\subsection[Annoyances]{Annoyances}\label{annoyances-forwardingref}
+
+\subsubsection[Forwarding references look just like rvalue references]{Forwarding references look just like rvalue references}\label{forwarding-references-look-just-like-rvalue-references}
+
+Despite \emph{forwarding} references and rvalue
+references having significantly different semantics, as discussed in \textit{\titleref{description-forwardingref}: \titleref{identifying-forwarding-references}} on page~\pageref{identifying-forwarding-references}, they share the same syntax. For any given type \texttt{T},
+whether the \texttt{T\&\&} syntax designates an rvalue
+reference or a \emph{forwarding} reference depends entirely on the
+surrounding context.{\cprotect\footnote{In C++20, developers might be
+subject to additional confusion due to the new terse concept notation
+syntax, which allows function templates to be defined without any
+explicit appearance of the \texttt{template} keyword. As an example, a
+constrained function parameter, like
+\texttt{Addable}~\texttt{auto\&\&}~\texttt{a} in the example below, is a forwarding
+reference; looking for the presence of the mandatory \texttt{auto}
+keyword is helpful in identifying whether a type is a forwarding
+reference or \emph{rvalue} reference:
+
+\begin{lstlisting}[language=C++, basicstyle={\ttfamily\footnotesize}]
+template<typename T>
+concept Addable = requires(T a, T b) { a + b; };
+
+void f(Addable auto&& a);  // C++20 terse concept notation
+
+void example()
+{
+int i;
+
+f(i);  // OK, (ù{\codeincomments{decltype(a)}}ù) is (ù{\codeincomments{int\&}}ù) in (ù{\codeincomments{f}}ù).
+f(0);  // OK, (ù{\codeincomments{decltype(a)}}ù) is (ù{\codeincomments{int\&\&}}ù) in (ù{\codeincomments{f}}ù).
+}
+\end{lstlisting}
+}}
+
+\begin{lstlisting}[language=C++]
+template <typename T> struct S0 { void f(T&&); };  // rvalue reference
+struct S1 { template <typename T> void f(T&&); };  // forwarding reference
+\end{lstlisting}
+
+\noindent Furthermore, even if \texttt{T} is subject to template argument
+deduction, the presence of \emph{any} qualifier will suppress the
+special \emph{forwarding}-reference deduction rules:
+
+\begin{lstlisting}[language=C++]
+template <typename T> void f(T&&);           // forwarding reference
+template <typename T> void g(const T&&);     // (ù{\codeincomments{const}}ù) rvalue reference
+template <typename T> void h(volatile T&&);  // (ù{\codeincomments{volatile}}ù) rvalue reference
+\end{lstlisting}
+
+\noindent It is truly remarkable that we (still) do not have some unique syntax
+(e.g., \texttt{\&\&\&}) that we could use, at least optionally, to imply
+unequivocally a \emph{forwarding} reference that is independent of its
+context.
+
+\subsubsection[Metafunctions are required in constraints]{Metafunctions are required in constraints}\label{metafunctions-are-required-in-constraints}
+
+As we showed in \textit{\titleref{use-cases-forwardingref}} on page~\pageref{use-cases-forwardingref}, being able to
+perfectly forward arguments of the same general type and effectively
+leave only the value category of the argument up to type deduction is a frequent need. This
+is necessary if you do not want to delay construction of the arguments
+until they are forwarded, possibly because doing so would produce many
+unnecessary temporaries.
+
+The challenge to make this work correctly is significant. The template
+must be constrained using \textbf{SFINAE} and the appropriate
+\textbf{type traits} to disallow types that aren't some form of
+cv-qualified or ref-qualified version of the type that you want to
+accept. As an example, let's consider a function intended to \emph{copy}
+or \emph{move} a \texttt{Person} object into a data structure:
+
+\begin{lstlisting}[language=C++]
+template <typename T, typename = typename std::enable_if<
+std::is_same<std::decay<T>::type, Person>::value>::type>
+void PersonManager::addPerson(T&& person);
+// This function participates in overload resolution only if (ù{\codeincomments{T}}ù) is
+// (possibly cv- or ref-qualified) (ù{\codeincomments{Person}}ù).
+\end{lstlisting}
+
+\noindent This incantation to constrain \texttt{T} has a number of layers to it,
+so let's unpack them one at a time.
+\begin{itemize}
+\item{\texttt{T} is the template argument we are trying to deduce. We’d like to limit it to being \texttt{Person} that is \texttt{const}, \texttt{volatile}, \texttt{\&}, \texttt{\&\&}, or some (possibly empty) valid combination those.}
+\item{\texttt{std::decay<T>::type} is then the application of the standard metafunction (defined in \texttt{<type\_traits>}) \texttt{std::decay} to \texttt{T}. This metafunction removes all cv-qualifiers and ref-qualifiers from \texttt{T}, and so, for the types to which we want to limit \texttt{T}, this will \emph{always} be \texttt{Person}. Note that \texttt{decay} will also allow some other implicitly convertible transformations, such as converting an array type to the corresponding pointer type. For types we are concerned with --- those that decay to a \texttt{Person} --- this metafunction is equivalent to \texttt{std::remove\_cv<std::remove\_reference<T>::type>::type}, or the equivalent and shorter \texttt{std::remove\_cvref<T>::type>} available in C++20. Due to historical availability and readability, we will continue with our use of \texttt{decay} for this purpose.}
+\item{\texttt{std::is\_same<std::decay<T>::type,}~\texttt{Person>::value} is then the application of another metafunction, \texttt{std::is\_same}, to two arguments --- our decay expression and \texttt{Person}, which results in a \texttt{value} that is either \texttt{std::true\_type} or \texttt{std::false\_type} --- special types that can convert, in compile time, expressions to \texttt{true} or \texttt{false}. For the types \texttt{T} that we care about, this expression will be \texttt{true}, and for all other types this expression will be \texttt{false}.}
+\item{\texttt{std::enable\_if<X>::type} is yet another metafunction that evaluates to a valid type if and only if \texttt{X} is true. Unlike the \texttt{value} in \texttt{std::is\_same}, this expression is simply not valid if \texttt{X} is false.}
+\item{Finally, by using this \texttt{enable\_if} expression as a default-initialized template argument, the expression is going to be instantiated for any deduced \texttt{T} considered during overload resolution for \texttt{addPerson}. This instantiation (or \textit{substitution}), will fail for any of the types we don’t want to allow (something that is not a cv). Because of this, for any \texttt{T} that isn’t one of the types for which we want to allow \texttt{addPerson} to be invoked, this substitution will fail. Rather than being an error, this just removes \texttt{addPerson} from the overload set being considered, hence the term \textbf{SFINAE}. In this case, that would give us a different error indicating that we attempted to pass a non-\texttt{Person} to \texttt{addPerson}, which is exactly the result we want.}
+\end{itemize}
+Putting this all together means we get to call \texttt{addPerson} with
+\emph{lvalues} and \emph{rvalues} of type \texttt{Person}, and the value
+category will be appropriately usable within \texttt{addPerson}
+(generally with use of \texttt{std::forward} within that function's
+definition).
+
+\subsection[See Also]{See Also}\label{see-also}
+
+\begin{itemize}
+\item{``\titleref{Rvalue-References}" on page~\pageref{Rvalue-References} — Conditionally safe C++11 feature which can syntactically look identical to forwarding references}
+\item{``\titleref{auto-feature}" on page~\pageref{auto-feature} — Conditionally safe C++11 feature that can introduce a forwarding reference with the \texttt{auto\&\&} syntax}
+\item{``\titleref{variadictemplate}" on page~\pageref{variadictemplate} — Conditionally safe C++11 feature commonly used in conjunction with forwarding references to provide highly generic interfaces}
+\end{itemize}
+
+\subsection[Further Reading]{Further Reading}\label{further-reading}
+
+None so far
+
+

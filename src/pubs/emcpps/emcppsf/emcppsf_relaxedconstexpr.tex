@@ -1,5 +1,5 @@
 \newpage
-\section[Relaxed {\ttfamily constexpr} Restrictions]{Relaxed {\SecCode constexpr} Restrictions\sectionmark{Relaxed {\RHCode constexpr} Restrictions}}\label{relaxed-constexpr-restrictions}\sectionmark{Relaxed {\RHCode constexpr} Restrictions}
+\section[{\tt constexpr} Functions '14]{Relaxed Restrictions on {\SecCode constexpr} Functions}\label{relaxed-constexpr-restrictions}%\sectionmark{Relaxed {\RHCode constexpr} Restrictions}
 
 C++14 lifts restrictions regarding use of many language features in the
 body of a \texttt{constexpr} function (see ``\titleref{constexprfunc}" on page~\pageref{constexprfunc}).
@@ -115,7 +115,7 @@ implemented iteratively) in a recursive manner. Consider, as a familiar
 example, a naive{\cprotect\footnote{For a more efficient (yet less
 intuitive) C++11 algorithm, see \textit{\titleref{appendix:-optimized-c++11-example-algorithms}, \titleref{recursive-fibonacci}} on page~\pageref{recursive-fibonacci}.}}
 C++11-compliant \texttt{constexpr} implementation of a function,
-\texttt{fib11}, returning the \emph{n}-th Fibonacci number\footnote{We used \texttt{long}~\texttt{long} (instead of \texttt{long})
+\texttt{fib11}, returning the \emph{n}th Fibonacci number\footnote{We used \texttt{long}~\texttt{long} (instead of \texttt{long})
 here to ensure a unique C++ type having at least 8 bytes on all
 conforming platforms for simplicity of exposition (avoiding an internal
 copy). We deliberately chose \emph{not} to make the value returned
@@ -203,7 +203,7 @@ solutions to this classic exercise are available.
 C++14's relaxed \texttt{constexpr} restrictions enable the use of
 modifiable local variables and \textbf{imperative} language constructs
 for metaprogramming tasks that were historically often implemented by
-using (byzantine) recursive template instantiation (notorious for their
+using (Byzantine) recursive template instantiation (notorious for their
 voracious consumption of compilation time).
 
 Consider, as the simplest of examples, the task of counting the number
@@ -334,8 +334,8 @@ std::is_same<X, Head>::value + Count<X, TypeList<Tail...>>::value> { };
 static_assert(Count<int, TypeList<int, char, int, bool>>::value == 2, "");
 \end{lstlisting}
 
-\noindent Notice that we made use of a C++11 \textbf{parameter pack} ---
-\texttt{Tail...} (see ``\titleref{variadictemplate}" on page~\pageref{variadictemplate}) in the
+\noindent Notice that we made use of a C++11 \textbf{parameter pack},
+\texttt{Tail...} (see ``\titleref{variadictemplate}" on page~\pageref{variadictemplate}), in the
 implementation of the simple template specialization to package up and
 pass along any remaining types.
 
@@ -370,7 +370,7 @@ C++ variadics. The general idea here is to use \textbf{pack expansion}
 in a nonrecursive manner{\cprotect\footnote{\textbf{Pack expansion} is
 a language construct that expands a \textbf{variadic pack} during
 compilation, generating code for each element of the pack. This
-construct, along, with a \textbf{parameter pack} itself is a
+construct, along with a \textbf{parameter pack} itself, is a
 fundamental building block of variadic templates,
 introduced in C++11. As a minimal example, consider the variadic
 function template, \texttt{e}:
@@ -400,8 +400,7 @@ template <int... Is> void g() { h((Is > 0)...); }
 resolve to \texttt{N} comma-separated Boolean values, where \texttt{N}
 is the number of elements contained in the \texttt{Is}
 \textbf{variadic pack}. As an example of this expansion, invoking
-\texttt{g<5,}~\texttt{-3,}~\texttt{9>()} results in the subsequence
-invocation of \texttt{h(true,}~\texttt{false,}~\texttt{true)}.}} to
+\texttt{g<5,}~\texttt{-3,}~\texttt{9>()} results in the subsequent invocation of \texttt{h(true,}~\texttt{false,}~\texttt{true)}.}} to
 initialize the \texttt{matches} array with a sequence of zeros and ones
 (representing, respectively, mismatch and matches between \texttt{X} and
 a type in the \texttt{Ts...} pack) and then iterate over the array to
@@ -424,7 +423,7 @@ None so far
 
 \begin{itemize}
 \item{``\titleref{constexprfunc}" — Conditionally safe C++11 feature that first introduced compile-time evaluations of functions.}
-\item{``\titleref{constexprvar}" — Conditionally safe C++11 features that first introduced variables usable as constant expressions.}
+\item{``\titleref{constexprvar}" — Conditionally safe C++11 feature that first introduced variables usable as constant expressions.}
 \item{``\titleref{variadictemplate}" — Conditionally safe C++11 feature allowing templates to accept an arbitrary number of parameters.}
 \end{itemize}
 

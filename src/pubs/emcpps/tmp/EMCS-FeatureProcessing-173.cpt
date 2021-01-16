@@ -1,5 +1,0 @@
-Note
-that, in the shadowing example defining \texttt{fC}, GCC version 10.x
-incorrectly evaluates \texttt{decltype(i)} inside the body of the
-lambda expression as \texttt{const}~\texttt{char}, rather that
-  \texttt{char}; see \textit{\titleref{potential-pitfalls-lambdacapture}: \titleref{forwarding-an-existing-variable-into-a-closure-always-results-in-an-object-(never-a-reference)}} on page~\pageref{potential-pitfalls-lambdacapture}.^^E^^L 

@@ -1,5 +1,5 @@
 \newpage
-\section[Raw String Literals]{Raw String Literals}\label{raw-string-literals}
+\section[Raw String Literals '14]{Syntax for Unprocessed String Contents}\label{raw-string-literals}
 
 
 Raw string literals obviate the need to escape each contained special
@@ -62,13 +62,13 @@ const char s0[] = R"({ "key": "value" })";
 (1) treat unescaped embedded double quotes (\texttt{"}) as literal data,
 (2) do not interpret special-character escape sequences (e.g.,
 \texttt{$\backslash$n}, \texttt{$\backslash$t}), and (3) interpret all
-white-space characters (i.e., vertical\footnote{In conventional string literals, a
+whitespace characters (i.e., vertical\footnote{In conventional string literals, a
 new line in the source before the end of a string is considered an error.
 If new lines are desired, they must be represented with an escape
 sequence as \texttt{$\backslash$n}.} as well as horizontal) present in
 the source file as part of the string contents{\cprotect\footnote{In
-this example, we assume that all trailing white space has been stripped
-since even trailing white space in a raw literal would be captured.}}:
+this example, we assume that all trailing whitespace has been stripped
+since even trailing whitespace in a raw literal would be captured.}}:
 
 
 \begin{lstlisting}[language=C++]
@@ -151,9 +151,9 @@ const char s6[] = R"xyz(<-- Literal String Data -->)xyz";
 Every raw string literal comprises these syntactical elements, in order:
 \begin{itemize}
 \item{an uppercase \texttt{R}}
-\item{opening double quotes, \texttt{"}}
+\item{the opening double quotes, \texttt{"}}
 \item{an optional arbitrary sequence of characters called the \emph{delimiter} (e.g., \texttt{xyz})}
-\item{opening parenthesis, \texttt{(}}
+\item{the opening parenthesis, \texttt{(}}
 \item{the contents of the string}
 \item{the closing parenthesis, \texttt{)}}
 \item{the same delimiter (if any) specified previously (i.e., \texttt{xyz}, not reversed)}
@@ -247,7 +247,7 @@ in visual noise, less interoperability with other tools accepting or
 producing JSON, and heightened risk during manual maintenance.
 
 Finally, raw string literals can also be helpful for
-white-space--sensitive languages, such as Python (but see \textit{\titleref{potential-pitfalls-rawstringliteral}: \titleref{encoding-of-newlines-and-whitespace}} on page~\pageref{encoding-of-newlines-and-whitespace}):
+whitespace-sensitive languages, such as Python (but see \textit{\titleref{potential-pitfalls-rawstringliteral}: \titleref{encoding-of-newlines-and-whitespace}} on page~\pageref{encoding-of-newlines-and-whitespace}):
 
 \begin{lstlisting}[language=C++]
 const char* testPythonInterpreterPrint = R"(def test():
@@ -328,7 +328,7 @@ R"(    return )" << expression;
 \end{lstlisting}
 
 
-\subsubsection[Encoding of new lines and white space]{Encoding of new lines and white space}\label{encoding-of-newlines-and-whitespace}
+\subsubsection[Encoding of new lines and whitespace]{Encoding of new lines and whitespace}\label{encoding-of-newlines-and-whitespace}
 
 The intent of the feature is that new lines should map to a single
 \texttt{$\backslash$n} character regardless of how new lines are encoded
@@ -338,7 +338,7 @@ implementations act in accordance with the original intent of the
 feature, relying on a specific new line encoding may lead to nonportable
 code until clarity is achieved.
 
-In a similar fashion, the type of white-space characters (e.g., tabs
+In a similar fashion, the type of whitespace characters (e.g., tabs
 versus spaces) used as part of a raw string literal can be significant.
 As an example, consider a unit test verifying that a string representing
 the status of the system is as expected:

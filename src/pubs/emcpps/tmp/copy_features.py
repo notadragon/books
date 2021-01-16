@@ -2,6 +2,9 @@
 
 import re, pathlib, shutil
 
+copyfiles = { "Ch0.tex", "emcppsc/emcppsc-ch0.tex",
+              "Ch4.tex", "emcppsc/emcppsc-ch4.tex", 
+
 masterfiles={ "Ch1.tex": "safe",
               "Ch2.tex": "conditionallysafe",
               "Ch3.tex": "unsafe", }

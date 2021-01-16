@@ -1,5 +1,5 @@
 \newpage
-\section[{\tt [[deprecated]]}]{The Standard {\SecCode [[deprecated]]} Attribute\sectionmark{{\RHCode [[deprecated]]}}}\label{deprecated}\label{the-standard-[[deprecated]]-attribute}\sectionmark{{\RHCode [[deprecated]]}}
+\section[{\tt deprecated}]{The {\SecCode [[deprecated]]} Attribute}\label{deprecated}\label{the-standard-[[deprecated]]-attribute}
 
 The \texttt{[[deprecated]]} attribute discourages the use of a decorated
 \textbf{entity}, typically via the emission of a compiler warning.
@@ -12,21 +12,21 @@ to actively discourage its use. Such deprecation typically follows the
 introduction of alternative constructs that, in (ideally) all ways, are
 superior to the original one, providing time for clients to migrate to
 them (\emph{asynchronously}{\cprotect\footnote{A process for ongoing
-improvement of legacy code bases, sometimes known as
+improvement of legacy codebases, sometimes known as
 \textbf{continuous refactoring}, often allows time for clients to
 migrate --- on their own respective schedules and time frames --- from
 existing \emph{deprecated} constructs to newer ones, rather than
 having every client change in lock step. Allowing clients time to move
 \emph{asynchronously} to newer alternatives is often the only viable
-approach unless (1) the code base is a closed system, (2) all of the
-relevant code governed by a single authority, and (3) there is some
+approach unless (1) the codebase is a closed system, (2) all of the
+relevant code is governed by a single authority, and (3) there is some
 sort of mechanical way to make the change.}}) before the deprecated
 one is (in some subsequent release) removed. Although not strictly
 required, the Standard explicitly encourages{\cprotect\footnote{The C++
 Standard characterizes what constitutes a well-formed program, but
 compiler vendors require a great deal of leeway to facilitate the
 needs of their users. In case any feature induces warnings,
-command line options are typically available to disable those warnings
+command-line options are typically available to disable those warnings
 (\texttt{-Wno-deprecated} in GCC) or methods are in place to suppress those warnings
 locally (e.g.,
 \texttt{\#pragma}~\texttt{GCC}~\texttt{diagnostic}~\texttt{ignored}~\texttt{"-Wdeprecated"}).}}
@@ -60,7 +60,7 @@ b;    // Warning: (ù{\codeincomments{b}}ù) is deprecated.
 
 \noindent A programmer can (optionally) supply a \textbf{string literal} as an
 argument to the\linebreak[4] \mbox{\texttt{[[deprecated]]}} attribute (e.g.,
-\mbox{\texttt{[[deprecated("message")]]}} to inform human users regarding the
+\mbox{\texttt{[[deprecated("message")]]}}) to inform human users regarding the
 reason for the deprecation:
 
 \begin{lstlisting}[language=C++]
@@ -189,7 +189,7 @@ compilation failure due to one of the project's dependencies using
 \texttt{[[deprecated]]} as part of their API.
 
 Having the compilation process completely stopped due to use of a
-deprecated \textbf{entity} defeats the purpose of the attribute because users of such \textbf{entity} are given no time to adapt their code
+deprecated \textbf{entity} defeats the purpose of the attribute because users of such an \textbf{entity} are given no time to adapt their code
 to use a newer alternative. On GCC and Clang, users can selectively demote deprecation errors back to warnings by using the
 \texttt{-Wno-error=deprecated-declarations} compiler flag. On MSVC,
 however, such demotion of warnings is not possible: The (unsatisfactory)

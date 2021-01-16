@@ -1,5 +1,6 @@
 \newpage
-\section[{\tt alignof}]{{\SecCode alignof}}\label{alignof}
+\addtocontents{toc}{\protect\renewcommand*\protect\cftsecindent{4.5em}}
+\section[{\tt alignof}]{The (Compile-Time) {\SecCode alignof} Operator}\label{alignof}
 
 
 The keyword \texttt{alignof} serves as a compile-time operator used to
@@ -25,7 +26,7 @@ referenced type. If \texttt{T} is an \textbf{array type}, the
 result is the alignment requirement for every element in the array{\cprotect\footnote{According to the C++11 Standard, ``An object of \textbf{array type} contains a contiguously allocated
 non-empty set of \texttt{N} subobjects of type \texttt{T}''  (\textbf{cpp11}, section 8.3.4, ``Arrays," paragraph 1, p. 188). Note
 that, for every type \texttt{T}, \texttt{sizeof(T)} is always a
-multiple of \texttt{alignof(T)}; otherwise storing multiple \texttt{T} instances in an array would be impossible without padding,
+multiple of \texttt{alignof(T)}; otherwise, storing multiple \texttt{T} instances in an array would be impossible without padding,
 and the Standard explicitly prohibits padding between array elements.}}:
 
 \begin{lstlisting}[language=C++]
@@ -349,7 +350,7 @@ A common pattern in software --- e.g., request/response in client/server
 architectures --- is to quickly build up a complex data structure,
 use it, and then quickly destroy it. A \textbf{monotonic allocator} is
 a special-purpose memory allocator that returns a monotonically
-increasing sequence of addresses into an arbitrary buffer subject to
+increasing sequence of addresses into an arbitrary buffer, subject to
 specific size and alignment requirements.{\cprotect\footnote{C++17
 introduces an alternate interface to supply memory allocators via an
 abstract base class. The C++17 Standard Library provides a complete
@@ -361,7 +362,7 @@ are two concrete memory resources,
 \texttt{std::pmr::unsynchronized\_pool\_resource}.}} Especially when
 the memory is allocated by a single thread, there are prodigious\footnote{see
 \textbf{lakos16}} performance benefits to having unsynchronized raw
-memory to be taken directly off the (always hot) program stack. In what
+memory be taken directly off the (always hot) program stack. In what
 follows, we will provide the building blocks of a monotonic memory
 allocator wherein the \texttt{alignof} operator plays an essential role.
 
@@ -369,7 +370,7 @@ As a practically useful example, suppose that we want to create a
 lightweight\linebreak[4] \mbox{\texttt{MonotonicBuffer}} class template that will allow us
 to allocate raw memory directly from the footprint of the object. Just
 by creating an object of an (appropriately sized) instance of this type
-on the program stack, memory will natural come from the stack. For
+on the program stack, memory will naturally come from the stack. For
 didactic reasons, we will start with a first pass at this class ---
 ignoring alignment --- and then go back and fix it using
 \texttt{alignof} so that it returns properly aligned memory:
@@ -401,7 +402,7 @@ an alignment of 1, the \texttt{d\_top\_p} member, used to keep track of
 the next available address, has an alignment that is typically 4 or 8
 (corresponding to 32-bit and 64-bit architectures, respectively). The
 constructor merely initializes the next-address pointer,
-\texttt{d\_top\_p} to the start of the local memory pool,
+\texttt{d\_top\_p}, to the start of the local memory pool,
 \texttt{d\_buffer[N]}. The interesting part is how the \texttt{allocate}
 function manages to return a sequence of addresses corresponding to
 objects allocated sequentially from the local pool:
@@ -490,7 +491,7 @@ bool*   bp = static_cast<bool*  >(mb.allocate<bool  >());  // &d_buffer[18]
 \end{lstlisting}
 
 \noindent In practice, an object that allocates memory, such as a \texttt{vector}
-or a \texttt{list} will be constructed with an object that allocates and
+or a \texttt{list}, will be constructed with an object that allocates and
 deallocates memory that is guaranteed to be either \textbf{maximally
 aligned}, \textbf{naturally aligned}, or sufficiently aligned to satisfy
 an optionally specified alignment requirement.
@@ -500,7 +501,7 @@ exhausted, we would typically have the concrete allocator fall back to a
 geometrically growing sequence of dynamically allocated blocks; the
 \texttt{allocate} method would then fail (i.e., a
 \texttt{std::bad\_alloc} exception would somehow be thrown) only if all
-of available memory were exhausted and the \textbf{\texttt{new} handler}
+available memory were exhausted and the \textbf{\texttt{new} handler}
 were unable to acquire more memory yet still opted to return control
 to its caller.
 
@@ -562,7 +563,7 @@ std::cout << "     size: " << sizeof(T) << '\n'
 };
 \end{lstlisting}
 }} a programmer wishing to remain entirely within the C++
-standard{\cprotect\footnote{Note that \texttt{alignof(object)} will work
+Standard{\cprotect\footnote{Note that \texttt{alignof(object)} will work
 on every major compiler (GCC~10.x, Clang~10.x, and MSVC~19.x) as a
 nonstandard extension.}} is forced to use the
 \texttt{decltype} construct explicitly to first obtain

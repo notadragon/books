@@ -1,18 +1,19 @@
 \newpage
-\section[Deleted Functions]{Deleted Functions}\label{deleted-functions}
+\section[Deleted Functions]{Using {\SecCode =}\,{\SecCode delete} for Arbitrary Functions}\label{deleted-functions}
+% Jan 13, copyedits in and proofed
 
 
-Use of \texttt{=}~\texttt{delete} in a function's (first) declaration
+Using \lstinline!=!\,\lstinline!delete! in a function's first declaration
 forces a compilation error upon any attempt to use or access it.
 
 \subsection[Description]{Description}\label{description}
 
-Declaring a particular function (or function overload) to result in a
+Declaring a particular function or function overload to result in a
 fatal diagnostic upon invocation can be useful --- e.g., to suppress the
-generation of a \emph{special function} or to limit the types of
-arguments a particular function is able to accept. In such cases,
-\texttt{=}~\texttt{delete;} can be used in place of the body of any
-function (on first declaration only) to force a compile-time error if
+generation of a \romeogloss{special member function} or to limit the types of
+arguments a particular overload set is able to accept. In such cases,
+\lstinline!=!\,\lstinline!delete! followed by a semicolon (\lstinline!;!) can be used in place of the body of any
+function on first declaration only to force a compile-time error if
 any attempt is made to invoke it or take its address.
 
 \begin{lstlisting}[language=C++]
@@ -22,45 +23,38 @@ void g(int) = delete;
 void f()
 {
 g(3.14);  // OK, (ù{\codeincomments{f(double)}}ù) is invoked.
-g(0);     // Error: (ù{\codeincomments{f(int)}}ù) is deleted.
+g(0);     // Error, (ù{\codeincomments{f(int)}}ù) is deleted.
 }
 \end{lstlisting}
 
-\noindent Notice that deleted functions participate in \emph{overload resolution}
+\noindent Notice that deleted functions participate in \romeogloss{overload resolution}
 and produce a compile-time error when selected as the best candidate.
 
 \subsection[Use Cases]{Use Cases}\label{use-cases}
 
 \subsubsection[Suppressing special member function generation]{Suppressing special member function generation}\label{suppressing-special-member-function-generation}
 
-When instantiating an object of user-defined type, \textbf{special
-member functions}\glossary{special
+When instantiating an object of user-defined type, \romeogloss{special
 member functions} that have not been declared explicitly are
-often{\cprotect\footnote{The generation of individual special member
+often generated automatically by the compiler.
+The generation of individual special member
 functions can be affected by the existence of other user-defined special
 member functions or by limitations imposed by the specific types of
-any data members or base types. For more information, see Section~\ref{Defaulted-Special-Member-Functions}, ``\titleref{Defaulted-Special-Member-Functions}."}} generated automatically by the compiler.
-For certain kinds of types, the notion of \textbf{copy semantics}\glossary{copy semantics}
-(including \textbf{move semantics}\glossary{move semantics}{\cprotect\footnote{The two
-\textbf{special member functions}\glossary{special member functions} controlling \emph{move} operations
-(introduced in C++11) are sometimes implemented as effective
-optimizations of copy operations and (rarely) with copy operations
-explicitly deleted; see Section~\ref{Rvalue-References}, ``\titleref{Rvalue-References}."}}) is not meaningful and
-hence permitting the generation of copy operations is contraindicated.
+any data members or base types; see
+%Section~\ref{Defaulted-Special-Member-Functions}, ``\titleref{Defaulted-Special-Member-Functions} on page~\pageref{Defaulted-Special-Member-Functions}."
+\featureref{\locationa}{Defaulted-Special-Member-Functions}. For certain kinds of types, the notion of \romeogloss{copy semantics}
+including \romeogloss{move semantics} is not meaningful, and
+hence permitting the generation of copy operations is contraindicated. The two special member functions controlling \romeogloss{\emph{move} operations}, introduced in C++11, are sometimes implemented as effective optimizations of \romeogloss{\emph{copy} operations} and much less frequently with \romeogloss{\emph{copy} operations} explicitly deleted; see \featureref{\locationc}{Rvalue-References}.
 
-Consider a class, \texttt{FileHandle}, that uses the \textbf{RAII}\glossary{RAII} idiom
-to safely acquire and release an I/O stream. As \emph{copy semantics}
+Consider a class, \lstinline!FileHandle!, that uses the \romeogloss{RAII} idiom
+to safely acquire and release an I/O stream. As \romeogloss{copy semantics}
 are typically not meaningful for such resources, we will want to
-suppress generation of both the \emph{copy constructor} and \emph{copy
+suppress generation of both the \romeogloss{copy constructor} and \romeogloss{copy
 assignment operator}. Prior to C++11, there was no direct way to express
-suppression of \emph{special functions} in C++. The commonly
-recommended workaround was to declare the two methods \texttt{private}
-and leave them unimplemented, typically resulting in a compile-time (or
-link-time) error when accessed{\cprotect\footnote{Leaving unimplemented a special
-member function that is declared to be private ensures
-that there will be at least a link-time error in case that function is
-inadvertently accessed from within the implementation of the class
-itself.}}:
+suppression of \romeogloss{special functions} in C++. The commonly
+recommended workaround was to declare the two methods \lstinline!private!
+and leave them unimplemented, typically resulting in a compile-time or
+link-time error when accessed:
 
 \begin{lstlisting}[language=C++]
 class FileHandle
@@ -79,16 +73,33 @@ explicit FileHandle(FILE* filePtr);
 };
 \end{lstlisting}
 
-\noindent With the \texttt{=}~\texttt{delete} syntax, we are able to (1)
+\noindent Not implementing a special member function that is declared to be private ensures that there will be at least a link-time error in case that function is inadvertently accessed from within the implementation of the class itself. With the \lstinline!=!\,\lstinline!delete! syntax, we are able to (1)
 explicitly express our intention to make these special member
-functions unavailable, (2) do so directly in the \texttt{public} region
-of the class, and (3) enable more precise compiler diagnostics:
+functions unavailable, (2) do so directly in the \lstinline!public! region
+of the class, and (3) enable clearer compiler diagnostics:
 
+%\begin{lstlisting}[language=C++]
+%class FileHandle
+%{
+%private:
+%    // ...
+%
+%public:
+%    explicit FileHandle(FILE* filePtr);
+%    ~FileHandle();
+%
+%    FileHandle(const FileHandle&) = delete;             // make unavailable
+%    FileHandle& operator=(const FileHandle&) = delete;  // make unavailable
+%
+%    // ...
+%};
+%\end{lstlisting}
 \begin{lstlisting}[language=C++]
 class FileHandle
 {
 private:
 // ...
+// Declarations of copy constructor and copy assignment are now public.
 
 public:
 explicit FileHandle(FILE* filePtr);
@@ -101,51 +112,69 @@ FileHandle& operator=(const FileHandle&) = delete;  // make unavailable
 };
 \end{lstlisting}
 
+\noindent Using the \lstinline!=!\,\lstinline!delete! syntax on declarations that are private results in error messages concerning privacy, not the use of deleted functions. Care must be exercised to make \emph{both} changes when converting code from the old style to the new syntax.
 
 \subsubsection[Preventing a particular implicit conversion]{Preventing a particular implicit conversion}\label{preventing-a-particular-implicit-conversion}
 
-Certain functions --- especially those that take a \texttt{char} as an
+Certain functions --- especially those that take a \lstinline!char! as an
 argument --- are prone to inadvertent misuse. As a truly classic
-example, consider the C library function \texttt{memset}, which may be used
-to write the character \texttt{*} five times in a row, starting at a
-specified memory address, \texttt{buf}:
+example, consider the C library function \lstinline!memset!, which may be used
+to write the character \lstinline!*! five times in a row, starting at a
+specified memory address, \lstinline!buf!:
 
+%\begin{lstlisting}[language=C++]
+%#include <cstring>
+%#include <cstdio>
+%
+%void f()
+%{
+%    char buf[] = "Hello World!";
+%    memset(buf, 5, '*');  // undefined behavior
+%    puts(buf);            // expected output: "***** World!"
+%}
+%\end{lstlisting}
 \begin{lstlisting}[language=C++]
-#include <cstring>
-#include <cstdio>
+#include <cstdio>  // puts
+#include <cstring> // memset
 
 void f()
 {
 char buf[] = "Hello World!";
-memset(buf, 5, '*');  // undefined behavior
+memset(buf, 5, '*');  // undefined behavior: buffer overflow
 puts(buf);            // expected output: "***** World!"
 }
 \end{lstlisting}
 
-\noindent Sadly, inadvertently reversing the final two arguments is a commonly
-recurring error, and the C language provides no help. In C++, we
+
+\noindent Sadly, inadvertently reversing the order of the last two arguments is a commonly
+recurring error, and the C language provides no help. As shown above, \lstinline!memset! writes the nonprinting character \lstinline!5! (e.g., the integer value of ASCII \lstinline!'*'!) 42 times --- way past the end of \lstinline!buf!. In C++, we
 can target such observed misuse using an extra deleted overload:
 
+%\begin{lstlisting}[language=C++]
+%#include <cstring>  // memset()
+%void* memset(void* str, int ch, size_t n);      // standard library function
+%void* memset(void* str, int n, char) = delete;  // defensive against misuse
+%\end{lstlisting}
 \begin{lstlisting}[language=C++]
-#include <cstring>  // memset()
+#include <cstring>  // memset
 void* memset(void* str, int ch, size_t n);      // standard library function
-void* memset(void* str, int n, char) = delete;  // defensive against misuse
+void* memset(void* str, int n, char) = delete;  // defense against misuse
 \end{lstlisting}
 
 \noindent Pernicious user errors can now be reported during compilation:
 
 \begin{lstlisting}[language=C++]
 // ...
-memset(buf, 5, '*');  // Error: (ù{\codeincomments{memset(void\*, int, char)}}ù) is deleted.
+memset(buf, 5, '*');  // Error, (ù{\codeincomments{memset(void\*, int, char)}}ù) is deleted.
 // ...
 \end{lstlisting}
 
 
 \subsubsection[Preventing all implicit conversions]{Preventing all implicit conversions}\label{preventing-all-implicit-conversions}
 
-The \texttt{ByteStream::send} member function below is designed to work
+The \lstinline!ByteStream::send! member function below is designed to work
 with 8-bit unsigned integers only. Providing a deleted overload
-accepting an \texttt{int} forces a caller to ensure that the argument is
+accepting an \lstinline!int! forces a caller to ensure that the argument is
 always of the appropriate type:
 
 \begin{lstlisting}[language=C++]
@@ -161,46 +190,35 @@ void send(int) = delete;
 void f()
 {
 ByteStream stream;
-stream.send(0);   // Error: (ù{\codeincomments{send(int)}}ù) is deleted.     (1)
-stream.send('a'); // Error: (ù{\codeincomments{send(int)}}ù) is deleted.     (2)
-stream.send(0L);  // Error: ambiguous                 (3)
-stream.send(0U);  // Error: ambiguous                 (4)
-stream.send(0.0); // Error: ambiguous                 (5)
+stream.send(0);   // Error, (ù{\codeincomments{send(int)}}ù) is deleted.     (1)
+stream.send('a'); // Error, (ù{\codeincomments{send(int)}}ù) is deleted.     (2)
+stream.send(0L);  // Error, ambiguous                 (3)
+stream.send(0U);  // Error, ambiguous                 (4)
+stream.send(0.0); // Error, ambiguous                 (5)
 stream.send(
 static_cast<unsigned char>(100));  // OK          (6)
 }
 \end{lstlisting}
 
-\noindent Invoking \texttt{send} with an \texttt{int} (noted with (1) in the code above) or any integral type
-(other than \texttt{unsigned}~\texttt{char}{\cprotect\footnote{Note that
-implicitly converting from \texttt{unsigned}~\texttt{char} to either a
-\texttt{long} or \texttt{unsigned} integer involves a \textbf{standard
-conversion}\glossary{standard
-conversion} (not just an \textbf{integral promotion}\glossary{integral promotion}), the same as
-converting to a \texttt{double}.}}) that promotes to \texttt{int} (2)
-will map exclusively to the deleted \texttt{send(int)} overload; all
-other integral (3 \& 4) and floating-point types (5) are convertible to
-both (via a \textbf{standard conversion}\glossary{standard conversion}) and hence will be ambiguous.
-An explicit cast to \texttt{unsigned}~\texttt{char} (6) can always be
+\noindent Invoking \lstinline!send! with an \lstinline!int! (noted with (1) in the code above) or any integral type
+(other than \lstinline!unsigned!~\lstinline!char!) that promotes to \lstinline!int! (2)
+will map exclusively to the deleted \lstinline!send(int)! overload; all
+other integral (3 and 4) and floating-point types (5) are convertible to
+both via a \romeogloss{standard conversion} and hence will be ambiguous. Note that
+implicitly converting from \lstinline!unsigned!~\lstinline!char! to either a
+\lstinline!long! or \lstinline!unsigned! integer involves a \romeogloss{standard
+conversion} (not just an \romeogloss{integral promotion}), the same as
+converting to a \lstinline!double!.
+An explicit cast to \lstinline!unsigned!~\lstinline!char! (6) can always be
 pressed into service if needed.
 
 \subsubsection[Hiding a structural (nonpolymorphic) base class's member function]{Hiding a structural (nonpolymorphic) base class’s member function}\label{hiding-a-structural-(nonpolymorphic)-base-class's-member-function}
 
-Best practices notwithstanding,{\cprotect\footnote{By publicly deriving
-from a concrete class, we do not hide the underlying capabilities,
-which can easily be accessed (perhaps accidentally) via assignment to
-a pointer or reference to a base class (no casting required). What's
-more, inadvertently passing such a class to a function taking the base
-class by value will result in \emph{slicing}, which can be especially
-problematic when the derived class holds data. Finally, if the derived
-class purports to maintain \emph{class invariants} that the base class
-does not preserve, this design technique is beyond dubious; a more
-robust approach would be to use layering or at least private
-inheritance. For more on improving compositional designs at scale, see
-\textbf{{lakos20}}, sections 3.5.10.5 and 3.7.3, pp.~687--703 and
-726--727, respectively.}} it can be cost-effective (in the short
-term) to provide an elided ``view'' on a concrete class for (trusted)
-clients. Imagine a class \texttt{AudioStream} designed to play sounds
+It is commonly advised to avoid deriving publicly from concrete classes because by doing so, we do not hide the underlying capabilities, which can easily be accessed (potentially breaking any invariants the derived class may want to keep) via assignment to a pointer or reference to a base class, with no casting required.  Worse, inadvertently passing such a class to a function taking the base class by value will result in slicing, which can be especially problematic when the derived class holds data. A more robust approach would be to use layering or at least private inheritance.\footnote{For more on improving compositional designs at scale, see
+\cite{lakos20}, sections 3.5.10.5 and 3.7.3, pp.~687--703 and
+726--727, respectively.} Best practices notwithstanding,\footnote{See ``Inheritance and Object-Oriented Programming," Item 38, \cite{meyers92}, pp. 132--135.} it can be cost-effective in the short
+term to provide an elided ``view'' on a concrete class for trusted
+clients. Imagine a class \lstinline!AudioStream! designed to play sounds
 and music that --- in addition to providing basic ``play'' and
 ``rewind'' operations --- sports a large, robust interface:
 
@@ -216,48 +234,58 @@ void rewind();
 \end{lstlisting}
 
 
-Now suppose that, on short notice, we need to whip up a very similar
-class,\linebreak[4] \texttt{ForwardAudioStream}, to use with audio samples that
+Now suppose that, on short notice, we need to whip up a similar
+class,\linebreak[4] \lstinline!ForwardAudioStream!, to use with audio samples that
 cannot be rewound (e.g., coming directly from a live feed). Realizing
-that we can readily reuse most of \texttt{AudioStream}'s interface, we
+that we can readily reuse most of \lstinline!AudioStream!'s interface, we
 pragmatically decide to prototype the new class simply by exploiting
-public \textbf{structural inheritance}\glossary{structural inheritance} and then deleting just the lone
-unwanted \texttt{rewind} member function:
+public \romeogloss{structural inheritance} and then deleting just the lone
+unwanted \lstinline!rewind! member function:
 
 \begin{lstlisting}[language=C++]
 struct ForwardAudioStream : AudioStream
 {
-void rewind() = delete; // make just this one function unavailable
+void rewind() = delete; // Make just this one function unavailable.
 };
 
 void f()
 {
 ForwardAudioStream stream = FMRadio::getStream();
 stream.play();   // fine
-stream.rewind(); // Error: (ù{\codeincomments{rewind()}}ù) is deleted.
+stream.rewind(); // Error, (ù{\codeincomments{rewind()}}ù) is deleted.
 }
 \end{lstlisting}
 
-\noindent If the need for a \texttt{ForwardAudioStream} type persists, we can always
-consider reimplementing it more carefully later.{\cprotect\footnote{\textbf{{lakos20}}, sections 3.5.10.5 and 3.7.3, pp.~687--703 and 726--727}}
+\noindent If the need for a \lstinline!ForwardAudioStream! type persists, we can always
+consider reimplementing it more carefully later.{\cprotect\footnote{\cite[sections 3.5.10.5 and 3.7.3, pp.~687--703 and 726--727]{lakos20}}} As discussed at the beginning of this section, the protection provided by this example is easily circumvented:
+\begin{lstlisting}[language=C++]
+AudioStream fullStream = stream;
+fullStream.play();   // OK
+fullStream.rewind(); // compiles OK, but what happens at run time?
+\end{lstlisting}
+
+\noindent Hiding non\lstinline!virtual! functions is something one undertakes only after attaining a complete understanding of what makes such an unorthodox endeavor \emph{safe}; see, in particular, the appendix of \featureref{\locatione}{final}.
 
 \subsection[Potential Pitfalls]{Potential Pitfalls}\label{potential-pitfalls}
 
-None so far
+\hspace*{\fill}
 
 \subsection[Annoyances]{Annoyances}\label{annoyances}
 
-None so far
+\hspace*{\fill}
 
 \subsection[See Also]{See Also}\label{see-also}
 
 \begin{itemize}
-\item{Section~\ref{Defaulted-Special-Member-Functions}, ``\titleref{Defaulted-Special-Member-Functions}" — Companion safe C++11 feature that enables \emph{defaulting} (as opposed to \emph{deleting}) special member functions}
-\item{Section~\ref{Rvalue-References}, ``\titleref{Rvalue-References}" — Conditionally safe C++11 feature that introduces the two \emph{move} variants to \emph{copy} special member functions}
+\item{%Section~\ref{Defaulted-Special-Member-Functions}, ``\titleref{Defaulted-Special-Member-Functions}" on page~\pageref{Defaulted-Special-Member-Functions} —
+\seealsoref{Defaulted-Special-Member-Functions}{\locationa}Companion feature that enables defaulting, as opposed to deleting, special member functions.}
+\item{%Section~\ref{Rvalue-References}, ``\titleref{Rvalue-References}" on page~\pageref{Rvalue-Referencess} —
+\seealsoref{Rvalue-References}{\locationc}The two \emph{move} variants of special member functions, which use \romeovalue{rvalue} references in their signatures, may also be subject to deletion.}
 \end{itemize}
 
 \subsection[Further Reading]{Further Reading}\label{further-reading}
 
-None so far
-
+\begin{itemize}
+\item{``Item 27" of \cite{meyers15b}}
+\end{itemize}
 

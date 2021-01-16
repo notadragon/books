@@ -1,5 +1,5 @@
 \newpage
-\section[Inheriting Constructors]{Inheriting Constructors}\label{ctorinheriting}\label{inheriting-constructors}
+\section[Inheriting Ctors]{Inheriting Base Class Constructors}\label{ctorinheriting}\label{inheriting-constructors}
 
 
 The term \textit{inheriting constructors} refers to the use of a
@@ -312,14 +312,14 @@ functions where we chose to augment the original behavior.
 
 \subsubsection[Avoiding boilerplate code when employing implementation inheritance]{Avoiding boilerplate code when employing implementation inheritance}\label{avoiding-boilerplate-code-when-employing-implementation-inheritance}
 
-Sometimes it can be cost effective to adapt \textbf{concrete class}
+Sometimes it can be cost effective to adapt a \textbf{concrete class}
 having virtual functions{\cprotect\footnote{Useful design patterns
 exist where a \textbf{partial implementation} class, derived from a
 pure abstract interface (a.k.a. a \textbf{protocol}), contains data,
 constructors, and pure virtual functions; see
 \textbf{lakos2a}, section~4.7.}} to a specialized purpose
 using inheritance.{\cprotect\footnote{Such inheritance, known as
-\textbf{implementation inheritance} is decidedly distinct from pure
+\textbf{implementation inheritance}, is decidedly distinct from pure
 \textbf{interface inheritance}, which is often the preferred design
 pattern in practice; see \textbf{{lakos2b}}, section~4.6.}}
 As an example, consider a \textbf{concrete} base class,
@@ -634,7 +634,7 @@ AuthenticatedSession authSession(45100);
 
 \noindent In the line above and the example above that, \texttt{authSession} will be initialized by
 invoking the constructor accepting a \texttt{long}~\texttt{long} (see ``\titleref{long-long}" on page~\pageref{long-long}) authentication token. If, however, a new
-constructor, having the signature \texttt{Session(int)} is added to the
+constructor having the signature \texttt{Session(int)} is added to the
 base class, it will be invoked instead because it is a better match to the
 literal \texttt{45100} (of type \texttt{int}) than the constructor
 taking a \texttt{long}~\texttt{long} supplied explicitly in the derived
@@ -718,7 +718,7 @@ Name n2(s0);            // OK, thanks to an (ù{\codeincomments{explicit}}ù) co
 Name b3(a0);            // OK, an (ù{\codeincomments{Address}}ù) (unfortunately) is a (ù{\codeincomments{std::string}}ù).
 \end{lstlisting}
 
-\noindent We can rework the \texttt{PointOfInterest} class to use the the
+\noindent We can rework the \texttt{PointOfInterest} class to use the
 \textbf{strong \texttt{typedef}} idiom:
 
 \begin{lstlisting}[language=C++]
@@ -822,7 +822,7 @@ Unlike base-class member functions that can be introduced with a
 class (as long as they are accessible by the derived class), the access
 level of the \texttt{using} declaration for inherited constructors is
 ignored.{\cprotect\footnote{Alisdair Meredith, one of the authors of the
-Standards paper that proposed this feature (\textbf{meredith08}) suggests that
+Standards paper that proposed this feature (\textbf{meredith08}), suggests that
 placing the \texttt{using} declaration for \textbf{inheriting
 constructors} as the very first member declaration and preceding any
 \textbf{access specifiers} might be the least confusing location. Programmers might still be confused by
@@ -1024,7 +1024,7 @@ using Base::Base;  // Error: Prior to C++17 fixes, we cannot redeclare
 };
 }
 \end{lstlisting}
-C++17 resolves this by directly exposing the base class constructors, rather than defining new constructors to forward arguments.
+C++17 resolves this by directly exposing the base-class constructors, rather than defining new constructors to forward arguments.
 
 \subsubsection[SFINAE evaluation context with default function arguments]{SFINAE evaluation context with default function arguments}
 

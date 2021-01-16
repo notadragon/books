@@ -1,5 +1,5 @@
 \newpage
-\section[Trailing Function Return Types]{Trailing Function Return Types}\label{trailing-function-return-types}
+\section[Trailing Return]{Trailing Function Return Types}\label{trailing-function-return-types}
 
 
 Trailing return types provide a new alternate syntax in which the return type of a function is specified at
@@ -9,23 +9,54 @@ or namespace members without explicit qualification.
 
 \subsection[Description]{Description}\label{description}
 
-C++ offers an alternative function-declaration syntax in which the
+C++11 offers an alternative function-declaration syntax in which the
 return type of a function is located to the right of its
-\textbf{signature}\glossary{signature} (name, parameters, and qualifiers), offset by the
-arrow token (\texttt{->}); the function itself is introduced by the
-keyword {\texttt{auto}}, which acts as a type placeholder\cprotect\footnote{Note that, when using the alternative trailing return syntax for a function (e.g., one returning a \texttt{double}), the override keyword would be inserted after call qualifiers and before the arrow:
-
-\begin{lstlisting}[language=C++,basicstyle=\ttfamily\footnotesize]
-virtual f(int value) const override -> double;
-\end{lstlisting}\vspace*{-1ex}}:
+\romeogloss{signature} (name, parameters, and qualifiers), offset by the
+arrow token (\lstinline!->!); the function itself is introduced by the
+keyword \lstinline!auto!, which acts as a type placeholder:
+%\cprotect\footnote{Note that, when using the alternative trailing return syntax for a function (e.g., one returning a \texttt{double}), the override keyword would be inserted after call qualifiers and before the arrow:
+%
+%\begin{lstlisting}[language=C++,basicstyle=\ttfamily\footnotesize]
+%virtual f(int value) const override -> double;
+%\end{lstlisting}\vspace*{-1ex}}:
 
 \begin{lstlisting}[language=C++]
 auto f() -> void;  // equivalent to (ù{\codeincomments{void f();}}ù)
 \end{lstlisting}
 
+When using the alternative, trailing-\lstinline!return!-type syntax, any \lstinline!const!,
+\lstinline!volatile! and reference qualifiers (see
+%``\titleref{refqualifiers}" on page~\pageref{refqualifiers}
+\featureref{\locatione}{refqualifiers}) are placed to the left of
+the \lstinline!->!~\lstinline!*<return-type>*! and any contextual keywords, such as
+\lstinline!override! and \lstinline!final! (see
+%``\titleref{override}" on page~\pageref{override}
+\featureref{\locationa}{override}
+and
+%``\titleref{final}" on page~\pageref{final}
+\featureref{\locatione}{final}), are placed to its right:
+
+\begin{lstlisting}[language=C++]
+struct Base
+{
+virtual int e() const;     // (ù{\codeincomments{const}}ù) qualifier
+virtual int f() volatile;  // (ù{\codeincomments{volitile}}ù) qualfier
+virtual int g() &;         // *lvalue*-reference qualifier
+virtual int h() &&;        // *rvalue*-reference qualifier
+};
+
+struct Derived : Base
+{
+auto e() const    -> int override;  //  (ù{\codeincomments{override}}ù) contextual keyword
+auto f() volatile -> int final;     //  (ù{\codeincomments{final}}ù)         "        "
+auto g() &        -> int override;  //  (ù{\codeincomments{override}}ù)      "        "
+auto h() &&       -> int final;     //  (ù{\codeincomments{final}}ù)         "        "
+};
+\end{lstlisting}
+
 \noindent Using a trailing return type allows the parameters of a function to be
 named as part of the specification of the return type, which can be
-useful in conjunction with {\texttt{decltype}}:
+useful in conjunction with \lstinline!decltype!:
 
 \begin{lstlisting}[language=C++]
 auto g(int x) -> decltype(x);  // equivalent to (ù{\codeincomments{int g(int x);}}ù)
@@ -49,9 +80,9 @@ T    S::h2()      { /*...*/ }  // Error: (ù{\codeincomments{T}}ù) is unknown i
 \end{lstlisting}
 
 \noindent The same advantage would apply to a nonmember
-function{\cprotect\footnote{A \texttt{static} member function of a
-\texttt{struct} can be a viable alternative implementation to a free
-function declared within a namespace; see \textbf{lakos20}, section~1.4,
+function{\cprotect\footnote{A \lstinline!static! member function of a
+\lstinline!struct! can be a viable alternative implementation to a free
+function declared within a namespace; see \cite{lakos20}, section~1.4,
 pp.~190--201, especially Figure~1-37c (p.~199), and section~2.4.9, pp.~312--321, especially Figure~2-23 (p.~316).}} defined outside of the namespace in
 which it is declared:
 
@@ -71,10 +102,10 @@ T    N::h4()      { /*...*/ }  // Error: (ù{\codeincomments{T}}ù) is unknown i
 Finally, since the syntactic element to be provided after the arrow
 token is a separate type unto itself, return types involving pointers to
 functions are (somewhat) simplified. Suppose, for example, we want to
-describe a \textbf{higher-order function}\glossary{higher-order function}, \texttt{f}, that takes as its
-argument a \texttt{long}~\texttt{long} and returns a pointer to a
-function that takes an \texttt{int} and returns a
-\texttt{double}{\cprotect\footnote{Co-author John Lakos first used the shown verbose declaration notation
+describe a \romeogloss{higher-order function}, \lstinline!f!, that takes as its
+argument a \lstinline!long!~\lstinline!long! and returns a pointer to a
+function that takes an \lstinline!int! and returns a
+\lstinline!double!{\cprotect\footnote{Co-author John Lakos first used the shown verbose declaration notation
 while teaching Advanced Design and Programming using C++ at Columbia
 University (1991-1997).}}:
 
@@ -87,8 +118,8 @@ University (1991-1997).}}:
 \end{lstlisting}
 
 \noindent Using the alternate trailing syntax, we can conveniently break the
-declaration of \texttt{f} into two parts: (1) the declaration of the
-function's signature, \texttt{auto}~\texttt{f(long}~\texttt{long)}, and (2) that of the return type, say, \texttt{R} for now:
+declaration of \lstinline!f! into two parts: (1) the declaration of the
+function's signature, \lstinline!auto!~\lstinline!f(long!~\lstinline!long)!, and (2) that of the return type, say, \lstinline!R! for now:
 
 \begin{lstlisting}[language=C++]
 // [pointer to] [function (int) returning] double   R;
@@ -119,8 +150,8 @@ decltype(std::declval<A&>().foo(std::declval<B&>())) foo(A a, B b);
 \end{lstlisting}
 
 \noindent In the example above, we were essentially forced to use the (C++11)
-standard library template \texttt{std::declval}
-(\textbf{{cppref\_declval}}) to express our intent with the classic
+standard library template \lstinline!std::declval!
+(\cite{cpprefdeclval}) to express our intent with the classic
 return-type syntax.
 
 \subsection[Use Cases]{Use Cases}\label{use-cases}
@@ -130,7 +161,7 @@ return-type syntax.
 Declaring a function template whose return type depends on the types of
 one or more of its parameters is not uncommon in generic programming.
 For example, consider a mathematical function that linearly interpolates
-between two values of (possibly) different type:
+between two values of (possibly) different types:
 
 \begin{lstlisting}[language=C++]
 template <typename A, typename B, typename F>
@@ -141,35 +172,34 @@ return a + factor * (b - a);
 }
 \end{lstlisting}
 
-\noindent The return type of \texttt{linearInterpolation} is the type of
-expression inside the \emph{\texttt{decltype} specifier}, which is
+\noindent The return type of \lstinline!linearInterpolation! is the type of
+expression inside the \emph{\lstinline!decltype! specifier}, which is
 identical to the expression returned in the body of the function. Hence,
 this interface necessarily supports any set of input types for which
-\texttt{a}~\texttt{+}~\texttt{factor}~\texttt{*}~\texttt{(b}~\texttt{-}~\texttt{a)}
+\lstinline!a!~\lstinline!+!~\lstinline!factor!~\lstinline!*!~\lstinline!(b!~\lstinline!-!~\lstinline!a)!
 is valid, including types such as mathematical vectors, matrices, or
 expression templates. As an added benefit, the presence of the
-expression in the function's declaration enables \textbf{expression
-SFINAE}\glossary{expression
+expression in the function's declaration enables \romeogloss{expression
 SFINAE}, which is typically desirable for generic template functions
-(see Section~\ref{decltype}, ``\titleref{decltype}").
+(see %Section~\ref{decltype}, ``\titleref{decltype}" on page~\pageref{decltype}
+\featureref{\locationa}{decltype}).
 
 \subsubsection[Avoiding having to qualify names redundantly in return types]{Avoiding having to qualify names redundantly in return types}\label{avoiding-having-to-qualify-names-redundantly-in-return-types}
 
-When defining a function outside the \texttt{class}, \texttt{struct}, or
-\texttt{namespace} in which it is first declared, any unqualified names
+When defining a function outside the \lstinline!class!, \lstinline!struct!, or
+\lstinline!namespace! in which it is first declared, any unqualified names
 present in the return type might be looked up differently depending on
 the particular choice of function-declaration syntax used. When the
 return type precedes the qualified name of the function definition (as
 is the case with classic syntax), all references to types declared in
 the same scope where the function itself is declared must also be
-(redundantly) qualified. By contrast, when the return type follows the
-qualified name of the function (as is the case when using the
-trailing-return-type syntax), the return type (just like any parameter
-types) is --- by default --- looked up in the same scope in which the
-function was first declared. Avoiding such redundancy can be beneficial, especially when the (redundant) qualifying name is not short.
+qualified. By contrast, when the return type follows the
+qualified name of the function,
+the return type is looked up in the same scope in which the
+function was first declared, just like its parameter types would. Avoiding redundant qualification of the return type  can be beneficial, especially when the qualifying name is long.
 
-As an illustration, consider a class (representing an abstract syntax
-tree node) that exposes a type alias:
+As an illustration, consider a class representing an abstract syntax
+tree node that exposes a type alias:
 
 \begin{lstlisting}[language=C++]
 struct NumericalASTNode
@@ -179,9 +209,9 @@ auto getElement() -> ElementType;
 };
 \end{lstlisting}
 
-\noindent Defining the \texttt{getElement} member function using traditional
+\noindent Defining the \lstinline!getElement! member function using traditional
 function-declaration syntax would require repetition of the
-\texttt{NumericalASTNode} name:
+\lstinline!NumericalASTNode! name:
 
 \begin{lstlisting}[language=C++]
 NumericalASTNode::ElementType NumericalASTNode::getElement() { /*...*/ }
@@ -199,11 +229,11 @@ should be found correctly by default.
 
 \subsubsection[Improving readability of declarations involving function pointers]{Improving readability of declarations involving function pointers}\label{improving-readability-of-declarations-involving-function-pointers}
 
-Declarations of functions returning a pointer to either (1) a function, (2) a member function, or (3) a data member are notoriously hard to parse --- even for seasoned programmers. As an example, consider a function called
-\texttt{getOperation} that takes, as its argument, a \texttt{kind} of
-(enumerated) \texttt{Operation} and returns a pointer to a member
-function of \texttt{Calculator} that takes a \texttt{double} and
-returns a \texttt{double}:
+Declarations of functions returning a pointer to either a function, a member function, or a data member are notoriously hard to parse --- even for seasoned programmers. As an example, consider a function called
+\lstinline!getOperation! that takes a \lstinline!kind! of
+(enumerated) \lstinline!Operation! as its argument and returns a pointer to a member
+function of \lstinline!Calculator! that takes a \lstinline!double! and
+returns a \lstinline!double!:
 
 \begin{lstlisting}[language=C++]
 double (Calculator::*getOperation(Operation kind))(double);
@@ -222,12 +252,10 @@ auto getOperation(Operation kind)  // (1) function taking a kind of (ù{\codeinc
 //     (ù{\codeincomments{double}}ù) and returning a (ù{\codeincomments{double}}ù)
 \end{lstlisting}
 
-\noindent Using this divide-and-conquer approach, writing a \textbf{higher-order function}\glossary{higher-order function} that returns a
-pointer to a function, member function, or data member as its return
-type{\cprotect\footnote{Declaring a \textbf{higher-order function}\glossary{higher-order function} that
+\noindent Using this divide-and-conquer approach, writing such functions{\cprotect\footnote{Declaring a \romeogloss{higher-order function} that
 takes a function pointer as an argument might be even easier to read
-if a type alias is used (e.g., via \texttt{typedef}\glossary{typedef} or, as of C++11,
-\texttt{using}).}} becomes fairly straightforward.
+if a type alias is used (e.g., via \lstinline!typedef! or, as of C++11,
+\lstinline!using!).}} becomes fairly straightforward.
 
 \subsection[Potential Pitfalls]{Potential Pitfalls}\label{potential-pitfalls}
 
@@ -240,8 +268,10 @@ None so far
 \subsection[See Also]{See Also}\label{see-also}
 
 \begin{itemize}
-\item{Section~\ref{decltype}, ``\titleref{decltype}" — Safe C++11 type inference feature that is often used in conjunction with (or in place of) trailing return types}
-\item{Section~\ref{Function-Return-Type-Deduction}, ``\titleref{Function-Return-Type-Deduction}" — Unsafe C++14 type inference feature that shares syntactical similarities with trailing return types, leading to potential pitfalls when migrating from C++11 to C++14}
+\item{%Section~\ref{decltype}, ``\titleref{decltype}" on page~\pageref{decltype} —
+\seealsoref{decltype}{\locationa}Safe C++11 type inference feature that is often used in conjunction with or as an alternative to trailing return types}
+\item{%Section~\ref{Function-Return-Type-Deduction}, ``\titleref{Function-Return-Type-Deduction}" on page~\pageref{Function-Return-Type-Deduction} —
+\seealsoref{Function-Return-Type-Deduction}{\locationf}Unsafe C++14 type inference feature that shares syntactical similarities with trailing return types, leading to potential pitfalls when migrating from C++11 to C++14}
 \end{itemize}
 
 \subsection[Further Reading]{Further Reading}\label{further-reading}

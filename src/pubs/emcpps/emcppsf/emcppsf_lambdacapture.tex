@@ -1,5 +1,5 @@
 \newpage
-\section[Lambda-Capture Expressions]{Lambda-Capture Expressions}\label{lambda-capture-expressions}
+\section[Lambda Captures]{Lambda-Capture Expressions}\label{lambda-capture-expressions}
 
 
 Lambda-capture expressions enable \textbf{synthetization} (spontaneous implicit creation) of
@@ -108,7 +108,7 @@ initializer in the capture to create a parameter of that same type as
 that part of its \textbf{declared interface}{\cprotect\footnote{Note
 that, in the shadowing example defining \texttt{fC}, GCC version 10.x
 incorrectly evaluates \texttt{decltype(i)} inside the body of the
-lambda expression as \texttt{const}~\texttt{char}, rather that
+lambda expression as \texttt{const}~\texttt{char}, rather than
 \texttt{char}; see \textit{\titleref{potential-pitfalls-lambdacapture}: \titleref{forwarding-an-existing-variable-into-a-closure-always-results-in-an-object-(never-a-reference)}} on page~\pageref{potential-pitfalls-lambdacapture}.}}{\cprotect\footnote{Here we are using the (C++14) variable
 template (see ``\titleref{variable-templates}" on page~\pageref{variable-templates}) version of the standard \texttt{is\_same} metafunction where \texttt{std::is\_same<A,}~\texttt{B>::value} is replaced with
 \texttt{std::is\_same\_v<A,}~\texttt{B>}.}}:
@@ -134,7 +134,7 @@ and only if its two arguments are the same C++ type). This time, we're using \te
 demonstrate that the type (\texttt{int}), extracted from the local
 variable \texttt{i} within the declared-interface portion of
 \texttt{fC}, is distinct from the type (\texttt{char}) extracted from
-the \texttt{i} within in \texttt{fC}'s body. In other words, the effect
+the \texttt{i} within \texttt{fC}'s body. In other words, the effect
 of initializing a variable in the capture portion of the lambda is to
 hide the name of an existing variable that would otherwise be accessible
 in the lambda's body.{\cprotect\footnote{Also note that, since the
@@ -483,9 +483,9 @@ identified throughout the system, see \textbf{lakos22}.}
 \begin{itemize}
 \item{``\titleref{lambda}" on page~\pageref{lambda} — provides the needed background for understanding the feature in general}
 \item{``\titleref{bracedinit}" on page~\pageref{bracedinit} — illustrates one possible way of initializing the captures}
-\item{`\titleref{auto-feature}" on page~\pageref{auto-feature} — offers a model with the same type deduction rules}
-\item{`\titleref{Rvalue-References}" on page~\pageref{Rvalue-References} — gives a full description of an important feature used in conjunction with moveable types.}
-\item{`\titleref{forwardingref}" on page~\pageref{forwardingref} — describes a feature that contributes to a source of misunderstanding of this feature}
+\item{``\titleref{auto-feature}" on page~\pageref{auto-feature} — offers a model with the same type deduction rules}
+\item{``\titleref{Rvalue-References}" on page~\pageref{Rvalue-References} — gives a full description of an important feature used in conjunction with movable types.}
+\item{``\titleref{forwardingref}" on page~\pageref{forwardingref} — describes a feature that contributes to a source of misunderstanding of this feature}
 \end{itemize}
 
 \subsection[Further Reading]{Further Reading}\label{further-reading}

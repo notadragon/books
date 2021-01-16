@@ -1,7 +1,0 @@
-Even in the presence of a user-provided
-destructor, both the copy constructor and copy-assignment operator
-have historically been generated implicitly. Relying on such generated
-behavior is not recommended because it is unlikely that a class
-requiring a user-provided destructor will function correctly without
-corresponding user-provided copy operations. As of C++11, reliance on
-  such dubious implicitly generated behavior is deprecated.^^E^^L 

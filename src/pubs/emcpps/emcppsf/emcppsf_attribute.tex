@@ -1,5 +1,5 @@
 \newpage
-\section[Attributes]{Attributes}\label{attributes}
+\section[Attribute Syntax]{Generalized Attribute Support}\label{attributes}
 
 
 
@@ -52,8 +52,9 @@ arbitrary sequence of tokens:
 \end{lstlisting}
 
 \noindent Note that having an incorrect number of arguments or an incompatible
-argument type is a compile-time error for all standard attributes; the
-behavior for all other attributes, however, is
+argument type is a compile-time error for all standard attributes; \pagebreak%%%%%%%
+the behavior for all other attributes,
+however, is
 \textbf{implementation-defined} (see {\it\titleref{attribute-potential-pitfalls}:} {\it\titleref{unrecognized-attributes-have-implementation-defined-behavior}} on page~\pageref{unrecognized-attributes-have-implementation-defined-behavior}).
 
 Any attribute may be namespace qualified{\cprotect\footnote{Attributes
@@ -94,7 +95,8 @@ behind the name{\cprotect\footnote{There are rare edge cases in which an
 entity (e.g., an anonymous \texttt{union} or \texttt{enum}) is
 declared without a name:
 
-\begin{lstlisting}[language=C++, basicstyle={\ttfamily\footnotesize}]
+%\begin{lstlisting}[language=C++, basicstyle={\ttfamily\footnotesize}]
+\begin{lstlisting}[style=footcode]
 struct S { union [[attribute_name]] { int a; float b }; };
 enum [[attribute_name]] { SUCCESS, FAIL } result;
 \end{lstlisting} \vspace*{-1ex}
@@ -111,6 +113,7 @@ attributes might be additive, such as the hypothetical \texttt{foo} and
 void f [[bar]](), g();  // Now (ù{\codeincomments{f()}}ù) is both (ù{\codeincomments{foo}}ù) and (ù{\codeincomments{bar}}ù) while
 //     (ù{\codeincomments{g()}}ù) is still just (ù{\codeincomments{foo}}ù).
 \end{lstlisting}
+\pagebreak%%%%%%%
 
 \noindent Redundant attributes are not themselves necessarily considered an error;
 however, most standard attributes do consider redundancy an
@@ -178,6 +181,7 @@ additional compiler-specific attributes, see {\it\titleref{attribute-further-rea
 
 \begin{table}[h!]
 \begin{center}
+%\vspace{-3ex}
 \begin{threeparttable}
 \caption{Some standardized compiler-specific attributes}\label{attribute-table1}\vspace{1.5ex}
 {\small \begin{tabular}{c|c|c}\thickhline
@@ -225,6 +229,7 @@ void bind(int port);
 // The behavior is undefined unless (ù{\codeincomments{start}}ù) was called successfully.
 };
 \end{lstlisting}
+\pagebreak%%%%%%
 
 \noindent Such annotation of the client-facing declaration can prevent defects
 caused by a client's forgetting to inspect the result of a
@@ -247,7 +252,7 @@ listener.bind(27015);  // Possible undefined behavior; BAD IDEA!
 
 \noindent For the code above, GCC produces a useful warning:
 
-\begin{lstlisting}[language=C++]
+\begin{lstlisting}[style=plain]
 warning: ignoring return value of 'bool HttpClient::start()' declared
 with attribute 'warn_unused_result' [-Wunused-result]
 \end{lstlisting}
@@ -283,6 +288,7 @@ reportError("Negative balance.");
 }
 }
 \end{lstlisting}
+\pagebreak%%%%
 
 \noindent Because the (annotated) \texttt{reportError(const}~\texttt{char*)}
 appears on the else branch of the if statement (above), the compiler
@@ -337,6 +343,7 @@ return Vector2D(linearInterpolation(start.x, end.x, factor),
 linearInterpolation(start.y, end.y, factor));
 }
 \end{lstlisting}
+\pagebreak%%%%%%
 
 \noindent In the (possibly frequent) case where the values of the two components
 are the same, the compiler is allowed to invoke
@@ -437,6 +444,7 @@ function \texttt{f} with our own attribute
 [[home_grown::in_same_block(p1, p2)]]
 int f(double* p1, double* p2);
 \end{lstlisting}
+%\pagebreak%%%%%%%%%
 
 \noindent Now imagine that some client calls this function from some other
 translation unit but passes in two unrelated pointers:
@@ -456,7 +464,7 @@ f(a, b);  // Oops, this is UB.
 \texttt{home\_grown::in\_same\_block} attribute that \texttt{a} and
 \texttt{b} must point into the same contiguous block, however, it has
 enough information to report, at compile time, what might otherwise have
-resulted in \textbf{undefined behavior} at run time.
+resulted in \textbf{undefined behavior} at run~time.
 
 \subsubsection[Probing where attributes are permitted in the compiler’s C++ grammar]{Probing where attributes are permitted in the compiler’s C++ grammar}\label{probing-where-attributes-are-permitted-in-the-compiler’s-c++-grammar}
 
@@ -493,6 +501,7 @@ limited:
 
 \noindent Type expressions --- e.g., the argument to \texttt{sizeof} (above) ---
 are a notable exception; see {\it\titleref{attribute-potential-pitfalls}:} {\it\titleref{not-every-syntactic-location-is-viable-for-an-attribute}} on page~\pageref{not-every-syntactic-location-is-viable-for-an-attribute}.
+%\newpage%%%%%%%%%%%%
 
 \subsection[Potential Pitfalls]{Potential Pitfalls}\label{attribute-potential-pitfalls}
 
@@ -547,7 +556,7 @@ beginning of any statement, immediately following a named entity in a
 declaration statement, and (typically) arbitrary positions relative to a
 \textbf{type expression} but, beyond that, caveat emptor. For example, GCC
 allowed all of the positions indicated in the example shown in
-{\it\titleref{attribute-use-cases}:} {\it\titleref{probing-where-attributes-are-permitted-in-the-compiler’s-c++-grammar}} on pages~\pageref{probing-where-attributes-are-permitted-in-the-compiler’s-c++-grammar}--\pageref{attribute-gcc-example}, yet Clang had
+{\it\titleref{attribute-use-cases}:} {\it\titleref{probing-where-attributes-are-permitted-in-the-compiler’s-c++-grammar}} on page~\pageref{attribute-gcc-example}, yet Clang had
 issues with the third line in two places:
 
 \begin{lstlisting}[language=C++]
@@ -571,15 +580,15 @@ None so far
 \subsection[See Also]{See Also}\label{see-also}
 
 \begin{itemize}
-\item{``\titleref{the-noreturn-attribute}" on page~\pageref{the-noreturn-attribute} — Safe C++11 standard attribute for functions that never return control flow to the caller}
-\item{``\titleref{carriesdependency}" on page~\pageref{carriesdependency} — Unsafe C++11 standard attribute used to communicate release-consume dependency-chain information to the compiler to avoid unnecessary memory-fence instructions}
-\item{``\titleref{alignas}" on page~\pageref{alignas} --- Safe C++11 attribute (with a keyword-like syntax) used to widen the alignment of a type or an object}
-\item{``\titleref{deprecated}" on page~\pageref{deprecated} — Safe C++14 standard attribute that discourages the use of an entity via compiler diagnostics}
+\item{\locationa, ``\titleref{the-noreturn-attribute}" on page~\pageref{the-noreturn-attribute} — Safe C++11 standard attribute for functions that never return control flow to the caller}
+\item{\locatione, ``\titleref{carriesdependency}" on page~\pageref{carriesdependency} — Unsafe C++11 standard attribute used to communicate release-consume dependency-chain information to the compiler to avoid unnecessary memory-fence instructions}
+\item{\locationa, ``\titleref{alignas}" on page~\pageref{alignas} --- Safe C++11 attribute (with a keyword-like syntax) used to widen the alignment of a type or an object}
+\item{\locationb, ``\titleref{deprecated}" on page~\pageref{deprecated} — Safe C++14 standard attribute that discourages the use of an entity via compiler diagnostics}
 \end{itemize}
 
 \subsection[Further Reading]{Further Reading}\label{attribute-further-reading}
-
-For more information on commonly supported function attributes, see
-section~6.33.1, ``Common Function Attributes," \textbf{{freesoftwarefdn20}}.
-
+\begin{itemize}
+\item{For more information on commonly supported function attributes, see
+section~6.33.1, ``Common Function Attributes," \textbf{{freesoftwarefdn20}}.}
+\end{itemize}
 

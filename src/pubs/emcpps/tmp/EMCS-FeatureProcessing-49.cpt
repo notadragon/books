@@ -1,8 +1,0 @@
-As of
-C++11, the definition of \texttt{NULL} has been expanded to --- in
-theory --- permit \texttt{nullptr} as a conforming definition; as of
-this writing, however, no major compiler vendors do so. Both GCC and
-Clang default to \texttt{0L} (\texttt{long}~\texttt{int}) while MSVC
-defaults to \texttt{0} (\texttt{int}). Such definitions are unlikely
-to change since existing code could cease to compile or (possibly
-  silently) present altered run-time behavior.^^E^^L 

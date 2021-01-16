@@ -1,5 +1,5 @@
 \newpage
-\section[Unicode String and Character Literals]{Unicode String and Character Literals}\label{unicode-string-and-character-literals}
+\section[Unicode Literals]{Unicode String Literals}\label{unicode-string-and-character-literals}
 
 C++11 introduces a portable mechanism for ensuring that a literal is
 encoded as UTF-8, UTF-16, or UTF-32.
@@ -13,10 +13,10 @@ string literal \texttt{"Hello"} will be encoded as the
 ASCII{\cprotect\footnote{In fact, C++ still fully supports platforms
 using EBCDIC, a rarely used alternative encoding to ASCII, as their primary text encoding.}} sequence
 \texttt{{0x48,} \texttt{0x65,} \texttt{0x6C,} \texttt{0x6C,} \texttt{0x6F}}
-or that the the character literal \texttt{'X'} has the value
+or that the character literal \texttt{'X'} has the value
 \texttt{0x58}.
 
-Table~\ref{unicodestring-table1} illustrates three new kinds of \emph{unicode}-compliant
+Table~\ref{unicodestring-table1} illustrates three new kinds of \emph{Unicode}-compliant
 \emph{string literals}, each delineating the precise encoding of each
 character.
 \begin{table}[h!]
@@ -34,7 +34,7 @@ UTF-32  & \texttt{U"Hello"} & \texttt{char32\_t}\\ \thickhline
 \end{center}
 \end{table}
 
-\noindent A unicode literal value is guaranteed to be encoded in UTF-8, UTF-16, or
+\noindent A Unicode literal value is guaranteed to be encoded in UTF-8, UTF-16, or
 UTF-32, for \texttt{u8}, \texttt{u}, and \texttt{U} literals,
 respectively:
 
@@ -69,7 +69,7 @@ The encoding guarantees provided by the Unicode literals can be useful,
 such as in communication with other programs or network/IPC protocols that
 expect character strings having a particular encoding.
 
-As an example, consider an instant-messaging program, in which both the
+As an example, consider an instant-messaging program in which both the
 client and the server expect messages to be encoded in UTF-8. As part of
 broadcasting a message to all clients, the server code uses UTF-8
 Unicode literals to guarantee that every client will receive a sequence

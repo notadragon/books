@@ -1,6 +1,0 @@
-Underspecifying alignment is not reported at
-all by GCC 10.1, using the
-\texttt{-std=c++11} \texttt{-Wall} \texttt{-Wextra} \mbox{\texttt{-Wpedantic}}
-flags. With the same set of options, Clang 10.0 produces a compilation
-failure. MSVC v19.24 will produce a warning and ignore any alignment
-  less than the minimum one.^^E^^L 

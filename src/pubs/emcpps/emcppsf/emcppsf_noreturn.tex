@@ -1,28 +1,36 @@
 \newpage
-\section[The {\tt [[noreturn]]} Attribute]{The {\SecCode [[noreturn]]} Attribute}\label{the-noreturn-attribute}
+\section[{\tt noreturn}]{The {\SecCode [[noreturn]]} Attribute}\label{the-noreturn-attribute}
 
 
 
-The \texttt{[[noreturn]]} attribute promises that the function to which
+The \lstinline![[noreturn]]! attribute promises that the function to which
 it pertains never \nobreak{returns}.
 
 \subsection[Description]{Description}\label{description}
 
-The presence of the standard \texttt{[[noreturn]]} attribute as part of
+The presence of the standard \lstinline![[noreturn]]! attribute as part of
 a function declaration informs both the compiler and human readers that
 such a function never returns control flow to the caller:
 
+%\begin{lstlisting}[language=C++]
+%[[noreturn]] void f()
+%{
+%    throw;
+%}
+%\end{lstlisting}
 \begin{lstlisting}[language=C++]
 [[noreturn]] void f()
 {
-throw;
+throw 1;
 }
 \end{lstlisting}
 
-\noindent The \texttt{[[noreturn]]} attribute is not part of a function's type
-and is also, therefore, not part of the type of a function pointer. Applying \texttt{[[noreturn]]} to a function
+
+\noindent The \lstinline![[noreturn]]! attribute is not part of a function's type
+and is also, therefore, not part of the type of a function pointer. Applying \lstinline![[noreturn]]! to a function
 pointer is not an error, though doing so has no actual effect in standard C++; see
-{\it\titleref{noreturn-potential-pitfalls}: \titleref{misuse-of-[[noreturn]]-on-function-pointers}} on page~\pageref{misuse-of-[[noreturn]]-on-function-pointers}. Use on a pointer might have
+%{\it\titleref{noreturn-potential-pitfalls}: \titleref{misuse-of-[[noreturn]]-on-function-pointers}} on page~\pageref{misuse-of-[[noreturn]]-on-function-pointers}
+\intraref{noreturn-potential-pitfalls}{misuse-of-[[noreturn]]-on-function-pointers}. Use on a pointer might have
 benefits for external tooling, code expressiveness, and future language
 evolution:
 
@@ -38,8 +46,9 @@ void (*fp [[noreturn]])() = f;
 Consider the task of creating an assertion handler that, when invoked,
 always aborts execution of the program after printing some useful
 information about the source of the assertion. Since this specific
-handler will never return, it is a viable candidate for
-\texttt{[[noreturn]]}:
+handler will never return because it unconditionally invokes a \linebreak[4]%%%%%
+\mbox{\lstinline![[noreturn]]std::abort!} function, it is a viable candidate for
+\lstinline![[noreturn]]!:
 
 \begin{lstlisting}[language=C++]
 [[noreturn]] void abortingAssertionHandler(const char* filename, int line)
@@ -52,12 +61,22 @@ std::abort();
 
 \noindent The additional information provided by the attribute will allow a
 compiler to warn if it determines that a code path in the
-function would allow it to return:
+function would allow it to return normally:
 
+%\begin{lstlisting}[language=C++]
+%[[noreturn]] void abortingAssertionHandler(const char* filename, int line)
+%{
+%    if (filename)  // just being safe, but see "Further Reading," below
+%    {
+%        LOG_ERROR << "Assertion fired at " << filename << ':' << line;
+%        std::abort();
+%    }
+%}  // compile-time warning made possible
+%\end{lstlisting}
 \begin{lstlisting}[language=C++]
 [[noreturn]] void abortingAssertionHandler(const char* filename, int line)
 {
-if (filename)  // just being safe, but see "Further Reading," below
+if (filename)
 {
 LOG_ERROR << "Assertion fired at " << filename << ':' << line;
 std::abort();
@@ -66,8 +85,9 @@ std::abort();
 \end{lstlisting}
 
 
+
 \noindent This information can also be used to warn in case unreachable code is
-present after\linebreak[4] \texttt{abortingAssertionHandler} is invoked:
+present after\linebreak[4] \lstinline!abortingAssertionHandler! is invoked:
 
 \begin{lstlisting}[language=C++]
 int main()
@@ -89,17 +109,31 @@ the function is not visible in the current translation unit.
 If the compiler knows that it is going to invoke a function
 that is guaranteed not to return, the compiler is within its rights to optimize
 that function by removing what it can now determine to be dead code. As
-an example, consider a utility component, \texttt{util}, that defines a
-function, \texttt{throwBadAlloc}, that is used to \textbf{insulate} the
-throwing of an \texttt{std::bad\_alloc} exception in what would
+an example, consider a utility component, \lstinline!util!, that defines a
+function, \lstinline!throwBadAlloc!, that is used to \romeogloss{insulate} the
+throwing of an \lstinline!std::bad\_alloc! exception in what would
 otherwise be template code fully exposed to clients:
 
+%\begin{lstlisting}[language=C++]
+%// util.h:
+%[[noreturn]] void throwBadAlloc();
+%
+%// util.cpp:
+%#include <util.h>  // (ù{\codeincomments{[[noreturn]] void throwBadAlloc()}}ù)
+%
+%void throwBadAlloc()  // This redeclaration is also (ù{\codeincomments{[[noreturn]]}}ù).
+%{
+%    throw std::bad_alloc();
+%}
+%\end{lstlisting}
 \begin{lstlisting}[language=C++]
 // util.h:
 [[noreturn]] void throwBadAlloc();
 
 // util.cpp:
 #include <util.h>  // (ù{\codeincomments{[[noreturn]] void throwBadAlloc()}}ù)
+
+#include <new>    // (ù{\codeincomments{std::bad\_alloc}}ù)
 
 void throwBadAlloc()  // This redeclaration is also (ù{\codeincomments{[[noreturn]]}}ù).
 {
@@ -108,10 +142,10 @@ throw std::bad_alloc();
 \end{lstlisting}
 
 
-\noindent Irrespective of whether the client compiler warns, the compiler is within its
+\noindent The compiler is within its
 rights to elide code that is rendered unreachable by the call to the
-\texttt{throwBadAlloc} function due to the function being decorated with the
-\texttt{[[noreturn]]} attribute on its declaration:
+\lstinline!throwBadAlloc! function due to the function being decorated with the
+\lstinline![[noreturn]]! attribute on its declaration:
 
 \begin{lstlisting}[language=C++]
 #include <util.h>  // [[noreturn]] void throwBadAlloc()
@@ -120,29 +154,29 @@ void client()
 {
 // ...
 throwBadAlloc();
-// ... (Everything below here can be optimized away.)
+// ... (Everything below this line can be optimized away.)
 }
 \end{lstlisting}
 
 
-\noindent Notice that even though \texttt{[[noreturn]]} appeared only on the first
-declaration (in the \texttt{util.h} header), the \texttt{[[noreturn]]}
-attribute carries over to the redeclaration used in the\linebreak[4] \texttt{throwBadAlloc}
+\noindent Notice that even though \lstinline![[noreturn]]! appeared only on the first
+declaration (in the \lstinline!util.h! header), the \lstinline![[noreturn]]!
+attribute carries over to the redeclaration used in the\linebreak[4] \lstinline!throwBadAlloc!
 function's definition because the header was included in the
-corresponding \texttt{.cpp} file.
+corresponding \lstinline!.cpp! file.
 
 \subsection[Potential Pitfalls]{Potential Pitfalls}\label{noreturn-potential-pitfalls}
 
-\subsubsection[\tt{[[noreturn]]} can inadvertently break an otherwise working program]{{\ParaCode [[noreturn]]} can inadvertently break an otherwise working program}\label{[[noreturn]]-can-inadvertently-break-an-otherwise-working-program}
+\subsubsection[\tt{[[noreturn]]} can inadvertently break an otherwise working program]{{\SubsubsecCode [[noreturn]]} can inadvertently break an otherwise working program}\label{[[noreturn]]-can-inadvertently-break-an-otherwise-working-program}
 
-Unlike many attributes, use of \texttt{[[noreturn]]} \emph{can} alter
+Unlike many attributes, use of \lstinline![[noreturn]]! \emph{can} alter
 the semantics of a well-formed program, potentially introducing a
 runtime defect and/or making the program ill-formed. If a function that
-can potentially return is decorated with \texttt{[[noreturn]]} and then,
+can potentially return is decorated with \lstinline![[noreturn]]! and then,
 in the course of executing a program, it ever does return, that behavior
-is \textbf{undefined}.
+is \romeogloss{undefined}.
 
-Consider a \texttt{printAndExit} function whose role is to print a fatal
+Consider a \lstinline!printAndExit! function whose role is to print a fatal
 error message before aborting the program:
 
 \begin{lstlisting}[language=C++]
@@ -155,28 +189,31 @@ assert(false);
 
 \noindent The programmer chose to (sloppily) implement termination by using an
 assertion, which would not be incorporated into a program compiled with
-the preprocessor definition \texttt{NDEBUG} active, and thus
-\texttt{printAndExit} would (in that build mode) return normally. If the
+the preprocessor definition \lstinline!NDEBUG! active, and thus
+\lstinline!printAndExit! would return normally in such a build mode. If the
 compiler of the client is informed that function will not return, the compiler is
 free to optimize accordingly. If the function then does return, any
 number of hard-to-diagnose defects (e.g., due to incorrectly elided
 code) might materialize as a consequence of the ensuing
-\textbf{undefined behavior}. Furthermore, within a program, if a function is declared \texttt{[[noreturn]]} in some
-translation units but not in others, that program is (inherently)
-\textbf{ill-formed, no diagnostic required}.
+\romeogloss{undefined behavior}. Furthermore, if a function is declared \lstinline![[noreturn]]! in some
+translation units within a program but not in others, that program is
+\romeogloss{ill-formed, no diagnostic required}.
 
-\subsubsection[Misuse of {\tt[[noreturn]]} on function pointers]{Misuse of {\ParaCode [[noreturn]]} on function pointers}\label{misuse-of-[[noreturn]]-on-function-pointers}
+\subsubsection[Misuse of {\tt[[noreturn]]} on function pointers]{Misuse of {\SubsubsecCode [[noreturn]]} on function pointers}\label{misuse-of-[[noreturn]]-on-function-pointers}
 
-Although the \texttt{[[noreturn]]} attribute is permitted to appertain
-to a function pointer (syntactically) for the benefit of external tools,
-it has no effect in standard C++; fortunately, most compilers will warn:
+Although the \lstinline![[noreturn]]! attribute is permitted to syntactically appertain
+to a function pointer for the benefit of external tools,
+it has no effect in standard C++; fortunately, most compilers will issue a warning:
 
+%\begin{lstlisting}[language=C++]
+%void (*fp [[noreturn]])();  // not supported by standard C++ (will likely warn)
+%\end{lstlisting}
 \begin{lstlisting}[language=C++]
-void (*fp [[noreturn]])();  // not supported by standard C++ (will likely warn)
+void (*fp [[noreturn]])();  // no effect in standard C++ (will likely warn)
 \end{lstlisting}
 
-\noindent What's more, assigning (the address of) a function
-that is not decorated with \texttt{[[noreturn]]} to an otherwise
+\noindent What's more, assigning the address of a function
+that is not decorated with \lstinline![[noreturn]]! to an otherwise
 suitable function pointer that is so decorated is perfectly fine:
 
 \begin{lstlisting}[language=C++]
@@ -184,21 +221,34 @@ void f() { return; };  // function that always returns
 
 void g()
 {
-fp = f;  // "OK" -- that (ù{\codeincomments{fp}}ù) is (ù{\codeincomments{[[noreturn]]}}ù) is silently ignored
+fp = f;  // (ù{\codeincomments{[[noreturn]]}}ù) on (ù{\codeincomments{fp}}ù) is silently ignored.
 }
 \end{lstlisting}
+% code line changed from
+% fp = f;  // "OK" -- that (ù{\codeincomments{fp}}ù) is (ù{\codeincomments{[[noreturn]]}}ù) is silently ignored
+% to
+% fp = f;  // (ù{\codeincomments{[[noreturn]]}}ù) on (ù{\codeincomments{fp}}ù) is silently ignored.
+% per JD Garcia and Slava
 
-\noindent Any reliance on \texttt{[[noreturn]]} to have any effect in standard C++
+\noindent Any reliance on \lstinline![[noreturn]]! to have any effect in standard C++
 when applied to other than a function's declaration is misguided.
 
 \subsection[Annoyances]{Annoyances}\label{annoyances}
 
 None so far
 
+% per email, Nina would omit.
+%The contradictory declaration:
+%\begin{lstlisting}[language=C++]
+%[[noreturn]] int f();
+%\end{lstlisting}
+%compiles without error or even a warning.
+
 \subsection[See Also]{See Also}\label{see-also}
 
 \begin{itemize}
-\item{Section~\ref{attributes}, ``\titleref{attributes}" — To learn more about allowed attribute placement in general}
+\item{%``\titleref{attributes}" on page~\pageref{attributes} —
+\seealsoref{attributes}{\locationa}To learn more about allowed attribute placement in general}
 \end{itemize}
 
 \subsection[Further Reading]{Further Reading}\label{further-reading}

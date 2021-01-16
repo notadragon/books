@@ -1,5 +1,5 @@
 \newpage
-\section[Explicit Conversions]{Explicit Conversion Operators\sectionmark{Explicit Conversions}}\label{explicit-conversion-operators}\sectionmark{Explicit Conversions}
+\section[{\tt explicit} Operators]{Explicit Conversion Operators}\label{explicit-conversion-operators}
 
 
 Ensure that a (user-defined) type is convertible to another type only in
@@ -286,7 +286,7 @@ behavior.
 \subsubsection[Sometimes implicit conversion is indicated]{Sometimes implicit conversion is indicated}\label{sometimes-implicit-conversion-is-indicated}
 
 Implicit conversions to and from common arithmetic types, especially
-\texttt{int} are generally ill advised, given the likelihood of
+\texttt{int}, are generally ill advised given the likelihood of
 accidental misuse. However, sometimes \emph{implicit}
 conversion is exactly what is needed. Such cases occur frequently with
 wrapper and proxy types that might need to interoperate with a large
@@ -308,7 +308,7 @@ types intended to be dropped in and used in existing codebases. If, for
 example, we wanted to provide a proxy for a writeable
 \texttt{std::string} that, say, also logged, we might want an implicit
 conversion to a \texttt{std::string\&\&} (perhaps using
-{\intraref{{reference qualifiers}}}). In such cases, making the
+\featureref{\locatione}{reference qualifiers}). In such cases, making the
 conversion explicit would entirely defeat the purpose of the proxy,
 which is to achieve new functionality with minimal effect on existing
 client code.
@@ -316,7 +316,7 @@ client code.
 \subsection[Sometimes a named function is better]{Sometimes a named function is better}\label{sometimes-a-named-function-is-better}
 
 Other kinds of overuses of even \emph{explicit} conversion
-operators exist. Like any user defined operator, when the operation being
+operators exist. Like any user-defined operator, when the operation being
 implemented is not somehow either canonical or ubiquitously idiomatic
 for that operator, expressing that operation by a
 named (i.e., non-operator) function is often better. Recall from

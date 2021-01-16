@@ -1,18 +1,22 @@
 \newpage
-\section[Binary Literals]{Binary Literals}\label{binary-literals}
-
+\section[Binary Literals]{Binary Literals: The {\SecCode 0b} Prefix}\label{binary-literals}
+%% copyedits in and proofed
 
 \textit{Binary literals} are \textbf{integer literals}\glossary{integer literals} representing their values in base 2.
 
-\subsection[Description]{Description}\label{description}
+\subsection[Description]{Description}\label{description-binary}
 
-A \emph{binary literal} (e.g., \texttt{0b1110}) --- much like a
-hexadecimal literal (e.g., \texttt{0xE}) or an octal literal (e.g.,
-\texttt{016}) --- is a kind of \emph{integer literal} (in this case,
-having the \emph{decimal} value \texttt{14}). A binary literal consists
-of a \texttt{0b} (or \texttt{0B}) prefix followed by a nonempty
-sequence of binary digits (\texttt{0} or \texttt{1}){\cprotect\footnote{Prior to being introduced in C++14, GCC supported binary literals (with the same syntax as the standard feature) as a nonconforming extension since version 4.3 (released between March 2008 and
-May 2010); for more details, see [CITATION TBD].}}:
+A binary literal is an integral value represented in code in a binary numeral system. A binary literal consists of a \lstinline!0b! or \lstinline!0B! prefix followed by a nonempty sequence of binary digits, namely, \lstinline!0! and \lstinline!1!{\cprotect\footnote{Prior to being introduced in C++14, GCC supported binary literals (with the same syntax as the standard feature) as a nonconforming extension since version~4.3.0, released in March 2008;
+%4.3 (released between March 2008 and May 2010);
+for more details, see https://gcc.gnu.org/gcc-4.3/.}}:
+
+%A \emph{binary literal} (e.g., \texttt{0b1110}) --- much like a
+%hexadecimal literal (e.g., \texttt{0xE}) or an octal literal (e.g.,
+%\texttt{016}) --- is a kind of \emph{integer literal} (in this case,
+%having the \emph{decimal} value \texttt{14}). A binary literal consists
+%of a \texttt{0b} (or \texttt{0B}) prefix followed by a nonempty
+%sequence of binary digits (\texttt{0} or \texttt{1})
+
 
 \begin{lstlisting}[language=C++]
 int i = 0b11110000;  // equivalent to (ù{\codeincomments{240}}ù), (ù{\codeincomments{0360}}ù), or (ù{\codeincomments{0xF0}}ù)
@@ -20,7 +24,7 @@ int j = 0B11110000;  // same value as above
 \end{lstlisting}
 
 
-\noindent The first digit after the \texttt{0b} prefix is the most significant
+\noindent The first digit after the \lstinline!0b! prefix is the most significant
 one:
 
 \begin{lstlisting}[language=C++]
@@ -48,21 +52,22 @@ static_assert(0b10000000 == 128, "");
 \end{lstlisting}
 
 
-\noindent The type of a binary literal{\cprotect\footnote{Its \emph{value
-category} is \emph{prvalue} like every other integer literal.}} is by
-default a (non-negative) \texttt{int} unless that value cannot fit in an
-\texttt{int}. In that case, its type is the first type in the sequence
-\{\texttt{unsigned}~\texttt{int}, \texttt{long},
-\texttt{unsigned}~\texttt{long}, \texttt{long}~\texttt{long},
-\texttt{unsigned}~\texttt{long}~\texttt{long}\}{\cprotect\footnote{This
-same type list applies for both \texttt{octal} and \texttt{hex}
+\noindent The type of a binary literal
+%{\cprotect\footnote{Its \emph{value category} is \emph{prvalue} like every other integer literal.}}
+is by
+default an \lstinline!int! unless that value cannot fit in an
+\lstinline!int!. In that case, its type is the first type in the sequence
+\{\lstinline!unsigned!~\lstinline!int!, %\pagebreak%%%%%
+\lstinline!long!,
+\lstinline!unsigned!~\lstinline!long!, \lstinline!long!~\lstinline!long!,
+\lstinline!unsigned!~\lstinline!long!~\lstinline!long!\} in which it will fit. This
+same type list applies for both \lstinline!octal! and \lstinline!hex!
 literals but not for decimal literals, which, if initially
-\texttt{signed}, skip over any \texttt{unsigned} types, and vice versa
-(see the \textit{Description} section).}} in which it will fit. If neither of those is applicable, then the program is
-\emph{ill-formed}{\cprotect\footnote{Purely for convenience of
-exposition, we have employed the C++11 \texttt{auto} feature to
-conveniently capture the type implied by the literal itself; for more
-information, see Section \ref{auto-feature}, ``\titleref{auto-feature}."}}:
+\lstinline!signed!, skip over any \lstinline!unsigned! types, and vice versa;
+see \intrarefsimple{description-binary}.
+If neither of those is applicable, the compiler may use implementation-defined extended integer types such as \lstinline!__int128! to represent the literal if it fits --- otherwise the program is ill-formed:
+
+% If neither of those is applicable, then the program is \emph{ill-formed}
 
 \begin{lstlisting}[language=C++]
 // example platform 1:
@@ -85,10 +90,12 @@ auto u128 = 0b1000...[120 0-bits]...0000;  // (ù{\codeincomments{u128}}ù) is (
 \end{lstlisting}
 
 
-\noindent Separately, the precise initial type of a binary literal, like any other
+\noindent (Purely for convenience of
+exposition, we have employed the C++11 \lstinline!auto! feature to
+conveniently capture the type implied by the literal itself; see \featureref{\locationc}{auto-feature}.) Separately, the precise initial type of a binary literal, like any other
 literal, can be controlled explicitly using the common integer-literal
-suffixes \{\texttt{u}, \texttt{l}, \texttt{ul}, \texttt{ll},
-\texttt{ull}\} in either lower- or uppercase:
+suffixes \{\lstinline!u!, \lstinline!l!, \lstinline!ul!, \lstinline!ll!,
+\lstinline!ull!\} in either lower- or uppercase:
 
 \begin{lstlisting}[language=C++]
 auto i   = 0b101;        // type: (ù{\codeincomments{int}}ù);                 value: 5
@@ -100,28 +107,39 @@ auto ull = 0b110101ULL;  // type: (ù{\codeincomments{unsigned long long}}ù);  
 \end{lstlisting}
 
 
-\noindent Finally, note that affixing a minus sign (\texttt{-}) to a binary
-literal (e.g., \texttt{-b1010}) --- just like any other integer literal
-(e.g., \texttt{-10}, \texttt{-012}, or \texttt{-0xa}) --- is parsed as a
+\noindent Finally, note that affixing a minus sign to a binary
+literal (e.g., \lstinline!-b1010!) --- just like any other integer literal
+(e.g., \lstinline!-10!, \lstinline!-012!, or \lstinline!-0xa!) --- is parsed as a
 non-negative value first, after which a unary minus is applied:
 
+%\begin{lstlisting}[language=C++]
+%static_assert(sizeof(int) == 4, "");  // true on virtually all machines today
+%static_assert(-0b1010 == -10, "");    // as if: (ù{\codeincomments{0 - 0b1010 == 0 - 10}}ù)
+%static_assert(0x7fffffff != -0x7fffffff, "");  // Both values are (ù{\codeincomments{signed int}}ù).
+%static_assert(0x80000000 == -0x80000000, "");  // Both values are (ù{\codeincomments{unsigned int}}ù).
+%\end{lstlisting}
 \begin{lstlisting}[language=C++]
 static_assert(sizeof(int) == 4, "");  // true on virtually all machines today
 static_assert(-0b1010 == -10, "");    // as if: (ù{\codeincomments{0 - 0b1010 == 0 - 10}}ù)
-static_assert(0x7fffffff != -0x7fffffff, "");  // Both values are (ù{\codeincomments{signed int}}ù).
-static_assert(0x80000000 == -0x80000000, "");  // Both values are (ù{\codeincomments{unsigned int}}ù).
-\end{lstlisting}
+static_assert( 0b0111...[ 24 1-bits]...1111       //   signed
+!= -0b0111...[ 24 1-bits]...1111, ""); //   signed
 
+static_assert( 0b1000...[ 24 0-bits]...0000       // unsigned
+!= -0b1000...[ 24 0-bits]...0000, ""); // unsigned\end{lstlisting}
+
+
+
+%\newpage%%%%%
 
 \subsection[Use Cases]{Use Cases}\label{use-cases}
 
 \subsubsection[Bit masking and bitwise operations]{Bit masking and bitwise operations}\label{bit-masking-and-bitwise-operations}
 
-Prior to the introduction of binary literals, hexadecimal (and before
-that octal) literals were commonly used to represent bit masks (or
-specific bit constants) in source code. As an example, consider a
+Prior to the introduction of binary literals, hexadecimal and octal literals were commonly used to represent bit masks or
+specific bit constants in source code.
+As an example, consider a
 function that returns the least significant four bits of a given
-\texttt{unsigned}~\texttt{int} value:
+\lstinline!unsigned!~\lstinline!int! value:
 
 \begin{lstlisting}[language=C++]
 unsigned int lastFourBits(unsigned int value)
@@ -131,25 +149,58 @@ return value & 0xFu;
 \end{lstlisting}
 
 
-\noindent The correctness of the ``bitwise and'' operation above might not be
+\noindent The correctness of the \emph{bitwise and} operation above might not be
 immediately obvious to a developer inexperienced with
-hexadecimal literals. In contrast, use of a binary literal more directly
+hexadecimal literals. In contrast, using a binary literal more directly
 states our intent to mask all but the four least-significant bits of the
 input:
 
+%\begin{lstlisting}[language=C++]
+%unsigned int lastFourBits(unsigned int value)
+%{
+%    return value & 0b1111u;  // The (ù{\codeincomments{u}}ù) literal suffix here is entirely optional.
+%}
+%\end{lstlisting}
 \begin{lstlisting}[language=C++]
 unsigned int lastFourBits(unsigned int value)
 {
-return value & 0b1111u;  // The (ù{\codeincomments{u}}ù) literal suffix here is entirely optional.
+return value & 0b1111u;
 }
 \end{lstlisting}
+
 
 
 Similarly, other bitwise operations, such as setting or getting
 individual bits, might benefit from the use of binary literals. For
 instance, consider a set of flags used to represent the state of an
 avatar in a game:
+%\enlargethispage{2ex}
 
+%\begin{lstlisting}[language=C++]
+%struct AvatarStateFlags
+%{
+%    enum Enum
+%    {
+%        e_ON_GROUND    = 0b0001,
+%        e_INVULNERABLE = 0b0010,
+%        e_INVISIBLE    = 0b0100,
+%        e_SWIMMING     = 0b1000,
+%    };
+%};
+%
+%class Avatar
+%{
+%    unsigned char d_state;  // power set of possible state flags
+%
+%public:
+%    bool isOnGround() const
+%    {
+%        return d_flags & AvatarStateFlags::e_ON_GROUND;
+%    }
+%
+%    // ...
+%};
+%\end{lstlisting}
 \begin{lstlisting}[language=C++]
 struct AvatarStateFlags
 {
@@ -164,22 +215,25 @@ e_SWIMMING     = 0b1000,
 
 class Avatar
 {
-unsigned char d_state;  // power set of possible state flags
+unsigned char d_state;
 
 public:
 bool isOnGround() const
 {
-return d_flags & AvatarStateFlags::e_ON_GROUND;
+return d_state & AvatarStateFlags::e_ON_GROUND;
 }
 
 // ...
 };
 \end{lstlisting}
 
+\noindent Note that the choice of using a nested classic \lstinline!enum! was deliberate;
+see\linebreak[4] \featureref{\locationc}{enumclass}.
+
 
 \subsubsection[Replicating constant binary data]{Replicating constant binary data}\label{replicating-constant-binary-data}
 
-Especially in the context of \emph{embedded development} or emulation,
+Especially in the context of \romeogloss{embedded development} or emulation,
 a programmer will commonly write code that needs to deal
 with specific ``magic'' constants (e.g., provided as part of the
 specification of a CPU or virtual machine) that must be incorporated in
@@ -190,12 +244,34 @@ easily understandable one.
 As an example, consider a function decoding instructions of a virtual
 machine whose opcodes are specified in binary format:
 
+%\begin{lstlisting}[language=C++]
+%#include <cstdint>  // (ù{\codeincomments{std::uint8\_t}}ù)
+%
+%void VirtualMachine::decodeInstruction(std::uint8_t instruction)
+%{
+%    switch(instruction)
+%    {
+%        case 0b00000000u:  // no-op
+%            break;
+%
+%        case 0b00000001u:  // (ù{\codeincomments{add(register0, register1)}}ù)
+%            d_register0 += d_register1;
+%            break;
+%
+%        case 0b00000010u:  // (ù{\codeincomments{jmp(register0)}}ù)
+%            jumpTo(d_register0);
+%            break;
+%
+%        // ...
+%    }
+%}
+%\end{lstlisting}
 \begin{lstlisting}[language=C++]
 #include <cstdint>  // (ù{\codeincomments{std::uint8\_t}}ù)
 
 void VirtualMachine::decodeInstruction(std::uint8_t instruction)
 {
-switch(instruction)
+switch (instruction)
 {
 case 0b00000000u:  // no-op
 break;
@@ -213,14 +289,13 @@ break;
 }
 \end{lstlisting}
 
-
-\noindent Replicating the same binary constant specified as part of the CPU's (or
-virtual machine's) manual or documentation directly in the source avoids the need to
+\noindent Replicating the same binary constant specified as part of the CPU's or
+virtual machine's manual or documentation directly in the source avoids the need to
 mentally convert such constant data to and from, say, a hexadecimal
 number.
 
 Binary literals are also suitable for capturing bitmaps. For instance,
-consider a bitmap representing the uppercase letter ``C'':
+consider a bitmap representing the uppercase letter \textit{C}\/:
 
 \begin{lstlisting}[language=C++]
 const unsigned char letterBitmap_C[] =
@@ -236,25 +311,28 @@ const unsigned char letterBitmap_C[] =
 \end{lstlisting}
 
 
-\noindent Use of \emph{binary} literals makes the shape of the image that the
+\noindent Using \emph{binary} literals makes the shape of the image that the
 bitmap represents apparent directly in the source code.
 
 \subsection[Potential Pitfalls]{Potential Pitfalls}\label{potential-pitfalls}
 
-None so far
+\hspace*{\fill}
 
 \subsection[Annoyances]{Annoyances}\label{annoyances}
 
-None so far
+\hspace*{\fill}
 
 \subsection[See Also]{See Also}\label{see-also}
 
 \begin{itemize}
-\item{Section \ref{digitseparator}, ``\titleref{digitseparator}" — Safe C++14 feature that allows a developer to (visually) group together digits in a numerical literal to help readability. Often used in conjunction with binary literals.}
+\item{%``\titleref{digitseparator}" on page~\pageref{digitseparator}{\seealsodelim}
+\seealsoref{digitseparator}{\locationb}Long binary literals are made much more readable by grouping digits visually.}
 \end{itemize}
 
 \subsection[Further Reading]{Further Reading}\label{further-reading}
 
-None so far
+\begin{itemize}
+\item{\cite{informit}}
+\end{itemize}
 
 
