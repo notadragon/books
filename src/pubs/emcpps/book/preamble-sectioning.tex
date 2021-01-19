@@ -1,0 +1,20 @@
+\newcommand\subsubemdash{\sfbsubsubRomeo\char"2014} %% for whatever reason, emdashes are not displaying properly in subsubsection heads. This creates a direct command to create them. 
+
+\newcommand\romeovalue[1]{\textit{#1}}  % for normal text usage
+\newcommand\romeovalueinside{\itshape} % for inside other environments, like table cells
+\newcommand\romeogloss[1]{\textbf{#1}}
+\newcommand\intraref[2]{\textit{\titleref{#1}~\intrarefdelim~\titleref{#2}} on page~\pageref{#2}}
+\newcommand\intrarefsimple[1]{\textit{\titleref{#1}} on page~\pageref{#1}}
+\newcommand\seealsoref[2]{``\titleref{#1}"~({#2}, p.~\pageref{#1})~\seealsodelim~}
+\newcommand\featureref[2]{{#1}.``\titleref{#2}" on page~\pageref{#2}}
+\newcommand{\intrarefdelim}{---}
+\newcommand{\seealsodelim}{~$\blacklozenge$~}
+
+
+% Because the cppxx in the RH takes the moniker of "section" per the Au's requirement even though the Au requires that it not exist on the page and because each "feature" is a section and is unnumbered and because the Au decided when the design was almost complete that a section xref was needed for each feature, these manual commands will take the place of a working \ref for each cppxx fake section. Readdress this for the second edition and come up with a better solution; that will probably involve redefining the section command, so cppxx can be an actual section, or creating a new section-like environment for cppxx.   
+\newcommand{\locationa}{Section~1.1}
+\newcommand{\locationb}{Section~1.2}
+\newcommand{\locationc}{Section~2.1}
+\newcommand{\locationd}{Section~2.2}
+\newcommand{\locatione}{Section~3.1}
+\newcommand{\locationf}{Section~3.2}

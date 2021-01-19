@@ -19,12 +19,12 @@ local state (variables) or \textbf{imperative} language constructs
 \begin{lstlisting}[language=C++]
 constexpr int fact11(int x)
 {
-static_assert(x >= 0, "");
-// Error in C++11/14: (ù{\codeincomments{x}}ù) is not a constant expression.
+    static_assert(x >= 0, "");
+        // Error in C++11/14: (ù{\codeincomments{x}}ù) is not a constant expression.
 
-static_assert(sizeof(x) >= 4, "");  // OK in C++11/14
+    static_assert(sizeof(x) >= 4, "");  // OK in C++11/14
 
-return x < 2 ? 1 : x * fact11(x - 1);  // OK in C++11/14
+    return x < 2 ? 1 : x * fact11(x - 1);  // OK in C++11/14
 }
 \end{lstlisting}
 
@@ -55,13 +55,13 @@ operations:
 \begin{lstlisting}[language=C++]
 constexpr int fact14(int x)
 {
-if (x <= 2)        // error in C++11; OK in C++14
-{
-return 1;
-}
+    if (x <= 2)        // error in C++11; OK in C++14
+    {
+        return 1;
+    }
 
-int temp = x - 1;  // error in C++11; OK in C++14
-return x * fact14(temp);
+    int temp = x - 1;  // error in C++11; OK in C++14
+    return x * fact14(temp);
 }
 \end{lstlisting}
 
@@ -70,7 +70,7 @@ of dynamic allocation is not permitted, thereby preventing the use of
 common standard container types, such as \texttt{std::string} and
 \texttt{std::vector}{\cprotect\footnote{In C++20, even more
 restrictions were lifted, allowing, for example, some limited forms of
-dynamic allocation, \texttt{try} blocks, and uninitialized variables.}}:
+  dynamic allocation, \texttt{try} blocks, and uninitialized variables.}}:
 \begin{enumerate}
 \item{\texttt{asm} declarations}
 \item{\texttt{goto} statements}
@@ -92,15 +92,15 @@ form\footnote{Note that the degree to which these remaining forbidden features a
 template <typename T>
 constexpr void f()
 try {                  // Error: (ù{\codeincomments{try}}ù) outside body isn't allowed (until C++20).
-std::ifstream is;  // Error: objects of *non-literal* types aren't allowed.
-int x;             // error: uninitialized vars. disallowed (until C++20)
-static int y = 0;  // Error: (ù{\codeincomments{static}}ù) variables are disallowed.
-thread_local T t;  // Error: (ù{\codeincomments{thread\_local}}ù) variables are disallowed.
-try{}catch(...){}  // error: (ù{\codeincomments{try}}ù)/(ù{\codeincomments{catch}}ù) disallowed (until C++20)
-if (x) goto here;  // Error: (ù{\codeincomments{goto}}ù) statements are disallowed.
-[]{};              // Error: lambda expressions are disallowed (until C++17).
+    std::ifstream is;  // Error: objects of *non-literal* types aren't allowed.
+    int x;             // error: uninitialized vars. disallowed (until C++20)
+    static int y = 0;  // Error: (ù{\codeincomments{static}}ù) variables are disallowed.
+    thread_local T t;  // Error: (ù{\codeincomments{thread\_local}}ù) variables are disallowed.
+    try{}catch(...){}  // error: (ù{\codeincomments{try}}ù)/(ù{\codeincomments{catch}}ù) disallowed (until C++20)
+    if (x) goto here;  // Error: (ù{\codeincomments{goto}}ù) statements are disallowed.
+    []{};              // Error: lambda expressions are disallowed (until C++17).
 here: ;                // Error: labels (except (ù{\codeincomments{case}}ù)/(ù{\codeincomments{default}}ù)) aren't allowed.
-asm("mov %r0");    // Error: (ù{\codeincomments{asm}}ù) directives are disallowed.
+    asm("mov %r0");    // Error: (ù{\codeincomments{asm}}ù) directives are disallowed.
 } catch(...) { }       // error: (ù{\codeincomments{try}}ù) outside body disallowed (until C++20)
 \end{lstlisting}
 
@@ -126,10 +126,10 @@ discussion on these specific topics, see ``\titleref{long-long}" on page~\pagere
 \begin{lstlisting}[language=C++]
 constexpr long long fib11(long long x)
 {
-return
-x == 0 ? 0
-: (x == 1 || x == 2) ? 1
-: fib11(x - 1) + fib11(x - 2);
+    return
+        x == 0 ? 0
+               : (x == 1 || x == 2) ? 1
+                                    : fib11(x - 1) + fib11(x - 2);
 }
 \end{lstlisting}
 
@@ -141,8 +141,8 @@ undesirable properties.
 
 \begin{lstlisting}[language=C++, basicstyle={\ttfamily\footnotesize}]
 error: static_assert expression is not an integral constant expression
-static_assert(fib11(28) == 317811, "");
-^~~~~~~~~~~~~~~~~~~
+    static_assert(fib11(28) == 317811, "");
+                  ^~~~~~~~~~~~~~~~~~~
 
 note: constexpr evaluation hit maximum step limit; possible infinite loop?
 \end{lstlisting}
@@ -151,7 +151,7 @@ note: constexpr evaluation hit maximum step limit; possible infinite loop?
 
 \begin{lstlisting}[language=C++, basicstyle={\ttfamily\footnotesize}]
 error: 'constexpr' evaluation operation count exceeds limit of 33554432
-(use '-fconstexpr-ops-limit=' to increase the limit)
+       (use '-fconstexpr-ops-limit=' to increase the limit)
 \end{lstlisting}
 
 \noindent Clang 10.x fails to compile any attempt at constant evaluating \texttt{fib(28)}, with the following diagnostic message:
@@ -172,19 +172,19 @@ issues discussed above:
 \begin{lstlisting}[language=C++]
 constexpr long long fib14(long long x)
 {
-if (x == 0) { return 0; }
+    if (x == 0) { return 0; }
 
-long long a = 0;
-long long b = 1;
+    long long a = 0;
+    long long b = 1;
 
-for (long long i = 2; i <= x; ++i)
-{
-long long temp = a + b;
-a = b;
-b = temp;
-}
+    for (long long i = 2; i <= x; ++i)
+    {
+        long long temp = a + b;
+        a = b;
+        b = temp;
+    }
 
-return b;
+    return b;
 }
 \end{lstlisting}
 
@@ -192,10 +192,10 @@ return b;
 implementation (above) is manageable{\cprotect\footnote{Both GCC 10.x
 and Clang 10.x evaluated \texttt{fib14(46)} 1836311903 correctly in
 under 20ms on a machine running Windows 10 x64 and equipped with a
-Intel Core i7-9700k CPU.}}; of course, far more
+  Intel Core i7-9700k CPU.}}; of course, far more
 computationally efficient (e.g., closed form{\cprotect\footnote{E.g.,
 see
-http://mathonline.wikidot.com/a-closed-form-of-the-fibonacci-sequence.}})
+  http://mathonline.wikidot.com/a-closed-form-of-the-fibonacci-sequence.}})
 solutions to this classic exercise are available.
 
 \subsubsection[Optimized metaprogramming algorithms]{Optimized metaprogramming algorithms}\label{optimized-metaprogramming-algorithms}
@@ -210,33 +210,33 @@ Consider, as the simplest of examples, the task of counting the number
 of occurrences of a given type inside a \textbf{type list} represented
 here as an empty variadic template (see ``\titleref{variadictemplate}" on page~\pageref{variadictemplate}) that can be
 instantiated using a variable-length sequence of arbitrary C++ types{\cprotect\footnote{Variadic templates are a C++11
-feature having many valuable and practical uses. In this case, the
-variadic feature enables us to easily describe a template that takes
-an arbitrary number of C++ type arguments by specifying an ellipsis
-(\texttt{...}) immediately following \texttt{typename}. Emulating such
-functionality in C++98/03 would have required significantly more
-effort: A typical workaround for this use case would have been to
-create a template having some fixed maximum number of arguments (e.g.,
-20), each defaulted to some unused (incomplete) type (e.g.,
-\texttt{Nil}):
+  feature having many valuable and practical uses. In this case, the
+  variadic feature enables us to easily describe a template that takes
+  an arbitrary number of C++ type arguments by specifying an ellipsis
+  (\texttt{...}) immediately following \texttt{typename}. Emulating such
+  functionality in C++98/03 would have required significantly more
+  effort: A typical workaround for this use case would have been to
+  create a template having some fixed maximum number of arguments (e.g.,
+  20), each defaulted to some unused (incomplete) type (e.g.,
+  \texttt{Nil}):
 
-\begin{lstlisting}[language=C++, basicstyle={\ttfamily\footnotesize}]
-struct Nil;  // arbitrary unused (incomplete) type
+  \begin{lstlisting}[language=C++, basicstyle={\ttfamily\footnotesize}]
+  struct Nil;  // arbitrary unused (incomplete) type
 
-template <typename = Nil, typename = Nil, typename = Nil, typename = Nil>
-struct TypeList { };
-// emulates the variadic (ù{\codeincomments{TypeList}}ù) template (ù{\codeincomments{struct}}ù) for up to four
-// type arguments
-\end{lstlisting}
+  template <typename = Nil, typename = Nil, typename = Nil, typename = Nil>
+  struct TypeList { };
+      // emulates the variadic (ù{\codeincomments{TypeList}}ù) template (ù{\codeincomments{struct}}ù) for up to four
+      // type arguments
+  \end{lstlisting}
 
 \vspace*{-1ex}
 \noindent Another theoretically appealing approach is to implement a Lisp-like
-recursive data structure; the compile-time overhead for such
-implementations, however, often makes them impractical.}}:
+  recursive data structure; the compile-time overhead for such
+  implementations, however, often makes them impractical.}}:
 
 \begin{lstlisting}[language=C++]
 template <typename...> struct TypeList { };
-// empty variadic template instantiable with arbitrary C++ type sequence
+    // empty variadic template instantiable with arbitrary C++ type sequence
 \end{lstlisting}
 
 \noindent Explicit instantiations of this variadic template could be used to
@@ -269,7 +269,7 @@ not itself a template. Note that a \textbf{full specialization} is a
 stronger candidate for a match than a partial specialization, which is
 a stronger match candidate than a simple template specialization,
 which, in turn, is a better match than the general template (which, in
-this example, happens to be an \textbf{incomplete type}).}} to satisfy the single-return-statement requirements{\cprotect\footnote{Notice that this \texttt{Count}
+  this example, happens to be an \textbf{incomplete type}).}} to satisfy the single-return-statement requirements{\cprotect\footnote{Notice that this \texttt{Count}
 \textbf{metafunction} also makes use (in its implementation) of
 variadic class templates to parse a \textbf{type list} of unbounded
 depth. Had this been a C++03 implementation, we would have been forced
@@ -282,54 +282,54 @@ of template arguments:
 \begin{lstlisting}[language=C++, basicstyle={\ttfamily\footnotesize}]
 template <typename X, typename Y>
 struct Count<X, TypeList<Y>>
-: std::integral_constant<int, std::is_same<X, Y>::value> { };
-// (class) template specialization for one argument
+    : std::integral_constant<int, std::is_same<X, Y>::value> { };
+    // (class) template specialization for one argument
 
 template <typename X, typename Y, typename Z>
 struct Count<X, TypeList<Y, Z>>
-: std::integral_constant<int,
-std::is_same<X, Y>::value + std::is_same<X, Z>::value> { };
-// (class) template specialization for two arguments
+    : std::integral_constant<int,
+        std::is_same<X, Y>::value + std::is_same<X, Z>::value> { };
+    // (class) template specialization for two arguments
 
 template <typename X, typename Y, typename Z, typename A>
 struct Count<X, TypeList<Y, Z, A>>
-: std::integral_constant<int,
-std::is_same<X, Y>::value + Count<X, TypeList<Z, A>>::value> { };
-// recursive (class) template specialization for three arguments
+    : std::integral_constant<int,
+        std::is_same<X, Y>::value + Count<X, TypeList<Z, A>>::value> { };
+    // recursive (class) template specialization for three arguments
 
 // ...
 \end{lstlisting}
-}}:
+      }}:
 
 \begin{lstlisting}[language=C++,label={relaxedconstexpr-countcode}]
 #include <type_traits>  // (ù{\codeincomments{std::integral\_constant}}ù), (ù{\codeincomments{std::is\_same}}ù)
 
 template <typename X, typename List> struct Count;
-// general template used to characterize the interface for the (ù{\codeincomments{Count}}ù)
-// metafunction
-// Note that this general template is an incomplete type.
+    // general template used to characterize the interface for the (ù{\codeincomments{Count}}ù)
+    // metafunction
+    // Note that this general template is an incomplete type.
 
 template <typename X>
 struct Count<X, TypeList<>> : std::integral_constant<int, 0> { };
-// partial (class) template specialization of the general (ù{\codeincomments{Count}}ù) template
-// (derived from the integral-constant type representing a compile-time
-// (ù{\codeincomments{0}}ù)), used to represent the base case for the recursion --- i.e., when
-// the supplied (ù{\codeincomments{TypeList}}ù) is empty
-// The payload (i.e., the enumerated (ù{\codeincomments{value}}ù) member of the base class)
-// representing the number of elements in the list is (ù{\codeincomments{0}}ù).
+    // partial (class) template specialization of the general (ù{\codeincomments{Count}}ù) template
+    // (derived from the integral-constant type representing a compile-time
+    // (ù{\codeincomments{0}}ù)), used to represent the base case for the recursion --- i.e., when
+    // the supplied (ù{\codeincomments{TypeList}}ù) is empty
+    // The payload (i.e., the enumerated (ù{\codeincomments{value}}ù) member of the base class)
+    // representing the number of elements in the list is (ù{\codeincomments{0}}ù).
 
 template <typename X, typename Head, typename... Tail>
 struct Count<X, TypeList<Head, Tail...>>
-: std::integral_constant<int,
-std::is_same<X, Head>::value + Count<X, TypeList<Tail...>>::value> { };
-// simple (class) template specialization of the general (ù{\codeincomments{count}}ù) template
-// for when the supplied list is not empty
-// In this case, the second parameter will be partitioned as the first
-// type in the sequence and the (possibly empty) remainder of the
-// (ù{\codeincomments{TypeList}}ù). The compile-time value of the base class will be either the
-// same as or one greater than the value accumulated in the (ù{\codeincomments{TypeList}}ù) so
-// far, depending on whether the first element is the same as the one
-// supplied as the first type to (ù{\codeincomments{Count}}ù).
+    : std::integral_constant<int,
+        std::is_same<X, Head>::value + Count<X, TypeList<Tail...>>::value> { };
+    // simple (class) template specialization of the general (ù{\codeincomments{count}}ù) template
+    // for when the supplied list is not empty
+    // In this case, the second parameter will be partitioned as the first
+    // type in the sequence and the (possibly empty) remainder of the
+    // (ù{\codeincomments{TypeList}}ù). The compile-time value of the base class will be either the
+    // same as or one greater than the value accumulated in the (ù{\codeincomments{TypeList}}ù) so
+    // far, depending on whether the first element is the same as the one
+    // supplied as the first type to (ù{\codeincomments{Count}}ù).
 
 static_assert(Count<int, TypeList<int, char, int, bool>>::value == 2, "");
 \end{lstlisting}
@@ -351,16 +351,16 @@ friendly \emph{imperative} solution can be realized:
 template <typename X, typename... Ts>
 constexpr int count()
 {
-bool matches[sizeof...(Ts)] = { std::is_same<X, Ts>::value... };
-// Create a corresponding array of bits where (ù{\codeincomments{1}}ù) indicates sameness.
+    bool matches[sizeof...(Ts)] = { std::is_same<X, Ts>::value... };
+        // Create a corresponding array of bits where (ù{\codeincomments{1}}ù) indicates sameness.
 
-int result = 0;
-for (bool m : matches)  // (C++11) range-based (ù{\codeincomments{for}}ù) loop
-{
-result += m;        // Add up (ù{\codeincomments{1}}ù) bits in the array.
-}
+    int result = 0;
+    for (bool m : matches)  // (C++11) range-based (ù{\codeincomments{for}}ù) loop
+    {
+        result += m;        // Add up (ù{\codeincomments{1}}ù) bits in the array.
+    }
 
-return result;  // Return the accumulated number of matches.
+    return result;  // Return the accumulated number of matches.
 }
 \end{lstlisting}
 
@@ -371,36 +371,36 @@ in a nonrecursive manner{\cprotect\footnote{\textbf{Pack expansion} is
 a language construct that expands a \textbf{variadic pack} during
 compilation, generating code for each element of the pack. This
 construct, along with a \textbf{parameter pack} itself, is a
-fundamental building block of variadic templates,
-introduced in C++11. As a minimal example, consider the variadic
-function template, \texttt{e}:
+  fundamental building block of variadic templates,
+  introduced in C++11. As a minimal example, consider the variadic
+  function template, \texttt{e}:
 
-\begin{lstlisting}[language=C++, basicstyle={\ttfamily\footnotesize}]
-template <int... Is> void e() { f(Is...); }
-\end{lstlisting}
+  \begin{lstlisting}[language=C++, basicstyle={\ttfamily\footnotesize}]
+  template <int... Is> void e() { f(Is...); }
+  \end{lstlisting}
 
 \noindent \texttt{e} is a function template that can be instantiated
-with an arbitrary number of compile-time-constant integers. The
-\texttt{int...}~\texttt{Is} syntax declares a \textbf{variadic pack}
-of compile-time-constant integers. The \texttt{Is...} syntax (used to
-invoke \texttt{f}) is a basic form of pack expansion that will resolve
-to all the integers contained in the \texttt{Is} pack, separated by
-commas. For instance, invoking
-\texttt{e<0,}~\texttt{1,}~\texttt{2,}~\texttt{3>()} results in the
-subsequent invocation of
-\texttt{f(0,}~\texttt{1,}~\texttt{2,}~\texttt{3)}. Note that --- as
-seen in the \texttt{count} example (which starts on page~\pageref{relaxedconstexpr-countcode}) --- any arbitrary
-expression containing a variadic pack can be expanded:
+  with an arbitrary number of compile-time-constant integers. The
+  \texttt{int...}~\texttt{Is} syntax declares a \textbf{variadic pack}
+  of compile-time-constant integers. The \texttt{Is...} syntax (used to
+  invoke \texttt{f}) is a basic form of pack expansion that will resolve
+  to all the integers contained in the \texttt{Is} pack, separated by
+  commas. For instance, invoking
+  \texttt{e<0,}~\texttt{1,}~\texttt{2,}~\texttt{3>()} results in the
+  subsequent invocation of
+  \texttt{f(0,}~\texttt{1,}~\texttt{2,}~\texttt{3)}. Note that --- as
+  seen in the \texttt{count} example (which starts on page~\pageref{relaxedconstexpr-countcode}) --- any arbitrary
+  expression containing a variadic pack can be expanded:
 
-\begin{lstlisting}[language=C++, basicstyle={\ttfamily\footnotesize}]
-template <int... Is> void g() { h((Is > 0)...); }
-\end{lstlisting}
+  \begin{lstlisting}[language=C++, basicstyle={\ttfamily\footnotesize}]
+  template <int... Is> void g() { h((Is > 0)...); }
+  \end{lstlisting}
 
 \noindent The \texttt{(Is}~\texttt{>}~\texttt{0)...} expansion (above) will
-resolve to \texttt{N} comma-separated Boolean values, where \texttt{N}
-is the number of elements contained in the \texttt{Is}
-\textbf{variadic pack}. As an example of this expansion, invoking
-\texttt{g<5,}~\texttt{-3,}~\texttt{9>()} results in the subsequent invocation of \texttt{h(true,}~\texttt{false,}~\texttt{true)}.}} to
+  resolve to \texttt{N} comma-separated Boolean values, where \texttt{N}
+  is the number of elements contained in the \texttt{Is}
+  \textbf{variadic pack}. As an example of this expansion, invoking
+  \texttt{g<5,}~\texttt{-3,}~\texttt{9>()} results in the subsequent invocation of \texttt{h(true,}~\texttt{false,}~\texttt{true)}.}} to
 initialize the \texttt{matches} array with a sequence of zeros and ones
 (representing, respectively, mismatch and matches between \texttt{X} and
 a type in the \texttt{Ts...} pack) and then iterate over the array to
@@ -409,7 +409,7 @@ accumulate the number of ones as the final \texttt{result}. This
 typically faster to compile.{\cprotect\footnote{For a type list
 containing 1024 types, the imperative (C++14) solution compiles about
 twice as fast on GCC 10.x and roughly 2.6 times faster on Clang
-10.x.}}
+  10.x.}}
 
 \subsection[Potential Pitfalls]{Potential Pitfalls}\label{potential-pitfalls}
 
@@ -443,21 +443,21 @@ Fibonacci number:
 #include <utility>  // (ù{\codeincomments{std::pair}}ù)
 
 constexpr std::pair<long long, long long> fib11NextFibs(
-const std::pair<long long, long long> prev,  // last two calculations
-int count)                                   // remaining steps
+    const std::pair<long long, long long> prev,  // last two calculations
+    int count)                                   // remaining steps
 {
-return (count == 0) ? prev : fib11NextFibs(
-std::pair<long long, long long>(prev.second,
-prev.first + prev.second),
-count - 1);
+    return (count == 0) ? prev : fib11NextFibs(
+        std::pair<long long, long long>(prev.second,
+                                        prev.first + prev.second),
+        count - 1);
 }
 
 constexpr long long fib11Optimized(long long n)
 {
-return fib11NextFibs(
-std::pair<long long, long long>(0, 1), // first two numbers
-n                                      // number of steps
-).second;
+    return fib11NextFibs(
+        std::pair<long long, long long>(0, 1), // first two numbers
+        n                                      // number of steps
+    ).second;
 }
 \end{lstlisting}
 
@@ -473,17 +473,17 @@ C++11 is also possible, by accumulating the final result through recursive
 
 template <typename>
 constexpr int count11Optimized() { return 0; }
-// Base case: always return (ù{\codeincomments{0}}ù).
+    // Base case: always return (ù{\codeincomments{0}}ù).
 
 template <typename X, typename Head, typename... Tail>
 constexpr int count11Optimized()
-// Recursive case: compare the desired type ((ù{\codeincomments{X}}ù)) and the first type in
-// the list ((ù{\codeincomments{Head}}ù)) for equality, turn the result of the comparison
-// into either (ù{\codeincomments{1}}ù) (equal) or (ù{\codeincomments{0}}ù) (not equal), and recurse with the rest
-// of the type list ((ù{\codeincomments{Tail...}}ù)).
+    // Recursive case: compare the desired type ((ù{\codeincomments{X}}ù)) and the first type in
+    // the list ((ù{\codeincomments{Head}}ù)) for equality, turn the result of the comparison
+    // into either (ù{\codeincomments{1}}ù) (equal) or (ù{\codeincomments{0}}ù) (not equal), and recurse with the rest
+    // of the type list ((ù{\codeincomments{Tail...}}ù)).
 {
-return (std::is_same<X, Head>::value ? 1 : 0)
-+ count11Optimized<X, Tail...>();
+    return (std::is_same<X, Head>::value ? 1 : 0)
+        + count11Optimized<X, Tail...>();
 }
 \end{lstlisting}
 
@@ -499,23 +499,23 @@ instantiations:
 
 template <int N>
 constexpr int count11VeryOptimizedImpl(
-const std::array<bool, N>& bits,  // storage for "type sameness" bits
-int i)                            // current array index
+    const std::array<bool, N>& bits,  // storage for "type sameness" bits
+    int i)                            // current array index
 {
-return i < N
-? bits[i] + count11VeryOptimizedImpl<N>(bits, i + 1)
-// Recursively read every element from the (ù{\codeincomments{bits}}ù) array and
-// accumulate into a final result.
-: 0;
+    return i < N
+        ? bits[i] + count11VeryOptimizedImpl<N>(bits, i + 1)
+            // Recursively read every element from the (ù{\codeincomments{bits}}ù) array and
+            // accumulate into a final result.
+        : 0;
 }
 
 template <typename X, typename... Ts>
 constexpr int count11VeryOptimized()
 {
-return count11VeryOptimizedImpl<sizeof...(Ts)>(
-std::array<bool, sizeof...(Ts)>{ std::is_same<X, Ts>::value... },
-// Leverage pack expansion to avoid recursive instantiations.
-0);
+    return count11VeryOptimizedImpl<sizeof...(Ts)>(
+        std::array<bool, sizeof...(Ts)>{ std::is_same<X, Ts>::value... },
+            // Leverage pack expansion to avoid recursive instantiations.
+        0);
 }
 \end{lstlisting}
 

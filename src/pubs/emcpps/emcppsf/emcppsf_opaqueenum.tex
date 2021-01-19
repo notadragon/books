@@ -100,10 +100,10 @@ enum class E10;   // forward declaration of (ù{\codeincomments{enum class E10}}
 #include <mycomponent.h>
 // ...
 enum E9 : char { e_A9, e_B9, e_C9 };
-// complete definition compatible with forward declaration of (ù{\codeincomments{E9}}ù)
+    // complete definition compatible with forward declaration of (ù{\codeincomments{E9}}ù)
 
 enum class E10 { e_A10, e_B10, e_C10 };
-// complete definition compatible with forward declaration of (ù{\codeincomments{E10}}ù)
+    // complete definition compatible with forward declaration of (ù{\codeincomments{E10}}ù)
 \end{lstlisting}
 
 \noindent Note, however, that clients embedding \emph{local declarations} directly
@@ -138,12 +138,12 @@ implemented as a finite-state machine:
 // ...
 class Proctor
 {
-int d_current;  // "opaque" but unconstrained (ù{\codeincomments{int}}ù) type (BAD IDEA)
-// ...
+    int d_current;  // "opaque" but unconstrained (ù{\codeincomments{int}}ù) type (BAD IDEA)
+    // ...
 
 public:
-Proctor();
-// ...
+    Proctor();
+    // ...
 };
 \end{lstlisting}
 
@@ -199,12 +199,12 @@ enum State : int;  // opaque declaration of enumeration (new in C++11)
 
 class Proctor
 {
-State d_current;  // opaque classical enumerated type (BETTER IDEA)
-// ...
+    State d_current;  // opaque classical enumerated type (BETTER IDEA)
+    // ...
 
 public:
-Proctor();
-// ...
+    Proctor();
+    // ...
 };
 \end{lstlisting}
 
@@ -219,13 +219,13 @@ intent by nesting a more strongly typed \lstinline!enum!~\lstinline!class! inste
 // ...
 class Proctor
 {
-enum class State;  // forward (nested) declaration of type-safe enumeration
-State d_current;   // opaque (modern) enumerated data type (BEST IDEA)
-// ...
+    enum class State;  // forward (nested) declaration of type-safe enumeration
+    State d_current;   // opaque (modern) enumerated data type (BEST IDEA)
+    // ...
 
 public:
-Proctor();
-// ...
+    Proctor();
+    // ...
 };
 \end{lstlisting}
 
@@ -274,7 +274,7 @@ file defining \lstinline!Proctor!.
 A commonly recurring \romeogloss{design pattern}, commonly known as the
 \emph{Memento} Pattern\footnote{\cite{gamma95} Chapter
 behavioral patterns? 5?, section ``Memento,'', pp.~283--???
-TBD}, manifests when a facility providing a service, often in a
+  TBD}, manifests when a facility providing a service, often in a
 multi-client environment, hands off a packet of opaque information ---
 a.k.a. a \emph{cookie} --- to a client to hold and then present back to
 the facility to enable resuming operations where processing left off.
@@ -288,8 +288,8 @@ clients that we offer this \emph{Memento} pattern as a possible use case
 for \romeogloss{opaque enumerations}.
 
 Event-driven programming\footnote{See also \cite{gamma95}
-Chapter behavioral patterns? 5?, section ``Observer,'',
-pp.~???--??? TBD}, historically implemented using \romeogloss{callback
+  Chapter behavioral patterns? 5?, section ``Observer,'',
+  pp.~???--??? TBD}, historically implemented using \romeogloss{callback
 functions}, introduces a style of programming that is decidedly
 different from what we might have become accustomed to. In this
 programming paradigm, a higher-level agent (e.g., \lstinline!main!) would
@@ -331,72 +331,72 @@ class CallbackEngine;  // the driver for processing and delivering events
 
 class CallbackData
 {
-// This class represents a handle to the shared state associating a
-// callback function object with a (ù{\codeincomments{CallbackEngine}}ù).
+    // This class represents a handle to the shared state associating a
+    // callback function object with a (ù{\codeincomments{CallbackEngine}}ù).
 
 public:
-typedef std::function<void(const EventData&, CallbackEngine*,
-CallbackData)> Callback;
-// alias for a function object returning (ù{\codeincomments{void}}ù) and taking, as arguments,
-// the event data to be consumed by the client, the address of the
-// (ù{\codeincomments{CallbackEngine}}ù) object that supplied the event data, and the
-// callback data that can be used to reregister the client, should the
-// client choose to show continued interest in future instances of the
-// same event
+    typedef std::function<void(const EventData&, CallbackEngine*,
+        CallbackData)> Callback;
+        // alias for a function object returning (ù{\codeincomments{void}}ù) and taking, as arguments,
+        // the event data to be consumed by the client, the address of the
+        // (ù{\codeincomments{CallbackEngine}}ù) object that supplied the event data, and the
+        // callback data that can be used to reregister the client, should the
+        // client choose to show continued interest in future instances of the
+        // same event
 
-enum class State;                                              // GOOD IDEA
-// nested forward declaration of insulated enumeration, enabling
-// changes to the enumerator list without forcing clients to recompile
+    enum class State;                                              // GOOD IDEA
+        // nested forward declaration of insulated enumeration, enabling
+        // changes to the enumerator list without forcing clients to recompile
 
 private:
-std::deque<CallbackData>  d_pendingCallbacks; // waiting for next event
+    std::deque<CallbackData>  d_pendingCallbacks; // waiting for next event
 
-// ... (other state that might need to be stored for an active or inactive
-//      registration of interest in events)
+    // ... (other state that might need to be stored for an active or inactive
+    //      registration of interest in events)
 
 public:
-// ... (constructors, other manipulators and accessors, etc.)
+    // ... (constructors, other manipulators and accessors, etc.)
 
-State getState() const;
-// Return the current (ù{\codeincomments{state}}ù) of this callback.
+    State getState() const;
+        // Return the current (ù{\codeincomments{state}}ù) of this callback.
 
-void setState(State state);
-// Set the current state to the specified (ù{\codeincomments{state}}ù).
+    void setState(State state);
+        // Set the current state to the specified (ù{\codeincomments{state}}ù).
 
-Callback& getCallback() const;
-// Return the (ù{\codeincomments{callback}}ù) function object specified at construction.
+    Callback& getCallback() const;
+        // Return the (ù{\codeincomments{callback}}ù) function object specified at construction.
 };
 
 class CallbackEngine
 {
 private:
-// ... (other, stable (ù{\codeincomments{private}}ù) data members implementing this object)
+    // ... (other, stable (ù{\codeincomments{private}}ù) data members implementing this object)
 
-std::unordered_map<int, CallbackData> d_clientStateMap;
-// mapping from an internally generated (ù{\codeincomments{id}}ù) to the full state for a
-// client, including the opaque enumerated state that tracks which
-// other data structures within this (ù{\codeincomments{CallbackEngine}}ù) have references
-// to this callback
-//
-// Reregistering or skipping reregistering when
-// called back will lead to updating internal data structures based on
-// the current value of this (ù{\codeincomments{State}}ù).
+    std::unordered_map<int, CallbackData> d_clientStateMap;
+        // mapping from an internally generated (ù{\codeincomments{id}}ù) to the full state for a
+        // client, including the opaque enumerated state that tracks which
+        // other data structures within this (ù{\codeincomments{CallbackEngine}}ù) have references
+        // to this callback
+        //
+        // Reregistering or skipping reregistering when
+        // called back will lead to updating internal data structures based on
+        // the current value of this (ù{\codeincomments{State}}ù).
 
 public:
-// ...   (other public member functions, e.g., creators, manipulators)
+    // ...   (other public member functions, e.g., creators, manipulators)
 
-void registerInterest(CallbackData::Callback cb);
-// Register (e.g., from (ù{\codeincomments{main}}ù)) a new client with this manager object.
+    void registerInterest(CallbackData::Callback cb);
+        // Register (e.g., from (ù{\codeincomments{main}}ù)) a new client with this manager object.
 
-void reregisterInterest(const CallbackData& callback);
-// Reregister (e.g., from a client) the specified (ù{\codeincomments{callback}}ù) with this
-// manager object, providing the (ù{\codeincomments{state}}ù) contained in the (ù{\codeincomments{CallbackData}}ù)
-// to enable resumption from the same state as processing left off.
+    void reregisterInterest(const CallbackData& callback);
+        // Reregister (e.g., from a client) the specified (ù{\codeincomments{callback}}ù) with this
+        // manager object, providing the (ù{\codeincomments{state}}ù) contained in the (ù{\codeincomments{CallbackData}}ù)
+        // to enable resumption from the same state as processing left off.
 
-void run();
-// Start this object's event loop.
+    void run();
+        // Start this object's event loop.
 
-// ...  (other public member functions, e.g., manipulators, accessors)
+    // ...  (other public member functions, e.g., manipulators, accessors)
 };
 \end{lstlisting}
 
@@ -409,25 +409,25 @@ when events happen, register interest, and then let the engine
 // myapplication.cpp
 // ...
 static void myCallback(const EventData&    event,
-CallbackEngine*     engine,
-const CallbackData& cookie);
-// Process the specified (ù{\codeincomments{event}}ù), and then potentially reregister the
-// specified (ù{\codeincomments{cookie}}ù) for interest in the same data.
+                       CallbackEngine*     engine,
+                       const CallbackData& cookie);
+    // Process the specified (ù{\codeincomments{event}}ù), and then potentially reregister the
+    // specified (ù{\codeincomments{cookie}}ù) for interest in the same data.
 
 int main()
 {
-CallbackEngine e;  // Create a configurable callback engine object.
+   CallbackEngine e;  // Create a configurable callback engine object.
 
-//...     (Configure the callback engine , (ù{\codeincomments{e}}ù), as appropriate.)
+   //...     (Configure the callback engine , (ù{\codeincomments{e}}ù), as appropriate.)
 
-e.registerInterest(&myCallback);  // Even a stateless function pointer can
-// be used with (ù{\codeincomments{std::function}}ù).
+   e.registerInterest(&myCallback);  // Even a stateless function pointer can
+                                     // be used with (ù{\codeincomments{std::function}}ù).
 
-// ...create and register other clients for interest...
+   // ...create and register other clients for interest...
 
-m.run();    // Cede control to (ù{\codeincomments{e}}ù)'s event loop until complete.
+   m.run();    // Cede control to (ù{\codeincomments{e}}ù)'s event loop until complete.
 
-return 0;
+   return 0;
 }
 \end{lstlisting}
 
@@ -439,25 +439,25 @@ unnecessary resources:
 
 \begin{lstlisting}[language=C++]
 void myCallback(const EventData&     event,
-CallbackEngine      *engine,
-const CallbackData&  cookie)
+                CallbackEngine      *engine,
+                const CallbackData&  cookie)
 {
-int status = EventProcessor::processEvent(event);
+    int status = EventProcessor::processEvent(event);
 
-if (status > 0)  // status is non-zero; continue interest in event
-{
-engine->reregisterInterest(cookie);
-}
-else if (status < 0)  // Negative status indicates (ù{\codeincomments{EventProcessor}}ù) wants
-// to reregister later.
-{
-EventProcessor::storeCallback(engine,cookie);
-// call (ù{\codeincomments{reregisterInterest}}ù) later
-}
+    if (status > 0)  // status is non-zero; continue interest in event
+    {
+        engine->reregisterInterest(cookie);
+    }
+    else if (status < 0)  // Negative status indicates (ù{\codeincomments{EventProcessor}}ù) wants
+                          // to reregister later.
+    {
+        EventProcessor::storeCallback(engine,cookie);
+                          // call (ù{\codeincomments{reregisterInterest}}ù) later
+    }
 
-// Return flow of control to the (ù{\codeincomments{CallbackEngine}}ù) that invoked this
-// callback.  If (ù{\codeincomments{status}}ù) was zero, then this callback should be cleaned
-// up properly with minimal fuss and no leaks.
+    // Return flow of control to the (ù{\codeincomments{CallbackEngine}}ù) that invoked this
+    // callback.  If (ù{\codeincomments{status}}ù) was zero, then this callback should be cleaned
+    // up properly with minimal fuss and no leaks.
 }
 \end{lstlisting}
 
@@ -484,95 +484,95 @@ single-threaded implementation might involve:
 
 enum class CallbackData::State
 {
-// Full (local) definition of the enumerated states for the callback engine.
-e_INITIAL,
-e_LISTENING,
-e_READY,
-e_PROCESSING,
-e_REREGISTERED,
-e_FREED
+    // Full (local) definition of the enumerated states for the callback engine.
+    e_INITIAL,
+    e_LISTENING,
+    e_READY,
+    e_PROCESSING,
+    e_REREGISTERED,
+    e_FREED
 };
 
 void CallbackEngine::registerInterest(Callback cb)
 {
-// Create a (ù{\codeincomments{CallbackData}}ù) instance with a state of (ù{\codeincomments{e\_INITIAL}}ù) and
-// insert it into the set of active clients.
-callbacks.push_back(CallbackData(cb, CallbackData::State::e_INITIAL));
+    // Create a (ù{\codeincomments{CallbackData}}ù) instance with a state of (ù{\codeincomments{e\_INITIAL}}ù) and
+    // insert it into the set of active clients.
+    callbacks.push_back(CallbackData(cb, CallbackData::State::e_INITIAL));
 }
 
 void CallbackEngine::run()
 {
-// Update all client states to (ù{\codeincomments{e\_LISTENING}}ù) based on the events in which
-// they have interest.
+    // Update all client states to (ù{\codeincomments{e\_LISTENING}}ù) based on the events in which
+    // they have interest.
 
-d_running = true;
-while (d_running)
-{
-// Poll the operating system API waiting for an event to be ready.
-EventData event = getNextEvent();
+    d_running = true;
+    while (d_running)
+    {
+        // Poll the operating system API waiting for an event to be ready.
+        EventData event = getNextEvent();
 
-// Go through the elements of (ù{\codeincomments{d\_pendingCallbacks}}ù) to deliver this
-// event to each of them.
-std::deque<CallbackData> callbacks = std::move(d_pendingCallbacks);
+        // Go through the elements of (ù{\codeincomments{d\_pendingCallbacks}}ù) to deliver this
+        // event to each of them.
+        std::deque<CallbackData> callbacks = std::move(d_pendingCallbacks);
 
-// Loop once over the callbacks we are about to notify to update their
-// state so that we know they are now in a different container.
-for (CallbackData& callback : callbacks)
-{
-callback.setState(CallbackData::State::e_READY);
-}
+        // Loop once over the callbacks we are about to notify to update their
+        // state so that we know they are now in a different container.
+        for (CallbackData& callback : callbacks)
+        {
+            callback.setState(CallbackData::State::e_READY);
+        }
 
-while (!callbacks.empty())
-{
-CallbackData callback = callbacks.pop_front();
+        while (!callbacks.empty())
+        {
+            CallbackData callback = callbacks.pop_front();
 
-// Mark the callback as processing and invoke it.
-callback.setState(CallbackData::State::e_PROCESSING);
+            // Mark the callback as processing and invoke it.
+            callback.setState(CallbackData::State::e_PROCESSING);
 
-callback.getCallback()(event, this, callback);
+            callback.getCallback()(event, this, callback);
 
-// Clean up based on the new (ù{\codeincomments{State}}ù).
-if (callback.getState() == CallbackData::State::e_REREGISTERED)
-{
-// Put the callback on the queue to get events again.
-d_pendingCallbacks.push_back(callback);
-}
-else
-{
-// The callback can be released, freeing resources.
-callback.setState(CallbackData::State::e_FREED);
-}
-}
-}
+            // Clean up based on the new (ù{\codeincomments{State}}ù).
+            if (callback.getState() == CallbackData::State::e_REREGISTERED)
+            {
+                // Put the callback on the queue to get events again.
+                d_pendingCallbacks.push_back(callback);
+            }
+            else
+            {
+                // The callback can be released, freeing resources.
+                callback.setState(CallbackData::State::e_FREED);
+            }
+        }
+    }
 }
 
 void CallbackEngine::reregisterInterest(const CallbackData& callback)
 {
-if (callback.getState() == CallbackData::State::e_PROCESSING)
-{
-// This is being called reentrantly from (ù{\codeincomments{run()}}ù); simply update state.
-callback.setState(CallbackData::State::e_REREGISTERED);
-}
-else if (callback.getState() == CallbackData::State::e_READY)
-{
-// This callback is in the deque of callbacks currently having events
-// delivered to it; do nothing and leave it there.
-}
-else
-{
-// This callback was saved; set it to the proper state and put it in
-// the queue of callbacks.
-if (d_running)
-{
-callback.setState(CallbackData::State::e_LISTENING);
-}
-else
-{
-callback.setState(CallbackData::State::e_INITIAL);
-}
+    if (callback.getState() == CallbackData::State::e_PROCESSING)
+    {
+        // This is being called reentrantly from (ù{\codeincomments{run()}}ù); simply update state.
+        callback.setState(CallbackData::State::e_REREGISTERED);
+    }
+    else if (callback.getState() == CallbackData::State::e_READY)
+    {
+        // This callback is in the deque of callbacks currently having events
+        // delivered to it; do nothing and leave it there.
+    }
+    else
+    {
+        // This callback was saved; set it to the proper state and put it in
+        // the queue of callbacks.
+        if (d_running)
+        {
+            callback.setState(CallbackData::State::e_LISTENING);
+        }
+        else
+        {
+            callback.setState(CallbackData::State::e_INITIAL);
+        }
 
-d_pendingCallbacks.push_back(callback);
-}
+        d_pendingCallbacks.push_back(callback);
+    }
 }
 
 \end{lstlisting}
@@ -655,8 +655,8 @@ embedding a \romeogloss{local declaration} of \lstinline!Event! instead:
 enum class Event : char;  // BAD IDEA: local external declaration
 // ...
 {
-Event d_currentEvent;  // object of locally declare enumeration
-// ...
+    Event d_currentEvent;  // object of locally declare enumeration
+    // ...
 };
 // ...
 \end{lstlisting}
@@ -690,9 +690,9 @@ forwarding header file as part of the same \lstinline!event!
 descriptive suffix field, \lstinline!.fwd!; this approach, as opposed to,
 say, \lstinline!file\_fwd.h!, \lstinline!filefwd.h!, or \lstinline!file.hh!,
 was chosen so as not to (1) encroach on a disciplined component-naming
-scheme involving reserved use of underscores (see \cite{lakos20},
-section~2.4., pp.~297--333) or (2) confuse tools and scripts that
-expect header-file names to end with a \lstinline!.h! suffix.}}:
+  scheme involving reserved use of underscores (see \cite{lakos20},
+  section~2.4., pp.~297--333) or (2) confuse tools and scripts that
+  expect header-file names to end with a \lstinline!.h! suffix.}}:
 
 \begin{lstlisting}[language=C++]
 // event.fwd.h
@@ -725,8 +725,8 @@ hence, clients can incorporate safely only the (presumably more stable)
 forwarding header{\cprotect\footnote{Note that we have consistently
 employed angle brackets exclusively for all include directives used
 throughout this book to maximize flexibility of deployment presuming a
-regimen for unique naming; see \cite{lakos20}, section~1.5.1,
-pp.~201--203.}}:
+  regimen for unique naming; see \cite{lakos20}, section~1.5.1,
+  pp.~201--203.}}:
 
 \begin{lstlisting}[language=C++]
 // goodclient.h
@@ -735,17 +735,17 @@ pp.~201--203.}}:
 // ...
 class Client
 {
-Event d_currentEvent;
-// ...
+    Event d_currentEvent;
+    // ...
 };
 \end{lstlisting}
 
 \noindent To illustrate real-world practical use of the opaque-enumerations
 feature, consider the various components{\cprotect\footnote{See
-\cite{lakos20}, sections~1.6 and 1.11, pp.~209--216 and
-pp.~256--259, respectively.}} that might depend
+  \cite{lakos20}, sections~1.6 and 1.11, pp.~209--216 and
+  pp.~256--259, respectively.}} that might depend
 on{\cprotect\footnote{\cite{lakos20}, section~1.9?, pp.~237--243,
-TODO}} an \lstinline!Event! enumeration such as that above:
+  TODO}} an \lstinline!Event! enumeration such as that above:
 \begin{itemize}
 \item{\romeogloss{\lstinline!message!} — Provides a \emph{value-semantic} \lstinline!Message! class consisting of just raw data,\cprotect\footnote{We sometimes refer to data that is meaningful only in the context of a higher-level entity as \romeogloss{dumb data}; see \cite{lakos20}, section~3.5.5, pp.~629--633.} including an \lstinline!Event! field representing the type of event. This component never makes direct use of any enumeration values and thus needs to include only \lstinline!event.fwd.h! and the corresponding opaque \emph{forward} declaration of the \lstinline!Event! enumeration.}
 \item{\romeogloss{\lstinline!sender!} and \romeogloss{\lstinline!receiver!} — These are a pair of components that, respectively, create and consume \lstinline!Message! objects. To populate a \lstinline!Message! object, a \lstinline!Sender! will need to provide a valid value for the \lstinline!Event! member. Similarly, to process a \lstinline!Message!, a \lstinline!Receiver! will need to understand the potential individual enumerated values for the \lstinline!Event! field. Both of these components will include the primary \lstinline!event.h! header and thus have the complete definition of \lstinline!Event! available to them.}
@@ -806,9 +806,9 @@ via just the linker invites instability:
 
 \begin{lstlisting}[language=C++]
 
-// main.cpp                                           // library.cpp
-extern int x;  // BAD IDEA!                           int x;
-// ...                                                // ...
+    // main.cpp                                           // library.cpp
+    extern int x;  // BAD IDEA!                           int x;
+    // ...                                                // ...
 \end{lstlisting}
 
 \noindent The definition of object \lstinline!x! (in the code snippets above) resides
@@ -819,9 +819,9 @@ change, both translation units will continue to compile but, when
 linked, the resulting program will be IFNDR:
 
 \begin{lstlisting}[language=C++]
-// main.cpp                                           // library.cpp
-extern int x;  // ILL-FORMED PROGRAM                  double x;
-// ...                                                // ...
+    // main.cpp                                           // library.cpp
+    extern int x;  // ILL-FORMED PROGRAM                  double x;
+    // ...                                                // ...
 \end{lstlisting}
 
 \noindent To ensure consistency across translation units, the time-honored
@@ -831,10 +831,10 @@ the translation unit in which it is defined; that header is then
 included by both the supplier and each consumer:
 
 \begin{lstlisting}[language=C++]
-// main.cpp                  // library.h            // library.cpp
-#include <library.h>         // ...                  #include <library.h>
-// ...                       extern int x;           int x;
-// ...                  // ...
+    // main.cpp                  // library.h            // library.cpp
+    #include <library.h>         // ...                  #include <library.h>
+    // ...                       extern int x;           int x;
+                                 // ...                  // ...
 \end{lstlisting}
 
 \noindent In this way, any change to the definition of \lstinline!x! in
@@ -854,7 +854,7 @@ external client to make use of its individual enumerators and (2)
 typical components consist of just a \lstinline!.h!/\lstinline!.cpp! pair,
 i.e., exactly one \lstinline!.h! file and usually just one \lstinline!.cpp!
 file.{\cprotect\footnote{\cite{lakos20}, sections~2.2.11--13,
-pp.~280--281.}}
+  pp.~280--281.}}
 
 Exposing, within a library header file, an opaquely declarable
 enumeration that is programmatically accessible by external clients
@@ -925,8 +925,8 @@ void f(Bozo);     // *forward declaration* of function (ù{\codeincomments{f}}ù
 
 void g()
 {
-Bozo clown{0};
-f(clown);      // OK, who knows if zero is a valid value?!
+    Bozo clown{0};
+    f(clown);      // OK, who knows if zero is a valid value?!
 }
 \end{lstlisting}
 

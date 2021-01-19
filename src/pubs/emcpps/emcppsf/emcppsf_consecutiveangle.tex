@@ -42,7 +42,7 @@ nesting that expression within parentheses:
 const int i = 1, j = 2;  // arbitrary integer values (used below)
 
 template <int I> class C { /*...*/ };
-// class (ù{\codeincomments{C}}ù) taking non-type template parameter (ù{\codeincomments{I}}ù) of type (ù{\codeincomments{int}}ù)
+    // class (ù{\codeincomments{C}}ù) taking non-type template parameter (ù{\codeincomments{I}}ù) of type (ù{\codeincomments{int}}ù)
 
 C<i > j>    a1;  // compile-time error (always has been)
 C<i >> j>   b1;  // compile-time error in C++11 (OK in C++03)
@@ -122,17 +122,17 @@ enum Outer { a = 1, b = 2, c = 3 };
 
 template <typename> struct S
 {
-enum Inner { a = 100, c = 102 };
+    enum Inner { a = 100, c = 102 };
 };
 
 template <int> struct G
 {
-typedef int b;
+    typedef int b;
 };
 
 int main()
 {
-std::cout << (S<G< 0 >>::c>::b>::a) << '\n';
+    std::cout << (S<G< 0 >>::c>::b>::a) << '\n';
 }
 \end{lstlisting}
 
@@ -146,7 +146,7 @@ std::cout << (S<G< 0 >>::c>::b>::a) << '\n';
 //    (ù{\codeincomments{$\|$}}ù)~~~~~~~~~~~~
 //    (ù{\codeincomments{$\|\:\,|\:\,\|$}}ù)   (4) instantiation of (ù{\codeincomments{S<int>}}ù)
 //  ~~(ù{\codeincomments{$\|\downarrow\|$}}ù)~~~~~~~~~~~~~~(ù{\codeincomments{$\downarrow$}}ù)
-S< G< 0 >>::c > ::b >::a
+    S< G< 0 >>::c > ::b >::a
 //    ~~(ù{\codeincomments{$\|\,\,\uparrow\,\,\|$}}ù)~~~~~~~~~(ù{\codeincomments{$\uparrow$}}ù)
 //      (ù{\codeincomments{$\|\:\,\,\,|\:\,\,\,\|$}}ù) (3) type alias for (ù{\codeincomments{int}}ù)
 //      (ù{\codeincomments{$\|$}}ù)~~~~~~~
@@ -161,7 +161,7 @@ S< G< 0 >>::c > ::b >::a
 //
 //  (2) compare ((ù{\codeincomments{>}}ù)) (ù{\codeincomments{Inner::c}}ù) and (ù{\codeincomments{Outer::b}}ù)
 //  (ù{\codeincomments{$\downarrow$}}ù) ~~~~~~~~~~~~~~~~~~
-S< G< 0 >>::c > ::b >::a
+    S< G< 0 >>::c > ::b >::a
 //  (ù{\codeincomments{$\uparrow$}}ù) ~~~~~~~~~
 //  (1) instantiation of (ù{\codeincomments{S<G<0>>}}ù)
 //

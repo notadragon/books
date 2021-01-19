@@ -134,13 +134,13 @@ iterators into a list of \lstinline!Widgets!:
 \begin{lstlisting}[language=C++]
 std::list<Widget> widgets;
 std::vector<std::list<Widget>::iterator> widgetIterators;
-// (1) The full type of (ù{\codeincomments{widgets}}ù) needs to be restated, and (ù{\codeincomments{iterator}}ù)
-// needs to be explicitly named.
+    // (1) The full type of (ù{\codeincomments{widgets}}ù) needs to be restated, and (ù{\codeincomments{iterator}}ù)
+    // needs to be explicitly named.
 
 std::list<Widget> widgets;
 std::vector<decltype(widgets.begin())> widgetIterators;
-// (2) Neither (ù{\codeincomments{std::list}}ù) nor (ù{\codeincomments{Widget}}ù) nor (ù{\codeincomments{iterator}}ù) need be named
-// explicitly.
+    // (2) Neither (ù{\codeincomments{std::list}}ù) nor (ù{\codeincomments{Widget}}ù) nor (ù{\codeincomments{iterator}}ù) need be named
+    // explicitly.
 \end{lstlisting}
 
 \noindent Notice that, when using \lstinline!decltype!, if the C++ type representing
@@ -160,9 +160,9 @@ representing the length of the packet's checksum:
 \begin{lstlisting}[language=C++]
 class Packet
 {
-// ...
+    // ...
 public:
-std::uint8_t checksumLength() const;
+    std::uint8_t checksumLength() const;
 };
 \end{lstlisting}
 
@@ -174,13 +174,13 @@ type returned by \lstinline!Packet::checksumLength!):
 \begin{lstlisting}[language=C++]
 void f()
 {
-Checksum sum;
-Packet data;
+    Checksum sum;
+    Packet data;
 
-for (std::uint8_t i = 0; i < data.checksumLength(); ++i)  // brittle
-{
-sum.appendByte(data.nthByte(i));
-}
+    for (std::uint8_t i = 0; i < data.checksumLength(); ++i)  // brittle
+    {
+        sum.appendByte(data.nthByte(i));
+    }
 }
 \end{lstlisting}
 
@@ -203,7 +203,7 @@ body of the function is visible to the compiler. Decorating
 solution.}} become infinite.{\cprotect\footnote{The loop
 variable is promoted to an \lstinline!unsigned! \lstinline!int! for
 comparison purposes but wraps (to 0) whenever its value prior to
-being incremented is 255.}}
+  being incremented is 255.}}
 
 Had \lstinline!decltype(packet.checksumLength())! been used to express the
 type of \lstinline!i!, the types would have remained consistent and the
@@ -229,7 +229,7 @@ variable, \lstinline!result!. Since the type of the sum depends on both
 the (trailing) return type{\cprotect\footnote{Using
 \lstinline!decltype(a!~\lstinline!+!~\lstinline!b)! as a return type is
 significantly different from relying on \emph{automatic return type
-deduction}. See %Section~\ref{auto-feature}, ``\titleref{auto-feature}" on page~\pageref{auto-feature}
+  deduction}. See %Section~\ref{auto-feature}, ``\titleref{auto-feature}" on page~\pageref{auto-feature}
 \featureref{\locationc}{auto-feature} for more information.}} of the
 function (see %Section~\ref{trailing-function-return-types},
 %``\titleref{trailing-function-return-types}" on page~\pageref{trailing-function-return-types})
@@ -238,11 +238,11 @@ function (see %Section~\ref{trailing-function-return-types},
 \begin{lstlisting}[language=C++]
 template <typename A, typename B>
 auto loggedSum(const A& a, const B& b)
--> decltype(a + b)                 // (1) exploiting trailing return types
+    -> decltype(a + b)                 // (1) exploiting trailing return types
 {
-decltype(a + b) result = a + b;    // (2) auxiliary generic variable
-LOG_TRACE << a << " + " << b << " = " << result;
-return result;
+    decltype(a + b) result = a + b;    // (2) auxiliary generic variable
+    LOG_TRACE << a << " + " << b << " = " << result;
+    return result;
 }
 \end{lstlisting}
 Note that this particular use involves significant repetition of the expression \lstinline!a+b!.  See
@@ -266,7 +266,7 @@ general \lstinline!std::sort!:
 template <typename Range>
 void sortRange(Range& range)
 {
-sortRangeImpl(range, 0);
+    sortRangeImpl(range, 0);
 }
 \end{lstlisting}
 
@@ -282,10 +282,10 @@ the presence of an implicit (\emph{standard}) conversion from
 \begin{lstlisting}[language=C++]
 template <typename Range>
 void sortRangeImpl(Range& range,
-long)                  // low priority: standard conversion
+                   long)                  // low priority: standard conversion
 {
-// fallback implementation
-std::sort(std::begin(range), std::end(range));
+    // fallback implementation
+    std::sort(std::begin(range), std::end(range));
 }
 \end{lstlisting}
 
@@ -299,11 +299,11 @@ will be a better match, provided a range-specific sort is available:
 \begin{lstlisting}[language=C++]
 template <typename Range>
 void sortRangeImpl(Range& range,
-int,                          // high priority: exact match
-decltype(range.sort())* = 0)  // check expression validity
+                   int,                          // high priority: exact match
+                   decltype(range.sort())* = 0)  // check expression validity
 {
-// optimized implementation
-range.sort();
+    // optimized implementation
+    range.sort();
 }
 \end{lstlisting}
 
@@ -329,15 +329,15 @@ default template argument are also viable:
 \begin{lstlisting}[language=C++, basicstyle={\ttfamily\footnotesize}]
 template <typename Range>
 auto sortRangeImpl(Range& range, int) -> decltype(range.sort(), void());
-// The comma operator is used to force the return type to (ù{\codeincomments{void}}ù),
-// regardless of the return type of (ù{\codeincomments{range.sort()}}ù).
+    // The comma operator is used to force the return type to (ù{\codeincomments{void}}ù),
+    // regardless of the return type of (ù{\codeincomments{range.sort()}}ù).
 
 template <typename Range, typename = decltype(std::declval<Range&>().sort())>
 auto sortRangeImpl(Range& range, int) -> void;
-// (ù{\codeincomments{std::declval}}ù) is used to generate a reference to (ù{\codeincomments{Range}}ù) that can
-// be used in an unevaluated expression.
+    // (ù{\codeincomments{std::declval}}ù) is used to generate a reference to (ù{\codeincomments{Range}}ù) that can
+    // be used in an unevaluated expression.
 \end{lstlisting}
-}} \lstinline!decltype(range.sort())! as part of
+      }} \lstinline!decltype(range.sort())! as part of
 \lstinline!sortRangeImpl!'s declaration, the more specialized overload will
 be discarded during template substitution if \lstinline!range.sort()! is
 not a valid expression for the deduced \lstinline!Range!
@@ -347,7 +347,7 @@ declaration for the purpose of expression-validity detection prior to
 template instantiation is commonly known as \romeogloss{expression SFINAE},
 is a restricted form of the more general (classical) SFINAE, and acts exclusively on
 expressions visible in a function's signature rather than on often obscure
-template-based type computations.}}
+  template-based type computations.}}
 
 Putting it all together, we see that exactly two possible
 outcomes exist for the original client-facing \lstinline!sortRange! function
@@ -366,7 +366,7 @@ will sometimes yield different results for the same expression
 
 \begin{lstlisting}[language=C++]
 int i = 0; // (ù{\codeincomments{decltype(i)}}ù) yields (ù{\codeincomments{int}}ù).
-// (ù{\codeincomments{decltype((i))}}ù) yields (ù{\codeincomments{int\&}}ù).
+           // (ù{\codeincomments{decltype((i))}}ù) yields (ù{\codeincomments{int\&}}ù).
 \end{lstlisting}
 
 \noindent In the case where the unparenthesized operand is an entity having a
@@ -376,7 +376,7 @@ type \lstinline!T!, the results will coincidentally be the same:
 
 \begin{lstlisting}[language=C++]
 int& ref = i;  // (ù{\codeincomments{decltype(ref)}}ù) yields (ù{\codeincomments{int\&}}ù).
-// (ù{\codeincomments{decltype((ref))}}ù) yields (ù{\codeincomments{int\&}}ù).
+               // (ù{\codeincomments{decltype((ref))}}ù) yields (ù{\codeincomments{int\&}}ù).
 \end{lstlisting}
 
 \noindent Wrapping its operand with parentheses ensures \lstinline!decltype! yields
@@ -397,13 +397,13 @@ An alternate solution to this problem is to capture the result of the \lstinline
 
 \begin{lstlisting}[language=C++]
 template <typename A, typename B,
-typename Result = decltype(std::declval<const A&>() +
-std::declval<const B&>())>
+          typename Result = decltype(std::declval<const A&>() +
+                                     std::declval<const B&>())>
 Result loggedSum(const A& a, const B& b)
 {
-Result result = a + b;  // No duplication of the (ù{\codeincomments{decltype}}ù) expression
-LOG_TRACE << a << " + " << b << "=" << result;
-return result;
+    Result result = a + b;  // No duplication of the (ù{\codeincomments{decltype}}ù) expression
+    LOG_TRACE << a << " + " << b << "=" << result;
+    return result;
 }
 \end{lstlisting}
 

@@ -24,8 +24,8 @@ body:
 template <typename T>
 void myFunc(T&& forRef)
 {
-// It is possible to check if (ù{\codeincomments{forRef}}ù) is eligible to be moved from or not
-// from within the body of (ù{\codeincomments{myFunc}}ù).
+    // It is possible to check if (ù{\codeincomments{forRef}}ù) is eligible to be moved from or not
+    // from within the body of (ù{\codeincomments{myFunc}}ù).
 }
 \end{lstlisting}
 
@@ -38,7 +38,7 @@ represents a \emph{forwarding} reference (as opposed to an
 member) function template has a type parameter (e.g., \texttt{T}) and
 an unqualified function parameter of type that is exactly
 \texttt{T\&\&} (e.g., \texttt{const}~\texttt{T\&\&} would be an
-\emph{rvalue} reference).}} however, the same \texttt{T\&\&} syntax
+  \emph{rvalue} reference).}} however, the same \texttt{T\&\&} syntax
 designates a \textbf{forwarding reference}, with the effect of retaining
 the original value category of the object bound to the argument
 \texttt{forRef}; see \textit{\titleref{description-forwardingref}: \titleref{identifying-forwarding-references}} on page~\pageref{identifying-forwarding-references}.
@@ -79,14 +79,14 @@ to use the \texttt{std::is\_lvalue\_reference} \textbf{type trait} on
 template <typename T>
 void f(T&& forRef)      // (ù{\codeincomments{forRef}}ù) is a forwarding reference.
 {
-if (std::is_lvalue_reference<T>::value)  // using a C++11 type trait
-{
-g(forRef);             // propagates (ù{\codeincomments{forRef}}ù) as an *lvalue*
-}                          // invokes (ù{\codeincomments{g(const S\&)}}ù)
-else
-{
-g(std::move(forRef));  // propagates (ù{\codeincomments{forRef}}ù) as an *rvalue*
-}                          // invokes (ù{\codeincomments{g(S\&\&)}}ù)
+    if (std::is_lvalue_reference<T>::value)  // using a C++11 type trait
+    {
+        g(forRef);             // propagates (ù{\codeincomments{forRef}}ù) as an *lvalue*
+    }                          // invokes (ù{\codeincomments{g(const S\&)}}ù)
+    else
+    {
+        g(std::move(forRef));  // propagates (ù{\codeincomments{forRef}}ù) as an *rvalue*
+    }                          // invokes (ù{\codeincomments{g(S\&\&)}}ù)
 }
 \end{lstlisting}
 
@@ -102,9 +102,9 @@ generally preferred; see \textit{\titleref{description-forwardingref}: \titleref
 template <typename T>
 void f(T&& forRef)
 {
-g(std::forward<T>(forRef));
-// same as (ù{\codeincomments{g(std::move(forRef))}}ù) if and only if (ù{\codeincomments{forRef}}ù) is an *rvalue*
-// reference; otherwise, equivalent to (ù{\codeincomments{g(forRef)}}ù)
+    g(std::forward<T>(forRef));
+        // same as (ù{\codeincomments{g(std::move(forRef))}}ù) if and only if (ù{\codeincomments{forRef}}ù) is an *rvalue*
+        // reference; otherwise, equivalent to (ù{\codeincomments{g(forRef)}}ù)
 }
 \end{lstlisting}
 
@@ -115,12 +115,12 @@ above:
 \begin{lstlisting}[language=C++]
 void client()
 {
-S s;
-f(s);    // Instantiates (ù{\codeincomments{f<S\&>}}ù) -- (ù{\codeincomments{fRef}}ù) is an lvalue reference ((ù{\codeincomments{S\&}}ù)).
-// The function (ù{\codeincomments{f<S\&>}}ù) will end up invoking (ù{\codeincomments{g(S\&)}}ù).
+    S s;
+    f(s);    // Instantiates (ù{\codeincomments{f<S\&>}}ù) -- (ù{\codeincomments{fRef}}ù) is an lvalue reference ((ù{\codeincomments{S\&}}ù)).
+             // The function (ù{\codeincomments{f<S\&>}}ù) will end up invoking (ù{\codeincomments{g(S\&)}}ù).
 
-f(S());  // Instantiates (ù{\codeincomments{f<S\&\&>}}ù) -- (ù{\codeincomments{fRef}}ù) is an rvalue reference ((ù{\codeincomments{S\&\&}}ù)).
-// The function (ù{\codeincomments{f<S\&\&>}}ù) will end up invoking (ù{\codeincomments{g(S\&\&)}}ù).
+    f(S());  // Instantiates (ù{\codeincomments{f<S\&\&>}}ù) -- (ù{\codeincomments{fRef}}ù) is an rvalue reference ((ù{\codeincomments{S\&\&}}ù)).
+             // The function (ù{\codeincomments{f<S\&\&>}}ù) will end up invoking (ù{\codeincomments{g(S\&\&)}}ù).
 }
 \end{lstlisting}
 
@@ -142,9 +142,9 @@ template <typename T> void h(T y, T z);
 
 void example0()
 {
-f();        // error: couldn't infer template argument (ù{\codeincomments{T}}ù)
-g(0);       // OK, (ù{\codeincomments{T}}ù) deduced as (ù{\codeincomments{int}}ù) from literal (ù{\codeincomments{0}}ù) -- (ù{\codeincomments{x}}ù) is an (ù{\codeincomments{int}}ù).
-h(0, 'a');  // error: deduced conflicting types for (ù{\codeincomments{T}}ù) ((ù{\codeincomments{int}}ù) vs. (ù{\codeincomments{char}}ù))
+    f();        // error: couldn't infer template argument (ù{\codeincomments{T}}ù)
+    g(0);       // OK, (ù{\codeincomments{T}}ù) deduced as (ù{\codeincomments{int}}ù) from literal (ù{\codeincomments{0}}ù) -- (ù{\codeincomments{x}}ù) is an (ù{\codeincomments{int}}ù).
+    h(0, 'a');  // error: deduced conflicting types for (ù{\codeincomments{T}}ù) ((ù{\codeincomments{int}}ù) vs. (ù{\codeincomments{char}}ù))
 }
 \end{lstlisting}
 
@@ -159,9 +159,9 @@ template <typename T> void wf(const volatile T z);
 
 void example1()
 {
-cf(0);  // OK, (ù{\codeincomments{T}}ù) deduced as (ù{\codeincomments{int}}ù) -- (ù{\codeincomments{x}}ù) is a (ù{\codeincomments{const int}}ù).
-vf(0);  // OK, (ù{\codeincomments{T}}ù) deduced as (ù{\codeincomments{int}}ù) -- (ù{\codeincomments{y}}ù) is a (ù{\codeincomments{volatile int}}ù).
-wf(0);  // OK, (ù{\codeincomments{T}}ù) deduced as (ù{\codeincomments{int}}ù) -- (ù{\codeincomments{z}}ù) is a (ù{\codeincomments{const}}ù) (ù{\codeincomments{volatile}}ù) (ù{\codeincomments{int}}ù).
+    cf(0);  // OK, (ù{\codeincomments{T}}ù) deduced as (ù{\codeincomments{int}}ù) -- (ù{\codeincomments{x}}ù) is a (ù{\codeincomments{const int}}ù).
+    vf(0);  // OK, (ù{\codeincomments{T}}ù) deduced as (ù{\codeincomments{int}}ù) -- (ù{\codeincomments{y}}ù) is a (ù{\codeincomments{volatile int}}ù).
+    wf(0);  // OK, (ù{\codeincomments{T}}ù) deduced as (ù{\codeincomments{int}}ù) -- (ù{\codeincomments{z}}ù) is a (ù{\codeincomments{const}}ù) (ù{\codeincomments{volatile}}ù) (ù{\codeincomments{int}}ù).
 }
 \end{lstlisting}
 
@@ -175,12 +175,12 @@ template <typename T> void crf(const T& x);
 
 void example2()
 {
-int i;
-rf(i);   // OK, (ù{\codeincomments{T}}ù) is deduced as (ù{\codeincomments{int}}ù) -- (ù{\codeincomments{x}}ù) is an (ù{\codeincomments{int\&}}ù).
-crf(i);  // OK, (ù{\codeincomments{T}}ù) is deduced as (ù{\codeincomments{int}}ù) -- (ù{\codeincomments{x}}ù) is a (ù{\codeincomments{const int\&}}ù).
+    int i;
+    rf(i);   // OK, (ù{\codeincomments{T}}ù) is deduced as (ù{\codeincomments{int}}ù) -- (ù{\codeincomments{x}}ù) is an (ù{\codeincomments{int\&}}ù).
+    crf(i);  // OK, (ù{\codeincomments{T}}ù) is deduced as (ù{\codeincomments{int}}ù) -- (ù{\codeincomments{x}}ù) is a (ù{\codeincomments{const int\&}}ù).
 
-rf(0);   // error: expects an lvalue for 1st argument
-crf(0);  // OK, (ù{\codeincomments{T}}ù) is deduced as (ù{\codeincomments{int}}ù) -- (ù{\codeincomments{x}}ù) is a (ù{\codeincomments{const int\&}}ù).
+    rf(0);   // error: expects an lvalue for 1st argument
+    crf(0);  // OK, (ù{\codeincomments{T}}ù) is deduced as (ù{\codeincomments{int}}ù) -- (ù{\codeincomments{x}}ù) is a (ù{\codeincomments{const int\&}}ù).
 }
 \end{lstlisting}
 
@@ -193,7 +193,7 @@ the sake of exposition, consider a function template declaration,
 template <typename T> void f(T&& forRef);
 \end{lstlisting}
 
-%%%%%%%% PRODUCTION: make sure we are as precise as we can be with this xref on FPPs.
+ %%%%%%%% PRODUCTION: make sure we are as precise as we can be with this xref on FPPs.
 \noindent We have seen in the example on page~\pageref{f-invoked-example} that,
 when \texttt{f} is invoked with an
 \emph{lvalue} of type \texttt{S}, then \texttt{T} is deduced as
@@ -213,14 +213,14 @@ reference:
 \begin{lstlisting}[language=C++]
 void g()
 {
-int i;
-f(i);  // (ù{\codeincomments{i}}ù) is an *lvalue* expression.
-// (ù{\codeincomments{T}}ù) is therefore deduced as (ù{\codeincomments{int\&}}ù) -- special rule!
-// (ù{\codeincomments{T\&\&}}ù) becomes (ù{\codeincomments{int\& \&\&}}ù), which collapses to (ù{\codeincomments{int\&}}ù).
+    int i;
+    f(i);  // (ù{\codeincomments{i}}ù) is an *lvalue* expression.
+           // (ù{\codeincomments{T}}ù) is therefore deduced as (ù{\codeincomments{int\&}}ù) -- special rule!
+           // (ù{\codeincomments{T\&\&}}ù) becomes (ù{\codeincomments{int\& \&\&}}ù), which collapses to (ù{\codeincomments{int\&}}ù).
 
-f(0)  // (ù{\codeincomments{0}}ù) is an *rvalue* expression.
-// (ù{\codeincomments{T}}ù) is therefore deduced as (ù{\codeincomments{int}}ù).
-// (ù{\codeincomments{T\&\&}}ù) becomes (ù{\codeincomments{int\&\&}}ù), which is an *rvalue* reference.
+    f(0)  // (ù{\codeincomments{0}}ù) is an *rvalue* expression.
+          // (ù{\codeincomments{T}}ù) is therefore deduced as (ù{\codeincomments{int}}ù).
+          // (ù{\codeincomments{T\&\&}}ù) becomes (ù{\codeincomments{int\&\&}}ù), which is an *rvalue* reference.
 }
 \end{lstlisting}
 
@@ -266,7 +266,7 @@ reference is when they are both \emph{rvalue} references.
 
 Finally, note that it is not possible to write a reference-to-reference
 type in C++\linebreak%%%%%
-\mbox{explicitly}:
+ \mbox{explicitly}:
 
 \begin{lstlisting}[language=C++]
 int    i   = 0;   // OK
@@ -290,14 +290,14 @@ references can occur spontaneously:
 \begin{lstlisting}[language=C++]
 template <typename T>
 struct AddLvalueRef { typedef T& type; };
-// metafunction that transforms to an *lvalue* reference to (ù{\codeincomments{T}}ù)
+    // metafunction that transforms to an *lvalue* reference to (ù{\codeincomments{T}}ù)
 
 template <typename T>
 void f(T input)
 {
-typename AddLvalueRef<T>::type ir1 = input;    // OK, adds (ù{\codeincomments{\&}}ù) to make (ù{\codeincomments{T\&}}ù)
-typename AddLvalueRef<T&>::type ir2 = input;   // OK, collapses to (ù{\codeincomments{T\&}}ù)
-typename AddLvalueRef<T&&>::type ir3 = input;  // OK, collapses to (ù{\codeincomments{T\&}}ù)
+    typename AddLvalueRef<T>::type ir1 = input;    // OK, adds (ù{\codeincomments{\&}}ù) to make (ù{\codeincomments{T\&}}ù)
+    typename AddLvalueRef<T&>::type ir2 = input;   // OK, collapses to (ù{\codeincomments{T\&}}ù)
+    typename AddLvalueRef<T&&>::type ir3 = input;  // OK, collapses to (ù{\codeincomments{T\&}}ù)
 }
 \end{lstlisting}
 
@@ -321,10 +321,10 @@ type that exactly matches that parameter followed by \texttt{\&\&}
 \begin{lstlisting}[language=C++]
 struct S0
 {
-template <typename T>
-void f(T&& forRef);
-// OK, fully eligible for template-argument type deduction: (ù{\codeincomments{forRef}}ù)
-// is a forwarding reference.
+    template <typename T>
+    void f(T&& forRef);
+        // OK, fully eligible for template-argument type deduction: (ù{\codeincomments{forRef}}ù)
+        // is a forwarding reference.
 }
 \end{lstlisting}
 
@@ -334,10 +334,10 @@ the usual meaning of \emph{rvalue} reference:
 \begin{lstlisting}[language=C++]
 struct S1
 {
-template <typename T>
-void f(const T&& crRef);
-// Eligible for type deduction but is not a forwarding reference: due
-// to the (ù{\codeincomments{const}}ù) qualifier, (ù{\codeincomments{crRef}}ù) is an *rvalue* reference.
+    template <typename T>
+    void f(const T&& crRef);
+        // Eligible for type deduction but is not a forwarding reference: due
+        // to the (ù{\codeincomments{const}}ù) qualifier, (ù{\codeincomments{crRef}}ù) is an *rvalue* reference.
 }
 \end{lstlisting}
 
@@ -348,9 +348,9 @@ then its template type parameter will not be deduced:
 template <typename T>
 struct S2
 {
-void f(T&& rRef);
-// Not eligible for type deduction because (ù{\codeincomments{T}}ù) is fixed and known as part
-// of the instantiation of (ù{\codeincomments{S2}}ù): (ù{\codeincomments{rRef}}ù) is an *rvalue* reference.
+    void f(T&& rRef);
+       // Not eligible for type deduction because (ù{\codeincomments{T}}ù) is fixed and known as part
+       // of the instantiation of (ù{\codeincomments{S2}}ù): (ù{\codeincomments{rRef}}ù) is an *rvalue* reference.
 };
 \end{lstlisting}
 
@@ -369,8 +369,8 @@ deduction:
 \begin{lstlisting}[language=C++]
 void f()
 {
-auto&& i = 0;  // (ù{\codeincomments{i}}ù) is a forwarding reference because the type of (ù{\codeincomments{i}}ù) must
-// be deduced from the initialization expression (ù{\codeincomments{0}}ù).
+    auto&& i = 0;  // (ù{\codeincomments{i}}ù) is a forwarding reference because the type of (ù{\codeincomments{i}}ù) must
+                   // be deduced from the initialization expression (ù{\codeincomments{0}}ù).
 }
 \end{lstlisting}
 
@@ -381,10 +381,10 @@ auto&& i = 0;  // (ù{\codeincomments{i}}ù) is a forwarding reference because t
 \begin{lstlisting}[language=C++]
 void g()
 {
-int i;
-auto&& lv = i;  // (ù{\codeincomments{lv}}ù) is an (ù{\codeincomments{int\&}}ù).
+    int i;
+    auto&& lv = i;  // (ù{\codeincomments{lv}}ù) is an (ù{\codeincomments{int\&}}ù).
 
-auto&& rv = 0;  // (ù{\codeincomments{rv}}ù) is an (ù{\codeincomments{int\&\&}}ù).
+    auto&& rv = 0;  // (ù{\codeincomments{rv}}ù) is an (ù{\codeincomments{int\&\&}}ù).
 }
 \end{lstlisting}
 
@@ -396,11 +396,11 @@ always enforced:
 \begin{lstlisting}[language=C++]
 void h()
 {
-int        i = 0;
-const int ci = 0;
+    int        i = 0;
+    const int ci = 0;
 
-auto&& lv  = i;   // (ù{\codeincomments{lv}}ù) is an (ù{\codeincomments{int\&}}ù).
-auto&& clv = ci;  // (ù{\codeincomments{clv}}ù) is a (ù{\codeincomments{const int\&}}ù).
+    auto&& lv  = i;   // (ù{\codeincomments{lv}}ù) is an (ù{\codeincomments{int\&}}ù).
+    auto&& clv = ci;  // (ù{\codeincomments{clv}}ù) is a (ù{\codeincomments{const int\&}}ù).
 }
 \end{lstlisting}
 
@@ -412,16 +412,16 @@ e.g., using \texttt{std::forward} (see \textit{\titleref{description-forwardingr
 \begin{lstlisting}[language=C++]
 template <typename T>
 void use(T&& t); // Here (ù{\codeincomments{use}}ù) also takes a forwarding reference parameter
-// to do with as it pleases.
+                 // to do with as it pleases.
 
 template <typename T>
 void l()
 {
-auto&& fr = get<T>();
-// (ù{\codeincomments{get<T>()}}ù) might be either an *lvalue* or *rvalue* depending on (ù{\codeincomments{T}}ù).
+    auto&& fr = get<T>();
+        // (ù{\codeincomments{get<T>()}}ù) might be either an *lvalue* or *rvalue* depending on (ù{\codeincomments{T}}ù).
 
-use(std::forward<decltype(fr)>(fr));  // (ù{\codeincomments{decltype}}ù) is a C++11 feature.
-// Propagate the original value category of (ù{\codeincomments{get<T>()}}ù) into (ù{\codeincomments{use}}ù).
+    use(std::forward<decltype(fr)>(fr));  // (ù{\codeincomments{decltype}}ù) is a C++11 feature.
+        // Propagate the original value category of (ù{\codeincomments{get<T>()}}ù) into (ù{\codeincomments{use}}ù).
 }
 \end{lstlisting}
 
@@ -443,13 +443,13 @@ obtaining iterators over a range of an unknown \textbf{value category}:
 template <typename T>
 void m()
 {
-auto&& r = getRange<T>();
-// (ù{\codeincomments{getRange<T>()}}ù) might be either an lvalue or rvalue depending on (ù{\codeincomments{T}}ù).
+    auto&& r = getRange<T>();
+        // (ù{\codeincomments{getRange<T>()}}ù) might be either an lvalue or rvalue depending on (ù{\codeincomments{T}}ù).
 
-auto b = std::begin(r);
-auto e = std::end(r);
+    auto b = std::begin(r);
+    auto e = std::end(r);
 
-traverseRange(b, e);
+    traverseRange(b, e);
 }
 \end{lstlisting}
 
@@ -535,7 +535,7 @@ our original goal without any code duplication:
 template <typename T>
 void pipe(T&& x)
 {
-sink(std::forward<T>(x));
+    sink(std::forward<T>(x));
 }
 \end{lstlisting}
 
@@ -560,41 +560,41 @@ struct Person { /* UDT that benefits from move semantics */ };
 
 class StudyGroup
 {
-Person d_a;
-Person d_b;
-Person d_c;
-Person d_d;
-// ...
+    Person d_a;
+    Person d_b;
+    Person d_c;
+    Person d_d;
+    // ...
 
 public:
-bool isValid(const Person& a, const Person& b, const Person& c, const Person& d);
-// Return (ù{\codeincomments{true}}ù) if these specific people form a valid study group under
-// the guidelines of the study-group commission, and false otherwise.
-// ...
+    bool isValid(const Person& a, const Person& b, const Person& c, const Person& d);
+        // Return (ù{\codeincomments{true}}ù) if these specific people form a valid study group under
+        // the guidelines of the study-group commission, and false otherwise.
+    // ...
 
-template <typename PA, typename PB, typename PC, typename PD,
-typename = typename std::enable_if<
-std::is_same<typename std::decay<PA>::type, Person>::value &&
-std::is_same<typename std::decay<PB>::type, Person>::value &&
-std::is_same<typename std::decay<PC>::type, Person>::value &&
-std::is_same<typename std::decay<PD>::type, Person>::value>::type>
-int setPersonsIfValid(PA&& a, PB&& b, PC&& c, PD&& d)
-{
-enum { e_SUCCESS = 0, e_FAIL };
+    template <typename PA, typename PB, typename PC, typename PD,
+        typename = typename std::enable_if<
+            std::is_same<typename std::decay<PA>::type, Person>::value &&
+            std::is_same<typename std::decay<PB>::type, Person>::value &&
+            std::is_same<typename std::decay<PC>::type, Person>::value &&
+            std::is_same<typename std::decay<PD>::type, Person>::value>::type>
+    int setPersonsIfValid(PA&& a, PB&& b, PC&& c, PD&& d)
+    {
+        enum { e_SUCCESS = 0, e_FAIL };
 
-if (!isValid(a, b, c, d))
-{
-return e_FAIL;  // bad choice; no change
-}
+        if (!isValid(a, b, c, d))
+        {
+            return e_FAIL;  // bad choice; no change
+        }
 
-// Move or copy each person into this object's (ù{\codeincomments{Person}}ù) data members:
-d_a = std::forward<PA>(a);
-d_b = std::forward<PB>(b);
-d_c = std::forward<PC>(c);
-d_d = std::forward<PD>(d);
+        // Move or copy each person into this object's (ù{\codeincomments{Person}}ù) data members:
+        d_a = std::forward<PA>(a);
+        d_b = std::forward<PB>(b);
+        d_c = std::forward<PC>(c);
+        d_d = std::forward<PD>(d);
 
-return e_SUCCESS;  // Study group was updated successfully.
-}
+        return e_SUCCESS;  // Study group was updated successfully.
+    }
 };
 \end{lstlisting}
 
@@ -645,17 +645,17 @@ our output \texttt{shared\_ptr}:
 template <typename ELEMENT_TYPE, typename ARG1, typename ARG2>
 std::shared_ptr<ELEMENT_TYPE> my::make_shared(ARG1&& arg1, ARG2&& arg2)
 {
-ELEMENT_TYPE *element_p = new ELEMENT_TYPE(std::forward<ARG1>(arg1),
-std::forward<ARG2>(arg2));
-try
-{
-return std::shared_ptr<ELEMENT_TYPE>(element_p);
-}
-catch (...)
-{
-delete element_p;
-throw;
-}
+    ELEMENT_TYPE *element_p = new ELEMENT_TYPE(std::forward<ARG1>(arg1),
+                                               std::forward<ARG2>(arg2));
+    try
+    {
+        return std::shared_ptr<ELEMENT_TYPE>(element_p);
+    }
+    catch (...)
+    {
+        delete element_p;
+        throw;
+    }
 }
 \end{lstlisting}
 
@@ -691,10 +691,10 @@ certain initializers have been invoked:
 \begin{lstlisting}[language=C++]
 struct TrackingSystem
 {
-template <typename T>
-static void trackInitialization(int numArgs);
-// Track the creation of a (ù{\codeincomments{T}}ù) with a constructor taking (ù{\codeincomments{numArgs}}ù)
-// arguments.
+    template <typename T>
+    static void trackInitialization(int numArgs);
+        // Track the creation of a (ù{\codeincomments{T}}ù) with a constructor taking (ù{\codeincomments{numArgs}}ù)
+        // arguments.
 };
 \end{lstlisting}
 
@@ -708,8 +708,8 @@ calling the constructor for us:
 template <class ELEMENT_TYPE, typename... ARGS>
 ELEMENT_TYPE trackConstruction(ARGS&&... args)
 {
-TrackingSystem::trackInitialization<ELEMENT_TYPE>(sizeof...(args));
-return ELEMENT_TYPE(std::forward<ARGS>(args)...);
+    TrackingSystem::trackInitialization<ELEMENT_TYPE>(sizeof...(args));
+    return ELEMENT_TYPE(std::forward<ARGS>(args)...);
 }
 \end{lstlisting}
 
@@ -720,8 +720,8 @@ arguments.
 \begin{lstlisting}[language=C++]
 void myFunction()
 {
-BigObject untracked("Hello", "World");
-BigObject tracked = trackConstruction("Hello","World");
+    BigObject untracked("Hello", "World");
+    BigObject tracked = trackConstruction("Hello","World");
 }
 \end{lstlisting}
 
@@ -755,8 +755,8 @@ inserting a temporary \texttt{std::string} object in a\linebreak[4]
 \begin{lstlisting}[language=C++]
 void f(std::vector<std::string>& v)
 {
-v.push_back(std::string("hello world"));
-// invokes (ù{\codeincomments{std::string::string(const char*)}}ù) and the copy-constructor
+    v.push_back(std::string("hello world"));
+        // invokes (ù{\codeincomments{std::string::string(const char*)}}ù) and the copy-constructor
 }
 \end{lstlisting}
 
@@ -788,8 +788,8 @@ unnecessary copies or even moves:
 \begin{lstlisting}[language=C++]
 void g(std::vector<std::string>& v)
 {
-v.emplace_back("hello world");
-// invokes only the (ù{\codeincomments{std::string::string(const char*)}}ù) constructor
+    v.emplace_back("hello world");
+        // invokes only the (ù{\codeincomments{std::string::string(const char*)}}ù) constructor
 }
 \end{lstlisting}
 
@@ -810,9 +810,9 @@ template <typename T>
 template <typename... Args>
 void std::vector<T>::emplace_back(Args&&... args)
 {
-// ...
-new (&freeLocationInBuffer) T(std::forward<Args>(args)...);  // pseudocode
-// ...
+    // ...
+    new (&freeLocationInBuffer) T(std::forward<Args>(args)...);  // pseudocode
+    // ...
 }
 \end{lstlisting}
 
@@ -849,17 +849,17 @@ standard UNIX processing utilities:
 SpellingSuggestion checkSpelling(const std::string& word);
 
 std::map<std::string, SpellingSuggestion> checkFileSpelling(
-const std::string& filename)
+                                                   const std::string& filename)
 {
-return makeMap(
-filter(transform(
-uniq(sort(filterRegex(splitRegex(openFile(filename),"\S+"),"\w+")))
-[](const std::string& x)
-{
-return std::tuple<std::string, SpellingSuggestion>(x,
-checkSpelling(x));
-}
-), [](auto&& x) { return !std::get<1>(x).isCorrect(); }));
+    return makeMap(
+        filter(transform(
+            uniq(sort(filterRegex(splitRegex(openFile(filename),"\S+"),"\w+")))
+        [](const std::string& x)
+        {
+            return std::tuple<std::string, SpellingSuggestion>(x,
+                                                             checkSpelling(x));
+        }
+   ), [](auto&& x) { return !std::get<1>(x).isCorrect(); }));
 }
 \end{lstlisting}
 
@@ -890,42 +890,42 @@ this expression while achieving the same:
 
 \begin{lstlisting}[language=C++]
 std::map<std::string, SpellingSuggestion> checkFileSpelling(
-const std::string& filename)
+                                                   const std::string& filename)
 {
-// Create a range over the contents of (ù{\codeincomments{filename}}ù).
-auto&& openedFile = openFile(filename);
+    // Create a range over the contents of (ù{\codeincomments{filename}}ù).
+    auto&& openedFile = openFile(filename);
 
-// Split the file by whitespace.
-auto&& potentialWords = splitRegex(
-std::forward<decltype(openedFile)>(openedFile), "\S+");
+    // Split the file by whitespace.
+    auto&& potentialWords = splitRegex(
+        std::forward<decltype(openedFile)>(openedFile), "\S+");
 
-// Filter out only words made from word-characters.
-auto&& words = filterRegex(
-std::forward<decltype(potentialWords)>(potentialWords), "\w+");
+    // Filter out only words made from word-characters.
+    auto&& words = filterRegex(
+        std::forward<decltype(potentialWords)>(potentialWords), "\w+");
 
-// Sort all words.
-auto&& sortedWords = sort(std::forward<decltype(words)>(words));
+    // Sort all words.
+    auto&& sortedWords = sort(std::forward<decltype(words)>(words));
 
-// Skip adjacent identical words. (This is now a sequence of unique words.)
-auto&& uniqueWords = uniq(std::forward<decltype(sortedWords)>(sortedWords));
+    // Skip adjacent identical words. (This is now a sequence of unique words.)
+    auto&& uniqueWords = uniq(std::forward<decltype(sortedWords)>(sortedWords));
 
-// Get a (ù{\codeincomments{SpellingSuggestion}}ù) for every word.
-auto&& suggestions = transform(
-std::forward<decltype(uniqueWords)>(uniqueWords),
-[](const std::string&x) {
-return std::tuple<std::string,SpellingSuggestion>(
-x,checkSpelling(x));
-});
+    // Get a (ù{\codeincomments{SpellingSuggestion}}ù) for every word.
+    auto&& suggestions = transform(
+        std::forward<decltype(uniqueWords)>(uniqueWords),
+        [](const std::string&x) {
+            return std::tuple<std::string,SpellingSuggestion>(
+                x,checkSpelling(x));
+        });
 
-// Filter out correctly spelled words, keeping only elements where the
-// second element of the tuple, which is a (ù{\codeincomments{SpellingSuggestion}}ù), is not
-// (ù{\codeincomments{correct}}ù).
-auto&& corrections = filter(
-std::forward<decltype(corrections)>(corrections),
-[](auto&& suggestion){ return !std::get<1>(suggestion).isCorrect(); });
+    // Filter out correctly spelled words, keeping only elements where the
+    // second element of the tuple, which is a (ù{\codeincomments{SpellingSuggestion}}ù), is not
+    // (ù{\codeincomments{correct}}ù).
+    auto&& corrections = filter(
+        std::forward<decltype(corrections)>(corrections),
+        [](auto&& suggestion){ return !std::get<1>(suggestion).isCorrect(); });
 
-// Return a map made from these 2-element tuples:
-return makeMap(std::forward<decltype(corrections)>(corrections));
+    // Return a map made from these 2-element tuples:
+    return makeMap(std::forward<decltype(corrections)>(corrections));
 }
 \end{lstlisting}
 
@@ -953,26 +953,26 @@ overloads of an \texttt{addWord} member function:
 \begin{lstlisting}[language=C++]
 class Dictionary
 {
-// ...
+    // ...
 
 public:
-void addWord(const std::string& word);  // (0) copy (ù{\codeincomments{word}}ù) in the dictionary
-void addWord(std::string&& word);       // (1) move (ù{\codeincomments{word}}ù) in the dictionary
+    void addWord(const std::string& word);  // (0) copy (ù{\codeincomments{word}}ù) in the dictionary
+    void addWord(std::string&& word);       // (1) move (ù{\codeincomments{word}}ù) in the dictionary
 };
 
 void f()
 {
-Dictionary d;
+    Dictionary d;
 
-std::string s = "car";
-d.addWord(s);                    // invokes (0)
+    std::string s = "car";
+    d.addWord(s);                    // invokes (0)
 
-const std::string cs = "toy";
-d.addWord(cs);                   // invokes (0)
+    const std::string cs = "toy";
+    d.addWord(cs);                   // invokes (0)
 
-d.addWord("house");              // invokes (1)
-d.addWord("garage");             // invokes (1)
-d.addWord(std::string{"ball"});  // invokes (1)
+    d.addWord("house");              // invokes (1)
+    d.addWord("garage");             // invokes (1)
+    d.addWord(std::string{"ball"});  // invokes (1)
 }
 \end{lstlisting}
 
@@ -983,11 +983,11 @@ of avoiding code repetition between the two overloads:
 \begin{lstlisting}[language=C++]
 class Dictionary
 {
-// ...
+    // ...
 
 public:
-template <typename T>
-void addWord(T&& word);
+    template <typename T>
+    void addWord(T&& word);
 };
 \end{lstlisting}
 
@@ -996,17 +996,17 @@ void addWord(T&& word);
 \begin{lstlisting}[language=C++]
 void f()
 {
-Dictionary d;
+    Dictionary d;
 
-std::string s = "car";
-d.addWord(s);  // instantiates (ù{\codeincomments{addWord<std::string\&>}}ù)
+    std::string s = "car";
+    d.addWord(s);  // instantiates (ù{\codeincomments{addWord<std::string\&>}}ù)
 
-const std::string cs = "toy";
-d.addWord(cs);  // instantiates (ù{\codeincomments{addWord<const std::string\&>}}ù)
+    const std::string cs = "toy";
+    d.addWord(cs);  // instantiates (ù{\codeincomments{addWord<const std::string\&>}}ù)
 
-d.addWord("house");              // instantiates (ù{\codeincomments{addWord<char const(\&)[6]>}}ù)
-d.addWord("garage");             // instantiates (ù{\codeincomments{addWord<char const(\&)[7]>}}ù)
-d.addWord(std::string{"ball"});  // instantiates (ù{\codeincomments{addWord<std::string\&\&>}}ù)
+    d.addWord("house");              // instantiates (ù{\codeincomments{addWord<char const(\&)[6]>}}ù)
+    d.addWord("garage");             // instantiates (ù{\codeincomments{addWord<char const(\&)[7]>}}ù)
+    d.addWord(std::string{"ball"});  // instantiates (ù{\codeincomments{addWord<std::string\&\&>}}ù)
 }
 \end{lstlisting}
 
@@ -1027,8 +1027,8 @@ an (unnamed) \emph{rvalue} reference; see ``\titleref{Rvalue-References}" on pag
 template <typename T>
 void f(T&& x)
 {
-g(std::forward<T>(x));  // OK
-g(x);                   // Oops! (ù{\codeincomments{x}}ù) could have already been moved from.
+    g(std::forward<T>(x));  // OK
+    g(x);                   // Oops! (ù{\codeincomments{x}}ù) could have already been moved from.
 }
 \end{lstlisting}
 
@@ -1046,17 +1046,17 @@ resolution compared to \texttt{S}'s copy constructor:
 \begin{lstlisting}[language=C++]
 struct S
 {
-template <typename T> S(T&&);  // forwarding constructor
-S(const S&);                   // copy constructor
+    template <typename T> S(T&&);  // forwarding constructor
+    S(const S&);                   // copy constructor
 };
 
 void f()
 {
-S a;
-const S b;
+    S a;
+    const S b;
 
-S x(a);  // invokes forwarding constructor
-S y(b);  // invokes copy constructor
+    S x(a);  // invokes forwarding constructor
+    S y(b);  // invokes copy constructor
 }
 \end{lstlisting}
 
@@ -1076,23 +1076,23 @@ template <typename T>
 class Wrapper  // wrapper for an object of arbitrary type 'T'
 {
 private:
-T d_datum;
+    T d_datum;
 
 public:
-template <typename U>
-Wrapper(U&& datum) : d_datum(std::forward<U>(datum)) { }
-// perfect-forwarding constructor (to optimize runtime performance)
+    template <typename U>
+    Wrapper(U&& datum) : d_datum(std::forward<U>(datum)) { }
+        // perfect-forwarding constructor (to optimize runtime performance)
 
-// ...
+    // ...
 };
 
 void f()
 {
-std::string s("hello world");
-Wrapper<std::string> w0(s);  // OK, (ù{\codeincomments{s}}ù) is copied into (ù{\codeincomments{d\_datum}}ù).
+    std::string s("hello world");
+    Wrapper<std::string> w0(s);  // OK, (ù{\codeincomments{s}}ù) is copied into (ù{\codeincomments{d\_datum}}ù).
 
-Wrapper<std::string> w1(std::string("hello world"));
-// OK, the temporary string is moved into (ù{\codeincomments{d\_datum}}ù).
+    Wrapper<std::string> w1(std::string("hello world"));
+        // OK, the temporary string is moved into (ù{\codeincomments{d\_datum}}ù).
 }
 \end{lstlisting}
 
@@ -1103,8 +1103,8 @@ to copy-construct a non-\texttt{const} instance of \texttt{Wrapper}
 \begin{lstlisting}[language=C++]
 void g(Wrapper<int>& wr)  // The same would happen if (ù{\codeincomments{wr}}ù) were passed by value.
 {
-Wrapper<int> w2(10);  // OK, invokes perfect-forwarding constructor
-Wrapper<int> w3(wr);  // error: no conversion from (ù{\codeincomments{Wrapper<int>}}ù) to (ù{\codeincomments{int}}ù)
+    Wrapper<int> w2(10);  // OK, invokes perfect-forwarding constructor
+    Wrapper<int> w3(wr);  // error: no conversion from (ù{\codeincomments{Wrapper<int>}}ù) to (ù{\codeincomments{int}}ù)
 }
 \end{lstlisting}
 
@@ -1121,23 +1121,23 @@ template <typename T>
 class Wrapper
 {
 private:
-T d_datum;
+    T d_datum;
 
 public:
-template <typename U,
-typename = typename std::enable_if<
-!std::is_same<typename std::decay<U>::type, Wrapper>::value
->::type
->
-Wrapper(U&& datum) : d_datum(std::forward<U>(datum)) { }
-// This constructor participates in overload resolution only if (ù{\codeincomments{U}}ù),
-// after being decayed, is not the same as (ù{\codeincomments{Wrapper}}ù).
+    template <typename U,
+        typename = typename std::enable_if<
+            !std::is_same<typename std::decay<U>::type, Wrapper>::value
+        >::type
+    >
+    Wrapper(U&& datum) : d_datum(std::forward<U>(datum)) { }
+        // This constructor participates in overload resolution only if (ù{\codeincomments{U}}ù),
+        // after being decayed, is not the same as (ù{\codeincomments{Wrapper}}ù).
 };
 
 void h(Wrapper<int>& wr)  // The same would happen if (ù{\codeincomments{wr}}ù) were passed by value.
 {
-Wrapper<int> w4(10);  // OK, invokes the perfect-forwarding constructor
-Wrapper<int> w5(wr);  // OK, invokes the copy constructor
+    Wrapper<int> w4(10);  // OK, invokes the perfect-forwarding constructor
+    Wrapper<int> w5(wr);  // OK, invokes the copy constructor
 }
 \end{lstlisting}
 
@@ -1171,13 +1171,13 @@ void f(Addable auto&& a);  // C++20 terse concept notation
 
 void example()
 {
-int i;
+    int i;
 
-f(i);  // OK, (ù{\codeincomments{decltype(a)}}ù) is (ù{\codeincomments{int\&}}ù) in (ù{\codeincomments{f}}ù).
-f(0);  // OK, (ù{\codeincomments{decltype(a)}}ù) is (ù{\codeincomments{int\&\&}}ù) in (ù{\codeincomments{f}}ù).
+    f(i);  // OK, (ù{\codeincomments{decltype(a)}}ù) is (ù{\codeincomments{int\&}}ù) in (ù{\codeincomments{f}}ù).
+    f(0);  // OK, (ù{\codeincomments{decltype(a)}}ù) is (ù{\codeincomments{int\&\&}}ù) in (ù{\codeincomments{f}}ù).
 }
 \end{lstlisting}
-}}
+      }}
 
 \begin{lstlisting}[language=C++]
 template <typename T> struct S0 { void f(T&&); };  // rvalue reference
@@ -1217,10 +1217,10 @@ or \emph{move} a \texttt{Person} object into a data structure:
 
 \begin{lstlisting}[language=C++]
 template <typename T, typename = typename std::enable_if<
-std::is_same<std::decay<T>::type, Person>::value>::type>
+                       std::is_same<std::decay<T>::type, Person>::value>::type>
 void PersonManager::addPerson(T&& person);
-// This function participates in overload resolution only if (ù{\codeincomments{T}}ù) is
-// (possibly cv- or ref-qualified) (ù{\codeincomments{Person}}ù).
+    // This function participates in overload resolution only if (ù{\codeincomments{T}}ù) is
+    // (possibly cv- or ref-qualified) (ù{\codeincomments{Person}}ù).
 \end{lstlisting}
 
 \noindent This incantation to constrain \texttt{T} has a number of layers to it,

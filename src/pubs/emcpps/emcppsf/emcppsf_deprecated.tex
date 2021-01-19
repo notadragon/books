@@ -20,7 +20,7 @@ having every client change in lock step. Allowing clients time to move
 \emph{asynchronously} to newer alternatives is often the only viable
 approach unless (1) the codebase is a closed system, (2) all of the
 relevant code is governed by a single authority, and (3) there is some
-sort of mechanical way to make the change.}}) before the deprecated
+  sort of mechanical way to make the change.}}) before the deprecated
 one is (in some subsequent release) removed. Although not strictly
 required, the Standard explicitly encourages{\cprotect\footnote{The C++
 Standard characterizes what constitutes a well-formed program, but
@@ -29,7 +29,7 @@ needs of their users. In case any feature induces warnings,
 command-line options are typically available to disable those warnings
 (\texttt{-Wno-deprecated} in GCC) or methods are in place to suppress those warnings
 locally (e.g.,
-\texttt{\#pragma}~\texttt{GCC}~\texttt{diagnostic}~\texttt{ignored}~\texttt{"-Wdeprecated"}).}}
+  \texttt{\#pragma}~\texttt{GCC}~\texttt{diagnostic}~\texttt{ignored}~\texttt{"-Wdeprecated"}).}}
 conforming compilers to produce a diagnostic message in case a program
 refers to any \textbf{entity} to which the \texttt{[[deprecated]]}
 attribute pertains. For instance, most popular compilers emit a
@@ -40,21 +40,21 @@ used portably to decorate other entities: \texttt{class},
 function, enumeration, template specialization. Applying
 \texttt{[[deprecated]]} to a specific enumerator or namespace,
 however, is guaranteed to be supported only since C++17; see
-\textbf{smith15a} for more information.}} is used:
+  \textbf{smith15a} for more information.}} is used:
 
 \begin{lstlisting}[language=C++]
-void f();
+               void f();
 [[deprecated]] void g();
 
-int a;
+               int a;
 [[deprecated]] int b;
 
 void h()
 {
-f();
-g();  // Warning: (ù{\codeincomments{g}}ù) is deprecated.
-a;
-b;    // Warning: (ù{\codeincomments{b}}ù) is deprecated.
+    f();
+    g();  // Warning: (ù{\codeincomments{g}}ù) is deprecated.
+    a;
+    b;    // Warning: (ù{\codeincomments{b}}ù) is deprecated.
 }
 \end{lstlisting}
 
@@ -65,12 +65,12 @@ reason for the deprecation:
 
 \begin{lstlisting}[language=C++]
 [[deprecated("too slow, use (ù{\codeincomments{algo1}}ù) instead")]] void algo0();
-void algo1();
+                                                void algo1();
 
 void f()
 {
-algo0();  // Warning: (ù{\codeincomments{algo0}}ù) is deprecated; too slow, use (ù{\codeincomments{algo1}}ù) instead.
-algo1();
+    algo0();  // Warning: (ù{\codeincomments{algo0}}ù) is deprecated; too slow, use (ù{\codeincomments{algo1}}ù) instead.
+    algo1();
 }
 \end{lstlisting}
 
@@ -110,8 +110,8 @@ member function to generate random numbers:
 \begin{lstlisting}[language=C++]
 struct RandomGenerator
 {
-static int nextRandom();
-// Generate a random value between 0 and 32767 (inclusive).
+    static int nextRandom();
+        // Generate a random value between 0 and 32767 (inclusive).
 };
 \end{lstlisting}
 
@@ -125,7 +125,7 @@ entropy.{\cprotect\footnote{The C Standard Library provides
 \texttt{rand}, available in C++ through the \texttt{<cstdlib>} header.
 It has similar issues to our \texttt{RandomGenerator::nextRandom}
 function, and similarly developers are guided to use the facilities
-provided in the \texttt{<random>} header since C++11.}} One
+  provided in the \texttt{<random>} header since C++11.}} One
 solution is to provide an alternative random number generator that
 maintains more state, allows users to decide where to store that state
 (the random number generator objects), and overall offers more
@@ -136,11 +136,11 @@ to move away from the inferior solution:
 \begin{lstlisting}[language=C++]
 class BetterRandomGenerator
 {
-// ... (internal state of a quality pseudorandom number generator) ...
+    // ... (internal state of a quality pseudorandom number generator) ...
 
 public:
-int nextRandom();
-// Generate a quality random value between 0 and 32767 (inclusive).
+    int nextRandom();
+       // Generate a quality random value between 0 and 32767 (inclusive).
 };
 \end{lstlisting}
 
@@ -155,9 +155,9 @@ of \texttt{RandomGenerator::nextRandom()}:
 \begin{lstlisting}[language=C++]
 struct RandomGenerator
 {
-[[deprecated("Use (ù{\codeincomments{BetterRandomGenerator::nextRandom()}}ù) instead.")]]
-static int nextRandom();
-// ...
+    [[deprecated("Use (ù{\codeincomments{BetterRandomGenerator::nextRandom()}}ù) instead.")]]
+    static int nextRandom();
+        // ...
 };
 \end{lstlisting}
 
@@ -175,7 +175,7 @@ bottom line will forever be a source of tension. Allowing disparate
 development teams to address such improvements in their own respective
 time frames (perhaps subject to some reasonable overall deadline
 date) is a proven real-world practical way of ameliorating this
-tension.}}
+  tension.}}
 
 \subsection[Potential Pitfalls]{Potential Pitfalls}\label{potential-pitfalls}
 

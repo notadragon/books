@@ -13,7 +13,7 @@ important engineering needs:
 
 \begin{lstlisting}[language=C++]
 enum EnumName { e_Enumerator0 /*= value0 */, e_EnumeratorN /* = valueN */ };
-// classic, C-style (ù{\codeincomments{enum}}ù): enumerators are neither type-safe nor scoped
+    // classic, C-style (ù{\codeincomments{enum}}ù): enumerators are neither type-safe nor scoped
 \end{lstlisting}
 
 \noindent For more examples where the classic \texttt{enum} shines, see \textit{\titleref{potential-pitfalls-enumclass}: \titleref{strong-typing-of-an-enum-class-can-be-counterproductive}} on page~\pageref{strong-typing-of-an-enum-class-can-be-counterproductive} and \textit{\titleref{annoyances-enumclass}: \titleref{scoped-enumerations-do-not-necessarily-add-value}} on page~\pageref{scoped-enumerations-do-not-necessarily-add-value}. Still,
@@ -39,7 +39,7 @@ typically not manifest unless and until the two enumerations are
 included in the same translation unit.{\cprotect\footnote{Note that
 we use a lowercase, single-letter prefix, such as \texttt{e\_}, to
 ensure that the uppercase enumerator name is less likely to collide
-with a legacy macro, which is especially useful in header files.}}
+  with a legacy macro, which is especially useful in header files.}}
 
 If the only issue were the leakage of the enumerators into the enclosing
 scope, then the long-established workaround of enclosing the enumeration
@@ -95,26 +95,26 @@ promote using the rules of \textbf{integral promotion} and
 \begin{lstlisting}[language=C++]
 void f()
 {
-enum A { e_A0, e_A1, e_A2 };  // classic, C-style C++03 (ù{\codeincomments{enum}}ù)
-enum B { e_B0, e_B1, e_B2 };  //    "       "       "     "
+    enum A { e_A0, e_A1, e_A2 };  // classic, C-style C++03 (ù{\codeincomments{enum}}ù)
+    enum B { e_B0, e_B1, e_B2 };  //    "       "       "     "
 
-A a;  // Declare object (ù{\codeincomments{a}}ù) to be of type (ù{\codeincomments{A}}ù).
-B b;  //   "       "    (ù{\codeincomments{b}}ù)  " "  "       (ù{\codeincomments{B}}ù).
+    A a;  // Declare object (ù{\codeincomments{a}}ù) to be of type (ù{\codeincomments{A}}ù).
+    B b;  //   "       "    (ù{\codeincomments{b}}ù)  " "  "       (ù{\codeincomments{B}}ù).
 
-a = e_B2;  // error: cannot convert (ù{\codeincomments{e\_B2}}ù) to (ù{\codeincomments{enum}}ù) type (ù{\codeincomments{A}}ù)
-b = e_B2;  // OK, assign the value (ù{\codeincomments{e\_B2}}ù) (numerically 2) to (ù{\codeincomments{b}}ù).
-a = b;     // error: cannot convert enumerator (ù{\codeincomments{b}}ù) to (ù{\codeincomments{enum}}ù) type (ù{\codeincomments{A}}ù)
-b = b;     // OK, self-assignment
-a = 1;     // error: invalid conversion from (ù{\codeincomments{int 1}}ù) to (ù{\codeincomments{enum}}ù) type (ù{\codeincomments{A}}ù)
-a = 0;     // error: invalid conversion from (ù{\codeincomments{int 0}}ù) to (ù{\codeincomments{enum}}ù) type (ù{\codeincomments{A}}ù)
+    a = e_B2;  // error: cannot convert (ù{\codeincomments{e\_B2}}ù) to (ù{\codeincomments{enum}}ù) type (ù{\codeincomments{A}}ù)
+    b = e_B2;  // OK, assign the value (ù{\codeincomments{e\_B2}}ù) (numerically 2) to (ù{\codeincomments{b}}ù).
+    a = b;     // error: cannot convert enumerator (ù{\codeincomments{b}}ù) to (ù{\codeincomments{enum}}ù) type (ù{\codeincomments{A}}ù)
+    b = b;     // OK, self-assignment
+    a = 1;     // error: invalid conversion from (ù{\codeincomments{int 1}}ù) to (ù{\codeincomments{enum}}ù) type (ù{\codeincomments{A}}ù)
+    a = 0;     // error: invalid conversion from (ù{\codeincomments{int 0}}ù) to (ù{\codeincomments{enum}}ù) type (ù{\codeincomments{A}}ù)
 
-bool     v = a;     // OK
-char     w = e_A0;  // OK
-unsigned y = e_B1;  // OK
-float    x = b;     // OK
-double   z = e_A2;  // OK
-char*    p = e_B0;  // error: unable to convert (ù{\codeincomments{e\_B0}}ù) to (ù{\codeincomments{char*}}ù)
-char*    q = +e_B0; // error: invalid conversion of (ù{\codeincomments{int}}ù) to (ù{\codeincomments{char*}}ù)
+    bool     v = a;     // OK
+    char     w = e_A0;  // OK
+    unsigned y = e_B1;  // OK
+    float    x = b;     // OK
+    double   z = e_A2;  // OK
+    char*    p = e_B0;  // error: unable to convert (ù{\codeincomments{e\_B0}}ù) to (ù{\codeincomments{char*}}ù)
+    char*    q = +e_B0; // error: invalid conversion of (ù{\codeincomments{int}}ù) to (ù{\codeincomments{char*}}ù)
 }
 \end{lstlisting}
 
@@ -130,7 +130,7 @@ conversion to a pointer type from anything but the literal integer
 constant \texttt{0}{\cprotect\footnote{Excluding esoteric user-defined
 types, only a literal \texttt{0} or, as of C++11, a value of type
 \texttt{std::nullptr\_t} is implicitly convertible to an arbitrary
-pointer type; see ``\titleref{null-pointer-literal-(nullptr)}" on page~\pageref{null-pointer-literal-(nullptr)}.}} is not
+  pointer type; see ``\titleref{null-pointer-literal-(nullptr)}" on page~\pageref{null-pointer-literal-(nullptr)}.}} is not
 permitted.
 
 C++ fully supports comparing values of \emph{classic} \texttt{enum}
@@ -153,7 +153,7 @@ if ( e_A0 == +e_B0) { /* ... */ }  // OK, unary (ù{\codeincomments{+}}ù) conve
 if (+e_A0 ==  e_B0) { /* ... */ }  // OK,   "        "     "     "      "
 if (+e_A0 == +e_B0) { /* ... */ }  // OK,   "        "     "     "      "
 \end{lstlisting}
-}}
+      }}
 
 \subsubsection[Introducing the C++11 {\tt enum class}]{Introducing the C++11 {\SubsubsecCode enum class}}\label{introducing-the-c++11-enum-class}
 
@@ -164,7 +164,7 @@ desirable properties:
 
 \begin{lstlisting}[language=C++]
 enum class Name { e_Enumerator0 /* = value0 */, e_EnumeratorN /* = valueN */ };
-// (ù{\codeincomments{enum class}}ù) enumerators are both type-safe and scoped
+    // (ù{\codeincomments{enum class}}ù) enumerators are both type-safe and scoped
 \end{lstlisting}
 
 \noindent Another major distinction is that the default
@@ -198,14 +198,14 @@ enum class VehicleScopedImplicitly { e_CAR, e_BOAT,  e_PLANE };
 \texttt{enum}~\texttt{class} is passed as a parameter to a function
 using the enumerator name itself{\cprotect\footnote{If we use the approach for
 adding scope to enumerators that is described in \textit{\titleref{description-enumclass}: \titleref{drawbacks-relating-to-weakly-typed,-c++03-enumerators}} on page~\pageref{drawbacks-relating-to-weakly-typed,-c++03-enumerators}, the name of the enclosing \texttt{struct} together with a
-consistent tag, such as \texttt{Enum}, has to be used to indicate an
-enumerated type:
+  consistent tag, such as \texttt{Enum}, has to be used to indicate an
+  enumerated type:
 
-\begin{lstlisting}[language=C++, basicstyle={\ttfamily\footnotesize}]
-void f1(VehicleScopedExplicitly::Enum value);
-// classically scoped (ù{\codeincomments{enum}}ù) passed by value
-\end{lstlisting}
-}}:
+  \begin{lstlisting}[language=C++, basicstyle={\ttfamily\footnotesize}]
+  void f1(VehicleScopedExplicitly::Enum value);
+      // classically scoped (ù{\codeincomments{enum}}ù) passed by value
+  \end{lstlisting}
+      }}:
 
 \begin{lstlisting}[language=C++]
 void f1(VehicleUnscoped value);          // classic enumeration passed by value
@@ -218,11 +218,11 @@ irrespective of whether the scoping is explicit or implicit:
 \begin{lstlisting}[language=C++]
 void g()
 {
-f1(VehicleUnscoped::e_PLANE);
-// call (ù{\codeincomments{f1}}ù) with an explicitly scoped enumerator
+    f1(VehicleUnscoped::e_PLANE);
+        // call (ù{\codeincomments{f1}}ù) with an explicitly scoped enumerator
 
-f2(VehicleScopedImplicitly::e_PLANE);
-// call (ù{\codeincomments{f2}}ù) with an implicitly scoped enumerator
+    f2(VehicleScopedImplicitly::e_PLANE);
+        // call (ù{\codeincomments{f2}}ù) with an implicitly scoped enumerator
 }
 \end{lstlisting}
 
@@ -232,10 +232,10 @@ implicit conversion, in any context, to its \textbf{underlying type}:
 
 \begin{lstlisting}[language=C++]
 int i1 = VehicleScopedExplicitly::e_PLANE;
-// OK, scoped C++03 (ù{\codeincomments{enum}}ù) (implicit conversion)
+    // OK, scoped C++03 (ù{\codeincomments{enum}}ù) (implicit conversion)
 
 int i2 = VehicleScopedImplicitly::e_PLANE;
-// error: no implicit conversion to underlying type
+    // error: no implicit conversion to underlying type
 
 if (VehicleScopedExplicitly::e_PLANE > 3) { /* OK */ }
 if (VehicleScopedImplicitly::e_PLANE > 3) { /* error: implicit conversion */ }
@@ -253,7 +253,7 @@ static_assert(0 == static_cast<int>(E::e_A), "");  // OK, explicit conversion
 
 void f(E v)
 {
-if (v > E::e_A) { /* ... */ }  // OK, comparing values of same type, (ù{\codeincomments{E}}ù)
+    if (v > E::e_A) { /* ... */ }  // OK, comparing values of same type, (ù{\codeincomments{E}}ù)
 }
 \end{lstlisting}
 
@@ -267,13 +267,13 @@ specification of their integral \textbf{underlying type}:
 
 \begin{lstlisting}[language=C++]
 enum Ec : char { e_X, e_Y, e_Z };
-// underlying type is (ù{\codeincomments{char}}ù)
+    // underlying type is (ù{\codeincomments{char}}ù)
 
 static_assert(1 == sizeof(Ec),     "");
 static_assert(1 == sizeof Ec::E_X, "");
 
 enum class Es : short { e_X, e_Y, e_Z };
-// underlying type is (ù{\codeincomments{short int}}ù)
+    // underlying type is (ù{\codeincomments{short int}}ù)
 
 static_assert(sizeof(short) == sizeof(Es),     "");
 static_assert(sizeof(short) == sizeof Es::E_X, "");
@@ -286,7 +286,7 @@ always \texttt{int}:
 
 \begin{lstlisting}[language=C++]
 enum class Ei { e_X, e_Y, e_Z };
-// When not specified the underlying type of an (ù{\codeincomments{enum class}}ù) is (ù{\codeincomments{int}}ù).
+    // When not specified the underlying type of an (ù{\codeincomments{enum class}}ù) is (ù{\codeincomments{int}}ù).
 
 static_assert(sizeof(int) == sizeof(Ei),     "");
 static_assert(sizeof(int) == sizeof Ei::E_X, "");
@@ -310,7 +310,7 @@ when configuring a product, such as a vehicle, for purchase:
 \begin{lstlisting}[language=C++]
 struct Trans
 {
-enum Enum { e_MANUAL, e_AUTOMATIC };  // classic, C++03 scoped (ù{\codeincomments{enum}}ù)
+    enum Enum { e_MANUAL, e_AUTOMATIC };  // classic, C++03 scoped (ù{\codeincomments{enum}}ù)
 };
 \end{lstlisting}
 
@@ -324,19 +324,19 @@ class Car { /* ... */ };
 
 struct Trans
 {                                         // explicitly scoped
-enum Enum { e_MANUAL, e_AUTOMATIC };  // classic (ù{\codeincomments{enum}}ù)
+    enum Enum { e_MANUAL, e_AUTOMATIC };  // classic (ù{\codeincomments{enum}}ù)
 };                                        // (BAD IDEA)
 
 int buildCar(Car* result, int numDoors, Trans::Enum trans)
 {
-int status = Trans::e_MANUAL;    // Oops, accidental misuse!
+    int status = Trans::e_MANUAL;    // Oops, accidental misuse!
 
-for (int i = 0; i < trans; ++i)  // Oops, accidental misuse!
-{
-attachDoor(i);
-}
+    for (int i = 0; i < trans; ++i)  // Oops, accidental misuse!
+    {
+         attachDoor(i);
+    }
 
-return status;
+    return status;
 }
 \end{lstlisting}
 
@@ -354,14 +354,14 @@ enum class Trans { e_MANUAL, e_AUTOMATIC };  // modern (ù{\codeincomments{enum 
 
 int buildCar(Car* result, int numDoors, Trans trans)
 {
-int status = Trans::e_MANUAL;    // error: incompatible types
+    int status = Trans::e_MANUAL;    // error: incompatible types
 
-for (int i = 0; i < trans; ++i)  // error: incompatible types
-{
-attachDoor(i);
-}
+    for (int i = 0; i < trans; ++i)  // error: incompatible types
+    {
+         attachDoor(i);
+    }
 
-return status;
+    return status;
 }
 \end{lstlisting}
 
@@ -410,14 +410,14 @@ or \texttt{namespace}:
 // vehicle.h
 // ...
 struct Vehicle {                            // explicitly scoped
-enum Enum { e_CAR, e_TRAIN, e_PLANE };  // classic, C-style (ù{\codeincomments{enum}}ù)
+    enum Enum { e_CAR, e_TRAIN, e_PLANE };  // classic, C-style (ù{\codeincomments{enum}}ù)
 };
 // ...
 
 // geometry.h
 // ...
 struct Geometry {                            // explicitly scoped
-enum Enum { e_POINT, e_LINE, e_PLANE };  // classic, C-style (ù{\codeincomments{enum}}ù)
+    enum Enum { e_POINT, e_LINE, e_PLANE };  // classic, C-style (ù{\codeincomments{enum}}ù)
 };
 // ...
 
@@ -464,7 +464,7 @@ unique, and irrelevant. Imagine we have chosen to represent
 \begin{lstlisting}[language=C++]
 struct Color
 {                                           // explicitly scoped
-enum Enum { e_RED, e_BLUE /*, ...*/ };  // classic, C-style (ù{\codeincomments{enum}}ù)
+    enum Enum { e_RED, e_BLUE /*, ...*/ };  // classic, C-style (ù{\codeincomments{enum}}ù)
 };                                          // (BAD IDEA)
 \end{lstlisting}
 
@@ -485,31 +485,31 @@ states in the warning that it is an error:
 
 \begin{lstlisting}[language=C++, basicstyle={\ttfamily\footnotesize}]
 warning: ISO C++ says that these are ambiguous, even though the worst conversion for the
-first is better than the worst conversion for the second:
+         first is better than the worst conversion for the second:
 
 note: candidate 1: void clearScreen(int, int)
 void clearScreen(int pattern, int orientation);
-^~~~~~~~~~~
+     ^~~~~~~~~~~
 note: candidate 2: void clearScreen(Color::Enum, double)
 void clearScreen(Color::Enum background, double alpha;
-^~~~~~~~~~~
+     ^~~~~~~~~~~
 \end{lstlisting}
-}}:
+      }}:
 
 \begin{lstlisting}[language=C++]
 void f0()
 {
-clearScreen(1           , 1           );  // calls (0) above
-clearScreen(1           , 1.0         );  // calls (0) above
-clearScreen(1           , Color::e_RED);  // calls (0) above
+    clearScreen(1           , 1           );  // calls (0) above
+    clearScreen(1           , 1.0         );  // calls (0) above
+    clearScreen(1           , Color::e_RED);  // calls (0) above
 
-clearScreen(1.0         , 1           );  // calls (0) above
-clearScreen(1.0         , 1.0         );  // calls (0) above
-clearScreen(1.0         , Color::e_RED);  // calls (0) above
+    clearScreen(1.0         , 1           );  // calls (0) above
+    clearScreen(1.0         , 1.0         );  // calls (0) above
+    clearScreen(1.0         , Color::e_RED);  // calls (0) above
 
-clearScreen(Color::e_RED, 1           );  // error: ambiguous call
-clearScreen(Color::e_RED, 1.0         );  // calls (1) above
-clearScreen(Color::e_RED, Color::e_RED);  // error: ambiguous call
+    clearScreen(Color::e_RED, 1           );  // error: ambiguous call
+    clearScreen(Color::e_RED, 1.0         );  // calls (1) above
+    clearScreen(Color::e_RED, Color::e_RED);  // error: ambiguous call
 }
 \end{lstlisting}
 
@@ -529,17 +529,17 @@ clear:
 \begin{lstlisting}[language=C++]
 void f1()
 {
-clearScreen(1           , 1           );  // calls (2) above
-clearScreen(1           , 1.0         );  // calls (2) above
-clearScreen(1           , Color::e_RED);  // error: no matching function
+    clearScreen(1           , 1           );  // calls (2) above
+    clearScreen(1           , 1.0         );  // calls (2) above
+    clearScreen(1           , Color::e_RED);  // error: no matching function
 
-clearScreen(1.0         , 1           );  // calls (2) above
-clearScreen(1.0         , 1.0         );  // calls (2) above
-clearScreen(1.0         , Color::e_RED);  // error: no matching function
+    clearScreen(1.0         , 1           );  // calls (2) above
+    clearScreen(1.0         , 1.0         );  // calls (2) above
+    clearScreen(1.0         , Color::e_RED);  // error: no matching function
 
-clearScreen(Color::e_RED, 1           );  // calls (3) above
-clearScreen(Color::e_RED, 1.0         );  // calls (3) above
-clearScreen(Color::e_RED, Color::e_RED);  // error: no matching function
+    clearScreen(Color::e_RED, 1           );  // calls (3) above
+    clearScreen(Color::e_RED, 1.0         );  // calls (3) above
+    clearScreen(Color::e_RED, Color::e_RED);  // error: no matching function
 }
 \end{lstlisting}
 
@@ -559,7 +559,7 @@ very disappointed:
 \begin{lstlisting}[language=C++]
 void f2()
 {
-clearScreen(Color::e_RED, 1.0);  // calls (0) above
+    clearScreen(Color::e_RED, 1.0);  // calls (0) above
 }
 \end{lstlisting}
 
@@ -569,17 +569,17 @@ will call function (0) above with no warnings at all:
 \begin{lstlisting}[language=C++]
 void f3()
 {
-clearScreen(1           , 1           );  // calls (0) above
-clearScreen(1           , 1.0         );  // calls (0) above
-clearScreen(1           , Color::e_RED);  // calls (0) above
+    clearScreen(1           , 1           );  // calls (0) above
+    clearScreen(1           , 1.0         );  // calls (0) above
+    clearScreen(1           , Color::e_RED);  // calls (0) above
 
-clearScreen(1.0         , 1           );  // calls (0) above
-clearScreen(1.0         , 1.0         );  // calls (0) above
-clearScreen(1.0         , Color::e_RED);  // calls (0) above
+    clearScreen(1.0         , 1           );  // calls (0) above
+    clearScreen(1.0         , 1.0         );  // calls (0) above
+    clearScreen(1.0         , Color::e_RED);  // calls (0) above
 
-clearScreen(Color::e_RED, 1           );  // calls (0) above
-clearScreen(Color::e_RED, 1.0         );  // calls (0) above
-clearScreen(Color::e_RED, Color::e_RED);  // calls (0) above
+    clearScreen(Color::e_RED, 1           );  // calls (0) above
+    clearScreen(Color::e_RED, 1.0         );  // calls (0) above
+    clearScreen(Color::e_RED, Color::e_RED);  // calls (0) above
 }
 \end{lstlisting}
 
@@ -593,7 +593,7 @@ void clearScreen(Color background, double alpha, bool z);  // (5) modern
 
 void f4()
 {
-clearScreen(Color::e_RED, 1.0);  // error: no matching function
+    clearScreen(Color::e_RED, 1.0);  // error: no matching function
 }
 \end{lstlisting}
 
@@ -603,17 +603,17 @@ those that do not involve the enumeration \texttt{Color}, as desired:
 \begin{lstlisting}[language=C++]
 void f5()
 {
-clearScreen(1           , 1           );  // calls (2) above
-clearScreen(1           , 1.0         );  // calls (2) above
-clearScreen(1           , Color::e_RED);  // error: no matching function
+    clearScreen(1           , 1           );  // calls (2) above
+    clearScreen(1           , 1.0         );  // calls (2) above
+    clearScreen(1           , Color::e_RED);  // error: no matching function
 
-clearScreen(1.0         , 1           );  // calls (2) above
-clearScreen(1.0         , 1.0         );  // calls (2) above
-clearScreen(1.0         , Color::e_RED);  // error: no matching function
+    clearScreen(1.0         , 1           );  // calls (2) above
+    clearScreen(1.0         , 1.0         );  // calls (2) above
+    clearScreen(1.0         , Color::e_RED);  // error: no matching function
 
-clearScreen(Color::e_RED, 1           );  // error: no matching function
-clearScreen(Color::e_RED, 1.0         );  // error: no matching function
-clearScreen(Color::e_RED, Color::e_RED);  // error: no matching function
+    clearScreen(Color::e_RED, 1           );  // error: no matching function
+    clearScreen(Color::e_RED, 1.0         );  // error: no matching function
+    clearScreen(Color::e_RED, Color::e_RED);  // error: no matching function
 }
 \end{lstlisting}
 
@@ -629,9 +629,9 @@ type be desired:
 \begin{lstlisting}[language=C++]
 void f6()
 {
-clearScreen(Color::e_RED, 1.0);                   // error: no match
-clearScreen(static_cast<int>(Color::e_RED), 1.0); // OK, calls (2) above
-clearScreen(Color::e_RED, 1.0, false);            // OK, calls (5) above
+    clearScreen(Color::e_RED, 1.0);                   // error: no match
+    clearScreen(static_cast<int>(Color::e_RED), 1.0); // OK, calls (2) above
+    clearScreen(Color::e_RED, 1.0, false);            // OK, calls (5) above
 }
 \end{lstlisting}
 
@@ -643,7 +643,7 @@ not necessarily contiguous, numerical values that exploit lower-order
 bits{\cprotect\footnote{To preserve the ordinality of the enumerators
 overall, the higher-level bits must encode their relative order. The
 lower-level bits are then available for arbitrary use in the
-implementation.}} to categorize (and make readily available) important
+  implementation.}} to categorize (and make readily available) important
 individual properties might offer an advantage, such as in performance.
 
 For example, suppose that we have a \texttt{MonthOfYear} enumeration
@@ -656,28 +656,28 @@ chosen an \texttt{unsigned}~\texttt{char} to maximize the number of
 flag bits while keeping the overall size to a single byte. Three bits
 remain available. Had we needed more flag bits, we could have just as
 easily used a larger underlying type, such as
-\texttt{unsigned}~\texttt{short}; see ``\titleref{explicit-enumeration-underlying-type}" on page~\pageref{explicit-enumeration-underlying-type}.}}:
+  \texttt{unsigned}~\texttt{short}; see ``\titleref{explicit-enumeration-underlying-type}" on page~\pageref{explicit-enumeration-underlying-type}.}}:
 
 \begin{lstlisting}[language=C++]
 enum class MonthOfYear : unsigned char  // optimized to flag long months
 {
-e_JAN = ( 1 << 4) + 0x1,
-e_FEB = ( 2 << 4) + 0x0,
-e_MAR = ( 3 << 4) + 0x1,
-e_APR = ( 4 << 4) + 0x0,
-e_MAY = ( 5 << 4) + 0x1,
-e_JUN = ( 6 << 4) + 0x0,
-e_JUL = ( 7 << 4) + 0x1,
-e_AUG = ( 8 << 4) + 0x1,
-e_SEP = ( 9 << 4) + 0x0,
-e_OCT = (10 << 4) + 0x1,
-e_NOV = (11 << 4) + 0x0,
-e_DEC = (12 << 4) + 0x1
+    e_JAN = ( 1 << 4) + 0x1,
+    e_FEB = ( 2 << 4) + 0x0,
+    e_MAR = ( 3 << 4) + 0x1,
+    e_APR = ( 4 << 4) + 0x0,
+    e_MAY = ( 5 << 4) + 0x1,
+    e_JUN = ( 6 << 4) + 0x0,
+    e_JUL = ( 7 << 4) + 0x1,
+    e_AUG = ( 8 << 4) + 0x1,
+    e_SEP = ( 9 << 4) + 0x0,
+    e_OCT = (10 << 4) + 0x1,
+    e_NOV = (11 << 4) + 0x0,
+    e_DEC = (12 << 4) + 0x1
 };
 
 bool hasThirtyOneDays(MonthOfYear month)
 {
-return static_cast<std::underlying_type<MonthOfYear>::type>(month) & 0x1;
+    return static_cast<std::underlying_type<MonthOfYear>::type>(month) & 0x1;
 }
 \end{lstlisting}
 
@@ -713,7 +713,7 @@ external library that takes an integer port number:
 
 \begin{lstlisting}[language=C++]
 int setPort(int portNumber);
-// Set the current port; return (ù{\codeincomments{0}}ù) on success and a nonzero value otherwise.
+    // Set the current port; return (ù{\codeincomments{0}}ù) on success and a nonzero value otherwise.
 \end{lstlisting}
 
 \noindent Suppose further that we have used the modern
@@ -722,7 +722,7 @@ int setPort(int portNumber);
 
 \begin{lstlisting}[language=C++]
 enum class SysPort { e_INPUT = 27, e_OUTPUT = 29, e_ERROR = 32, e_CTRL = 6 };
-// enumerated port values used to configure our systems
+    // enumerated port values used to configure our systems
 \end{lstlisting}
 
 \noindent Now suppose we want to call the function \texttt{f} using one of these
@@ -731,7 +731,7 @@ enumerated values:
 \begin{lstlisting}[language=C++]
 void setCurrentPortToCtrl()
 {
-setPort(SysPort::e_CTRL);  // error: cannot convert (ù{\codeincomments{SetPort}}ù) to (ù{\codeincomments{int}}ù)
+    setPort(SysPort::e_CTRL);  // error: cannot convert (ù{\codeincomments{SetPort}}ù) to (ù{\codeincomments{int}}ù)
 }
 \end{lstlisting}
 
@@ -748,9 +748,9 @@ setPort(int(SysPort::e_CTRL));                                           // (1)
 setPort((int)SysPort::e_CTRL);                                           // (2)
 setPort(static_cast<int>(SysPort::e_CTRL));                              // (3)
 setPort(static_cast<std::underlying_type<SysPort>::type>(                // (4)
-SysPort::e_CTRL));
+                                                         SysPort::e_CTRL));
 setPort(static_cast<int>(                                                // (5)
-static_cast<std::underlying_type<SysPort>::type>(SysPort::e_CTRL)));
+         static_cast<std::underlying_type<SysPort>::type>(SysPort::e_CTRL)));
 \end{lstlisting}
 
 \noindent Any of the above casts would work in this case, but consider a future
@@ -761,8 +761,8 @@ the control port was changed to a value that cannot be represented as an
 \begin{lstlisting}[language=C++]
 int setPort(long portNumber);
 enum class SysPort : unsigned { e_INPUT = 27, e_OUTPUT = 29, e_ERROR = 32,
-e_CTRL = 0x80000000 };
-// enumerated port values used to configure our systems
+                                e_CTRL = 0x80000000 };
+    // enumerated port values used to configure our systems
 \end{lstlisting}
 
 \noindent Only casting method (4) above will pass the correct value for
@@ -776,18 +776,18 @@ as the range of values used for ports changes:
 \begin{lstlisting}[language=C++]
 struct SysPort  // explicit scoping for a classic, C-style (ù{\codeincomments{enum}}ù)
 {
-enum Enum { e_INPUT = 27, e_OUTPUT = 29, e_ERROR = 32,
-e_CTRL = 0x80000000 };
+    enum Enum { e_INPUT = 27, e_OUTPUT = 29, e_ERROR = 32,
+                e_CTRL = 0x80000000 };
 
-// Note that the underlying type of (ù{\codeincomments{Enum}}ù) is implicit and will be
-// large enough to represent all of these values.
-static_assert(
-std::is_same<std::underlying_type<Enum>::type,unsigned>::value, "");
+    // Note that the underlying type of (ù{\codeincomments{Enum}}ù) is implicit and will be
+    // large enough to represent all of these values.
+    static_assert(
+        std::is_same<std::underlying_type<Enum>::type,unsigned>::value, "");
 };
 
 void setCurrentPortToCtrl()
 {
-setPort(SysPort::e_CTRL);  // OK, (ù{\codeincomments{SysPort::Enum}}ù) promotes to (ù{\codeincomments{long}}ù).
+    setPort(SysPort::e_CTRL);  // OK, (ù{\codeincomments{SysPort::Enum}}ù) promotes to (ù{\codeincomments{long}}ù).
 }
 \end{lstlisting}
 
@@ -808,9 +808,9 @@ theme, the expressiveness achieved using a \emph{classic} \texttt{enum}
 to aggregate those values is compelling.{\cprotect\footnote{Another
 advantage of an enumerator over an individual constant is that the
 enumerator is guaranteed to be a \textbf{compile-time constant} (see
-``\titleref{constexprvar}" on page~\pageref{constexprvar}) and a \textbf{prvalue} (see
-``\titleref{Rvalue-References}" on page~\pageref{Rvalue-References}), which never needs static storage
-and cannot have its address taken.}}
+  ``\titleref{constexprvar}" on page~\pageref{constexprvar}) and a \textbf{prvalue} (see
+  ``\titleref{Rvalue-References}" on page~\pageref{Rvalue-References}), which never needs static storage
+  and cannot have its address taken.}}
 
 For example, suppose we want to collect the coefficients for various
 numerical suffixes representing \emph{thousands}, \emph{millions}, and
@@ -826,8 +826,8 @@ cast it explicitly:
 \begin{lstlisting}[language=C++]
 void client0()
 {
-int distance = 5 * static_cast<int>(S0::e_K);  // casting is error-prone
-// ...
+    int distance = 5 * static_cast<int>(S0::e_K);  // casting is error-prone
+    // ...
 }
 \end{lstlisting}
 
@@ -838,14 +838,14 @@ during typical use:
 \begin{lstlisting}[language=C++]
 struct S1  // scoped
 {
-enum Enum { e_K = 1000, e_M = e_K * e_K, e_G = e_M * e_K };
-// *classic* (ù{\codeincomments{enum}}ù) (GOOD IDEA)
+    enum Enum { e_K = 1000, e_M = e_K * e_K, e_G = e_M * e_K };
+        // *classic* (ù{\codeincomments{enum}}ù) (GOOD IDEA)
 };
 
 void client1()
 {
-int distance = 5 * S1::e_K;  // no casting required during typical use
-// ...
+    int distance = 5 * S1::e_K;  // no casting required during typical use
+    // ...
 }
 \end{lstlisting}
 
@@ -862,17 +862,17 @@ enumerators:
 enum { k_NUM_PORTS = 500, k_PAGE_SIZE = 512 };     // compile-time constants
 static const double k_PRICING_THRESHOLD = 0.03125; // compile-time constant
 \end{lstlisting}
-}}:
+      }}:
 
 \begin{lstlisting}[language=C++]
 void client2()
 {
-enum { e_K = 1000, e_M = e_K * e_K, e_G = e_M * e_K };  // function scoped
+    enum { e_K = 1000, e_M = e_K * e_K, e_G = e_M * e_K };  // function scoped
 
-double salary = 95 * e_K;
-double netWorth = 0.62 * e_M;
-double companyRevenue = 47.2 * e_G;
-// ...
+    double salary = 95 * e_K;
+    double netWorth = 0.62 * e_M;
+    double companyRevenue = 47.2 * e_G;
+    // ...
 }
 \end{lstlisting}
 
@@ -889,10 +889,10 @@ enumeration used to control a file system:
 
 \begin{lstlisting}[language=C++]
 enum class Ctrl { e_READ = 0x1, e_WRITE = 0x2, e_EXEC = 0x4 };  // (BAD IDEA)
-// low-level bit flags used to control file system
+    // low-level bit flags used to control file system
 
 void chmodFile(int fd, int access);
-// low-level function used to change privileges on a file
+    // low-level function used to change privileges on a file
 \end{lstlisting}
 
 \noindent We could conceivably write a series of functions to combine the
@@ -908,7 +908,7 @@ int flags(Ctrl a, Ctrl b, Ctrl c) { return flags(a, b) | flags(c); }
 
 void setRW(int fd)
 {
-chmodFile(fd, flags(Ctrl::e_READ, Ctrl::e_WRITE));  // (BAD IDEA)
+    chmodFile(fd, flags(Ctrl::e_READ, Ctrl::e_WRITE));  // (BAD IDEA)
 }
 \end{lstlisting}
 
@@ -918,16 +918,16 @@ chmodFile(fd, flags(Ctrl::e_READ, Ctrl::e_WRITE));  // (BAD IDEA)
 \begin{lstlisting}[language=C++]
 struct Ctrl // scoped
 {
-enum Enum { e_READ = 0x1, e_WRITE = 0x2, e_EXEC = 0x4 };  // classic (ù{\codeincomments{enum}}ù)
-// low-level bit flags used to control file system (GOOD IDEA)
+    enum Enum { e_READ = 0x1, e_WRITE = 0x2, e_EXEC = 0x4 };  // classic (ù{\codeincomments{enum}}ù)
+        // low-level bit flags used to control file system (GOOD IDEA)
 };
 
 void chmodFile(int fd, int access);
-// low-level function used to change privileges on a file
+    // low-level function used to change privileges on a file
 
 void setRW(int fd)
 {
-chmodFile(fd, Ctrl::e_READ | Ctrl::e_WRITE);  // (GOOD IDEA)
+    chmodFile(fd, Ctrl::e_READ | Ctrl::e_WRITE);  // (GOOD IDEA)
 }
 \end{lstlisting}
 
@@ -941,10 +941,10 @@ year:
 \begin{lstlisting}[language=C++]
 enum class MonthOfYear  // modern, strongly typed enumeration
 {
-e_JAN, e_FEB, e_MAR,  // winter
-e_APR, e_MAY, e_JUN,  // spring
-e_JUL, e_AUG, e_SEP,  // summer
-e_OCT, e_NOV, e_DEC,  // autumn
+    e_JAN, e_FEB, e_MAR,  // winter
+    e_APR, e_MAY, e_JUN,  // spring
+    e_JUL, e_AUG, e_SEP,  // summer
+    e_OCT, e_NOV, e_DEC,  // autumn
 };
 \end{lstlisting}
 
@@ -954,7 +954,7 @@ there's no problem:
 \begin{lstlisting}[language=C++]
 bool isSummer(MonthOfYear month)
 {
-return MonthOfYear::e_JUL <= month && month <= MonthOfYear::e_AUG;
+    return MonthOfYear::e_JUL <= month && month <= MonthOfYear::e_AUG;
 }
 \end{lstlisting}
 
@@ -966,12 +966,12 @@ need to iterate over the enumerated values:
 \begin{lstlisting}[language=C++]
 void doSomethingWithEachMonth()
 {
-for (MonthOfYear i =  MonthOfYear::e_JAN;
-i <= MonthOfYear::e_DEC;
-++i)  // error: no match for (ù{\codeincomments{++}}ù)
-{
-// ...
-}
+    for (MonthOfYear i =  MonthOfYear::e_JAN;
+                     i <= MonthOfYear::e_DEC;
+                   ++i)  // error: no match for (ù{\codeincomments{++}}ù)
+    {
+        // ...
+    }
 }
 \end{lstlisting}
 
@@ -981,12 +981,12 @@ type will be required:
 \begin{lstlisting}[language=C++]
 void doSomethingWithEachMonth()
 {
-for (MonthOfYear i =  MonthOfYear::e_JAN;
-i <= MonthOfYear::e_DEC;
-i = static_cast<MonthOfYear>(static_cast<int>(i) + 1)
-{
-// ...
-}
+    for (MonthOfYear i =  MonthOfYear::e_JAN;
+                     i <= MonthOfYear::e_DEC;
+                     i = static_cast<MonthOfYear>(static_cast<int>(i) + 1)
+    {
+        // ...
+    }
 }
 \end{lstlisting}
 
@@ -996,17 +996,17 @@ clients to bump the enumerator:
 \begin{lstlisting}[language=C++]
 MonthOfYear nextMonth(MonthOfYear value)
 {
-return static_cast<MonthOfYear>(static_cast<int>(value) + 1);
+    return static_cast<MonthOfYear>(static_cast<int>(value) + 1);
 }
 
 void doSomethingWithEachMonth()
 {
-for (MonthOfYear i =  MonthOfYear::e_JAN;
-i <= MonthOfYear::e_DEC;
-i = nextMonth(i)
-{
-// ...
-}
+    for (MonthOfYear i =  MonthOfYear::e_JAN;
+                     i <= MonthOfYear::e_DEC;
+                     i = nextMonth(i)
+    {
+        // ...
+    }
 }
 \end{lstlisting}
 
@@ -1017,28 +1017,28 @@ is likely to be relevant to clients, an explicitly scoped \emph{classic}
 \begin{lstlisting}[language=C++]
 struct MonthOfYear  // explicit scoping for (ù{\codeincomments{enum}}ù)
 {
-enum Enum
-{
-e_JAN, e_FEB, e_MAR,  // winter
-e_APR, e_MAY, e_JUN,  // spring
-e_JUL, e_AUG, e_SEP,  // summer
-e_OCT, e_NOV, e_DEC,  // autumn
-};
+    enum Enum
+    {
+        e_JAN, e_FEB, e_MAR,  // winter
+        e_APR, e_MAY, e_JUN,  // spring
+        e_JUL, e_AUG, e_SEP,  // summer
+        e_OCT, e_NOV, e_DEC,  // autumn
+    };
 };
 
 bool isSummer(MonthOfYear::Enum month)  // must now pass nested (ù{\codeincomments{Enum}}ù) type
 {
-return MonthOfYear::e_JUL <= month && month <= MonthOfYear::e_AUG;
+    return MonthOfYear::e_JUL <= month && month <= MonthOfYear::e_AUG;
 }
 
 void doSomethingWithEachMonth()
 {
-for (int i =  MonthOfYear::e_JAN;  // iteration variable is now an (ù{\codeincomments{int}}ù)
-i <= MonthOfYear::e_DEC;
-++i)  // OK, convert to underlying type
-{
-// ... (might require cast back to enumerated type)
-}
+    for (int i =  MonthOfYear::e_JAN;  // iteration variable is now an (ù{\codeincomments{int}}ù)
+             i <= MonthOfYear::e_DEC;
+           ++i)  // OK, convert to underlying type
+    {
+        // ... (might require cast back to enumerated type)
+    }
 }
 \end{lstlisting}
 
@@ -1074,13 +1074,13 @@ For example, consider a function that returns an integer status
 \begin{lstlisting}[language=C++]
 int f()
 {
-enum { e_ERROR = -1, e_OK = 0 } result = e_OK;
-// ...
-if (/* error 1 */) { result = e_ERROR; }
-// ...
-if (/* error 2 */) { result = e_ERROR; }
-// ...
-return result;
+    enum { e_ERROR = -1, e_OK = 0 } result = e_OK;
+    // ...
+    if (/* error 1 */) { result = e_ERROR; }
+    // ...
+    if (/* error 2 */) { result = e_ERROR; }
+    // ...
+    return result;
 }
 \end{lstlisting}
 
@@ -1091,13 +1091,13 @@ where it might not be warranted:
 \begin{lstlisting}[language=C++]
 int f()
 {
-enum class RC { e_ERROR = -1, e_OK = 0 } result = RC::e_OK;
-// ...
-if (/* error 1 */) { result = RC::e_ERROR; } // undesirable qualification
-// ...
-if (/* error 2 */) { result = RC::e_ERROR; } // undesirable qualification
-// ...
-return static_cast<int>(result);  // undesirable explicit cast
+    enum class RC { e_ERROR = -1, e_OK = 0 } result = RC::e_OK;
+    // ...
+    if (/* error 1 */) { result = RC::e_ERROR; } // undesirable qualification
+    // ...
+    if (/* error 2 */) { result = RC::e_ERROR; } // undesirable qualification
+    // ...
+    return static_cast<int>(result);  // undesirable explicit cast
 }
 \end{lstlisting}
 

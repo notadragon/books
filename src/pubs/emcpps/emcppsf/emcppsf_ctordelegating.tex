@@ -18,11 +18,11 @@ initializer list}:
 \begin{lstlisting}[language=C++]
 struct S0
 {
-int d_i;
+    int d_i;
 
-S0(int i) : d_i(i)        { }  // non-delegating constructor
-S0()      : S0(0)         { }  // OK, delegates to (ù{\codeincomments{S0(int)}}ù)
-S0(bool)  : S0(0), d_i(0) { }  // error: delegation must be on its own
+    S0(int i) : d_i(i)        { }  // non-delegating constructor
+    S0()      : S0(0)         { }  // OK, delegates to (ù{\codeincomments{S0(int)}}ù)
+    S0(bool)  : S0(0), d_i(0) { }  // error: delegation must be on its own
 };
 \end{lstlisting}
 
@@ -36,14 +36,14 @@ the body of the delegator is invoked:
 
 struct S1
 {
-S1(int, int)            { std::cout << 'a'; }
-S1(int)      : S1(0, 0) { std::cout << 'b'; }
-S1()         : S1(0)    { std::cout << 'c'; }
+    S1(int, int)            { std::cout << 'a'; }
+    S1(int)      : S1(0, 0) { std::cout << 'b'; }
+    S1()         : S1(0)    { std::cout << 'c'; }
 };
 
 void f()
 {
-S1 s;  // OK, prints (ù{\codeincomments{"abc"}}ù) to (ù{\codeincomments{stdout}}ù)
+    S1 s;  // OK, prints (ù{\codeincomments{"abc"}}ù) to (ù{\codeincomments{stdout}}ù)
 }
 \end{lstlisting}
 
@@ -65,33 +65,33 @@ struct B { B() { cout << "B() "; } ~B() { cout << "~B() "; } };
 
 struct C : B
 {
-A d;
+    A d;
 
-C()  { cout << "C() "; throw 0; }  // non-delegating constructor that throws
-~C() { cout << "~C() ";         }  // destructor that never gets called
+    C()  { cout << "C() "; throw 0; }  // non-delegating constructor that throws
+    ~C() { cout << "~C() ";         }  // destructor that never gets called
 };
 
 void f() try { C c; } catch(int) { }
-// prints (ù{\codeincomments{"B() A() C() \textasciitilde A() \textasciitilde B()"}}ù) to (ù{\codeincomments{stdout}}ù)
+    // prints (ù{\codeincomments{"B() A() C() \textasciitilde A() \textasciitilde B()"}}ù) to (ù{\codeincomments{stdout}}ù)
 \end{lstlisting}
 
 \noindent Notice that base-class \texttt{B} and member \texttt{d} of type
 \texttt{a} were fully constructed, and so their respective destructors
 are called, even though the destructor for class \texttt{C} itself is
-never executed.}}:
+  never executed.}}:
 
 \begin{lstlisting}[language=C++]
 #include <iostream>  // (ù{\codeincomments{std::cout}}ù)
 
 struct S2
 {
-S2()  { std::cout << "S2() ";  throw 0; }
-~S2() { std::cout << "~S2() ";          }
+    S2()  { std::cout << "S2() ";  throw 0; }
+    ~S2() { std::cout << "~S2() ";          }
 };
 
 void f() try { S2 s; } catch(int) { }
-// prints only "(ù{\codeincomments{S2() }}ù)" to (ù{\codeincomments{stdout}}ù) (i.e., the destructor of (ù{\codeincomments{S2}}ù) is never
-// invoked)
+    // prints only "(ù{\codeincomments{S2() }}ù)" to (ù{\codeincomments{stdout}}ù) (i.e., the destructor of (ù{\codeincomments{S2}}ù) is never
+    // invoked)
 \end{lstlisting}
 
 \noindent However, if an exception is thrown in the body of a delegating
@@ -105,13 +105,13 @@ invoked:
 
 struct S3
 {
-S3()           { std::cout << "S3() "              }
-S3(int) : S3() { std::cout << "S3(int) "; throw 0; }
-~S3()          { std::cout << "~S3() "             }
+    S3()           { std::cout << "S3() "              }
+    S3(int) : S3() { std::cout << "S3(int) "; throw 0; }
+    ~S3()          { std::cout << "~S3() "             }
 };
 
 void f() try { S3 s(0); } catch(int) { }
-// prints "(ù{\codeincomments{S3() S3(int) \texttt{\~{}}S3() }}ù)" to (ù{\codeincomments{stdout}}ù)
+    // prints "(ù{\codeincomments{S3() S3(int) \texttt{\~{}}S3() }}ù)" to (ù{\codeincomments{stdout}}ù)
 \end{lstlisting}
 
 
@@ -140,34 +140,34 @@ this initial design might itself be suboptimal in that the
 representation of the IPV4 address and port value might profitably be
 factored out into a separate \textbf{value-semantic} class, say,
 \texttt{IPV4Host}, that itself might be constructed in multiple ways;
-see {\it\titleref{ctordelegrating-potential-pitfalls}:} {\it\titleref{suboptimal-factoring}} on page~\pageref{suboptimal-factoring}.}}:
+  see {\it\titleref{ctordelegrating-potential-pitfalls}:} {\it\titleref{suboptimal-factoring}} on page~\pageref{suboptimal-factoring}.}}:
 
 \begin{lstlisting}[language=C++]
 #include <cstdint>  // (ù{\codeincomments{std::uint16\_t}}ù), (ù{\codeincomments{std::uint32\_t}}ù)
 
 class IPV4Host
 {
-// ...
+    // ...
 
 public:
-IPV4Host(std::uint32_t address, std::uint16_t port)
-{
-if (!connect(address, port))  // code repetition: BAD IDEA
-{
-throw ConnectionException{address, port};
-}
-}
+    IPV4Host(std::uint32_t address, std::uint16_t port)
+    {
+        if (!connect(address, port))  // code repetition: BAD IDEA
+        {
+            throw ConnectionException{address, port};
+        }
+    }
 
-IPV4Host(const std::string& ip)
-{
-std::uint32_t address = extractAddress(ip);
-std::uint16_t port = extractPort(ip);
+    IPV4Host(const std::string& ip)
+    {
+        std::uint32_t address = extractAddress(ip);
+        std::uint16_t port = extractPort(ip);
 
-if (!connect(address, port))  // code repetition: BAD IDEA
-{
-throw ConnectionException{address, port};
-}
-}
+        if (!connect(address, port))  // code repetition: BAD IDEA
+        {
+            throw ConnectionException{address, port};
+        }
+    }
 };
 \end{lstlisting}
 
@@ -180,30 +180,30 @@ would, in turn, be called by each of the constructors:
 
 class IPV4Host
 {
-// ...
+    // ...
 
 private:
-void validate(std::uint32_t address, std::uint16_t port)  // helper function
-{
-if (!connect(address, port))  // factored implementation of needed logic
-{
-throw ConnectionException{address, port};
-}
-}
+    void validate(std::uint32_t address, std::uint16_t port)  // helper function
+    {
+        if (!connect(address, port))  // factored implementation of needed logic
+        {
+            throw ConnectionException{address, port};
+        }
+    }
 
 public:
-IPV4Host(std::uint32_t address, std::uint16_t port)
-{
-validate(address, port);  // Invoke factored private helper function.
-}
+    IPV4Host(std::uint32_t address, std::uint16_t port)
+    {
+        validate(address, port);  // Invoke factored private helper function.
+    }
 
-IPV4Host(const std::string& ip)
-{
-std::uint32_t address = extractAddress(ip);
-std::uint16_t port = extractPort(ip);
+    IPV4Host(const std::string& ip)
+    {
+        std::uint32_t address = extractAddress(ip);
+        std::uint16_t port = extractPort(ip);
 
-validate(address, port);  // Invoke factored private helper function.
-}
+        validate(address, port);  // Invoke factored private helper function.
+    }
 };
 \end{lstlisting}
 
@@ -216,21 +216,21 @@ avoiding repetition without having to delegate to a private function:
 
 class IPV4Host
 {
-// ...
+    // ...
 
 public:
-IPV4Host(std::uint32_t address, std::uint16_t port)
-{
-if(!connect(address, port))
-{
-throw ConnectionException{address, port};
-}
-}
+    IPV4Host(std::uint32_t address, std::uint16_t port)
+    {
+        if(!connect(address, port))
+        {
+            throw ConnectionException{address, port};
+        }
+    }
 
-IPV4Host(const std::string& ip)
-: IPV4Host{extractAddress(ip), extractPort(ip)}
-{
-}
+    IPV4Host(const std::string& ip)
+        : IPV4Host{extractAddress(ip), extractPort(ip)}
+    {
+    }
 };
 \end{lstlisting}
 
@@ -256,8 +256,8 @@ delegation cycle comprising two constructors:
 \begin{lstlisting}[language=C++]
 struct S  // Object
 {
-S(int)  : S(true) { }  // delegating constructor
-S(bool) : S(0)    { }  // delegating constructor
+    S(int)  : S(true) { }  // delegating constructor
+    S(bool) : S(0)    { }  // delegating constructor
 };
 \end{lstlisting}
 
@@ -270,7 +270,7 @@ other hand, halts compilation with a helpful error message:
 \begin{lstlisting}[language=C++, basicstyle={\ttfamily\footnotesize}]
 error: constructor for (ù{\codeincomments{S}}ù) creates a delegation cycle
 \end{lstlisting}\vspace*{-1ex}
-}} Therefore the programmer is responsible for ensuring that
+      }} Therefore the programmer is responsible for ensuring that
 no delegation cycles are present.
 
 \subsubsection[Suboptimal factoring]{Suboptimal factoring}\label{suboptimal-factoring}
@@ -287,27 +287,27 @@ separate \textbf{value semantic} type, e.g., \texttt{IPV4Address}, to
 represent that value{\cprotect\footnote{The notion that each component
 in a subsystem ideally performs one focused function well is sometimes
 referred to as separation of (logical) concerns or
-fine-grained (physical) factoring; see \textbf{{lakos20}},
-sections 0.4, 3.2.7, and 3.5.9, pp.~20--28, 529--530, and 674--676,
-respectively.}}:
+  fine-grained (physical) factoring; see \textbf{{lakos20}},
+  sections 0.4, 3.2.7, and 3.5.9, pp.~20--28, 529--530, and 674--676,
+  respectively.}}:
 
 \begin{lstlisting}[language=C++]
 #include <cstdint>  // (ù{\codeincomments{std::uint16\_t}}ù), (ù{\codeincomments{std::uint32\_t}}ù)
 
 struct IPV4Address
 {
-std::uint32_t d_address;
-std::uint16_t d_port;
+    std::uint32_t d_address;
+    std::uint16_t d_port;
 
-IPV4Address(std::uint32_t address, std::uint16_t port)
-: d_address{address}, d_port{port}
-{
-}
+    IPV4Address(std::uint32_t address, std::uint16_t port)
+        : d_address{address}, d_port{port}
+    {
+    }
 
-IPV4Address(const std::string& ip)
-: IPV4Address{extractAddress(ip), extractPort(ip)}
-{
-}
+    IPV4Address(const std::string& ip)
+        : IPV4Address{extractAddress(ip), extractPort(ip)}
+    {
+    }
 };
 \end{lstlisting}
 

@@ -4,7 +4,7 @@
 
 
 The \lstinline!static_assert! keyword allows programmers to intentionally terminate compilation whenever a given compile-time predicate
-evaluates to \lstinline!false!.
+ evaluates to \lstinline!false!.
 
 \subsection[Description]{Description}\label{description}
 
@@ -18,7 +18,7 @@ even have a chance of being triggered and (2) executing a
 not unheard of for a program having runtime assertions to run faster with them
 enabled than disabled. For example, asserting that a pointer is not
 null and enables the optimizer to elide all code branches that
-can be reached only if that pointer were null.}} results in a slower
+  can be reached only if that pointer were null.}} results in a slower
 program. Being able to validate an assertion at compile time avoids
 several drawbacks:
 
@@ -55,12 +55,12 @@ static_assert(1 + 1 == 2, "Never fires.");  // (global) namespace scope
 template <typename T>
 struct S
 {
-void f0()
-{
-static_assert(1 + 1 == 3, "Always fires.");  // block scope
-}
+    void f0()
+    {
+        static_assert(1 + 1 == 3, "Always fires.");  // block scope
+    }
 
-static_assert(!Predicate<T>::value, "Might fire.");  // class scope
+    static_assert(!Predicate<T>::value, "Might fire.");  // class scope
 };
 \end{lstlisting}
 
@@ -78,7 +78,7 @@ static_assert(x, "Nice try.");  // Error: (ù{\codeincomments{x}}ù) is not a co
 The C++ Standard does not explicitly specify at precisely what point during
 the compilation process static assertion declarations are
 evaluated.{\cprotect\footnote{By ``evaluated'' here, we mean that the
-asserted expression is processed and its semantic truth\linebreak[4] determined.}}
+  asserted expression is processed and its semantic truth\linebreak[4] determined.}}
 In particular, when used within the body of a template, a
 \lstinline!static_assert! declaration might not be evaluated until
 \romeogloss{template instantiation time}. In practice, however, a
@@ -91,13 +91,13 @@ instantiations occur:
 \begin{lstlisting}[language=C++]
 void f1()
 {
-static_assert(false, "Impossible!");  // always evaluated immediately...
+    static_assert(false, "Impossible!");  // always evaluated immediately...
 }                                         // even if (ù{\codeincomments{f1()}}ù) is never invoked
 
 template <typename T>
 void f2()
 {
-static_assert(false, "Impossible!");  // always evaluated immediately...
+    static_assert(false, "Impossible!");  // always evaluated immediately...
 }                                         // even if (ù{\codeincomments{f2()}}ù) is never instantiated
 \end{lstlisting}
 
@@ -110,7 +110,7 @@ the assertion predicate might evaluate to true or false depending on the templat
 template <typename T>
 void f3()
 {
-static_assert(sizeof(T) >= 8, "Size < 8.");  // depends on (ù{\codeincomments{T}}ù)
+    static_assert(sizeof(T) >= 8, "Size < 8.");  // depends on (ù{\codeincomments{T}}ù)
 }
 \end{lstlisting}
 
@@ -124,10 +124,10 @@ vary depending on the type provided:
 \begin{lstlisting}[language=C++]
 void g()
 {
-f3<double>();               // OK
-f3<long double>();          // OK
-f3<std::complex<float>>();  // OK
-f3<char>();                 // Error: static assertion failed: Size < 8.
+    f3<double>();               // OK
+    f3<long double>();          // OK
+    f3<std::complex<float>>();  // OK
+    f3<char>();                 // Error: static assertion failed: Size < 8.
 }
 \end{lstlisting}
 
@@ -141,19 +141,19 @@ template definition for which no valid specialization exists is
 \begin{lstlisting}[language=C++]
 void h1()
 {
-int a[!sizeof(int) - 1];  // same as (ù{\codeincomments{int a[-1];}}ù) and is ill formed
+    int a[!sizeof(int) - 1];  // same as (ù{\codeincomments{int a[-1];}}ù) and is ill formed
 }
 
 template <typename T>
 void h2()
 {
-int a[!sizeof(int) - 1];  // always reported as a compile-time error
+    int a[!sizeof(int) - 1];  // always reported as a compile-time error
 }
 
 template <typename T>
 void h3()
 {
-int a[!sizeof(T) - 1];    // typically reported only if instantiated
+    int a[!sizeof(T) - 1];    // typically reported only if instantiated
 }
 \end{lstlisting}
 
@@ -194,7 +194,7 @@ of \lstinline!int! is valid and (2) serve as documentation for readers:
 #include <ctype>  // (ù{\codeincomments{CHAR\_BIT}}ù)
 
 static_assert(sizeof(int) * CHAR_BIT == 32,
-"An (ù{\codeincomments{int}}ù) must have exactly 32 bits for this program to work correctly.");
+    "An (ù{\codeincomments{int}}ù) must have exactly 32 bits for this program to work correctly.");
 \end{lstlisting}
 
 \noindent More typically, statically asserting the \emph{size} of an \lstinline!int!
@@ -223,12 +223,12 @@ templates, which provide storage, aligned properly using \lstinline!alignas! (se
 \featureref{\locationc}{alignas}),
 for arbitrary objects whose size does
 not exceed \lstinline!N!{\cprotect\footnote{A \lstinline!SmallObjectBuffer! is
-similar to C++17's \lstinline!std::any! (\cite{cpprefstdany}) in
-that it can store any object of any type. Instead of performing
-dynamic allocation to support arbitrarily sized objects, however,
-\lstinline!SmallObjectBuffer! uses an internal fixed-size buffer, which
-can lead to better performance and cache locality provided (the
-maximum size of) all of the types involved is known.}}:
+  similar to C++17's \lstinline!std::any! (\cite{cpprefstdany}) in
+  that it can store any object of any type. Instead of performing
+  dynamic allocation to support arbitrarily sized objects, however,
+  \lstinline!SmallObjectBuffer! uses an internal fixed-size buffer, which
+  can lead to better performance and cache locality provided (the
+  maximum size of) all of the types involved is known.}}:
 
 %\begin{lstlisting}[language=C++]
 %template <std::size_t N>
@@ -252,13 +252,13 @@ template <std::size_t N>
 class SmallObjectBuffer
 {
 private:
-alignas(std::max_align_t) char d_buffer[N];
+    alignas(std::max_align_t) char d_buffer[N];
 
 public:
-template <typename T>
-void set(const T& object);
+    template <typename T>
+    void set(const T& object);
 
-// ...
+    // ...
 };
 \end{lstlisting}
 
@@ -282,10 +282,10 @@ template <std::size_t N>
 template <typename T>
 void SmallObjectBuffer<N>::set(const T& object)
 {
-static_assert(sizeof(T) <= N, "(ù{\codeincomments{object}}ù) does not fit in the small buffer.");
-// Destroy existing object, if any, store how to destroy this new object of
-// type `T` later, then...
-new (&d_buffer) T(object);
+    static_assert(sizeof(T) <= N, "(ù{\codeincomments{object}}ù) does not fit in the small buffer.");
+    // Destroy existing object, if any, store how to destroy this new object of
+    // type `T` later, then...
+    new (&d_buffer) T(object);
 }
 \end{lstlisting}
 
@@ -304,10 +304,10 @@ integral types will be accepted:
 template <typename T>
 T rotateLeft(T x)
 {
-static_assert(std::is_integral<T>::value, "(ù{\codeincomments{T}}ù) must be an integral type.");
-static_assert(std::is_unsigned<T>::value, "(ù{\codeincomments{T}}ù) must be an unsigned type.");
+    static_assert(std::is_integral<T>::value, "(ù{\codeincomments{T}}ù) must be an integral type.");
+    static_assert(std::is_unsigned<T>::value, "(ù{\codeincomments{T}}ù) must be an unsigned type.");
 
-return (x << 1) | (x >> (sizeof(T) * CHAR_BIT - 1));
+    return (x << 1) | (x >> (sizeof(T) * CHAR_BIT - 1));
 }
 \end{lstlisting}
 
@@ -332,8 +332,8 @@ void serialize(char* buffer, const T& object, SerializableTag<true>);  // (1)
 template <typename T>
 void serialize(char* buffer, const T& object, SerializableTag<false>)  // (2a)
 {
-static_assert(false, "T must be serializable.");  // independent of (ù{\codeincomments{T}}ù)
-// too obviously ill formed: always a compile-time error
+    static_assert(false, "T must be serializable.");  // independent of (ù{\codeincomments{T}}ù)
+        // too obviously ill formed: always a compile-time error
 }
 \end{lstlisting}
 
@@ -355,14 +355,14 @@ is actually instantiated (a.k.a. \romeogloss{instantiation time}):
 template <typename>  // N.B., we make no use of the (nameless) type parameter:
 struct AlwaysFalse   // This class exists only to "outwit" the compiler.
 {
-enum { value = false };
+    enum { value = false };
 };
 
 template <typename T>
 void serialize(char* buffer, const T& object, SerializableTag<false>)  // (2b)
 {
-static_assert(AlwaysFalse<T>::value, "T must be serializable.");  // OK
-// less obviously ill formed: compile-time error when instantiated
+    static_assert(AlwaysFalse<T>::value, "T must be serializable.");  // OK
+        // less obviously ill formed: compile-time error when instantiated
 }
 \end{lstlisting}
 
@@ -385,8 +385,8 @@ helper class are possible.
 template <typename T>
 void serialize(char* buffer, const T& object, SerializableTag<false>)  // (2c)
 {
-static_assert(0 == sizeof(T), "T must be serializable.");  // OK
-// not too obviously ill formed: compile-time error when instantiated
+    static_assert(0 == sizeof(T), "T must be serializable.");  // OK
+         // not too obviously ill formed: compile-time error when instantiated
 }
 \end{lstlisting}
 
@@ -406,15 +406,15 @@ differently depending on the size of the given argument:
 template <typename T>
 void process(const T& x)  // (1) first definition of (ù{\codeincomments{process}}ù) function
 {
-static_assert(sizeof(T) <= 32, "Overload for small types");  // BAD IDEA
-// ... (process small types)
+    static_assert(sizeof(T) <= 32, "Overload for small types");  // BAD IDEA
+    // ... (process small types)
 }
 
 template <typename T>
 void process(const T& x)  // (2) compile-time error: redefinition of function
 {
-static_assert(sizeof(T) > 32, "Overload for big types");     // BAD IDEA
-// ... (process big types)
+    static_assert(sizeof(T) > 32, "Overload for big types");     // BAD IDEA
+    // ... (process big types)
 }
 \end{lstlisting}
 
@@ -432,29 +432,29 @@ failing compile-time expression to be part of the function's
 \romeogloss{declaration}{\cprotect\footnote{C++11 provides a library function, \lstinline!std::enable_if!, that more directly addresses this use case. \romeogloss{Concepts} --- a
 language feature introduced in C++20 --- provides a far less baroque
 alternative to SFINAE that allows for overload sets to be governed by
-the syntactic properties of their (compile-time) template arguments.}}:
+  the syntactic properties of their (compile-time) template arguments.}}:
 
 \begin{lstlisting}[language=C++]
 template <bool> struct Check { };
-// helper class template having a (non-type) boolean template parameter
-// representing a compile-time predicate
+    // helper class template having a (non-type) boolean template parameter
+    // representing a compile-time predicate
 
 template <> struct Check<true> { typedef int Ok; };
-// specialization of (ù{\codeincomments{Check}}ù) that makes the type (ù{\codeincomments{Ok}}ù) manifest *only* if
-// the supplied predicate (boolean template argument) evaluates to (ù{\codeincomments{true}}ù)
+    // specialization of (ù{\codeincomments{Check}}ù) that makes the type (ù{\codeincomments{Ok}}ù) manifest *only* if
+    // the supplied predicate (boolean template argument) evaluates to (ù{\codeincomments{true}}ù)
 
 template <typename T,
-typename Check<(sizeof(T) <= 32)>::Ok = 0>  // SFINAE
+          typename Check<(sizeof(T) <= 32)>::Ok = 0>  // SFINAE
 void process(const T& x)  // (1)
 {
-// ... (process small types)
+    // ... (process small types)
 }
 
 template <typename T,
-typename Check<(sizeof(T) > 32)>::Ok = 0>  // SFINAE
+          typename Check<(sizeof(T) > 32)>::Ok = 0>  // SFINAE
 void process(const T& x)  // (2)
 {
-// ... (process big types)
+    // ... (process big types)
 }
 \end{lstlisting}
 
@@ -476,8 +476,8 @@ giving other (valid) overloads a chance to be selected:
 \begin{lstlisting}[language=C++]
 void client()
 {
-process(SmallType());  // discards (2), selects (1)
-process(BigType());    // discards (1), selects (2)
+    process(SmallType());  // discards (2), selects (1)
+    process(BigType());    // discards (1), selects (2)
 }
 \end{lstlisting}
 
@@ -495,7 +495,7 @@ Many compilation failures caused by static assertions are
 self-explanatory since the offending line (which necessarily contains the
 predicate code) is displayed as part of the compiler diagnostic. In
 those situations, the message required{\cprotect\footnote{As of C++17,
-the message argument of a static assertion is optional.}} as part of
+  the message argument of a static assertion is optional.}} as part of
 \lstinline!static_assert!'s grammar is redundant:
 
 \begin{lstlisting}[language=C++]
@@ -512,7 +512,7 @@ static_assert(std::is_integral<T>::value, "");
 There is no universal consensus as to the ``parity" of the user-supplied error message.  Should it re-state the asserted condition, or should it state what went amiss?
 \begin{lstlisting}[language=C++]
 static_assert(0 < x, "x is negative");
-// misleading when (ù{\codeincomments{0 == x}}ù)
+   // misleading when (ù{\codeincomments{0 == x}}ù)
 \end{lstlisting}
 
 \subsection[See Also]{See Also}\label{see-also}

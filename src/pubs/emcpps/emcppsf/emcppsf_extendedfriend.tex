@@ -33,14 +33,14 @@ enum E { };
 
 struct X0
 {
-friend S;         // error: not legal C++98/03
-friend struct S;  // OK, refers to (ù{\codeincomments{S}}ù) above
-friend class S;   // OK, refers to (ù{\codeincomments{S}}ù) above (might warn)
-friend class C;   // OK, refers to (ù{\codeincomments{C}}ù) above
-friend class C0;  // OK, declares (ù{\codeincomments{C0}}ù) in (ù{\codeincomments{X0}}ù)'s namespace
-friend union U0;  // OK, declares (ù{\codeincomments{U0}}ù) in (ù{\codeincomments{X0}}ù)'s namespace
-friend enum E;    // OK, refers to (ù{\codeincomments{E}}ù) above
-friend enum E2;   // Error: (ù{\codeincomments{enum}}ù) cannot be forward-declared.
+    friend S;         // error: not legal C++98/03
+    friend struct S;  // OK, refers to (ù{\codeincomments{S}}ù) above
+    friend class S;   // OK, refers to (ù{\codeincomments{S}}ù) above (might warn)
+    friend class C;   // OK, refers to (ù{\codeincomments{C}}ù) above
+    friend class C0;  // OK, declares (ù{\codeincomments{C0}}ù) in (ù{\codeincomments{X0}}ù)'s namespace
+    friend union U0;  // OK, declares (ù{\codeincomments{U0}}ù) in (ù{\codeincomments{X0}}ù)'s namespace
+    friend enum E;    // OK, refers to (ù{\codeincomments{E}}ù) above
+    friend enum E2;   // Error: (ù{\codeincomments{enum}}ù) cannot be forward-declared.
 };
 \end{lstlisting}
 
@@ -55,15 +55,15 @@ typedef S SAlias;
 
 struct X1
 {
-friend struct SAlias;
-// error: using typedef-name after (ù{\codeincomments{struct}}ù)
+    friend struct SAlias;
+        // error: using typedef-name after (ù{\codeincomments{struct}}ù)
 };
 
 template <typename T>
 struct X2
 {
-friend class T;
-// error: using template type parameter after (ù{\codeincomments{class}}ù)
+    friend class T;
+        // error: using template type parameter after (ù{\codeincomments{class}}ù)
 };
 \end{lstlisting}
 
@@ -79,11 +79,11 @@ struct S;  // This (ù{\codeincomments{S}}ù) resides in the global namespace.
 
 namespace ns
 {
-class X3
-{
-friend struct S;
-// OK but declares a new (ù{\codeincomments{ns::S}}ù) instead of referring to (ù{\codeincomments{::S}}ù)
-};
+    class X3
+    {
+        friend struct S;
+            // OK but declares a new (ù{\codeincomments{ns::S}}ù) instead of referring to (ù{\codeincomments{::S}}ù)
+    };
 }
 \end{lstlisting}
 
@@ -99,15 +99,15 @@ typedef S SAlias;
 
 namespace ns
 {
-template <typename T>
-struct X4
-{
-friend T;           // OK
-friend S;           // OK, refers to (ù{\codeincomments{::S}}ù)
-friend SAlias;      // OK, refers to (ù{\codeincomments{::S}}ù)
-friend decltype(0); // OK, equivalent to (ù{\codeincomments{friend int;}}ù)
-friend C;           // Error: (ù{\codeincomments{C}}ù) does not name a type.
-};
+    template <typename T>
+    struct X4
+    {
+        friend T;           // OK
+        friend S;           // OK, refers to (ù{\codeincomments{::S}}ù)
+        friend SAlias;      // OK, refers to (ù{\codeincomments{::S}}ù)
+        friend decltype(0); // OK, equivalent to (ù{\codeincomments{friend int;}}ù)
+        friend C;           // Error: (ù{\codeincomments{C}}ù) does not name a type.
+    };
 }
 \end{lstlisting}
 
@@ -125,19 +125,19 @@ of its type parameter, \texttt{T}:
 template <typename T>
 class C
 {
-friend typename T::N;       // (ù{\codeincomments{N}}ù) is a *dependent* *type* of parameter (ù{\codeincomments{T}}ù).
-enum { e_SECRET = 10022 };  // This information is (ù{\codeincomments{private}}ù) to class (ù{\codeincomments{C}}ù).
+    friend typename T::N;       // (ù{\codeincomments{N}}ù) is a *dependent* *type* of parameter (ù{\codeincomments{T}}ù).
+    enum { e_SECRET = 10022 };  // This information is (ù{\codeincomments{private}}ù) to class (ù{\codeincomments{C}}ù).
 };
 
 struct S
 {
-struct N
-{
-static constexpr int f()  // (ù{\codeincomments{f}}ù) is eligible for compile-time computation.
-{
-return C<S>::e_SECRET;  // Type (ù{\codeincomments{S::N}}ù) is a (ù{\codeincomments{friend}}ù) of (ù{\codeincomments{C<S>}}ù).
-}
-};
+    struct N
+    {
+        static constexpr int f()  // (ù{\codeincomments{f}}ù) is eligible for compile-time computation.
+        {
+            return C<S>::e_SECRET;  // Type (ù{\codeincomments{S::N}}ù) is a (ù{\codeincomments{friend}}ù) of (ù{\codeincomments{C<S>}}ù).
+        }
+    };
 };
 
 static_assert(S::N::f() == 10022, "");  // (ù{\codeincomments{N}}ù) has (ù{\codeincomments{private}}ù) access to (ù{\codeincomments{C<S>}}ù).
@@ -149,7 +149,7 @@ Note that the need for \texttt{typename} in the \texttt{friend}
 declaration in the example above to introduce the dependent type \texttt{N} is relaxed
 in C++20.{\cprotect\footnote{For information on other contexts in which
 \texttt{typename} will eventually no longer be required, see
-\mbox{\textbf{meredith20}}.}}
+  \mbox{\textbf{meredith20}}.}}
 
 \subsection[Use Cases]{Use Cases}\label{use-cases}
 
@@ -164,8 +164,8 @@ class Container { /* ... */ };
 
 class ContainerIterator
 {
-friend class Contianer;  // Compiles but wrong: (ù{\codeincomments{ia}}ù) should have been (ù{\codeincomments{ai}}ù).
-// ...
+    friend class Contianer;  // Compiles but wrong: (ù{\codeincomments{ia}}ù) should have been (ù{\codeincomments{ai}}ù).
+    // ...
 };
 \end{lstlisting}
 
@@ -181,8 +181,8 @@ class Container { /* ... */ };
 
 class ContainerIterator
 {
-friend Contianer;  // error: (ù{\codeincomments{Contianer}}ù) not found
-// ...
+    friend Contianer;  // error: (ù{\codeincomments{Contianer}}ù) not found
+    // ...
 };
 \end{lstlisting}
 
@@ -196,7 +196,7 @@ begin by considering a scenario in which we have an
 term \textbf{in-process}, also called \emph{in-core}, refers to a type
 that has typical value-type--like operations but does not refer to a
 value that is meaningful outside of the current process; see
-\textbf{lakos2a}, section~4.2.}} \textbf{value-semantic type (VST)}
+  \textbf{lakos2a}, section~4.2.}} \textbf{value-semantic type (VST)}
 that serves as a \emph{handle} to a platform-specific object, such as a
 \texttt{Window} in a graphical application. Large parts of a codebase
 may seek to interact with \texttt{Window} objects without needing or
@@ -214,11 +214,11 @@ class WindowManager;  // forward declaration enabling extended (ù{\codeincommen
 class Window
 {
 private:
-friend class WindowManager;  // could instead use (ù{\codeincomments{friend WindowManager;}}ù)
-int d_nativeHandle;          // in-process (only) value of this object
+    friend class WindowManager;  // could instead use (ù{\codeincomments{friend WindowManager;}}ù)
+    int d_nativeHandle;          // in-process (only) value of this object
 
 public:
-// ... all the typical (e.g., special) functions we expect of a value type
+    // ... all the typical (e.g., special) functions we expect of a value type
 };
 \end{lstlisting}
 
@@ -282,11 +282,11 @@ typedef UnixWindowManager WindowManager;
 class Window
 {
 private:
-friend WindowManager;  // C++11 extended friend declaration
-int d_nativeHandle;
+    friend WindowManager;  // C++11 extended friend declaration
+    int d_nativeHandle;
 
 public:
-// ...
+    // ...
 };
 \end{lstlisting}
 
@@ -357,48 +357,48 @@ Here's an example that encompasses all three aforementioned points:
 template <typename T>
 class PassKey  // reusable standard utility type
 {
-PassKey() { }  // private default constructor (no aggregate initialization)
-friend T;      // Only (ù{\codeincomments{T}}ù) is allowed to create this object.
+    PassKey() { }  // private default constructor (no aggregate initialization)
+    friend T;      // Only (ù{\codeincomments{T}}ù) is allowed to create this object.
 };
 
 struct BestExpensiveLibraryUtil
 {
-class LicenseError { /*...*/ };  // thrown if license string is invalid
+    class LicenseError { /*...*/ };  // thrown if license string is invalid
 
-using LibPassKey = PassKey<BestExpensiveLibraryUtil>;
-// This is the type of the (ù{\codeincomments{PassKey}}ù) that will be returned when this
-// utility is initialized successfully, but only this utility is able
-// to construct an object of this type. Without a valid license string,
-// the client will have no way to create such an object and thus no way
-// to call functions within this library.
+    using LibPassKey = PassKey<BestExpensiveLibraryUtil>;
+        // This is the type of the (ù{\codeincomments{PassKey}}ù) that will be returned when this
+        // utility is initialized successfully, but only this utility is able
+        // to construct an object of this type. Without a valid license string,
+        // the client will have no way to create such an object and thus no way
+        // to call functions within this library.
 
-static LibPassKey initializeLibrary(const char* licenseKey)
-// This function must be called with a valid (ù{\codeincomments{licenseKey}}ù) string prior
-// to using this library; if the supplied license is valid, a
-// (ù{\codeincomments{LibPassKey}}ù) *object* will be returned for mandatory use in *all*
-// subsequent calls to useful functions of this library. This function
-// throws (ù{\codeincomments{LicenseError}}ù) if the supplied (ù{\codeincomments{licenseKey}}ù) string is invalid.
-{
-if (isValid(licenseKey))
-{
-// Initialize library properly.
+    static LibPassKey initializeLibrary(const char* licenseKey)
+        // This function must be called with a valid (ù{\codeincomments{licenseKey}}ù) string prior
+        // to using this library; if the supplied license is valid, a
+        // (ù{\codeincomments{LibPassKey}}ù) *object* will be returned for mandatory use in *all*
+        // subsequent calls to useful functions of this library. This function
+        // throws (ù{\codeincomments{LicenseError}}ù) if the supplied (ù{\codeincomments{licenseKey}}ù) string is invalid.
+    {
+        if (isValid(licenseKey))
+        {
+            // Initialize library properly.
 
-return LibPassKey();
-// Return a default-constructed (ù{\codeincomments{LibPassKey}}ù). Note that only
-// this utility is able to construct such a key.
-}
+            return LibPassKey();
+                // Return a default-constructed (ù{\codeincomments{LibPassKey}}ù). Note that only
+                // this utility is able to construct such a key.
+        }
 
-throw LicenseError();  // supplied license string was invalid
-}
+        throw LicenseError();  // supplied license string was invalid
+    }
 
-static int doUsefulStuff(LibPassKey key /*,...*/);
-// The function requires a (ù{\codeincomments{LibPassKey}}ù) object, which can be constructed
-// only by invoking the (ù{\codeincomments{static initializeLibrary}}ù) function, to be
-// supplied as its first argument. ...
+    static int doUsefulStuff(LibPassKey key /*,...*/);
+        // The function requires a (ù{\codeincomments{LibPassKey}}ù) object, which can be constructed
+        // only by invoking the (ù{\codeincomments{static initializeLibrary}}ù) function, to be
+        // supplied as its first argument. ...
 
 private:
-static bool isValid(const char* key);
-// externally defined function that returns true if (ù{\codeincomments{key}}ù) is valid
+    static bool isValid(const char* key);
+        // externally defined function that returns true if (ù{\codeincomments{key}}ù) is valid
 };
 \end{lstlisting}
 
@@ -435,28 +435,28 @@ and to declare the \texttt{Odb} class a \texttt{friend} (using old-style
 \begin{lstlisting}[language=C++]
 class MyWidget  // grants just (ù{\codeincomments{Odb}}ù) access to *all* of its private data
 {
-int d_objectId;    // required by our collaborative-design strategy
-friend class Odb;  //    "     "   "        "        "       "
-// ...
+    int d_objectId;    // required by our collaborative-design strategy
+    friend class Odb;  //    "     "   "        "        "       "
+    // ...
 
 public:
-// ...
+    // ...
 };
 
 class Odb
 {
-// ...
+    // ...
 
 public:
-template <typename T>
-void processObject(T& object)
-// This function template is generally callable by clients.
-{
-int& objId = object.d_objectId;
-// ... (process as needed)
-}
+    template <typename T>
+    void processObject(T& object)
+        // This function template is generally callable by clients.
+    {
+        int& objId = object.d_objectId;
+        // ... (process as needed)
+    }
 
-// ...
+    // ...
 };
 \end{lstlisting}
 
@@ -472,12 +472,12 @@ what we share:
 \begin{lstlisting}[language=C++]
 template <typename T>
 class Passkey
-// Implement this imminently reusable (ù{\codeincomments{Passkey}}ù) class template again here.
+    // Implement this imminently reusable (ù{\codeincomments{Passkey}}ù) class template again here.
 {
-Passkey() { }  // prevent aggregate initialization
-friend T;      // Only the (ù{\codeincomments{T}}ù) in (ù{\codeincomments{PassKey<T>}}ù) can create a (ù{\codeincomments{PassKey}}ù) object.
-Passkey(const Passkey&) = delete;             // no copy/move construction
-Passkey& operator=(const Passkey&) = delete;  // no copy/move assignment
+    Passkey() { }  // prevent aggregate initialization
+    friend T;      // Only the (ù{\codeincomments{T}}ù) in (ù{\codeincomments{PassKey<T>}}ù) can create a (ù{\codeincomments{PassKey}}ù) object.
+    Passkey(const Passkey&) = delete;             // no copy/move construction
+    Passkey& operator=(const Passkey&) = delete;  // no copy/move assignment
 };
 \end{lstlisting}
 
@@ -489,31 +489,31 @@ class Odb;      // Objects of this class have special access to other objects.
 
 class MyWidget  // grants just (ù{\codeincomments{Odb}}ù) access to only its (ù{\codeincomments{objectId}}ù) member function
 {
-int d_objectId;  // must have an (ù{\codeincomments{int}}ù) data member of any name we choose
-// ...
+    int d_objectId;  // must have an (ù{\codeincomments{int}}ù) data member of any name we choose
+    // ...
 
 public:
-int& objectId(Passkey<Odb>) { return d_objectId; }
-// Return a non-(ù{\codeincomments{const}}ù) reference to the mandated (ù{\codeincomments{int}}ù) data member.
-// (ù{\codeincomments{objectId}}ù) is callable only within the scope of (ù{\codeincomments{Odb}}ù).
+    int& objectId(Passkey<Odb>) { return d_objectId; }
+        // Return a non-(ù{\codeincomments{const}}ù) reference to the mandated (ù{\codeincomments{int}}ù) data member.
+        // (ù{\codeincomments{objectId}}ù) is callable only within the scope of (ù{\codeincomments{Odb}}ù).
 
-// ...
+    // ...
 };
 
 class Odb
 {
-// ...
+    // ...
 
 public:
-template <typename T>
-void processObject(T& object)
-// This function template is generally callable by clients.
-{
-int& objId = object.objectId(Passkey<Odb>());
-// ...
-}
+    template <typename T>
+    void processObject(T& object)
+        // This function template is generally callable by clients.
+    {
+        int& objId = object.objectId(Passkey<Odb>());
+        // ...
+    }
 
-// ...
+    // ...
 };
 \end{lstlisting}
 
@@ -531,13 +531,13 @@ directly:
 \begin{lstlisting}[language=C++]
 void f()
 {
-Odb mgr;          // object receiving fine-grained privileged access
-MyWidget widget;  // object granting selective private access to just (ù{\codeincomments{Odb}}ù)
-mgr.processObject(widget);
+    Odb mgr;          // object receiving fine-grained privileged access
+    MyWidget widget;  // object granting selective private access to just (ù{\codeincomments{Odb}}ù)
+    mgr.processObject(widget);
 
-int& objId = widget.objectId(PassKey<Odb>());  // cannot call out of (ù{\codeincomments{Odb}}ù)
-// Error: (ù{\codeincomments{Passkey<T>::Passkey()}}ù) [with(ù{\codeincomments{T}}ù) = (ù{\codeincomments{Odb}}ù)] is private within
-// this context.
+    int& objId = widget.objectId(PassKey<Odb>());  // cannot call out of (ù{\codeincomments{Odb}}ù)
+       // Error: (ù{\codeincomments{Passkey<T>::Passkey()}}ù) [with(ù{\codeincomments{T}}ù) = (ù{\codeincomments{Odb}}ù)] is private within
+       // this context.
 }
 \end{lstlisting}
 
@@ -564,8 +564,8 @@ Since before C++ was standardized, granting private access via a
 \texttt{friend} declaration across physical boundaries, known as
 \textbf{long-distance friendship}, was
 observed{\cprotect\footnote{\textbf{lakos96}, section~3.6.1
-pp.~141--144}}{\cprotect\footnote{\textbf{lakos20}, section~2.6,
-pp.~342--370, specifically p.~367 and p.~362}} to potentially lead
+  pp.~141--144}}{\cprotect\footnote{\textbf{lakos20}, section~2.6,
+  pp.~342--370, specifically p.~367 and p.~362}} to potentially lead
 to designs that are qualitatively more difficult to understand, test,
 and maintain. When a user-defined type, \texttt{X}, befriends some other
 specific type, \texttt{Y}, in a separate, higher-level translation unit,
@@ -614,12 +614,12 @@ involves the surprising step of declaring as a base class, such as
 template <typename T>
 class B
 {
-// ...
+    // ...
 };
 
 class C : public B<C>
 {
-// ...
+   // ...
 };
 \end{lstlisting}
 
@@ -630,20 +630,20 @@ say, just the number of active instances:
 \begin{lstlisting}[language=C++]
 class A
 {
-static int s_count;  // declaration
-// ...
+    static int s_count;  // declaration
+    // ...
 
 public:
-static int count() { return s_count; }
+    static int count() { return s_count; }
 
-A()          { ++s_count; }
-A(const A&)  { ++s_count; }
-A(const A&&) { ++s_count; }
-~A()         { --s_count; }
+    A()          { ++s_count; }
+    A(const A&)  { ++s_count; }
+    A(const A&&) { ++s_count; }
+    ~A()         { --s_count; }
 
-A& operator=(A&)  = default;  // see special members
-A& operator=(A&&) = default;  //  "     "       "
-// ...
+    A& operator=(A&)  = default;  // see special members
+    A& operator=(A&&) = default;  //  "     "       "
+    // ...
 };
 
 int A::s_count;  // definition (in (ù{\codeincomments{.cpp}}ù) file)
@@ -653,9 +653,9 @@ class B { /* similar to A (above) */ }
 
 void test()
 {          // (ù{\codeincomments{A::d\_count}}ù) = (ù{\codeincomments{0}}ù), (ù{\codeincomments{B::d\_count}}ù) = (ù{\codeincomments{0}}ù)
-A a1;  // (ù{\codeincomments{A::d\_count}}ù) = (ù{\codeincomments{1}}ù), (ù{\codeincomments{B::d\_count}}ù) = (ù{\codeincomments{0}}ù)
-B b1;  // (ù{\codeincomments{A::d\_count}}ù) = (ù{\codeincomments{1}}ù), (ù{\codeincomments{B::d\_count}}ù) = (ù{\codeincomments{1}}ù)
-A a2;  // (ù{\codeincomments{A::d\_count}}ù) = (ù{\codeincomments{2}}ù), (ù{\codeincomments{B::d\_count}}ù) = (ù{\codeincomments{1}}ù)
+    A a1;  // (ù{\codeincomments{A::d\_count}}ù) = (ù{\codeincomments{1}}ù), (ù{\codeincomments{B::d\_count}}ù) = (ù{\codeincomments{0}}ù)
+    B b1;  // (ù{\codeincomments{A::d\_count}}ù) = (ù{\codeincomments{1}}ù), (ù{\codeincomments{B::d\_count}}ù) = (ù{\codeincomments{1}}ù)
+    A a2;  // (ù{\codeincomments{A::d\_count}}ù) = (ù{\codeincomments{2}}ù), (ù{\codeincomments{B::d\_count}}ù) = (ù{\codeincomments{1}}ù)
 }          // (ù{\codeincomments{A::d\_count}}ù) = (ù{\codeincomments{0}}ù), (ù{\codeincomments{B::d\_count}}ù) = (ù{\codeincomments{0}}ù)
 \end{lstlisting}
 
@@ -668,10 +668,10 @@ template <typename T>
 class InstanceCounter
 {
 protected:
-static int s_count;  // declaration
+    static int s_count;  // declaration
 
 public:
-static int count() { return s_count; }
+    static int count() { return s_count; }
 };
 
 template <typename T>
@@ -679,14 +679,14 @@ int InstanceCounter<T>::s_count;  // definition (in same file as declaration)
 
 struct A : InstanceCounter<A>
 {
-A()          { ++s_count; }
-A(const A&)  { ++s_count; }
-A(const A&&) { ++s_count; }
-~A()         { --s_count; }
+    A()          { ++s_count; }
+    A(const A&)  { ++s_count; }
+    A(const A&&) { ++s_count; }
+    ~A()         { --s_count; }
 
-A& operator=(const A&)  = default;
-A& operator=(A&&)       = default;
-// ...
+    A& operator=(const A&)  = default;
+    A& operator=(A&&)       = default;
+    // ...
 };
 \end{lstlisting}
 
@@ -704,10 +704,10 @@ copying and pasting a new type:
 
 \begin{lstlisting}[language=C++]
 struct B : InstanceCounter<A>  // Oops! We forgot to change (ù{\codeincomments{A}}ù) to (ù{\codeincomments{B}}ù) in
-// (ù{\codeincomments{InstanceCounter}}ù): The wrong count will be
-// updated!
+                               // (ù{\codeincomments{InstanceCounter}}ù): The wrong count will be
+                               // updated!
 {
-B() { ++s_count; }
+    B() { ++s_count; }
 };
 \end{lstlisting}
 
@@ -717,7 +717,7 @@ our protected \texttt{s\_count}:
 \begin{lstlisting}[language=C++]
 struct AA : A
 {
-AA() { s_count = -1; }  // Oops! *Hyrum's Law* is at work again!
+    AA() { s_count = -1; }  // Oops! *Hyrum's Law* is at work again!
 };
 \end{lstlisting}
 
@@ -735,11 +735,11 @@ parameter, \texttt{T}:
 template <typename T>
 class InstanceCounter
 {
-static int s_count;  // Make this static data member private.
-friend T;            // Allow access only from the derived (ù{\codeincomments{T}}ù).
+    static int s_count;  // Make this static data member private.
+    friend T;            // Allow access only from the derived (ù{\codeincomments{T}}ù).
 
 public:
-static int count() { return s_count; }
+    static int count() { return s_count; }
 };
 
 template <typename T>
@@ -757,7 +757,7 @@ As a second example of code factoring using the CRTP, suppose that we want
 to create a factored way of synthesizing \texttt{operator==} for types
 that implement just an \texttt{operator<}.{\cprotect\footnote{This
 example is based on a similar one found on stackoverflow.com:\linebreak[3]
-https://\linebreak[3]stackoverflow.\linebreak[3]com/\linebreak[3]questions/\linebreak[3]4173254/what-is-the-curiously-recurring-template-pattern-crtp}}
+  https://\linebreak[3]stackoverflow.\linebreak[3]com/\linebreak[3]questions/\linebreak[3]4173254/what-is-the-curiously-recurring-template-pattern-crtp}}
 In this example, the CRTP base-class template, \texttt{E}, will
 synthesize the homogeneous \texttt{operator==} for its parameter type,
 \texttt{D}, by returning \texttt{false} if either argument is \emph{less
@@ -770,9 +770,9 @@ class E { }; // CRTP base class used to synthesize (ù{\codeincomments{operator=
 template <typename D>
 bool operator==(E<D> const& lhs, E<D> const& rhs)
 {
-const D& d1 = static_cast<const D&>(lhs);  // derived type better be (ù{\codeincomments{D}}ù)
-const D& d2 = static_cast<const D&>(rhs);  //    "     "     "    "  "
-return !(d1 < d2) && !(d2 < d1);           // assuming (ù{\codeincomments{D}}ù) has an (ù{\codeincomments{operator<}}ù)
+    const D& d1 = static_cast<const D&>(lhs);  // derived type better be (ù{\codeincomments{D}}ù)
+    const D& d2 = static_cast<const D&>(rhs);  //    "     "     "    "  "
+    return !(d1 < d2) && !(d2 < d1);           // assuming (ù{\codeincomments{D}}ù) has an (ù{\codeincomments{operator<}}ù)
 }
 \end{lstlisting}
 
@@ -782,22 +782,22 @@ base case to synthesize an \texttt{operator==}:
 \begin{lstlisting}[language=C++]
 struct S : E<S>
 {
-int d_size;
+    int d_size;
 };
 
 bool operator<(const S& lhs, const S& rhs)
 {
-return lhs.d_size < rhs.d_size;
+    return lhs.d_size < rhs.d_size;
 }
 
 #include <cassert>
 
 void test1()
 {
-S s1; s1.d_size = 10;
-S s2; s2.d_size = 10;
+    S s1; s1.d_size = 10;
+    S s2; s2.d_size = 10;
 
-assert(s1 == s2);  // compiles and passes
+    assert(s1 == s2);  // compiles and passes
 }
 \end{lstlisting}
 
@@ -813,16 +813,16 @@ define the \texttt{operator<}:
 \begin{lstlisting}[language=C++]
 struct P : E<S>  // Oops! should have been (ù{\codeincomments{E(P)}}ù) -- a serious latent defect
 {
-int d_x;
-int d_y;
+    int d_x;
+    int d_y;
 };
 
 void test2()
 {
-P p1; p1.d_x = 10; p1.d_y = 15;
-P p2; p2.d_x = 10; p2.d_y = 20;
+    P p1; p1.d_x = 10; p1.d_y = 15;
+    P p2; p2.d_x = 10; p2.d_y = 20;
 
-assert( !(p1 == p2) );  // Oops! This fails because of (ù{\codeincomments{E(S)}}ù) above.
+    assert( !(p1 == p2) );  // Oops! This fails because of (ù{\codeincomments{E(S)}}ù) above.
 }
 \end{lstlisting}
 
@@ -835,8 +835,8 @@ parameter:
 template <typename D>
 class E
 {
-E() = default;
-friend D;
+     E() = default;
+     friend D;
 };
 \end{lstlisting}
 
@@ -857,7 +857,7 @@ implements a single, pure, virtual \texttt{draw} function:
 class Shape
 {
 public:
-virtual void draw() const = 0;  // abstract (ù{\codeincomments{draw}}ù) function (interface)
+    virtual void draw() const = 0;  // abstract (ù{\codeincomments{draw}}ù) function (interface)
 };
 \end{lstlisting}
 
@@ -870,30 +870,30 @@ the \emph{abstract} \texttt{draw} function:
 
 class Circle : public Shape
 {
-int d_radius;
+    int d_radius;
 
 public:
-Circle(int radius) : d_radius(radius) { }
+    Circle(int radius) : d_radius(radius) { }
 
-void draw() const  // concrete implementation of abstract (ù{\codeincomments{draw}}ù) function
-{
-std::cout << "Circle(radius = " << d_radius << ")\n";
-}
+    void draw() const  // concrete implementation of abstract (ù{\codeincomments{draw}}ù) function
+    {
+        std::cout << "Circle(radius = " << d_radius << ")\n";
+    }
 };
 
 class Rectangle : public Shape
 {
-int d_length;
-int d_width;
+    int d_length;
+    int d_width;
 
 public:
-Rectangle(int length, int width) : d_length(length), d_width(width) { }
+    Rectangle(int length, int width) : d_length(length), d_width(width) { }
 
-void draw() const  // concrete implementation of abstract (ù{\codeincomments{draw}}ù) function
-{
-std::cout << "Rectangle(length = " << d_length << ", "
-"width = " << d_width  << ")\n";
-}
+    void draw() const  // concrete implementation of abstract (ù{\codeincomments{draw}}ù) function
+    {
+        std::cout << "Rectangle(length = " << d_length << ", "
+                                "width = " << d_width  << ")\n";
+    }
 };
 \end{lstlisting}
 
@@ -908,14 +908,14 @@ prints it:
 \begin{lstlisting}[language=C++]
 void print(const Shape& shape)
 {
-shape.draw();
+    shape.draw();
 }
 
 void testShape()
 {
-print(Circle(1));        // prints: (ù{\codeincomments{Circle(radius = 1)}}ù)
-print(Rectangle(2, 3));  // prints: (ù{\codeincomments{Rectangle(length = 2, width = 3)}}ù)
-print(Shape());          // Compile-time error: (ù{\codeincomments{Shape}}ù) is an abstract class.
+    print(Circle(1));        // prints: (ù{\codeincomments{Circle(radius = 1)}}ù)
+    print(Rectangle(2, 3));  // prints: (ù{\codeincomments{Rectangle(length = 2, width = 3)}}ù)
+    print(Shape());          // Compile-time error: (ù{\codeincomments{Shape}}ù) is an abstract class.
 }
 \end{lstlisting}
 
@@ -930,10 +930,10 @@ interface:
 template <typename T>
 struct Shape
 {
-void draw() const
-{
-static_cast<const T*>(this)->draw();  // assumes (ù{\codeincomments{T}}ù) derives from (ù{\codeincomments{Shape}}ù)
-}
+    void draw() const
+    {
+        static_cast<const T*>(this)->draw();  // assumes (ù{\codeincomments{T}}ù) derives from (ù{\codeincomments{Shape}}ù)
+    }
 };
 \end{lstlisting}
 
@@ -946,12 +946,12 @@ difference being the form of the base type:
 \begin{lstlisting}[language=C++]
 class Circle : public Shape<Circle>
 {
-// same as above
+    // same as above
 };
 
 class Rectangle : public Shape<Rectangle>
 {
-// same as above
+    // same as above
 };
 \end{lstlisting}
 
@@ -962,7 +962,7 @@ template taking a \texttt{Shape} of arbitrary type \texttt{T}:
 template <typename T>
 void print(const Shape<T>& shape)
 {
-shape.draw();
+    shape.draw();
 }
 \end{lstlisting}
 
@@ -975,20 +975,20 @@ to add a third shape, \texttt{Triangle}, constructed with three sides:
 \begin{lstlisting}[language=C++]
 class Triangle : public Shape<Rectangle>  // Oops!
 {
-int d_side1;
-int d_side2;
-int d_side3;
+    int d_side1;
+    int d_side2;
+    int d_side3;
 
 public:
-Triangle(int side1, int side2, int side3)
-: d_side1(side1), d_side2(side2), d_side3(side3) { }
+    Triangle(int side1, int side2, int side3)
+        : d_side1(side1), d_side2(side2), d_side3(side3) { }
 
-void draw() const
-{
-std::cout << "Triangle(side1 = " << d_side1 << ", "
-"side2 = " << d_side2 << ", "
-"side3 = " << d_side3 << ")\n";
-}
+    void draw() const
+    {
+        std::cout << "Triangle(side1 = " << d_side1 << ", "
+                              "side2 = " << d_side2 << ", "
+                              "side3 = " << d_side3 << ")\n";
+    }
 };
 \end{lstlisting}
 
@@ -1001,10 +1001,10 @@ happens on our platform:
 \begin{lstlisting}[language=C++]
 void test2()
 {
-print(Circle(1));          // prints: (ù{\codeincomments{Circle(radius = 1)}}ù)
-print(Rectangle(2, 3));    // prints: (ù{\codeincomments{Rectangle(length = 2, width = 3)}}ù)
-print(Triangle(4, 5, 6));  // prints: (ù{\codeincomments{Rectangle(length = 4, width = 5)}}ù) ?!
-Shape<int> bug;            // Compiles?!
+    print(Circle(1));          // prints: (ù{\codeincomments{Circle(radius = 1)}}ù)
+    print(Rectangle(2, 3));    // prints: (ù{\codeincomments{Rectangle(length = 2, width = 3)}}ù)
+    print(Triangle(4, 5, 6));  // prints: (ù{\codeincomments{Rectangle(length = 4, width = 5)}}ù) ?!
+    Shape<int> bug;            // Compiles?!
 }
 \end{lstlisting}
 
@@ -1022,8 +1022,8 @@ code snippet):
 template <typename T>
 class Shape
 {
-Shape() = default;  // Default the (ù{\codeincomments{default}}ù) constructor to be (ù{\codeincomments{private}}ù).
-friend T;           // Ensure only a type derived from (ù{\codeincomments{T}}ù) has access.
+    Shape() = default;  // Default the (ù{\codeincomments{default}}ù) constructor to be (ù{\codeincomments{private}}ù).
+    friend T;           // Ensure only a type derived from (ù{\codeincomments{T}}ù) has access.
 }
 \end{lstlisting}
 
@@ -1051,11 +1051,11 @@ each node has a left and right subtree plus a label:
 \begin{lstlisting}[language=C++]
 struct Node
 {
-Node* left;
-Node* right;
-char label;  // (ù{\codeincomments{label}}ù) will be used in the pre-order example.
+    Node* left;
+    Node* right;
+    char label;  // (ù{\codeincomments{label}}ù) will be used in the pre-order example.
 
-Node() : left(0), right(0), label(0) { }
+    Node() : left(0), right(0), label(0) { }
 };
 \end{lstlisting}
 
@@ -1072,24 +1072,24 @@ template <typename T>
 class Traverser
 {
 private:
-Traverser() = default;  // Make the default constructor (ù{\codeincomments{private}}ù).
-friend T;               // Grant access only to the derived class.
+    Traverser() = default;  // Make the default constructor (ù{\codeincomments{private}}ù).
+    friend T;               // Grant access only to the derived class.
 
 public:
-void visitPreOrder(Node*)  { }  // stub-functions & placeholders
-void visitInOrder(Node*)   { }  // (Each of these three functions
-void visitPostOrder(Node*) { }  // defaults to an inline "no-op.")
+    void visitPreOrder(Node*)  { }  // stub-functions & placeholders
+    void visitInOrder(Node*)   { }  // (Each of these three functions
+    void visitPostOrder(Node*) { }  // defaults to an inline "no-op.")
 
-void traverse(Node* n)  // factored subfunctionality
-{
-T *t = static_cast<T*>(this);  // Cast (ù{\codeincomments{this}}ù) to the derived type.
+    void traverse(Node* n)  // factored subfunctionality
+    {
+        T *t = static_cast<T*>(this);  // Cast (ù{\codeincomments{this}}ù) to the derived type.
 
-if (n) { t->visitPreOrder(n);   }  // optionally defined in derived
-if (n) { t->traverse(n->left);  }  // optionally defined in derived
-if (n) { t->visitInOrder(n);    }  // optionally defined in derived
-if (n) { t->traverse(n->right); }  // optionally defined in derived
-if (n) { t->visitPostOrder(n);  }  // optionally defined in derived
-}
+        if (n) { t->visitPreOrder(n);   }  // optionally defined in derived
+        if (n) { t->traverse(n->left);  }  // optionally defined in derived
+        if (n) { t->visitInOrder(n);    }  // optionally defined in derived
+        if (n) { t->traverse(n->right); }  // optionally defined in derived
+        if (n) { t->visitPostOrder(n);  }  // optionally defined in derived
+    }
 };
 \end{lstlisting}
 
@@ -1118,24 +1118,24 @@ specified depth:
 \begin{lstlisting}[language=C++]
 struct FillToDepth : Traverser<FillToDepth>
 {
-using Base = Traverser<FillToDepth>;  // similar to a local (ù{\codeincomments{typedef}}ù)
+    using Base = Traverser<FillToDepth>;  // similar to a local (ù{\codeincomments{typedef}}ù)
 
-int d_depth;            //  final "height" of the tree
-int d_currentDepth;     //  current distance from the root
+    int d_depth;            //  final "height" of the tree
+    int d_currentDepth;     //  current distance from the root
 
-FillToDepth(int depth) : d_depth(depth), d_currentDepth(0) { }
+    FillToDepth(int depth) : d_depth(depth), d_currentDepth(0) { }
 
-void traverse(Node*& n)
-{
-if (d_currentDepth++ < d_depth && !n)  // descend; if not balanced...
-{
-n = new Node;     // Add (ù{\codeincomments{node}}ù) since it's not already there.
-}
+    void traverse(Node*& n)
+    {
+        if (d_currentDepth++ < d_depth && !n)  // descend; if not balanced...
+        {
+            n = new Node;     // Add (ù{\codeincomments{node}}ù) since it's not already there.
+        }
 
-Base::traverse(n);    // Recurse by invoking the *base* version.
+        Base::traverse(n);    // Recurse by invoking the *base* version.
 
---d_currentDepth;     // Ascend.
-}
+        --d_currentDepth;     // Ascend.
+    }
 };
 \end{lstlisting}
 
@@ -1181,15 +1181,15 @@ tree, balanced or not, according to its pre-order traversal:
 \begin{lstlisting}[language=C++]
 struct PreOrderLabel : Traverser<PreOrderLabel>
 {
-char d_label;
+    char d_label;
 
-PreOrderLabel() : d_label('a') { }
+    PreOrderLabel() : d_label('a') { }
 
-void visitPreOrder(Node* n)  // This choice controls traversal order.
-{
-n->label = label++;
-// Each successive label is sequential alphabetically.
-}
+    void visitPreOrder(Node* n)  // This choice controls traversal order.
+    {
+        n->label = label++;
+            // Each successive label is sequential alphabetically.
+    }
 };
 \end{lstlisting}
 
@@ -1207,15 +1207,15 @@ pre-ordered, labels:
 
 struct InOrderPrint : Traverser<InOrderPrint>
 {
-~InOrderPrint()
-{
-std::putchar('\n');  // print single newline at end of string
-}
+    ~InOrderPrint()
+    {
+        std::putchar('\n');  // print single newline at end of string
+    }
 
-void visitInOrder(const Node* n) const
-{
-std::putchar(n->label);  // Print the label character exactly as is.
-}
+    void visitInOrder(const Node* n) const
+    {
+        std::putchar(n->label);  // Print the label character exactly as is.
+    }
 };
 \end{lstlisting}
 
@@ -1234,11 +1234,11 @@ cleaned up its children!
 \begin{lstlisting}[language=C++]
 struct CleanUp : Traverser<CleanUp>
 {
-void visitPostOrder(Node*& n)
-{
-delete n;  // always necessary
-n = 0;     // might be omitted in a "raw" version of the type
-}
+    void visitPostOrder(Node*& n)
+    {
+        delete n;  // always necessary
+        n = 0;     // might be omitted in a "raw" version of the type
+    }
 };
 \end{lstlisting}
 
@@ -1250,13 +1250,13 @@ it in \emph{post-order}:
 \begin{lstlisting}[language=C++]
 int main()
 {
-Node* n = 0;                  // tree handle
+    Node* n = 0;                  // tree handle
 
-FillToDepth(4).traverse(n);   // (1) Create balanced tree.
-PreOrderLabel().traverse(n);  // (2) Label tree in pre-order.
-InOrderPrint().traverse(n);   // (3) Print above labels in order.
-CleanUp().traverse(n);        // (4) Destroy tree in post-order.
-return 0
+    FillToDepth(4).traverse(n);   // (1) Create balanced tree.
+    PreOrderLabel().traverse(n);  // (2) Label tree in pre-order.
+    InOrderPrint().traverse(n);   // (3) Print above labels in order.
+    CleanUp().traverse(n);        // (4) Destroy tree in post-order.
+    return 0
 }
 \end{lstlisting}
 
@@ -1269,11 +1269,11 @@ dcebgfhakjlinmo
 
 \begin{lstlisting}[language=C++]
 Level 0:                                a
-.    '         '    .
+                              .    '         '    .
 Level 1:                b '                           ' i
-.  '    '  .                   .  '    '  .
+                   .  '    '  .                   .  '    '  .
 Level 2:        c                f              j              m
-/   \            /   \          /   \          /   \
+              /   \            /   \          /   \          /   \
 Level 3:    d       e        g       h      k       l      n       o
 \end{lstlisting}
 
@@ -1294,10 +1294,10 @@ node in a given AST:
 \begin{lstlisting}[language=C++]
 struct IntegerLiteralHandler : AstTraverser<IntegerLiteralHandler>
 {
-void visit(IntegerLiteral* iLit)
-{
-// ... (do something with this integer literal)
-}
+    void visit(IntegerLiteral* iLit)
+    {
+        // ... (do something with this integer literal)
+    }
 }
 \end{lstlisting}
 

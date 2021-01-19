@@ -28,30 +28,30 @@ namespace a { inline namespace b { inline namespace c { /* ... */ } } }
 inline namespace a::b { }  // error: cannot start with (ù{\codeincomments{inline}}ù) for compound namespace names
 namespace inline a::b { }  // error: (ù{\codeincomments{inline}}ù) at front of sequence explicitly disallowed
 \end{lstlisting}
-}}:
+      }}:
 
 \begin{lstlisting}[language=C++]
 // example.cpp
 namespace n
 {
-namespace v1  // conventional nested namespace followed by (ù{\codeincomments{using}}ù) directive
-{
-struct T { };     // nested type declaration (identified as (ù{\codeincomments{::n::v1::T}}ù))
-int d;            // (ù{\codeincomments{::n::v1::d}}ù) at, e.g., (ù{\codeincomments{0x01a64e90}}ù)
-}
+    namespace v1  // conventional nested namespace followed by (ù{\codeincomments{using}}ù) directive
+    {
+        struct T { };     // nested type declaration (identified as (ù{\codeincomments{::n::v1::T}}ù))
+        int d;            // (ù{\codeincomments{::n::v1::d}}ù) at, e.g., (ù{\codeincomments{0x01a64e90}}ù)
+    }
 
-using namespace v1;   // import names (ù{\codeincomments{T}}ù) and (ù{\codeincomments{d}}ù) into (ù{\codeincomments{namespace n}}ù)
+    using namespace v1;   // import names (ù{\codeincomments{T}}ù) and (ù{\codeincomments{d}}ù) into (ù{\codeincomments{namespace n}}ù)
 }
 
 namespace n
 {
-inline namespace v2   // similar to being followed by (ù{\codeincomments{using namespace v2}}ù)
-{
-struct T { };     // nested type declaration (identified as (ù{\codeincomments{::n::v2::T}}ù))
-int d;            // (ù{\codeincomments{::n::v2::d}}ù) at, e.g., (ù{\codeincomments{0x01a64e94}}ù)
-}
+    inline namespace v2   // similar to being followed by (ù{\codeincomments{using namespace v2}}ù)
+    {
+        struct T { };     // nested type declaration (identified as (ù{\codeincomments{::n::v2::T}}ù))
+        int d;            // (ù{\codeincomments{::n::v2::d}}ù) at, e.g., (ù{\codeincomments{0x01a64e94}}ù)
+    }
 
-// using namespace v2;  // redundant when used with an (ù{\codeincomments{inline namespace}}ù)
+    // using namespace v2;  // redundant when used with an (ù{\codeincomments{inline namespace}}ù)
 }
 \end{lstlisting}
 
@@ -70,14 +70,14 @@ relocatable addresses (e.g., \texttt{0x01a64e90}, \texttt{0x01a64e94})
 at the \textbf{ABI} level remain unaffected by the use of either
 \texttt{inline} or \texttt{using} or both.{\cprotect\footnote{Compiling
 source files containing, alternately,
-\mbox{\texttt{namespace} \texttt{n} \texttt{\{} \texttt{inline} \texttt{namespace} \texttt{v} \texttt{\{} \texttt{int} \texttt{d;} \texttt{\}} \texttt{\}}}
-and
-\mbox{\texttt{namespace} \texttt{n} \texttt{\{} \texttt{namespace} \texttt{v} \texttt{\{} \texttt{int} \texttt{d;} \texttt{\}} \texttt{using} \texttt{namespace} \texttt{v} \texttt{\}}},
-will produce identical assembly. This can be seen with GCC by
-running \texttt{g++}~\texttt{-S}~\texttt{<file>.cpp} and viewing the
-contents of the generated \texttt{<file>.s}. Note that Compiler
-Explorer is another valuable tool for learning about what comes out
-the other end of a C++ compiler: see https://godbolt.org/.}} Note that
+ \mbox{\texttt{namespace} \texttt{n} \texttt{\{} \texttt{inline} \texttt{namespace} \texttt{v} \texttt{\{} \texttt{int} \texttt{d;} \texttt{\}} \texttt{\}}}
+  and
+ \mbox{\texttt{namespace} \texttt{n} \texttt{\{} \texttt{namespace} \texttt{v} \texttt{\{} \texttt{int} \texttt{d;} \texttt{\}} \texttt{using} \texttt{namespace} \texttt{v} \texttt{\}}},
+  will produce identical assembly. This can be seen with GCC by
+  running \texttt{g++}~\texttt{-S}~\texttt{<file>.cpp} and viewing the
+  contents of the generated \texttt{<file>.s}. Note that Compiler
+  Explorer is another valuable tool for learning about what comes out
+  the other end of a C++ compiler: see https://godbolt.org/.}} Note that
 a \texttt{using} directive immediately following an \texttt{inline}
 namespace is superfluous; name lookup will always consider names in
 \texttt{inline} namespaces before those imported by a \texttt{using}
@@ -101,14 +101,14 @@ same scope, the variable name hides the type name --- such behavior can
 be demonstrated by using the form of \texttt{sizeof} that accepts a
 nonparenthesized \emph{expression}{\cprotect\footnote{The form of
 \texttt{sizeof} that accepts a \emph{type} as its argument
-specifically requires parentheses.}}:
+  specifically requires parentheses.}}:
 
 \begin{lstlisting}[language=C++]
 struct A { double d; };  static_assert(sizeof(  A) == 8, "");  // type
-// static_assert(sizeof   A  == 8, "");  // ERROR!
+                      // static_assert(sizeof   A  == 8, "");  // ERROR!
 
 int A;                   static_assert(sizeof(  A) == 4, "");  // data
-static_assert(sizeof   A  == 4, "");  // OK
+                         static_assert(sizeof   A  == 4, "");  // OK
 \end{lstlisting}
 
 \noindent Unless both type and variable entities are declared within the same
@@ -118,10 +118,10 @@ in an inner scope hides a like-named entity in an enclosing scope:
 \begin{lstlisting}[language=C++]
 void f()
 {
-double B;                 static_assert(sizeof(B) == 8, "");  // variable
-{                         static_assert(sizeof(B) == 8, "");  // variable
-struct B { int d; };  static_assert(sizeof(B) == 4, "");  // type
-}                         static_assert(sizeof(B) == 8, "");  // variable
+    double B;                 static_assert(sizeof(B) == 8, "");  // variable
+    {                         static_assert(sizeof(B) == 8, "");  // variable
+        struct B { int d; };  static_assert(sizeof(B) == 4, "");  // type
+    }                         static_assert(sizeof(B) == 8, "");  // variable
 }
 \end{lstlisting}
 
@@ -135,8 +135,8 @@ struct C { double d; };  static_assert(sizeof(  C) == 8, "");
 
 void g()
 {                        static_assert(sizeof(  C) == 8, "");  // type
-int C;               static_assert(sizeof(  C) == 4, "");  // variable
-static_assert(sizeof(::C) == 8, "");  // type
+    int C;               static_assert(sizeof(  C) == 4, "");  // variable
+                         static_assert(sizeof(::C) == 8, "");  // type
 }                        static_assert(sizeof(  C) == 8, "");  // type
 \end{lstlisting}
 
@@ -145,17 +145,17 @@ static_assert(sizeof(::C) == 8, "");  // type
 \begin{lstlisting}[language=C++]
 namespace outer
 {
-struct D { double d; }; static_assert(sizeof(       D) == 8, ""); // type
+    struct D { double d; }; static_assert(sizeof(       D) == 8, ""); // type
 
-namespace inner
-{                       static_assert(sizeof(       D) == 8, ""); // type
-int D;              static_assert(sizeof(       D) == 4, ""); // var
-}                       static_assert(sizeof(       D) == 8, ""); // type
-static_assert(sizeof(inner::D) == 4, ""); // var
-static_assert(sizeof(outer::D) == 8, ""); // type
-using namespace inner;//static_assert(sizeof(       D) == 0, ""); // ERROR
-static_assert(sizeof(inner::D) == 4, ""); // var
-static_assert(sizeof(outer::D) == 8, ""); // type
+    namespace inner
+    {                       static_assert(sizeof(       D) == 8, ""); // type
+        int D;              static_assert(sizeof(       D) == 4, ""); // var
+    }                       static_assert(sizeof(       D) == 8, ""); // type
+                            static_assert(sizeof(inner::D) == 4, ""); // var
+                            static_assert(sizeof(outer::D) == 8, ""); // type
+    using namespace inner;//static_assert(sizeof(       D) == 0, ""); // ERROR
+                            static_assert(sizeof(inner::D) == 4, ""); // var
+                            static_assert(sizeof(outer::D) == 8, ""); // type
 }                           static_assert(sizeof(outer::D) == 8, ""); // type
 \end{lstlisting}
 
@@ -206,24 +206,24 @@ namespace:
 \begin{lstlisting}[language=C++]
 namespace outer
 {
-struct U { };
+    struct U { };
 
-// inline               // Uncommenting this line fixes the problem.
-namespace inner
-{
-void f(U) { }
-struct V { };
-}
+    // inline               // Uncommenting this line fixes the problem.
+    namespace inner
+    {
+         void f(U) { }
+         struct V { };
+    }
 
-using namespace inner;  // If we inline (ù{\codeincomments{inner}}ù), we don't need this line.
+    using namespace inner;  // If we inline (ù{\codeincomments{inner}}ù), we don't need this line.
 
-void g(V) { };
+    void g(V) { };
 }
 
 void client()
 {
-f(outer::U());         // Error: (ù{\codeincomments{f}}ù) is not declared in this scope.
-g(outer::inner::V());  // Error: (ù{\codeincomments{g}}ù) is not declared in this scope.
+    f(outer::U());         // Error: (ù{\codeincomments{f}}ù) is not declared in this scope.
+    g(outer::inner::V());  // Error: (ù{\codeincomments{g}}ù) is not declared in this scope.
 }
 \end{lstlisting}
 
@@ -258,23 +258,23 @@ non-\texttt{inline} namespace:
 \begin{lstlisting}[language=C++]
 namespace out                      // proximate non-(ù{\codeincomments{inline}}ù) outer namespace
 {
-inline namespace in1           // first-level nested (ù{\codeincomments{inline}}ù) namespace
-{
-inline namespace in2       // second-level nested (ù{\codeincomments{inline}}ù) namespace
-{
-template <typename T>  // primary class template general definition
-struct S { };
+    inline namespace in1           // first-level nested (ù{\codeincomments{inline}}ù) namespace
+    {
+        inline namespace in2       // second-level nested (ù{\codeincomments{inline}}ù) namespace
+        {
+            template <typename T>  // primary class template general definition
+            struct S { };
 
-template <>            // class template *full* specialization
-struct S<char> { };
-}
+            template <>            // class template *full* specialization
+            struct S<char> { };
+        }
 
-template <>                // class template *full* specialization
-struct S<short> { };
-}
+        template <>                // class template *full* specialization
+        struct S<short> { };
+    }
 
-template <>                    // class template *full* specialization
-struct S<int> { };
+    template <>                    // class template *full* specialization
+    struct S<int> { };
 }
 
 using namespace out;               // conventional using directive
@@ -295,17 +295,17 @@ template can be \emph{declared} within a nested namespace and then be
 \begin{lstlisting}[language=C++]
 namespace out                      // proximate non-(ù{\codeincomments{inline}}ù) outer namespace
 {
-inline namespace in1           // first-level nested (ù{\codeincomments{inline}}ù) namespace
-{
-template <typename T>      // function template declaration
-void f();
+    inline namespace in1           // first-level nested (ù{\codeincomments{inline}}ù) namespace
+    {
+        template <typename T>      // function template declaration
+        void f();
 
-template <>                // function template (full) specialization
-void f<short>() { }
-}
+        template <>                // function template (full) specialization
+        void f<short>() { }
+    }
 
-template <>                    // function template (full) specialization
-void f<int>() { }
+    template <>                    // function template (full) specialization
+    void f<int>() { }
 }
 
 template <typename T>              // function template general definition
@@ -324,22 +324,22 @@ placed into a namespace via name qualification alone:
 \begin{lstlisting}[language=C++]
 namespace outer
 {
-inline namespace inner
-{
-template <typename T>  // class template declaration
-struct Z;              // (if defined, must be within same namespace)
+    inline namespace inner
+    {
+        template <typename T>  // class template declaration
+        struct Z;              // (if defined, must be within same namespace)
 
-template <>            // class template full specialization
-struct Z<float> { };
-}
+        template <>            // class template full specialization
+        struct Z<float> { };
+    }
 
-template <typename T>      // inconsistent declaration (and definition)
-struct Z { };              // (ù{\codeincomments{Z}}ù) is now ambiguous in namespace (ù{\codeincomments{outer}}ù).
+    template <typename T>      // inconsistent declaration (and definition)
+    struct Z { };              // (ù{\codeincomments{Z}}ù) is now ambiguous in namespace (ù{\codeincomments{outer}}ù).
 
-const int i = sizeof(Z);   // Error: Reference to (ù{\codeincomments{Z}}ù) is ambiguous.
+    const int i = sizeof(Z);   // Error: Reference to (ù{\codeincomments{Z}}ù) is ambiguous.
 
-template <>                // attempted class template full specialization
-struct Z<double> { };      // Error: (ù{\codeincomments{outer::Z}}ù) or (ù{\codeincomments{outer::inner::Z}}ù)?
+    template <>                // attempted class template full specialization
+    struct Z<double> { };      // Error: (ù{\codeincomments{outer::Z}}ù) or (ù{\codeincomments{outer::inner::Z}}ù)?
 }
 \end{lstlisting}
 
@@ -356,23 +356,23 @@ namespace \texttt{m} cause an ambiguity error:
 \begin{lstlisting}[language=C++]
 namespace outer
 {
-namespace m { }      // opens and closes (ù{\codeincomments{::outer::m}}ù)
+    namespace m { }      // opens and closes (ù{\codeincomments{::outer::m}}ù)
 
-inline namespace inner
-{
-namespace n { }  // opens and closes (ù{\codeincomments{::outer::inner::n}}ù)
-namespace m { }  // opens and closes (ù{\codeincomments{::outer::inner::m}}ù)
-}
+    inline namespace inner
+    {
+        namespace n { }  // opens and closes (ù{\codeincomments{::outer::inner::n}}ù)
+        namespace m { }  // opens and closes (ù{\codeincomments{::outer::inner::m}}ù)
+    }
 
-namespace n          // OK, reopens (ù{\codeincomments{::outer::inner::n}}ù)
-{
-struct S { };    // defines (ù{\codeincomments{::outer::inner::n::S}}ù)
-}
+    namespace n          // OK, reopens (ù{\codeincomments{::outer::inner::n}}ù)
+    {
+        struct S { };    // defines (ù{\codeincomments{::outer::inner::n::S}}ù)
+    }
 
-namespace m          // error: (ù{\codeincomments{namespace m}}ù) is ambiguous
-{
-struct T { };    // with clang defines (ù{\codeincomments{::outer::m::T}}ù)
-}
+    namespace m          // error: (ù{\codeincomments{namespace m}}ù) is ambiguous
+    {
+        struct T { };    // with clang defines (ù{\codeincomments{::outer::m::T}}ù)
+    }
 }
 
 static_assert(std::is_same<outer::n::S, outer::inner::n::S>::value, "");
@@ -398,7 +398,7 @@ namespace. This compiler defect causes the last declaration of
 \texttt{m} to reopen \texttt{::outer::m} instead of
 \texttt{::outer::inner::m} and the last declaration of \texttt{n} to
 open a new namespace, \texttt{::outer::n}, instead of reopening
-\texttt{::outer::inner::n}.}} If a matching namespace is found
+  \texttt{::outer::inner::n}.}} If a matching namespace is found
 unambiguously inside an \texttt{inline} namespace, \texttt{n} in this
 case, then it is that nested namespace that is reopened --- here,
 \texttt{::outer::inner::n}. The inner namespace is reopened even though
@@ -422,20 +422,20 @@ object as its only argument:
 \begin{lstlisting}[language=C++]
 namespace parselib
 {
-template <typename T>
-class Parser
-{
-// ...
+    template <typename T>
+    class Parser
+    {
+        // ...
 
-public:
-Parser();
-int parse(T* result, const char* input);
-// Load (ù{\codeincomments{result}}ù) from null-terminated (ù{\codeincomments{input}}ù); return (ù{\codeincomments{0}}ù) (on
-// success) or nonzero (with no effect on (ù{\codeincomments{result}}ù)).
-};
+    public:
+        Parser();
+        int parse(T* result, const char* input);
+            // Load (ù{\codeincomments{result}}ù) from null-terminated (ù{\codeincomments{input}}ù); return (ù{\codeincomments{0}}ù) (on
+            // success) or nonzero (with no effect on (ù{\codeincomments{result}}ù)).
+    };
 
-template <typename T>
-double analyze(const Parser<T>& parser);
+    template <typename T>
+    double analyze(const Parser<T>& parser);
 }
 \end{lstlisting}
 
@@ -447,18 +447,18 @@ struct MyClass { /*...*/ };  // end-user-defined type
 
 namespace parselib  // necessary to specialize (ù{\codeincomments{Parser}}ù)
 {
-template <>            // Create *full* specialization of class
-class Parser<MyClass>  // (ù{\codeincomments{Parser}}ù) for user-type (ù{\codeincomments{MyClass}}ù).
-{
-// ...
+    template <>            // Create *full* specialization of class
+    class Parser<MyClass>  // (ù{\codeincomments{Parser}}ù) for user-type (ù{\codeincomments{MyClass}}ù).
+    {
+        // ...
 
-public:
-Parser();
-int parse(MyClass* result, const char* input);
-// The *contract* for a specialization typically remains the same.
-};
+    public:
+        Parser();
+        int parse(MyClass* result, const char* input);
+            // The *contract* for a specialization typically remains the same.
+    };
 
-double analyze(const Parser<MyClass>& parser);
+    double analyze(const Parser<MyClass>& parser);
 };
 \end{lstlisting}
 
@@ -468,17 +468,17 @@ class directly within the \texttt{parselib} namespace:
 \begin{lstlisting}[language=C++]
 void client()
 {
-MyClass result;
-parselib::Parser<MyClass> parser;
+    MyClass result;
+    parselib::Parser<MyClass> parser;
 
-int status = parser.parse(&result, "...( MyClass value )...");
-if (status != 0)
-{
-return;
-}
+    int status = parser.parse(&result, "...( MyClass value )...");
+    if (status != 0)
+    {
+        return;
+    }
 
-double value = analyze(parser);
-// ...
+    double value = analyze(parser);
+    // ...
 }
 \end{lstlisting}
 
@@ -498,23 +498,23 @@ our library software:
 \begin{lstlisting}[language=C++]
 namespace parselib
 {
-inline namespace v1             // Note our use of (ù{\codeincomments{inline}}ù) namespace here.
-{
-template <typename T>
-class Parser
-{
-// ...
+    inline namespace v1             // Note our use of (ù{\codeincomments{inline}}ù) namespace here.
+    {
+        template <typename T>
+        class Parser
+        {
+            // ...
 
-public:
-Parser();
-int parse(T* result, const char* input);
-// Load (ù{\codeincomments{result}}ù) from null-terminated (ù{\codeincomments{input}}ù); return 0 (on
-// success) or nonzero (with no effect on (ù{\codeincomments{result}}ù)).
-};
+        public:
+            Parser();
+            int parse(T* result, const char* input);
+                // Load (ù{\codeincomments{result}}ù) from null-terminated (ù{\codeincomments{input}}ù); return 0 (on
+                // success) or nonzero (with no effect on (ù{\codeincomments{result}}ù)).
+        };
 
-template <typename T>
-double analyze(const Parser<T>& parser);
-}
+        template <typename T>
+        double analyze(const Parser<T>& parser);
+    }
 }
 \end{lstlisting}
 
@@ -547,41 +547,41 @@ implementation and then, at some point, make \texttt{v2} the
 
 namespace parselib
 {
-namespace v1  // Notice that (ù{\codeincomments{v1}}ù) is now just a nested namespace.
-{
-template <typename T>
-class Parser
-{
-// ...
+    namespace v1  // Notice that (ù{\codeincomments{v1}}ù) is now just a nested namespace.
+    {
+        template <typename T>
+        class Parser
+        {
+            // ...
 
-public:
-Parser();
-int parse(T* result, const char* input);
-// Load (ù{\codeincomments{result}}ù) from null-terminated (ù{\codeincomments{input}}ù); return 0 (on
-// success) or nonzero (with no effect on (ù{\codeincomments{result}}ù)).
-};
+        public:
+            Parser();
+            int parse(T* result, const char* input);
+                // Load (ù{\codeincomments{result}}ù) from null-terminated (ù{\codeincomments{input}}ù); return 0 (on
+                // success) or nonzero (with no effect on (ù{\codeincomments{result}}ù)).
+        };
 
-template <typename T>
-double analyze(const Parser<T>& parser);
-}
+        template <typename T>
+        double analyze(const Parser<T>& parser);
+    }
 
-inline namespace v2    // Notice that use of (ù{\codeincomments{inline}}ù) keyword has moved here.
-{
-template <typename T>
-class Parser
-{
-// ...
+    inline namespace v2    // Notice that use of (ù{\codeincomments{inline}}ù) keyword has moved here.
+    {
+        template <typename T>
+        class Parser
+        {
+            // ...
 
-public:  // note incompatible change to (ù{\codeincomments{Parser}}ù)'s essential API
-Parser();
-int parse(T* result, const char* input, std::size_t size);
-// Load (ù{\codeincomments{result}}ù) from (ù{\codeincomments{input}}ù) of specified (ù{\codeincomments{size}}ù); return 0
-// on success) or nonzero (with no effect on (ù{\codeincomments{result}}ù)).
-};
+        public:  // note incompatible change to (ù{\codeincomments{Parser}}ù)'s essential API
+            Parser();
+            int parse(T* result, const char* input, std::size_t size);
+                // Load (ù{\codeincomments{result}}ù) from (ù{\codeincomments{input}}ù) of specified (ù{\codeincomments{size}}ù); return 0
+                // on success) or nonzero (with no effect on (ù{\codeincomments{result}}ù)).
+        };
 
-template <typename T>
-double analyze(const Parser<T>& parser);
-}
+        template <typename T>
+        double analyze(const Parser<T>& parser);
+    }
 }
 \end{lstlisting}
 
@@ -596,9 +596,9 @@ character:
 \begin{lstlisting}[language=C++]
 void client()
 {
-// ...
-int status = parser.parse(&result, "...( MyClass value )...", 23);
-// ...                                                      ^^^^ Look here!
+    // ...
+    int status = parser.parse(&result, "...( MyClass value )...", 23);
+    // ...                                                      ^^^^ Look here!
 }
 \end{lstlisting}
 
@@ -609,35 +609,35 @@ explicitly:
 \begin{lstlisting}[language=C++]
 namespace parselib
 {
-namespace v1  // specializations moved to nested namespace
-{
-template <>
-class Parser<MyClass1>
-{
-// ...
+    namespace v1  // specializations moved to nested namespace
+    {
+        template <>
+        class Parser<MyClass1>
+        {
+            // ...
 
-public:
-Parser();
-int parse(MyClass1* result, const char* input);
-};
+        public:
+            Parser();
+            int parse(MyClass1* result, const char* input);
+        };
 
-double analyze(const Parser<MyClass1>& parser);
-}
+        double analyze(const Parser<MyClass1>& parser);
+    }
 };
 
 void client1()
 {
-MyClass1 result;
-parselib::v1::Parser<MyClass1> parser;  // reference nested namespace (ù{\codeincomments{v1}}ù)
+    MyClass1 result;
+    parselib::v1::Parser<MyClass1> parser;  // reference nested namespace (ù{\codeincomments{v1}}ù)
 
-int status = parser.parse(&result, "...( MyClass value )...");
-if (status != 0)
-{
-return;
-}
+    int status = parser.parse(&result, "...( MyClass value )...");
+    if (status != 0)
+    {
+        return;
+    }
 
-double value = analyze(parser);
-// ...
+    double value = analyze(parser);
+    // ...
 }
 \end{lstlisting}
 
@@ -677,7 +677,7 @@ have the same \textbf{name mangling} (i.e., linker symbol) in both
 versions. In this particular instance, however, the signature of the
 \texttt{parse} member function of \texttt{parser} did change, and its
 mangled name will consequently change as well; hence the same
-\texttt{undefined}~\texttt{symbol} link error would result either way.}}
+  \texttt{undefined}~\texttt{symbol} link error would result either way.}}
 cases do arise where simply changing which of the version namespaces is
 declared \texttt{inline} might lead to an \textbf{ill-formed, no-diagnostic
 required (IFNDR)} program. This might happen when one or more of
@@ -701,8 +701,8 @@ out-of-line in the \texttt{cpp} file:
 \begin{lstlisting}[language=C++]
 struct Thing  // version 1 of class (ù{\codeincomments{Thing}}ù)
 {
-int i;    // integer data member (size is 4)
-Thing();  // original non-(ù{\codeincomments{inline}}ù) constructor (defined in (ù{\codeincomments{.cpp}}ù) file)
+    int i;    // integer data member (size is 4)
+    Thing();  // original non-(ù{\codeincomments{inline}}ù) constructor (defined in (ù{\codeincomments{.cpp}}ù) file)
 };
 \end{lstlisting}
 
@@ -715,8 +715,8 @@ compiled into a separate \texttt{.o} file:
 \begin{lstlisting}[language=C++]
 struct Thing   // version 2 of class (ù{\codeincomments{Thing}}ù)
 {
-double d;  // double-precision floating-point data member (size is 8)
-Thing();   // updated non-(ù{\codeincomments{inline}}ù) constructor (defined in (ù{\codeincomments{.cpp}}ù) file)
+    double d;  // double-precision floating-point data member (size is 8)
+    Thing();   // updated non-(ù{\codeincomments{inline}}ù) constructor (defined in (ù{\codeincomments{.cpp}}ù) file)
 };
 \end{lstlisting}
 
@@ -731,8 +731,8 @@ the client as a \texttt{main} program that does nothing but create a
 
 int main()
 {
-my::Thing t;
-std::cout << t.i << '\n';
+     my::Thing t;
+     std::cout << t.i << '\n';
 }
 \end{lstlisting}
 
@@ -744,7 +744,7 @@ in the specified object file. A symbol prefaced with a capital
 \texttt{U} represents an undefined symbol that must be resolved by the
 linker. Note that the linker symbol shown here incorporates an
 intervening \texttt{inline} namespace, \texttt{impl\_v1}, as will be
-explained shortly.}} that represents the \texttt{my::thing::thing}
+  explained shortly.}} that represents the \texttt{my::thing::thing}
 constructor will be generated in the \texttt{main.o} file:
 
 \begin{lstlisting}[language=C++]
@@ -772,14 +772,14 @@ plus definitions for inline functions and function templates, if any:
 
 namespace my                  // outer namespace (used directly by clients)
 {
-inline namespace impl_v1  // inner namespace (for implementer use only)
-{
-struct Thing
-{
-int i;    // original data member, size = 4
-Thing();  // default constructor (defined in (ù{\codeincomments{my\_thing.cpp}}ù))
-};
-};
+    inline namespace impl_v1  // inner namespace (for implementer use only)
+    {
+        struct Thing
+        {
+            int i;    // original data member, size = 4
+            Thing();  // default constructor (defined in (ù{\codeincomments{my\_thing.cpp}}ù))
+        };
+    };
 }
 
 #endif
@@ -795,12 +795,12 @@ into the \texttt{my\_thing.o} file:
 
 namespace my                   // outer namespace (used directly by clients)
 {
-inline namespace impl_v1   // inner namespace (for implementer use only)
-{
-Thing::Thing() : i(0)  // load a 4-byte value into (ù{\codeincomments{Thing}}ù)'s data member
-{
-}
-}
+    inline namespace impl_v1   // inner namespace (for implementer use only)
+    {
+        Thing::Thing() : i(0)  // load a 4-byte value into (ù{\codeincomments{Thing}}ù)'s data member
+        {
+        }
+    }
 }
 \end{lstlisting}
 
@@ -808,7 +808,7 @@ Thing::Thing() : i(0)  // load a 4-byte value into (ù{\codeincomments{Thing}}ù
 as the first substantive line of code to ensure that --- irrespective of
 anything else --- the header always compiles in isolation, thereby
 avoiding insidious include-order dependencies.{\cprotect\footnote{See
-\textbf{{lakos20}}, section~1.6.1, ``Component Property 1," pp.~210--212.}} When we compile the source file \texttt{my\_thing.cpp},
+  \textbf{{lakos20}}, section~1.6.1, ``Component Property 1," pp.~210--212.}} When we compile the source file \texttt{my\_thing.cpp},
 we produce an object file \texttt{my\_thing.o} containing the definition
 of the very same linker symbol, such as
 \texttt{\_ZN2my7impl\_v15ThingC1Ev}, for the default constructor of
@@ -847,12 +847,12 @@ namespace and making that change there:
 
 namespace my                     // outer namespace (used directly by clients)
 {
-inline namespace impl_v2     // inner namespace (for implementer use only)
-{
-Thing::Thing() : d(0.0)  // load 8-byte value into (ù{\codeincomments{Thing}}ù)'s data member
-{
-}
-}
+    inline namespace impl_v2     // inner namespace (for implementer use only)
+    {
+        Thing::Thing() : d(0.0)  // load 8-byte value into (ù{\codeincomments{Thing}}ù)'s data member
+        {
+        }
+    }
 }
 \end{lstlisting}
 
@@ -879,36 +879,36 @@ nested namespace \texttt{v2}:
 
 namespace auth      // outer namespace (used directly by clients)
 {
-namespace v1    // inner namespace (optionally used by clients)
-{
-class Key
-{
-private:
-std::uint32_t d_key;
-// (ù{\codeincomments{sizeof(Key)}}ù) is 4 bytes
+    namespace v1    // inner namespace (optionally used by clients)
+    {
+        class Key
+        {
+        private:
+            std::uint32_t d_key;
+                // (ù{\codeincomments{sizeof(Key)}}ù) is 4 bytes
 
-public:
-std::uint32_t key() const;  // stable interface function
+        public:
+            std::uint32_t key() const;  // stable interface function
 
-// ...
-};
-}
+            // ...
+        };
+    }
 
-inline namespace v2    // inner namespace (default current version)
-{
-class Key
-{
-private:
-std::uint64_t d_securityHash;
-std::uint32_t d_key;
-// (ù{\codeincomments{sizeof(Key)}}ù) is 16 bytes
+    inline namespace v2    // inner namespace (default current version)
+    {
+        class Key
+        {
+        private:
+            std::uint64_t d_securityHash;
+            std::uint32_t d_key;
+                // (ù{\codeincomments{sizeof(Key)}}ù) is 16 bytes
 
-public:
-std::uint32_t key() const;  // stable interface function
+        public:
+            std::uint32_t key() const;  // stable interface function
 
-// ...
-};
-}
+            // ...
+        };
+    }
 }
 \end{lstlisting}
 
@@ -932,30 +932,30 @@ In certain scenarios, a class might have two different memory layouts
 depending on compilation flags. For instance, consider a low-level
 \texttt{ManualBuffer} class template in which an additional data member
 is added for debugging purposes{\cprotect\footnote{Note that we have
-employed the C++11 \texttt{alignas} attribute (see ``\titleref{alignas}" on page~\pageref{alignas}) here
-because it is exactly what's needed for this usage example.}}:
+  employed the C++11 \texttt{alignas} attribute (see ``\titleref{alignas}" on page~\pageref{alignas}) here
+  because it is exactly what's needed for this usage example.}}:
 
 \begin{lstlisting}[language=C++]
 template <typename T>
 struct ManualBuffer
 {
 private:
-alignas(T) char d_data[sizeof(T)];  // aligned and big enough to hold a (ù{\codeincomments{T}}ù)
+    alignas(T) char d_data[sizeof(T)];  // aligned and big enough to hold a (ù{\codeincomments{T}}ù)
 
 #ifndef NDEBUG
-bool d_engaged;  // tracks whether buffer is full (debug builds only)
+    bool d_engaged;  // tracks whether buffer is full (debug builds only)
 #endif
 
 public:
-void construct(const T& obj);
-// Emplace (ù{\codeincomments{obj}}ù). (Engage the buffer.) The behavior is undefined unless
-// the buffer was not previously engaged.
+    void construct(const T& obj);
+        // Emplace (ù{\codeincomments{obj}}ù). (Engage the buffer.) The behavior is undefined unless
+        // the buffer was not previously engaged.
 
-void destroy();
-// Destroy the current (ù{\codeincomments{obj}}ù). (Disengage the buffer.) The behavior is
-// undefined unless the buffer was previously engaged.
+    void destroy();
+        // Destroy the current (ù{\codeincomments{obj}}ù). (Disengage the buffer.) The behavior is
+        // undefined unless the buffer was previously engaged.
 
-// ...
+    // ...
 };
 \end{lstlisting}
 
@@ -995,7 +995,7 @@ struct ManualBuffer { /* ... */ };
 \noindent While the code above changes the interface of \texttt{ManualBuffer} to
 accept an additional template parameter, it also allows debug and
 release versions of the same class to coexist in the same program,
-which might prove useful, e.g., for testing.}}:
+  which might prove useful, e.g., for testing.}}:
 
 \begin{lstlisting}[language=C++]
 #ifndef NDEBUG            // perhaps a BAD IDEA
@@ -1004,11 +1004,11 @@ inline namespace release
 inline namespace debug
 #endif
 {
-template <typename T>
-struct ManualBuffer
-{
-// ... (same as above)
-};
+    template <typename T>
+    struct ManualBuffer
+    {
+        // ... (same as above)
+    };
 }
 \end{lstlisting}
 
@@ -1034,27 +1034,27 @@ recover a symbol when there is a collision:
 namespace buflib  // GOOD IDEA: enclosing namespace for nested (ù{\codeincomments{inline}}ù) namespace
 {
 #ifndef SAFE_MODE  // GOOD IDEA: separate control of non-interoperable versions
-inline namespace safe_build_mode
+    inline namespace safe_build_mode
 #else
-inline namespace normal_build_mode
+    inline namespace normal_build_mode
 #endif
-{
-template <typename T>
-struct ManualBuffer
-{
-private:
-alignas(T) char d_data[sizeof(T)];  // aligned/sized to hold a (ù{\codeincomments{T}}ù)
+    {
+        template <typename T>
+        struct ManualBuffer
+        {
+        private:
+            alignas(T) char d_data[sizeof(T)];  // aligned/sized to hold a (ù{\codeincomments{T}}ù)
 
 #ifdef SAFE_MODE
-bool d_engaged;  // tracks whether buffer is full (safe mode only)
+            bool d_engaged;  // tracks whether buffer is full (safe mode only)
 #endif
 
-public:
-void construct(const T& obj);  // sets (ù{\codeincomments{d\_engaged}}ù) (safe mode only)
-void destroy();                // sets (ù{\codeincomments{d\_engaged}}ù) (safe mode only)
-// ...
-};
-}
+        public:
+            void construct(const T& obj);  // sets (ù{\codeincomments{d\_engaged}}ù) (safe mode only)
+            void destroy();                // sets (ù{\codeincomments{d\_engaged}}ù) (safe mode only)
+            // ...
+        };
+    }
 }
 \end{lstlisting}
 
@@ -1076,28 +1076,28 @@ switches, as illustrated here using the \texttt{my::VersionedThing} type
 namespace my
 {
 #ifdef MY_THING_VERSION_1  // bespoke switch for this component version
-inline
+    inline
 #endif
-namespace v1
-{
-struct VersionedThing
-{
-int d_i;
-VersionedThing();
-};
-}
+    namespace v1
+    {
+        struct VersionedThing
+        {
+            int d_i;
+            VersionedThing();
+        };
+    }
 
 #ifdef MY_THING_VERSION_2  // bespoke switch for this component version
-inline
+    inline
 #endif
-namespace v2
-{
-struct VersionedThing
-{
-double d_i;
-VersionedThing();
-};
-}
+    namespace v2
+    {
+        struct VersionedThing
+        {
+            double d_i;
+            VersionedThing();
+        };
+    }
 }
 #endif
 \end{lstlisting}
@@ -1140,9 +1140,9 @@ small functions declared directly in \texttt{abc}:
 // abc_header1.h
 namespace abc
 {
-int i();
-int am();
-int smart();
+    int i();
+    int am();
+    int smart();
 }
 \end{lstlisting}
 
@@ -1156,19 +1156,19 @@ the same name, all of these tiny functions are sequestered within a
 // abc_header2.h
 namespace abc
 {
-namespace nested  // Should this instead have been an (ù{\codeincomments{inline}}ù) namespace?
-{
-int a();  // lots of functions with tiny names
-int b();
-int c();
-// ...
-int h();
-int i();  // might collide with another name declared in (ù{\codeincomments{abc}}ù)
-// ...
-int z();
-}
+    namespace nested  // Should this instead have been an (ù{\codeincomments{inline}}ù) namespace?
+    {
+        int a();  // lots of functions with tiny names
+        int b();
+        int c();
+        // ...
+        int h();
+        int i();  // might collide with another name declared in (ù{\codeincomments{abc}}ù)
+        // ...
+        int z();
+    }
 
-using namespace nested;  // becomes superfluous if (ù{\codeincomments{nested}}ù) is made (ù{\codeincomments{inline}}ù)
+    using namespace nested;  // becomes superfluous if (ù{\codeincomments{nested}}ù) is made (ù{\codeincomments{inline}}ù)
 }
 \end{lstlisting}
 
@@ -1182,9 +1182,9 @@ both of these headers to accomplish some task:
 
 int function()
 {
-if (smart() < 0) { return -1; }  // uses (ù{\codeincomments{smart()}}ù) from (ù{\codeincomments{abc\_header1.h}}ù)
-return abc::z() + abc::i() + abc::a() + abc::h() + abc::c();  // Oops!
-// runtime error: silently uses the (ù{\codeincomments{abc::i()}}ù) defined in (ù{\codeincomments{abc\_header1.h}}ù)
+    if (smart() < 0) { return -1; }  // uses (ù{\codeincomments{smart()}}ù) from (ù{\codeincomments{abc\_header1.h}}ù)
+    return abc::z() + abc::i() + abc::a() + abc::h() + abc::c();  // Oops!
+        // runtime error: silently uses the (ù{\codeincomments{abc::i()}}ù) defined in (ù{\codeincomments{abc\_header1.h}}ù)
 }
 \end{lstlisting}
 
@@ -1232,12 +1232,12 @@ other objects:
 
 namespace my
 {
-struct ThingAggregate
-{
-// ...
-VersionedThing d_thing;
-// ...
-};
+    struct ThingAggregate
+    {
+        // ...
+        VersionedThing d_thing;
+        // ...
+    };
 }
 \end{lstlisting}
 
@@ -1308,7 +1308,7 @@ Standard for pre-C++20 software, they have been recognized best
 practices for as long as the Standard Library has existed and
 adherence to them will materially improve the ability of software to
 migrate to future language standards irrespective of what version of
-the language standard is being targeted.}}:
+  the language standard is being targeted.}}:
 \begin{itemize}
 \item{Avoid specializing variable templates, even if dependent on user-defined types, except for those variable templates where specialization is explicitly allowed.\cprotect\footnote{C++20 limits the specialization of variable templates to only those instances where specialization is explicitly allowed and does so only for the mathematical constants in \texttt{<numbers>}.}}
 \item{Other than a few very specific exceptions,\cprotect\footnote{C++20 identifies these functions as \texttt{addressable} and gives that property to only \texttt{iostream} manipulators since those are the only functions in the Standard Library for which taking their address is part of normal usage.} avoiding the forming of pointers to Standard Library functions — either explicitly or implicitly — allows the library to add overloads, either as part of the Standard or as an implementation detail for a particular Standard Library, without breaking user code.}
@@ -1357,18 +1357,18 @@ them, such as for \texttt{int}, in the enclosing namespace,
 \begin{lstlisting}[language=C++]
 namespace outer                                          // enclosing namespace
 {
-inline namespace inner                               // nested namespace
-{
-template<typename T> struct S0;                  // declarations of
-template<typename T> void f0();                  // various class
-template<typename T> void g0(T v);               // and function
-struct A0 { template <typename T> void h0(); };  // templates
-}
+    inline namespace inner                               // nested namespace
+    {
+        template<typename T> struct S0;                  // declarations of
+        template<typename T> void f0();                  // various class
+        template<typename T> void g0(T v);               // and function
+        struct A0 { template <typename T> void h0(); };  // templates
+    }
 
-template<> struct S0<int> { };                       // specializations
-template<> void f0<int>() { }                        // of the various
-void g0(int) { }  /* overload not specialization */  // class and function
-template<> void A0::h0<int>() { }                    // declarations above
+    template<> struct S0<int> { };                       // specializations
+    template<> void f0<int>() { }                        // of the various
+    void g0(int) { }  /* overload not specialization */  // class and function
+    template<> void A0::h0<int>() { }                    // declarations above
 }                                                        // in (ù{\codeincomments{outer}}ù) namespace
 \end{lstlisting}
 
@@ -1380,7 +1380,7 @@ portably{\cprotect\footnote{GCC provides the \texttt{-fpermissive} flag,
 which allows the example containing specializations within the inner
 namespace to compile with warnings. Note again that \texttt{g1(int)},
 being an \emph{overload} and not a \emph{specialization}, wasn't an
-error and, therefore, isn't a warning either.}} declare these
+  error and, therefore, isn't a warning either.}} declare these
 templates within the \texttt{outer} namespace and then specialize them
 within the \texttt{inner} one, even though the \texttt{inner} namespace
 is \texttt{inline}:
@@ -1388,19 +1388,19 @@ is \texttt{inline}:
 \begin{lstlisting}[language=C++]
 namespace outer                                     // enclosing namespace
 {
-template<typename T> struct S1;                 // class template
-template<typename T> void f1();                 // function template
-template<typename T> void g1(T v);              // function template
+    template<typename T> struct S1;                 // class template
+    template<typename T> void f1();                 // function template
+    template<typename T> void g1(T v);              // function template
 
-struct A1 { template <typename T> void h1(); }; // member function template
+    struct A1 { template <typename T> void h1(); }; // member function template
 
-inline namespace inner                          // nested namespace
-{                                               // BAD IDEA
-template<> struct S1<int> { };              // error: (ù{\codeincomments{S1}}ù) not a template
-template<> void f1<int>() { }               // error: (ù{\codeincomments{f1}}ù) not a template
-void g1(int) { }                            // OK, overloaded function
-template<> void A1::h1<int>() { }           // error: (ù{\codeincomments{h1}}ù) not a template
-}
+    inline namespace inner                          // nested namespace
+    {                                               // BAD IDEA
+        template<> struct S1<int> { };              // error: (ù{\codeincomments{S1}}ù) not a template
+        template<> void f1<int>() { }               // error: (ù{\codeincomments{f1}}ù) not a template
+        void g1(int) { }                            // OK, overloaded function
+        template<> void A1::h1<int>() { }           // error: (ù{\codeincomments{h1}}ù) not a template
+    }
 }
 \end{lstlisting}
 
@@ -1411,23 +1411,23 @@ causes the name to be inaccessible within the \texttt{outer} namespace:
 \begin{lstlisting}[language=C++]
 namespace outer                                          // enclosing namespace
 {                                                        // BAD IDEA
-template<typename T> struct S2;                      // declarations of
-template<typename T> void f2();                      // various class
-template<typename T> void g2(T v);                   // and function
-struct A2 { template <typename T> void h2(); };      // templates
+    template<typename T> struct S2;                      // declarations of
+    template<typename T> void f2();                      // various class
+    template<typename T> void g2(T v);                   // and function
+    struct A2 { template <typename T> void h2(); };      // templates
 
-inline namespace inner                               // nested namespace
-{
-template<typename T> struct S2 { };              // definitions of
-template<typename T> void f2() { }               // unrelated class
-template<typename T> void g2(T v) { }            // and function
-template<typename T> void A2::h2() { };          // templates
-}
+    inline namespace inner                               // nested namespace
+    {
+        template<typename T> struct S2 { };              // definitions of
+        template<typename T> void f2() { }               // unrelated class
+        template<typename T> void g2(T v) { }            // and function
+        template<typename T> void A2::h2() { };          // templates
+    }
 
-template<> struct S2<int> { };     // Error: (ù{\codeincomments{S2}}ù) is ambiguous in (ù{\codeincomments{outer}}ù).
-template<> void f2<int>() { }      // Error: (ù{\codeincomments{f2}}ù) is ambiguous in (ù{\codeincomments{outer}}ù).
-void g2(int) { }                   // OK, (ù{\codeincomments{g2}}ù) is an overload definition.
-template<> void A2::h2<int>() { }  // Error: (ù{\codeincomments{h2}}ù) is ambiguous in (ù{\codeincomments{outer}}ù).
+    template<> struct S2<int> { };     // Error: (ù{\codeincomments{S2}}ù) is ambiguous in (ù{\codeincomments{outer}}ù).
+    template<> void f2<int>() { }      // Error: (ù{\codeincomments{f2}}ù) is ambiguous in (ù{\codeincomments{outer}}ù).
+    void g2(int) { }                   // OK, (ù{\codeincomments{g2}}ù) is an overload definition.
+    template<> void A2::h2<int>() { }  // Error: (ù{\codeincomments{h2}}ù) is ambiguous in (ù{\codeincomments{outer}}ù).
 }
 \end{lstlisting}
 
@@ -1439,23 +1439,23 @@ declared symbols ambiguous in the \texttt{outer} namespace:
 \begin{lstlisting}[language=C++]
 namespace outer                                          // enclosing namespace
 {                                                        // BAD IDEA
-inline namespace inner                               // nested namespace
-{
-template<typename T> struct S3;                  // declarations of
-template<typename T> void f3();                  // various class
-template<typename T> void g3(T v);               // and function
-struct A3 { template <typename T> void h3(); };  // templates
-}
+    inline namespace inner                               // nested namespace
+    {
+        template<typename T> struct S3;                  // declarations of
+        template<typename T> void f3();                  // various class
+        template<typename T> void g3(T v);               // and function
+        struct A3 { template <typename T> void h3(); };  // templates
+    }
 
-template<typename T> struct S3 { };                  // definitions of
-template<typename T> void f3() { }                   // unrelated class
-template<typename T> void g3(T v) { }                // and function
-template<typename T> void A3::h3() { };              // templates
+    template<typename T> struct S3 { };                  // definitions of
+    template<typename T> void f3() { }                   // unrelated class
+    template<typename T> void g3(T v) { }                // and function
+    template<typename T> void A3::h3() { };              // templates
 
-template<> struct S3<int> { };     // Error: (ù{\codeincomments{S3}}ù) is ambiguous in (ù{\codeincomments{outer}}ù).
-template<> void f3<int>() { }      // Error: (ù{\codeincomments{f3}}ù) is ambiguous in (ù{\codeincomments{outer}}ù).
-void g3(int) { }                   // OK, (ù{\codeincomments{g3}}ù) is an *overload* definition.
-template<> void A3::h3<int>() { }  // Error: (ù{\codeincomments{h2}}ù) is ambiguous in (ù{\codeincomments{outer}}ù).
+    template<> struct S3<int> { };     // Error: (ù{\codeincomments{S3}}ù) is ambiguous in (ù{\codeincomments{outer}}ù).
+    template<> void f3<int>() { }      // Error: (ù{\codeincomments{f3}}ù) is ambiguous in (ù{\codeincomments{outer}}ù).
+    void g3(int) { }                   // OK, (ù{\codeincomments{g3}}ù) is an *overload* definition.
+    template<> void A3::h3<int>() { }  // Error: (ù{\codeincomments{h2}}ù) is ambiguous in (ù{\codeincomments{outer}}ù).
 }
 \end{lstlisting}
 
@@ -1472,10 +1472,10 @@ template <typename T> void outer::A3::h3<T>() { }  // syntax error: ill-formed
 
 namespace outer
 {
-inline namespace inner
-{
-template <typename T> void A3::h3<T>() { } // OK, within same namespace
-}
+    inline namespace inner
+    {
+        template <typename T> void A3::h3<T>() { } // OK, within same namespace
+    }
 }
 \end{lstlisting}
 
@@ -1486,7 +1486,7 @@ specializations of a template have been seen before it is used
 substantively (i.e., \textbf{ODR-used}) cannot be overstated, giving
 rise to the only limerick, which is actually part of the normative text,
 in the C++ Language Standard{\cprotect\footnote{See \textbf{{iso11}},
-section~14.7.3.7, pp.~375--375, specifically p.~376.}}:
+  section~14.7.3.7, pp.~375--375, specifically p.~376.}}:
 \begin{quote}
 When writing a specialization,\\
 be careful about its location;\\
@@ -1530,7 +1530,7 @@ Eventually \emph{both} solutions for incorporating literal namespace,
 \texttt{std::chrono}, were pressed into service when, in C++17, a
 \mbox{\texttt{using}~\texttt{namespace}~\texttt{literals::chrono\_literals;}}
 was added to the\linebreak[4]
-\texttt{std::chrono} namespace. The Standard does not, however, benefit in any objective way from any of
+ \texttt{std::chrono} namespace. The Standard does not, however, benefit in any objective way from any of
 these namespaces being \texttt{inline} since the artifacts in the
 \texttt{literals} namespace neither depend on ADL nor are templates in
 need of user-defined specializations; hence having all

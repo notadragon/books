@@ -58,20 +58,20 @@ alignas(2)  int i5;  // error: less than minimum alignment on this platform
 alignas(0)  int i6;  // OK, (ù{\codeincomments{alignas}}ù) specifier ignored
 
 alignas(1024 * 16) int i7;
-// OK, might warn: e.g., exceeds (physical) page size on current platform
+    // OK, might warn: e.g., exceeds (physical) page size on current platform
 
 alignas(1024 * 1024 * 512) int i8;
-// (likely) compile-time error: e.g., exceeds maximum size of object file
+    // (likely) compile-time error: e.g., exceeds maximum size of object file
 
 alignas(8) char buf[128];  // create 8-byte-aligned, 128-byte character buffer
 
 void f()
 {
-// automatic variables declared at function scope
-alignas(4)  double e0;  // error: less than minimum alignment on this platform
-alignas(8)  double e1;  // OK, no-change to (8-byte) alignment boundary
-alignas(16) double e2;  // OK, aligned to maximum (fundamental) alignment value
-alignas(32) double e3;  // OK, maximum alignment value exceeded; might warn
+    // automatic variables declared at function scope
+    alignas(4)  double e0;  // error: less than minimum alignment on this platform
+    alignas(8)  double e1;  // OK, no-change to (8-byte) alignment boundary
+    alignas(16) double e2;  // OK, aligned to maximum (fundamental) alignment value
+    alignas(32) double e3;  // OK, maximum alignment value exceeded; might warn
 }
 \end{lstlisting}
 
@@ -80,7 +80,7 @@ alignas(32) double e3;  // OK, maximum alignment value exceeded; might warn
 The \texttt{alignas} specifier can also be used to specify alignment for
 user-defined types (UDTs), such as a \texttt{class}, \texttt{struct},
 \texttt{union}, or \texttt{enum}. When specifying the alignment of a UDT,
-the \texttt{alignas} keyword is placed \emph{after} the
+ the \texttt{alignas} keyword is placed \emph{after} the
 type specifier (e.g., \texttt{class}) and just before the name of the
 type (e.g., \texttt{C}):
 
@@ -100,20 +100,20 @@ is applied to an enumeration \texttt{E}, the Standard does not
 indicate whether padding bits are added to \texttt{E}'s object
 representation or not, affecting the result of \texttt{sizeof(E)}. The
 implementation variance resulting from this lack of clarity in the
-Standard was captured in \textbf{miller17}. The outcome of the core
-issue was to completely remove permission for \texttt{alignas} to be
-applied to enumerations (see \textbf{iso18a}). Therefore, conforming implementations will
-eventually stop accepting the \texttt{alignas} specifier on
-enumerations in the future.}}
+  Standard was captured in \textbf{miller17}. The outcome of the core
+  issue was to completely remove permission for \texttt{alignas} to be
+  applied to enumerations (see \textbf{iso18a}). Therefore, conforming implementations will
+  eventually stop accepting the \texttt{alignas} specifier on
+  enumerations in the future.}}
 
 Again, specifying an alignment that is less than what would occur
 naturally or else is restricted explicitly is ill formed:
 
 \begin{lstlisting}[language=C++]
 struct alignas(2) T0 { int i; };
-// Error: Alignment of (ù{\codeincomments{T0}}ù) (2) is less than that of (ù{\codeincomments{int}}ù) (4).
+    // Error: Alignment of (ù{\codeincomments{T0}}ù) (2) is less than that of (ù{\codeincomments{int}}ù) (4).
 struct alignas(1) T1 { C c; };
-// Error: Alignment of (ù{\codeincomments{T1}}ù) (1) is less than that of (ù{\codeincomments{C}}ù) (2).
+    // Error: Alignment of (ù{\codeincomments{T1}}ù) (1) is less than that of (ù{\codeincomments{C}}ù) (2).
 \end{lstlisting}
 
 
@@ -127,9 +127,9 @@ members is possible:
 \begin{lstlisting}[language=C++]
 struct T2
 {
-alignas(8)  char   x;  // size   1; alignment 8
-alignas(16) int    y;  // size   4; alignment 16
-alignas(64) double y;  // size   8; alignment 64
+    alignas(8)  char   x;  // size   1; alignment 8
+    alignas(16) int    y;  // size   4; alignment 16
+    alignas(64) double y;  // size   8; alignment 64
 };  // size 128; alignment 64
 \end{lstlisting}
 
@@ -139,12 +139,12 @@ and then set the alignment of the structure overall:
 \begin{lstlisting}[language=C++]
 struct alignas(64) T3
 {
-char   x;      // size   1; alignment 8
-char   a[15];  // padding
-int    y;      // size   4; alignment 16
-char   b[44];  // padding
-double z;      // size   8; alignment 64
-char   c[56];  // padding (optional)
+    char   x;      // size   1; alignment 8
+    char   a[15];  // padding
+    int    y;      // size   4; alignment 16
+    char   b[44];  // padding
+    double z;      // size   8; alignment 64
+    char   c[56];  // padding (optional)
 };  // size 128; alignment 64
 \end{lstlisting}
 
@@ -154,10 +154,10 @@ the maximum applicable alignment value is applied:
 \begin{lstlisting}[language=C++]
 struct T4
 {
-alignas(2) char
-c1 alignas(1),  // size 1; alignment 2
-c2 alignas(2),  // size 1; alignment 2
-c4 alignas(4);  // size 1; alignment 4
+    alignas(2) char
+        c1 alignas(1),  // size 1; alignment 2
+        c2 alignas(2),  // size 1; alignment 2
+        c4 alignas(4);  // size 1; alignment 4
 };                      // size 8; alignment 4
 \end{lstlisting}
 
@@ -185,11 +185,11 @@ the program stack using placement \texttt{new}:
 \begin{lstlisting}[language=C++]
 void f()
 {
-// ...
-char objectBuffer[sizeof(std::complex<long double>)];  // BAD IDEA
-// ...
-new(objectBuffer) std::complex<long double>(1.0, 0.0);  // Might dump core!
-// ...
+    // ...
+    char objectBuffer[sizeof(std::complex<long double>)];  // BAD IDEA
+    // ...
+    new(objectBuffer) std::complex<long double>(1.0, 0.0);  // Might dump core!
+    // ...
 }
 \end{lstlisting}
 
@@ -208,18 +208,18 @@ object buffer and some maximally aligned type (e.g.,
 
 void f()
 {
-// ...
+    // ...
 
-union {                                              // awkward workaround
-std::max_align_t dummy;  // (ù{\codeincomments{typedef}}ù) to maximally aligned type
-char objectBuffer[sizeof(std::complex<long double>)];
-} objectBuffer;
+    union {                                              // awkward workaround
+        std::max_align_t dummy;  // (ù{\codeincomments{typedef}}ù) to maximally aligned type
+        char objectBuffer[sizeof(std::complex<long double>)];
+    } objectBuffer;
 
-// ...
+    // ...
 
-new(&objectBuffer) std::complex<long double>(1.0, 0.0);  // OK
+    new(&objectBuffer) std::complex<long double>(1.0, 0.0);  // OK
 
-// ...
+    // ...
 }
 \end{lstlisting}
 
@@ -229,16 +229,16 @@ complexity and just state our intentions explicitly:
 \begin{lstlisting}[language=C++]
 void f()
 {
-// ...
+    // ...
 
-alignas(std::complex<long double>) char objectBuffer[
-sizeof(std::complex<long double>)];  // GOOD IDEA
+    alignas(std::complex<long double>) char objectBuffer[
+                              sizeof(std::complex<long double>)];  // GOOD IDEA
 
-// ...
+    // ...
 
-new(objectBuffer) std::complex<long double>(1.0, 0.0);  // OK
+    new(objectBuffer) std::complex<long double>(1.0, 0.0);  // OK
 
-// ...
+    // ...
 }
 \end{lstlisting}
 
@@ -252,14 +252,14 @@ architecture. SSE instructions operate on groups of four 32-bit
 single-precision floating-point numbers at a time, which are required to
 be 16-byte aligned.{\cprotect\footnote{``Data must be
 16-byte aligned when loading to and storing from the 128-bit XMM
-registers used by SSE/SSE2/SSE3/SSSE3'': see \textbf{{intel16}},
-section 4.4.4, ``Data Alignment for 128-Bit Data," pp. 4-19--4-20.}} The
+  registers used by SSE/SSE2/SSE3/SSSE3'': see \textbf{{intel16}},
+  section 4.4.4, ``Data Alignment for 128-Bit Data," pp. 4-19--4-20.}} The
 \texttt{alignas} specifier can be used to create a type satisfying this requirement:
 
 \begin{lstlisting}[language=C++]
 struct SSEVector
 {
-alignas(16) float d_data[4];
+    alignas(16) float d_data[4];
 };
 \end{lstlisting}
 
@@ -272,25 +272,25 @@ conveniently) used with SSE intrinsics:
 
 void f()
 {
-const SSEVector v0 = {0.0f, 1.0f, 2.0f, 3.0f};
-const SSEVector v1 = {10.0f, 10.0f, 10.0f, 10.0f};
+    const SSEVector v0 = {0.0f, 1.0f, 2.0f, 3.0f};
+    const SSEVector v1 = {10.0f, 10.0f, 10.0f, 10.0f};
 
-__m128 sseV0 = _mm_load_ps(v0.d_data);
-__m128 sseV1 = _mm_load_ps(v1.d_data);
-// (ù{\codeincomments{\_mm\_load\_ps}}ù) requires the given (ù{\codeincomments{float}}ù) array to be 16-byte aligned.
-// The data is loaded into a dedicated 128-bit CPU register.
+    __m128 sseV0 = _mm_load_ps(v0.d_data);
+    __m128 sseV1 = _mm_load_ps(v1.d_data);
+        // (ù{\codeincomments{\_mm\_load\_ps}}ù) requires the given (ù{\codeincomments{float}}ù) array to be 16-byte aligned.
+        // The data is loaded into a dedicated 128-bit CPU register.
 
-__m128 sseResult = _mm_add_ps(sseV0, sseV1);
-// sum two 128-bit registers; typically generates an (ù{\codeincomments{addps}}ù) instruction
+    __m128 sseResult = _mm_add_ps(sseV0, sseV1);
+        // sum two 128-bit registers; typically generates an (ù{\codeincomments{addps}}ù) instruction
 
-SSEVector vResult;
-_mm_store_ps(vResult.d_data, sseResult);
-// Store the result of the sum back into a (ù{\codeincomments{float}}ù) array.
+    SSEVector vResult;
+    _mm_store_ps(vResult.d_data, sseResult);
+        // Store the result of the sum back into a (ù{\codeincomments{float}}ù) array.
 
-assert(vResult.d_data[0] == 10.0f);
-assert(vResult.d_data[1] == 11.0f);
-assert(vResult.d_data[2] == 12.0f);
-assert(vResult.d_data[3] == 13.0f);
+    assert(vResult.d_data[0] == 10.0f);
+    assert(vResult.d_data[1] == 11.0f);
+    assert(vResult.d_data[2] == 12.0f);
+    assert(vResult.d_data[3] == 13.0f);
 }
 \end{lstlisting}
 
@@ -318,21 +318,21 @@ close proximity on the program stack:
 volatile int target = 0;  // updated asynchronously from multiple threads
 
 void incrementJob(int* p);
-// Repeatedly increment (ù{\codeincomments{*p}}ù) a large, fixed number of times;
-// periodically write its current value to (ù{\codeincomments{target}}ù).
+    // Repeatedly increment (ù{\codeincomments{*p}}ù) a large, fixed number of times;
+    // periodically write its current value to (ù{\codeincomments{target}}ù).
 
 void f()
 {
-int i0 = 0;  // Here, (ù{\codeincomments{i0}}ù) and (ù{\codeincomments{i1}}ù) likely share the same cache line,
-int i1 = 0;  // i.e., byte-aligned memory block on the program stack.
+    int i0 = 0;  // Here, (ù{\codeincomments{i0}}ù) and (ù{\codeincomments{i1}}ù) likely share the same cache line,
+    int i1 = 0;  // i.e., byte-aligned memory block on the program stack.
 
-std::thread t0(&incrementJob, &i0);
-std::thread t1(&incrementJob, &i1);
-// Spawn two parallel jobs incrementing the respective variables.
+    std::thread t0(&incrementJob, &i0);
+    std::thread t1(&incrementJob, &i1);
+        // Spawn two parallel jobs incrementing the respective variables.
 
-t0.join();
-t1.join();
-// Wait for both jobs to be completed.
+    t0.join();
+    t1.join();
+        // Wait for both jobs to be completed.
 }
 \end{lstlisting}
 
@@ -347,10 +347,10 @@ ensure that the two variables reside on distinct cache lines:
 
 void f()
 {
-alignas(64) int i0 = 0;   // Assuming a cache line on this platform is 64
-alignas(64) int i1 = 0;   // bytes, (ù{\codeincomments{i0}}ù) and (ù{\codeincomments{i1}}ù) will be on separate ones.
+    alignas(64) int i0 = 0;   // Assuming a cache line on this platform is 64
+    alignas(64) int i1 = 0;   // bytes, (ù{\codeincomments{i0}}ù) and (ù{\codeincomments{i1}}ù) will be on separate ones.
 
-// ...
+    // ...
 \end{lstlisting}
 
 \noindent As an empirical demonstration of the effects of \textbf{false sharing},
@@ -364,7 +364,7 @@ Core i7-9700k CPU (8 cores, 64-byte cache line size). Over the
 course of multiple runs, the version of the benchmark without
 \texttt{alignas} took 18.5967ms to complete (on average), while the
 version with \texttt{alignas} took 2.45333ms to complete (on average).
-See \textbf{{[PRODUCTION: CODE PROVIDED WITH BOOK] alignasbenchmark}} for the source code of the program.}}
+  See \textbf{{[PRODUCTION: CODE PROVIDED WITH BOOK] alignasbenchmark}} for the source code of the program.}}
 
 \subsubsection[Avoiding \textbf{false sharing} within a single thread-aware object]{Avoiding \textbf{false sharing} within a single thread-aware object}\label{avoiding-false-sharing-within-a-single-thread-aware-object}
 
@@ -379,10 +379,10 @@ occupying the same one.
 \begin{lstlisting}[language=C++]
 class ThreadSafeRingBuffer
 {
-alignas(cpuCacheSize) std::atomic<std::size_t> d_head;
-alignas(cpuCacheSize) std::atomic<std::size_t> d_tail;
+    alignas(cpuCacheSize) std::atomic<std::size_t> d_head;
+    alignas(cpuCacheSize) std::atomic<std::size_t> d_tail;
 
-// ...
+    // ...
 };
 \end{lstlisting}
 
@@ -435,7 +435,7 @@ all by GCC 10.1, using the
 \texttt{-std=c++11} \texttt{-Wall} \texttt{-Wextra} \mbox{\texttt{-Wpedantic}}
 flags. With the same set of options, Clang 10.0 produces a compilation
 failure. MSVC v19.24 will produce a warning and ignore any alignment
-less than the minimum one.}}
+  less than the minimum one.}}
 
 \subsubsection[Incompatibly specifying alignment is \textbf{IFNDR}]{Incompatibly specifying alignment is \textbf{IFNDR}}\label{incompatibly-specifying-alignment-is-ifndr}
 
@@ -524,7 +524,7 @@ types be \textbf{byte aligned}. While such a representation is more
 compact, entities that span memory boundaries can require multiple
 fetch operations leading to run times that are typically
 significantly (sometimes as much as an order of magnitude) slower when
-run in this ``packed'' mode.}}:
+  run in this ``packed'' mode.}}:
 
 \begin{lstlisting}[language=C++]
 char   c;  // size 1; alignment 1; boundaries: 0x00, 0x01, 0x02, 0x03, ...
@@ -540,34 +540,34 @@ is typically that of the most strictly aligned subelement:
 \begin{lstlisting}[language=C++]
 struct S0
 {
-char a;  // size 1; alignment 1
-char b;  // size 1; alignment 1
-int  c;  // size 4; alignment 4
+    char a;  // size 1; alignment 1
+    char b;  // size 1; alignment 1
+    int  c;  // size 4; alignment 4
 };           // size 8; alignment 4
 
 struct S1
 {
-char a;  // size  1; alignment 1
-int  b;  // size  4; alignment 4
-char c;  // size  1; alignment 1
+    char a;  // size  1; alignment 1
+    int  b;  // size  4; alignment 4
+    char c;  // size  1; alignment 1
 };           // size 12; alignment 4
 
 struct S2
 {
-int  a;  // size 4; alignment 4
-char b;  // size 1; alignment 1
-char c;  // size 1; alignment 1
+    int  a;  // size 4; alignment 4
+    char b;  // size 1; alignment 1
+    char c;  // size 1; alignment 1
 };           // size 8; alignment 4
 
 struct S3
 {
-char a;  // size 1; alignment 1
-char b;  // size 1; alignment 1
+    char a;  // size 1; alignment 1
+    char b;  // size 1; alignment 1
 };           // size 2; alignment 1
 
 struct S4
 {
-char a[2];  // size 2; alignment 1
+    char a[2];  // size 2; alignment 1
 };              // size 2; alignment 1
 \end{lstlisting}
 
@@ -577,27 +577,27 @@ inheritance}:
 \begin{lstlisting}[language=C++]
 struct D0 : S0
 {
-double d;  // size  8; alignment 8
+    double d;  // size  8; alignment 8
 };             // size 16; alignment 8
 
 struct D1 : S1
 {
-double d;  // size  8; alignment 8
+    double d;  // size  8; alignment 8
 };             // size 24; alignment 8
 
 struct D2 : S2
 {
-int d;  // size  4; alignment 4
+    int d;  // size  4; alignment 4
 };          // size 12; alignment 4
 
 struct D3 : S3
 {
-int d;  // size 4; alignment 4
+    int d;  // size 4; alignment 4
 };          // size 8; alignment 4
 
 struct D4 : S4
 {
-char d;  // size 1; alignment 1
+    char d;  // size 1; alignment 1
 };           // size 3; alignment 1
 \end{lstlisting}
 
@@ -608,12 +608,12 @@ to that of a memory address (e.g., 4 or 8) on the host platform:
 \begin{lstlisting}[language=C++]
 struct S5
 {
-virtual ~S5();
+    virtual ~S5();
 };                   // size 8; alignment 8
 
 struct D5 : S5
 {
-char d;  // size  1; alignment 1
+    char d;  // size  1; alignment 1
 };           // size 16; alignment 8
 \end{lstlisting}
 
@@ -667,13 +667,13 @@ the cache. Although this approach has the lowest hit rate, lookup
 times, chip area, and power consumption are all minimized (optimally).
 Between these two extremes is a continuum that is referred to as
 \textbf{set associative}. A \textbf{set associate} cache has more than
-one (typically 2, 4, or 8; see \textbf{solihin15}, section~5.2.1, ``Placement Policy," pp. 136--141, and \textbf{hruska20})
-location in which each memory location in main memory can reside.
-Note that, even with a relatively small $N$, as $N$ increases, an $N$-way
-\textbf{set associative} cache quickly approaches the hit rate of a fully
-associative cache at greatly reduced collateral cost; for most
-software-design purposes, any loss in hit rate due to set
-associativity of a cache can be safely ignored.}}
+  one (typically 2, 4, or 8; see \textbf{solihin15}, section~5.2.1, ``Placement Policy," pp. 136--141, and \textbf{hruska20})
+  location in which each memory location in main memory can reside.
+  Note that, even with a relatively small $N$, as $N$ increases, an $N$-way
+  \textbf{set associative} cache quickly approaches the hit rate of a fully
+  associative cache at greatly reduced collateral cost; for most
+  software-design purposes, any loss in hit rate due to set
+  associativity of a cache can be safely ignored.}}
 
 Data residing in distinct cache lines is physically independent and can
 be written concurrently by multiple threads. Logically unrelated data
@@ -688,7 +688,7 @@ cache line impossible. Another (more broad-based) design approach that
 avoids lowering cache utilization is to ensure that data acted upon by a
 given thread is kept physically separate --- e.g., through the use of
 local (arena) memory allocators.{\cprotect\footnote{\textbf{{lakos17}},
-\textbf{{lakos19}}, \textbf{{lakos22}}}}
+  \textbf{{lakos19}}, \textbf{{lakos22}}}}
 
 Finally, even data that is not currently in cache but resides nearby in
 MM can benefit from locality. The virtual address space, synonymous with
@@ -708,7 +708,7 @@ by the number of bytes in each physical page (e.g., 8Kb), but could be
 smaller. Because it resides on chip, is typically an order of
 magnitude faster (SRAM versus DRAM), and requires only a single lookup
 (as opposed to two or more when going out to MM), there is an enormous
-premium on minimizing TLB misses.}} that caches the addresses of the
+  premium on minimizing TLB misses.}} that caches the addresses of the
 most recently accessed physical pages, providing yet another advantage
 to having the \textbf{working set} (i.e., the current set of frequently
 accessed pages) remain small and densely packed with relevant
@@ -718,7 +718,7 @@ especially node-based containers (e.g., \texttt{std::map} and
 \texttt{std::unordered\_map}), originally allocated within a single
 page, can --- through deallocation and reallocation (or even move
 operations) --- become scattered across multiple (perhaps many)
-pages, thus causing what was originally a relatively small \textbf{working set}
+ pages, thus causing what was originally a relatively small \textbf{working set}
 to no longer fit within physical memory. This phenomenon, known as
 \textbf{diffusion} (which is a distinct concept from
 \textbf{fragmentation}), is what typically leads to a substantial
@@ -726,14 +726,14 @@ runtime performance degradation (due to \textbf{thrashing}) in large,
 long-running programs. Such \textbf{diffusion} can be mitigated by
 judicious use of local arena memory allocators (and deliberate
 avoidance of \textbf{move operations} across disparate localities of
-frequent memory usage).}} What's more, dense working sets, in addition
+  frequent memory usage).}} What's more, dense working sets, in addition
 to facilitating hits for repeat access, increase the likelihood that
 data that is coresident on a page (or cache line) will be needed soon
 (i.e., in effect acting as a prefetch).{\cprotect\footnote{We sometimes
 lightheartedly refer to the beneficial prefetch of unrelated data that
 is accidentally needed subsequently (e.g., within a single thread) due
 to high locality within a cache line (or a physical page) as
-\textbf{true sharing}.}} Table~\ref{table-alignas-appendix} provides a summary of typical physical parameters found in modern computers today.
+  \textbf{true sharing}.}} Table~\ref{table-alignas-appendix} provides a summary of typical physical parameters found in modern computers today.
 
 %%%%%%TODO: TBD: @Lori: Format this as a figure with a caption. @jslakos: Double-check accuracy of values.
 
@@ -759,7 +759,7 @@ Clock Speed & NA & $\sim$4GHz \\ \thickhline
 \end{tabular}
 }
 \end{threeparttable}
-\end{center}
+    \end{center}
 \end{table}
 \clearpage
 

@@ -1,0 +1,159 @@
+
+
+Lorem ipsum dolor sit amet, consectetur
+adipiscing elit. Suspendisse non nisi ex. Ut non sollicitudin est. Donec
+laoreet, risus pretium egestas condimentum, ex eros tempor diam, quis
+congue nisi metus in tellus. Proin tempor ac lectus nec elementum.
+Maecenas augue turpis, pellentesque sed eros sit amet, tincidunt pretium
+nulla. Nunc lacus ligula, ullamcorper a porta eget, fringilla sed orci.
+Maecenas eget ultricies risus. Donec varius vehicula diam.
+
+\subsection[Description]{Description}\label{description}
+
+Lorem ipsum dolor sit amet, consectetur
+adipiscing elit. An example of \texttt{code} in the text as is, followed by an example of one point size large {\tt\large code} in the text and two point size {\tt\Large code} in the text. An example of \texttt{code} in the text as is, followed by an example of one point size smaller {\tt\small code} in the text and two point size {\tt\footnotesize code} in the text. This is the {\ttfamily\bfseries float} \texttt{x} and float should be bold code and x should not. Should we need to have something in code set capitalized, {\ttfamily\bfseries Float} or \texttt{Float}. Laoreet, risus pretium egestas condimentum, ex eros tempor diam, quis
+congue nisi metus in tellus. Proin tempor ac lectus nec elementum.
+Maecenas augue turpis, pellentesque sed eros sit amet, tincidunt pretium
+nulla. 
+
+\subsubsection[C++ attribute syntax]{C++ attribute syntax}\label{c++-attribute-syntax}
+
+Lorem ipsum dolor sit amet, consectetur
+adipiscing elit.{\cprotect\footnote{\authorsnote We will have
+some footnotes that are authors' notes.}} Suspendisse non nisi ex. Ut non sollicitudin est. Donec
+laoreet, risus pretium egestas condimentum, ex eros tempor diam, quis
+congue nisi metus in tellus. Proin tempor ac lectus nec elementum.
+Maecenas augue turpis, pellentesque sed eros sit amet, tincidunt pretium
+nulla. Nunc lacus ligula, ullamcorper a porta eget, fringilla sed orci.
+Maecenas eget ultricies risus. Donec varius vehicula diam.{\cprotect\footnote{The benchmark
+program was compiled using Clang 11.0.0 using \texttt{-Ofast},
+\texttt{-march=native}, and \mbox{\texttt{-std=c++11}}. The program was then
+executed on a machine running Windows 10 x64, equipped with an Intel
+Core i7-9700k CPU (8 cores, 64-byte cache line size). Over the
+course of multiple runs, the version of the benchmark without
+\texttt{alignas} took 18.5967ms to complete (on average), while the
+version with \texttt{alignas} took 2.45333ms to complete (on average).
+  See \textbf{{[PRODUCTION: CODE PROVIDED WITH BOOK] alignasbenchmark}} for the source code of the program.}}
+  
+
+Nested unordered list:
+
+\begin{itemize}
+\item{One\begin{itemize}
+\item{Sub}
+\item{Sub}
+\end{itemize}
+}
+\item{Two}
+\item{Three}
+\end{itemize}
+
+Donec
+laoreet, risus pretium egestas condimentum, ex eros tempor diam, quis
+congue nisi metus in tellus. Proin tempor ac lectus nec elementum.
+Maecenas augue turpis, pellentesque sed eros sit amet, tincidunt pretium
+nulla. %\pagebreak%%%%%%%
+
+Nested ordered list:
+
+\begin{enumerate}\setlength{\leftmarginii}{6mm}
+\item{One\begin{enumerate}
+\item{Sub}
+\item{Sub}
+\end{enumerate}
+}
+\item{Two}
+\item{Three}
+\end{enumerate}
+
+This feature, when used in conjunction with \emph{explicit instantiation
+definitions}, can significantly improve compilation times for a set of
+translation units that often instantiate common templates:
+
+\noindent\begin{minipage}{.45\textwidth}
+\begin{lstlisting}[language=C++, caption=code 1,frame=tb]{Name}
+void code()
+{
+
+}
+\end{lstlisting}
+\end{minipage}\hfill
+\begin{minipage}{.45\textwidth}
+\begin{lstlisting}[language=C++, caption=code 2,frame=tb]{Name}
+void code()
+{
+
+}
+\end{lstlisting}
+\end{minipage}
+
+Nullam nibh tortor, finibus ut lectus eu, convallis vehicula libero. Cras maximus ligula nisl, a eleifend mauris venenatis nec. Suspendisse potenti. Maecenas viverra laoreet mauris ut laoreet. Donec non felis risus. Ut faucibus, justo id luctus lobortis, nisi lacus pharetra est, id pretium arcu ligula ac magna. Morbi a nisl sit amet lacus vehicula tempor nec sit amet nibh.{\cprotect\footnote{There are rare edge cases in which an
+entity (e.g., an anonymous \texttt{union} or \texttt{enum}) is
+declared without a name:
+\begin{lstlisting}[style=footcode,]
+struct S { union [[attribute_name]] { int a; float b }; };  // (ù{\fncodeincomments{code term}}ù) in footnote code comment
+enum [[attribute_name]] { SUCCESS, FAIL } result;  //  (ù{\fnkeyincomments{keyword}}ù) in footnote code comment
+\end{lstlisting} \vspace*{-1ex}
+      }}
+
+
+\noindent\begin{minipage}{.45\textwidth}
+\begin{lstlisting}[language=C++, caption=code 1 with a long and wrapping title,frame=tb]{Name}
+void code()  // comment(ù{\footnotemark}ù) with (ù{\keyincomments{keyword}}ù)
+{
+// comment with (ù{\codeincomments{code term}}ù)
+}
+\end{lstlisting}
+\end{minipage}\hfill
+\begin{minipage}{.45\textwidth}
+\begin{lstlisting}[language=C++, caption=code 2 with a long and wrapping title,frame=tb]{Name}
+void code()
+{
+
+}
+\end{lstlisting}
+\end{minipage}
+\footnotetext{testing a footnote}
+
+Pellentesque id lorem ac sem ullamcorper semper. Donec imperdiet sapien in nisi faucibus, et tempus lacus hendrerit. Nulla laoreet risus eu tortor ultrices, sed bibendum neque sodales. Ut faucibus ipsum id convallis convallis. Vivamus vehicula rutrum metus in semper. Morbi fringilla ex vel vulputate vehicula. Maecenas ut porttitor massa.
+
+\subsection[Appendix to the Feature]{Appendix to the Feature}
+Suspendisse lorem libero, egestas non semper eleifend, finibus ut purus. Quisque leo nulla, lacinia vel dui et, vestibulum facilisis erat. Vestibulum scelerisque auctor diam, ut fringilla diam elementum non. Vivamus sed mauris lobortis, blandit urna quis, iaculis neque. Phasellus sit amet venenatis sapien, vel vestibulum augue. In pellentesque sit amet enim a rutrum. Fusce nec nulla et nisl faucibus efficitur vel non diam. Nulla lobortis feugiat augue, a lobortis nunc imperdiet eget. Sed in neque ultricies, efficitur mi eu, sollicitudin massa. Vivamus sed dui convallis, mattis sem a, scelerisque augue. Sed non ultricies neque. Praesent tincidunt feugiat lorem, a sagittis dui eleifend ac. Nullam molestie nulla quis risus molestie dignissim. Aenean egestas enim ut tellus vulputate finibus. Integer iaculis sodales gravida.
+
+\begin{table}[h!] 
+\begin{center}
+\begin{threeparttable}
+\caption{Testing Table Numbering}\label{test-table1}\vspace{1.5ex} 
+{\small \begin{tabular}{c|c|c}\thickhline 
+\rowcolor[gray]{.9}   {\sffamily\bfseries Compiler} & {\sffamily\bfseries Compiler-Specific} &
+{\sffamily\bfseries Standard-Conforming} \\ \hline 
+GCC &\texttt{\_\_attribute\_\_((pure))} & \texttt{[[gnu::pure]]} \\ \hline
+Clang & \texttt{\_\_attribute\_\_((no\_sanitize))} &\texttt{[[clang::no\_sanitize]]} \\ \hline 
+MSVC & \texttt{declspec(deprecated)} & \texttt{[[deprecated]]} \\ \thickhline
+\end{tabular}
+}
+\end{threeparttable} 
+\end{center}
+\end{table}
+
+Donec mattis, ex a ornare auctor, tortor felis pulvinar odio, eu mollis tortor orci id ligula. Vestibulum dignissim magna vitae lectus cursus, ac sollicitudin mi pulvinar. Praesent vulputate lorem lectus, eu pulvinar mi finibus eu. Donec sit amet massa massa. Sed eget molestie quam. Praesent iaculis diam ut nunc condimentum auctor. Morbi porttitor varius ante vel venenatis. Integer ut porttitor elit, id lacinia turpis. Integer id iaculis ante, placerat ornare tortor. Sed et consectetur est, sit amet rhoncus turpis.
+
+\begin{table}[h!] 
+\begin{center}
+\begin{threeparttable}
+\caption{Testing Table Numbering}\label{test-table1}\vspace{1.5ex} 
+{\small \begin{tabular}{c|c|c}\thickhline 
+\rowcolor[gray]{.9}   {\sffamily\bfseries Compiler} & {\sffamily\bfseries Compiler-Specific} &
+{\sffamily\bfseries Standard-Conforming} \\ \hline 
+GCC &\texttt{\_\_attribute\_\_((pure))} & \texttt{[[gnu::pure]]} \\ \hline
+Clang & \texttt{\_\_attribute\_\_((no\_sanitize))} &\texttt{[[clang::no\_sanitize]]} \\ \hline 
+MSVC & \texttt{declspec(deprecated)} & \texttt{[[deprecated]]} \\ \thickhline
+\end{tabular}
+}
+\end{threeparttable} 
+\end{center}
+\end{table}
+
+Phasellus ac tellus ipsum. Donec ornare id urna a blandit. Pellentesque finibus nulla augue, vitae pretium justo imperdiet ac. Aenean condimentum nibh eget turpis viverra gravida. Nullam diam lectus, egestas id ex quis, blandit facilisis libero. Proin laoreet ante dictum tristique finibus. Vestibulum pretium varius ipsum, sed blandit ex venenatis a. Nam pharetra pretium accumsan. Integer accumsan purus elementum tortor aliquam, commodo semper leo commodo. Nunc finibus varius erat, non hendrerit leo dapibus at. Donec mattis porta ex, eu ornare nibh condimentum id. Sed sit amet erat sit amet urna volutpat ullamcorper. Aenean feugiat eget orci ac feugiat. Nulla facilisi. Cras augue lacus, placerat sit amet vestibulum at, mollis sit amet nisl.%\pagebreak%%%%%%
+
+Nam id sem sagittis, placerat justo eget, eleifend justo. Sed ultrices rhoncus quam ut auctor. Nam pellentesque risus orci, a rhoncus arcu lobortis in. Vestibulum tristique nisi sed sollicitudin aliquam. Praesent ut odio sapien. Ut pretium sollicitudin nisi sit amet blandit. Cras ut eleifend elit. Aliquam vel tincidunt lacus, non sodales justo. Sed euismod sapien non diam euismod, sit amet vulputate nisi rhoncus. Vestibulum leo diam, dapibus suscipit blandit molestie, suscipit eget ante. Donec tristique rhoncus purus, nec pellentesque lorem volutpat non. Quisque purus dui, egestas ut ultricies sed, pharetra sit amet turpis. Praesent ut ligula porttitor, convallis velit sit amet, rhoncus urna. 

@@ -10,8 +10,8 @@ lambda expressions (see ``\titleref{lambda}" on page \pageref{lambda}).
 
 In C++11, lambda expressions can capture variables in the
 surrounding scope either \emph{by value} or \emph{by reference}{\cprotect\footnote{We use the familiar (C++11) feature
-\texttt{auto} (see ``\titleref{auto-feature}" on page~\pageref{auto-feature}) to deduce a closure's type since there is no
-way to name such a type explicitly.}}:
+  \texttt{auto} (see ``\titleref{auto-feature}" on page~\pageref{auto-feature}) to deduce a closure's type since there is no
+  way to name such a type explicitly.}}:
 
 \begin{lstlisting}[language=C++]
 int i = 0;
@@ -28,10 +28,10 @@ initialization} or \textbf{list initialization}:
 
 \begin{lstlisting}[language=C++]
 auto f2 = [i = 10]{ /* body of closure */ };
-// Synthesize an (ù{\codeincomments{int}}ù) data member, (ù{\codeincomments{i}}ù), initialized with (ù{\codeincomments{10}}ù) in the closure.
+    // Synthesize an (ù{\codeincomments{int}}ù) data member, (ù{\codeincomments{i}}ù), initialized with (ù{\codeincomments{10}}ù) in the closure.
 
 auto f3 = [c{'a'}]{ /* body of closure */ };
-// Synthesize a (ù{\codeincomments{char}}ù) data member, (ù{\codeincomments{c}}ù), initialized with (ù{\codeincomments{'a'}}ù) in the closure.
+    // Synthesize a (ù{\codeincomments{char}}ù) data member, (ù{\codeincomments{c}}ù), initialized with (ù{\codeincomments{'a'}}ù) in the closure.
 \end{lstlisting}
 
 \noindent Note that the identifiers \texttt{i} and \texttt{c} above do not refer
@@ -45,8 +45,8 @@ member:
 // pseudocode
 struct f2LikeInvocableStruct
 {
-int i = 10;  // The type (ù{\codeincomments{int}}ù) is deduced from the initialization expression.
-auto operator()() const { /* closure body */ }  // The (ù{\codeincomments{struct}}ù) is invocable.
+    int i = 10;  // The type (ù{\codeincomments{int}}ù) is deduced from the initialization expression.
+    auto operator()() const { /* closure body */ }  // The (ù{\codeincomments{struct}}ù) is invocable.
 };
 \end{lstlisting}
 
@@ -88,13 +88,13 @@ the closure, not its \emph{invocation}:
 
 void g()
 {
-int i = 0;
+    int i = 0;
 
-auto fB = [k = ++i]{ };  // (ù{\codeincomments{++i}}ù) is evaluated at creation only.
-assert(i == 1);  // OK
+    auto fB = [k = ++i]{ };  // (ù{\codeincomments{++i}}ù) is evaluated at creation only.
+    assert(i == 1);  // OK
 
-fB();  // Invoke (ù{\codeincomments{fB}}ù) (no change to (ù{\codeincomments{i}}ù)).
-assert(i == 1);  // OK
+    fB();  // Invoke (ù{\codeincomments{fB}}ù) (no change to (ù{\codeincomments{i}}ù)).
+    assert(i == 1);  // OK
 }
 \end{lstlisting}
 
@@ -109,9 +109,9 @@ that part of its \textbf{declared interface}{\cprotect\footnote{Note
 that, in the shadowing example defining \texttt{fC}, GCC version 10.x
 incorrectly evaluates \texttt{decltype(i)} inside the body of the
 lambda expression as \texttt{const}~\texttt{char}, rather than
-\texttt{char}; see \textit{\titleref{potential-pitfalls-lambdacapture}: \titleref{forwarding-an-existing-variable-into-a-closure-always-results-in-an-object-(never-a-reference)}} on page~\pageref{potential-pitfalls-lambdacapture}.}}{\cprotect\footnote{Here we are using the (C++14) variable
-template (see ``\titleref{variable-templates}" on page~\pageref{variable-templates}) version of the standard \texttt{is\_same} metafunction where \texttt{std::is\_same<A,}~\texttt{B>::value} is replaced with
-\texttt{std::is\_same\_v<A,}~\texttt{B>}.}}:
+  \texttt{char}; see \textit{\titleref{potential-pitfalls-lambdacapture}: \titleref{forwarding-an-existing-variable-into-a-closure-always-results-in-an-object-(never-a-reference)}} on page~\pageref{potential-pitfalls-lambdacapture}.}}{\cprotect\footnote{Here we are using the (C++14) variable
+  template (see ``\titleref{variable-templates}" on page~\pageref{variable-templates}) version of the standard \texttt{is\_same} metafunction where \texttt{std::is\_same<A,}~\texttt{B>::value} is replaced with
+  \texttt{std::is\_same\_v<A,}~\texttt{B>}.}}:
 
 \begin{lstlisting}[language=C++]
 #include <type_traits>  // (ù{\codeincomments{std::is\_same}}ù)
@@ -120,11 +120,11 @@ int i = 0;
 
 auto fC = [i = 'a'](decltype(i) arg)
 {
-static_assert(std::is_same_v<decltype(arg), int>, "");
-// (ù{\codeincomments{i}}ù) in the interface (same as (ù{\codeincomments{arg}}ù)) refers to the (ù{\codeincomments{int}}ù) parameter.
+    static_assert(std::is_same_v<decltype(arg), int>, "");
+         // (ù{\codeincomments{i}}ù) in the interface (same as (ù{\codeincomments{arg}}ù)) refers to the (ù{\codeincomments{int}}ù) parameter.
 
-static_assert(std::is_same_v<decltype(i), char>, "");
-// (ù{\codeincomments{i}}ù) in the body refers to the (ù{\codeincomments{char}}ù) data member deduced at capture.
+    static_assert(std::is_same_v<decltype(i), char>, "");
+        // (ù{\codeincomments{i}}ù) in the body refers to the (ù{\codeincomments{char}}ù) data member deduced at capture.
 };
 \end{lstlisting}
 
@@ -145,7 +145,7 @@ used (\textbf{ODR-used}) in the body of the lambda expression assigned
 \begin{lstlisting}[language=C++, basicstyle={\ttfamily\footnotesize}]
 warning: lambda capture 'i' is not required to be captured for this use
 \end{lstlisting}
-}}
+      }}
 
 \subsection[Use Cases]{Use Cases}\label{use-cases-lambdacapture}
 
@@ -163,22 +163,22 @@ instead:
 template <typename T>
 struct MoveOnCopy  // wrapper template used to hijack copy ctor to do move
 {
-T d_obj;
+    T d_obj;
 
-MoveOnCopy(T&& object) : d_obj{std::move(object)} { }
-MoveOnCopy(MoveOnCopy& rhs) : d_obj{std::move(rhs.d_obj)} { }
+    MoveOnCopy(T&& object) : d_obj{std::move(object)} { }
+    MoveOnCopy(MoveOnCopy& rhs) : d_obj{std::move(rhs.d_obj)} { }
 };
 
 void f()
 {
-std::unique_ptr<int> handle{new int(100)};  // move-only
-// Create an example of a handle type with a large body.
+    std::unique_ptr<int> handle{new int(100)};  // move-only
+        // Create an example of a handle type with a large body.
 
-MoveOnCopy<decltype(handle)> wrapper(std::move(handle));
-// Create an instance of a wrapper that moves on copy.
+    MoveOnCopy<decltype(handle)> wrapper(std::move(handle));
+        // Create an instance of a wrapper that moves on copy.
 
-auto lambda = [wrapper](){ /* use (ù{\codeincomments{wrapper.d\_obj}}ù) */ };
-// Create a "copy" from a wrapper that is captured by value.
+    auto lambda = [wrapper](){ /* use (ù{\codeincomments{wrapper.d\_obj}}ù) */ };
+        // Create a "copy" from a wrapper that is captured by value.
 }
 \end{lstlisting}
 
@@ -186,7 +186,7 @@ auto lambda = [wrapper](){ /* use (ù{\codeincomments{wrapper.d\_obj}}ù) */ };
 \texttt{MoveOnCopy} class template to wrap a movable object;
 when the lambda-capture expression tries to \emph{copy} the wrapper (\textit{by value}),
 the wrapper in turn \emph{moves} the wrapped
-\texttt{handle} into the body of the closure.}} (as opposed to
+  \texttt{handle} into the body of the closure.}} (as opposed to
 capturing it \emph{by copy} or \emph{by reference}). As an example of
 \emph{needing} to move from an existing object into a closure, consider
 the problem of accessing the data managed by
@@ -197,10 +197,10 @@ pool}:
 \begin{lstlisting}[language=C++]
 ThreadPool::Handle processDatasetAsync(std::unique_ptr<Dataset> dataset)
 {
-return getThreadPool().enqueueTask([data = std::move(dataset)]
-{
-return processDataset(data);
-});
+    return getThreadPool().enqueueTask([data = std::move(dataset)]
+    {
+        return processDataset(data);
+    });
 }
 \end{lstlisting}
 
@@ -217,14 +217,14 @@ will change across invocations of the closure. Consider, for instance,
 the task of logging how many TCP packets have been received on a socket
 (e.g., for debugging or monitoring purposes){\cprotect\footnote{In
 this example, we are making use of the (C++11) \texttt{mutable} feature
-of lambdas to enable the counter to be modified on each invocation.}}:
+  of lambdas to enable the counter to be modified on each invocation.}}:
 
 \begin{lstlisting}[language=C++]
 TcpSocket tcpSocket(27015);  // some well-known port number
 tcpSocket.onPacketReceived([counter = 0]() mutable
 {
-std::cout << "Received " << ++counter << " packet(s)\n";
-// ...
+    std::cout << "Received " << ++counter << " packet(s)\n";
+    // ...
 });
 \end{lstlisting}
 
@@ -248,20 +248,20 @@ with \texttt{mutable}:
 \begin{lstlisting}[language=C++]
 void f()
 {
-int i = 0;
-const int ci = 0;
+    int i = 0;
+    const int ci = 0;
 
-auto lc = [i, ci]             // This lambda is not decorated with (ù{\codeincomments{mutable}}ù).
-{
-static_assert(std::is_same_v<decltype(i), int>, "");
-static_assert(std::is_same_v<decltype(ci), const int>, "");
-};
+    auto lc = [i, ci]             // This lambda is not decorated with (ù{\codeincomments{mutable}}ù).
+    {
+        static_assert(std::is_same_v<decltype(i), int>, "");
+        static_assert(std::is_same_v<decltype(ci), const int>, "");
+    };
 
-auto lm = [i, ci]() mutable       // Decorating with (ù{\codeincomments{mutable}}ù) has no effect.
-{
-static_assert(std::is_same_v<decltype(i), int>, "");
-static_assert(std::is_same_v<decltype(ci), const int>, "");
-};
+    auto lm = [i, ci]() mutable       // Decorating with (ù{\codeincomments{mutable}}ù) has no effect.
+    {
+        static_assert(std::is_same_v<decltype(i), int>, "");
+        static_assert(std::is_same_v<decltype(ci), const int>, "");
+    };
 }
 \end{lstlisting}
 
@@ -272,28 +272,28 @@ algorithms, executed in parallel:
 
 \begin{lstlisting}[language=C++]
 template <typename Algorithm> void solve(Puzzle&);
-// This (ù{\codeincomments{solve}}ù) function template mutates a Sudoku grid in place to solution.
+    // This (ù{\codeincomments{solve}}ù) function template mutates a Sudoku grid in place to solution.
 
 void performAlgorithmComparison()
 {
-const Puzzle puzzle = generateRandomSudokuPuzzle();
-// (ù{\codeincomments{const}}ù)-correct: (ù{\codeincomments{puzzle}}ù) is not going to be mutated after being
-// randomly generated.
+    const Puzzle puzzle = generateRandomSudokuPuzzle();
+        // (ù{\codeincomments{const}}ù)-correct: (ù{\codeincomments{puzzle}}ù) is not going to be mutated after being
+        // randomly generated.
 
-auto task0 = getThreadPool().enqueueTask([puzzle]() mutable
-{
-solve<NaiveAlgorithm>(puzzle);  // Error: (ù{\codeincomments{puzzle}}ù) is (ù{\codeincomments{const}}ù)-qualified.
-return puzzle;
-});
+    auto task0 = getThreadPool().enqueueTask([puzzle]() mutable
+    {
+        solve<NaiveAlgorithm>(puzzle);  // Error: (ù{\codeincomments{puzzle}}ù) is (ù{\codeincomments{const}}ù)-qualified.
+        return puzzle;
+    });
 
-auto task1 = getThreadPool().enqueueTask([puzzle]() mutable
-{
-solve<FastAlgorithm>(puzzle);  // Error: (ù{\codeincomments{puzzle}}ù) is (ù{\codeincomments{const}}ù)-qualified.
-return puzzle;
-});
+    auto task1 = getThreadPool().enqueueTask([puzzle]() mutable
+    {
+        solve<FastAlgorithm>(puzzle);  // Error: (ù{\codeincomments{puzzle}}ù) is (ù{\codeincomments{const}}ù)-qualified.
+        return puzzle;
+    });
 
-waitForCompletion(task0, task1);
-// ...
+    waitForCompletion(task0, task1);
+    // ...
 }
 \end{lstlisting}
 
@@ -309,8 +309,8 @@ const Puzzle puzzle = generateRandomSudokuPuzzle();
 
 auto task0 = getThreadPool().enqueueTask([p = puzzle]() mutable
 {
-solve<NaiveAlgorithm>(p);  // OK, (ù{\codeincomments{p}}ù) is now modifiable.
-return puzzle;
+    solve<NaiveAlgorithm>(p);  // OK, (ù{\codeincomments{p}}ù) is now modifiable.
+    return puzzle;
 });
 
 // ...
@@ -337,11 +337,11 @@ into a closure:
 template <typename T>
 void f(T&& x)  // (ù{\codeincomments{x}}ù) is of type forwarding reference to (ù{\codeincomments{T}}ù).
 {
-auto lambda = [y = std::forward<T>(x)]
-// Perfectly forward (ù{\codeincomments{x}}ù) into the closure.
-{
-// ... (use (ù{\codeincomments{y}}ù) directly in this lambda body)
-};
+    auto lambda = [y = std::forward<T>(x)]
+        // Perfectly forward (ù{\codeincomments{x}}ù) into the closure.
+    {
+        // ... (use (ù{\codeincomments{y}}ù) directly in this lambda body)
+    };
 }
 \end{lstlisting}
 
@@ -359,8 +359,8 @@ reveals that such captures will \emph{always} result in an object, \emph{never} 
 \begin{lstlisting}[language=C++]
 // pseudocode ((ù{\codeincomments{auto}}ù) is not allowed in a lambda introducer.)
 auto lambda = [auto y = std::forward<T>(x)] { };
-// The capture expression above is semantically similar to an (ù{\codeincomments{auto}}ù)
-// (deduced-type) variable.
+    // The capture expression above is semantically similar to an (ù{\codeincomments{auto}}ù)
+    // (deduced-type) variable.
 \end{lstlisting}
 
 \noindent If \texttt{x} was originally an \emph{lvalue}, then \texttt{y} will be
@@ -368,7 +368,7 @@ equivalent to a \emph{by-copy} capture of \texttt{x}. Otherwise,
 \texttt{y} will be equivalent to a \emph{by-move} capture of
 \texttt{x}.{\cprotect\footnote{Note that both \emph{by-copy} and
 \emph{by-move} capture communicate \textbf{value} for
-\textbf{value-semantic types}.}}
+  \textbf{value-semantic types}.}}
 
 If the desired semantics are to capture \texttt{x} \emph{by move} if it
 originated from \textbf{rvalue} and \emph{by reference} otherwise, then
@@ -379,10 +379,10 @@ the use of an extra layer of indirection (using, e.g.,
 template <typename T>
 void f(T&& x)
 {
-auto lambda = [y = std::tuple<T>(std::forward<T>(x))]
-{
-// ... (Use (ù{\codeincomments{std::get<0>(y)}}ù) instead of (ù{\codeincomments{y}}ù) in this lambda body.)
-};
+    auto lambda = [y = std::tuple<T>(std::forward<T>(x))]
+    {
+        // ... (Use (ù{\codeincomments{std::get<0>(y)}}ù) instead of (ù{\codeincomments{y}}ù) in this lambda body.)
+    };
 }
 \end{lstlisting}
 
@@ -405,7 +405,7 @@ closure data member:
 \begin{lstlisting}[language=C++]
 [k = static_cast<const int>(k)]() mutable  // (ù{\codeincomments{const}}ù) is ignored
 {
-++k;  // "OK" -- i.e., compiles anyway even though we don't want it to
+    ++k;  // "OK" -- i.e., compiles anyway even though we don't want it to
 };
 \end{lstlisting}
 
@@ -413,7 +413,7 @@ closure data member:
 \begin{lstlisting}[language=C++]
 [const k = k]() mutable  // error: invalid syntax
 {
-++k;  // no easy way to force this variable to be (ù{\codeincomments{const}}ù)
+    ++k;  // no easy way to force this variable to be (ù{\codeincomments{const}}ù)
 };
 \end{lstlisting}
 
@@ -432,7 +432,7 @@ const int kc = k;
 
 auto l = [kc]() mutable
 {
-++kc;  // error: increment of read-only variable (ù{\codeincomments{kc}}ù)
+    ++kc;  // error: increment of read-only variable (ù{\codeincomments{kc}}ù)
 };
 \end{lstlisting}
 
@@ -445,11 +445,11 @@ type that is itself movable but \emph{not} copyable:
 \begin{lstlisting}[language=C++]
 void f()
 {
-std::unique_ptr<int> moo(new char);    // some move-only object
-auto la = [moo = std::move(moo)]{ };   // lambda that does move capture
+    std::unique_ptr<int> moo(new char);    // some move-only object
+    auto la = [moo = std::move(moo)]{ };   // lambda that does move capture
 
-static_assert(false == std::is_copy_constructible_v<decltype(la)>, "");
-static_assert( true == std::is_move_constructible_v<decltype(la)>, "");
+    static_assert(false == std::is_copy_constructible_v<decltype(la)>, "");
+    static_assert( true == std::is_move_constructible_v<decltype(la)>, "");
 }
 \end{lstlisting}
 
@@ -469,7 +469,7 @@ type-erased, \textbf{callable object} wrapper type that supports
 move-only callable objects,{\cprotect\footnote{The
 \texttt{any\_invocable} library type, proposed for C++23, is an
 example of a type-erased wrapper for move-only callable objects; see
-\textbf{calabrese20}.}} (2) taking a performance hit by wrapping the
+  \textbf{calabrese20}.}} (2) taking a performance hit by wrapping the
 desired \textbf{callable object} into a copyable wrapper (such as
 \texttt{std::shared\_ptr}), or (3) designing software such that
 noncopyable objects, once constructed, never need to

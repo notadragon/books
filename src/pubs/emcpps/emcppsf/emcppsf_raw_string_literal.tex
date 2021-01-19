@@ -26,9 +26,9 @@ throughout the string:
 
 int main()
 {
-std::cout << "printf(\"Hello, %s%c\\n\", \"World\", '!');" << std::endl;
-return 0;  //        ^            ^  ^   ^      ^
-//             escaped characters
+    std::cout << "printf(\"Hello, %s%c\\n\", \"World\", '!');" << std::endl;
+    return 0;  //        ^            ^  ^   ^      ^
+               //             escaped characters
 }
 \end{lstlisting}
 
@@ -40,9 +40,9 @@ required:
 
 int main()
 {
-std::cout << R"(printf("Hello, %s%c\n", "World", '!');)" << std::endl;
-return 0;  //^ ^                                      ^
-//   additional raw string-literal syntax (C++11)
+    std::cout << R"(printf("Hello, %s%c\n", "World", '!');)" << std::endl;
+    return 0;  //^ ^                                      ^
+               //   additional raw string-literal syntax (C++11)
 }
 \end{lstlisting}
 
@@ -55,7 +55,7 @@ interpreted verbatim:
 
 \begin{lstlisting}[language=C++]
 const char s0[] = R"({ "key": "value" })";
-// OK, equivalent to (ù{\codeincomments{"\{ $\backslash$"key$\backslash$": $\backslash$"value$\backslash$" \}"}}ù)
+    // OK, equivalent to (ù{\codeincomments{"\{ $\backslash$"key$\backslash$": $\backslash$"value$\backslash$" \}"}}ù)
 \end{lstlisting}
 
 \noindent In contrast to conventional string literals, \emph{raw} string literals
@@ -74,8 +74,8 @@ since even trailing whitespace in a raw literal would be captured.}}:
 \begin{lstlisting}[language=C++]
 const char s1[] = R"(line one
 line two
-line three)";
-// OK
+    line three)";
+    // OK
 \end{lstlisting}
 
 \noindent Note that any literal tab characters are treated the same as a
@@ -85,9 +85,9 @@ adjacent ones in the same way the conventional ones are in C++03:
 
 \begin{lstlisting}[language=C++]
 const char s2[] = R"(line one)"         "\n"
-"line two"          "\n"
-R"(    line three)";
-// OK, equivalent to (ù{\codeincomments{"line one$\backslash$nlinetwo$\backslash$n~~~~line three"}}ù)
+                    "line two"          "\n"
+                  R"(    line three)";
+    // OK, equivalent to (ù{\codeincomments{"line one$\backslash$nlinetwo$\backslash$n~~~~line three"}}ù)
 \end{lstlisting}
 
 
@@ -131,7 +131,7 @@ const char s5[] = R"###(printf("printf(\"Hello, World!\")"))###";  (ù{\codeinco
 arbitrary{\cprotect\footnote{The delimiter of a raw string literal can
 comprise any member of the \textbf{basic source character set} except
 space, backslash, parentheses, and the control characters representing
-horizontal tab, vertical tab, form feed, and new line.}} sequence of
+  horizontal tab, vertical tab, form feed, and new line.}} sequence of
 characters between the outermost quote/parentheses pairs that avoids the
 collision with the literal data when taken as a combined sequence (e.g.,
 \texttt{)\#\#\#"}):
@@ -165,7 +165,7 @@ sequence:
 
 \begin{lstlisting}[language=C++]
 const char s7[] = R"("Hello, World!")";
-// OK, equivalent to (ù{\codeincomments{$\backslash$"Hello, World!$\backslash$"}}ù)
+    // OK, equivalent to (ù{\codeincomments{$\backslash$"Hello, World!$\backslash$"}}ù)
 \end{lstlisting}
 
 \noindent A nonempty delimiter (e.g.,~\texttt{!}) can be used to disambiguate any
@@ -173,17 +173,17 @@ appearance of the \texttt{)"} character sequence within the literal data
 
 \begin{lstlisting}[language=C++]
 const char s8[] = R"!("--- R"(Raw literals are not recursive!)" ---")!";
-// OK, equivalent to (ù{\codeincomments{$\backslash$"--- R$\backslash$"(Raw literals are not recursive!)$\backslash$" ---$\backslash$"}}ù)
+    // OK, equivalent to (ù{\codeincomments{$\backslash$"--- R$\backslash$"(Raw literals are not recursive!)$\backslash$" ---$\backslash$"}}ù)
 \end{lstlisting}
 
 \noindent Had an empty delimiter been used to initialize \texttt{s8} (above), the
 compiler would have produced a (perhaps obscure) compile-time error:
 
 \begin{lstlisting}[language=C++]
-// error: decrement of read-only location
+ // error: decrement of read-only location
 
-const char s8[] = R"("--- R"(Raw literals are not recursive!)" ---")";
-//                                                              ^~
+ const char s8[] = R"("--- R"(Raw literals are not recursive!)" ---")";
+ //                                                              ^~
 \end{lstlisting}
 
 \noindent In fact, it could turn out that a program with an unexpectedly
@@ -192,10 +192,10 @@ quietly:
 
 \begin{lstlisting}[language=C++]
 printf(R"("Live-Free, don't (ever)","Die!");
-(ù{\codeincomments{// Prints: "Live-Free, don't (ever}}ù)
+    (ù{\codeincomments{// Prints: "Live-Free, don't (ever}}ù)
 
 printf((R"("Live-Free, don't (ever)","Die!"));
-(ù{\codeincomments{// Prints: Die!}}ù)
+    (ù{\codeincomments{// Prints: Die!}}ù)
 \end{lstlisting}
 
 \noindent Fortunately, examples like the one above are invariably contrived, not
@@ -214,13 +214,13 @@ conventional string literal:
 
 \begin{lstlisting}[language=C++]
 const char* productIdRegex = "[0-9]{5}\\(\".*\"\\)";
-// This regular expression matches strings like (ù{\codeincomments{12345("Product")}}ù).
+    // This regular expression matches strings like (ù{\codeincomments{12345("Product")}}ù).
 \end{lstlisting}
 
 \noindent Not only do the backslashes obscure the meaning to human readers, a
 mechanical translation is often needed{\cprotect\footnote{Such as when
 you want to copy the contents of the string literal into an online
-regular-expression validation tool.}} when transforming between source
+  regular-expression validation tool.}} when transforming between source
 and data, introducing significant opportunities for human error. Using a
 raw string literal solves these problems:
 
@@ -234,9 +234,9 @@ its frequent use of double quotes:
 \begin{lstlisting}[language=C++]
 const char* testProductResponse = R"(
 {
-"productId": "58215(\"Camera\")",
-"availableUnits": 5,
-"relatedProducts": ["59214(\"CameraBag\")", "42931(\"SdStorageCard\")"]
+    "productId": "58215(\"Camera\")",
+    "availableUnits": 5,
+    "relatedProducts": ["59214(\"CameraBag\")", "42931(\"SdStorageCard\")"]
 })";
 \end{lstlisting}
 
@@ -251,7 +251,7 @@ whitespace-sensitive languages, such as Python (but see \textit{\titleref{potent
 
 \begin{lstlisting}[language=C++]
 const char* testPythonInterpreterPrint = R"(def test():
-print("test printing from Python")
+    print("test printing from Python")
 )";
 \end{lstlisting}
 
@@ -265,17 +265,17 @@ comprehension of program structure. Space and tabulation
 (\texttt{$\backslash$t}) characters{\cprotect\footnote{Always
 representing indentation as the precise number of spaces (instead of
 tab characters) --- especially when committed to source-code control
-systems --- goes a long way to avoiding this issue.}} used for the
+  systems --- goes a long way to avoiding this issue.}} used for the
 purpose of source code formatting are, however, always interpreted as
 part of a raw string literal's contents:
 
 \begin{lstlisting}[language=C++]
 void emitPythonEvaluator(const std::string& expression)
 {
-std::cout << R"(
-def evaluate():
-print("Evaluating...")
-return )" << expression;
+    std::cout << R"(
+        def evaluate():
+            print("Evaluating...")
+            return )" << expression;
 }
 \end{lstlisting}
 
@@ -285,9 +285,9 @@ streamed data will contain a large number of spaces (or tabulation
 characters), resulting in an invalid Python program:
 
 \begin{lstlisting}[language=C++]
-def evaluate():
-print("Evaluating...")
-return someExpression
+        def evaluate():
+            print("Evaluating...")
+            return someExpression
 # ^~~~~~
 # Error: excessive indentation
 \end{lstlisting}
@@ -297,8 +297,8 @@ of spaces (e.g.,~exactly four):
 
 \begin{lstlisting}[language=C++]
 def evaluate():
-print("Evaluating...")
-return someExpression
+    print("Evaluating...")
+    return someExpression
 \end{lstlisting}
 
 \noindent Correct --- albeit visually jarring --- code can be expressed with a
@@ -307,9 +307,9 @@ single \emph{raw} string literal, but visualizing the final output requires some
 \begin{lstlisting}[language=C++]
 void emitPythonEvaluator(const char *expression)
 {
-std::cout << R"(def evaluate():
-print("Evaluating...")
-return )" << expression;
+    std::cout << R"(def evaluate():
+    print("Evaluating...")
+    return )" << expression;
 }
 \end{lstlisting}
 
@@ -320,10 +320,10 @@ return )" << expression;
 \begin{lstlisting}[language=C++]
 void emitPythonEvaluator2(const char *expression)
 {
-std::cout <<
-R"(def evaluate():)"                 "\n"
-R"(    print("Evaluating..."))"      "\n"
-R"(    return )" << expression;
+    std::cout <<
+        R"(def evaluate():)"                 "\n"
+        R"(    print("Evaluating..."))"      "\n"
+        R"(    return )" << expression;
 }
 \end{lstlisting}
 
@@ -346,11 +346,11 @@ the status of the system is as expected:
 \begin{lstlisting}[language=C++]
 void verifyDefaultOutput()
 {
-const std::string output = System::outputStatus();
-const std::string expected = R"(Current status:
-- No violations detected.)";
+    const std::string output = System::outputStatus();
+    const std::string expected = R"(Current status:
+    - No violations detected.)";
 
-EXPECT(output == expected);
+    EXPECT(output == expected);
 }
 \end{lstlisting}
 
@@ -366,7 +366,7 @@ changes subtly, the \textbf{golden file} may be summarily jettisoned --- and the
 output installed in its stead --- with little if any detailed review.
 Hence, well-designed unit tests will often hard code exactly what is
 to be expected (nothing more or less) directly in the
-\textbf{test-driver} source code.}}
+  \textbf{test-driver} source code.}}
 
 \subsection[Annoyances]{Annoyances}\label{annoyances}
 

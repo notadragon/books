@@ -17,8 +17,8 @@ a \romeogloss{non-trivial special member function} from being a member of a
 \begin{lstlisting}[language=C++]
 union U0
 {
-int         d_i;  // OK
-std::string d_s;  // compile-time error in C++03 (OK as of C++11)
+    int         d_i;  // OK
+    std::string d_s;  // compile-time error in C++03 (OK as of C++11)
 };
 \end{lstlisting}
 
@@ -36,11 +36,11 @@ automatically. Any member of a \lstinline!union! having a
 \begin{lstlisting}[language=C++]
 struct Nt  // used as part of a (ù{\codeincomments{union}}ù) (below)
 {
-Nt();   // non-trivial default constructor
-~Nt();  // non-trivial destructor
+    Nt();   // non-trivial default constructor
+    ~Nt();  // non-trivial destructor
 
-// Copy construction and assignment are implicitly defaulted.
-// Move construction and assignment are implicitly deleted.
+    // Copy construction and assignment are implicitly defaulted.
+    // Move construction and assignment are implicitly deleted.
 };
 \end{lstlisting}
 
@@ -54,17 +54,17 @@ member function} of the \lstinline!union! itself:
 \begin{lstlisting}[language=C++]
 union U1
 {
-int d_i;   // fundamental type having all trivial special member functions
-Nt  d_nt;  // user-defined type having non-trivial special member functions
+    int d_i;   // fundamental type having all trivial special member functions
+    Nt  d_nt;  // user-defined type having non-trivial special member functions
 
-// Implicitly deleted special member functions of (ù{\codeincomments{U1}}ù):
-/*
-U1()                     = delete; // due to explicit (ù{\codeincomments{Nt::Nt()}}ù)
-U1(const U1&)            = delete; // due to implicit (ù{\codeincomments{Nt::Nt(const Nt\&)}}ù)
-~U1()                    = delete; // due to explicit (ù{\codeincomments{Nt::}}ù)~(ù{\codeincomments{Nt()}}ù)
-U1& operator=(const U1&) = delete; // due to implicit
-// (ù{\codeincomments{Nt::operator=(const Nt\&)}}ù)
-*/
+    // Implicitly deleted special member functions of (ù{\codeincomments{U1}}ù):
+    /*
+        U1()                     = delete; // due to explicit (ù{\codeincomments{Nt::Nt()}}ù)
+        U1(const U1&)            = delete; // due to implicit (ù{\codeincomments{Nt::Nt(const Nt\&)}}ù)
+        ~U1()                    = delete; // due to explicit (ù{\codeincomments{Nt::}}ù)~(ù{\codeincomments{Nt()}}ù)
+        U1& operator=(const U1&) = delete; // due to implicit
+                                           // (ù{\codeincomments{Nt::operator=(const Nt\&)}}ù)
+    */
 };
 \end{lstlisting}
 
@@ -105,24 +105,24 @@ we can start providing a \emph{value constructor} and corresponding
 
 struct U2
 {
-union
-{
-int  d_i;   // fundamental type (trivial)
-Nt   d_nt;  // non-trivial user-defined type
-};
+    union
+    {
+        int  d_i;   // fundamental type (trivial)
+        Nt   d_nt;  // non-trivial user-defined type
+    };
 
-bool d_useInt;  // discriminator
+    bool d_useInt;  // discriminator
 
-U2(bool useInt) : d_useInt(useInt)
-{
-if (d_useInt) { new (&d_i) int(); }  // value initialized (to (ù{\codeincomments{0}}ù))
-else          { new (&d_nt) Nt(); }  // default constructed in place
-}
+    U2(bool useInt) : d_useInt(useInt)
+    {
+        if (d_useInt) { new (&d_i) int(); }  // value initialized (to (ù{\codeincomments{0}}ù))
+        else          { new (&d_nt) Nt(); }  // default constructed in place
+    }
 
-~U2()  // destructor
-{
-if (!d_useInt) { d_nt.~Nt(); }
-}
+    ~U2()  // destructor
+    {
+        if (!d_useInt) { d_nt.~Nt(); }
+    }
 };
 \end{lstlisting}
 
@@ -140,12 +140,12 @@ be permitted for the trivial \lstinline!int! type, it would be
 %}
 %\end{lstlisting}
 \begin{lstlisting}[language=C++]
-U2(bool useInt) : d_useInt(useInt)
-{
-if (d_useInt) { d_i = int(); }  // value initialized (to (ù{\codeincomments{0}}ù))
-else          { d_nt = Nt(); }  // BAD IDEA: undefined behavior (no
-// lhs object)
-}
+    U2(bool useInt) : d_useInt(useInt)
+    {
+        if (d_useInt) { d_i = int(); }  // value initialized (to (ù{\codeincomments{0}}ù))
+        else          { d_nt = Nt(); }  // BAD IDEA: undefined behavior (no
+                                        // lhs object)
+    }
 \end{lstlisting}
 
 
@@ -156,9 +156,9 @@ else          { d_nt = Nt(); }  // BAD IDEA: undefined behavior (no
 \begin{lstlisting}[language=C++]
 void f()
 {
-U2 a(false), b(true);  // OK (construct both instances of (ù{\codeincomments{U2}}ù))
-U2 c(a);               // compile-time error: no (ù{\codeincomments{U2(const U2\&)}}ù)
-a = b;                 // compile-time error: no (ù{\codeincomments{U2\& operator=(const U2\&)}}ù)
+    U2 a(false), b(true);  // OK (construct both instances of (ù{\codeincomments{U2}}ù))
+    U2 c(a);               // compile-time error: no (ù{\codeincomments{U2(const U2\&)}}ù)
+    a = b;                 // compile-time error: no (ù{\codeincomments{U2\& operator=(const U2\&)}}ù)
 }
 \end{lstlisting}
 
@@ -205,43 +205,43 @@ definitions for \lstinline!U2! explicitly:
 \begin{lstlisting}[language=C++]
 union U2
 {
-// ... (everything in (ù{\codeincomments{U2}}ù) above)
+    // ... (everything in (ù{\codeincomments{U2}}ù) above)
 
-U2(const U2& original) : d_useInt(original.d_useInt)
-{
-if (d_useInt) { new (&d_i) int(original.d_i);  }
-else          { new (&d_nt) Nt(original.d_nt); }
-}
+    U2(const U2& original) : d_useInt(original.d_useInt)
+    {
+        if (d_useInt) { new (&d_i) int(original.d_i);  }
+        else          { new (&d_nt) Nt(original.d_nt); }
+    }
 
-U2& operator=(const U2& rhs)
-{
-if (this == &rhs) // Prevent self-assignment.
-{
-return *this;
-}
+    U2& operator=(const U2& rhs)
+    {
+        if (this == &rhs) // Prevent self-assignment.
+        {
+            return *this;
+        }
 
-// Resolve all possible combinations of active types between the
-// left-hand side and right-hand side of the assignment:
+        // Resolve all possible combinations of active types between the
+        // left-hand side and right-hand side of the assignment:
 
-if (d_useInt)
-{
-if (rhs.d_useInt) { d_i = rhs.d_i; }
-else              { new (&d_nt) Nt(rhs.d_nt); }  // (ù{\codeincomments{int}}ù) DTOR trivial
-}
-else
-{
-if (rhs.d_useInt) { d_nt.~Nt(); new (&d_i) int(rhs.d_i); }
-else              { d_nt = rhs.d_nt; }
-} d_useInt = rhs.d_useInt;
+        if (d_useInt)
+        {
+            if (rhs.d_useInt) { d_i = rhs.d_i; }
+            else              { new (&d_nt) Nt(rhs.d_nt); }  // (ù{\codeincomments{int}}ù) DTOR trivial
+        }
+        else
+        {
+            if (rhs.d_useInt) { d_nt.~Nt(); new (&d_i) int(rhs.d_i); }
+            else              { d_nt = rhs.d_nt; }
+        } d_useInt = rhs.d_useInt;
 
-// Resolve all possible combinations of active types between the
-// left-hand side and right-hand side of the assignment.  Use the
-// corresponding assignment operator when they match, otherwise
-// if the old member is (ù{\codeincomments{d\_nt}}ù) run its non-trivial destructor, then
-// copy-construct the new member in place:
+        // Resolve all possible combinations of active types between the
+        // left-hand side and right-hand side of the assignment.  Use the
+        // corresponding assignment operator when they match, otherwise
+        // if the old member is (ù{\codeincomments{d\_nt}}ù) run its non-trivial destructor, then
+        // copy-construct the new member in place:
 
-return *this;
-}
+        return *this;
+    }
 };
 \end{lstlisting}
 Note that in the code example above, we ignore exceptions for exposition simplicity. Note also that attempting to
@@ -267,34 +267,34 @@ that, given a\linebreak[4] \lstinline!std::string! \lstinline!input!, will retur
 \begin{lstlisting}[language=C++]
 ParseResult parseInteger(const std::string& input)  // Return a sum type.
 {
-int result;     // accumulate (ù{\codeincomments{result}}ù) as we go
-std::size_t i;  // current character index
+    int result;     // accumulate (ù{\codeincomments{result}}ù) as we go
+    std::size_t i;  // current character index
 
-// ...
+    // ...
 
-if (/* Failure case (1). */)
-{
-std::ostringstream oss;
-oss << "Found non-numerical character '" << input[i]
-<< "' at index '" << i << "'.";
+    if (/* Failure case (1). */)
+    {
+        std::ostringstream oss;
+        oss << "Found non-numerical character '" << input[i]
+            << "' at index '" << i << "'.";
 
-return ParseResult(oss.str());
-}
+        return ParseResult(oss.str());
+    }
 
-if (/* Failure case (2). */)
-{
-std::ostringstream oss;
-oss << "Accumulating '" << input[i]
-<< "' at index '" << i
-<< "' into the current running total '" << result
-<< "' would result in integer overflow.";
+    if (/* Failure case (2). */)
+    {
+        std::ostringstream oss;
+        oss << "Accumulating '" << input[i]
+            << "' at index '" << i
+            << "' into the current running total '" << result
+            << "' would result in integer overflow.";
 
-return ParseResult(oss.str());
-}
+        return ParseResult(oss.str());
+    }
 
-// ...
+    // ...
 
-return ParseResult(result);  // Success!
+    return ParseResult(result);  // Success!
 }
 \end{lstlisting}
 
@@ -302,7 +302,7 @@ return ParseResult(result);  // Success!
 hold a value of type either \lstinline!int! or \lstinline!std::string!. By
 encapsulating a C++ \lstinline!union! and a Boolean{\cprotect\footnote{For
 \romeogloss{sum types} comprising more than two types, a larger integral
-or enumerated type may be used instead.}} \emph{discriminator} as part
+  or enumerated type may be used instead.}} \emph{discriminator} as part
 of the \lstinline!ParseResult! \romeogloss{sum type}, we can achieve the
 desired semantics:
 
@@ -330,22 +330,22 @@ desired semantics:
 \begin{lstlisting}[language=C++]
 class ParseResult
 {
-union  // storage for either the result or the error
-{
-int         d_value; // result type (trivial)
-std::string d_error; // error  type (non-trivial)
-};
+    union  // storage for either the result or the error
+    {
+        int         d_value; // result type (trivial)
+        std::string d_error; // error  type (non-trivial)
+    };
 
-bool d_isError;  // discriminator
+    bool d_isError;  // discriminator
 
 public:
-explicit ParseResult(int value);                 // value constructor (1)
-explicit ParseResult(const std::string& error);  // value constructor (2)
+    explicit ParseResult(int value);                 // value constructor (1)
+    explicit ParseResult(const std::string& error);  // value constructor (2)
 
-ParseResult(const ParseResult& rhs);             // copy constructor
-ParseResult& operator=(const ParseResult& rhs);  // copy assignment
+    ParseResult(const ParseResult& rhs);             // copy constructor
+    ParseResult& operator=(const ParseResult& rhs);  // copy assignment
 
-~ParseResult();                                  // destructor
+    ~ParseResult();                                  // destructor
 };
 \end{lstlisting}
 
@@ -379,10 +379,10 @@ ParseResult::ParseResult(int value) : d_value(value), d_isError(false)
 }
 
 ParseResult::ParseResult(const std::string& error)
-: d_error(error), d_isError(true)
-// Note that placement (ù{\codeincomments{new}}ù) was not necessary here because a new
-// (ù{\codeincomments{std::string}}ù) object will be created as part of the initialization of
-// (ù{\codeincomments{d\_error}}ù).
+    : d_error(error), d_isError(true)
+    // Note that placement (ù{\codeincomments{new}}ù) was not necessary here because a new
+    // (ù{\codeincomments{std::string}}ù) object will be created as part of the initialization of
+    // (ù{\codeincomments{d\_error}}ù).
 {
 }
 \end{lstlisting}
@@ -434,51 +434,51 @@ more information on initiating the lifetime of an object, see \cite{iso14}, sect
 \begin{lstlisting}[language=C++]
 ParseResult::~ParseResult()
 {
-if (d_isError)
-{
-d_error.std::string::~string();
-// An explicit destructor call is required for (ù{\codeincomments{d\_error}}ù) because its
-// destructor is non-trivial.
-}
+    if (d_isError)
+    {
+        d_error.std::string::~string();
+            // An explicit destructor call is required for (ù{\codeincomments{d\_error}}ù) because its
+            // destructor is non-trivial.
+    }
 }
 
 ParseResult::ParseResult(const ParseResult& rhs) : d_isError(rhs.d_isError)
 {
-if (d_isError)
-{
-new (&d_error) std::string(rhs.d_error);
-// Placement (ù{\codeincomments{new}}ù) is necessary here to begin the lifetime of a
-// (ù{\codeincomments{std::string}}ù) object at the address of (ù{\codeincomments{d\_error}}ù).
-}
-else
-{
-d_value = rhs.d_value;
-// Placement (ù{\codeincomments{new}}ù) is not necessary here as (ù{\codeincomments{int}}ù) is a trivial type.
-}
+    if (d_isError)
+    {
+        new (&d_error) std::string(rhs.d_error);
+            // Placement (ù{\codeincomments{new}}ù) is necessary here to begin the lifetime of a
+            // (ù{\codeincomments{std::string}}ù) object at the address of (ù{\codeincomments{d\_error}}ù).
+    }
+    else
+    {
+        d_value = rhs.d_value;
+            // Placement (ù{\codeincomments{new}}ù) is not necessary here as (ù{\codeincomments{int}}ù) is a trivial type.
+    }
 }
 
 ParseResult& ParseResult::operator=(const ParseResult& rhs)
 {
-if (this == &rhs) // Prevent selfassignment.
-{
-return *this;
-}
-// Destroy (ù{\codeincomments{lhs}}ù)'s error string if existent:
-if (d_isError) { d_error.std::string::~string(); }
+     if (this == &rhs) // Prevent selfassignment.
+    {
+        return *this;
+    }
+    // Destroy (ù{\codeincomments{lhs}}ù)'s error string if existent:
+    if (d_isError) { d_error.std::string::~string(); }
 
-// Copy (ù{\codeincomments{rhs}}ù)'s object:
-if (rhs.d_isError) { new (&d_error) std::string(rhs.d_error); }
-else               { d_value = rhs.d_value; }
+    // Copy (ù{\codeincomments{rhs}}ù)'s object:
+    if (rhs.d_isError) { new (&d_error) std::string(rhs.d_error); }
+    else               { d_value = rhs.d_value; }
 
-d_isError = rhs.d_isError;
-return *this;
+    d_isError = rhs.d_isError;
+    return *this;
 }
 \end{lstlisting}
 In practice, \lstinline!ParseResult! would typically use a more general \romeogloss{sum type}{\cprotect\footnote{\lstinline!std::variant!, introduced
 in C++17, is the standard construct used to represent a \romeogloss{sum
 type} as a \emph{discriminated union}. Prior to C++17,
 \lstinline!boost::variant! was the most widely used \emph{tagged} union
-implementation of a \romeogloss{sum type}.}} abstraction to support arbitrary value types and provide proper exception safety.
+  implementation of a \romeogloss{sum type}.}} abstraction to support arbitrary value types and provide proper exception safety.
 
 %\noindent In practice, \texttt{ParseResult} would typically be defined as a
 %template and renamed to allow any arbitrary result type \texttt{T} to be

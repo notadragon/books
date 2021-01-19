@@ -12,7 +12,7 @@ type \texttt{unsigned}~\texttt{long}~\texttt{long} are the only two
 \textbf{fundamental integral types} in C++ that are guaranteed to have
 at least 64~bits on all conforming platforms{\cprotect\footnote{\texttt{long}~\texttt{long}
 has been available in C since the C99 standard, and many C++ compilers
-supported it as an extension prior to C++11.}}:
+  supported it as an extension prior to C++11.}}:
 
 \begin{lstlisting}[language=C++]
 #include <climits>  // (ù{\codeincomments{CHAR\_BIT}}ù) (a.k.a.~8, see below)
@@ -21,7 +21,7 @@ long long          a;  // (ù{\codeincomments{sizeof(a) * CHAR\_BIT >= 64}}ù)
 unsigned long long b;  // (ù{\codeincomments{sizeof(b) * CHAR\_BIT >= 64}}ù)
 
 static_assert(sizeof(a) == sizeof(b), "");
-// I.e., (ù{\codeincomments{a}}ù) and (ù{\codeincomments{b}}ù) necessarily have the same size in every program.
+    // I.e., (ù{\codeincomments{a}}ù) and (ù{\codeincomments{b}}ù) necessarily have the same size in every program.
 \end{lstlisting}
 
 \noindent On all conforming platforms, \texttt{CHAR\_BIT} --- the number of bits
@@ -39,7 +39,7 @@ and \texttt{unsigned}~\texttt{long}~\texttt{long} are also candidates
 for the type of an integer literal having a large enough value. As an
 example, the type of the literal \texttt{2147483648} (one more than
 the upper bound of a 32-bit integer) is likely to be
-\texttt{long}~\texttt{long} on a 32-bit platform.}}:
+  \texttt{long}~\texttt{long} on a 32-bit platform.}}:
 
 \begin{lstlisting}[language=C++]
 auto i = 0LL;  // (ù{\codeincomments{long long}}ù), (ù{\codeincomments{sizeof(i) * CHAR\_BIT >= 64}}ù)
@@ -60,7 +60,7 @@ billion of them just isn't worth thinking about, at least not in the
 interface.{\cprotect\footnote{For efficient storage in a \texttt{class}
 or \texttt{struct}, however, we may well decide to represent such
 quantities more compactly using a \texttt{short} or \texttt{char}; see
-also the aliases found in C++11's \texttt{<cstdint>}.}} Sometimes the size of the virtual address space for the
+  also the aliases found in C++11's \texttt{<cstdint>}.}} Sometimes the size of the virtual address space for the
 underlying architecture itself dictates how large an integer you will
 need. For example, specifying the \emph{distance} between two pointers
 into a contiguous array or the size of the array itself could, on a
@@ -119,7 +119,7 @@ unsigned \textbf{garbage value}.{\cprotect\footnote{Because integer
 literals are themselves of type \texttt{int} and not \texttt{unsigned},
 comparing an unsigned value with a negative signed one does not
 typically go well; hence, many compilers will warn when the two types
-are mixed, which itself is problematic.}}
+  are mixed, which itself is problematic.}}
 
 If we happen to be on a 64-bit platform, we might choose to return a
 \texttt{long}:
@@ -191,9 +191,9 @@ portability is needlessly restricted. Relying instead on only the
 guaranteed{\cprotect\footnote{Due to the unfathomable amount of software
 that would stop working if an \texttt{int} were ever anything but
 exactly \emph{four} bytes, we --- along with the late Richard Stevens
-of Unix fame (see \textbf{{stevens93}}, section~2.5.1., pp.~31--32, specifically row~6, column~4, Figure~2.2, p.~32) --- are prepared
-to \emph{guarantee} that it will never become as large as a
-\texttt{long}~\texttt{long} for any general-purpose computer.}}
+  of Unix fame (see \textbf{{stevens93}}, section~2.5.1., pp.~31--32, specifically row~6, column~4, Figure~2.2, p.~32) --- are prepared
+  to \emph{guarantee} that it will never become as large as a
+  \texttt{long}~\texttt{long} for any general-purpose computer.}}
 property that
 \texttt{sizeof(int)} \texttt{<} \texttt{sizeof(long} \texttt{long)}
 avoids such portability issues since the relative sizes of the
@@ -225,7 +225,7 @@ Note: Also see {\tt intmax\_t}, the maximum width integer type, which might be n
 }
 \end{tablenotes}
 \end{threeparttable}
-\end{center}
+    \end{center}
 \end{table}
 
 \subsection[See Also]{See Also}\label{see-also}
@@ -251,7 +251,7 @@ was on its way to becoming the norm.{\cprotect\footnote{The Motorola
 68000 series (c.~1979) was a hybrid \emph{CISC} architecture employing
 a 32-bit instruction set with 32-bit registers and a 32-bit external
 data bus; internally, however, it used only 16-bit ALUs and a 16-bit
-data bus.}}
+  data bus.}}
 
 During the late 1980s and into the 1990s, the word size of the machine and
 the size of an \texttt{int} were synonymous.{\cprotect\footnote{Some of
@@ -281,13 +281,13 @@ in a \texttt{char}, consider statically asserting it instead:
 \begin{lstlisting}[language=C++, basicstyle={\ttfamily\footnotesize}]
 static_assert(CHAR_BIT == 8, "A (ù{\codeincomments{char}}ù) is not 8-bits on this CrAzY platform!");
 \end{lstlisting}\vspace*{-1ex}
-}} As cost of \emph{main memory} was decreasing exponentially
+      }} As cost of \emph{main memory} was decreasing exponentially
 throughout the final two decades of the 20th
 century,{\cprotect\footnote{Moore's law (c.~1965) --- the observation
 that the number of transistors in densely packed integrated circuits
 (e.g., DRAM) grows exponentially over time, doubling every 1--2 years
 or so --- held for nearly a half century, until finally saturating in
-the 2010s.}} the need for a much larger \emph{virtual address space}
+  the 2010s.}} the need for a much larger \emph{virtual address space}
 quickly followed. Intel began its work on 64-bit architectures in the
 early 1990s and realized one a decade later. As we progressed into
 the 2000s, the common notion of \emph{word size} --- i.e., the width (in
@@ -307,7 +307,7 @@ explicitly{\cprotect\footnote{On 64-bit systems, \texttt{sizeof(long)}
 is typically 8~bytes. Compiling with the \texttt{-m32} flag on either
 GCC or Clang emulates compiling on a 32-bit platform:
 \texttt{sizeof(long)} is likely to be~4, while
-\texttt{sizeof(long}~\texttt{long)} remains~8.}} to be otherwise. To ensure portability until 32-bit machines go the way of 16-bit ones,
+  \texttt{sizeof(long}~\texttt{long)} remains~8.}} to be otherwise. To ensure portability until 32-bit machines go the way of 16-bit ones,
 we have \texttt{long}~\texttt{long} to (1) provide a common \emph{vocabulary type}, (2)
 make our intent clear, and (3) avoid the portability issue for
 at least the next decade or two; still, see {\it\titleref{longlong-potential-pitfalls}: \titleref{relying-on-the-relative-sizes-of-int,-long,-and-long-long}} on page~\pageref{relying-on-the-relative-sizes-of-int,-long,-and-long-long} for some alternative ideas.

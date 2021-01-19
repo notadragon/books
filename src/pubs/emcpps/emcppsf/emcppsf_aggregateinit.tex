@@ -13,14 +13,14 @@ scope of the class --- were not considered \textbf{aggregate} types:
 \begin{lstlisting}[language=C++]
 struct S                // aggregate type in C++14 but not C++11
 {
-int i;
-bool b = false;     // uses default member initializer
+    int i;
+    bool b = false;     // uses default member initializer
 };
 
 struct A                // aggregate type in C++11 and C++14
 {
-int  i;
-bool b;             // does not use default member initializer
+    int  i;
+    bool b;             // does not use default member initializer
 };
 \end{lstlisting}
 
@@ -43,13 +43,13 @@ member initializers to be considered as such; hence both \texttt{A} and
 \begin{lstlisting}[language=C++]
 void f()
 {
-S s0{100, true};        // OK in C++14 but not in C++11
-assert(s0.i == 100);    // set via explicit aggregate initialization (above)
-assert(s0.b == true);   // set via explicit aggregate initialization (above)
+    S s0{100, true};        // OK in C++14 but not in C++11
+    assert(s0.i == 100);    // set via explicit aggregate initialization (above)
+    assert(s0.b == true);   // set via explicit aggregate initialization (above)
 
-S s1{456};              // OK in C++14 but not in C++11
-assert(s1.i == 456);    // set via explicit aggregate initialization (above)
-assert(s1.b == false);  // set via default member initializer
+    S s1{456};              // OK in C++14 but not in C++11
+    assert(s1.i == 456);    // set via explicit aggregate initialization (above)
+    assert(s1.b == false);  // set via default member initializer
 }
 \end{lstlisting}
 
@@ -71,10 +71,10 @@ handler:
 \begin{lstlisting}[language=C++]
 struct HTTPRequestHandlerConfig
 {
-int maxQueuedRequests = 1024;
-int timeout           = 60;
-int minThreads        = 4;
-int maxThreads        = 8;
+    int maxQueuedRequests = 1024;
+    int timeout           = 60;
+    int minThreads        = 4;
+    int maxThreads        = 8;
 };
 \end{lstlisting}
 
@@ -88,26 +88,26 @@ of the names of the data members:
 
 \begin{lstlisting}[language=C++, basicstyle={\ttfamily\footnotesize}]
 HTTPRequestHandlerConfig lowTimeout{.timeout = 15};
-// (ù{\codeincomments{maxQueuedRequests}}ù), (ù{\codeincomments{minThreads}}ù), and (ù{\codeincomments{maxThreads}}ù) have their default value.
+    // (ù{\codeincomments{maxQueuedRequests}}ù), (ù{\codeincomments{minThreads}}ù), and (ù{\codeincomments{maxThreads}}ù) have their default value.
 
 HTTPRequestHandlerConfig highPerformance{.timeout = 120, .maxThreads = 16};
-// (ù{\codeincomments{maxQueuedRequests}}ù) and (ù{\codeincomments{minThreads}}ù) have their default value.
+    // (ù{\codeincomments{maxQueuedRequests}}ù) and (ù{\codeincomments{minThreads}}ù) have their default value.
 \end{lstlisting}
-}}:
+      }}:
 
 \begin{lstlisting}[language=C++]
 HTTPRequestHandlerConfig getRequestHandlerConfig(bool inLowMemoryEnvironment)
 {
-if (inLowMemoryEnvironment)
-{
-return HTTPRequestHandlerConfig{128};
-// (ù{\codeincomments{timeout}}ù), (ù{\codeincomments{minThreads}}ù), and (ù{\codeincomments{maxThreads}}ù) have their default value.
-}
-else
-{
-return HTTPRequestHandlerConfig{2048, 120};
-// (ù{\codeincomments{minThreads}}ù), and (ù{\codeincomments{maxThreads}}ù) have their default value.
-}
+    if (inLowMemoryEnvironment)
+    {
+        return HTTPRequestHandlerConfig{128};
+            // (ù{\codeincomments{timeout}}ù), (ù{\codeincomments{minThreads}}ù), and (ù{\codeincomments{maxThreads}}ù) have their default value.
+    }
+    else
+    {
+        return HTTPRequestHandlerConfig{2048, 120};
+            // (ù{\codeincomments{minThreads}}ù), and (ù{\codeincomments{maxThreads}}ù) have their default value.
+    }
 }
 
 // ...
@@ -129,7 +129,7 @@ around the initialization of a nested aggregate can be omitted
 \begin{lstlisting}[language=C++]
 struct S
 {
-int arr[3];
+    int arr[3];
 };
 
 S s0{{0, 1, 2}};  // OK, nested (ù{\codeincomments{arr}}ù) initialized explicitly
@@ -145,9 +145,9 @@ has a default value:
 \begin{lstlisting}[language=C++]
 struct X
 {
-int a;
-int b;
-int c = 0;
+    int a;
+    int b;
+    int c = 0;
 };
 \end{lstlisting}
 
@@ -156,15 +156,15 @@ int c = 0;
 
 \begin{lstlisting}[language=C++]
 X xs0[] = {{0, 1}, {2, 3}, {4, 5}};
-// OK, clearly 3 elements having the respective values:
-// (ù{\codeincomments{\{0, 1, 0\}}}ù), (ù{\codeincomments{\{2, 3, 0\}}}ù), (ù{\codeincomments{\{4, 5, 0\}}}ù)
+    // OK, clearly 3 elements having the respective values:
+    // (ù{\codeincomments{\{0, 1, 0\}}}ù), (ù{\codeincomments{\{2, 3, 0\}}}ù), (ù{\codeincomments{\{4, 5, 0\}}}ù)
 
 X xs1[] = {{0, 1, 2}, {3, 4, 5}};
-// OK, clearly 2 elements with values:
-// (ù{\codeincomments{\{0, 1, 2\}}}ù), (ù{\codeincomments{\{3, 4, 5\}}}ù)
+    // OK, clearly 2 elements with values:
+    // (ù{\codeincomments{\{0, 1, 2\}}}ù), (ù{\codeincomments{\{3, 4, 5\}}}ù)
 
 X xs2[] = {0, 1, 2, 3, 4, 5};
-// ...?
+    // ...?
 \end{lstlisting}
 
 \noindent Upon seeing the definition of \texttt{xs2}, a programmer not versed in

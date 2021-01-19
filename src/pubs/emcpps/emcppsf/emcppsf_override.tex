@@ -39,38 +39,38 @@ otherwise inadvertently introducing a distinct function declaration:
 \begin{lstlisting}[language=C++]
 struct Base
 {
-virtual void f(int);
-void g(int);
-virtual void h(int) const;
-virtual void i(int) = 0;
+    virtual void f(int);
+            void g(int);
+    virtual void h(int) const;
+    virtual void i(int) = 0;
 };
 
 struct DerivedWithoutOverride : Base
 {
-void f();             // hides (ù{\codeincomments{Base::f(int)}}ù) (likely mistake)
-void f(int);          // OK, implicitly overrides (ù{\codeincomments{Base::f(int) }}ù)
+    void f();             // hides (ù{\codeincomments{Base::f(int)}}ù) (likely mistake)
+    void f(int);          // OK, implicitly overrides (ù{\codeincomments{Base::f(int) }}ù)
 
-void g();             // hides (ù{\codeincomments{Base::g(int)}}ù) (likely mistake)
-void g(int);          // hides (ù{\codeincomments{Base::g(int)}}ù) (likely mistake)
+    void g();             // hides (ù{\codeincomments{Base::g(int)}}ù) (likely mistake)
+    void g(int);          // hides (ù{\codeincomments{Base::g(int)}}ù) (likely mistake)
 
-void h(int);          // hides (ù{\codeincomments{Base::h(int)}}ù) const (likely mistake)
-void h(int) const;    // OK, implicitly overrides (ù{\codeincomments{Base::h(int)}}ù) const
+    void h(int);          // hides (ù{\codeincomments{Base::h(int)}}ù) const (likely mistake)
+    void h(int) const;    // OK, implicitly overrides (ù{\codeincomments{Base::h(int)}}ù) const
 
-void i(int);          // OK, implicitly overrides (ù{\codeincomments{Base::i(int)}}ù)
+    void i(int);          // OK, implicitly overrides (ù{\codeincomments{Base::i(int)}}ù)
 };
 
 struct DerivedWithOverride : Base
 {
-void f()          override;    // Error, (ù{\codeincomments{Base::f()}}ù) not found
-void f(int)       override;    // OK, explicitly overrides (ù{\codeincomments{Base::f(int)}}ù)
+    void f()          override;    // Error, (ù{\codeincomments{Base::f()}}ù) not found
+    void f(int)       override;    // OK, explicitly overrides (ù{\codeincomments{Base::f(int)}}ù)
 
-void g()          override;    // Error, (ù{\codeincomments{Base::g()}}ù) not found
-void g(int)       override;    // Error, (ù{\codeincomments{Base::g()}}ù) is not virtual.
+    void g()          override;    // Error, (ù{\codeincomments{Base::g()}}ù) not found
+    void g(int)       override;    // Error, (ù{\codeincomments{Base::g()}}ù) is not virtual.
 
-void h(int)       override;    // Error, (ù{\codeincomments{Base::h(int)}}ù) not found
-void h(int) const override;    // OK, explicitly overrides (ù{\codeincomments{Base::h(int)}}ù)
+    void h(int)       override;    // Error, (ù{\codeincomments{Base::h(int)}}ù) not found
+    void h(int) const override;    // OK, explicitly overrides (ù{\codeincomments{Base::h(int)}}ù)
 
-void i(int)       override;    // OK, explicitly overrides (ù{\codeincomments{Base::i(int)}}ù)
+    void i(int)       override;    // OK, explicitly overrides (ù{\codeincomments{Base::i(int)}}ù)
 };
 \end{lstlisting}
 
@@ -93,14 +93,14 @@ Consider the following polymorphic hierarchy of error-category classes, as we mi
 \begin{lstlisting}[language=C++]
 struct ErrorCategory
 {
-virtual bool equivalent(const ErrorCode& code, int condition);
-virtual bool equivalent(int code, const ErrorCondition& condition);
+    virtual bool equivalent(const ErrorCode& code, int condition);
+    virtual bool equivalent(int code, const ErrorCondition& condition);
 };
 
 struct AutomotiveErrorCategory : ErrorCategory
 {
-virtual bool equivalent(const ErrorCode& code, int condition);
-virtual bool equivolent(int code, const ErrorCondition& condition);
+    virtual bool equivalent(const ErrorCode& code, int condition);
+    virtual bool equivolent(int code, const ErrorCondition& condition);
 };
 \end{lstlisting}
 
@@ -117,8 +117,8 @@ closer to that of \lstinline!std::error_category!:
 \begin{lstlisting}[language=C++]
 struct ErrorCategory
 {
-virtual bool equivalent(const ErrorCode& code, int condition) const;
-virtual bool equivalent(int code, const ErrorCondition& condition) const;
+    virtual bool equivalent(const ErrorCode& code, int condition) const;
+    virtual bool equivalent(int code, const ErrorCondition& condition) const;
 };
 \end{lstlisting}
 
@@ -133,11 +133,11 @@ functions in all derived classes were decorated with \lstinline!override!:
 \begin{lstlisting}[language=C++]
 struct AutomotiveErrorCategory : ErrorCategory
 {
-bool equivalent(const ErrorCode& code, int condition) override;
-// compile-time error when base class changed
+    bool equivalent(const ErrorCode& code, int condition) override;
+        // compile-time error when base class changed
 
-bool equivolent(int code, const ErrorCondition& code) override;
-// compile-time error when first written
+    bool equivolent(int code, const ErrorCondition& code) override;
+        // compile-time error when first written
 };
 \end{lstlisting}
 

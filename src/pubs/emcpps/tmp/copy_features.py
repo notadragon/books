@@ -3,7 +3,7 @@
 import re, pathlib, shutil
 
 copyfiles = { "Ch0.tex", "emcppsc/emcppsc-ch0.tex",
-              "Ch4.tex", "emcppsc/emcppsc-ch4.tex", 
+              "Ch4.tex", "emcppsc/emcppsc-ch4.tex", }
 
 masterfiles={ "Ch1.tex": "safe",
               "Ch2.tex": "conditionallysafe",
@@ -16,10 +16,10 @@ outline = []
 inputRe = re.compile("^\\\\input\{(.*)\}$")
 
 def updatefile(tof, outlines):
-    outlines = [ l.strip() + "\n" for l in outlines ]
+    outlines = [ l.rstrip() + "\n" for l in outlines ]
     if tof.exists():
         tolines = tof.open().readlines()
-        tolines = [ l.strip() + "\n" for l in tolines ]
+        tolines = [ l.rstrip() + "\n" for l in tolines ]
     
         if tolines == outlines:
             return
@@ -75,7 +75,7 @@ for fname, sectionroot in masterfiles.items():
         updatefile(tof,outlines)
         outlines = []
 
-outline = [ l.strip() + "\n" for l in outline ]
+outline = [ l.rstrip() + "\n" for l in outline ]
 outlinefile = pathlib.Path(f"../emcppsf/emcppsf.outline")
 
 updatefile(outlinefile, outline)

@@ -58,14 +58,14 @@ is by
 default an \lstinline!int! unless that value cannot fit in an
 \lstinline!int!. In that case, its type is the first type in the sequence
 \{\lstinline!unsigned!~\lstinline!int!, %\pagebreak%%%%%
-\lstinline!long!,
-\lstinline!unsigned!~\lstinline!long!, \lstinline!long!~\lstinline!long!,
+ \lstinline!long!,
+ \lstinline!unsigned!~\lstinline!long!, \lstinline!long!~\lstinline!long!,
 \lstinline!unsigned!~\lstinline!long!~\lstinline!long!\} in which it will fit. This
 same type list applies for both \lstinline!octal! and \lstinline!hex!
 literals but not for decimal literals, which, if initially
 \lstinline!signed!, skip over any \lstinline!unsigned! types, and vice versa;
 see \intrarefsimple{description-binary}.
-If neither of those is applicable, the compiler may use implementation-defined extended integer types such as \lstinline!__int128! to represent the literal if it fits --- otherwise the program is ill-formed:
+  If neither of those is applicable, the compiler may use implementation-defined extended integer types such as \lstinline!__int128! to represent the literal if it fits --- otherwise the program is ill-formed:
 
 % If neither of those is applicable, then the program is \emph{ill-formed}
 
@@ -122,10 +122,10 @@ non-negative value first, after which a unary minus is applied:
 static_assert(sizeof(int) == 4, "");  // true on virtually all machines today
 static_assert(-0b1010 == -10, "");    // as if: (ù{\codeincomments{0 - 0b1010 == 0 - 10}}ù)
 static_assert( 0b0111...[ 24 1-bits]...1111       //   signed
-!= -0b0111...[ 24 1-bits]...1111, ""); //   signed
+           != -0b0111...[ 24 1-bits]...1111, ""); //   signed
 
 static_assert( 0b1000...[ 24 0-bits]...0000       // unsigned
-!= -0b1000...[ 24 0-bits]...0000, ""); // unsigned\end{lstlisting}
+           != -0b1000...[ 24 0-bits]...0000, ""); // unsigned\end{lstlisting}
 
 
 
@@ -144,7 +144,7 @@ function that returns the least significant four bits of a given
 \begin{lstlisting}[language=C++]
 unsigned int lastFourBits(unsigned int value)
 {
-return value & 0xFu;
+    return value & 0xFu;
 }
 \end{lstlisting}
 
@@ -164,7 +164,7 @@ input:
 \begin{lstlisting}[language=C++]
 unsigned int lastFourBits(unsigned int value)
 {
-return value & 0b1111u;
+    return value & 0b1111u;
 }
 \end{lstlisting}
 
@@ -204,26 +204,26 @@ avatar in a game:
 \begin{lstlisting}[language=C++]
 struct AvatarStateFlags
 {
-enum Enum
-{
-e_ON_GROUND    = 0b0001,
-e_INVULNERABLE = 0b0010,
-e_INVISIBLE    = 0b0100,
-e_SWIMMING     = 0b1000,
-};
+    enum Enum
+    {
+        e_ON_GROUND    = 0b0001,
+        e_INVULNERABLE = 0b0010,
+        e_INVISIBLE    = 0b0100,
+        e_SWIMMING     = 0b1000,
+    };
 };
 
 class Avatar
 {
-unsigned char d_state;
+    unsigned char d_state;
 
 public:
-bool isOnGround() const
-{
-return d_state & AvatarStateFlags::e_ON_GROUND;
-}
+    bool isOnGround() const
+    {
+        return d_state & AvatarStateFlags::e_ON_GROUND;
+    }
 
-// ...
+    // ...
 };
 \end{lstlisting}
 
@@ -271,21 +271,21 @@ machine whose opcodes are specified in binary format:
 
 void VirtualMachine::decodeInstruction(std::uint8_t instruction)
 {
-switch (instruction)
-{
-case 0b00000000u:  // no-op
-break;
+    switch (instruction)
+    {
+        case 0b00000000u:  // no-op
+            break;
 
-case 0b00000001u:  // (ù{\codeincomments{add(register0, register1)}}ù)
-d_register0 += d_register1;
-break;
+        case 0b00000001u:  // (ù{\codeincomments{add(register0, register1)}}ù)
+            d_register0 += d_register1;
+            break;
 
-case 0b00000010u:  // (ù{\codeincomments{jmp(register0)}}ù)
-jumpTo(d_register0);
-break;
+        case 0b00000010u:  // (ù{\codeincomments{jmp(register0)}}ù)
+            jumpTo(d_register0);
+            break;
 
-// ...
-}
+        // ...
+    }
 }
 \end{lstlisting}
 
@@ -300,13 +300,13 @@ consider a bitmap representing the uppercase letter \textit{C}\/:
 \begin{lstlisting}[language=C++]
 const unsigned char letterBitmap_C[] =
 {
-0b00011111,
-0b01100000,
-0b10000000,
-0b10000000,
-0b10000000,
-0b01100000,
-0b00011111
+    0b00011111,
+    0b01100000,
+    0b10000000,
+    0b10000000,
+    0b10000000,
+    0b01100000,
+    0b00011111
 };
 \end{lstlisting}
 

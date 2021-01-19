@@ -11,7 +11,7 @@ is unspecified and can vary with the target platform or the configuration of
 the compiler. In essence, the C++ Standard does not guarantee that the
 string literal \texttt{"Hello"} will be encoded as the
 ASCII{\cprotect\footnote{In fact, C++ still fully supports platforms
-using EBCDIC, a rarely used alternative encoding to ASCII, as their primary text encoding.}} sequence
+  using EBCDIC, a rarely used alternative encoding to ASCII, as their primary text encoding.}} sequence
 \texttt{{0x48,} \texttt{0x65,} \texttt{0x6C,} \texttt{0x6C,} \texttt{0x6F}}
 or that the character literal \texttt{'X'} has the value
 \texttt{0x58}.
@@ -19,7 +19,7 @@ or that the character literal \texttt{'X'} has the value
 Table~\ref{unicodestring-table1} illustrates three new kinds of \emph{Unicode}-compliant
 \emph{string literals}, each delineating the precise encoding of each
 character.
-\begin{table}[h!]
+ \begin{table}[h!]
 \begin{center}
 \begin{threeparttable}
 \caption{Three new Unicode-compliant literal strings}\label{unicodestring-table1}\vspace{1.5ex}
@@ -40,10 +40,10 @@ respectively:
 
 \begin{lstlisting}[language=C++]
 char s0[] = "Hello";
-// unspecified encoding (albeit very likely ASCII)
+    // unspecified encoding (albeit very likely ASCII)
 
 char s1[] = u8"Hello";
-// guaranteed to be encoded as (ù{\codeincomments{\{0x48, 0x65, 0x6C, 0x6C, 0x6F, 0x0\}}}ù)
+    // guaranteed to be encoded as (ù{\codeincomments{\{0x48, 0x65, 0x6C, 0x6C, 0x6F, 0x0\}}}ù)
 \end{lstlisting}
 
 \noindent C++11 also introduces \emph{universal character names} that provide a
@@ -78,10 +78,10 @@ of bytes they are able to interpret and display as human-readable text:
 \begin{lstlisting}[language=C++]
 void Server::broadcastServerMessage(const std::string& message)
 {
-Packet data;
-data << u8"Message from the server: '" << message << u8"'\n";
+    Packet data;
+    data << u8"Message from the server: '" << message << u8"'\n";
 
-broadcastPacket(data);
+    broadcastPacket(data);
 }
 \end{lstlisting}
 
@@ -121,8 +121,8 @@ representing the cocktail emoji:
 \begin{lstlisting}[language=C++]
 void f()
 {
-std::string cocktail(u8"\U0001F378");  // big character (!)
-assert(cocktail.size() == 1);          // assertion failure (!)
+    std::string cocktail(u8"\U0001F378");  // big character (!)
+    assert(cocktail.size() == 1);          // assertion failure (!)
 }
 \end{lstlisting}
 
@@ -144,7 +144,7 @@ type of \texttt{char} is a \texttt{signed} or \texttt{unsigned} type is
 itself implementation defined.{\cprotect\footnote{Note that
 \texttt{char} is distinct from both \texttt{signed}~\texttt{char} and
 \texttt{unsigned}~\texttt{char}, but its behavior is guaranteed to be
-the same as one of those.}}
+  the same as one of those.}}
 
 C++20
 fundamentally changes how UTF-8 string literals work, by introducing a
@@ -167,7 +167,7 @@ void print(const char*);                     // (1)
 
 void f()
 {
-print(u8"text");  // invokes (1) prior to C++20, (0) afterwards
+    print(u8"text");  // invokes (1) prior to C++20, (0) afterwards
 }
 \end{lstlisting}
 

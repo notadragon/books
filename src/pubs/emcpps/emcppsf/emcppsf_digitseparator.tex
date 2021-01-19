@@ -40,7 +40,7 @@ cannot be contiguous, nor can they appear either before or after the
 literal{\cprotect\footnote{Although the leading \texttt{0x} and
 \texttt{0b} prefixes for hexadecimal and binary literals,
 respectively, are not considered part of the \emph{numeric} part of
-the lateral, a leading \texttt{0} in an octal literal is.}}:
+  the lateral, a leading \texttt{0} in an octal literal is.}}:
 
 \begin{lstlisting}[language=C++]
 int (ù{\color{black}e0 = 10''00;}ù)  // error: consecutive digit separators
@@ -59,9 +59,9 @@ generate a warning{\cprotect\footnote{Tested on GCC 7.4.0.}}:
 
 \begin{lstlisting}[language=C++]
 (ù{\color{maroon}unsigned long long}ù) (ù{\color{black}big1 = 9'223'372'036'854'775'808;}ù)  // (ù{\codeincomments{2\^{}63}}ù)
-// warning: integer constant is so large that it is an
-// unsigned long long big1 = 9'223'372'036'854'775'808;
-//                           ^~~~~~~~~~~~~~~~~~~~~~~~~~
+    // warning: integer constant is so large that it is an
+    // unsigned long long big1 = 9'223'372'036'854'775'808;
+    //                           ^~~~~~~~~~~~~~~~~~~~~~~~~~
 \end{lstlisting}
 
 \noindent Such warnings can typically be suppressed by adding a \texttt{ull}
@@ -76,7 +76,7 @@ precision of a floating-point literal exceeds what can be represented:
 
 \begin{lstlisting}[language=C++]
 (ù{\color{maroon}float}ù) (ù{\color{black}reallyPrecise = 3.141'592'653'589'793'238'462'643'383'279'502'884;}ù)  // OK
-// Everything after (ù{\codeincomments{3.141'592'6}}ù) is typically ignored silently.
+    // Everything after (ù{\codeincomments{3.141'592'6}}ù) is typically ignored silently.
 \end{lstlisting}
 
 \noindent For more information, see {\it\titleref{appendix:-silent-loss-of-precision-in-floating-point-literals}} on page~\pageref{appendix:-silent-loss-of-precision-in-floating-point-literals}.
@@ -211,20 +211,20 @@ equivalent to applying a \texttt{static\_cast<float>} to the
 \begin{lstlisting}[language=C++, basicstyle={\ttfamily\footnotesize}]
 static_assert(3.14'159'265'358f == static_cast<float>(3.14'159'265'358));
 \end{lstlisting}\vspace*{-1ex}
-}}:
+      }}:
 
 \begin{lstlisting}[language=C++]
 static_assert(3.1415926535f != 3.141592653f, "too precise for float");
-// This assert will fire on a typical platform.
+    // This assert will fire on a typical platform.
 
 static_assert(3.141592653f != 3.14159265f, "too precise for float");
-// This assert too will fire on a typical platform.
+    // This assert too will fire on a typical platform.
 
 static_assert(3.14159265f != 3.1415926f, "too precise for float");
-// This assert will NOT fire on a typical platform.
+    // This assert will NOT fire on a typical platform.
 
 static_assert(3.1415926f != 3.141592f, "too precise for float");
-// This assert too will NOT fire on a typical platform.
+    // This assert too will NOT fire on a typical platform.
 \end{lstlisting}
 
 \noindent If the values are \emph{not} the same, then that floating-point type
@@ -242,10 +242,10 @@ between binary and decimal floating-point representations; note that
 
 \begin{quote}
 If a decimal string with at most 6 sig. dec. is converted to Single and then converted back to the
-same number of sig. dec., then the final string should match the original. Also, ...
+ same number of sig. dec., then the final string should match the original. Also, ...
 
-If a Single Precision floating-point number is converted to a decimal string with at least 9 sig.
-dec. and then converted back to Single, then the final number must match the original.
+ If a Single Precision floating-point number is converted to a decimal string with at least 9 sig.
+ dec. and then converted back to Single, then the final number must match the original.
 \end{quote}
 
 \noindent The ranges corresponding to 6--9 for a single-precision (32-bit)

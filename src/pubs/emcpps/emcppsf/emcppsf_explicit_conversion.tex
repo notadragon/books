@@ -19,12 +19,12 @@ use a named function for this purpose; see {\it\titleref{potential-pitfalls-expl
 \begin{lstlisting}[language=C++]
 class Point  // implicitly convertible from an (ù{\codeincomments{int}}ù) or to a (ù{\codeincomments{double}}ù)
 {
-int d_x, d_y;
+    int d_x, d_y;
 
 public:
-Point(int x = 0, int y = 0);  // default, conversion, & value constructor
-// ...
-operator double() const;  // Return distance from origin as a (ù{\codeincomments{double}}ù).
+    Point(int x = 0, int y = 0);  // default, conversion, & value constructor
+    // ...
+    operator double() const;  // Return distance from origin as a (ù{\codeincomments{double}}ù).
 };
 \end{lstlisting}
 
@@ -37,8 +37,8 @@ void g1(const Point& p);  // arbitrary function taking a (ù{\codeincomments{Poi
 
 void f1(int i)
 {
-g0(i);  // oops, called (ù{\codeincomments{g0}}ù) with (ù{\codeincomments{Point(i, 0)}}ù) by mistake
-g1(i);  // oops, called (ù{\codeincomments{g1}}ù) with (ù{\codeincomments{Point(i, 0)}}ù) by mistake
+    g0(i);  // oops, called (ù{\codeincomments{g0}}ù) with (ù{\codeincomments{Point(i, 0)}}ù) by mistake
+    g1(i);  // oops, called (ù{\codeincomments{g1}}ù) with (ù{\codeincomments{Point(i, 0)}}ù) by mistake
 }
 \end{lstlisting}
 
@@ -54,10 +54,10 @@ explicit Point(int x = 0, int y = 0);  // explicit converting constructor
 \begin{lstlisting}[language=C++]
 void f2(int i)
 {
-g0(i)          // error: could not convert (ù{\codeincomments{i}}ù) from (ù{\codeincomments{int}}ù) to (ù{\codeincomments{Point}}ù)
-g1(i);         // error: invalid initialization of reference type
-g0(Point(i));  // OK
-g1(Point(i));  // OK
+    g0(i)          // error: could not convert (ù{\codeincomments{i}}ù) from (ù{\codeincomments{int}}ù) to (ù{\codeincomments{Point}}ù)
+    g1(i);         // error: invalid initialization of reference type
+    g0(Point(i));  // OK
+    g1(Point(i));  // OK
 }
 \end{lstlisting}
 
@@ -69,8 +69,8 @@ void h(double d);
 
 double f3(const P& p)
 {
-h(p);      // OK? Or maybe called (ù{\codeincomments{h}}ù) with a "hypotenuse" by mistake
-return p;  // OK? Or maybe this is a mistake too.
+    h(p);      // OK? Or maybe called (ù{\codeincomments{h}}ù) with a "hypotenuse" by mistake
+    return p;  // OK? Or maybe this is a mistake too.
 }
 \end{lstlisting}
 
@@ -85,13 +85,13 @@ struct S0 { explicit operator int(); };
 
 void g()
 {
-S0 s0;
-int i = s0;                    // error (copy initialization)
-double d = s0;                 // error (copy initialization)
-int j = static_cast<int>(s0);  // OK (static cast)
-if (s0) { }                    // error (contextual conversion to (ù{\codeincomments{bool}}ù))
-int k(s0);                     // OK (direct initialization)
-double e(s0);                  // error (direct initialization)
+    S0 s0;
+    int i = s0;                    // error (copy initialization)
+    double d = s0;                 // error (copy initialization)
+    int j = static_cast<int>(s0);  // OK (static cast)
+    if (s0) { }                    // error (contextual conversion to (ù{\codeincomments{bool}}ù))
+    int k(s0);                     // OK (direct initialization)
+    double e(s0);                  // error (direct initialization)
 }
 \end{lstlisting}
 
@@ -103,36 +103,36 @@ struct S1 { /* implicit */ operator int(); };
 
 void f()
 {
-S1 s1;
-int i = s1;                    // OK (copy initialization)
-double d = s1;                 // OK (copy initialization)
-int j = static_cast<int>(s1);  // OK (static cast)
-if (s1) { }                    // OK (contextual conversion to (ù{\codeincomments{bool}}ù))
-int k(s1);                     // OK (direct initialization)
-double e(s1);                  // OK (direct initialization)
+    S1 s1;
+    int i = s1;                    // OK (copy initialization)
+    double d = s1;                 // OK (copy initialization)
+    int j = static_cast<int>(s1);  // OK (static cast)
+    if (s1) { }                    // OK (contextual conversion to (ù{\codeincomments{bool}}ù))
+    int k(s1);                     // OK (direct initialization)
+    double e(s1);                  // OK (direct initialization)
 }
 \end{lstlisting}
 
 \noindent Additionally, the notion of \textbf{contextual convertibility to
 \texttt{bool}}{\cprotect\footnote{Since the early days of C++, a common
-idiom to test for validity of an object has been to use it in a
-context where it can (implicitly) convert itself to a type whose value
-can be interpreted (contextually) as a boolean, with \texttt{true}
-implying validity (and \texttt{false} otherwise). Implicit conversion
-to \texttt{bool} (an integral type) was considered too dangerous,
-so the cumbersome \textbf{safe-\texttt{bool} idiom} was used instead,
-converting to a type that --- while contextually convertible to
-\texttt{bool} --- could not (by design) participate in any other
-operations. While making the conversion to \texttt{bool} (or
-\texttt{const}~\texttt{bool}) \texttt{explicit} solves the safety
-issue, the benefit of the idiom would be entirely lost if an explicit
-cast would have to be performed to test for validity. To address this,
-C++11 extends contextual conversion to \texttt{bool} for a given
-expression \texttt{E} to include an application of
-\texttt{static\_cast<const}~\texttt{volatile}~\texttt{bool>} to
-\texttt{E}, thus enabling explicit conversion to \texttt{bool} to be
-used in lieu of the (now deprecated) \textbf{safe-\texttt{bool} idiom}; see
-\textbf{{sharpe13}}.}} applicable to arguments of logical operations
+  idiom to test for validity of an object has been to use it in a
+  context where it can (implicitly) convert itself to a type whose value
+  can be interpreted (contextually) as a boolean, with \texttt{true}
+  implying validity (and \texttt{false} otherwise). Implicit conversion
+  to \texttt{bool} (an integral type) was considered too dangerous,
+  so the cumbersome \textbf{safe-\texttt{bool} idiom} was used instead,
+  converting to a type that --- while contextually convertible to
+  \texttt{bool} --- could not (by design) participate in any other
+  operations. While making the conversion to \texttt{bool} (or
+  \texttt{const}~\texttt{bool}) \texttt{explicit} solves the safety
+  issue, the benefit of the idiom would be entirely lost if an explicit
+  cast would have to be performed to test for validity. To address this,
+  C++11 extends contextual conversion to \texttt{bool} for a given
+  expression \texttt{E} to include an application of
+  \texttt{static\_cast<const}~\texttt{volatile}~\texttt{bool>} to
+  \texttt{E}, thus enabling explicit conversion to \texttt{bool} to be
+  used in lieu of the (now deprecated) \textbf{safe-\texttt{bool} idiom}; see
+  \textbf{{sharpe13}}.}} applicable to arguments of logical operations
 (e.g., \texttt{\&\&}, \texttt{||}, and \texttt{!}) and conditions of
 most control-flow constructs (e.g., \texttt{if}, \texttt{while}) was
 extended in C++11 to admit \emph{explicit} (user-defined) \texttt{bool}
@@ -143,13 +143,13 @@ struct S2 { explicit operator bool(); };
 
 void h()
 {
-S2 s2;
-int i = s2;                    // error (copy initialization)
-double d = s2;                 // error (copy initialization)
-int j = static_cast<int>(s2);  // error (static cast)
-if (s2) { }                    // OK (contextual conversion to (ù{\codeincomments{bool}}ù))
-int k(s2);                     // error (direct initialization)
-double fd(s2);                 // error (direct initialization)
+    S2 s2;
+    int i = s2;                    // error (copy initialization)
+    double d = s2;                 // error (copy initialization)
+    int j = static_cast<int>(s2);  // error (static cast)
+    if (s2) { }                    // OK (contextual conversion to (ù{\codeincomments{bool}}ù))
+    int k(s2);                     // error (direct initialization)
+    double fd(s2);                 // error (direct initialization)
 }
 \end{lstlisting}
 
@@ -171,16 +171,16 @@ idiom to determine if a given stream is valid:
 
 std::ostream& printTypeValue(std::ostream& stream, double value)
 {
-if (stream)  // relies on an implicit conversion to (ù{\codeincomments{bool}}ù)
-{
-stream << "double(" << value << ')';
-}
-else
-{
-// ... (handle stream failure)
-}
+    if (stream)  // relies on an implicit conversion to (ù{\codeincomments{bool}}ù)
+    {
+        stream << "double(" << value << ')';
+    }
+    else
+    {
+        // ... (handle stream failure)
+    }
 
-return stream;
+    return stream;
 }
 \end{lstlisting}
 
@@ -192,23 +192,23 @@ undetected:
 \begin{lstlisting}[language=C++]
 class ostream
 {
-// ...
+    // ...
 
-/* implicit */ operator bool();  // hypothetical (bad) idea
+    /* implicit */ operator bool();  // hypothetical (bad) idea
 };
 
 int client(std::ostream& out)
 {
-// ...
-return out + 1;  // likely a latent runtime bug: always returns 1 or 2
+    // ...
+    return out + 1;  // likely a latent runtime bug: always returns 1 or 2
 }
 \end{lstlisting}
 
 \noindent The classic workaround, the \textbf{safe-\texttt{bool} idiom},
 was to return some obscure pointer\linebreak[4] %%%%%
-type (e.g., \textbf{pointer to
+ type (e.g., \textbf{pointer to
 member}) that could not possibly be useful in any context other\linebreak[4] %%%%%
-than one in which \texttt{false} and a null pointer-to-member value (e.g.,\linebreak[4] %%%%%
+ than one in which \texttt{false} and a null pointer-to-member value (e.g.,\linebreak[4] %%%%%
 \texttt{static\_cast<(ostream*::operator}~\texttt{bool)()>(0)}) are
 treated equivalently.
 
@@ -222,7 +222,7 @@ consecutive \texttt{!} operators can be used to synthesize a
 \textbf{contextual conversion to \texttt{bool}} --- i.e., if \texttt{X} is an
 expression that is explicitly convertible to \texttt{bool}, then
 \texttt{(!!(X))} will be \texttt{(true)} or \texttt{(false)}
-accordingly.}}
+  accordingly.}}
 
 As a concrete example, consider a \texttt{ConnectionHandle} class that
 can be in either a \emph{valid} or \emph{invalid} state. For the user's
@@ -233,11 +233,11 @@ that have a similar \emph{invalid} state, representing the invalid (or null) sta
 \begin{lstlisting}[language=C++]
 struct ConnectionHandle
 {
-std::size_t maxThroughput() const;
-// Return the maximum throughput (in bytes) of the connection.
+    std::size_t maxThroughput() const;
+        // Return the maximum throughput (in bytes) of the connection.
 
-explicit operator bool() const;
-// Return (ù{\codeincomments{true}}ù) if the handle is valid and (ù{\codeincomments{false}}ù) otherwise.
+    explicit operator bool() const;
+        // Return (ù{\codeincomments{true}}ù) if the handle is valid and (ù{\codeincomments{false}}ù) otherwise.
 };
 \end{lstlisting}
 
@@ -248,14 +248,14 @@ predicate of an \texttt{if} statement:
 \begin{lstlisting}[language=C++]
 int ping(const ConnectionHandle& handle)
 {
-if (handle)  // OK (contextual conversion to bool)
-{
-// ...
-return 0;  // success
-}
+    if (handle)  // OK (contextual conversion to bool)
+    {
+        // ...
+        return 0;  // success
+    }
 
-std::cerr << "Invalid connection handle.\n";
-return -1;  // failure
+    std::cerr << "Invalid connection handle.\n";
+    return -1;  // failure
 }
 \end{lstlisting}
 
@@ -264,9 +264,9 @@ conversions to \texttt{bool} that might otherwise happen inadvertently:
 
 \begin{lstlisting}[language=C++]
 bool hasEnoughThroughput(const ClientConnection& connection,
-const ResourceHandle&   handle)
+                         const ResourceHandle&   handle)
 {
-return connection.throughput() <= handle;  // Compilation error, thankfully
+    return connection.throughput() <= handle;  // Compilation error, thankfully
 //                                    ^~~~~~
 }
 \end{lstlisting}
@@ -330,7 +330,7 @@ information but in different units (e.g., \texttt{angleInDegrees},
 \texttt{angleInRadians}).{\cprotect\footnote{Another valid design
 decision is returning an object of type \texttt{Angle} that captures
 the amplitude and provides named accessory to the different units
-(e.g., \texttt{asDegrees}, \texttt{asRadians}).}}
+  (e.g., \texttt{asDegrees}, \texttt{asRadians}).}}
 
 Rather than employing any conversion \emph{operator} (\texttt{explicit}
 or otherwise), consider instead providing a named function, which (1) is
@@ -342,12 +342,12 @@ overlapping return types:
 \begin{lstlisting}[language=C++]
 class Point  // only explicitly convertible (and from only an (ù{\codeincomments{int}}ù))
 {
-int d_x, d_y;
+    int d_x, d_y;
 
 public:
-explicit Point(int x = 0, int y = 0);  // explicit converting constructor
-// ...
-double magnitude() const;  // Return distance from origin as a (ù{\codeincomments{double}}ù).
+    explicit Point(int x = 0, int y = 0);  // explicit converting constructor
+    // ...
+    double magnitude() const;  // Return distance from origin as a (ù{\codeincomments{double}}ù).
 };
 \end{lstlisting}
 
@@ -355,7 +355,7 @@ double magnitude() const;  // Return distance from origin as a (ù{\codeincommen
 \texttt{magnitude}, in a separate \emph{utility} at a higher level in the
 physical hierarchy might be better still.{\cprotect\footnote{For more on
 separating out \textbf{nonprimitive functionality}, see
-\textbf{{lakos20}}, sections 3.2.7--3.2.8, pp 529--552.}}
+  \textbf{{lakos20}}, sections 3.2.7--3.2.8, pp 529--552.}}
 
 \subsection[Annoyances]{Annoyances}\label{annoyances}
 

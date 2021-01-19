@@ -28,8 +28,8 @@ double (*pf1)(int) = nullptr;  // Initialize with null address.
 
 struct S
 {
-short d_data;    // member data
-float g(int y);  // member function
+    short d_data;    // member data
+    float g(int y);  // member function
 };
 
 short S::*pmd0 = &S::d_data;  // Initialize with non-null address.
@@ -52,11 +52,11 @@ void g(std::nullptr_t);  // (3)
 
 void f()
 {
-char buf[] = "hello";
-g(buf);      // OK, (1) (ù{\codeincomments{void g(void*)}}ù)
-g(0);        // OK, (2) (ù{\codeincomments{void g(int)}}ù)
-g(nullptr);  // OK, (3) (ù{\codeincomments{void g(std::nullptr\_t)}}ù)
-g(NULL);     // Error, ambiguous --- (1), (2), or (3)
+    char buf[] = "hello";
+    g(buf);      // OK, (1) (ù{\codeincomments{void g(void*)}}ù)
+    g(0);        // OK, (2) (ù{\codeincomments{void g(int)}}ù)
+    g(nullptr);  // OK, (3) (ù{\codeincomments{void g(std::nullptr\_t)}}ù)
+    g(NULL);     // Error, ambiguous --- (1), (2), or (3)
 }
 \end{lstlisting}
 
@@ -76,14 +76,14 @@ arbitrary pointer types and instead, prior to C++11, defined
 \lstinline!NULL! as an ``integral constant expression rvalue of
 integer type that evaluates to zero''; any integer literal (e.g.,
 \lstinline!0!, \lstinline!0L!, \lstinline!0U!, \lstinline!0LLU!) satisfies this
-criterion. From a type-safety perspective, its
+  criterion. From a type-safety perspective, its
 implementation-defined definition, however,
 makes using \lstinline!NULL! only marginally better suited than a raw
 literal \lstinline!0! to represent a null pointer. It is worth noting that as of C++11, the definition of \lstinline!NULL! has been expanded to --- in theory --- permit \lstinline!nullptr! as a conforming definition; as of this writing, however, no major compiler vendors do so.{\cprotect\footnote{Both GCC and
 Clang default to \lstinline!0L! (\lstinline!long!~\lstinline!int!), while MSVC
 defaults to \lstinline!0! (\lstinline!int!). Such definitions are unlikely
 to change since existing code could cease to compile or (possibly
-silently) present altered runtime behavior.}}
+  silently) present altered runtime behavior.}}
 
 As just one specific illustration of the added type safety provided by
 \lstinline!nullptr!, imagine that the coding standards of a large software company historically required that
@@ -94,15 +94,15 @@ object. Functions that return via argument typically do so to reserve the functi
 \begin{lstlisting}[language=C++]
 int illustrativeFunction(int* x)   // pointer to modifiable integer
 {
-// ...
-if (/*...*/)
-{
-x = 0;       // (1) Set pointer (ù{\codeincomments{x}}ù) to null address.
-x = NULL;    // (2) Set pointer (ù{\codeincomments{x}}ù) to null address.
-x = nullptr; // (3) Set pointer (ù{\codeincomments{x}}ù) to null address.
-}
-// ...
-return 0;    // success
+    // ...
+    if (/*...*/)
+    {
+        x = 0;       // (1) Set pointer (ù{\codeincomments{x}}ù) to null address.
+        x = NULL;    // (2) Set pointer (ù{\codeincomments{x}}ù) to null address.
+        x = nullptr; // (3) Set pointer (ù{\codeincomments{x}}ù) to null address.
+    }
+    // ...
+    return 0;    // success
 }
 \end{lstlisting}
 
@@ -114,15 +114,15 @@ instead of a pointer:
 \begin{lstlisting}[language=C++]
 int illustrativeFunction(int& x)  // reference to modifiable integer
 {
-// ...
-if (/*...*/)
-{
-x = 0;       // (1) always compiles; makes what (ù{\codeincomments{x}}ù) refers to 0
-x = NULL;    // (2) implementation-defined (might warn)
-x = nullptr; // (3) always a compile-time error
-}
-// ...
-return 0;    // SUCCESS
+    // ...
+    if (/*...*/)
+    {
+        x = 0;       // (1) always compiles; makes what (ù{\codeincomments{x}}ù) refers to 0
+        x = NULL;    // (2) implementation-defined (might warn)
+        x = nullptr; // (3) always a compile-time error
+    }
+    // ...
+    return 0;    // SUCCESS
 }
 \end{lstlisting}
 
@@ -157,12 +157,12 @@ overload (2), but that might not always be what casual clients expect:
 \begin{lstlisting}[language=C++]
 void f()
 {
-uglyLibraryFunction(0);         // unambiguously invokes (2)
-uglyLibraryFunction((int*) 0);  // unambiguously invokes (1)
-uglyLibraryFunction(nullptr);   // unambiguously invokes (1)
-uglyLibraryFunction(NULL);      // anything! (platform-defined)
-uglyLibraryFunction(0L);        // Error, ambiguous call (on all platforms)
-uglyLibraryFunction(0U);        // Error, ambiguous call (on all platforms)
+    uglyLibraryFunction(0);         // unambiguously invokes (2)
+    uglyLibraryFunction((int*) 0);  // unambiguously invokes (1)
+    uglyLibraryFunction(nullptr);   // unambiguously invokes (1)
+    uglyLibraryFunction(NULL);      // anything! (platform-defined)
+    uglyLibraryFunction(0L);        // Error, ambiguous call (on all platforms)
+    uglyLibraryFunction(0U);        // Error, ambiguous call (on all platforms)
 }
 \end{lstlisting}
 
@@ -171,7 +171,7 @@ uglyLibraryFunction(0U);        // Error, ambiguous call (on all platforms)
 are unavoidable because it obviates explicit
 casts. (Note that explicitly casting \lstinline!0! to an
 appropriately typed pointer --- other than \lstinline!void*! --- was at one
-time considered by some to be a best practice, especially in C.)
+  time considered by some to be a best practice, especially in C.)
 
 \subsubsection[Overloading for a literal null pointer]{Overloading for a literal null pointer}\label{overloading-for-a-literal-null-pointer}
 
@@ -185,9 +185,9 @@ void f(std::nullptr_t);  // (2)
 
 void g()
 {
-int* ptr = nullptr;
-f(ptr);      // unambiguously invokes (1)
-f(nullptr);  // unambiguously invokes (2)
+    int* ptr = nullptr;
+    f(ptr);      // unambiguously invokes (1)
+    f(nullptr);  // unambiguously invokes (2)
 }
 \end{lstlisting}
 
@@ -203,10 +203,10 @@ a runtime error (see
 
 \begin{lstlisting}[language=C++]
 std::size_t strlen(const char* s);
-// The behavior is undefined unless s is null-terminated.
+    // The behavior is undefined unless s is null-terminated.
 
 std::size_t strlen(std::nullptr_t) = delete;
-// Function is not defined but still participates in overload resolution.
+    // Function is not defined but still participates in overload resolution.
 \end{lstlisting}
 
 

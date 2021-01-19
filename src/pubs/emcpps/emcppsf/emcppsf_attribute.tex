@@ -17,10 +17,10 @@ we typically mean any observable behavior apart from runtime
 performance. Generally, ignoring an attribute is a valid (and safe)
 choice for a compiler to make. Sometimes, however, an
 attribute will not affect the behavior of a \emph{correct} program but might affect the behavior of a well-formed yet incorrect one (see
-{\it\titleref{attribute-use-cases}:} {\it\titleref{delineating-explicit-assumptions-in-code-to-achieve-better-optimizations}} on page~\pageref{delineating-explicit-assumptions-in-code-to-achieve-better-optimizations}).}} of a
+  {\it\titleref{attribute-use-cases}:} {\it\titleref{delineating-explicit-assumptions-in-code-to-achieve-better-optimizations}} on page~\pageref{delineating-explicit-assumptions-in-code-to-achieve-better-optimizations}).}} of a
 well-written program. Customized annotations targeted at external (e.g.,
 static-analysis) tools{\cprotect\footnote{Such static-analysis tools include Clang sanitizers, Coverity, and other
-proprietary, open-source, and commercial products.}} might be
+  proprietary, open-source, and commercial products.}} might be
 beneficial as well.
 
 \subsubsection[C++ attribute syntax]{C++ attribute syntax}\label{c++-attribute-syntax}
@@ -54,7 +54,7 @@ arbitrary sequence of tokens:
 \noindent Note that having an incorrect number of arguments or an incompatible
 argument type is a compile-time error for all standard attributes; \pagebreak%%%%%%%
 the behavior for all other attributes,
-however, is
+ however, is
 \textbf{implementation-defined} (see {\it\titleref{attribute-potential-pitfalls}:} {\it\titleref{unrecognized-attributes-have-implementation-defined-behavior}} on page~\pageref{unrecognized-attributes-have-implementation-defined-behavior}).
 
 Any attribute may be namespace qualified{\cprotect\footnote{Attributes
@@ -100,7 +100,7 @@ declared without a name:
 struct S { union [[attribute_name]] { int a; float b }; };
 enum [[attribute_name]] { SUCCESS, FAIL } result;
 \end{lstlisting} \vspace*{-1ex}
-}} of an individual entity in the same statement are additive (for
+      }} of an individual entity in the same statement are additive (for
 that entity). The behavior of attributes associated with an entity
 across multiple declaration statements, however, depends on the
 attributes themselves. As an example, \texttt{[[noreturn]]} is required
@@ -111,7 +111,7 @@ attributes might be additive, such as the hypothetical \texttt{foo} and
 \begin{lstlisting}[language=C++]
 [[foo]] void f(), g();  // declares both (ù{\codeincomments{f()}}ù) and (ù{\codeincomments{g()}}ù) to be (ù{\codeincomments{foo}}ù)
 void f [[bar]](), g();  // Now (ù{\codeincomments{f()}}ù) is both (ù{\codeincomments{foo}}ù) and (ù{\codeincomments{bar}}ù) while
-//     (ù{\codeincomments{g()}}ù) is still just (ù{\codeincomments{foo}}ù).
+                        //     (ù{\codeincomments{g()}}ù) is still just (ù{\codeincomments{foo}}ù).
 \end{lstlisting}
 \pagebreak%%%%%%%
 
@@ -119,12 +119,12 @@ void f [[bar]](), g();  // Now (ù{\codeincomments{f()}}ù) is both (ù{\codeinc
 however, most standard attributes do consider redundancy an
 error{\cprotect\footnote{Redundancy of standard
 attributes might no longer be an error in future revisions of the
-C++ Standard; see \textbf{{iso20a}}.}}:
+  C++ Standard; see \textbf{{iso20a}}.}}:
 
 \begin{lstlisting}[language=C++]
 [[attr1]] void f [[attr2]](), f [[attr3]](int);
-// (ù{\codeincomments{f()}}ù)    is (ù{\codeincomments{attr1}}ù) and (ù{\codeincomments{attr2}}ù).
-// (ù{\codeincomments{f(int)}}ù) is (ù{\codeincomments{attr1}}ù) and (ù{\codeincomments{attr3}}ù).
+                                      // (ù{\codeincomments{f()}}ù)    is (ù{\codeincomments{attr1}}ù) and (ù{\codeincomments{attr2}}ù).
+                                      // (ù{\codeincomments{f(int)}}ù) is (ù{\codeincomments{attr1}}ù) and (ù{\codeincomments{attr3}}ù).
 
 [[a1]][[a1]] int [[a1]][[a1]] & x;    // (ù{\codeincomments{x}}ù) (the reference itself) is (ù{\codeincomments{a1}}ù).
 
@@ -154,7 +154,7 @@ program{\cprotect\footnote{As of this writing, GCC is lax and merely
 warns when it sees the standard \texttt{noreturn} attribute in an
 unauthorized syntactic position, whereas Clang (correctly) fails to
 compile. Hence creative use of even a standard attribute might
-lead to different behavior on different compilers.}}:
+  lead to different behavior on different compilers.}}:
 
 \begin{lstlisting}[language=C++]
 void [[noreturn]] g() { throw; }  // error: appertains to type specifier
@@ -172,7 +172,7 @@ syntax, vendors are now able to express these extensions in a more
 (syntactically) consistent manner. If an unknown attribute is
 encountered during compilation, it is ignored, emitting a (likely{\cprotect\footnote{Prior to C++17, a conforming implementation was
 permitted to treat an unknown attribute as ill formed and terminate
-translation; to the authors' knowledge, however, none of them did.}}) nonfatal
+  translation; to the authors' knowledge, however, none of them did.}}) nonfatal
 diagnostic.
 
 Table \ref{attribute-table1} provides a brief survey of popular compiler-specific attributes
@@ -212,21 +212,21 @@ additional context to provide more detailed diagnostics. For example,
 the GCC-specific\linebreak[4] \texttt{[[gnu::warn\_unused\_result]]}
 attribute{\cprotect\footnote{For compatibility with GCC,
 Clang supports \texttt{[[gnu::warn\_unused\_result]]} as
-well.}} can be used to inform the compiler (and developers) that a
+  well.}} can be used to inform the compiler (and developers) that a
 function's return value should not be ignored{\cprotect\footnote{The
 C++17 Standard \texttt{[[nodiscard]]} attribute serves the same
-purpose and is portable.}}:
+  purpose and is portable.}}:
 
 \begin{lstlisting}[language=C++]
 struct UDPListener
 {
-[[gnu::warn_unused_result]] int start();
-// Start the UDP listener's background thread (which can fail for a
-// variety of reasons). Return 0 on success and a nonzero value
-// otherwise.
+    [[gnu::warn_unused_result]] int start();
+        // Start the UDP listener's background thread (which can fail for a
+        // variety of reasons). Return 0 on success and a nonzero value
+        // otherwise.
 
-void bind(int port);
-// The behavior is undefined unless (ù{\codeincomments{start}}ù) was called successfully.
+    void bind(int port);
+        // The behavior is undefined unless (ù{\codeincomments{start}}ù) was called successfully.
 };
 \end{lstlisting}
 \pagebreak%%%%%%
@@ -239,14 +239,14 @@ generation, it is explicitly \emph{not} ill formed for a client to
 make use of an unannotated declaration and yet compile its
 corresponding definition in the context of an annotated one (or vice
 versa); such is not always the case for other attributes, however, and
-best practice might argue in favor of consistency regardless.}}:
+  best practice might argue in favor of consistency regardless.}}:
 
 \begin{lstlisting}[language=C++]
 void init()
 {
-UDPListener listener;
-listener.start();      // Might fail; return value must be checked!
-listener.bind(27015);  // Possible undefined behavior; BAD IDEA!
+    UDPListener listener;
+    listener.start();      // Might fail; return value must be checked!
+    listener.bind(27015);  // Possible undefined behavior; BAD IDEA!
 }
 \end{lstlisting}
 
@@ -254,7 +254,7 @@ listener.bind(27015);  // Possible undefined behavior; BAD IDEA!
 
 \begin{lstlisting}[style=plain]
 warning: ignoring return value of 'bool HttpClient::start()' declared
-with attribute 'warn_unused_result' [-Wunused-result]
+         with attribute 'warn_unused_result' [-Wunused-result]
 \end{lstlisting}
 
 
@@ -278,17 +278,17 @@ function will likely be given lower priority during branch \mbox{prediction}:
 \begin{lstlisting}[language=C++]
 void checkBalance(int balance)
 {
-if (balance >= 0)  // likely branch
-{
-// ...
-}
-else  // unlikely branch
-{
-reportError("Negative balance.");
-}
+    if (balance >= 0)  // likely branch
+    {
+        // ...
+    }
+    else  // unlikely branch
+    {
+        reportError("Negative balance.");
+    }
 }
 \end{lstlisting}
-\pagebreak%%%%
+ \pagebreak%%%%
 
 \noindent Because the (annotated) \texttt{reportError(const}~\texttt{char*)}
 appears on the else branch of the if statement (above), the compiler
@@ -319,14 +319,14 @@ hence can be modified.) The (more lenient) \texttt{[[gnu::pure]]}
 attribute allows changes to the state of the function's arguments but still
 forbids any global state mutation. For example, any sort of (even
 temporary) global memory allocation would render a function ineligible
-for \texttt{[[gnu::const]]} or \texttt{[[gnu::pure]]}.}} of the
+  for \texttt{[[gnu::const]]} or \texttt{[[gnu::pure]]}.}} of the
 program is unaltered by calling this function):
 
 \begin{lstlisting}[language=C++]
 [[gnu::const]]
 double linearInterpolation(double start, double end, double factor)
 {
-return (start * (1.0 - factor)) + (end * factor);
+    return (start * (1.0 - factor)) + (end * factor);
 }
 \end{lstlisting}
 
@@ -339,8 +339,8 @@ component:
 \begin{lstlisting}[language=C++]
 Vector2D vectorLerp(const Vector2D& start, const Vector2D& end, double factor)
 {
-return Vector2D(linearInterpolation(start.x, end.x, factor),
-linearInterpolation(start.y, end.y, factor));
+    return Vector2D(linearInterpolation(start.x, end.x, factor),
+                    linearInterpolation(start.y, end.y, factor));
 }
 \end{lstlisting}
 \pagebreak%%%%%%
@@ -354,14 +354,14 @@ visible in \texttt{vectorLerp}'s translation unit:
 // pseudocode (hypothetical compiler transformation)
 Vector2D vectorLerp(const Vector2D& start, const Vector2D& end, double factor)
 {
-if (start.x == start.y && end.x == end.y)
-{
-const double cache = linearInterpolation(start.x, end.x, factor);
-return Vector2D(cache, cache);
-}
+    if (start.x == start.y && end.x == end.y)
+    {
+        const double cache = linearInterpolation(start.x, end.x, factor);
+        return Vector2D(cache, cache);
+    }
 
-return Vector2D(linearInterpolation(start.x, end.x, factor),
-linearInterpolation(start.y, end.y, factor));
+    return Vector2D(linearInterpolation(start.x, end.x, factor),
+                    linearInterpolation(start.y, end.y, factor));
 }
 \end{lstlisting}
 
@@ -377,7 +377,7 @@ compiler for the purposes of optimization; this unique use of
 attribute-like syntax also required that a conforming implementation
 could not unilaterally ignore these precondition-checking attributes
 since that would make attempting to test them result in hard
-(\emph{language}) \textbf{undefined behavior}.}}; see
+  (\emph{language}) \textbf{undefined behavior}.}}; see
 {\it\titleref{attribute-potential-pitfalls}:} {\it\titleref{some-attributes,-if-misused,-can-affect-program-correctness}} on page~\pageref{some-attributes,-if-misused,-can-affect-program-correctness}.
 
 \subsubsection[Using attributes to control external static analysis]{Using attributes to control external static analysis}\label{using-attributes-to-control-external-static-analysis}
@@ -391,7 +391,7 @@ be used to suppress unwanted warnings from static-analysis tools that
 verify \emph{Guidelines Support Library}{\cprotect\footnote{\emph{Guidelines
 Support Library} (see \textbf{microsoft}) is an open-source library, developed by Microsoft,
 that implements functions and types suggested for use by the ``C++
-Core Guidelines'' (see \textbf{{stroustrup20}}).}}
+  Core Guidelines'' (see \textbf{{stroustrup20}}).}}
 rules. In particular, consider GSL C26481 (Bounds rule \#1),\footnote{\textbf{microsoftC26481}} which forbids any pointer arithmetic, instead
 suggesting that users rely on the \texttt{gsl::span}
 type{\cprotect\footnote{\texttt{gsl::span} is a lightweight reference
@@ -399,14 +399,14 @@ type that observes a contiguous sequence (or subsequence) of objects
 of homogeneous type. \texttt{gsl::span} can be used in interfaces as
 an alternative to both pointer/size or iterator-pair arguments and in
 implementations as an alternative to (raw) pointer arithmetic. Since
-C++20, the standard \texttt{std::span} template can be used instead.}}:
+  C++20, the standard \texttt{std::span} template can be used instead.}}:
 
 \begin{lstlisting}[language=C++]
 void hereticalFunction()
 {
-int array[] = {0, 1, 2, 3, 4, 5};
+    int array[] = {0, 1, 2, 3, 4, 5};
 
-printElements(array, array + 6);  // elicits warning C26481
+    printElements(array, array + 6);  // elicits warning C26481
 }
 \end{lstlisting}
 
@@ -417,12 +417,12 @@ undesirable can be decorated with the
 \begin{lstlisting}[language=C++]
 void hereticalFunction()
 {
-int array[] = {0, 1, 2, 3, 4, 5};
+    int array[] = {0, 1, 2, 3, 4, 5};
 
-[[gsl::suppress(bounds.1)]]           // Suppress GSL C26481.
-{
-printElements(array, array + 6);  // Silence!
-}
+    [[gsl::suppress(bounds.1)]]           // Suppress GSL C26481.
+    {
+        printElements(array, array + 6);  // Silence!
+    }
 }
 \end{lstlisting}
 
@@ -455,8 +455,8 @@ translation unit but passes in two unrelated pointers:
 
 void client()
 {
-double a[10], b[10];
-f(a, b);  // Oops, this is UB.
+    double a[10], b[10];
+    f(a, b);  // Oops, this is UB.
 }
 \end{lstlisting}
 
@@ -489,13 +489,13 @@ limited:
 \begin{lstlisting}[language=C++,label=attribute-gcc-example]
 [[]] void [[]] f [[]] ( [[]] int [[]] n [[]] )
 [[]] {
-[[]] n /**/ *= /**/ sizeof /**/ ( [[]] const [[]] int [[]] & [[]] ) /**/;
-[[]] for ([[]] int [[]] i [[]] = /**/ 0 /**/ ;
-/**/ i  /**/ < /**/ n /**/ ;
-/**/ ++ /**/ i /**/ )
-[[]] {
-[[]] ;             // (ù{\codeincomments{[[]]}}ù) denotes viable attribute location (on GCC)
-/**/ }
+    [[]] n /**/ *= /**/ sizeof /**/ ( [[]] const [[]] int [[]] & [[]] ) /**/;
+    [[]] for ([[]] int [[]] i [[]] = /**/ 0 /**/ ;
+                       /**/ i  /**/ < /**/ n /**/ ;
+               /**/ ++ /**/ i /**/ )
+    [[]] {
+        [[]] ;             // (ù{\codeincomments{[[]]}}ù) denotes viable attribute location (on GCC)
+    /**/ }
 /**/ }                     // (ù{\codeincomments{/**/}}ù) denotes no attribute allowed (on GCC)
 \end{lstlisting}
 
@@ -513,7 +513,7 @@ attributes is entirely implementation defined, with unrecognized
 attributes typically resulting in compiler warnings. Such warnings can typically be disabled (e.g., on GCC using
 \texttt{-Wno-attributes}), but, if they are, misspellings in even standard
 attributes will go unreported.{\cprotect\footnote{Ideally, every relevant platform would offer a way to silently ignore a specific
-attribute on a case-by-case basis.}}
+  attribute on a case-by-case basis.}}
 
 \subsubsection[Some attributes, if misused, can affect program correctness]{Some attributes, if misused, can affect program correctness}\label{some-attributes,-if-misused,-can-affect-program-correctness}
 
@@ -529,11 +529,11 @@ call:
 \begin{lstlisting}[language=C++]
 double myRandom()
 {
-static std::random_device randomDevice;
-static std::mt19937 generator(randomDevice());
+    static std::random_device randomDevice;
+    static std::mt19937 generator(randomDevice());
 
-std::uniform_real_distribution<double> distribution(0, 1);
-return distribution(generator);
+    std::uniform_real_distribution<double> distribution(0, 1);
+    return distribution(generator);
 }
 \end{lstlisting}
 
@@ -561,12 +561,12 @@ issues with the third line in two places:
 
 \begin{lstlisting}[language=C++]
 <source>:3:39: error: expected variable name or 'this' in lambda capture list
-[[]] n /**/ *= /**/ sizeof /**/ ([[]] const [[]] int [[]] & [[]] ) /**/;
-^
+    [[]] n /**/ *= /**/ sizeof /**/ ([[]] const [[]] int [[]] & [[]] ) /**/;
+                                      ^
 
 <source>:3:48: error: an attribute list cannot appear here
-[[]] n /**/ *= /**/ sizeof /**/ (/**/ const [[]] int [[]] & [[]] ) /**/;
-^~~~
+    [[]] n /**/ *= /**/ sizeof /**/ (/**/ const [[]] int [[]] & [[]] ) /**/;
+                                                ^~~~
 \end{lstlisting}
 
 \noindent Hence, just because an arbitrary syntactic location is valid for an

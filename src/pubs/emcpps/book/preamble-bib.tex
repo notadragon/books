@@ -1,0 +1,16 @@
+%%%%%%%%%% getting picky about hyphenation
+\hyphenation{name-space}
+%%%%%%%%%%%%%
+
+%%%%%%%%%%%%%%%%% to set citations and biblabels bold 
+\makeatletter
+\renewcommand\@cite[2]{{\bfseries #1}%
+  \ifthenelse{\boolean{@tempswa}}%
+     {, #2}%
+     {}}
+\renewcommand\@biblabel[1]{\MakeLowercase{\bfseries #1}}  % sets bib label citations are bold
+\makeatother
+%%%%%%%%%%%%%%%%
+
+
+

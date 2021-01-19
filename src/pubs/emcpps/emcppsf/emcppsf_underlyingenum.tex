@@ -18,7 +18,7 @@ underlying integral types. With \texttt{char}, for example, the
 \texttt{signed}~\texttt{char} or \texttt{unsigned}~\texttt{char} (both
 of which are also distinct C++ types). The same is true in C++11 for
 \texttt{char16\_t} and \texttt{char32\_t} and in C++20 for
-\texttt{char8\_t}.}} By default, the \textbf{underlying type} of an
+  \texttt{char8\_t}.}} By default, the \textbf{underlying type} of an
 \texttt{enum}{\cprotect\footnote{Note that the default underlying type
 of an \texttt{enum}~\texttt{class} is ubiquitously \texttt{int}, and
 it is not implementation defined; see ``\titleref{enumclass}" on page~\pageref{enumclass}.}} is chosen by the
@@ -54,7 +54,7 @@ C++11, the compiler could be forced to choose at least a 32-bit or
 sufficiently large negative value --- e.g.,
 \texttt{-1}~\texttt{<<}~\texttt{31} for a 32-bit and
 \texttt{-1}~\texttt{<<}~\texttt{63} for a 64-bit \emph{signed} integer
-(assuming such is available on the target platform).}}
+  (assuming such is available on the target platform).}}
 
 \subsubsection[Specifying underlying type explicitly]{Specifying underlying type explicitly}\label{specifying-underlying-type-explicitly}
 
@@ -66,12 +66,12 @@ following the enumeration's (optional) name and preceded by a colon:
 \begin{lstlisting}[language=C++]
 enum Port : unsigned char
 {
-// Each enumerator of (ù{\codeincomments{Port}}ù) is represented as an (ù{\codeincomments{unsigned char}}ù) type.
+    // Each enumerator of (ù{\codeincomments{Port}}ù) is represented as an (ù{\codeincomments{unsigned char}}ù) type.
 
-e_INPUT        =  37,  // OK, would have fit in a (ù{\codeincomments{signed char}}ù) too
-e_OUTPUT       = 142,  // OK, would not have fit in a (ù{\codeincomments{signed char}}ù)
-e_CONTROL      = 255,  // OK, barely fits in an 8-bit unsigned integer
-e_BACK_CHANNEL = 256,  // error, doesn't fit in an 8-bit unsigned integer
+    e_INPUT        =  37,  // OK, would have fit in a (ù{\codeincomments{signed char}}ù) too
+    e_OUTPUT       = 142,  // OK, would not have fit in a (ù{\codeincomments{signed char}}ù)
+    e_CONTROL      = 255,  // OK, barely fits in an 8-bit unsigned integer
+    e_BACK_CHANNEL = 256,  // error, doesn't fit in an 8-bit unsigned integer
 };
 \end{lstlisting}
 
@@ -99,18 +99,18 @@ day as an 8-bit signed integer:
 
 class Date
 {
-std::int16_t d_year;
-Month d_month;
-std::int8_t day;
+    std::int16_t d_year;
+    Month d_month;
+    std::int8_t day;
 
 public:
-Date(int year, Month month, int day);
+    Date(int year, Month month, int day);
 
-// ...
+    // ...
 
-int year() const    { return d_year; }
-Month month() const { return d_month; }
-int day() const     { return d_day; }
+    int year() const    { return d_year; }
+    Month month() const { return d_month; }
+    int day() const     { return d_day; }
 }
 \end{lstlisting}
 
@@ -131,10 +131,10 @@ type}, thus contraindicating use of the more strongly typed
 \begin{lstlisting}[language=C++]
 enum Month  // defaulted underlying type (BAD IDEA)
 {
-e_JAN = 1, e_FEB, e_MAR,    // winter
-e_APR    , e_MAY, e_JUN,    // spring
-e_JUL    , e_AUG, e_SEP,    // summer
-e_OCT    , e_NOV, e_DEC     // autumn
+    e_JAN = 1, e_FEB, e_MAR,    // winter
+    e_APR    , e_MAY, e_JUN,    // spring
+    e_JUL    , e_AUG, e_SEP,    // summer
+    e_OCT    , e_NOV, e_DEC     // autumn
 };
 
 static_assert(sizeof(Month) == 4 && alignof(Month) == 4, "");
@@ -163,10 +163,10 @@ every platform:
 \begin{lstlisting}[language=C++]
 enum Month : std::int8_t  // user-provided underlying type (GOOD IDEA)
 {
-e_JAN = 1, e_FEB, e_MAR,    // winter
-e_APR    , e_MAY, e_JUN,    // spring
-e_JUL    , e_AUG, e_SEP,    // summer
-e_OCT    , e_NOV, e_DEC     // autumn
+    e_JAN = 1, e_FEB, e_MAR,    // winter
+    e_APR    , e_MAY, e_JUN,    // spring
+    e_JUL    , e_AUG, e_SEP,    // summer
+    e_OCT    , e_NOV, e_DEC     // autumn
 };
 
 static_assert(sizeof(Month) == 1 && alignof(Month) == 1, "");
@@ -229,8 +229,8 @@ enum E2 : short { f, g, h, i ,j };
 
 void g()
 {
-f(E1::a);  // always calls (ù{\codeincomments{f(int)}}ù) on all platforms
-f(E2::f);  // always calls (ù{\codeincomments{f(short)}}ù) on all platforms
+   f(E1::a);  // always calls (ù{\codeincomments{f(int)}}ù) on all platforms
+   f(E2::f);  // always calls (ù{\codeincomments{f(short)}}ù) on all platforms
 }
 \end{lstlisting}
 
@@ -248,19 +248,19 @@ though, and the standard does provide a trait to do that:
 \texttt{std::underlying\_type} in C++11 and the corresponding
 \texttt{std::underlying\_type\_t} alias in C++14. This trait can safely
 be used in a cast without risking loss of value{\cprotect\footnote{See
-``\titleref{auto}" on page~\pageref{auto}.}}:
+  ``\titleref{auto}" on page~\pageref{auto}.}}:
 
 \begin{lstlisting}[language=C++]
 template <typename E>
 std::underlying_type<E>::type toUnderlying(E value)
 {
-return static_cast<std::underlying_type<E>::type>(value);
+    return static_cast<std::underlying_type<E>::type>(value);
 }
 
 void h()
 {
-auto e1 = toUnderlying(E1::a); // might be anywhere from (ù{\codeincomments{signed char}}ù) to (ù{\codeincomments{int}}ù)
-auto e2 = toUnderlying(E2::f); // always deduced as (ù{\codeincomments{short}}ù)
+    auto e1 = toUnderlying(E1::a); // might be anywhere from (ù{\codeincomments{signed char}}ù) to (ù{\codeincomments{int}}ù)
+    auto e2 = toUnderlying(E2::f); // always deduced as (ù{\codeincomments{short}}ù)
 }
 \end{lstlisting}
 
@@ -277,7 +277,7 @@ enum { k_GRAMS_PER_OZ = 28 };  // not the best idea
 
 double gramsFromOunces(double ounces)
 {
-return ounces * k_GRAMS_PER_OZ;  // deprecated in C++20; might warn
+    return ounces * k_GRAMS_PER_OZ;  // deprecated in C++20; might warn
 }
 \end{lstlisting}
 
@@ -285,7 +285,7 @@ return ounces * k_GRAMS_PER_OZ;  // deprecated in C++20; might warn
 same as direct integral promotion. In this context, we might want to
 change our \texttt{enum} to a
 \texttt{constexpr}~\texttt{int}{\cprotect\footnote{See
-``\titleref{constexprvar}" on page~\pageref{constexprvar}.}} in the long
+  ``\titleref{constexprvar}" on page~\pageref{constexprvar}.}} in the long
 term:
 
 \begin{lstlisting}[language=C++]

@@ -26,13 +26,13 @@ struct { } obj;           // object (ù{\codeincomments{obj}}ù) of unnamed C++ 
 
 void g()
 {
-struct S { };         // local type
+    struct S { };         // local type
 
-f(S());               // OK in C++11; was error in C++03
-f(obj);               // OK in C++11; was error in C++03
+    f(S());               // OK in C++11; was error in C++03
+    f(obj);               // OK in C++11; was error in C++03
 
-C<S>             cs;  // OK in C++11; was error in C++03
-C<decltype(obj)> co;  // OK in C++11; was error in C++03
+    C<S>             cs;  // OK in C++11; was error in C++03
+    C<decltype(obj)> co;  // OK in C++11; was error in C++03
 }
 \end{lstlisting}
 
@@ -50,11 +50,11 @@ struct Person { std::string d_name; };
 
 void sortByName(std::vector<Person>& people)
 {
-std::sort(people.begin(), people.end(),
-[](const Person& lhs, const Person& rhs)
-{
-return lhs.d_name < rhs.d_name;
-});
+    std::sort(people.begin(), people.end(),
+              [](const Person& lhs, const Person& rhs)
+              {
+                  return lhs.d_name < rhs.d_name;
+              });
 }
 \end{lstlisting}
 
@@ -81,16 +81,16 @@ whether a vertex is included in the shortest path or not):
 
 inline int dijkstra(std::vector<Vertex>* path, const Graph& graph)
 {
-struct VertexMetadata         // implementation-specific helper class
-{
-int  d_distanceFromSource;
-bool d_inShortestPath;
-};
+    struct VertexMetadata         // implementation-specific helper class
+    {
+        int  d_distanceFromSource;
+        bool d_inShortestPath;
+    };
 
-std::vector<VertexMetadata> vertexMetadata(graph.numNodes());
-// standard vector of local (ù{\codeincomments{VertexMetadata}}ù) objects -- one per vertex
+    std::vector<VertexMetadata> vertexMetadata(graph.numNodes());
+        // standard vector of local (ù{\codeincomments{VertexMetadata}}ù) objects -- one per vertex
 
-// ... (body of algorithm)
+    // ... (body of algorithm)
 }
 \end{lstlisting}
 
@@ -101,7 +101,7 @@ anyone including the \texttt{dijkstra.h} header file. As Hyrum's
 law{\cprotect\footnote{``With a sufficient number
 of users of an API, it does not matter what you promise in the
 contract: all observable behaviors of your system will be depended on
-by somebody'': see \textbf{wight}.}} suggests, if the
+  by somebody'': see \textbf{wight}.}} suggests, if the
 imple\-men\-tation-specific \texttt{VertexMetadata} detail is defined
 outside the function body, it is to be expected that some user somewhere
 will depend on it in its current form, making it problematic, if not
@@ -112,8 +112,8 @@ when the helper types appear at namespace scope within the module.} Conversely, 
 the type within the function body avoids unintended use by clients,
 while improving human cognition by colocating the definition of the
 type with its sole purpose.{\cprotect\footnote{For a detailed
-discussion of malleable  versus stable software, see \textbf{{lakos20}},
-section 0.5, pp.~29-43.}}
+  discussion of malleable  versus stable software, see \textbf{{lakos20}},
+  section 0.5, pp.~29-43.}}
 
 \subsubsection[Instantiating templates with local function objects as type arguments]{Instantiating templates with local function objects as type arguments}\label{instantiating-templates-with-local-function-objects-as-type-arguments}
 
@@ -123,8 +123,8 @@ type, \texttt{City}:
 \begin{lstlisting}[language=C++]
 struct City
 {
-int         d_uniqueId;
-std::string d_name;
+    int         d_uniqueId;
+    std::string d_name;
 };
 \end{lstlisting}
 
@@ -134,19 +134,19 @@ an\linebreak[4] \texttt{std::vector<City>}, ordered by name:
 \begin{lstlisting}[language=C++]
 void printUniqueCitiesOrderedByName(const std::vector<City>& cities)
 {
-struct OrderByName
-{
-bool operator()(const City& lhs, const City& rhs) const
-{
-return lhs.d_name < rhs.d_name;
-// increasing order (subject to change)
-}
-};
+    struct OrderByName
+    {
+        bool operator()(const City& lhs, const City& rhs) const
+        {
+            return lhs.d_name < rhs.d_name;
+                // increasing order (subject to change)
+        }
+    };
 
-const std::set<City, OrderByName> tmp(cities.begin(), cities.end());
+    const std::set<City, OrderByName> tmp(cities.begin(), cities.end());
 
-std::copy(tmp.begin(), tmp.end(),
-std::ostream_iterator<City>(std::cout, '\n'));
+    std::copy(tmp.begin(), tmp.end(),
+              std::ostream_iterator<City>(std::cout, '\n'));
 }
 \end{lstlisting}
 
@@ -161,7 +161,7 @@ encapsulated (and therefore \emph{malleable}) status.
 Suppose we are representing a 3D environment using a \emph{scene
 graph}{\cprotect\footnote{A \emph{scene graph} data structure, commonly
 used in computer games and 3D-modeling software, represents the
-logical and spatial hierarchy of objects in a scene.}} and managing
+  logical and spatial hierarchy of objects in a scene.}} and managing
 the graph's nodes via an \texttt{std::vector} of \texttt{SceneNode}
 objects. Our \texttt{SceneNode} class supports a variety of
 \texttt{const} member functions used to query its status (e.g.,
@@ -177,7 +177,7 @@ using the (C++11) standard algorithm
 \begin{lstlisting}[language=C++]
 template <typename InputIterator, typename UnaryPredicate>
 bool any_of(InputIterator first, InputIterator last, UnaryPredicate pred);
-// Return (ù{\codeincomments{true}}ù) if any of the elements in the range satisfies (ù{\codeincomments{pred}}ù).
+    // Return (ù{\codeincomments{true}}ù) if any of the elements in the range satisfies (ù{\codeincomments{pred}}ù).
 \end{lstlisting}
 
 \noindent Prior to C++11, however, use of a function template, such as
@@ -189,17 +189,17 @@ namespace {
 
 struct IsNodeDirtyOrNew
 {
-bool operator()(const SceneNode& node) const
-{
-return node.isDirty() || node.isNew();
-}
+    bool operator()(const SceneNode& node) const
+    {
+        return node.isDirty() || node.isNew();
+    }
 };
 
 }  // close unnamed namespace
 
 bool mustRecalculateGeometry(const std::vector<SceneNode>& nodes)
 {
-return std::any_of(nodes.begin(), nodes.end(), IsNodeDirtyOrNew());
+    return std::any_of(nodes.begin(), nodes.end(), IsNodeDirtyOrNew());
 }
 \end{lstlisting}
 
@@ -210,13 +210,13 @@ remove much of the boilerplate, including the enclosing \texttt{struct}:
 \begin{lstlisting}[language=C++]
 bool mustRecalculateGeometry(const std::vector<SceneNode>& nodes)
 {
-return std::any_of(nodes.begin(),             // start of range
-nodes.end(),               // end of range
-[](const SceneNode& node)  // lambda expression
-{
-return node.isDirty() || node.isNew();
-}
-);
+    return std::any_of(nodes.begin(),             // start of range
+                       nodes.end(),               // end of range
+                       [](const SceneNode& node)  // lambda expression
+                       {
+                           return node.isDirty() || node.isNew();
+                       }
+                      );
 }
 \end{lstlisting}
 

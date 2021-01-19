@@ -22,8 +22,8 @@ void g(int) = delete;
 
 void f()
 {
-g(3.14);  // OK, (ù{\codeincomments{f(double)}}ù) is invoked.
-g(0);     // Error, (ù{\codeincomments{f(int)}}ù) is deleted.
+    g(3.14);  // OK, (ù{\codeincomments{f(double)}}ù) is invoked.
+    g(0);     // Error, (ù{\codeincomments{f(int)}}ù) is deleted.
 }
 \end{lstlisting}
 
@@ -60,16 +60,16 @@ link-time error when accessed:
 class FileHandle
 {
 private:
-// ...
+    // ...
 
-FileHandle(const FileHandle&);             // not implemented
-FileHandle& operator=(const FileHandle&);  // not implemented
+    FileHandle(const FileHandle&);             // not implemented
+    FileHandle& operator=(const FileHandle&);  // not implemented
 
 public:
-explicit FileHandle(FILE* filePtr);
-~FileHandle();
+    explicit FileHandle(FILE* filePtr);
+    ~FileHandle();
 
-// ...
+    // ...
 };
 \end{lstlisting}
 
@@ -98,17 +98,17 @@ of the class, and (3) enable clearer compiler diagnostics:
 class FileHandle
 {
 private:
-// ...
-// Declarations of copy constructor and copy assignment are now public.
+    // ...
+    // Declarations of copy constructor and copy assignment are now public.
 
 public:
-explicit FileHandle(FILE* filePtr);
-~FileHandle();
+    explicit FileHandle(FILE* filePtr);
+    ~FileHandle();
 
-FileHandle(const FileHandle&) = delete;             // make unavailable
-FileHandle& operator=(const FileHandle&) = delete;  // make unavailable
+    FileHandle(const FileHandle&) = delete;             // make unavailable
+    FileHandle& operator=(const FileHandle&) = delete;  // make unavailable
 
-// ...
+    // ...
 };
 \end{lstlisting}
 
@@ -139,9 +139,9 @@ specified memory address, \lstinline!buf!:
 
 void f()
 {
-char buf[] = "Hello World!";
-memset(buf, 5, '*');  // undefined behavior: buffer overflow
-puts(buf);            // expected output: "***** World!"
+    char buf[] = "Hello World!";
+    memset(buf, 5, '*');  // undefined behavior: buffer overflow
+    puts(buf);            // expected output: "***** World!"
 }
 \end{lstlisting}
 
@@ -181,22 +181,22 @@ always of the appropriate type:
 class ByteStream
 {
 public:
-void send(unsigned char byte) { /* ... */ }
-void send(int) = delete;
+    void send(unsigned char byte) { /* ... */ }
+    void send(int) = delete;
 
-// ...
+    // ...
 };
 
 void f()
 {
-ByteStream stream;
-stream.send(0);   // Error, (ù{\codeincomments{send(int)}}ù) is deleted.     (1)
-stream.send('a'); // Error, (ù{\codeincomments{send(int)}}ù) is deleted.     (2)
-stream.send(0L);  // Error, ambiguous                 (3)
-stream.send(0U);  // Error, ambiguous                 (4)
-stream.send(0.0); // Error, ambiguous                 (5)
-stream.send(
-static_cast<unsigned char>(100));  // OK          (6)
+    ByteStream stream;
+    stream.send(0);   // Error, (ù{\codeincomments{send(int)}}ù) is deleted.     (1)
+    stream.send('a'); // Error, (ù{\codeincomments{send(int)}}ù) is deleted.     (2)
+    stream.send(0L);  // Error, ambiguous                 (3)
+    stream.send(0U);  // Error, ambiguous                 (4)
+    stream.send(0.0); // Error, ambiguous                 (5)
+    stream.send(
+        static_cast<unsigned char>(100));  // OK          (6)
 }
 \end{lstlisting}
 
@@ -208,15 +208,15 @@ both via a \romeogloss{standard conversion} and hence will be ambiguous. Note th
 implicitly converting from \lstinline!unsigned!~\lstinline!char! to either a
 \lstinline!long! or \lstinline!unsigned! integer involves a \romeogloss{standard
 conversion} (not just an \romeogloss{integral promotion}), the same as
-converting to a \lstinline!double!.
+  converting to a \lstinline!double!.
 An explicit cast to \lstinline!unsigned!~\lstinline!char! (6) can always be
 pressed into service if needed.
 
 \subsubsection[Hiding a structural (nonpolymorphic) base class's member function]{Hiding a structural (nonpolymorphic) base class’s member function}\label{hiding-a-structural-(nonpolymorphic)-base-class's-member-function}
 
 It is commonly advised to avoid deriving publicly from concrete classes because by doing so, we do not hide the underlying capabilities, which can easily be accessed (potentially breaking any invariants the derived class may want to keep) via assignment to a pointer or reference to a base class, with no casting required.  Worse, inadvertently passing such a class to a function taking the base class by value will result in slicing, which can be especially problematic when the derived class holds data. A more robust approach would be to use layering or at least private inheritance.\footnote{For more on improving compositional designs at scale, see
-\cite{lakos20}, sections 3.5.10.5 and 3.7.3, pp.~687--703 and
-726--727, respectively.} Best practices notwithstanding,\footnote{See ``Inheritance and Object-Oriented Programming," Item 38, \cite{meyers92}, pp. 132--135.} it can be cost-effective in the short
+  \cite{lakos20}, sections 3.5.10.5 and 3.7.3, pp.~687--703 and
+  726--727, respectively.} Best practices notwithstanding,\footnote{See ``Inheritance and Object-Oriented Programming," Item 38, \cite{meyers92}, pp. 132--135.} it can be cost-effective in the short
 term to provide an elided ``view'' on a concrete class for trusted
 clients. Imagine a class \lstinline!AudioStream! designed to play sounds
 and music that --- in addition to providing basic ``play'' and
@@ -225,11 +225,11 @@ and music that --- in addition to providing basic ``play'' and
 \begin{lstlisting}[language=C++]
 struct AudioStream
 {
-void play();
-void rewind();
-// ...
-// ... (large, robust interface)
-// ...
+    void play();
+    void rewind();
+    // ...
+    // ... (large, robust interface)
+    // ...
 };
 \end{lstlisting}
 
@@ -245,14 +245,14 @@ unwanted \lstinline!rewind! member function:
 \begin{lstlisting}[language=C++]
 struct ForwardAudioStream : AudioStream
 {
-void rewind() = delete; // Make just this one function unavailable.
+    void rewind() = delete; // Make just this one function unavailable.
 };
 
 void f()
 {
-ForwardAudioStream stream = FMRadio::getStream();
-stream.play();   // fine
-stream.rewind(); // Error, (ù{\codeincomments{rewind()}}ù) is deleted.
+    ForwardAudioStream stream = FMRadio::getStream();
+    stream.play();   // fine
+    stream.rewind(); // Error, (ù{\codeincomments{rewind()}}ù) is deleted.
 }
 \end{lstlisting}
 

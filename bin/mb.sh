@@ -83,6 +83,8 @@ for pdf in "${PDFS[@]}" ; do
 done
 
 if [ ${#PDFS[@]} -eq 1 ] ; then
-   xdg-open ${PDFS[0]}
+  #xdg-open ${PDFS[0]}
+  ln -sf ${PDFS[0]} ~/public_html/tmp/current.pdf 
+  echo "URL: http://192.168.17.56:4913/~berne/tmp/current.pdf"
 fi
 

@@ -39,18 +39,18 @@ and
 \begin{lstlisting}[language=C++]
 struct Base
 {
-virtual int e() const;     // (ù{\codeincomments{const}}ù) qualifier
-virtual int f() volatile;  // (ù{\codeincomments{volitile}}ù) qualfier
-virtual int g() &;         // *lvalue*-reference qualifier
-virtual int h() &&;        // *rvalue*-reference qualifier
+    virtual int e() const;     // (ù{\codeincomments{const}}ù) qualifier
+    virtual int f() volatile;  // (ù{\codeincomments{volitile}}ù) qualfier
+    virtual int g() &;         // *lvalue*-reference qualifier
+    virtual int h() &&;        // *rvalue*-reference qualifier
 };
 
 struct Derived : Base
 {
-auto e() const    -> int override;  //  (ù{\codeincomments{override}}ù) contextual keyword
-auto f() volatile -> int final;     //  (ù{\codeincomments{final}}ù)         "        "
-auto g() &        -> int override;  //  (ù{\codeincomments{override}}ù)      "        "
-auto h() &&       -> int final;     //  (ù{\codeincomments{final}}ù)         "        "
+    auto e() const    -> int override;  //  (ù{\codeincomments{override}}ù) contextual keyword
+    auto f() volatile -> int final;     //  (ù{\codeincomments{final}}ù)         "        "
+    auto g() &        -> int override;  //  (ù{\codeincomments{override}}ù)      "        "
+    auto h() &&       -> int final;     //  (ù{\codeincomments{final}}ù)         "        "
 };
 \end{lstlisting}
 
@@ -70,9 +70,9 @@ by default:
 \begin{lstlisting}[language=C++]
 struct S
 {
-typedef int T;
-auto h1() -> T;  // trailing syntax for member function
-T h2();          // classical syntax for member function
+    typedef int T;
+    auto h1() -> T;  // trailing syntax for member function
+    T h2();          // classical syntax for member function
 };
 
 auto S::h1() -> T { /*...*/ }  // equivalent to (ù{\codeincomments{S::T S::h1() \{ /\*...\*/ \}}}ù)
@@ -89,9 +89,9 @@ which it is declared:
 \begin{lstlisting}[language=C++]
 namespace N
 {
-typedef int T;
-auto h3() -> T;  // trailing syntax for free function
-T h4();          // classical syntax for free function
+    typedef int T;
+    auto h3() -> T;  // trailing syntax for free function
+    T h4();          // classical syntax for free function
 };
 
 auto N::h3() -> T { /*...*/ }  // equivalent to (ù{\codeincomments{N::T N::h3() \{ /\*...\*/ \}}}ù)
@@ -107,7 +107,7 @@ argument a \lstinline!long!~\lstinline!long! and returns a pointer to a
 function that takes an \lstinline!int! and returns a
 \lstinline!double!{\cprotect\footnote{Co-author John Lakos first used the shown verbose declaration notation
 while teaching Advanced Design and Programming using C++ at Columbia
-University (1991-1997).}}:
+  University (1991-1997).}}:
 
 \begin{lstlisting}[language=C++]
 // [function(long long) returning]
@@ -142,11 +142,11 @@ equivalent representation in the classic one:
 \begin{lstlisting}[language=C++]
 template <typename A, typename B>
 auto foo(A a, B b) -> decltype(a.foo(b));
-// trailing return-type syntax
+    // trailing return-type syntax
 
 template <typename A, typename B>
 decltype(std::declval<A&>().foo(std::declval<B&>())) foo(A a, B b);
-// classic return-type syntax (using C++11's (ù{\codeincomments{std::declval}}ù))
+    // classic return-type syntax (using C++11's (ù{\codeincomments{std::declval}}ù))
 \end{lstlisting}
 
 \noindent In the example above, we were essentially forced to use the (C++11)
@@ -166,9 +166,9 @@ between two values of (possibly) different types:
 \begin{lstlisting}[language=C++]
 template <typename A, typename B, typename F>
 auto linearInterpolation(const A& a, const B& b, const F& factor)
--> decltype(a + factor * (b - a))
+    -> decltype(a + factor * (b - a))
 {
-return a + factor * (b - a);
+    return a + factor * (b - a);
 }
 \end{lstlisting}
 
@@ -204,8 +204,8 @@ tree node that exposes a type alias:
 \begin{lstlisting}[language=C++]
 struct NumericalASTNode
 {
-using ElementType = double;
-auto getElement() -> ElementType;
+    using ElementType = double;
+    auto getElement() -> ElementType;
 };
 \end{lstlisting}
 
@@ -247,15 +247,15 @@ becomes far simpler than the original:
 
 \begin{lstlisting}[language=C++]
 auto getOperation(Operation kind)  // (1) function taking a kind of (ù{\codeincomments{Operation}}ù)
--> double (Calculator::*)(double);
-// (2) returning a pointer to a (ù{\codeincomments{Calculator}}ù) member function taking a
-//     (ù{\codeincomments{double}}ù) and returning a (ù{\codeincomments{double}}ù)
+    -> double (Calculator::*)(double);
+        // (2) returning a pointer to a (ù{\codeincomments{Calculator}}ù) member function taking a
+        //     (ù{\codeincomments{double}}ù) and returning a (ù{\codeincomments{double}}ù)
 \end{lstlisting}
 
 \noindent Using this divide-and-conquer approach, writing such functions{\cprotect\footnote{Declaring a \romeogloss{higher-order function} that
 takes a function pointer as an argument might be even easier to read
 if a type alias is used (e.g., via \lstinline!typedef! or, as of C++11,
-\lstinline!using!).}} becomes fairly straightforward.
+  \lstinline!using!).}} becomes fairly straightforward.
 
 \subsection[Potential Pitfalls]{Potential Pitfalls}\label{potential-pitfalls}
 

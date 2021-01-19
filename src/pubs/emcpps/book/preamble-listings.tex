@@ -1,0 +1,84 @@
+\usepackage{listings}  % for setting attractive computer code
+\makeatletter
+\@addtoreset{lstlisting}{section}  % to renumber listings per section
+\makeatother
+
+
+\definecolor{maroon}{cmyk}{.26,1,.63,.17}
+\definecolor{skyblue}{cmyk}{.62,.07,0,0}
+\definecolor{forestgreen}{cmyk}{.9,0,.9,0}
+\definecolor{mustard}{cmyk}{.22,.14,1,0}
+\definecolor{purple}{cmyk}{.83,.81,0,0}
+\definecolor{codegray}{cmyk}{0,0,0,.70}
+
+%%%%% CHANGED FOR ROMEO
+% changed font to Cousine, changed to 2ex indent
+
+%%% PRINT BOOK SETTINGS
+%\lstset{language=C++,basicstyle=\ttfamily\small,framerule=0.5pt,
+%emph=[1]{const},
+%  emphstyle=[1]{\color{forestgreen}\ttfamily},
+%  moreemph=[2]{int,void,char},
+%  emphstyle=[2]{\color{forestgreen}\ttfamily},
+%    moreemph=[3]{decltype},
+%      emphstyle=[3]{\color{forestgreen}\ttfamily},
+%    keywordstyle={\color{forestgreen}\ttfamily\bfseries},
+%  stringstyle={\color{forestgreen}},
+%commentstyle={\color{codegray}\itshape},
+%numberstyle=\color{forestgreen},
+%xleftmargin=2ex,
+%    escapeinside={(ù}{ù)},
+%    showstringspaces=false, 
+%} 
+% setting the code in small sans serif font and
+% setting the margin for the code.  Nov 2015: setting the rules to be 0.5pt
+%%%%%%%%%%%%%
+%\newcommand{\codeincomments}{\color{codegray}\ttfamily}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+
+%%% EBOOK SETTINGS
+\lstset{language=C++,basicstyle=\ttfamily\small,framerule=0.5pt,
+emph=[1]{const},
+  emphstyle=[1]{\color{mustard}\ttfamily},
+  moreemph=[2]{int,void,char},
+  emphstyle=[2]{\color{maroon}\ttfamily},
+    moreemph=[3]{decltype},
+      emphstyle=[3]{\color{forestgreen}\ttfamily},
+    keywordstyle={\color{forestgreen}\ttfamily\bfseries},
+  stringstyle={\color{purple}},
+commentstyle={\color{skyblue}\itshape},
+numberstyle=\color{purple},
+xleftmargin=2ex,
+    escapeinside={(ù}{ù)},
+    showstringspaces=false, 
+} 
+
+\lstdefinestyle {plain}{basicstyle=\ttfamily\small,framerule=0.5pt,xleftmargin=2ex,
+emph=[1]{const},
+  emphstyle=[1]{\ttfamily},
+  moreemph=[2]{int,void,char},
+  emphstyle=[2]{\ttfamily},
+    moreemph=[3]{decltype},
+      emphstyle=[3]{\ttfamily},
+    keywordstyle={\ttfamily},
+  stringstyle={},
+commentstyle={\ttfamily},
+numberstyle={},
+    escapeinside={(ù}{ù)},
+    showstringspaces=false, 
+}
+
+% setting the code in small sans serif font and
+%% setting the margin for the code.  Nov 2015: setting the rules to be 0.5pt
+%%%%%%%%%%%%%%
+\newcommand{\codeincomments}{\color{skyblue}\ttfamily}
+
+\lstdefinestyle{footcode}{language=C++,
+basicstyle=\ttfamily\footnotesize,framerule=0.5pt,
+keywordstyle={\ttfamily\bfseries\footnotesize},
+commentstyle={\color{grey}\ttfamily},
+xleftmargin=2ex,
+escapeinside={(ù}{ù)},
+showstringspaces=false, 
+}

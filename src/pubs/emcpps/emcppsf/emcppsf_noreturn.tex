@@ -21,7 +21,7 @@ such a function never returns control flow to the caller:
 \begin{lstlisting}[language=C++]
 [[noreturn]] void f()
 {
-throw 1;
+    throw 1;
 }
 \end{lstlisting}
 
@@ -53,8 +53,8 @@ handler will never return because it unconditionally invokes a \linebreak[4]%%%%
 \begin{lstlisting}[language=C++]
 [[noreturn]] void abortingAssertionHandler(const char* filename, int line)
 {
-LOG_ERROR << "Assertion fired at " << filename << ':' << line;
-std::abort();
+    LOG_ERROR << "Assertion fired at " << filename << ':' << line;
+    std::abort();
 }
 \end{lstlisting}
 
@@ -76,11 +76,11 @@ function would allow it to return normally:
 \begin{lstlisting}[language=C++]
 [[noreturn]] void abortingAssertionHandler(const char* filename, int line)
 {
-if (filename)
-{
-LOG_ERROR << "Assertion fired at " << filename << ':' << line;
-std::abort();
-}
+    if (filename)
+    {
+        LOG_ERROR << "Assertion fired at " << filename << ':' << line;
+        std::abort();
+    }
 }  // compile-time warning made possible
 \end{lstlisting}
 
@@ -92,10 +92,10 @@ present after\linebreak[4] \lstinline!abortingAssertionHandler! is invoked:
 \begin{lstlisting}[language=C++]
 int main()
 {
-// ...
-abortingAssertionHandler("main.cpp", __LINE__);
-std::cout << "We got here.\n";  // compile-time warning made possible
-// ...
+    // ...
+    abortingAssertionHandler("main.cpp", __LINE__);
+    std::cout << "We got here.\n";  // compile-time warning made possible
+    // ...
 }
 \end{lstlisting}
 
@@ -137,7 +137,7 @@ otherwise be template code fully exposed to clients:
 
 void throwBadAlloc()  // This redeclaration is also (ù{\codeincomments{[[noreturn]]}}ù).
 {
-throw std::bad_alloc();
+    throw std::bad_alloc();
 }
 \end{lstlisting}
 
@@ -152,9 +152,9 @@ rights to elide code that is rendered unreachable by the call to the
 
 void client()
 {
-// ...
-throwBadAlloc();
-// ... (Everything below this line can be optimized away.)
+    // ...
+    throwBadAlloc();
+    // ... (Everything below this line can be optimized away.)
 }
 \end{lstlisting}
 
@@ -182,8 +182,8 @@ error message before aborting the program:
 \begin{lstlisting}[language=C++]
 [[noreturn]] void printAndExit()
 {
-std::cout << "Fatal error. Exiting the program.\n";
-assert(false);
+    std::cout << "Fatal error. Exiting the program.\n";
+    assert(false);
 }
 \end{lstlisting}
 
@@ -221,7 +221,7 @@ void f() { return; };  // function that always returns
 
 void g()
 {
-fp = f;  // (ù{\codeincomments{[[noreturn]]}}ù) on (ù{\codeincomments{fp}}ù) is silently ignored.
+    fp = f;  // (ù{\codeincomments{[[noreturn]]}}ù) on (ù{\codeincomments{fp}}ù) is silently ignored.
 }
 \end{lstlisting}
 % code line changed from
