@@ -16,7 +16,7 @@ arguments a particular overload set is able to accept. In such cases,
 function on first declaration only to force a compile-time error if
 any attempt is made to invoke it or take its address.
 
-\begin{lstlisting}[language=C++]
+\begin{emcppslisting}
 void g(double) { }
 void g(int) = delete;
 
@@ -25,7 +25,7 @@ void f()
     g(3.14);  // OK, (ù{\codeincomments{f(double)}}ù) is invoked.
     g(0);     // Error, (ù{\codeincomments{f(int)}}ù) is deleted.
 }
-\end{lstlisting}
+\end{emcppslisting}
 
 \noindent Notice that deleted functions participate in \romeogloss{overload resolution}
 and produce a compile-time error when selected as the best candidate.
@@ -56,7 +56,8 @@ recommended workaround was to declare the two methods \lstinline!private!
 and leave them unimplemented, typically resulting in a compile-time or
 link-time error when accessed:
 
-\begin{lstlisting}[language=C++]
+\begin{emcppslisting}
+#include <cstdio>  // for ù{\codeincomments{FILE}}ù
 class FileHandle
 {
 private:
@@ -71,14 +72,14 @@ public:
 
     // ...
 };
-\end{lstlisting}
+\end{emcppslisting}
 
 \noindent Not implementing a special member function that is declared to be private ensures that there will be at least a link-time error in case that function is inadvertently accessed from within the implementation of the class itself. With the \lstinline!=!\,\lstinline!delete! syntax, we are able to (1)
 explicitly express our intention to make these special member
 functions unavailable, (2) do so directly in the \lstinline!public! region
 of the class, and (3) enable clearer compiler diagnostics:
 
-%\begin{lstlisting}[language=C++]
+%begin{emcppslisting}
 %class FileHandle
 %{
 %private:
@@ -93,8 +94,11 @@ of the class, and (3) enable clearer compiler diagnostics:
 %
 %    // ...
 %};
-%\end{lstlisting}
-\begin{lstlisting}[language=C++]
+%\end{emcppslisting}
+\begin{emcppshiddenlisting}[emcppsbatch=e1]
+#include <cstdio>  // for ù{\codeincomments{FILE}}ù
+\end{emcppshiddenlisting}
+\begin{emcppslisting}[emcppsbatch=e1]
 class FileHandle
 {
 private:
@@ -110,7 +114,7 @@ public:
 
     // ...
 };
-\end{lstlisting}
+\end{emcppslisting}
 
 \noindent Using the \lstinline!=!\,\lstinline!delete! syntax on declarations that are private results in error messages concerning privacy, not the use of deleted functions. Care must be exercised to make \emph{both} changes when converting code from the old style to the new syntax.
 
@@ -122,7 +126,7 @@ example, consider the C library function \lstinline!memset!, which may be used
 to write the character \lstinline!*! five times in a row, starting at a
 specified memory address, \lstinline!buf!:
 
-%\begin{lstlisting}[language=C++]
+%begin{emcppslisting}
 %#include <cstring>
 %#include <cstdio>
 %
@@ -132,8 +136,8 @@ specified memory address, \lstinline!buf!:
 %    memset(buf, 5, '*');  // undefined behavior
 %    puts(buf);            // expected output: "***** World!"
 %}
-%\end{lstlisting}
-\begin{lstlisting}[language=C++]
+%\end{emcppslisting}
+\begin{emcppslisting}
 #include <cstdio>  // puts
 #include <cstring> // memset
 
@@ -143,31 +147,31 @@ void f()
     memset(buf, 5, '*');  // undefined behavior: buffer overflow
     puts(buf);            // expected output: "***** World!"
 }
-\end{lstlisting}
+\end{emcppslisting}
 
 
 \noindent Sadly, inadvertently reversing the order of the last two arguments is a commonly
 recurring error, and the C language provides no help. As shown above, \lstinline!memset! writes the nonprinting character \lstinline!5! (e.g., the integer value of ASCII \lstinline!'*'!) 42 times --- way past the end of \lstinline!buf!. In C++, we
 can target such observed misuse using an extra deleted overload:
 
-%\begin{lstlisting}[language=C++]
+%begin{emcppslisting}
 %#include <cstring>  // memset()
 %void* memset(void* str, int ch, size_t n);      // standard library function
 %void* memset(void* str, int n, char) = delete;  // defensive against misuse
-%\end{lstlisting}
-\begin{lstlisting}[language=C++]
+%\end{emcppslisting}
+\begin{emcppslisting}
 #include <cstring>  // memset
 void* memset(void* str, int ch, size_t n);      // standard library function
 void* memset(void* str, int n, char) = delete;  // defense against misuse
-\end{lstlisting}
+\end{emcppslisting}
 
 \noindent Pernicious user errors can now be reported during compilation:
 
-\begin{lstlisting}[language=C++]
+\begin{emcppslisting}
 // ...
 memset(buf, 5, '*');  // Error, (ù{\codeincomments{memset(void\*, int, char)}}ù) is deleted.
 // ...
-\end{lstlisting}
+\end{emcppslisting}
 
 
 \subsubsection[Preventing all implicit conversions]{Preventing all implicit conversions}\label{preventing-all-implicit-conversions}
@@ -177,7 +181,7 @@ with 8-bit unsigned integers only. Providing a deleted overload
 accepting an \lstinline!int! forces a caller to ensure that the argument is
 always of the appropriate type:
 
-\begin{lstlisting}[language=C++]
+\begin{emcppslisting}
 class ByteStream
 {
 public:
@@ -198,7 +202,7 @@ void f()
     stream.send(
         static_cast<unsigned char>(100));  // OK          (6)
 }
-\end{lstlisting}
+\end{emcppslisting}
 
 \noindent Invoking \lstinline!send! with an \lstinline!int! (noted with (1) in the code above) or any integral type
 (other than \lstinline!unsigned!~\lstinline!char!) that promotes to \lstinline!int! (2)
@@ -222,7 +226,13 @@ clients. Imagine a class \lstinline!AudioStream! designed to play sounds
 and music that --- in addition to providing basic ``play'' and
 ``rewind'' operations --- sports a large, robust interface:
 
-\begin{lstlisting}[language=C++]
+\begin{emcppshiddenlisting}[emcppsbatch=e2]
+struct ForwardAudioStream;
+struct FMRadio {
+    static ForwardAudioStream getStream();
+};
+\end{emcppshiddenlisting}
+\begin{emcppslisting}[emcppsbatch=e2]
 struct AudioStream
 {
     void play();
@@ -231,7 +241,7 @@ struct AudioStream
     // ... (large, robust interface)
     // ...
 };
-\end{lstlisting}
+\end{emcppslisting}
 
 
 Now suppose that, on short notice, we need to whip up a similar
@@ -242,7 +252,7 @@ pragmatically decide to prototype the new class simply by exploiting
 public \romeogloss{structural inheritance} and then deleting just the lone
 unwanted \lstinline!rewind! member function:
 
-\begin{lstlisting}[language=C++]
+\begin{emcppslisting}[emcppsbatch=e2]
 struct ForwardAudioStream : AudioStream
 {
     void rewind() = delete; // Make just this one function unavailable.
@@ -254,15 +264,23 @@ void f()
     stream.play();   // fine
     stream.rewind(); // Error, (ù{\codeincomments{rewind()}}ù) is deleted.
 }
-\end{lstlisting}
+\end{emcppslisting}
 
 \noindent If the need for a \lstinline!ForwardAudioStream! type persists, we can always
 consider reimplementing it more carefully later.{\cprotect\footnote{\cite[sections 3.5.10.5 and 3.7.3, pp.~687--703 and 726--727]{lakos20}}} As discussed at the beginning of this section, the protection provided by this example is easily circumvented:
-\begin{lstlisting}[language=C++]
+\begin{emcppshiddenlisting}[emcppsbatch=e2]
+void g()
+{
+    ForwardAudioStream stream = FMRadio::getStream();
+\end{emcppshiddenlisting}
+\begin{emcppslisting}[emcppsbatch=e2]
 AudioStream fullStream = stream;
 fullStream.play();   // OK
 fullStream.rewind(); // compiles OK, but what happens at run time?
-\end{lstlisting}
+\end{emcppslisting}
+\begin{emcppshiddenlisting}[emcppsbatch=e2]
+} // end g()
+\end{emcppshiddenlisting}
 
 \noindent Hiding non\lstinline!virtual! functions is something one undertakes only after attaining a complete understanding of what makes such an unorthodox endeavor \emph{safe}; see, in particular, the appendix of \featureref{\locatione}{final}.
 

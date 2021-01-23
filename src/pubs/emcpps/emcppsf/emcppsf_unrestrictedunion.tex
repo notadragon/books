@@ -1,6 +1,6 @@
 \newpage
 \section[{\tt union} '11]{Unions Having Non-Trivial Members\sectionmark{{\RHCode union}~'11}}\label{unrestricted-unions}\sectionmark{{\RHCode union}~'11}
-
+%%%%% copyedits in and proofed
 
 Any nonreference type is permitted to be a member of a \lstinline!union!.
 
@@ -10,17 +10,20 @@ Prior to C++11, only \romeogloss{trivial types} --- e.g.,
 \romeogloss{fundamental types}, such as \lstinline!int! and \lstinline!double!,
 enumerated or pointer types, or a C-style array or \lstinline!struct!
 (a.k.a. a \romeogloss{POD}) --- were allowed to be members of a
-\lstinline!union!. This limitation prevented any (user-defined) type having
+\lstinline!union!. This limitation prevented any user-defined type having
 a \romeogloss{non-trivial special member function} from being a member of a
 \lstinline!union!:
 
-\begin{lstlisting}[language=C++]
+\begin{emcppshiddenlisting}[emcppsbatch=e1]
+#include <string>
+\end{emcppshiddenlisting}
+\begin{emcppslisting}[emcppsbatch=e1]
 union U0
 {
     int         d_i;  // OK
     std::string d_s;  // compile-time error in C++03 (OK as of C++11)
 };
-\end{lstlisting}
+\end{emcppslisting}
 
 \noindent C++11 relaxes such restrictions on \lstinline!union! members, such as
 \lstinline!d_s! above, allowing any type other than a \romeogloss{reference
@@ -30,10 +33,10 @@ A \lstinline!union! type is permitted to have user-defined special member
 functions but --- by design --- does not initialize any of its members
 automatically. Any member of a \lstinline!union! having a
 \romeogloss{non-trivial constructor}, such as \lstinline!struct!~\lstinline!Nt!
-(below), must be constructed manually (e.g., via \romeogloss{placement
-\lstinline!new!} before it can be used:
+below, must be constructed manually (e.g., via \romeogloss{placement
+\lstinline!new!}) before it can be used:
 
-\begin{lstlisting}[language=C++]
+\begin{emcppslisting}[emcppsbatch=e2]
 struct Nt  // used as part of a (ù{\codeincomments{union}}ù) (below)
 {
     Nt();   // non-trivial default constructor
@@ -42,16 +45,16 @@ struct Nt  // used as part of a (ù{\codeincomments{union}}ù) (below)
     // Copy construction and assignment are implicitly defaulted.
     // Move construction and assignment are implicitly deleted.
 };
-\end{lstlisting}
+\end{emcppslisting}
 
 \noindent As an added safety measure, any non-trivial \romeogloss{special member
 function} defined --- either implicitly or explicitly --- for any
-\emph{member} of a \lstinline!union! results in the compiler implicitly
+\romeogloss{member} of a \lstinline!union! results in the compiler implicitly
 deleting (see %Section~\ref{deleted-functions},
 ``\titleref{deleted-functions}" on page~\pageref{deleted-functions}) the corresponding \romeogloss{special
 member function} of the \lstinline!union! itself:
 
-\begin{lstlisting}[language=C++]
+\begin{emcppslisting}[emcppsbatch=e2]
 union U1
 {
     int d_i;   // fundamental type having all trivial special member functions
@@ -66,7 +69,7 @@ union U1
                                            // (ù{\codeincomments{Nt::operator=(const Nt\&)}}ù)
     */
 };
-\end{lstlisting}
+\end{emcppslisting}
 
 %\noindent This same sort of precautionary deletion also occurs for any class
 %containing such a union as a data member (see {\it\titleref{unrestrictedunion-use-cases}: \titleref{implementing-a-sum-type-as-a-discriminating-(or-tagged)-union}} on page~\pageref{implementing-a-sum-type-as-a-discriminating-(or-tagged)-union}).
@@ -77,7 +80,7 @@ to consider how non-trivial members should be managed. For example,
 we can start providing a \emph{value constructor} and corresponding
 \emph{destructor}:
 
-%\begin{lstlisting}[language=C++]
+%begin{emcppslisting}
 %struct U2
 %{
 %    union
@@ -99,8 +102,8 @@ we can start providing a \emph{value constructor} and corresponding
 %        if (!d_useInt) { d_nt.~Nt(); }
 %    }
 %};
-%\end{lstlisting}
-\begin{lstlisting}[language=C++]
+%\end{emcppslisting}
+\begin{emcppslisting}[emcppsbatch=e2]
 #include <new>
 
 struct U2
@@ -124,7 +127,7 @@ struct U2
         if (!d_useInt) { d_nt.~Nt(); }
     }
 };
-\end{lstlisting}
+\end{emcppslisting}
 
 
 \noindent Notice that we have employed \romeogloss{placement \lstinline!new!} syntax to
@@ -132,41 +135,62 @@ control the lifetime of both member objects. Although assignment would
 be permitted for the trivial \lstinline!int! type, it would be
 \romeogloss{undefined behavior} for the non-trivial \lstinline!Nt! type:
 
-%\begin{lstlisting}[language=C++]
+%begin{emcppslisting}
 %U2(bool useInt) : d_useInt(useInt)  // value constructor
 %{
 %    if (d_useInt) { d_i = int(); }  // value initialized (to (ù{\codeincomments{0}}ù))
 %    else          { d_nt = Nt(); }  // undefined behavior
 %}
-%\end{lstlisting}
-\begin{lstlisting}[language=C++]
+%\end{emcppslisting}
+\begin{emcppshiddenlisting}[emcppsbatch=e3]
+// duplicate the requirements for U2 so that we can show an alternate version
+// of the constructor
+struct Nt  // used as part of a (ù{\codeincomments{union}}ù) (below)
+{
+    Nt();   // non-trivial default constructor
+    ~Nt();  // non-trivial destructor
+};
+struct U2
+{
+    union
+    {
+        int  d_i;   // fundamental type (trivial)
+        Nt   d_nt;  // non-trivial user-defined type
+    };
+
+    bool d_useInt;  // discriminator
+\end{emcppshiddenlisting}
+\begin{emcppslisting}[emcppsbatch=e3]
     U2(bool useInt) : d_useInt(useInt)
     {
         if (d_useInt) { d_i = int(); }  // value initialized (to (ù{\codeincomments{0}}ù))
         else          { d_nt = Nt(); }  // BAD IDEA: undefined behavior (no
                                         // lhs object)
     }
-\end{lstlisting}
+\end{emcppslisting}
+\begin{emcppshiddenlisting}[emcppsbatch=e3]
+};
+\end{emcppshiddenlisting}
 
 
 \noindent Now if we were to try to copy-construct or assign one object of type
 \lstinline!U2! to another, the operation would fail because we have not
-(yet) specifically addressed those \romeogloss{special member functions}:
+yet specifically addressed those \romeogloss{special member functions}:
 
-\begin{lstlisting}[language=C++]
+\begin{emcppslisting}[emcppsbatch=e2]
 void f()
 {
     U2 a(false), b(true);  // OK (construct both instances of (ù{\codeincomments{U2}}ù))
-    U2 c(a);               // compile-time error: no (ù{\codeincomments{U2(const U2\&)}}ù)
-    a = b;                 // compile-time error: no (ù{\codeincomments{U2\& operator=(const U2\&)}}ù)
+    U2 c(a);               // Error, no (ù{\codeincomments{U2(const U2\&)}}ù)
+    a = b;                 // Error, no (ù{\codeincomments{U2\& operator=(const U2\&)}}ù)
 }
-\end{lstlisting}
+\end{emcppslisting}
 
 \noindent We can restore these implicitly deleted special member functions too,
 simply by adding appropriate copy-constructor and assignment-operator
 definitions for \lstinline!U2! explicitly:
 
-%\begin{lstlisting}[language=C++]
+%begin{emcppslisting}
 %union U2
 %{
 %    // ... (everything in (ù{\codeincomments{U2}}ù) above)
@@ -201,9 +225,29 @@ definitions for \lstinline!U2! explicitly:
 %        return *this;
 %    }
 %};
-%\end{lstlisting}
-\begin{lstlisting}[language=C++]
-union U2
+%\end{emcppslisting}
+\begin{emcppshiddenlisting}[emcppsbatch=e4]
+#include <new>
+// duplicate the requirements for U2 so that we can show an alternate version
+// of the constructor
+struct Nt  // used as part of a (ù{\codeincomments{union}}ù) (below)
+{
+    Nt();   // non-trivial default constructor
+    ~Nt();  // non-trivial destructor
+};
+// --- Replace
+// ... (everything in (ù{\codeincomments{U2}}ù) above)
+    union
+    {
+        int  d_i;   // fundamental type (trivial)
+        Nt   d_nt;  // non-trivial user-defined type
+    };
+
+    bool d_useInt;  // discriminator    
+// --- End
+\end{emcppshiddenlisting}
+\begin{emcppslisting}[emcppsbatch=e4]
+class U2
 {
     // ... (everything in (ù{\codeincomments{U2}}ù) above)
 
@@ -236,14 +280,14 @@ union U2
 
         // Resolve all possible combinations of active types between the
         // left-hand side and right-hand side of the assignment.  Use the
-        // corresponding assignment operator when they match, otherwise
-        // if the old member is (ù{\codeincomments{d\_nt}}ù) run its non-trivial destructor, then
-        // copy-construct the new member in place:
+        // corresponding assignment operator when they match; otherwise,
+        // if the old member is (ù{\codeincomments{d\_nt}}ù), run its non-trivial destructor, and
+        // then copy-construct the new member in place:
 
         return *this;
     }
 };
-\end{lstlisting}
+\end{emcppslisting}
 Note that in the code example above, we ignore exceptions for exposition simplicity. Note also that attempting to
 restore a \lstinline!union!'s implicitly deleted special member
 functions by using the \lstinline!=!~\lstinline!default! syntax (see
@@ -253,7 +297,7 @@ the compiler cannot know which member of the union is active.
 
 \subsection[Use Cases]{Use Cases}\label{unrestrictedunion-use-cases}
 
-\subsubsection[Implementing a \romeogloss{sum type} as a discriminated (or tagged) {\tt union}]{Implementing a sum type as a discriminated (or tagged) {\SubsubsecCode union}}\label{implementing-a-sum-type-as-a-discriminating-(or-tagged)-union}
+\subsubsection[Implementing a \romeogloss{sum type} as a discriminated {\tt union}]{Implementing a sum type as a discriminated {\SubsubsecCode union}}\label{implementing-a-sum-type-as-a-discriminating-(or-tagged)-union}
 
 A \romeogloss{sum type} is an algebraic data type that provides a choice
 among a fixed set of specific types. A C++11 unrestricted union can serve as a convenient and efficient way to define storage for a sum type (also called a \emph{tagged} or \emph{discriminated} union) because the alignment and size calculations are performed automatically by the compiler.
@@ -262,9 +306,28 @@ As an example, consider writing a parsing function \lstinline!parseInteger!
 that, given a\linebreak[4] \lstinline!std::string! \lstinline!input!, will return, as a
 \romeogloss{sum type} \lstinline!ParseResult! (see below), containing either an
 \lstinline!int! result (on success) or an informative error message
-(on failure):
+on failure:
 
-\begin{lstlisting}[language=C++]
+\begin{emcppshiddenlisting}[emcppsbatch=e5]
+#include <sstream>
+#include <string>
+struct ParseResult {
+    explicit ParseResult(int values);
+    explicit ParseResult(const std::string& error);
+};
+
+// --- Replace
+    if (/* Failure case (1). */)
+    if (true)
+// --- End
+
+// --- Replace
+    if (/* Failure case (2). */)
+    if (true)
+// --- End
+
+\end{emcppshiddenlisting}
+\begin{emcppslisting}[emcppsbatch=e5]
 ParseResult parseInteger(const std::string& input)  // Return a sum type.
 {
     int result;     // accumulate (ù{\codeincomments{result}}ù) as we go
@@ -296,17 +359,15 @@ ParseResult parseInteger(const std::string& input)  // Return a sum type.
 
     return ParseResult(result);  // Success!
 }
-\end{lstlisting}
+\end{emcppslisting}
 
 \noindent The implementation above relies on \lstinline!ParseResult! being able to
 hold a value of type either \lstinline!int! or \lstinline!std::string!. By
-encapsulating a C++ \lstinline!union! and a Boolean{\cprotect\footnote{For
-\romeogloss{sum types} comprising more than two types, a larger integral
-  or enumerated type may be used instead.}} \emph{discriminator} as part
+encapsulating a C++ \lstinline!union! and a \emph{discriminator} as part
 of the \lstinline!ParseResult! \romeogloss{sum type}, we can achieve the
 desired semantics:
 
-%\begin{lstlisting}[language=C++]
+%begin{emcppslisting}
 %class ParseResult
 %{
 %    union  // storage for either the result or the error
@@ -326,8 +387,11 @@ desired semantics:
 %
 %    ~ParseResult();                                  // destructor
 %};
-%\end{lstlisting}
-\begin{lstlisting}[language=C++]
+%\end{emcppslisting}
+\begin{emcppshiddenlisting}[emcppsbatch=e6]
+#include <string>
+\end{emcppshiddenlisting}
+\begin{emcppslisting}[emcppsbatch=e6]
 class ParseResult
 {
     union  // storage for either the result or the error
@@ -347,10 +411,12 @@ public:
 
     ~ParseResult();                                  // destructor
 };
-\end{lstlisting}
+\end{emcppslisting}
 
 
-\noindent As discussed in
+\noindent If a \romeogloss{sum type} comprised more than two types, the discriminator would be an appropriately-sized integral or enumerated type instead of a Boolean.
+
+As discussed in
 %{\it\titleref{unrestrictedunion-description}} on page~\pageref{unrestrictedunion-description}
 \intrarefsimple{unrestrictedunion-description}, having a non-trivial
 type within a \lstinline!union! forces the programmer to provide each
@@ -360,7 +426,7 @@ two \emph{value constructors} (above) because the initializer syntax
 (below) is sufficient to begin the lifetime of even a non-trivial
 object:
 
-%\begin{lstlisting}[language=C++]
+%begin{emcppslisting}
 %ParseResult::ParseResult(double value) : d_value(value), d_isError(false)
 %{
 %}
@@ -372,8 +438,8 @@ object:
 %    // (ù{\codeincomments{d\_error}}ù).
 %{
 %}
-%\end{lstlisting}
-\begin{lstlisting}[language=C++]
+%\end{emcppslisting}
+\begin{emcppslisting}[emcppsbatch=e6]
 ParseResult::ParseResult(int value) : d_value(value), d_isError(false)
 {
 }
@@ -385,14 +451,14 @@ ParseResult::ParseResult(const std::string& error)
     // (ù{\codeincomments{d\_error}}ù).
 {
 }
-\end{lstlisting}
+\end{emcppslisting}
 
 
-\noindent Placement \lstinline!new! and explicit destructor calls are, still however,
+\noindent Placement \lstinline!new! and explicit destructor calls are still, however,
 required for destruction and both copy operations{\cprotect\footnote{For
 more information on initiating the lifetime of an object, see \cite{iso14}, section 3.8, ``Object Lifetime," pp. 66--69.}}:
 
-%\begin{lstlisting}[language=C++]
+%begin{emcppslisting}
 %ParseResult::~ParseResult()
 %{
 %    if(d_isError)
@@ -430,8 +496,14 @@ more information on initiating the lifetime of an object, see \cite{iso14}, sect
 %    d_isError = rhs.d_isError;
 %    return *this;
 %}
-%\end{lstlisting}
-\begin{lstlisting}[language=C++]
+%\end{emcppslisting}
+\begin{emcppshiddenlisting}[emcppsbatch=e6]
+// The calls to d_error.std::string::~string() below do not compile on clang
+// before clang 11.  Invoking it as ~basic_string instead works, but that
+// is a confusing visible change.  Adding this using fixes the problem invisibly.
+using std::string;
+\end{emcppshiddenlisting}
+\begin{emcppslisting}[emcppsbatch=e6]
 ParseResult::~ParseResult()
 {
     if (d_isError)
@@ -459,9 +531,9 @@ ParseResult::ParseResult(const ParseResult& rhs) : d_isError(rhs.d_isError)
 
 ParseResult& ParseResult::operator=(const ParseResult& rhs)
 {
-     if (this == &rhs) // Prevent selfassignment.
+    if (this == &rhs) // Prevent self-assignment.
     {
-        return *this;
+        return *this;
     }
     // Destroy (ù{\codeincomments{lhs}}ù)'s error string if existent:
     if (d_isError) { d_error.std::string::~string(); }
@@ -473,7 +545,7 @@ ParseResult& ParseResult::operator=(const ParseResult& rhs)
     d_isError = rhs.d_isError;
     return *this;
 }
-\end{lstlisting}
+\end{emcppslisting}
 In practice, \lstinline!ParseResult! would typically use a more general \romeogloss{sum type}{\cprotect\footnote{\lstinline!std::variant!, introduced
 in C++17, is the standard construct used to represent a \romeogloss{sum
 type} as a \emph{discriminated union}. Prior to C++17,
@@ -499,8 +571,8 @@ forgetting to initialize a non-trivial object (using either a
 accessing a different object than the one that was actually initialized
 can result in tacit \romeogloss{undefined behavior}. Although forgetting to
 destroy an object does not necessarily result in \romeogloss{undefined
-behavior}, failing to do so for any object that manages a resource (such
-as dynamic memory) will result in a \emph{resource leak} and/or lead to
+behavior}, failing to do so for any object that manages a resource such
+as dynamic memory will result in a \emph{resource leak} and/or lead to
 unintended behavior. Note that destroying an
 object having a trivial destructor is never necessary; there are, however, rare cases where
 we may choose not to destroy an object having a non-trivial
@@ -518,17 +590,21 @@ one.
 
 \subsection[Annoyances]{Annoyances}\label{annoyances}
 
-None so far
+\hspace*{\fill}
 
 \subsection[See Also]{See Also}\label{see-also}
 
 \begin{itemize}
 \item{%Section~\ref{deleted-functions}, ``\titleref{deleted-functions}" on page~\pageref{deleted-functions} —
-\seealsoref{deleted-functions}{\locationa}Safe C++11 feature that forbids the invocation of a particular function. Similar effects to deleting a function happen when we specify a special function within a subobject of a union and when a class has such a union as a data member.} % "or when" changed to "and when" per JD Garcia and Slava
+\seealsoref{deleted-functions}{\locationa}Any special member function of a \lstinline!union! that corresponds to a non-trivial one in any of its member elements will be implicitly deleted.} % "or when" changed to "and when" per JD Garcia and Slava
 \end{itemize}
 
 \subsection[Further Reading]{Further Reading}\label{further-reading}
 
-None so far
+\begin{itemize}
+\item{\cite{goldthwaite07}}
+\item{\cite{ouellet16}}
+\end{itemize}
+
 
 

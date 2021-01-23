@@ -1,0 +1,143 @@
+----------------------------binaryliteral
+77,78c81,82
+< auto i128 = 0b0111...[120 1-bits]...1111;  // error: integer literal too large
+< auto u128 = 0b1000...[120 0-bits]...0000;  // error: integer literal too large
+---
+> auto i128 = 0b0111...[120 1-bits]...1111;  // Error, integer literal too large
+> auto u128 = 0b1000...[120 0-bits]...0000;  // Error, integer literal too large
+88c92
+
+----------------------------consecutiveangle
+45,46c53,54
+< C<i > j>    a1;  // compile-time error (always has been)
+< C<i >> j>   b1;  // compile-time error in C++11 (OK in C++03)
+---
+> C<i > j>    a1;  // Error, always has been
+> C<i >> j>   b1;  // Error, in C++11, OK in C++03
+49c57
+
+< std::list<std::map<int, std::vector<std::string> > > idToNameMappingList;
+> std::list<std::map<int, std::vector<std::string> > > idToNameMappingList1;
+
+< std::list<std::map<int, std::vector<std::string>>> idToNameMappingList;
+> std::list<std::map<int, std::vector<std::string>>>   idToNameMappingList2;
+
+
+< T<1 >> 5>;  // worked in C++03, compile-time error in C++11
+> T<1 >> 5> t;  // worked in C++03, compile-time error in C++11
+
+< T<(1 >> 5)>;  // OK
+> T<(1 >> 5)> t;  // OK
+
+----------------------------decltype
+60,63c65,72
+< decltype(0);    // -> (ù{\codeincomments{int}}ù)
+> decltype(0)   i; // -> (ù{\codeincomments{int}}ù)
+
+< decltype(f());  // -> (ù{\codeincomments{int}}ù)
+> decltype(f()) j; // -> (ù{\codeincomments{int}}ù)
+
+< decltype(S());  // -> (ù{\codeincomments{S}}ù)
+> decltype(S()) k; // -> (ù{\codeincomments{S}}ù)
+
+< decltype(i);    // -> (ù{\codeincomments{int}}ù)
+< decltype((i));   // -> (ù{\codeincomments{int\&}}ù)
+> decltype(i)   l = i; // -> (ù{\codeincomments{int}}ù)
+> decltype((i)) m = i; // -> (ù{\codeincomments{int\&}}ù)
+
+< decltype(*pi); // -> (ù{\codeincomments{int\&}}ù)
+< decltype(++i); // -> (ù{\codeincomments{int\&}}ù)
+> decltype(*pi) j = *pi; // -> (ù{\codeincomments{int\&}}ù)
+> decltype(++i) k = ++i; // -> (ù{\codeincomments{int\&}}ù)
+
+< decltype(static_cast<int&&>(i));  // -> (ù{\codeincomments{int\&\&}}ù)
+> decltype(static_cast<int&&>(i)) j = static_cast<int&&>(i); // -> (ù{\codeincomments{int\&\&}}ù)
+
+< decltype(g());                    // -> (ù{\codeincomments{int\&\&}}ù)
+> decltype(g()) k = g();                                     // -> (ù{\codeincomments{int\&\&}}ù)
+
+
+----------------------------delete
+
+(below added to declaration of FileHandle)
+> #include <cstdio>  // for ù{\codeincomments{FILE}}ù
+
+
+
+----------------------------override
+<         // compile-time error when base class changed
+>         // Error, failed when base class changed
+
+<         // compile-time error when first written
+>         // Error, failed when first written
+
+
+----------------------------staticassert
+<     f3<char>();                 // Error: static assertion failed: Size < 8.
+>     f3<char>();                 // Error, static assertion failed: Size < 8.
+
+<     int a[!sizeof(int) - 1];  // same as (ù{\codeincomments{int a[-1];}}ù) and is ill-formed
+>     int a[!sizeof(int) - 1];  // Error, same as (ù{\codeincomments{int a[-1];}}ù)
+
+<     int a[!sizeof(int) - 1];  // always reported as a compile-time error
+>     int a[!sizeof(int) - 1];  // Error, always reported
+
+< #include <ctype>  // (ù{\codeincomments{CHAR\_BIT}}ù)
+> #include <climits>  // (ù{\codeincomments{CHAR\_BIT}}ù)
+
+< #include <ctype>  // (ù{\codeincomments{CHAR\_BIT}}ù)
+> #include <climits>      // (ù{\codeincomments{CHAR\_BIT}}ù)
+> #include <type_traits>  // (ù{\codeincomments{std::is\_integral}}ù) and (ù{\codeincomments{std::is\_unsigned}}ù)
+
+
+----------------------------trailingreturn
+< T    S::h2()      { /*...*/ }  // Error: (ù{\codeincomments{T}}ù) is unknown in this context.
+> T    S::h2()      { /*...*/ }  // Error, (ù{\codeincomments{T}}ù) is unknown in this context.
+
+< T    N::h4()      { /*...*/ }  // Error: (ù{\codeincomments{T}}ù) is unknown in this context.
+> T    N::h4()      { /*...*/ }  // Error, (ù{\codeincomments{T}}ù) is unknown in this context.
+
+(Added to example that uses declval)
+> #include <utility>  // for ù{\codeincomments{declval}}ù)
+
+
+
+----------------------------unrestrictedunion
+<     U2 c(a);               // compile-time error: no (ù{\codeincomments{U2(const U2\&)}}ù)
+<     a = b;                 // compile-time error: no (ù{\codeincomments{U2\& operator=(const U2\&)}}ù)
+>     U2 c(a);               // Error, no (ù{\codeincomments{U2(const U2\&)}}ù)
+>     a = b;                 // Error, no (ù{\codeincomments{U2\& operator=(const U2\&)}}ù)
+
+< %    if (d_isError) { d_error.std::string::~string(); }
+> %    if (d_isError) { d_error.~string(); }
+
+
+----------------------------noreturn
+(added to listing that contains the "client" function that uses "util.h"
+> // client.cpp:
+
+
+
+----------------------------nullptr
+
+There are two blocks of code here that contain similar things with a pointer that changes to a reference.
+I changed the first one to be all "OK" to be consistent where the second one became "OK, Bug, Error", removing the numbering that wasn't referenced elsewhere.
+Without the change to OK in the first block the two loose their structural similarity.
+<        x = 0;       // (1) Set pointer (ù{\codeincomments{x}}ù) to null address.
+<        x = NULL;    // (2) Set pointer (ù{\codeincomments{x}}ù) to null address.
+<        x = nullptr; // (3) Set pointer (ù{\codeincomments{x}}ù) to null address.
+>        x = 0;       // OK, Set pointer (ù{\codeincomments{x}}ù) to null address.
+>        x = NULL;    // OK, Set pointer (ù{\codeincomments{x}}ù) to null address.
+>        x = nullptr; // OK, Set pointer (ù{\codeincomments{x}}ù) to null address.
+
+<         x = 0;       // (1) always compiles; makes what (ù{\codeincomments{x}}ù) refers to 0
+<         x = NULL;    // (2) implementation-defined (might warn)
+<         x = nullptr; // (3) always a compile-time error
+>         x = 0;       // OK, always compiles; makes what (ù{\codeincomments{x}}ù) refers to 0
+>         x = NULL;    // Bug, implementation-defined (might warn)
+>         x = nullptr; // Error, always a compile-time error
+
+<     uglyLibraryFunction(NULL);      // anything! (platform-defined)
+>     uglyLibraryFunction(NULL);      // Error, anything! (platform-defined)
+
+

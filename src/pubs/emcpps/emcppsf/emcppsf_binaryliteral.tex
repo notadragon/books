@@ -17,17 +17,19 @@ for more details, see https://gcc.gnu.org/gcc-4.3/.}}:
 %of a \texttt{0b} (or \texttt{0B}) prefix followed by a nonempty
 %sequence of binary digits (\texttt{0} or \texttt{1})
 
+\begin{emcppshiddenlisting}[emcppsbatch=bl1]
+// This is a hidden listing in batch bl1
+\end{emcppshiddenlisting}
 
-\begin{lstlisting}[language=C++]
+\begin{emcppslisting}[emcppsbatch=bl1]
 int i = 0b11110000;  // equivalent to (ù{\codeincomments{240}}ù), (ù{\codeincomments{0360}}ù), or (ù{\codeincomments{0xF0}}ù)
 int j = 0B11110000;  // same value as above
-\end{lstlisting}
-
+\end{emcppslisting}
 
 \noindent The first digit after the \lstinline!0b! prefix is the most significant
 one:
 
-\begin{lstlisting}[language=C++]
+\begin{emcppslisting}[emcppsbatch=bl1]
 static_assert(0b0     ==  0, "");  // 0*2^0
 static_assert(0b1     ==  1, "");  // 1*2^0
 static_assert(0b10    ==  2, "");  // 1*2^1 + 0*2^0
@@ -36,20 +38,20 @@ static_assert(0b100   ==  4, "");  // 1*2^2 + 0*2^1 + 0*2^0
 static_assert(0b101   ==  5, "");  // 1*2^2 + 0*2^1 + 1*2^0
 // ...
 static_assert(0b11010 == 26, "");  // 1*2^4 + 1*2^3 + 0*2^2 + 1*2^1 + 0*2^0
-\end{lstlisting}
+\end{emcppslisting}
 
 
 \noindent Leading zeros --- as with octal and hexadecimal (but not decimal)
 literals --- are ignored but can be added for readability:
 
-\begin{lstlisting}[language=C++]
+\begin{emcppslisting}
 static_assert(0b00000000 ==   0, "");
 static_assert(0b00000001 ==   1, "");
 static_assert(0b00000010 ==   2, "");
 static_assert(0b00000100 ==   4, "");
 static_assert(0b00001000 ==   8, "");
 static_assert(0b10000000 == 128, "");
-\end{lstlisting}
+\end{emcppslisting}
 
 
 \noindent The type of a binary literal
@@ -69,15 +71,15 @@ see \intrarefsimple{description-binary}.
 
 % If neither of those is applicable, then the program is \emph{ill-formed}
 
-\begin{lstlisting}[language=C++]
+\begin{emcppslisting}[emcppsignore={Invalid Descriptive Literals}]
 // example platform 1:
 // ((ù{\codeincomments{sizeof(int)}}ù): 4; (ù{\codeincomments{sizeof(long)}}ù): 4; (ù{\codeincomments{sizeof(long long)}}ù): 8)
 auto i32  = 0b0111...[ 24 1-bits]...1111;  // (ù{\codeincomments{i32}}ù) is (ù{\codeincomments{int}}ù).
 auto u32  = 0b1000...[ 24 0-bits]...0000;  // (ù{\codeincomments{u32}}ù) is (ù{\codeincomments{unsigned int}}ù).
 auto i64  = 0b0111...[ 56 1-bits]...1111;  // (ù{\codeincomments{i64}}ù) is (ù{\codeincomments{long long}}ù).
 auto u64  = 0b1000...[ 56 0-bits]...0000;  // (ù{\codeincomments{u64}}ù) is (ù{\codeincomments{unsigned long long}}ù).
-auto i128 = 0b0111...[120 1-bits]...1111;  // error: integer literal too large
-auto u128 = 0b1000...[120 0-bits]...0000;  // error: integer literal too large
+auto i128 = 0b0111...[120 1-bits]...1111;  // Error, integer literal too large
+auto u128 = 0b1000...[120 0-bits]...0000;  // Error, integer literal too large
 
 // example platform 2:
 // ((ù{\codeincomments{sizeof(int)}}ù): 4; (ù{\codeincomments{sizeof(long)}}ù): 8; (ù{\codeincomments{sizeof(long long)}}ù): 16)
@@ -87,7 +89,7 @@ auto i64  = 0b0111...[ 56 1-bits]...1111;  // (ù{\codeincomments{i64}}ù)  is (
 auto u64  = 0b1000...[ 56 0-bits]...0000;  // (ù{\codeincomments{u64}}ù)  is (ù{\codeincomments{unsigned long}}ù).
 auto i128 = 0b0111...[120 1-bits]...1111;  // (ù{\codeincomments{i128}}ù) is (ù{\codeincomments{long long}}ù).
 auto u128 = 0b1000...[120 0-bits]...0000;  // (ù{\codeincomments{u128}}ù) is (ù{\codeincomments{unsigned long long}}ù).
-\end{lstlisting}
+\end{emcppslisting}
 
 
 \noindent (Purely for convenience of
@@ -97,14 +99,14 @@ literal, can be controlled explicitly using the common integer-literal
 suffixes \{\lstinline!u!, \lstinline!l!, \lstinline!ul!, \lstinline!ll!,
 \lstinline!ull!\} in either lower- or uppercase:
 
-\begin{lstlisting}[language=C++]
+\begin{emcppslisting}
 auto i   = 0b101;        // type: (ù{\codeincomments{int}}ù);                 value: 5
 auto u   = 0b1010U;      // type: (ù{\codeincomments{unsigned int}}ù);        value: 10
 auto l   = 0b1111L;      // type: (ù{\codeincomments{long}}ù);                value: 15
 auto ul  = 0b10100UL;    // type: (ù{\codeincomments{unsigned long}}ù);       value: 20
 auto ll  = 0b11000LL;    // type: (ù{\codeincomments{long long}}ù);           value: 24
 auto ull = 0b110101ULL;  // type: (ù{\codeincomments{unsigned long long}}ù);  value: 53
-\end{lstlisting}
+\end{emcppslisting}
 
 
 \noindent Finally, note that affixing a minus sign to a binary
@@ -112,20 +114,21 @@ literal (e.g., \lstinline!-b1010!) --- just like any other integer literal
 (e.g., \lstinline!-10!, \lstinline!-012!, or \lstinline!-0xa!) --- is parsed as a
 non-negative value first, after which a unary minus is applied:
 
-%\begin{lstlisting}[language=C++]
+%\begin{emcppslisting}
 %static_assert(sizeof(int) == 4, "");  // true on virtually all machines today
 %static_assert(-0b1010 == -10, "");    // as if: (ù{\codeincomments{0 - 0b1010 == 0 - 10}}ù)
 %static_assert(0x7fffffff != -0x7fffffff, "");  // Both values are (ù{\codeincomments{signed int}}ù).
 %static_assert(0x80000000 == -0x80000000, "");  // Both values are (ù{\codeincomments{unsigned int}}ù).
-%\end{lstlisting}
-\begin{lstlisting}[language=C++]
+%\end{emcppslisting}
+\begin{emcppslisting}[emcppsignore={Invalid Descriptive Literals}]
 static_assert(sizeof(int) == 4, "");  // true on virtually all machines today
 static_assert(-0b1010 == -10, "");    // as if: (ù{\codeincomments{0 - 0b1010 == 0 - 10}}ù)
 static_assert( 0b0111...[ 24 1-bits]...1111       //   signed
            != -0b0111...[ 24 1-bits]...1111, ""); //   signed
 
 static_assert( 0b1000...[ 24 0-bits]...0000       // unsigned
-           != -0b1000...[ 24 0-bits]...0000, ""); // unsigned\end{lstlisting}
+           != -0b1000...[ 24 0-bits]...0000, ""); // unsigned
+\end{emcppslisting}
 
 
 
@@ -141,12 +144,12 @@ As an example, consider a
 function that returns the least significant four bits of a given
 \lstinline!unsigned!~\lstinline!int! value:
 
-\begin{lstlisting}[language=C++]
+\begin{emcppslisting}
 unsigned int lastFourBits(unsigned int value)
 {
     return value & 0xFu;
 }
-\end{lstlisting}
+\end{emcppslisting}
 
 
 \noindent The correctness of the \emph{bitwise and} operation above might not be
@@ -155,18 +158,18 @@ hexadecimal literals. In contrast, using a binary literal more directly
 states our intent to mask all but the four least-significant bits of the
 input:
 
-%\begin{lstlisting}[language=C++]
+%\begin{emcppslisting}
 %unsigned int lastFourBits(unsigned int value)
 %{
 %    return value & 0b1111u;  // The (ù{\codeincomments{u}}ù) literal suffix here is entirely optional.
 %}
-%\end{lstlisting}
-\begin{lstlisting}[language=C++]
+%\end{emcppslisting}
+\begin{emcppslisting}
 unsigned int lastFourBits(unsigned int value)
 {
     return value & 0b1111u;
 }
-\end{lstlisting}
+\end{emcppslisting}
 
 
 
@@ -176,7 +179,7 @@ instance, consider a set of flags used to represent the state of an
 avatar in a game:
 %\enlargethispage{2ex}
 
-%\begin{lstlisting}[language=C++]
+%\begin{emcppslisting}
 %struct AvatarStateFlags
 %{
 %    enum Enum
@@ -200,8 +203,8 @@ avatar in a game:
 %
 %    // ...
 %};
-%\end{lstlisting}
-\begin{lstlisting}[language=C++]
+%\end{emcppslisting}
+\begin{emcppslisting}
 struct AvatarStateFlags
 {
     enum Enum
@@ -225,7 +228,7 @@ public:
 
     // ...
 };
-\end{lstlisting}
+\end{emcppslisting}
 
 \noindent Note that the choice of using a nested classic \lstinline!enum! was deliberate;
 see\linebreak[4] \featureref{\locationc}{enumclass}.
@@ -244,7 +247,7 @@ easily understandable one.
 As an example, consider a function decoding instructions of a virtual
 machine whose opcodes are specified in binary format:
 
-%\begin{lstlisting}[language=C++]
+%\begin{emcppslisting}
 %#include <cstdint>  // (ù{\codeincomments{std::uint8\_t}}ù)
 %
 %void VirtualMachine::decodeInstruction(std::uint8_t instruction)
@@ -265,8 +268,17 @@ machine whose opcodes are specified in binary format:
 %        // ...
 %    }
 %}
-%\end{lstlisting}
-\begin{lstlisting}[language=C++]
+%\end{emcppslisting}
+\begin{emcppshiddenlisting}[emcppsbatch=vm]
+#include <cstdint>
+struct VirtualMachine {
+    std::uint8_t d_register0;
+    std::uint8_t d_register1;
+    void decodeInstruction(std::uint8_t instruction);
+    void jumpTo(std::uint8_t address);
+};
+\end{emcppshiddenlisting}
+\begin{emcppslisting}[emcppsbatch=vm]
 #include <cstdint>  // (ù{\codeincomments{std::uint8\_t}}ù)
 
 void VirtualMachine::decodeInstruction(std::uint8_t instruction)
@@ -287,7 +299,7 @@ void VirtualMachine::decodeInstruction(std::uint8_t instruction)
         // ...
     }
 }
-\end{lstlisting}
+\end{emcppslisting}
 
 \noindent Replicating the same binary constant specified as part of the CPU's or
 virtual machine's manual or documentation directly in the source avoids the need to
@@ -297,7 +309,7 @@ number.
 Binary literals are also suitable for capturing bitmaps. For instance,
 consider a bitmap representing the uppercase letter \textit{C}\/:
 
-\begin{lstlisting}[language=C++]
+\begin{emcppslisting}
 const unsigned char letterBitmap_C[] =
 {
     0b00011111,
@@ -308,7 +320,7 @@ const unsigned char letterBitmap_C[] =
     0b01100000,
     0b00011111
 };
-\end{lstlisting}
+\end{emcppslisting}
 
 
 \noindent Using \emph{binary} literals makes the shape of the image that the

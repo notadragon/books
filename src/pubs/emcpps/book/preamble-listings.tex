@@ -82,3 +82,80 @@ xleftmargin=2ex,
 escapeinside={(ù}{ù)},
 showstringspaces=false, 
 }
+
+
+% All code samples that should be tested are going to be written within the
+% following environment
+%
+% Source for initial implementation for dumping to files:
+% https://tex.stackexchange.com/questions/284189/how-to-dump-listings-to-a-file
+%
+% Change the following in existing features:
+%    \begin{lstlisting}[language=C++]   \begin{emcppslisting}
+%    \end{lstlisting}                   \end{emcppslisting}
+%
+\usepackage{currfile}
+\makeatletter
+\newcounter{emcppslistings}
+\setcounter{emcppslistings}{0}
+\lst@RequireAspects{writefile}
+
+% A batch id for code snippets that should be concatenated together to compile.
+\lst@Key{emcppsbatch}{}{\def\emcppsBatch{#1}}
+
+% A reason why this code snippet should not be compiled, such as code that is
+% explained outside of the example as an error, or code that is more
+% descriptive than actually valid code.  Useless and irrelevant on
+% emcppshiddenslistings.
+\lst@Key{emcppsignore}{}{\def\emcppsIgnore{#1}}
+
+% Which standards the code example should be compiled for, which will be passed
+% to the -std= argument of gcc or clang  This must be on the first snippet in a
+% batch, otherwise a default oc "c++11,c++14" will be used.
+% Example value [emcppsstandards={c++11,c++17}]
+\lst@Key{emcppsstandards}{}{\def\emcppsStandards{#1}}
+
+% Provides a list of line numbers within this snippet that are errors.
+% Useless and irrelevant on emcppshiddenslistings.
+\lst@Key{emcppserrorlines}{}{\def\emcppsErrorLines{#1}}
+
+% Provides an alternate output file name for this snippet.  Multiple snippets
+% in the same batch with the same output file name will be concatenated.
+% This is equivalent to a comment "// <filename.(h|cpp)>" in the snippet, but
+% is not visible in the text.
+\lst@Key{emcppsoutputfile}{}{\def\emcppsOutputFile{#1}}
+
+\lstnewenvironment{emcppslisting}[1][]
+{%
+  \lstset{language=C++,#1}%
+  \stepcounter{emcppslistings}%
+  \lst@BeginAlsoWriteFile{listings/\currfilename-\theemcppslistings.lst}%
+  \immediate\write\lst@WF{// ----Listing start: \currfilename:\the\inputlineno-----}%
+  \ifthenelse{\equal{}{\emcppsBatch}}{}{\immediate\write\lst@WF{// ----Batch: \emcppsBatch------}}%
+  \ifthenelse{\equal{}{\emcppsIgnore}}{}{\immediate\write\lst@WF{// ----Ignore: \emcppsIgnore------}}%
+  \ifthenelse{\equal{}{\emcppsStandards}}{}{\immediate\write\lst@WF{// ----Standards: \emcppsStandards------}}%
+  \ifthenelse{\equal{}{\emcppsErrorLines}}{}{\immediate\write\lst@WF{// ----ErrorLines: \emcppsErrorLines------}}%
+  \ifthenelse{\equal{}{\emcppsOutputFile}}{}{\immediate\write\lst@WF{// ----OutputFile: \emcppsOutputFile------}}%
+}
+{%
+  \immediate\write\lst@WF{// ----Listing done: \currfilename:\the\inputlineno-----}%
+  \lst@EndWriteFile%
+}
+
+\lstnewenvironment{emcppshiddenlisting}[1][]
+{%
+  \lstset{language=C++,aboveskip=0pt,belowskip=0pt,#1}%
+  \stepcounter{emcppslistings}%
+  \lst@BeginWriteFile{listings/\currfilename-\theemcppslistings.lst}%
+  \immediate\write\lst@WF{// ----Listing start: \currfilename:\the\inputlineno-----}%
+  \ifthenelse{\equal{}{\emcppsBatch}}{}{\immediate\write\lst@WF{// ----Batch: \emcppsBatch------}}%
+  \ifthenelse{\equal{}{\emcppsStandards}}{}{\immediate\write\lst@WF{// ----Standards: \emcppsStandards------}}%
+}
+{%
+  \immediate\write\lst@WF{// ----Listing done: \currfilename:\the\inputlineno-----}%
+  \lst@EndWriteFile%
+}
+
+
+
+\makeatother

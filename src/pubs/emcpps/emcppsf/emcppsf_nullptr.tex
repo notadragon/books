@@ -12,7 +12,7 @@ The \lstinline!nullptr! keyword is a \romeovalue{prvalue} (pure rvalue) of type
 bit pattern corresponding to a \romeogloss{null address} on the host platform;
 \lstinline!nullptr! and other values of type \lstinline!std::nullptr_t!, along with the integer literal \lstinline!0! and the macro \lstinline!NULL!, can be converted implicitly to any pointer or pointer-to-member type:
 
-\begin{lstlisting}[language=C++]
+\begin{emcppslisting}
 #include <cstddef> // NULL
 int data;  // nonmember data
 
@@ -37,13 +37,13 @@ short S::*pmd1 = nullptr;     // Initialize with null address.
 
 float (S::*pmf0)(int) = &S::g;    // Initialize with non-null address.
 float (S::*pmf1)(int) = nullptr;  // Initialize with null address.
-\end{lstlisting}
+\end{emcppslisting}
 
 
 \noindent Because \lstinline!std::nullptr_t! is its own distinct type, overloading on
 it is possible:
 
-\begin{lstlisting}[language=C++]
+\begin{emcppslisting}
 #include <cstddef>  // (ù{\codeincomments{std::nullptr\_t}}ù)
 
 void g(void*);           // (1)
@@ -58,7 +58,7 @@ void f()
     g(nullptr);  // OK, (3) (ù{\codeincomments{void g(std::nullptr\_t)}}ù)
     g(NULL);     // Error, ambiguous --- (1), (2), or (3)
 }
-\end{lstlisting}
+\end{emcppslisting}
 
 
 \subsection[Use Cases]{Use Cases}\label{use-cases}
@@ -91,40 +91,54 @@ values returned via output parameters (as opposed to a \lstinline!return!
 statement) are always returned via pointer to a modifiable
 object. Functions that return via argument typically do so to reserve the function’s return value to communicate status.{\cprotect\footnote{See \cite{lakos96}, section~9.1.11, pp.~621--628, specifically the \emph{Guideline} at the bottom of p.~621: ``Be consistent about returning values through arguments (e.g., avoid declaring non\lstinline!const! reference parameters)."}} A function in this codebase might ``zero" the output parameter's local pointer variable to indicate and ensure that nothing more is to be written. The function below illustrates three different ways of doing this:
 
-\begin{lstlisting}[language=C++]
+\begin{emcppshiddenlisting}[emcppsbatch=e1]
+#include <cstdlib>  // for ù{\codeincomments{NULL}}ù
+// --- Replace
+    if (/*...*/)
+    if (true)
+// --- End
+\end{emcppshiddenlisting}
+\begin{emcppslisting}[emcppsbatch=e1]
 int illustrativeFunction(int* x)   // pointer to modifiable integer
 {
     // ...
     if (/*...*/)
     {
-        x = 0;       // (1) Set pointer (ù{\codeincomments{x}}ù) to null address.
-        x = NULL;    // (2) Set pointer (ù{\codeincomments{x}}ù) to null address.
-        x = nullptr; // (3) Set pointer (ù{\codeincomments{x}}ù) to null address.
+        x = 0;       // OK, Set pointer (ù{\codeincomments{x}}ù) to null address.
+        x = NULL;    // OK, Set pointer (ù{\codeincomments{x}}ù) to null address.
+        x = nullptr; // Bug, Set pointer (ù{\codeincomments{x}}ù) to null address.
     }
     // ...
     return 0;    // success
 }
-\end{lstlisting}
+\end{emcppslisting}
 
 
 Now suppose that the function signature is changed (e.g., due to a
 change in coding standards in the organization) to accept a reference
 instead of a pointer:
 
-\begin{lstlisting}[language=C++]
+\begin{emcppshiddenlisting}[emcppsbatch=e2]
+#include <cstdlib>  // for ù{\codeincomments{NULL}}ù
+// --- Replace
+    if (/*...*/)
+    if (true)
+// --- End
+\end{emcppshiddenlisting}
+\begin{emcppslisting}[emcppsbatch=e2]
 int illustrativeFunction(int& x)  // reference to modifiable integer
 {
     // ...
     if (/*...*/)
     {
-        x = 0;       // (1) always compiles; makes what (ù{\codeincomments{x}}ù) refers to 0
-        x = NULL;    // (2) implementation-defined (might warn)
-        x = nullptr; // (3) always a compile-time error
+        x = 0;       // OK, always compiles; makes what (ù{\codeincomments{x}}ù) refers to 0
+        x = NULL;    // OK, implementation-defined (might warn)
+        x = nullptr; // Error, always a compile-time error
     }
     // ...
     return 0;    // SUCCESS
 }
-\end{lstlisting}
+\end{emcppslisting}
 
 
 As the example above demonstrates, how we represent the notion of a
@@ -145,26 +159,29 @@ challenges when used to call a function whose overloads differ only in
 accepting a pointer or an integral type as the same positional argument, which might be the case, e.g., in a poorly designed third-party
 library:
 
-\begin{lstlisting}[language=C++]
+\begin{emcppshiddenlisting}[emcppsbatch=e3]
+#include <cstdlib>  // for ù{\codeincomments{NULL}}ù
+\end{emcppshiddenlisting}
+\begin{emcppslisting}[emcppsbatch=e3]
 void uglyLibraryFunction(int* p);  // (1)
 void uglyLibraryFunction(int  i);  // (2)
-\end{lstlisting}
+\end{emcppslisting}
 
 
 \noindent Calling this function with the literal \lstinline!0! will always invoke
 overload (2), but that might not always be what casual clients expect:
 
-\begin{lstlisting}[language=C++]
+\begin{emcppslisting}[emcppsbatch=e3]
 void f()
 {
     uglyLibraryFunction(0);         // unambiguously invokes (2)
     uglyLibraryFunction((int*) 0);  // unambiguously invokes (1)
     uglyLibraryFunction(nullptr);   // unambiguously invokes (1)
-    uglyLibraryFunction(NULL);      // anything! (platform-defined)
+    uglyLibraryFunction(NULL);      // Error, anything! (platform-defined)
     uglyLibraryFunction(0L);        // Error, ambiguous call (on all platforms)
     uglyLibraryFunction(0U);        // Error, ambiguous call (on all platforms)
 }
-\end{lstlisting}
+\end{emcppslisting}
 
 
 \noindent\lstinline!nullptr! is especially useful when such problematic overloads
@@ -178,7 +195,7 @@ appropriately typed pointer --- other than \lstinline!void*! --- was at one
 Being a distinct type, \lstinline!std::nullptr_t! can itself participate
 in an overload set:
 
-\begin{lstlisting}[language=C++]
+\begin{emcppslisting}
 #include  <cstddef> // 'std::nullptr_t'
 void f(int* v);          // (1)
 void f(std::nullptr_t);  // (2)
@@ -189,7 +206,7 @@ void g()
     f(ptr);      // unambiguously invokes (1)
     f(nullptr);  // unambiguously invokes (2)
 }
-\end{lstlisting}
+\end{emcppslisting}
 
 
 \noindent Given the relative ease with which a \lstinline!nullptr! can be
@@ -201,13 +218,16 @@ a runtime error (see
 %``\titleref{deleted-functions}" on page~\pageref{deleted-functions}
 \featureref{\locationb}{deleted-functions}):
 
-\begin{lstlisting}[language=C++]
-std::size_t strlen(const char* s);
+\begin{emcppshiddenlisting}[emcppsbatch=e4]
+#include <cstdlib>  // for ù{\codeincomments{std::size_t}}ù
+\end{emcppshiddenlisting}
+\begin{emcppslisting}[emcppsbatch=e4]
+std::size_t strlen(const char* s);
     // The behavior is undefined unless s is null-terminated.
 
 std::size_t strlen(std::nullptr_t) = delete;
     // Function is not defined but still participates in overload resolution.
-\end{lstlisting}
+\end{emcppslisting}
 
 
 \noindent Another arguably safe use of such an overload for a \lstinline!nullptr! is

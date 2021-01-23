@@ -23,8 +23,24 @@ done
 
 FULL_0=$(type -p "$0")
 BINDIR=$(cd "${FULL_0%/*}";pwd)
+TOBUILD=""
+SHOW=1
 
-TOBUILD=$1
+for arg in "${@}" ; do
+    case "${arg}" in
+        -clean)
+            if [ -d "${ROOTDIR}/build" ] ; then
+                rm -r "${ROOTDIR}/build"
+            fi
+            ;;
+        -noshow)
+            SHOW=0
+            ;;
+        *)
+            TOBUILD="${arg}"
+            ;;
+    esac
+done
 
 PUBDIR=$(cd ${ROOTDIR}/src/pubs;pwd)
 
@@ -71,7 +87,7 @@ for togen in "${TOGEN[@]}" ; do
     fi
 
     cd ${bdir}
-    make || diecat "Failed to build ${togen}" ${togen##*/}.log
+    make || die "Failed to build ${togen}" ${bdir}/${togen##*/}.log
 
     if [ -d "${gdir}" ] ; then
         PDFS+=( $(ls ${gdir}/*.pdf) )
@@ -82,9 +98,13 @@ for pdf in "${PDFS[@]}" ; do
     echo "Built PDF ${pdf}"
 done
 
-if [ ${#PDFS[@]} -eq 1 ] ; then
-  #xdg-open ${PDFS[0]}
-  ln -sf ${PDFS[0]} ~/public_html/tmp/current.pdf 
-  echo "URL: http://192.168.17.56:4913/~berne/tmp/current.pdf"
+if [ ${#PDFS[@]} -eq 1 -a ${SHOW} -eq 1 ] ; then
+    #
+    if [ -d ~/public_html/tmp ] ; then
+        ln -sf ${PDFS[0]} ~/public_html/tmp/current.pdf 
+        echo "URL: http://192.168.17.56:4913/~berne/tmp/current.pdf"
+    else
+        xdg-open ${PDFS[0]}        
+    fi    
 fi
 

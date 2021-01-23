@@ -10,14 +10,6 @@ import sys
 
 ignoreFileRe = re.compile("\.?#.*")
 
-parser = argparse.ArgumentParser()
-parser.add_argument("pub", type=str)
-parser.add_argument("--repo", type=pathlib.Path, nargs="*")
-parser.add_argument("--verbose", "-v", action="count", default=1)
-parser.add_argument("--builddir",type=pathlib.Path)
-parser.add_argument("--gendir",type=pathlib.Path)
-args = parser.parse_args()
-
 def isRepository(rd):
     return rd.joinpath("project.cmake").exists()
 
@@ -230,6 +222,9 @@ class Publication:
             if source.outline:
                 self.outline.addconfig(source.outline)
 
+        self.madefiles = set()
+        self.files = {}
+
     def addSource(self,source):
         self.sources.append(source)
         if source.options and source.options.has_section("dep"):
@@ -247,6 +242,50 @@ class Publication:
                 subsource = PublicationSource(spubpackage)
 
                 self.addSource(subsource)
+
+    def loadFile(self,tofind):
+        for source in self.sources:
+            for f in source.files:
+                fname = f.name
+                istemplate = fname.endswith(".mako")
+
+                if istemplate:
+                    fname = fname[:-5]
+
+                if fname == tofind:
+                    if not self.makeFile(source,f):
+                        return None
+                    return self.files[fname]
+        return None
+                
+    def makeFile(self,source,f):
+        if (source.package.id,f.name) in self.madefiles:
+            return True
+        self.madefiles.add( (source.package.id,f.name) )
+        
+        fname = f.name
+        istemplate = fname.endswith(".mako")
+
+        if istemplate:
+            fname = fname[:-5]
+
+        fname = fname.replace(f"{source.package.id}-xxxxx",self.package.id)
+        tof = self.builddir.joinpath(fname)
+
+        if fname in self.files:
+            print(f"DUPLICATE GENERATE FILE {tof}")
+            return False
+
+        self.files[fname] = tof
+
+        if istemplate:
+            if not self.generateFile(tof, f):
+                return False
+        else:
+            if not self.linkFile(tof, f):
+                return False
+
+        return True
                 
     def makeBuildDir(self,verbose):
         if not self.makeDirs(self.builddir):
@@ -258,32 +297,11 @@ class Publication:
         if not self.makeDirs(self.builddir.joinpath("listings")):
             return False
 
-        madefiles = set()
         for source in self.sources:
             for f in source.files:
-                fname = f.name
-                istemplate = fname.endswith(".mako")
-
-                if istemplate:
-                    fname = fname[:-5]
-
-                fname = fname.replace(f"{source.package.id}-xxxxx",self.package.id)
-
-                tof = self.builddir.joinpath(fname)
-
-                if tof in madefiles:
-                    print(f"DUPLICATE GENERATE FILE {tof}")
+                if not self.makeFile(source,f):
                     return False
-                madefiles.add(tof)
-
-                if istemplate:
-                    if not self.generateFile(tof, f):
-                        return False
-                else:
-                    if not self.linkFile(tof, f):
-                        return False
-
-        # clean out files that are not in madefiles
+        # clean out files that are not in self.files.values()
 
         return True
     
@@ -379,6 +397,15 @@ def updateBuild(args):
         if not success:
             sys.exit(1)
                 
+#---------------------------------------main processing below
+parser = argparse.ArgumentParser()
+parser.add_argument("pub", type=str)
+parser.add_argument("--repo", type=pathlib.Path, nargs="*")
+parser.add_argument("--verbose", "-v", action="count", default=1)
+parser.add_argument("--builddir",type=pathlib.Path)
+parser.add_argument("--gendir",type=pathlib.Path)
+args = parser.parse_args()
+
 if not checkArgs(args):
     sys.exit(1)
 
@@ -386,7 +413,5 @@ if args.verbose:
     print("  Repositories: %s" % (args.repo,))
     print("  Publication: %s - %s" % (args.pub,args.pubfile,))
     print("  Build Dir: %s" % (args.builddir,))
-
-
 
 updateBuild(args)

@@ -7,14 +7,20 @@ import re
 import subprocess
 
 lstFnameRe = re.compile("(.*).tex-(\d+).lst")
+
 batchRe = re.compile("// ----Batch: (.*)------")
 ignoreRe = re.compile("// ----Ignore: (.*)------")
 stdRe = re.compile("// ----Standards: (.*)------")
 errorLinesRe = re.compile("// ----ErrorLines: (.*)------")
+outputFileRe = re.compile("// ----OutputFile: (.*)------")
+
+headerRe = re.compile("// ----(Batch|Ignore|Standards|ErrorLines|OutputFile): (.*)------")
+
+
 sourceRe = re.compile("// ----Listing start: (.*):(\d+)-----")
 replaceStartRe = re.compile("// --- Replace")
 replaceEndRe = re.compile("// --- End")
-targetFileRe = re.compile("// ([A-Za-z0-9_]+).(h|cpp):")
+targetFileRe = re.compile("// (([?:A-Za-z0-9_]+).(?:h|cpp)):")
 
 class Env:
     def __init__(self,args):
@@ -37,6 +43,7 @@ class ListingData:
         self.batch = f"l_{m.group(2)}"
         self.ignore = False
         self.standards = None
+        self.outputFile = None
 
         self.sourceerrorlines = set()
         self.errorlines = set()
@@ -47,18 +54,27 @@ class ListingData:
             if m:
                 self.batch = m.group(1)
                 continue
+
             m = ignoreRe.match(l)
             if m:
                 self.ignore = True
                 continue
+
             m = stdRe.match(l)
             if m:
                 self.standards = m.group(1).split(",")
                 continue
+
+            m = outputFileRe.match(l)
+            if m:
+                self.outputFile = m.group(1)
+                continue
+            
             m = errorLinesRe.match(l)
             if m:
                 for x in m.group(1).split(","):
                     self.sourceerrorlines.add(int(x))
+
             if "// Error," in l:
                 if l.strip().startswith("// Error,"):
                     self.errorlines.add(i-1)
@@ -66,18 +82,32 @@ class ListingData:
                     self.errorlines.add(i)
 
     def goodData(self, replacements):
-        linedirective = None
+        currentOutFile = self.outputFile
 
         replacedata = None
 
         origFile = None
-        firstLine = None
-
+        origLine = -1;
+        firstLine = -1
+        
         for i,l in enumerate(self.data):
+            m = sourceRe.match(l)
+            if m:
+                origFile = m.group(1)
+                origLine = int(m.group(2))
+                continue
+
+            m = headerRe.match(l)
+            if m:
+                continue
+
+            origLine = origLine + 1
+            if firstLine < 0:
+                firstLine = i
+
             if l.strip() in replacements:
                 for rl in replacements[l.strip()]:
-                    yield rl
-                #TODO: add #line directive to restore position, if len(rl) > 1
+                    yield (currentOutFile,) + rl
                 continue
 
             m = replaceStartRe.match(l)
@@ -87,34 +117,28 @@ class ListingData:
             if replacedata != None:
                 m = replaceEndRe.match(l)
                 if m:
-                    #TODO: add #line directives if len(replacedata) > 2
-                    replacements[replacedata[0].strip()] = replacedata[1:]
+                    replacements[replacedata[0][-1].strip()] = replacedata[1:]
                     replacedata = None
                     continue
-                replacedata.append(l)
+                replacedata.append( (origFile,origLine,l) )
                 continue
-            
-            m = sourceRe.match(l)
+
+            m = targetFileRe.match(l)
             if m:
-                origFile = m.group(1)
-                origLine = int(m.group(2))
-                linedirective = f"#line {origLine+1} \"{origFile}\"\n"
-
-            if firstLine == None and not l.startswith("// ---"):
-                if linedirective:
-                    yield linedirective
-                    linedirective = None
-                firstLine = i
-
+                currentOutFile = m.group(1)
+                continue
+                
             comment = self.ignore
-            if not comment and i in self.errorlines:
+            # errorlines is based on index in lst file
+            if not comment and i in self.errorlines:  
                 comment = True
+            # sourceerrorlines is based on offset in original source listing from the start
             if not comment and firstLine != None and ( (i - firstLine + 1) in self.sourceerrorlines):
                 comment = True
             if comment:
-                yield f"// {l.rstrip()}\n"
+                yield (currentOutFile,origFile,origLine,f"// {l.rstrip()}\n")
             else:
-                yield l
+                yield (currentOutFile,origFile,origLine,l)
                     
                     
 class BatchData:
@@ -138,11 +162,31 @@ class BatchData:
 
         goodfile = batchdir.joinpath(f"{self.batch}.cpp")
         replacements = {}
-        goodlines = [ l for lstf in self.listings for l in lstf.goodData(replacements) ]
+        files = {}
 
-        goodfile.open("w").writelines(goodlines)
+        for f,s,ln,l in [ l for lstf in self.listings for l in lstf.goodData(replacements) ]:
+            if not f in files:
+                files[f] = []
+            files[f].append((s,ln,l))
 
-        self.goodfiles.append(goodfile)
+        def processSourceLines(lines):
+            currents = None
+            currentln = -1
+            for s,ln,l in lines:
+                if currents != s or currentln != ln-1:
+                    yield f"#line {ln} \"{s}\"\n"
+                currents = s
+                currentln = ln
+                yield l
+                
+            
+        for f,lines in files.items():
+            if f == None:
+                f = goodfile
+            else:
+                f = batchdir.joinpath(f)
+            f.open("w").writelines([ l for l in processSourceLines(lines)])
+            self.goodfiles.append(f)
         
         return True
 
@@ -155,7 +199,9 @@ class BatchData:
                     ofile = goodfile.with_name(f"{goodfile.name}.{compiler}.{standard}.o")
                     outfile = goodfile.with_name(f"{goodfile.name}.{compiler}.{standard}.out")
 
-                    args = [ compiler, "-c", f"-std={standard}", "-o", ofile.name, goodfile.name,]
+                    # Since we compile header files, we must pass "-x c++" explicitly to always force C++
+                    # We also add "-I." to allow includes between files in the same batch.
+                    args = [ compiler, "-c", "-I.", "-x", "c++", f"-std={standard}", "-o", ofile.name, goodfile.name,]
 
                     #print(f"  Executing: {args}")
                     result = subprocess.call(args, stderr=outfile.open("w"), cwd=goodfile.parent)
@@ -189,6 +235,9 @@ def checkListings(args):
         
         env.data.append(ListingData(f))
 
+    if env.codedir.exists():
+        print(f"Cleaning code dir {env.codedir}")
+        
     env.data.sort(key=lambda x : (x.sourceFile,x.batch,x.lstnum) )
 
     env.batches = {}

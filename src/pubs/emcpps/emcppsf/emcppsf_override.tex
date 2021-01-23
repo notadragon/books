@@ -13,7 +13,7 @@ member function in a base class, as opposed to \emph{hiding} it or
 otherwise inadvertently introducing a distinct function declaration:
 
 % original
-%\begin{lstlisting}[language=C++]
+%begin{emcppslisting}
 %struct Base
 %{
 %    virtual void f(int);
@@ -34,9 +34,9 @@ otherwise inadvertently introducing a distinct function declaration:
 %    void g(int);           // hides (ù{\codeincomments{Base::g(int)}}ù) (likely mistake)
 %    void g(int) override;  // Error: (ù{\codeincomments{Base::g()}}ù) is not (ù{\codeincomments{virtual}}ù).
 %};
-%\end{lstlisting}
+%\end{emcppslisting}
 % Slava's replacement
-\begin{lstlisting}[language=C++]
+\begin{emcppslisting}
 struct Base
 {
     virtual void f(int);
@@ -72,7 +72,7 @@ struct DerivedWithOverride : Base
 
     void i(int)       override;    // OK, explicitly overrides (ù{\codeincomments{Base::i(int)}}ù)
 };
-\end{lstlisting}
+\end{emcppslisting}
 
 \noindent Using this feature expresses design intent so that (1) human readers
 are aware of it and (2) compilers can validate it.
@@ -80,9 +80,9 @@ are aware of it and (2) compilers can validate it.
 As noted, \lstinline!override! is a contextual keyword. C++11 introduces keywords that have special meaning only in certain contexts.   In this case, \lstinline!override! is a keyword in the context of a declaration, but not otherwise using it as the identifier for a variable name, for example, is perfectly fine:
 
 %%%%%%%% EXCEPTION! override here should NOT be bold
-\begin{lstlisting}[language=C++]
+\begin{emcppslisting}
 int override = 1;  // OK
-\end{lstlisting}
+\end{emcppslisting}
 
 \subsection[Use Cases]{Use Cases}\label{use-cases}
 
@@ -90,7 +90,11 @@ int override = 1;  // OK
 
 Consider the following polymorphic hierarchy of error-category classes, as we might have defined them using C++03:
 
-\begin{lstlisting}[language=C++]
+\begin{emcppshiddenlisting}[emcppsbatch=e1]
+struct ErrorCode;
+struct ErrorCondition;
+\end{emcppshiddenlisting}
+\begin{emcppslisting}[emcppsbatch=e1]
 struct ErrorCategory
 {
     virtual bool equivalent(const ErrorCode& code, int condition);
@@ -102,7 +106,7 @@ struct AutomotiveErrorCategory : ErrorCategory
     virtual bool equivalent(const ErrorCode& code, int condition);
     virtual bool equivolent(int code, const ErrorCondition& condition);
 };
-\end{lstlisting}
+\end{emcppslisting}
 
 \noindent Notice that there is a defect in the last line of the example above:
 \lstinline!equivalent! has been misspelled. Moreover, the compiler did not
@@ -114,13 +118,17 @@ that over time the interface is changed by marking the
 equivalence-checking function \lstinline!const! to bring the interface
 closer to that of \lstinline!std::error_category!:
 
-\begin{lstlisting}[language=C++]
+\begin{emcppshiddenlisting}[emcppsbatch=e2]
+struct ErrorCode;
+struct ErrorCondition;
+\end{emcppshiddenlisting}
+\begin{emcppslisting}[emcppsbatch=e2]
 struct ErrorCategory
 {
     virtual bool equivalent(const ErrorCode& code, int condition) const;
     virtual bool equivalent(int code, const ErrorCondition& condition) const;
 };
-\end{lstlisting}
+\end{emcppslisting}
 
 Without applying the corresponding modification to all classes deriving
 from\linebreak[4] \lstinline!ErrorCategory!, the semantics of the program change due to
@@ -130,16 +138,16 @@ the base class's
 would be detected automatically if the \lstinline!virtual!
 functions in all derived classes were decorated with \lstinline!override!:
 
-\begin{lstlisting}[language=C++]
+\begin{emcppslisting}[emcppsbatch=e2]
 struct AutomotiveErrorCategory : ErrorCategory
 {
     bool equivalent(const ErrorCode& code, int condition) override;
-        // compile-time error when base class changed
+        // Error, failed when base class changed
 
     bool equivolent(int code, const ErrorCondition& code) override;
-        // compile-time error when first written
+        // Error, failed when first written
 };
-\end{lstlisting}
+\end{emcppslisting}
 
 \noindent What's more, \lstinline!override! serves as a clear indication of the derived-class author's intent to customize the
 behavior of \lstinline!ErrorCategory!. For any given member function, using \lstinline!override! necessarily renders any use of \lstinline!virtual! for
