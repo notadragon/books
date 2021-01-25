@@ -127,21 +127,27 @@ showstringspaces=false,
 % is not visible in the text.
 \lst@Key{emcppsoutputfile}{}{\def\emcppsOutputFile{#1}}
 
+% This environment should be used for all C++ listings/code examples that
+% readers should see.  Note that in other builds this will write snippets to
+% files in order to validate compilation.
 \lstnewenvironment{emcppslisting}[1][]
 {%
   \lstset{language=C++,#1}%
   \stepcounter{emcppslistings}%
-}
-{%
-}
+} 
+{}
 
+% This environment should be used for adding "hidden" parts of a listing batch 
+% are needed to make it compile (use [emcppsbatch=...] on all related snippets}
+% This should take up no space and nothing should be visible in the text.  Note
+% that in other builds this will write snippets to files in order to validate
+% compilation.
 \lstnewenvironment{emcppshiddenlisting}[1][]
 {%
   \lstset{language=C++,aboveskip=0pt,belowskip=0pt,gobble=1000,#1}%
   \stepcounter{emcppslistings}%
 }
-{%
-}
+{}
 
 
 
