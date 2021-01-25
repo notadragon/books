@@ -104,7 +104,7 @@ we can start providing a \emph{value constructor} and corresponding
 %};
 %\end{emcppslisting}
 \begin{emcppslisting}[emcppsbatch=e2]
-#include <new>  // ù{\codeincomments{operator new}}ù)
+#include <new>  // placement ù{\codeincomments{new}}ù)
 
 struct U2
 {
@@ -227,7 +227,7 @@ definitions for \lstinline!U2! explicitly:
 %};
 %\end{emcppslisting}
 \begin{emcppshiddenlisting}[emcppsbatch=e4]
-#include <new>  // ù{\codeincomments{operator new}}ù)
+#include <new>  // placement ù{\codeincomments{new}}ù)
 // duplicate the requirements for U2 so that we can show an alternate version
 // of the constructor
 struct Nt  // used as part of a (ù{\codeincomments{union}}ù) (below)

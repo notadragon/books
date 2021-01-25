@@ -248,7 +248,7 @@ not exceed \lstinline!N!{\cprotect\footnote{A \lstinline!SmallObjectBuffer! is
 %\end{emcppslisting}
 \begin{emcppslisting}[emcppsbatch=e3]
 #include <cstddef> // (ù{\codeincomments{std::size\_t}}ù), (ù{\codeincomments{std::max\_align\_t}}ù)
-#include <new>     // (ù{\codeincomments{operator new}}ù)
+#include <new>     // placement (ù{\codeincomments{new}}ù)
 
 template <std::size_t N>
 class SmallObjectBuffer
