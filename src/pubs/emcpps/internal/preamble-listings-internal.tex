@@ -96,6 +96,9 @@ showstringspaces=false,
 %
 \usepackage{currfile}
 \makeatletter
+
+% This counter is used to generate unique ids for the files that will be output.
+% Ideally it would also be reset per feature, but that is not strictly needed.
 \newcounter{emcppslistings}
 \setcounter{emcppslistings}{0}
 \lst@RequireAspects{writefile}
@@ -155,7 +158,5 @@ showstringspaces=false,
   \immediate\write\lst@WF{// ----Listing done: \currfilename:\the\inputlineno-----}%
   \lst@EndWriteFile%
 }
-
-
 
 \makeatother
