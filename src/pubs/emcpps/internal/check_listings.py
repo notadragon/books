@@ -17,7 +17,7 @@ outputFileRe = re.compile("// ----OutputFile: (.*)------")
 headerRe = re.compile("// ----(Batch|Ignore|Standards|ErrorLines|OutputFile): (.*)------")
 
 
-sourceRe = re.compile("// ----Listing start: (.*):(\d+)-----")
+sourceRe = re.compile("// ----(?:Hidden )?Listing start: (.*):(\d+)-----")
 replaceStartRe = re.compile("// --- Replace")
 replaceEndRe = re.compile("// --- End")
 targetFileRe = re.compile("// (([?:A-Za-z0-9_]+).(?:h|cpp)):")

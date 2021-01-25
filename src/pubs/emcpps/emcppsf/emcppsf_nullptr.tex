@@ -13,7 +13,7 @@ bit pattern corresponding to a \romeogloss{null address} on the host platform;
 \lstinline!nullptr! and other values of type \lstinline!std::nullptr_t!, along with the integer literal \lstinline!0! and the macro \lstinline!NULL!, can be converted implicitly to any pointer or pointer-to-member type:
 
 \begin{emcppslisting}
-#include <cstddef> // NULL
+#include <cstddef> // (ù{\codeincomments{NULL}}ù)
 int data;  // nonmember data
 
 int *pi0 = &data;    // Initialize with non-null address.
@@ -92,7 +92,7 @@ statement) are always returned via pointer to a modifiable
 object. Functions that return via argument typically do so to reserve the function’s return value to communicate status.{\cprotect\footnote{See \cite{lakos96}, section~9.1.11, pp.~621--628, specifically the \emph{Guideline} at the bottom of p.~621: ``Be consistent about returning values through arguments (e.g., avoid declaring non\lstinline!const! reference parameters)."}} A function in this codebase might ``zero" the output parameter's local pointer variable to indicate and ensure that nothing more is to be written. The function below illustrates three different ways of doing this:
 
 \begin{emcppshiddenlisting}[emcppsbatch=e1]
-#include <cstdlib>  // for ù{\codeincomments{NULL}}ù
+#include <cstdlib>  // ù{\codeincomments{NULL}}ù
 // --- Replace
     if (/*...*/)
     if (true)
@@ -119,7 +119,7 @@ change in coding standards in the organization) to accept a reference
 instead of a pointer:
 
 \begin{emcppshiddenlisting}[emcppsbatch=e2]
-#include <cstdlib>  // for ù{\codeincomments{NULL}}ù
+#include <cstdlib>  // ù{\codeincomments{NULL}}ù
 // --- Replace
     if (/*...*/)
     if (true)
@@ -160,7 +160,7 @@ accepting a pointer or an integral type as the same positional argument, which m
 library:
 
 \begin{emcppshiddenlisting}[emcppsbatch=e3]
-#include <cstdlib>  // for ù{\codeincomments{NULL}}ù
+#include <cstdlib>  // ù{\codeincomments{NULL}}ù
 \end{emcppshiddenlisting}
 \begin{emcppslisting}[emcppsbatch=e3]
 void uglyLibraryFunction(int* p);  // (1)
@@ -196,14 +196,14 @@ Being a distinct type, \lstinline!std::nullptr_t! can itself participate
 in an overload set:
 
 \begin{emcppslisting}
-#include  <cstddef> // 'std::nullptr_t'
+#include  <cstddef> // (ù{\codeincomments{std::nullptr\_t}}ù)
 void f(int* v);          // (1)
 void f(std::nullptr_t);  // (2)
 
 void g()
 {
     int* ptr = nullptr;
-    f(ptr);      // unambiguously invokes (1)
+    f(ptr);      // unaemmbiguously invokes (1)
     f(nullptr);  // unambiguously invokes (2)
 }
 \end{emcppslisting}
@@ -219,7 +219,7 @@ a runtime error (see
 \featureref{\locationb}{deleted-functions}):
 
 \begin{emcppshiddenlisting}[emcppsbatch=e4]
-#include <cstdlib>  // for ù{\codeincomments{std::size_t}}ù
+#include <cstdlib>  // ù{\codeincomments{std::size_t}}ù
 \end{emcppshiddenlisting}
 \begin{emcppslisting}[emcppsbatch=e4]
 std::size_t strlen(const char* s);

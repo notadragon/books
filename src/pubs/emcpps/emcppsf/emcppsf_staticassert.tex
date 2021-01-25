@@ -111,7 +111,7 @@ template parameter is almost always bypassed during its initial parse since
 the assertion predicate might evaluate to true or false depending on the template argument:
 
 \begin{emcppshiddenlisting}[emcppsbatch=e2]
-#include <complex>
+#include <complex>  // ù{\codeincomments{std::complex}}ù)
 \end{emcppshiddenlisting}
 \begin{emcppslisting}[emcppsbatch=e2]
 template <typename T>
@@ -247,8 +247,8 @@ not exceed \lstinline!N!{\cprotect\footnote{A \lstinline!SmallObjectBuffer! is
 %};
 %\end{emcppslisting}
 \begin{emcppslisting}[emcppsbatch=e3]
-#include <cstddef> // for (ù{\codeincomments{std::size\_t}}ù), (ù{\codeincomments{std::max\_align\_t}}ù)
-#include <new>
+#include <cstddef> // (ù{\codeincomments{std::size\_t}}ù), (ù{\codeincomments{std::max\_align\_t}}ù)
+#include <new>     // (ù{\codeincomments{operator new}}ù)
 
 template <std::size_t N>
 class SmallObjectBuffer
@@ -302,7 +302,7 @@ integral types will be accepted:
 
 \begin{emcppslisting}
 #include <climits>      // (ù{\codeincomments{CHAR\_BIT}}ù)
-#include <type_traits>  // (ù{\codeincomments{std::is\_integral}}ù) and (ù{\codeincomments{std::is\_unsigned}}ù)
+#include <type_traits>  // (ù{\codeincomments{std::is\_integral}}ù), (ù{\codeincomments{std::is\_unsigned}}ù)
 
 template <typename T>
 T rotateLeft(T x)

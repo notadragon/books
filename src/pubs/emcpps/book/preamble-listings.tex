@@ -147,7 +147,7 @@ showstringspaces=false,
   \lstset{language=C++,aboveskip=0pt,belowskip=0pt,#1}%
   \stepcounter{emcppslistings}%
   \lst@BeginWriteFile{listings/\currfilename-\theemcppslistings.lst}%
-  \immediate\write\lst@WF{// ----Listing start: \currfilename:\the\inputlineno-----}%
+  \immediate\write\lst@WF{// ----Hidden Listing start: \currfilename:\the\inputlineno-----}%
   \ifthenelse{\equal{}{\emcppsBatch}}{}{\immediate\write\lst@WF{// ----Batch: \emcppsBatch------}}%
   \ifthenelse{\equal{}{\emcppsStandards}}{}{\immediate\write\lst@WF{// ----Standards: \emcppsStandards------}}%
 }

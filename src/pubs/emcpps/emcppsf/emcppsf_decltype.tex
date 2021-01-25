@@ -18,7 +18,7 @@ If the operand is an unparenthesized \romeogloss{id-expression} or unparenthesiz
 
 
 \begin{emcppshiddenlisting}[emcppsbatch=e1]
-#include <string>
+#include <string>  // (ù{\codeincomments{std::string}}ù)
 \end{emcppshiddenlisting}
 \begin{emcppslisting}[emcppsbatch=e1]
 int i;                // (ù{\codeincomments{decltype(i)}}ù)   -> (ù{\codeincomments{int}}ù)
@@ -116,23 +116,26 @@ operator (which is also resolved at compile time), the expression operand of \ls
 %assert(i == 0);   // The function (ù{\codeincomments{next}}ù) is never invoked.
 %\end{emcppslisting}
 \begin{emcppshiddenlisting}[emcppsbatch=e3]
-#include <cassert>
-void testFunction() {
+#include <cassert>  // standard (ù{\codeincomments{assert}}ù) macro
 \end{emcppshiddenlisting}
 \begin{emcppslisting}[emcppsbatch=e3]
-int i = 0;
-decltype(i++) j;  // equivalent to (ù{\codeincomments{int j;}}ù)
-assert(i == 0);   // The expression (ù{\codeincomments{i++}}ù) was not evaluated.
+void test1()
+{
+    int i = 0;
+    decltype(i++) j;  // equivalent to (ù{\codeincomments{int j;}}ù)
+    assert(i == 0);   // The expression (ù{\codeincomments{i++}}ù) was not evaluated.
+}
 \end{emcppslisting}
 Note that the choice of using the postfix increment is significant; the prefix increment yields a different type:
 \begin{emcppslisting}[emcppsbatch=e3]
-int m = 1;
-decltype(++i) k = m; // equivalent to (ù{\codeincomments{int\& k = m;}}ù)
-assert(i == 0); // The expression (ù{\codeincomments{++1}}ù) is not evaluated.
+void test2()
+{
+    int i = 0;
+    int m = 1;
+    decltype(++i) k = m; // equivalent to (ù{\codeincomments{int\& k = m;}}ù)
+    assert(i == 0); // The expression (ù{\codeincomments{++1}}ù) is not evaluated.
+}
 \end{emcppslisting}
-\begin{emcppshiddenlisting}[emcppsbatch=e3]
-} // end testFunction()
-\end{emcppshiddenlisting}[emcppsbatch=e3]
 
 \subsection[Use Cases]{Use Cases}\label{use-cases-decltype}
 
@@ -142,8 +145,8 @@ Consider two logically equivalent ways of declaring a vector of
 iterators into a list of \lstinline!Widgets!:
 
 \begin{emcppshiddenlisting}[emcppsbatch=e4]
-#include <list>
-#include <vector>
+#include <list>    // (ù{\codeincomments{std::list}}ù)   
+#include <vector>  // (ù{\codeincomments{std::vector}}ù)
 struct Widget {};
 \end{emcppshiddenlisting}
 \begin{emcppslisting}[emcppsbatch=e4]
@@ -153,8 +156,8 @@ std::vector<std::list<Widget>::iterator> widgetIterators;
     // needs to be explicitly named.
 \end{emcppslisting}
 \begin{emcppshiddenlisting}[emcppsbatch=e4-1]
-#include <list>
-#include <vector>
+#include <list>    // (ù{\codeincomments{std::list}}ù)   
+#include <vector>  // (ù{\codeincomments{std::vector}}ù)
 struct Widget {};
 \end{emcppshiddenlisting}
 \begin{emcppslisting}[emcppsbatch=e4-1]
@@ -179,7 +182,7 @@ maintenance. For example, consider a \lstinline!Packet! class exposing a
 representing the length of the packet's checksum:
 
 \begin{emcppshiddenlisting}[emcppsbatch=e6]
-#include <cstdint>
+#include <cstdint>  // (ù{\codeincomments{std::uint8\_t}}ù)
 \end{emcppshiddenlisting}
 \begin{emcppslisting}[emcppsbatch=e6]
 class Packet
@@ -197,7 +200,7 @@ that computes the checksum of a \lstinline!Packet!, using the same type for its 
 type returned by \lstinline!Packet::checksumLength!:
 
 \begin{emcppshiddenlisting}[emcppsbatch=e7]
-#include <cstdint>
+#include <cstdint>  // (ù{\codeincomments{std::uint8\_t}}ù)
 struct Packet
 {
 public:
@@ -247,9 +250,8 @@ type of \lstinline!i!, the types would have remained consistent, and the
 ensuing defect would naturally have been avoided:
 
 \begin{emcppshiddenlisting}[emcppsbatch=e7]
-void someOtherFunction()
+void g(const Packet &data)
 {
-    Packet data;
 \end{emcppshiddenlisting}
 \begin{emcppslisting}[emcppsbatch=e7]
 // ...
@@ -258,7 +260,7 @@ for (decltype(data.checksumLength()) i = 0; i < data.checksumLength(); ++i)
 \end{emcppslisting}
 \begin{emcppshiddenlisting}[emcppsbatch=e7]
 {}
-} // end someOtherFunction
+} // end g
 \end{emcppshiddenlisting}    
 
 \subsubsection[Creating an auxiliary variable of generic type]{Creating an auxiliary variable of generic type}\label{creating-an-auxiliary-variable-of-generic-type}
@@ -328,7 +330,7 @@ the presence of an implicit (\emph{standard}) conversion from
 \lstinline!int! to \lstinline!long!:
 
 \begin{emcppshiddenlisting}[emcppsbatch=e9]
-#include <algorithm>
+#include <algorithm>  // (ù{\codeincomments{std::sort}}ù)
 \end{emcppshiddenlisting}
 \begin{emcppslisting}[emcppsbatch=e9]
 template <typename Range>
@@ -390,7 +392,7 @@ default template argument are also viable:
 %    // be used in an unevaluated expression.
 %\end{emcppslisting}
 \begin{emcppslisting}
-#include <utility>  // for ù{\codeincomments{declval}}ù)
+#include <utility>  // ù{\codeincomments{declval}}ù)
 template <typename Range>
 auto sortRangeImpl(Range& range, int) -> decltype(range.sort(), void());
     // The comma operator is used to force the return type to (ù{\codeincomments{void}}ù),
@@ -449,7 +451,7 @@ using \lstinline!decltype! to capture a value of an expression that is about to 
 An alternate solution to this problem is to capture the result of the \lstinline!decltype! expression in a \lstinline!typedef!, \lstinline!using! type alias, or as a defaulted template parameter --- but that runs into the problem that it can be used only once the expression is valid.  A defaulted \lstinline!template! parameter cannot reference parameter names as it is written before them, and a type alias cannot be introduced prior to the return type being needed.  A solution to this problem lies in using standard library function \lstinline!std::declval! to create expressions of the appropriate type without needing to reference the actual function parameters by name:
 
 \begin{emcppshiddenlisting}[emcppsbatch=e11]
-#include <utility>  // for ù{\codeincomments{declval}}ù)
+#include <utility>  // ù{\codeincomments{std::declval}}ù)
 struct LogTrace {};  
 constexpr LogTrace LOG_TRACE; // Quick and dirty syntactic simulation of logger
 template <typename T>

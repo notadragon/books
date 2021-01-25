@@ -17,11 +17,7 @@ for more details, see https://gcc.gnu.org/gcc-4.3/.}}:
 %of a \texttt{0b} (or \texttt{0B}) prefix followed by a nonempty
 %sequence of binary digits (\texttt{0} or \texttt{1})
 
-\begin{emcppshiddenlisting}[emcppsbatch=bl1]
-// This is a hidden listing in batch bl1
-\end{emcppshiddenlisting}
-
-\begin{emcppslisting}[emcppsbatch=bl1]
+\begin{emcppslisting}[emcppsbatch=e1]
 int i = 0b11110000;  // equivalent to (ù{\codeincomments{240}}ù), (ù{\codeincomments{0360}}ù), or (ù{\codeincomments{0xF0}}ù)
 int j = 0B11110000;  // same value as above
 \end{emcppslisting}
@@ -29,7 +25,7 @@ int j = 0B11110000;  // same value as above
 \noindent The first digit after the \lstinline!0b! prefix is the most significant
 one:
 
-\begin{emcppslisting}[emcppsbatch=bl1]
+\begin{emcppslisting}[emcppsbatch=e1]
 static_assert(0b0     ==  0, "");  // 0*2^0
 static_assert(0b1     ==  1, "");  // 1*2^0
 static_assert(0b10    ==  2, "");  // 1*2^1 + 0*2^0
@@ -269,8 +265,9 @@ machine whose opcodes are specified in binary format:
 %    }
 %}
 %\end{emcppslisting}
-\begin{emcppshiddenlisting}[emcppsbatch=vm]
-#include <cstdint>
+\begin{emcppshiddenlisting}[emcppsbatch=e2]
+// needed here for virtual machine, also below for visibility
+#include <cstdint>  // // (ù{\codeincomments{std::uint8\_t}}ù)
 struct VirtualMachine {
     std::uint8_t d_register0;
     std::uint8_t d_register1;
@@ -278,7 +275,7 @@ struct VirtualMachine {
     void jumpTo(std::uint8_t address);
 };
 \end{emcppshiddenlisting}
-\begin{emcppslisting}[emcppsbatch=vm]
+\begin{emcppslisting}[emcppsbatch=e2]
 #include <cstdint>  // (ù{\codeincomments{std::uint8\_t}}ù)
 
 void VirtualMachine::decodeInstruction(std::uint8_t instruction)

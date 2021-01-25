@@ -57,7 +57,7 @@ and leave them unimplemented, typically resulting in a compile-time or
 link-time error when accessed:
 
 \begin{emcppslisting}
-#include <cstdio>  // for ù{\codeincomments{FILE}}ù
+#include <cstdio>  // ù{\codeincomments{FILE}}ù
 class FileHandle
 {
 private:
@@ -96,7 +96,7 @@ of the class, and (3) enable clearer compiler diagnostics:
 %};
 %\end{emcppslisting}
 \begin{emcppshiddenlisting}[emcppsbatch=e1]
-#include <cstdio>  // for ù{\codeincomments{FILE}}ù
+#include <cstdio>  // ù{\codeincomments{FILE}}ù
 \end{emcppshiddenlisting}
 \begin{emcppslisting}[emcppsbatch=e1]
 class FileHandle
@@ -138,8 +138,8 @@ specified memory address, \lstinline!buf!:
 %}
 %\end{emcppslisting}
 \begin{emcppslisting}
-#include <cstdio>  // puts
-#include <cstring> // memset
+#include <cstdio>  // ù{\codeincomments{puts}}ù
+#include <cstring> // ù{\codeincomments{memset}}ù
 
 void f()
 {
@@ -160,7 +160,7 @@ can target such observed misuse using an extra deleted overload:
 %void* memset(void* str, int n, char) = delete;  // defensive against misuse
 %\end{emcppslisting}
 \begin{emcppslisting}
-#include <cstring>  // memset
+#include <cstring>  // ù{\codeincomments{memset}}ù
 void* memset(void* str, int ch, size_t n);      // standard library function
 void* memset(void* str, int n, char) = delete;  // defense against misuse
 \end{emcppslisting}
@@ -268,19 +268,14 @@ void f()
 
 \noindent If the need for a \lstinline!ForwardAudioStream! type persists, we can always
 consider reimplementing it more carefully later.{\cprotect\footnote{\cite[sections 3.5.10.5 and 3.7.3, pp.~687--703 and 726--727]{lakos20}}} As discussed at the beginning of this section, the protection provided by this example is easily circumvented:
-\begin{emcppshiddenlisting}[emcppsbatch=e2]
-void g()
-{
-    ForwardAudioStream stream = FMRadio::getStream();
-\end{emcppshiddenlisting}
 \begin{emcppslisting}[emcppsbatch=e2]
-AudioStream fullStream = stream;
-fullStream.play();   // OK
-fullStream.rewind(); // compiles OK, but what happens at run time?
+void g(const ForwardAudioStream &stream)
+{
+    AudioStream fullStream = stream;
+    fullStream.play();   // OK
+    fullStream.rewind(); // compiles OK, but what happens at run time?
+}
 \end{emcppslisting}
-\begin{emcppshiddenlisting}[emcppsbatch=e2]
-} // end g()
-\end{emcppshiddenlisting}
 
 \noindent Hiding non\lstinline!virtual! functions is something one undertakes only after attaining a complete understanding of what makes such an unorthodox endeavor \emph{safe}; see, in particular, the appendix of \featureref{\locatione}{final}.
 

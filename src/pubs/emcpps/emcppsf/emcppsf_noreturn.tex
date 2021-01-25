@@ -80,8 +80,8 @@ function would allow it to return normally:
 %}  // compile-time warning made possible
 %\end{emcppslisting}
 \begin{emcppshiddenlisting}[emcppsbatch=e3]
-#include <cstdlib>  // (ù{\codeincomments{std::abort}}ù)
-#include <iostream>
+#include <cstdlib>   // (ù{\codeincomments{std::abort}}ù)
+#include <iostream>  // (ù{\codeincomments{std::cout}}ù)
 struct LogError {};
 constexpr LogError LOG_ERROR;
 template <typename T>
@@ -196,7 +196,7 @@ error message before aborting the program:
 
 \begin{emcppshiddenlisting}[emcppsbatch=e5]
 #include <iostream>  // (ù{\codeincomments{std::cout}}ù)
-#include <cassert>   // (ù{\codeincomments{assert}}ù)
+#include <cassert>   // standard (ù{\codeincomments{assert}}ù) macro
 \end{emcppshiddenlisting}
 \begin{emcppslisting}[emcppsbatch=e5]
 [[noreturn]] void printAndExit()

@@ -13,7 +13,7 @@ operator, making an intervening space mandatory for them to be treated
 as separate closing-angle-bracket tokens:
 
 \begin{emcppshiddenlisting}[emcppsbatch=e1]
-#include <vector>
+#include <vector>  // (ù{\codeincomments{std::vector}}ù)
 \end{emcppshiddenlisting}
 \begin{emcppslisting}[emcppsbatch=e1]
 // C++03
@@ -27,7 +27,7 @@ whereby, when parsing a template-argument expression, \emph{non-nested}
 \lstinline!>>>!, and so on are to be treated as separate closing angle brackets:
 
 \begin{emcppshiddenlisting}[emcppsbatch=e2]
-#include <vector>
+#include <vector>  // (ù{\codeincomments{std::vector}}ù)
 \end{emcppshiddenlisting}
 \begin{emcppslisting}[emcppsbatch=e2]
 // C++11
@@ -79,9 +79,9 @@ feature (rather, this repaired defect), we can now render closing angle
 brackets contiguously, just like parentheses and square brackets:
 
 \begin{emcppshiddenlisting}[emcppsbatch=e3]
-#include <list>
-#include <vector>
-#include <map>
+#include <list>    // (ù{\codeincomments{std::list}}ù)
+#include <vector>  // (ù{\codeincomments{std::vector}}ù)
+#include <map>     // (ù{\codeincomments{std::map}}ù)
 \end{emcppshiddenlisting}
 \begin{emcppslisting}[emcppsbatch=e3]
 // OK in both C++03 and C++11
@@ -135,7 +135,7 @@ as a \emph{bitwise right-shift operator} in C++03 but not in C++11. Writing a pr
 C++11 and (2) exposes the difference in parsing rules is possible:
 
 \begin{emcppshiddenlisting}[emcppsbatch=e4]
-#include <iostream>
+#include <iostream>    // (ù{\codeincomments{std::cout}}ù)
 \end{emcppshiddenlisting}
 \begin{emcppslisting}[emcppsbatch=e4]
 enum Outer { a = 1, b = 2, c = 3 };
