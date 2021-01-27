@@ -1,3 +1,5 @@
+%%%% 15 Jan: copyedits in and proofed
+
 Trailing return types provide a new alternate syntax in which the return type of a function is specified at
 the end of a function declaration as opposed to at the beginning,
 thereby allowing it to reference function parameters by name and to reference class
@@ -136,7 +138,7 @@ can be represented in terms of the trailing syntax have a convenient
 equivalent representation in the classic one:
 
 \begin{emcppslisting}
-#include <utility>  // ù{\codeincomments{declval}}ù)
+#include <utility>  // (ù{\codeincomments{declval}}ù)
 
 template <typename A, typename B>
 auto foo(A a, B b) -> decltype(a.foo(b));

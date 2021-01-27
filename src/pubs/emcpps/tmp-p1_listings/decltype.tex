@@ -1,3 +1,5 @@
+%%%% copyedits in and proofed
+
 The keyword \lstinline!decltype! enables the compile-time inspection of the \romeogloss{declared type} of an \romeogloss{entity} \emph{or} the type and
 \romeogloss{value category} of an expression. Note that the special construct \lstinline!decltype(auto)! has a separate meaning; see \featureref{\locationf}{decltypeauto}.
 %``\titleref{decltypeauto}" on page~\pageref{decltypeauto}.}
@@ -388,7 +390,7 @@ default template argument are also viable:
 %    // be used in an unevaluated expression.
 %\end{emcppslisting}
 \begin{emcppslisting}
-#include <utility>  // ù{\codeincomments{declval}}ù)
+#include <utility>  // (ù{\codeincomments{declval}}ù)
 template <typename Range>
 auto sortRangeImpl(Range& range, int) -> decltype(range.sort(), void());
     // The comma operator is used to force the return type to (ù{\codeincomments{void}}ù),
@@ -447,7 +449,7 @@ using \lstinline!decltype! to capture a value of an expression that is about to 
 An alternate solution to this problem is to capture the result of the \lstinline!decltype! expression in a \lstinline!typedef!, \lstinline!using! type alias, or as a defaulted template parameter --- but that runs into the problem that it can be used only once the expression is valid.  A defaulted \lstinline!template! parameter cannot reference parameter names as it is written before them, and a type alias cannot be introduced prior to the return type being needed.  A solution to this problem lies in using standard library function \lstinline!std::declval! to create expressions of the appropriate type without needing to reference the actual function parameters by name:
 
 \begin{emcppshiddenlisting}[emcppsbatch=e11]
-#include <utility>  // ù{\codeincomments{std::declval}}ù)
+#include <utility>  // (ù{\codeincomments{std::declval}}ù)
 struct LogTrace {};  
 constexpr LogTrace LOG_TRACE; // Quick and dirty syntactic simulation of logger
 template <typename T>

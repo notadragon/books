@@ -1,3 +1,5 @@
+%%%%% copyedits in and proofed
+
 Any nonreference type is permitted to be a member of a \lstinline!union!.
 
 \subsection[Description]{Description}\label{unrestrictedunion-description}
@@ -11,7 +13,7 @@ a \romeogloss{non-trivial special member function} from being a member of a
 \lstinline!union!:
 
 \begin{emcppshiddenlisting}[emcppsbatch=e1]
-#include <string>  // ù{\codeincomments{std::string}}ù)
+#include <string>  // (ù{\codeincomments{std::string}}ù)
 \end{emcppshiddenlisting}
 \begin{emcppslisting}[emcppsbatch=e1]
 union U0
@@ -100,7 +102,7 @@ we can start providing a \emph{value constructor} and corresponding
 %};
 %\end{emcppslisting}
 \begin{emcppslisting}[emcppsbatch=e2]
-#include <new>  // placement ù{\codeincomments{new}}ù)
+#include <new>  // placement (ù{\codeincomments{new}}ù)
 
 struct U2
 {
@@ -223,7 +225,7 @@ definitions for \lstinline!U2! explicitly:
 %};
 %\end{emcppslisting}
 \begin{emcppshiddenlisting}[emcppsbatch=e4]
-#include <new>  // placement ù{\codeincomments{new}}ù)
+#include <new>  // placement (ù{\codeincomments{new}}ù)
 // duplicate the requirements for U2 so that we can show an alternate version
 // of the constructor
 struct Nt  // used as part of a (ù{\codeincomments{union}}ù) (below)
@@ -305,8 +307,8 @@ that, given a\linebreak[4] \lstinline!std::string! \lstinline!input!, will retur
 on failure:
 
 \begin{emcppshiddenlisting}[emcppsbatch=e5]
-#include <sstream>  // ù{\codeincomments{std::ostringstream}}ù)
-#include <string>   // ù{\codeincomments{std::string}}ù)
+#include <sstream>  // (ù{\codeincomments{std::ostringstream}}ù)
+#include <string>   // (ù{\codeincomments{std::string}}ù)
 struct ParseResult {
     explicit ParseResult(int values);
     explicit ParseResult(const std::string& error);
@@ -385,7 +387,7 @@ desired semantics:
 %};
 %\end{emcppslisting}
 \begin{emcppshiddenlisting}[emcppsbatch=e6]
-#include <string>   // ù{\codeincomments{std::string}}ù)
+#include <string>   // (ù{\codeincomments{std::string}}ù)
 \end{emcppshiddenlisting}
 \begin{emcppslisting}[emcppsbatch=e6]
 class ParseResult

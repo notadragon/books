@@ -1,3 +1,6 @@
+% Jan 13, copyedits in and proofed
+
+
 Using \lstinline!=!\,\lstinline!delete! in a function's first declaration
 forces a compilation error upon any attempt to use or access it.
 
@@ -52,7 +55,7 @@ and leave them unimplemented, typically resulting in a compile-time or
 link-time error when accessed:
 
 \begin{emcppslisting}
-#include <cstdio>  // ù{\codeincomments{FILE}}ù
+#include <cstdio>  // (ù{\codeincomments{FILE}}ù)
 class FileHandle
 {
 private:
@@ -91,7 +94,7 @@ of the class, and (3) enable clearer compiler diagnostics:
 %};
 %\end{emcppslisting}
 \begin{emcppshiddenlisting}[emcppsbatch=e1]
-#include <cstdio>  // ù{\codeincomments{FILE}}ù
+#include <cstdio>  // (ù{\codeincomments{FILE}}ù)
 \end{emcppshiddenlisting}
 \begin{emcppslisting}[emcppsbatch=e1]
 class FileHandle
@@ -133,8 +136,8 @@ specified memory address, \lstinline!buf!:
 %}
 %\end{emcppslisting}
 \begin{emcppslisting}
-#include <cstdio>  // ù{\codeincomments{puts}}ù
-#include <cstring> // ù{\codeincomments{memset}}ù
+#include <cstdio>  // (ù{\codeincomments{puts}}ù)
+#include <cstring> // (ù{\codeincomments{memset}}ù)
 
 void f()
 {
@@ -155,7 +158,7 @@ can target such observed misuse using an extra deleted overload:
 %void* memset(void* str, int n, char) = delete;  // defensive against misuse
 %\end{emcppslisting}
 \begin{emcppslisting}
-#include <cstring>  // ù{\codeincomments{memset}}ù
+#include <cstring>  // (ù{\codeincomments{memset}}ù)
 void* memset(void* str, int ch, size_t n);      // standard library function
 void* memset(void* str, int n, char) = delete;  // defense against misuse
 \end{emcppslisting}
