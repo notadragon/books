@@ -1,3 +1,5 @@
+\makeatletter
+
 \newcommand\subsubemdash{\sfbsubsubRomeo\char"2014} %% for whatever reason, emdashes are not displaying properly in subsubsection heads. This creates a direct command to create them. 
 
 \newcommand\romeovalue[1]{\textit{#1}}  % for normal text usage
@@ -11,10 +13,109 @@
 \newcommand{\seealsodelim}{~$\blacklozenge$~}
 
 
-% Because the cppxx in the RH takes the moniker of "section" per the Au's requirement even though the Au requires that it not exist on the page and because each "feature" is a section and is unnumbered and because the Au decided when the design was almost complete that a section xref was needed for each feature, these manual commands will take the place of a working \ref for each cppxx fake section. Readdress this for the second edition and come up with a better solution; that will probably involve redefining the section command, so cppxx can be an actual section, or creating a new section-like environment for cppxx.   
+% Because the cppxx in the RH takes the moniker of "section" per the Au's
+% requirement even though the Au requires that it not exist on the page and
+% because each "feature" is a section and is unnumbered and because the Au
+% decided when the design was almost complete that a section xref was needed
+% for each feature, these manual commands will take the place of a working
+% \ref for each cppxx fake section. Readdress this for the second edition and
+% come up with a better solution; that will probably involve redefining the
+% section command, so cppxx can be an actual section, or creating a new
+% section-like environment for cppxx.   
 \newcommand{\locationa}{Section~1.1}
 \newcommand{\locationb}{Section~1.2}
 \newcommand{\locationc}{Section~2.1}
 \newcommand{\locationd}{Section~2.2}
 \newcommand{\locatione}{Section~3.1}
 \newcommand{\locationf}{Section~3.2}
+
+% counter within chapter
+\newcommand{\cppxx}{C++xx}
+\newcounter{cppxx}[chapter]
+\newcommand{\theEmcppsFeatureChapter}{}
+
+% start a feature chapter - safe, conditionally safe, unsafe
+% args: label, title
+\newcommand{\emcppsFeatureChapter}[2]{%
+  \cleardoublepage%
+  \chapter[#2]{#2}%
+  \label{ch-#1}%
+  \renewcommand{\theEmcppsFeatureChapter}{#1}%
+}
+
+% start a language standard section of features
+% args: label, language standard
+% examples:
+%   \emcppsStandardSection{cpp11}{C++11}
+%   \emcppsStandardSection{cpp14}{C++14}
+\newcommand{\emcppsStandardSection}[2]{%
+  \stepcounter{cppxx}%
+  \addtocontents{toc}{\protect\renewcommand*\protect\cftsecindent{1.25em}}%
+  \cftaddnumtitleline{toc}{section}{\thechapter.\thecppxx}{#2}{\thepage}%
+  label{sec-\theEmcppsFeatureChapter-#1}%
+  \renewcommand{\cppxx}{#1}%
+}
+
+%------------------------------------------------------------------------------
+% FEATURE SECTION declaration
+%------------------------------------------------------------------------------
+
+\define@cmdkey[emcpps]{section}{tocshort}{}
+\define@cmdkey[emcpps]{section}{toclong}{}
+\define@cmdkey[emcpps]{section}{rhshort}{}
+\define@cmdkey[emcpps]{section}{headinglong}{}
+\define@cmdkey[emcpps]{section}{short}{}
+\define@cmdkey[emcpps]{section}{long}{}
+
+\presetkeys[emcpps]{section}{ tocshort = {},
+                              toclong  = {},
+                              rhshort  = {},
+                              headinglong = {},
+                              short = {},
+                              long = {},
+                             }{}
+
+\newcommand{\emcppsShowTitleDefault}[3]{%
+  --- this should not be seen --- #1 --- #2 ---%
+}
+
+\newcommand{\emcppsShowTitleToc}[2]{%
+  \makebox[12em][l]{\sf #1} #2%
+}
+
+\newcommand{\emcppsShowTitleSection}[2]{%
+  #2%
+}
+
+\newcommand{\emcppsShowTitleRH}[2]{%
+  #1%
+}
+
+\newcommand{\emcppsShowTitle}[2]{\emcppsShowTitleDefault{TITLE}{#1}{#2}}
+\newcommand{\emcppsShowTitleAlt}[2]{\emcppsShowTitleDefault{ALTTITLE}{#1}{#2}}
+
+\newcommand{\emcppsRevertShowTitle}{%
+  \renewcommand{\emcppsShowTitle}[2]{\emcppsShowTitleDefault{TITLE}{##1}{##2}}%
+  \renewcommand{\emcppsShowTitleAlt}[2]{\emcppsShowTitleDefault{ALTTITLE}{##1}{##2}}%
+}
+
+\newcommand{\emcppsSetShowTitleToc}{%
+  \renewcommand{\emcppsShowTitleAlt}[2]{\emcppsShowTitleToc{##1}{##2}}%
+}
+
+% Start a feature
+% args: label, short title, long title
+\newcommand{\emcppsFeature}[2]{%
+  \setkeys[emcpps]{section}{#1}%
+  \refstepcounter{section}%
+  \newpage%
+%  \renewcommand{\emcppsShowTitle}[2]{\emcppsShowTitleSection{##1}{##2}}%
+%  \renewcommand{\emcppsShowTitleAlt}[2]{\emcppsShowTitleRH{##1}{##2}}%
+%  \addtocontents{toc}{\protect\renewcommand*\protect\cftsecindent{4.5em}}%
+  %  \section[\protect\emcppsShowTitleAlt{#2}{#3}]{\emcppsShowTitle{#2}{#3}}%
+  \section[\cmdemcpps@section@short]{\cmdemcpps@section@long}%
+  \label{#2}%
+  \thesection --- \thefootnote  --- \theemcppslistings%
+}
+
+\makeatother

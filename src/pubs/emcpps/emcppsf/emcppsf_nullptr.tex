@@ -1,6 +1,8 @@
-\newpage
-\section[{\tt nullptr}]{The Null-Pointer-Literal Keyword}\label{null-pointer-literal-(nullptr)}
 % 13 Jan: copyedits in and proofed
+\emcppsFeature{
+        short={\tt nullptr},
+        long={null-pointer-literal-(nullptr)},
+}{The Null-Pointer-Literal Keyword}
 
 The keyword \lstinline!nullptr! unambiguously denotes the
 null-pointer-value literal.
@@ -92,7 +94,7 @@ statement) are always returned via pointer to a modifiable
 object. Functions that return via argument typically do so to reserve the function’s return value to communicate status.{\cprotect\footnote{See \cite{lakos96}, section~9.1.11, pp.~621--628, specifically the \emph{Guideline} at the bottom of p.~621: ``Be consistent about returning values through arguments (e.g., avoid declaring non\lstinline!const! reference parameters)."}} A function in this codebase might ``zero" the output parameter's local pointer variable to indicate and ensure that nothing more is to be written. The function below illustrates three different ways of doing this:
 
 \begin{emcppshiddenlisting}[emcppsbatch=e1]
-#include <cstdlib>  // ù{\codeincomments{NULL}}ù
+#include <cstdlib>  // (ù{\codeincomments{NULL}}ù)
 // --- Replace
     if (/*...*/)
     if (true)
@@ -119,7 +121,7 @@ change in coding standards in the organization) to accept a reference
 instead of a pointer:
 
 \begin{emcppshiddenlisting}[emcppsbatch=e2]
-#include <cstdlib>  // ù{\codeincomments{NULL}}ù
+#include <cstdlib>  // (ù{\codeincomments{NULL}}ù)
 // --- Replace
     if (/*...*/)
     if (true)
@@ -160,7 +162,7 @@ accepting a pointer or an integral type as the same positional argument, which m
 library:
 
 \begin{emcppshiddenlisting}[emcppsbatch=e3]
-#include <cstdlib>  // ù{\codeincomments{NULL}}ù
+#include <cstdlib>  // (ù{\codeincomments{NULL}}ù)
 \end{emcppshiddenlisting}
 \begin{emcppslisting}[emcppsbatch=e3]
 void uglyLibraryFunction(int* p);  // (1)
@@ -219,7 +221,7 @@ a runtime error (see
 \featureref{\locationb}{deleted-functions}):
 
 \begin{emcppshiddenlisting}[emcppsbatch=e4]
-#include <cstdlib>  // ù{\codeincomments{std::size_t}}ù
+#include <cstdlib>  // (ù{\codeincomments{std::size\_t}}ù)
 \end{emcppshiddenlisting}
 \begin{emcppslisting}[emcppsbatch=e4]
 std::size_t strlen(const char* s);

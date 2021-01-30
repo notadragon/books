@@ -46,13 +46,14 @@ footskip=.025in}
 \usepackage{graphicx} % for graphics layout
 
 %T%% for f in pub.outline.sectionfiles("book_preamble"):
-\include{${f}}
+\input{${f}}
 %T%% endfor
 
 %%% LORI
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \newcommand{\fncodeincomments}{\color{grey}\ttfamily}
+\newcommand{\emphincomments}{\color{purple}\ttfamily\itshape}
 %%%%%%%%%%%%%%%%%
 
 
@@ -164,9 +165,11 @@ footskip=.025in}
 \include{emcppsc-title}                               % The title page
 \include{emcppsc-CIP}                                % The cataloging-in-publication page
 \include{emcppsc-dedication}                      % The dedication page
-\cleardoublepage
-\parskip .5ex                       % Add space between Contents items
-\tableofcontents                  % Make the Table of Contents 
+
+%T%% for f in pub.outline.sectionfiles("book_front"):
+\include{${f}}
+%T%% endfor
+
 \cleardoublepage                
 \parskip 0in                         % Reset to zero interpar spacing
 \include{emcppsc-foreword}               % Add foreword
@@ -177,29 +180,10 @@ footskip=.025in}
 %%%%%%%The front matter ends
 
 \pagenumbering{arabic}		  % Arabic numbering
-\cleardoublepage
-\include{emcppsc-ch0}  % Chapter 0
-\cleardoublepage
+%T%% for f in pub.outline.sectionfiles("book_body"):
+\input{${f}}
+%T%% endfor
 
-%%%%%% RHs redefined for Chs 1-3
-%\fancyhead[RO]{\sectionmark}
-\fancyhead[LO]{\sfnine\cppxx}
-%\fancyhead[RE]{\sectionmark}
-%\fancyhead[LE]{\chaptermark}
-%%%%%%%%%%
-\include{emcpps-ch1}  % Chapter 1
-\cleardoublepage
-\include{emcpps-ch2}  % Chapter 2
-\cleardoublepage
-\include{emcpps-ch3}  % Chapter 3
-\cleardoublepage
-%
-%%%%%% RHs revert for Ch 4 + BM
-\fancyhead[LO]{}
-%\renewcommand{\sectionmark}[1]{\markright{{\sfnine\thesection\ #1}}}
-%\renewcommand{\chaptermark}[1]{\markboth{{\sfb\thechapter\quad {\sfb #1}}}{}}
-%%%%%%%%%%
-\include{emcppsc-ch4}  % Chapter 4
 \cleardoublepage
 %
 %
@@ -217,6 +201,10 @@ footskip=.025in}
 %
 \cleardoublepage
 \include{emcppsc-index}
+
+%T%% for f in pub.outline.sectionfiles("book_back"):
+\input{${f}}
+%T%% endfor
 
 % 
 % %

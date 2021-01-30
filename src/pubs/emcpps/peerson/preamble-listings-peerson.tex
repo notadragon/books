@@ -94,13 +94,12 @@ showstringspaces=false,
 %    \begin{lstlisting}[language=C++]   \begin{emcppslisting}
 %    \end{lstlisting}                   \end{emcppslisting}
 %
-\usepackage{currfile}
 \makeatletter
 
 % This counter is used to generate unique ids for the files that will be output.
 % Ideally it would also be reset per feature, but that is not strictly needed.
 \newcounter{emcppslistings}
-\setcounter{emcppslistings}{0}
+\@addtoreset{emcppslistings}{section}  % to renumber code snippets per section
 
 % A batch id for code snippets that should be concatenated together to compile.
 \lst@Key{emcppsbatch}{}{\def\emcppsBatch{#1}}

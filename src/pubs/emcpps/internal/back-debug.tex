@@ -1,0 +1,27 @@
+\cleardoublepage
+\chapter{Diagnostic Information}
+
+\makeatletter
+
+\newcommand{\ShowOutput}[1]{%
+    \immediate\write18{#1 \unexpanded{| fold -w 40 -s > tmp.tex}}%
+    \BVerbatimInput{tmp}\immediate\write18{rm tmp.tex}%
+}
+
+\begin{table}[h!]
+\begin{center}
+\begin{threeparttable}
+  \caption{Diagnostic information}
+  \begin{tabular}{r|p{5in}}\thickhline
+    Compiled on & \today \\ \hline
+    Built by & \ShowOutput{whoami} \\ \hline
+    \LaTeX{} version & \LaTeXe \\ \hline
+    Build host & \ShowOutput{hostname -f} \\ \hline
+    Build Operating System & \ShowOutput{uname -a} \ \\ \hline
+  \end{tabular}
+\end{threeparttable}
+\end{center}
+\end{table}
+
+
+\makeatother
