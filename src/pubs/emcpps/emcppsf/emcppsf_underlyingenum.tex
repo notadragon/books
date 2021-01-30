@@ -18,7 +18,7 @@ enumeration and is allowed to exceed the size of an \texttt{int}
 \emph{only} if there are enumerators having values that cannot be
 represented as an \texttt{int} or \texttt{unsigned}~\texttt{int}:
 
-\begin{lstlisting}[language=C++]
+\begin{emcppslisting}
 enum RGB { e_RED, e_GREEN, e_BLUE };                    // fits any (ù{\codeincomments{char}}ù)
 
 enum Port { e_LEFT = -81, e_RIGHT = -82 };              // fits (ù{\codeincomments{signed char}}ù)
@@ -30,7 +30,7 @@ enum Big { e_32 = 1<<32 };                              // too big for (ù{\code
 enum Err { K = 1024, M = K*K, G = M*K, T = G*K };       // (ù{\codeincomments{G*K}}ù) overflows (ù{\codeincomments{int}}ù)...
 
 enum OK { K = 1<<10, M = 1<<20, G = 1<<30, T = 1<<40 }; // ...but (ù{\codeincomments{1<<40}}ù) is OK
-\end{lstlisting}
+\end{emcppslisting}
 
 \noindent The default underlying type chosen for an \texttt{enum} is always
 sufficiently large to represent \emph{all} enumerator values defined for
@@ -55,7 +55,7 @@ that is used to represent an \texttt{enum}. This is achieved by
 providing the type explicitly in the \texttt{enum}'s declaration
 following the enumeration's (optional) name and preceded by a colon:
 
-\begin{lstlisting}[language=C++]
+\begin{emcppslisting}
 enum Port : unsigned char
 {
     // Each enumerator of (ù{\codeincomments{Port}}ù) is represented as an (ù{\codeincomments{unsigned char}}ù) type.
@@ -65,7 +65,7 @@ enum Port : unsigned char
     e_CONTROL      = 255,  // OK, barely fits in an 8-bit unsigned integer
     e_BACK_CHANNEL = 256,  // error, doesn't fit in an 8-bit unsigned integer
 };
-\end{lstlisting}
+\end{emcppslisting}
 
 \noindent If any of the values specified in the definition of the \texttt{enum} is
 outside the boundaries of what the provided \textbf{underlying type} is
@@ -86,7 +86,7 @@ inside a date class having an internal representation that maintains the
 year as a two-byte signed integer, the month as an enumeration, and the
 day as an 8-bit signed integer:
 
-\begin{lstlisting}[language=C++]
+\begin{emcppslisting}
 #include <cstdint>  // (ù{\codeincomments{std::int8\_t}}ù), (ù{\codeincomments{std::int16\_t}}ù)
 
 class Date
@@ -104,7 +104,7 @@ public:
     Month month() const { return d_month; }
     int day() const     { return d_day; }
 }
-\end{lstlisting}
+\end{emcppslisting}
 
 \noindent Within the software, the \texttt{Date} is typically constructed using
 the values obtained through the GUI, where the month is always selected
@@ -120,7 +120,7 @@ enumerators convert automatically to their integral \textbf{underlying
 type}, thus contraindicating use of the more strongly typed
 \texttt{enum} \texttt{class}:
 
-\begin{lstlisting}[language=C++]
+\begin{emcppslisting}
 enum Month  // defaulted underlying type (BAD IDEA)
 {
     e_JAN = 1, e_FEB, e_MAR,    // winter
@@ -130,7 +130,7 @@ enum Month  // defaulted underlying type (BAD IDEA)
 };
 
 static_assert(sizeof(Month) == 4 && alignof(Month) == 4, "");
-\end{lstlisting}
+\end{emcppslisting}
 
 \noindent As it turns out, date values are used widely throughout this codebase,
 and the proposed \texttt{Date} type is expected to be used in large
@@ -152,7 +152,7 @@ an 8-bit signed integer, we can specify its \textbf{underlying type} to
 be, e.g., \texttt{std::int8\_t} or \texttt{signed}~\texttt{char}, on
 every platform:
 
-\begin{lstlisting}[language=C++]
+\begin{emcppslisting}
 enum Month : std::int8_t  // user-provided underlying type (GOOD IDEA)
 {
     e_JAN = 1, e_FEB, e_MAR,    // winter
@@ -162,15 +162,15 @@ enum Month : std::int8_t  // user-provided underlying type (GOOD IDEA)
 };
 
 static_assert(sizeof(Month) == 1 && alignof(Month) == 1, "");
-\end{lstlisting}
+\end{emcppslisting}
 
 \noindent With this revised definition of \texttt{Month}, the size of a
 \texttt{Date} class is 4 bytes, which is especially valuable for large
 aggregates:
 
-\begin{lstlisting}[language=C++]
+\begin{emcppslisting}
 Date timeSeries[1000 * 1000];  // (ù{\codeincomments{sizeof(timeSeries)}}ù) is now 4Mb (not 12Mb)
-\end{lstlisting}
+\end{emcppslisting}
 
 
 \subsection[Potential Pitfalls]{Potential Pitfalls}\label{potential-pitfalls-underlyingenum}
@@ -209,7 +209,7 @@ In most arithmetic expressions, this difference is irrelevant.
 Subtleties arise, however, when one relies on overload resolution for
 identifying the underlying type:
 
-\begin{lstlisting}[language=C++]
+\begin{emcppslisting}
 void f(signed char x);
 void f(short x);
 void f(int x);
@@ -224,7 +224,7 @@ void g()
    f(E1::a);  // always calls (ù{\codeincomments{f(int)}}ù) on all platforms
    f(E2::f);  // always calls (ù{\codeincomments{f(short)}}ù) on all platforms
 }
-\end{lstlisting}
+\end{emcppslisting}
 
 \noindent The overload resolution for \texttt{f} considers the type to which each
 \emph{individual} enumerator can be directly integrally promoted. This
@@ -242,7 +242,7 @@ though, and the Standard does provide a trait to do that:
 be used in a cast without risking loss of value (see
   ``\titleref{auto}" on page~\pageref{auto}):
 
-\begin{lstlisting}[language=C++]
+\begin{emcppslisting}
 template <typename E>
 std::underlying_type<E>::type toUnderlying(E value)
 {
@@ -254,7 +254,7 @@ void h()
     auto e1 = toUnderlying(E1::a); // might be anywhere from (ù{\codeincomments{signed char}}ù) to (ù{\codeincomments{int}}ù)
     auto e2 = toUnderlying(E2::f); // always deduced as (ù{\codeincomments{short}}ù)
 }
-\end{lstlisting}
+\end{emcppslisting}
 
 \noindent As of C++20, however, the use of a classic enumerator in a context in
 which it is compared to or otherwise used in a binary operation with
@@ -264,14 +264,14 @@ floating-point type, such as \texttt{float}, \texttt{double}, or
 of being removed in C++23. Platforms might decide to warn against such
 uses retroactively:
 
-\begin{lstlisting}[language=C++]
+\begin{emcppslisting}
 enum { k_GRAMS_PER_OZ = 28 };  // not the best idea
 
 double gramsFromOunces(double ounces)
 {
     return ounces * k_GRAMS_PER_OZ;  // deprecated in C++20; might warn
 }
-\end{lstlisting}
+\end{emcppslisting}
 
 \noindent Casting to the \textbf{underlying type} is \emph{not} necessarily the
 same as direct integral promotion. In this context, we might want to
@@ -280,9 +280,9 @@ change our \texttt{enum} to a
 term (see
   ``\titleref{constexprvar}" on page~\pageref{constexprvar}):
 
-\begin{lstlisting}[language=C++]
+\begin{emcppslisting}
 constexpr int k_GRAMS_PER_OZ = 28;  // future proof
-\end{lstlisting}
+\end{emcppslisting}
 
 
 \subsection[See Also]{See Also}\label{see-also}

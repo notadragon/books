@@ -20,14 +20,14 @@ A classic (C++03) C-style \lstinline!enum! cannot have \romeogloss{opaque
 declarations}, nor can its definition be repeated within the same
 \romeogloss{translation unit} (TU):
 
-\begin{lstlisting}[language=C++]
+\begin{emcppslisting}
 enum E0;                 // Error, opaque declaration
 enum    { e_A0, e_B0 };  // OK, anonymous classic (only) (ù{\codeincomments{enum}}ù)
 enum E1 { e_A1, e_B1 };  // OK, definition
 enum E1;                 // OK, redeclaration in same TU
 enum E2 { e_A2, e_B2 };  // OK, definition
 enum E2 { e_A2, e_B2 };  // Error, redefinition in same TU
-\end{lstlisting}
+\end{emcppslisting}
 
 \noindent The underlying integral types used to represent objects of each of the
 (classic) enumerations in the example above is \romeogloss{implementation defined}, making
@@ -42,7 +42,7 @@ to create objects of that type. Specifying an underlying
 type %(see \featureref{\locationc}{explicit-enumeration-underlying-type})
 explicitly makes \romeogloss{opaque declaration} possible:
 
-\begin{lstlisting}[language=C++]
+\begin{emcppslisting}
 enum    : char { e_A, e_B );     // OK, (anonymous) complete definition
 enum E3 : char;                  // OK, forward declaration w/underlying type
 enum E3 : char { e_A3, e_B3 };   // OK, compatible complete definition
@@ -51,7 +51,7 @@ enum E4 : short;                 // OK, compatible opaque redeclaration
 enum E4 : int;                   // Error, incompatible opaque redeclaration
 enum E5 : int { e_A5, e_B5 };    // OK, complete definition
 enum E5 : int { e_A5, e_B5 };    // Error, complete redefinition in same TU
-\end{lstlisting}
+\end{emcppslisting}
 
 \noindent The modern (C++11) \lstinline!enum!~\lstinline!class!, %(see \featureref{\locationc}{enumclass}),
 which
@@ -60,7 +60,7 @@ scope, also comes with a default \romeogloss{underlying type} of
 \lstinline!int!, thereby making it eligible to be declared without a
 definition (even without explicit qualification):
 
-\begin{lstlisting}[language=C++]
+\begin{emcppslisting}
 enum class E6;                 // OK, implicit underlying type ((ù{\codeincomments{int}}ù))
 enum class E6 : int;           // OK, explicit matching underlying type
 enum class E6 { e_A3, e_B3 };  // OK, compatible complete definition
@@ -72,19 +72,19 @@ enum class E8 : long { e_A5 }; // OK, compatible complete definition
 enum class E9 { e_A6, e_B7 };  // OK, complete definition
 enum class E9 { e_A6, e_B7 };  // Error, complete redefinition in same TU
 enum class    { e_A, e_B };    // Error, anonymous (ù{\codeincomments{enum}}ù) classes are not allowed
-\end{lstlisting}
+\end{emcppslisting}
 
 \noindent To summarize, each classical \lstinline!enum! type having an explicitly
 specified \romeogloss{{underlying type}} and every modern \lstinline!enum!~\lstinline!class! type can be declared (e.g., for the first
 time in a TU) as a \romeogloss{complete type}:
 
-\begin{lstlisting}[language=C++]
+\begin{emcppslisting}
 enum E10 : char;  static_assert(sizeof(E9)  == 1);
 enum class E11;   static_assert(sizeof(E10) == sizeof(int));
 
 E10 a;            static_assert(sizeof a == 1);
 E11 b;            static_assert(sizeof b == sizeof(int));
-\end{lstlisting}
+\end{emcppslisting}
 
 \noindent Typical usage of opaque enumerations often involves placing the
 \romeogloss{forward declaration} within a header and sequestering the
@@ -92,7 +92,7 @@ complete definition within a corresponding \lstinline!.cpp! (or else a
 second header), thereby \romeogloss{insulating} (at least some) clients from
 changes to the enumerator list (see \intraref{use-cases-opaqueenum}{using-opaque-enumerations-within-a-header-file}):
 
-\begin{lstlisting}[language=C++]
+\begin{emcppslisting}
 // mycomponent.h
 // ...
 enum E9 : char;   // forward declaration of (ù{\codeincomments{enum E9}}ù)
@@ -107,7 +107,7 @@ enum E9 : char { e_A9, e_B9, e_C9 };
 
 enum class E10 { e_A10, e_B10, e_C10 };
     // complete definition compatible with forward declaration of (ù{\codeincomments{E10}}ù)
-\end{lstlisting}
+\end{emcppslisting}
 
 \noindent Note, however, that clients embedding \emph{local declarations} directly
 in their code can be problematic; see \intraref{potential-pitfalls-opaqueenum}{redeclaring-an-externally-defined-enumeration-locally}.
@@ -136,7 +136,7 @@ As a first example of \romeogloss{opaque-enumeration} usage, consider a
 non-\emph{value-semantic} \romeogloss{mechanism} class, \lstinline!Proctor!,
 implemented as a finite-state machine:
 
-\begin{lstlisting}[language=C++]
+\begin{emcppslisting}
 // proctor.h
 // ...
 class Proctor
@@ -148,7 +148,7 @@ public:
     Proctor();
     // ...
 };
-\end{lstlisting}
+\end{emcppslisting}
 
 \noindent Among other private members, \lstinline!Proctor! has a data member,
 \lstinline!d_current!, representing the current enumerated state of
@@ -160,14 +160,14 @@ reside outside of the header. Hence, the complete definition of the
 enumeration of the states (including the enumerator list itself) is
 sequestered within the corresponding \lstinline!.cpp! file:
 
-\begin{lstlisting}[language=C++]
+\begin{emcppslisting}
 // proctor.cpp
 #include <proctor.h>
 
 enum State { e_STARTING, e_READY, e_RUNNING, e_DONE };
 Proctor::Proctor() : d_current(e_STARTING) { /* ... */ }
 // ...
-\end{lstlisting}
+\end{emcppslisting}
 
 \noindent Prior to C++11, enumerations could not be \romeogloss{forward declared}. To
 avoid exposing (in a header file) enumerators that were used only
@@ -177,14 +177,14 @@ the advent of modern C++, we now have better options. First, we might
 consider adding an explicit underlying type to the enumeration in the
 \lstinline!.cpp! file:
 
-\begin{lstlisting}[language=C++]
+\begin{emcppslisting}
 // proctor.cpp
 #include <proctor.h>
 
 enum State : int { e_STARTING, e_READY, e_RUNNING, e_DONE };
 Proctor::Proctor() : d_current(e_STARTING) { /* ... */ }
 // ...
-\end{lstlisting}
+\end{emcppslisting}
 
 \noindent Now that the \romeogloss{component-local} \lstinline!enum! has an explicit
 underlying type, we can \romeogloss{forward declare} it in the header file.
@@ -195,7 +195,7 @@ and not just an \emph{opaque declaration}. Compilation of
 compatible. Having this \emph{forward declaration} improves (somewhat)
 our type safety:
 
-\begin{lstlisting}[language=C++]
+\begin{emcppslisting}
 // proctor.h
 // ...
 enum State : int;  // opaque declaration of enumeration (new in C++11)
@@ -209,7 +209,7 @@ public:
     Proctor();
     // ...
 };
-\end{lstlisting}
+\end{emcppslisting}
 
 \noindent But we can do even better. First we will want to nest the enumerated
 \lstinline!State! type within the private section of the proctor to avoid
@@ -217,7 +217,7 @@ needless namespace pollution. What's more, because the numerical values
 of the enumerators are not relevant, we can more closely model our
 intent by nesting a more strongly typed \lstinline!enum!~\lstinline!class! instead:
 
-\begin{lstlisting}[language=C++]
+\begin{emcppslisting}
 // proctor.h
 // ...
 class Proctor
@@ -230,21 +230,21 @@ public:
     Proctor();
     // ...
 };
-\end{lstlisting}
+\end{emcppslisting}
 
 \noindent We would then declare the nested
 \lstinline!enum!~\lstinline!class! %(see \featureref{\locationc}{enumclass})
 accordingly in the
 \lstinline!.cpp! file:
 
-\begin{lstlisting}[language=C++]
+\begin{emcppslisting}
 // proctor.cpp
 #include <proctor.h>
 
 enum class Proctor::State { e_STARTING, e_READY, e_RUNNING, e_DONE };
 Proctor::Proctor() : d_current(State::e_STARTING) { /* ... */ }
 // ...
-\end{lstlisting}
+\end{emcppslisting}
 
 \noindent Finally, notice that in this example we first \emph{forward declared}
 the nested \lstinline!enum!~\lstinline!class! type within class scope and
@@ -257,18 +257,18 @@ or an
 and also defining an object
 of that type in a single statement is not possible:
 
-\begin{lstlisting}[language=C++]
+\begin{emcppslisting}
 enum E1 : int e1;  // Error, syntax not supported
 enum class E2 e2;  // Error,    "    "     "
-\end{lstlisting}
+\end{emcppslisting}
 
 \noindent Fully defining an enumeration and simultaneously defining an object of
 the type in one stroke is, however, possible:
 
-\begin{lstlisting}[language=C++]
+\begin{emcppslisting}
 enum E3 : int { e_A, e_B } e3;  // OK, full type definition + object definition
 enum class E4 { e_A, e_B } e4;  // OK,  "    "       "      "   "        "
-\end{lstlisting}
+\end{emcppslisting}
 
 \noindent Providing such a full definition, however, would have run counter to our
 intention to \romeogloss{insulate} the enumerator list of
@@ -323,7 +323,7 @@ the simple guarantee of, ``If you don't reregister, then the engine will
 clean everything up; if you do, then the callback function will continue
 its lifetime,'' a very tractable paradigm to follow.
 
-\begin{lstlisting}[language=C++]
+\begin{emcppslisting}
 // callbackengine.h
 #include <deque>
 #include <functional>  // for (ù{\codeincomments{std::function}}ù)
@@ -400,14 +400,14 @@ public:
 
     // ...  (other public member functions, e.g., manipulators, accessors)
 };
-\end{lstlisting}
+\end{emcppslisting}
 
 \noindent A client would, in \lstinline!main!, create an instance of this
 \lstinline!CallbackEngine!, define the appropriate functions to be invoked
 when events happen, register interest, and then let the engine
 \lstinline!run!:
 
-\begin{lstlisting}[language=C++]
+\begin{emcppslisting}
 // myapplication.cpp
 // ...
 static void myCallback(const EventData&    event,
@@ -431,7 +431,7 @@ int main()
 
    return 0;
 }
-\end{lstlisting}
+\end{emcppslisting}
 
 \noindent The implementation of \lstinline!myCallback!, in the example below, is then
 free to reregister interest in the same event, save the cookie elsewhere
@@ -439,7 +439,7 @@ to reregister at a later time, or complete its task and let the
 \lstinline!CallbackEngine! take care of properly cleaning up all now
 unnecessary resources:
 
-\begin{lstlisting}[language=C++]
+\begin{emcppslisting}
 void myCallback(const EventData&     event,
                 CallbackEngine      *engine,
                 const CallbackData&  cookie)
@@ -461,7 +461,7 @@ void myCallback(const EventData&     event,
     // callback.  If (ù{\codeincomments{status}}ù) was zero, then this callback should be cleaned
     // up properly with minimal fuss and no leaks.
 }
-\end{lstlisting}
+\end{emcppslisting}
 
 \noindent What makes use of the \romeogloss{opaque enumeration} here especially apt is
 that the internal data structures maintained by the
@@ -481,7 +481,7 @@ To see what is involved, we can consider the business end of the
 \lstinline!CallbackEngine! implementation and an outline of what a
 single-threaded implementation might involve:
 
-\begin{lstlisting}[language=C++]
+\begin{emcppslisting}
 // callbackengine.cpp
 
 enum class CallbackData::State
@@ -577,7 +577,7 @@ void CallbackEngine::reregisterInterest(const CallbackData& callback)
     }
 }
 
-\end{lstlisting}
+\end{emcppslisting}
 
 \noindent Note how the definition of \lstinline!CallbackData::State! is visible and
 needed only in this implementation file. Also, consider that the set of
@@ -634,19 +634,19 @@ redeclare the enumeration locally; see \intraref{potential-pitfalls-opaqueenum}{
 For example, consider an \lstinline!enum!~\lstinline!class!, \lstinline!Event!,
 intended for public use by external clients:
 
-\begin{lstlisting}[language=C++]
+\begin{emcppslisting}
 // event.h
 // ...
 enum class Event : char { /*... changes frequently ...*/ };
 // ...             ^^^^
-\end{lstlisting}
+\end{emcppslisting}
 
 \noindent Now imagine some client header file, \lstinline!badclient.h!, that makes
 use of the \lstinline!Event! enumeration and chooses to avoid compile-time
 coupling itself to the enumerator list by
 embedding, for whatever reason, a \romeogloss{local declaration} of \lstinline!Event! instead:
 
-\begin{lstlisting}[language=C++]
+\begin{emcppslisting}
 // badclient.h
 // ...
 enum class Event : char;  // BAD IDEA: local external declaration
@@ -656,18 +656,18 @@ enum class Event : char;  // BAD IDEA: local external declaration
     // ...
 };
 // ...
-\end{lstlisting}
+\end{emcppslisting}
 
 \noindent Imagine now that the number of events that can fit in a \lstinline!char! is
 exceeded and we decide to change the definition to have an underlying
 type of \lstinline!short!:
 
-\begin{lstlisting}[language=C++]
+\begin{emcppslisting}
 // event.h
 // ...
 enum class Event : short { /*... changes frequently ...*/ };
 // ...             ^^^^^
-\end{lstlisting}
+\end{emcppslisting}
 
 \noindent Client code, such as in \lstinline!badclient.h!, that fails to include the
 \lstinline!event.h! header will have no automatic way of knowing that it
@@ -683,12 +683,12 @@ clients a \emph{safe} alternative to local declaration by also providing
 an auxiliary header containing \emph{just} the corresponding opaque
 declaration:
 
-\begin{lstlisting}[language=C++]
+\begin{emcppslisting}
 // event.fwd.h
 // ...
 enum class Event : char;
 // ...
-\end{lstlisting}
+\end{emcppslisting}
 
 \noindent Here we have chosen to treat the forwarding header file as part of the same event component as the principal header but with an injected descriptive suffix field, \lstinline!.fwd!; this approach, as opposed to, say, \lstinline!file_fwd.h!, \lstinline!filefwd.h!, or \lstinline!file.hh!, was chosen so as not to (1) encroach on a disciplined, component-naming scheme involving reserved use of underscores\footnote{\cite{lakos20}, section~2.4, pp.~297--333} or (2) confuse tools and scripts that expect header-file names to end with a \lstinline!.h! suffix.
 
@@ -701,21 +701,21 @@ parsed if the full header file is included in a given translation
 unit. To ensure consistency, we thus \lstinline!#include! this forwarding
 header in the original header defining the full enumeration:
 
-\begin{lstlisting}[language=C++]
+\begin{emcppslisting}
 // event.h
 // ...                  // Ensure opaque declaration (included here) is
 #include <event.fwd.h>  // consistent with complete definition (below).
 // ...
 enum class Event : char { /*... changes frequently ...*/ };
 // ...
-\end{lstlisting}
+\end{emcppslisting}
 
 \noindent In this way, every translation unit that includes the definition will
 serve to ensure that the forward declaration and definition match;
 hence, clients can incorporate safely only the presumably more stable
 forwarding header:
 
-\begin{lstlisting}[language=C++]
+\begin{emcppslisting}
 // goodclient.h
 // ...
 #include <event.fwd.h>  // GOOD IDEA: consistent opaque declaration
@@ -725,7 +725,7 @@ class Client
     Event d_currentEvent;
     // ...
 };
-\end{lstlisting}
+\end{emcppslisting}
 
 \noindent Note that we have consistently
 employed angle brackets exclusively for all include directives used
@@ -761,11 +761,11 @@ physical coupling between components. Unlike a \romeogloss{forward class
 declaration}, an opaque enumeration declaration produces a complete
 type, sufficient for substantive use (e.g., via the linker):
 
-\begin{lstlisting}[language=C++]
+\begin{emcppslisting}
 // client.cpp
 enum Event : std::uint8_t;
 Event e;  // OK, (ù{\codeincomments{Event}}ù) is a complete type.
-\end{lstlisting}
+\end{emcppslisting}
 
 \noindent The \emph{underlying type} specified in an opaque \lstinline!enum!
 declaration must exactly match the full definition; otherwise a program
@@ -774,10 +774,10 @@ incorporating both is automatically \romeogloss{IFNDR}. Updating an
 lead to latent defects when these changes are not propagated to all
 local declarations:
 
-\begin{lstlisting}[language=C++]
+\begin{emcppslisting}
 // library.h
 enum Event : std::uint16_t { /* now more than 256 events */ };
-\end{lstlisting}
+\end{emcppslisting}
 
 \noindent Consistency of a local opaque \lstinline!enum! declaration's underlying
 type with that of its complete definition in a separate translation unit
@@ -795,18 +795,18 @@ might be associated with its definition in a separate translation unit
 via just the linker invites instability:
 
 \noindent\begin{minipage}{.45\textwidth}
-\begin{lstlisting}[language=C++]
+\begin{emcppslisting}
 // main.cpp
 extern int x;  // BAD IDEA!
 // ...
-\end{lstlisting}
+\end{emcppslisting}
 \end{minipage}\hfill
 \begin{minipage}{.45\textwidth}
-\begin{lstlisting}[language=C++]
+\begin{emcppslisting}
 // library.cpp
 int x;
 // ...
-\end{lstlisting}
+\end{emcppslisting}
 \end{minipage}
 
 \noindent The definition of object \lstinline!x! (in the code snippets above) resides
@@ -817,18 +817,18 @@ change, both translation units will continue to compile but, when
 linked, the resulting program will be \romeogloss{IFNDR}:
 
 \noindent\begin{minipage}{.65\textwidth}
-\begin{lstlisting}[language=C++]
+\begin{emcppslisting}
 // main.cpp
 extern int x;  // ILL-FORMED PROGRAM
 // ...
-\end{lstlisting}
+\end{emcppslisting}
 \end{minipage}\hfill
 \begin{minipage}{.35\textwidth}
-\begin{lstlisting}[language=C++]
+\begin{emcppslisting}
 // library.cpp
 double x;
 // ...
-\end{lstlisting}
+\end{emcppslisting}
 \end{minipage}
 
 \noindent To ensure consistency across translation units, the time-honored
@@ -838,27 +838,27 @@ the translation unit in which it is defined; that header is then
 included by both the supplier and each consumer:
 
 \noindent\begin{minipage}{.3\textwidth}
-\begin{lstlisting}[language=C++]
+\begin{emcppslisting}
 // main.cpp
 #include <library.h>
 // ...
-\end{lstlisting}
+\end{emcppslisting}
 \end{minipage}\hfill
 \begin{minipage}{.3\textwidth}
-\begin{lstlisting}[language=C++]
+\begin{emcppslisting}
 // library.h
 // ...
 extern int x;
 // ...
-\end{lstlisting}
+\end{emcppslisting}
 \end{minipage}
 \begin{minipage}{.3\textwidth}
-\begin{lstlisting}[language=C++]
+\begin{emcppslisting}
 // library.cpp
 #include <library.h>
 int x;
 // ...
-\end{lstlisting}
+\end{emcppslisting}
 \end{minipage}
 
 \noindent In this way, any change to the definition of \lstinline!x! in
@@ -943,7 +943,7 @@ Making an enumeration opaque does not stop it from being used to create
 an object that is initialized opaquely to a zero value and then
 subsequently used (e.g., in a function call):
 
-\begin{lstlisting}[language=C++]
+\begin{emcppslisting}
 enum Bozo : int;  // forward declaration of enumeration (ù{\codeincomments{Bozo}}ù)
 void f(Bozo);     // forward declaration of function (ù{\codeincomments{f}}ù)
 
@@ -952,7 +952,7 @@ void g()
     Bozo clown{0};
     f(clown);      // OK, who knows if zero is a valid value?!
 }
-\end{lstlisting}
+\end{emcppslisting}
 
 \noindent Though creating a zero-valued enumeration variable by default is not
 new, allowing one to be created without even knowing what enumerated
