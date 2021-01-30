@@ -1,6 +1,7 @@
-\newpage
-\section[Variable Templates]{Templated Variable Declarations/Definitions}
-\label{variable-templates}
+\emcppsFeature{
+        short={None},
+        long={None},
+}{variable-templates}
 
 
 Variable templates extend traditional template syntax to define, in namespace or
@@ -9,68 +10,131 @@ can subsequently be instantiated explicitly.
 
 \subsection[Description]{Description}\label{variabletemplate-description}
 
-By beginning a variable declaration with the familiar
-\textbf{template-head} syntax --- e.g.,
-\texttt{template}~\texttt{<typename}~\texttt{T>} --- we can create a
-\emph{variable template}, which defines a family of variables having the
-same name (e.g., \texttt{typeid}):
+%By beginning a variable declaration with the familiar
+%\textbf{template-head} syntax --- e.g.,
+%\texttt{template}~\texttt{<typename}~\texttt{T>} --- we can create a
+%\emph{variable template}, which defines a family of variables having the
+%same name (e.g., \texttt{typeid}):
+%
+%\begin{lstlisting}[language=C++]
+%template <typename> int typeId;  // template variable defined at file scope
+%\end{lstlisting}
+%
+%\noindent Like any other kind of template, a variable template can be instantiated
+%(explicitly) by providing an appropriate number (one or more) of type or
+%non-type arguments:
+%
+%\begin{lstlisting}[language=C++]
+%void f1()
+%{
+%    typeId<bool> = -1;    // (ù{\codeincomments{typeId<bool>}}ù) is an (ù{\codeincomments{int}}ù)
+%    typeId<char> = 1000;  // (ù{\codeincomments{typeId<char>}}ù) is an (ù{\codeincomments{int}}ù)
+%    typeId<void> = -666;  // (ù{\codeincomments{typeId<void>}}ù) is an (ù{\codeincomments{int}}ù)
+%
+%    assert(typeId<bool> ==   -1);
+%    assert(typeId<char> == 1000);
+%    assert(typeId<void> == -666);
+%}
+%\end{lstlisting}
+%
+%\noindent In the example above, the type of each instantiated variable --- i.e.,
+%\texttt{typeId<bool>} and \texttt{typeId<char>} --- is \texttt{int}.
+%Such need not be the case{\cprotect\footnote{Use of
+%  \texttt{constexpr} variables would allow the instantiated
+%  variables to be usable as a constant in a compile-time context (see
+%  {\it\titleref{variabletemplate-use-cases}:} {\it\titleref{parametrized-constants}} on page~\pageref{parametrized-constants}).}}:
+%
+%\begin{lstlisting}[language=C++]
+%template <typename T> const T pi(3.1415926535897932385);  // distinct types
+%\end{lstlisting}
+%
+%\noindent In the example above, the type of the instantiated non-\texttt{const}
+%variable is that of its (type) argument, and its (mutable) value is
+%initialized to the best approximation of \(\pi\) offered by that type:
+%
+%\begin{lstlisting}[language=C++]
+%void f2()
+%{
+%    bool        pi_as_bool        = 1;                      // ( 1 bit)
+%    int         pi_as_int         = 3;                      // (32 bits)
+%    float       pi_as_float       = 3.1415927;              // (32 bits)
+%    double      pi_as_double      = 3.141592653589793;      // (64 bits)
+%    long double pi_as_long_double = 3.1415926535897932385;  // (80 bits)
+%
+%    assert(pi<bool>        == pi_as_bool);
+%    assert(pi<int>         == pi_as_int);
+%    assert(pi<float>       == pi_as_float);
+%    assert(pi<double>      == pi_as_double);
+%    assert(pi<long double> == pi_as_long_double);
+%}
+%\end{lstlisting}
+%
+%\noindent For examples involving immutable variable templates, see {\it\titleref{variabletemplate-use-cases}:} {\it\titleref{parametrized-constants}} on page~\pageref{parametrized-constants}.
+
+%%%%%%%%%%%%%%%% new material from Slava
+By beginning a variable declaration with the familiar \romeogloss{template-head} syntax --- e.g., \lstinline!template! \lstinline!<typename! \lstinline!T>! --- we can create a \emph{variable template}, which defines a family of variables
+having the same name (e.g., \lstinline!exampleOf!):
 
 \begin{lstlisting}[language=C++]
-template <typename> int typeId;  // template variable defined at file scope
+template <typename T> T example;  // variable template defined at file scope
 \end{lstlisting}
 
-\noindent Like any other kind of template, a variable template can be instantiated
-(explicitly) by providing an appropriate number (one or more) of type or
-non-type arguments:
+\noindent Like any other kind of template, a variable template can be instantiated explicitly by
+providing an appropriate number of type or non-type arguments:
 
 \begin{lstlisting}[language=C++]
-void f1()
-{
-    typeId<bool> = -1;    // (ù{\codeincomments{typeId<bool>}}ù) is an (ù{\codeincomments{int}}ù)
-    typeId<char> = 1000;  // (ù{\codeincomments{typeId<char>}}ù) is an (ù{\codeincomments{int}}ù)
-    typeId<void> = -666;  // (ù{\codeincomments{typeId<void>}}ù) is an (ù{\codeincomments{int}}ù)
+#include <iostream>  // std::cout
 
-    assert(typeId<bool> ==   -1);
-    assert(typeId<char> == 1000);
-    assert(typeId<void> == -666);
+void initializeExampleValues()
+{
+    exampleOf<int>   = -1;
+    exampleOf<char>  = 'a';
+    exampleOf<float> = 12.3f;
+}
+
+void printExampleValues()
+{
+    initializeExampleValues();
+    std::cout << "int = "   << exampleOf<int>   << "; "
+              << "char = "  << exampleOf<char>  << "; "
+              << "float = " << exampleOf<float> << ';';
+
+    // outputs "int = -1; char = a; float = 12.3;"
 }
 \end{lstlisting}
 
-\noindent In the example above, the type of each instantiated variable --- i.e.,
-\texttt{typeId<bool>} and \texttt{typeId<char>} --- is \texttt{int}.
-Such need not be the case{\cprotect\footnote{Use of
-  \texttt{constexpr} variables would allow the instantiated
-  variables to be usable as a constant in a compile-time context (see
-  {\it\titleref{variabletemplate-use-cases}:} {\it\titleref{parametrized-constants}} on page~\pageref{parametrized-constants}).}}:
+\noindent In the example above, the type of each instantiated variable is the same as its template parameter, but this matching is not required. For example, the type might be the same for all instantiated variables or derived from its parameters, such as by adding \lstinline!const! qualification:
 
 \begin{lstlisting}[language=C++]
-template <typename T> const T pi(3.1415926535897932385);  // distinct types
-\end{lstlisting}
+#include <type_traits>  // std::is_floating_point
+#include <cassert>      // assert
 
-\noindent In the example above, the type of the instantiated non-\texttt{const}
-variable is that of its (type) argument, and its (mutable) value is
-initialized to the best approximation of \(\pi\) offered by that type:
+template <typename T>
+const bool sane_for_pi = std::is_floating_point<T>::value;  // same type
 
-\begin{lstlisting}[language=C++]
-void f2()
+template <typename T> const T pi(3.1415926535897932385);    // distinct types
+
+void testPi()
 {
-    bool        pi_as_bool        = 1;                      // ( 1 bit)
-    int         pi_as_int         = 3;                      // (32 bits)
-    float       pi_as_float       = 3.1415927;              // (32 bits)
-    double      pi_as_double      = 3.141592653589793;      // (64 bits)
-    long double pi_as_long_double = 3.1415926535897932385;  // (80 bits)
+    assert(!sane_for_pi<bool>);
+    assert(!sane_for_pi<int>);
 
-    assert(pi<bool>        == pi_as_bool);
-    assert(pi<int>         == pi_as_int);
+    assert( sane_for_pi<float>);
+    assert( sane_for_pi<double>);
+    assert( sane_for_pi<long double>);
+
+    const float       pi_as_float       = 3.1415927;
+    const double      pi_as_double      = 3.141592653589793;
+    const long double pi_as_long_double = 3.1415926535897932385;
+
     assert(pi<float>       == pi_as_float);
     assert(pi<double>      == pi_as_double);
     assert(pi<long double> == pi_as_long_double);
 }
 \end{lstlisting}
+%%%%%%%%%%%%% new material ends
 
-\noindent For examples involving immutable variable templates, see {\it\titleref{variabletemplate-use-cases}:} {\it\titleref{parametrized-constants}} on page~\pageref{parametrized-constants}.
-
-Variable templates, like \textbf{C-style functions}, may be declared at
+\noindent Variable templates, like \textbf{C-style functions}, may be declared at
 namespace-scope or as \texttt{static} members of a
 \texttt{class}, \texttt{struct}, or \texttt{union} but are not
 permitted as non\texttt{static} members nor at all in function scope:
@@ -82,12 +146,12 @@ template <typename T> static T vt2;      // OK (internal linkage)
 namespace N
 {
     template <typename T> T vt3;           // OK (external linkage)
-    template <typename T> T vt4;           // OK (internal linkage)
+    template <typename T> static T vt4;    // OK (internal linkage)
 }
 
 struct S
 {
-    template <typename T> T vt5;         // error: not (ù{\codeincomments{static}}ù)
+    template <typename T> T vt5;         // Error, not (ù{\codeincomments{static}}ù)
     template <typename T> static T vt6;  // OK (external linkage)
 };
 
@@ -96,7 +160,10 @@ void f3()  // Variable templates cannot be defined in functions.
     template <typename T> T vt7;         // compile-time error
     template <typename T> static T vt8;  // compile-time error
 
-    vt1<bool> = true;                    // OK (to use them)
+    vt1<bool> = true;                   // OK (to use them)
+    N::vt3<bool> = true;
+    N::vt4<bool> = true;
+    S::vt6<bool> = true;
 }
 \end{lstlisting}
 
@@ -115,10 +182,12 @@ namespace N
 {\it\titleref{variabletemplate-potential-pitfalls}:} {\it\titleref{recursive-variable-template-initializations-require-const-or-constexpr}} on page~\pageref{recursive-variable-template-initializations-require-const-or-constexpr}):
 
 \begin{lstlisting}[language=C++]
+namespace {
 template <int N>
 const int sum = N + sum<N - 1>;    // recursive general template
 
-template <> const int sum<0> = 0;  // base-case specialization
+template <> const int sum<0> = 0;  // base case specialization
+}  // close unnamed namespace
 
 void f()
 {
@@ -128,31 +197,30 @@ void f()
 }
 \end{lstlisting}
 
-\noindent Note that variable templates do not enable any novel patterns;
-anything that can be achieved using them could also have been achieved
-in C++11 along with some additional boilerplate. The initial
-\texttt{typeId} example could have instead been implemented using a
-\texttt{struct}:
+\noindent Note that while variable templates do not add new functionality, they significantly reduce the boilerplate associated with achieving the same goals without them.  For example, compare the definition of \lstinline!pi! above with the pre-C++14 code:
 
 \begin{lstlisting}[language=C++]
-template <typename> struct TypeId { static int value; };
-\end{lstlisting}
+// C++03 (obsolete)
+template <typename T>
+struct Pi {
+    static const T value;
+};
 
-\noindent And used with just a bit more syntax:
+template <typename T>
+const T Pi<T>::value(3.1415926535897932385);  // separate definition
 
-\begin{lstlisting}[language=C++]
- void f1b()
+void testCpp03Pi()
 {
-    TypeId<bool>::value = -1;    // (ù{\codeincomments{TypeId<bool>::value}}ù) is an (ù{\codeincomments{int}}ù).
-    TypeId<char>::value = 1000;  // (ù{\codeincomments{TypeId<char>::value}}ù) is an (ù{\codeincomments{int}}ù).
-    TypeId<void>::value = -666;  // (ù{\codeincomments{TypeId<void>::value}}ù) is an (ù{\codeincomments{int}}ù).
+    const float       piAsFloat      = 3.1415927;
+    const double      piAsDouble     = 3.141592653589793;
+    const long double piAsLongDouble = 3.1415926535897932385;
 
-    assert(TypeId<bool>.value ==   -1);
-    assert(TypeId<char>.value == 1000);
-    assert(TypeId<void>.value == -666);
+    // additional boilerplate on use ((ù{\codeincomments{::value}ù))
+    assert(Pi<float>::value       == piAsFloat);
+    assert(Pi<double>::value      == piAsDouble);
+    assert(Pi<long double>::value == piAsLongDouble);
 }
 \end{lstlisting}
-
 
 \subsection[Use Cases]{Use Cases}\label{variabletemplate-use-cases}
 
@@ -176,10 +244,7 @@ constexpr T pi(3.1415926535897932385);
     // smallest digit sequence to accurately represent pi as a (ù{\codeincomments{long double}}ù)
 \end{lstlisting}
 
-\noindent Notice that we have elected to use {\texttt{constexpr} variables
-(from C++11) in place of a classic \texttt{const} as a stronger
-guarantee that the provided initializer is a compile-time constant and
-that \texttt{pi} itself will be usable as part of a constant expression.
+\noindent Notice that we have elected to use {\texttt{constexpr} variables in place of  \texttt{const} to guarantee that the floating-point \lstinline!pi! is a compile-time constant that will be usable as part of a constant expression.
 
 With the definition above, we can provide a
 \texttt{toRadians} function template that performs at maximum runtime
@@ -199,7 +264,7 @@ constexpr T toRadians(T degrees)
 A \textbf{type trait} is an empty type carrying compile-time information
 about one or more aspects of another type. The way in which type traits
 have been specified historically has been to define a class template
-having the trait name and a public \texttt{static} (or \texttt{enum})
+having the trait name and a public \texttt{static}
 data member, that is conventionally called \texttt{value}, which is
 initialized in the primary template to \texttt{false}. Then, for each
 type that wants to advertise that it has this trait, the header defining
@@ -222,6 +287,7 @@ std::is_default_constructible<T>::value
 // C++17
 std::is_default_constructible_v<T>
 \end{lstlisting}
+This delay is a consequence of the train release model of the Standard: Thoughtful application of the new feature throughout the vast Standard Library required significant effort that could not be completed before the next release date for the Standard and thus was delayed until C++17.
       }}
 
 Consider, for example, a boolean trait designating whether a particular
@@ -275,7 +341,7 @@ constexpr bool isSerializableToJson<CompanyData> = true;
 
 \noindent Finally, our \texttt{client} function incorporates all of the above and
 attempts to serialize both a \texttt{CompanyData} object and an
-\texttt{std::map<int,}~\texttt{char>>}:
+\texttt{std::map<int,}~\texttt{char>}:
 
 \begin{lstlisting}[language=C++]
 // client.h
@@ -294,17 +360,16 @@ void client()
 \noindent In the \texttt{client()} function above, \texttt{CompanyData} works
 fine, but, because the variable template \texttt{isSerializableToJson}
 was never specialized to be \texttt{true} for type
-\mbox{\texttt{std::map<int,} \texttt{char>>}}, the client header will --- as
+\mbox{\texttt{std::map<int,} \texttt{char>}}, the client header will --- as
 desired --- fail to compile.
 
 \subsection[Potential Pitfalls]{Potential Pitfalls}\label{variabletemplate-potential-pitfalls}
 
 \subsubsection[Recursive variable template initializations require {\tt const} or {\tt constexpr}]{Recursive variable template initializations require {\SubsubsecCode const} or {\SubsubsecCode constexpr}}\label{recursive-variable-template-initializations-require-const-or-constexpr}
 
-When discussing the intricacies of the C++ language with your peers, consider quizzing them on why the
-example below, having no undefined behavior, might produce different results with popular compilers{\cprotect\footnote{For
+Instantiating variable templates that are defined recursively might have a subtle issue that could produce different results{\cprotect\footnote{For
 example, GCC version 4.7.0 (2017) produces the expected results whereas
-  Clang version 10.x (2020) produces 1, 3, and 4, respectively.}}:
+  Clang version 10.x (2020) produces 1, 3, and 4, respectively.}} despite having no undefined behavior:
 
 \begin{lstlisting}[language=C++]
 #include <iostream>
@@ -325,11 +390,15 @@ int main()
 }
 \end{lstlisting}
 
-\noindent The didactic value in answering this question dwarfs any potential
-practical value that recursive template variable instantiation can
-offer. First, consider that this same issue could, in theory, have
-occurred in C++03 using nested \texttt{static} members of a
-\texttt{struct}:
+\noindent The root cause of this instability is
+that the relative order of the initialization of the recursively generated variable template instantiations
+is not guaranteed because they are not defined explicitly \emph{within the same translation
+unit}.  Therefore, a similar issue might have occurred in C++03 using \lstinline!static! members of a \lstinline!struct!:
+%The didactic value in answering this question dwarfs any potential
+%practical value that recursive template variable instantiation can
+%offer. First, consider that this same issue could, in theory, have
+%occurred in C++03 using nested \texttt{static} members of a
+%\texttt{struct}:
 
 \begin{lstlisting}[language=C++]
 #include <iostream>
@@ -356,10 +425,11 @@ int main()
 };
 \end{lstlisting}
 
-\noindent The problem did not manifest, however, because the simpler solution of
-using \texttt{enum}s (below) obviated separate initialization of the
-local \texttt{static} and didn't admit the possibility of failing to
-make the initializer a compile-time constant:
+\noindent However, this is not an issue when using \lstinline!enum!s due to enumerators always being compile-time constants:
+%The problem did not manifest, however, because the simpler solution of
+%using \texttt{enum}s (below) obviated separate initialization of the
+%local \texttt{static} and didn't admit the possibility of failing to
+%make the initializer a compile-time constant:
 
 \begin{lstlisting}[language=C++]
 #include <iostream>
@@ -382,18 +452,19 @@ int main()
 };
 \end{lstlisting}
 
-\noindent It was not until C++14 that the variable templates feature
-readily exposed this latent pitfall involving recursive initialization
-of non-\texttt{const} variables. The root cause of the instability is
-that the relative order of the initialization of the (recursively
-generated) variable instantiations is not guaranteed because they are
-not defined explicitly \emph{within the same translation unit}. The
-magic sauce that makes everything work is the C++ language requirement
-that any variable that is declared \texttt{const} and initialized with a
-compile-time constant is itself to be treated as a compile-time constant
-within the translation unit. This compile-time-constant propagation
-requirement imposes the needed ordering to ensure that the expected
-results are portable to all conforming compilers:
+\noindent For integral variable templates, this issue can be resolved simply by adding a \lstinline!const! qualifier because the C++ Standard requires that any integral variable declared as \lstinline!const! and initialized with a compile-time constant is itself to be treated as a compile-time constant within the translation unit.
+%It was not until C++14 that the variable templates feature
+%readily exposed this latent pitfall involving recursive initialization
+%of non-\texttt{const} variables. The root cause of the instability is
+%that the relative order of the initialization of the (recursively
+%generated) variable instantiations is not guaranteed because they are
+%not defined explicitly \emph{within the same translation unit}. The
+%magic sauce that makes everything work is the C++ language requirement
+%that any variable that is declared \texttt{const} and initialized with a
+%compile-time constant is itself to be treated as a compile-time constant
+%within the translation unit. This compile-time-constant propagation
+%requirement imposes the needed ordering to ensure that the expected
+%results are portable to all conforming compilers:
 
 \begin{lstlisting}[language=C++]
 #include <iostream>
@@ -416,14 +487,14 @@ int main()
 
 \noindent Note that replacing each of the three \texttt{const} keywords with
 {\texttt{constexpr} in the example above also achieves the
-desired goal and does not consume memory in the \textbf{static data
-space}.
+desired goal, does not consume memory in the \textbf{static data
+space}, and would also be applicable to non-integral constants.
 
 \subsection[Annoyances]{Annoyances}\label{annoyances}
 
 \subsubsection[Variable templates do not support template template parameters]{Variable templates do not support template template parameters}\label{variable-templates-do-not-support-template-template-parameters}
 
-While a class or function template can accept a
+Although a class or function template can accept a
 \textbf{template template class parameter}, no equivalent
 construct is available for variable templates{\cprotect\footnote{Pusz has proposed for C++23 a way to increase consistency between
 variable templates and class templates when used as template template

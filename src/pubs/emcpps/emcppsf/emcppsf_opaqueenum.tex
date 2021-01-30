@@ -1,5 +1,8 @@
-\newpage
-\section[Opaque {\tt enum}s]{Opaque Enumeration Declarations}\label{enumopaque}\label{opaque-enumeration-declarations}
+\emcppsFeature{
+        short={Opaque {\tt enum}s},
+        long={Opaque Enumeration Declarations},
+}{enumopaque}
+\label{opaque-enumeration-declarations}
 
 Enumerated types, such as an \lstinline!enum! or \lstinline!enum! class (see \featureref{\locationc}{enumclass}), whose underlying type (see \featureref{\locationc}{explicit-enumeration-underlying-type}) is well-specified, can be
 declared without being defined, i.e., declared without its enumerators.
@@ -72,8 +75,7 @@ enum class    { e_A, e_B };    // Error, anonymous (ù{\codeincomments{enum}}ù)
 \end{lstlisting}
 
 \noindent To summarize, each classical \lstinline!enum! type having an explicitly
-specified \romeogloss{{underlying type}} and every (modern)
-\lstinline!enum!~\lstinline!class! type can be declared (e.g., for the first
+specified \romeogloss{{underlying type}} and every modern \lstinline!enum!~\lstinline!class! type can be declared (e.g., for the first
 time in a TU) as a \romeogloss{complete type}:
 
 \begin{lstlisting}[language=C++]
@@ -121,7 +123,7 @@ semantically compatible way) does not require clients to rework their
 code but might require them to recompile it.
 
 An \emph{insulated} implementation detail, on the other hand, can be
-altered (compatibly) \emph{without} forcing clients even to recompile.
+altered compatibly \emph{without} forcing clients even to recompile.
 The advantages of avoiding such \romeogloss{compile-time coupling} transcend
 merely reducing compile time. For larger codebases in which various
 layers are managed under different release cycles, making a change to an
@@ -131,7 +133,7 @@ precipitate a waterfall of releases spanning days, weeks, or even
 longer.
 
 As a first example of \romeogloss{opaque-enumeration} usage, consider a
-(non-\emph{value-semantic}) \romeogloss{mechanism} class, \lstinline!Proctor!,
+non-\emph{value-semantic} \romeogloss{mechanism} class, \lstinline!Proctor!,
 implemented as a finite-state machine:
 
 \begin{lstlisting}[language=C++]
@@ -149,7 +151,7 @@ public:
 \end{lstlisting}
 
 \noindent Among other private members, \lstinline!Proctor! has a data member,
-\lstinline!d_current!, representing the current (pure) enumerated state of
+\lstinline!d_current!, representing the current enumerated state of
 the object. We anticipate that the implementation of the underlying
 state machine will change regularly over time but that the
 \lstinline!public! interface is relatively stable. We will, therefore, want
@@ -245,7 +247,7 @@ Proctor::Proctor() : d_current(State::e_STARTING) { /* ... */ }
 \end{lstlisting}
 
 \noindent Finally, notice that in this example we first \emph{forward declared}
-the (nested) \lstinline!enum!~\lstinline!class! type within class scope and
+the nested \lstinline!enum!~\lstinline!class! type within class scope and
 then in a separate statement defined a data member of the opaque
 enumerated type. We needed to do this in two statements because
 simultaneously \emph{opaquely declaring} either a classic \lstinline!enum!
@@ -418,7 +420,7 @@ int main()
 {
    CallbackEngine e;  // Create a configurable callback engine object.
 
-   //...     (Configure the callback engine , (ù{\codeincomments{e}}ù), as appropriate.)
+   //...     (Configure the callback engine, (ù{\codeincomments{e}}ù), as appropriate.)
 
    e.registerInterest(&myCallback);  // Even a stateless function pointer can
                                      // be used with (ù{\codeincomments{std::function}}ù).
@@ -590,12 +592,12 @@ enumeration, and so would have had to represent it in a
 the modern \lstinline!enum!~\lstinline!class! (see \featureref{\locationc}{enumclass}), however, we can
 conveniently \romeogloss{forward declare} it as a nested type and then,
 separately, fully define it inside the \lstinline!.cpp! implementing other
-(noninline) member functions of the \lstinline!CallbackEngine! class. In
+noninline member functions of the \lstinline!CallbackEngine! class. In
 this way, we are able to \emph{insulate} changes to the enumerator list
 along with any other aspects of the implementation defined outside of
 the \lstinline!.h! file without forcing any client applications to
 recompile. Finally, the basic design of the hypothetical \lstinline!CallbackEngine!
-(in the previous code example) could have been used for any number of
+in the previous code example could have been used for any number of
 useful components: a parser or tokenizer, a workflow engine, or even a
 more generalized event loop.
 
@@ -609,8 +611,8 @@ component's header. Consider the situation in which a \romeogloss{component}
 be used by various clients within a single program, some of which will
 need access to the enumerators.
 
-When an \lstinline!enum!~\lstinline!class! (or a classic \lstinline!enum! having
-an explicitly specified underlying type; see \featureref{\locationc}{explicit-enumeration-underlying-type}) is specified in
+When an \lstinline!enum!~\lstinline!class! or a classic \lstinline!enum! having
+an explicitly specified underlying type (see \featureref{\locationc}{explicit-enumeration-underlying-type}) is specified in
 a header for direct programmatic use, external clients are at liberty to
 unilaterally redeclare it \emph{opaquely}, i.e., without its enumerator
 list. A compelling motivation for doing so would be for a client who
@@ -625,7 +627,7 @@ of the definition (in some other translation unit), any program
 incorporating both translation units would immediately become silently
 \romeogloss{ill-formed, no diagnostic required (IFNDR)}; see \intraref{potential-pitfalls-opaqueenum}{redeclaring-an-externally-defined-enumeration-locally}. Unless a separate ``forwarding'' header file is
 provided along with (and ideally included by) the header defining the
-full enumeration, any client opting to exploit (when available) this
+full enumeration, any client opting to exploit this
 opacity feature of an enumerated type will have no alternative but to
 redeclare the enumeration locally; see \intraref{potential-pitfalls-opaqueenum}{inciting-local-enumeration-declarations-an-attractive-nuisance}.
 
@@ -641,8 +643,8 @@ enum class Event : char { /*... changes frequently ...*/ };
 
 \noindent Now imagine some client header file, \lstinline!badclient.h!, that makes
 use of the \lstinline!Event! enumeration and chooses to avoid compile-time
-coupling itself to the enumerator list by (for whatever reason)
-embedding a \romeogloss{local declaration} of \lstinline!Event! instead:
+coupling itself to the enumerator list by
+embedding, for whatever reason, a \romeogloss{local declaration} of \lstinline!Event! instead:
 
 \begin{lstlisting}[language=C++]
 // badclient.h
@@ -669,25 +671,17 @@ enum class Event : short { /*... changes frequently ...*/ };
 
 \noindent Client code, such as in \lstinline!badclient.h!, that fails to include the
 \lstinline!event.h! header will have no automatic way of knowing that it
-needs to change, and recompiling the code (for all cases where
-\lstinline!event.h! isn't also included in the translation unit) will not
+needs to change, and recompiling the code for all cases where
+\lstinline!event.h! isn't also included in the translation unit will not
 fix the problem. Unless every such client is somehow updated manually, a
 newly linked program comprising them will be \romeogloss{IFNDR} with the likely
 consequence of either a crash or (worse) when the program runs and
 misbehaves. When providing a programmatically accessible definition of
 an enumerated type in a header where the \romeogloss{underlying type} is
-specified (either explicitly or implicitly), we can give external
+specified either explicitly or implicitly, we can give external
 clients a \emph{safe} alternative to local declaration by also providing
 an auxiliary header containing \emph{just} the corresponding opaque
-declaration{\cprotect\footnote{Here we have chosen to treat the
-forwarding header file as part of the same \lstinline!event!
-\romeogloss{component} as the principal header but with an injected
-descriptive suffix field, \lstinline!.fwd!; this approach, as opposed to,
-say, \lstinline!file_fwd.h!, \lstinline!filefwd.h!, or \lstinline!file.hh!,
-was chosen so as not to (1) encroach on a disciplined component-naming
-  scheme involving reserved use of underscores (see \cite{lakos20},
-  section~2.4., pp.~297--333) or (2) confuse tools and scripts that
-  expect header-file names to end with a \lstinline!.h! suffix.}}:
+declaration:
 
 \begin{lstlisting}[language=C++]
 // event.fwd.h
@@ -696,12 +690,14 @@ enum class Event : char;
 // ...
 \end{lstlisting}
 
-\noindent In general, having a forwarding header always included in its
+\noindent Here we have chosen to treat the forwarding header file as part of the same event component as the principal header but with an injected descriptive suffix field, \lstinline!.fwd!; this approach, as opposed to, say, \lstinline!file_fwd.h!, \lstinline!filefwd.h!, or \lstinline!file.hh!, was chosen so as not to (1) encroach on a disciplined, component-naming scheme involving reserved use of underscores\footnote{\cite{lakos20}, section~2.4, pp.~297--333} or (2) confuse tools and scripts that expect header-file names to end with a \lstinline!.h! suffix.
+
+In general, having a forwarding header always included in its
 corresponding full header facilitates situations such as default
 template arguments where the declaration can appear at most once in any
-given translation unit; the only drawback being that the (typically)
+given translation unit; the only drawback being that the
 comparatively small forwarding header file must now also be opened and
-parsed (once) if the full header file is included in a given translation
+parsed if the full header file is included in a given translation
 unit. To ensure consistency, we thus \lstinline!#include! this forwarding
 header in the original header defining the full enumeration:
 
@@ -716,12 +712,8 @@ enum class Event : char { /*... changes frequently ...*/ };
 
 \noindent In this way, every translation unit that includes the definition will
 serve to ensure that the forward declaration and definition match;
-hence, clients can incorporate safely only the (presumably more stable)
-forwarding header{\cprotect\footnote{Note that we have consistently
-employed angle brackets exclusively for all include directives used
-throughout this book to maximize flexibility of deployment presuming a
-  regimen for unique naming; see \cite{lakos20}, section~1.5.1,
-  pp.~201--203.}}:
+hence, clients can incorporate safely only the presumably more stable
+forwarding header:
 
 \begin{lstlisting}[language=C++]
 // goodclient.h
@@ -735,7 +727,13 @@ class Client
 };
 \end{lstlisting}
 
-\noindent To illustrate real-world practical use of the opaque-enumerations
+\noindent Note that we have consistently
+employed angle brackets exclusively for all include directives used
+throughout this book to maximize flexibility of deployment presuming a
+  regimen for unique naming.\footnote{See \cite{lakos20}, section~1.5.1,
+  pp.~201--203.}
+
+  To illustrate real-world practical use of the opaque-enumerations
 feature, consider the various components{\cprotect\footnote{See
   \cite{lakos20}, sections~1.6 and 1.11, pp.~209--216 and
   pp.~256--259, respectively.}} that might depend
@@ -864,12 +862,12 @@ int x;
 \end{minipage}
 
 \noindent In this way, any change to the definition of \lstinline!x! in
-\lstinline!library.cpp! (the supplier) will trigger a compilation error
+\lstinline!library.cpp! --- the supplier --- will trigger a compilation error
 when \lstinline!library.cpp! is recompiled, thereby forcing a corresponding
 change to the declaration in \lstinline!library.h!. When that happens,
 typical build tools will take note of the change in the header file's
 timestamp relative to that of the \lstinline!.o! file corresponding to
-\lstinline!main.cpp! (the consumer), indicating that it too needs to be
+\lstinline!main.cpp! --- the consumer --- and indicate that it too needs to be
 recompiled. Problem solved.
 
 The maintainability pitfall associated with opaque enumerations,
@@ -889,18 +887,18 @@ elided declarations in sync with the full definition introduces what we
 are calling an \emph{attractive nuisance}: the client is forced to
 choose between (a) introducing the added risk and maintenance burden of
 having to manually maintain consistency between the underlying types for
-all its separate opaque uses and the one true (full) definition or (b)
+all its separate opaque uses and the one full definition or (b)
 forgo use of this opaque-enumeration feature entirely, forcing
-gratuitous compile-time coupling\footnote{At even moderate scale, excessive
+gratuitous compile-time coupling with
+the unused and perhaps unstable enumerators. At even moderate scale, excessive
 compile-time coupling can adversely affect projects in ways that are far
 more insidious than just increased compile times during development ---
 e.g., any emergency changes that might need to occur and be deployed
 quickly to production without forcing all clients to recompile and then
-be retested and then, eventually, be rereleased. For a complete
+be retested and then, eventually, be rereleased.\footnote{For a complete
 real-world example of how compile-time coupling can delay a ``hot fix''
 by weeks, not just hours, see \cite{lakos20}, section~3.10.5,
-pp.~783--789.} with
-the unused (and perhaps unstable) enumerators.
+pp.~783--789.}
 
 \subsubsection[Inciting local enumeration declarations: an attractive nuisance]{Inciting local enumeration declarations: an attractive nuisance}\label{inciting-local-enumeration-declarations-an-attractive-nuisance}
 
@@ -926,13 +924,13 @@ enumerator list) --- might be persuaded into providing an elided copy of
 the \lstinline!enum!'s definition (i.e., one omitting just the enumerators)
 locally!
 
-Ensuring that (e.g., reusable) library components that define
-enumerations (e.g.,\linebreak[4]%%%%%%%%%
+Ensuring that library components that define
+enumerations (e.g.,
 \lstinline!enum!~\lstinline!class!~\lstinline!Event!) whose
 enumerators can be elided also consistently provide a second
-(forwarding) header file containing the opaque declaration of each such
+forwarding header file containing the opaque declaration of each such
 enumeration (i.e., enumeration name and underlying integral type only)
-would be one (generally applicable) way to sidestep this often
+would be one generally applicable way to sidestep this often
 surprisingly insidious maintenance burden; see \intrarefsimple{dual-access:-insulating-some-external-clients-from-the-enumerator-list}. Note that the attractive
 nuisance potentially exists even when the primary intent of the component is not to make the enumeration generally
 available.\footnote{\cite{wight}}
@@ -963,8 +961,8 @@ values are valid is arguably dubious.
 \subsection[See Also]{See Also}\label{see-also}
 
 \begin{itemize}
-\item{\seealsoref{explicit-enumeration-underlying-type}{\locationc}The underlying integral representation for enumeration variables and their values.}
-\item{\seealsoref{enumclass}{\locationc}An implicitly scoped, more strongly typed enumeration.}
+\item{\seealsoref{explicit-enumeration-underlying-type}{\locationc}Discusses the underlying integral representation for enumeration variables and their values.}
+\item{\seealsoref{enumclass}{\locationc}Introduces an implicitly scoped, more strongly typed enumeration.}
 \end{itemize}
 
 \subsection[Further Reading]{Further Reading}\label{further-reading}

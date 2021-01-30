@@ -1,8 +1,9 @@
-%%%% 15 Jan: copyedits in and proofed
 \emcppsFeature{
-        short={\tt static\_assert},
+        short={{\tt static\_assert}},
         long={Compile-Time Assertions},
 }{compile-time-assertions-(static_assert)}
+%%%% 15 Jan: copyedits in and proofed
+%% 27 Jan, code checked and replaced as needed by Josh
 
 The \lstinline!static_assert! keyword allows programmers to intentionally terminate compilation whenever a given compile-time predicate
  evaluates to \lstinline!false!.
@@ -44,7 +45,7 @@ assertion fails to hold:
 
 \begin{emcppslisting}[emcppserrorlines=2]
 static_assert(true, "Never fires.");
-static_assert(false, "Always fires.");  
+static_assert(false, "Always fires.");
 \end{emcppslisting}
 
 \noindent Static assertions can be placed anywhere in the scope of a namespace,

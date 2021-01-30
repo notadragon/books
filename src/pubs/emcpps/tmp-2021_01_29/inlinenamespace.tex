@@ -1,0 +1,1629 @@
+
+An \texttt{inline} namespace is a nested namespace whose member entities
+closely behave as if they were declared directly within the enclosing
+namespace.
+
+\subsection[Description]{Description}\label{description-inlinenamespace}
+
+To a first approximation, an \textbf{\texttt{inline}~\texttt{namespace}}
+(e.g., \texttt{v2} in the code snippet below) acts a lot like a
+conventional nested namespace (e.g., \texttt{v1}) followed by a
+\texttt{using} directive for that namespace in its enclosing namespace{\cprotect\footnote{C++17 allows developers to concisely declare nested
+namespaces with shorthand notation:
+\begin{lstlisting}[language=C++, basicstyle={\ttfamily\footnotesize}]
+namespace a::b { /* ... */ }
+// is the same as
+namespace a { namespace b { /* ... */ } }
+\end{lstlisting}
+C++20 expands on the above syntax by allowing the insertion of the
+\texttt{inline} keyword in front of any of the namespaces, except the
+first one:
+\begin{lstlisting}[language=C++, basicstyle={\ttfamily\footnotesize}]
+namespace a::inline b::inline c { /* ... */ }
+// is the same as
+namespace a { inline namespace b { inline namespace c { /* ... */ } } }
+
+inline namespace a::b { }  // error: cannot start with (ù{\codeincomments{inline}}ù) for compound namespace names
+namespace inline a::b { }  // error: (ù{\codeincomments{inline}}ù) at front of sequence explicitly disallowed
+\end{lstlisting}
+      }}:
+
+\begin{lstlisting}[language=C++]
+// example.cpp
+namespace n
+{
+    namespace v1  // conventional nested namespace followed by (ù{\codeincomments{using}}ù) directive
+    {
+        struct T { };     // nested type declaration (identified as (ù{\codeincomments{::n::v1::T}}ù))
+        int d;            // (ù{\codeincomments{::n::v1::d}}ù) at, e.g., (ù{\codeincomments{0x01a64e90}}ù)
+    }
+
+    using namespace v1;   // import names (ù{\codeincomments{T}}ù) and (ù{\codeincomments{d}}ù) into (ù{\codeincomments{namespace n}}ù)
+}
+
+namespace n
+{
+    inline namespace v2   // similar to being followed by (ù{\codeincomments{using namespace v2}}ù)
+    {
+        struct T { };     // nested type declaration (identified as (ù{\codeincomments{::n::v2::T}}ù))
+        int d;            // (ù{\codeincomments{::n::v2::d}}ù) at, e.g., (ù{\codeincomments{0x01a64e94}}ù)
+    }
+
+    // using namespace v2;  // redundant when used with an (ù{\codeincomments{inline namespace}}ù)
+}
+\end{lstlisting}
+    
+\noindent Four subtle details distinguish these approaches:
+\begin{enumerate}
+\item{Name collisions with existing names behave differently due to differing name-lookup rules.}
+\item{\textbf{Argument-dependent lookup} (ADL) gives special treatment to \texttt{inline} namespaces.}
+\item{Template specializations can refer to the primary template in an \texttt{inline} namespace even if written in the enclosing namespace.}
+\item{Reopening namespaces might reopen an \texttt{inline} namespace.}
+\end{enumerate}
+One important aspect that all forms of namespaces share, however, is
+that (1) nested symbolic names (e.g., \texttt{n::v1::T}) at the
+\textbf{API} level, (2) \textbf{mangled names} (e.g.,
+\texttt{\_ZN1n2v11dE}, \texttt{\_ZN1n2v21dE}), and (3) assigned
+relocatable addresses (e.g., \texttt{0x01a64e90}, \texttt{0x01a64e94})
+at the \textbf{ABI} level remain unaffected by the use of either
+\texttt{inline} or \texttt{using} or both.{\cprotect\footnote{Compiling
+source files containing, alternately,
+ \mbox{\texttt{namespace} \texttt{n} \texttt{\{} \texttt{inline} \texttt{namespace} \texttt{v} \texttt{\{} \texttt{int} \texttt{d;} \texttt{\}} \texttt{\}}}
+  and
+ \mbox{\texttt{namespace} \texttt{n} \texttt{\{} \texttt{namespace} \texttt{v} \texttt{\{} \texttt{int} \texttt{d;} \texttt{\}} \texttt{using} \texttt{namespace} \texttt{v} \texttt{\}}},
+  will produce identical assembly. This can be seen with GCC by
+  running \texttt{g++}~\texttt{-S}~\texttt{<file>.cpp} and viewing the
+  contents of the generated \texttt{<file>.s}. Note that Compiler
+  Explorer is another valuable tool for learning about what comes out
+  the other end of a C++ compiler: see https://godbolt.org/.}} Note that
+a \texttt{using} directive immediately following an \texttt{inline}
+namespace is superfluous; name lookup will always consider names in
+\texttt{inline} namespaces before those imported by a \texttt{using}
+directive. Such a directive can, however, be used to import the contents
+of an \texttt{inline} namespace to some other namespace, albeit only in
+the conventional, \textbf{\texttt{using} directive} sense; see \textit{\titleref{annoyances-inlinenamespace}: \titleref{only-one-namespace-can-contain-any-given-inline-namespace}} on page~\pageref{only-one-namespace-can-contain-any-given-inline-namespace}.
+
+More generally, each namespace has what is called its
+\emph{\texttt{inline} namespace set}, which is the transitive closure of
+all \texttt{inline} namespaces within the namespace. All names in the
+\texttt{inline} namespace set are roughly intended to behave as if they
+are defined in the enclosing namespace. Conversely, each \texttt{inline}
+namespace has an \emph{enclosing namespace set} that comprises all
+enclosing namespaces up to and including the first non-\texttt{inline}
+namespace.
+
+\subsubsection[Loss of access to duplicate names in enclosing namespace]{Loss of access to duplicate names in enclosing namespace}\label{loss-of-access-to-duplicate-names-in-enclosing-namespace}
+
+When both a type and a variable are declared with the same name in the
+same scope, the variable name hides the type name --- such behavior can
+be demonstrated by using the form of \texttt{sizeof} that accepts a
+nonparenthesized \emph{expression}{\cprotect\footnote{The form of
+\texttt{sizeof} that accepts a \emph{type} as its argument
+  specifically requires parentheses.}}:
+
+\begin{lstlisting}[language=C++]
+struct A { double d; };  static_assert(sizeof(  A) == 8, "");  // type
+                      // static_assert(sizeof   A  == 8, "");  // ERROR!
+
+int A;                   static_assert(sizeof(  A) == 4, "");  // data
+                         static_assert(sizeof   A  == 4, "");  // OK
+\end{lstlisting}
+    
+\noindent Unless both type and variable entities are declared within the same
+scope, no preference is given to variable names; the name of an entity
+in an inner scope hides a like-named entity in an enclosing scope:
+
+\begin{lstlisting}[language=C++]
+void f()
+{
+    double B;                 static_assert(sizeof(B) == 8, "");  // variable
+    {                         static_assert(sizeof(B) == 8, "");  // variable
+        struct B { int d; };  static_assert(sizeof(B) == 4, "");  // type
+    }                         static_assert(sizeof(B) == 8, "");  // variable
+}
+\end{lstlisting}
+    
+\noindent When an entity is declared in an enclosing \texttt{namespace} and
+another entity having the same name hides it in a \emph{lexically}
+nested scope, then (apart from \texttt{inline} namespaces) access to a
+hidden element can generally be recovered by using scope resolution:
+
+\begin{lstlisting}[language=C++]
+struct C { double d; };  static_assert(sizeof(  C) == 8, "");
+
+void g()
+{                        static_assert(sizeof(  C) == 8, "");  // type
+    int C;               static_assert(sizeof(  C) == 4, "");  // variable
+                         static_assert(sizeof(::C) == 8, "");  // type
+}                        static_assert(sizeof(  C) == 8, "");  // type
+\end{lstlisting}
+    
+\noindent A conventional nested namespace behaves as one might expect:
+
+\begin{lstlisting}[language=C++]
+namespace outer
+{
+    struct D { double d; }; static_assert(sizeof(       D) == 8, ""); // type
+
+    namespace inner
+    {                       static_assert(sizeof(       D) == 8, ""); // type
+        int D;              static_assert(sizeof(       D) == 4, ""); // var
+    }                       static_assert(sizeof(       D) == 8, ""); // type
+                            static_assert(sizeof(inner::D) == 4, ""); // var
+                            static_assert(sizeof(outer::D) == 8, ""); // type
+    using namespace inner;//static_assert(sizeof(       D) == 0, ""); // ERROR
+                            static_assert(sizeof(inner::D) == 4, ""); // var
+                            static_assert(sizeof(outer::D) == 8, ""); // type
+}                           static_assert(sizeof(outer::D) == 8, ""); // type
+\end{lstlisting}
+    
+\noindent In the example above, the inner variable name, \texttt{D}, hides the
+outer type with the same name, starting from the point of \texttt{D}'s
+declaration in \texttt{inner} until \texttt{inner} is closed, after
+which the unqualified name \texttt{D} reverts back to the type in the
+\texttt{outer} namespace. Then, right after the subsequent
+\texttt{using}~\texttt{namespace}~\texttt{inner;} directive, the meaning
+of the unqualified name \texttt{D} in \texttt{outer} becomes ambiguous,
+shown here with a \texttt{static\_assert} that is commented out; any
+attempt to refer to an unqualified \texttt{D} from here to the end of
+the scope of \texttt{outer} will fail to compile. The type entity
+declared as \texttt{D} in the \texttt{outer} namespace can, however,
+still be accessed --- from inside or outside of the \texttt{outer}
+namespace, as shown in the example --- via its qualified name,
+\texttt{outer::D}.
+
+If an \texttt{inline} namespace were used instead of a nested namespace
+followed by a \mbox{\texttt{using}} directive, however, the ability to recover
+by name the hidden entity in the enclosing namespace is lost.
+Unqualified name lookup considers the inline namespace set and the used
+namespace set simultaneously. Qualified name lookup first considers the
+\texttt{inline} namespace set, and \emph{then} goes on to look into used
+namespaces. This means we can still refer to \texttt{outer::D} in the
+example above, but doing so would still be ambiguous if \texttt{inner}
+were an inline namespace. This subtle difference in behavior is a
+byproduct of the highly specific use case that motivated this feature
+and for which it was explicitly designed; see \textit{\titleref{use-cases-inlinenamespace}: \titleref{link-safe-abi-versioning}} on page~\pageref{link-safe-abi-versioning}.
+
+\subsubsection[Argument-dependent–lookup interoperability across {\tt inline} {\tt namespace} boundaries]{Argument-dependent–lookup interoperability across\\[0.5ex] {\SubsubsecCode inline} {\SubsubsecCode namespace} boundaries}\label{argument-dependent–lookup-interoperability-across-inline-namespace-boundaries}
+
+Another important aspect of \texttt{inline} namespaces is that they
+allow \textbf{ADL} to work seamlessly across \texttt{inline} namespace
+boundaries. Whenever unqualified function names are being resolved, a
+list of \emph{associated namespaces} is built for each argument of the
+function. This list of associated namespaces comprises the namespace of the
+argument, its enclosing namespace set, plus the \texttt{inline}
+namespace set.
+
+Consider the case of a type, \texttt{U}, defined in an \texttt{outer}
+namespace, and a function, \texttt{f(U)}, declared in an \texttt{inner}
+namespace nested within \texttt{outer}. A second type, \texttt{V}, is
+defined in the \texttt{inner} namespace, and a function, \texttt{g}, is
+declared, after the close of \texttt{inner}, in the \texttt{outer}
+namespace:
+
+\begin{lstlisting}[language=C++]
+namespace outer
+{
+    struct U { };
+
+    // inline               // Uncommenting this line fixes the problem.
+    namespace inner
+    {
+         void f(U) { }
+         struct V { };
+    }
+
+    using namespace inner;  // If we inline (ù{\codeincomments{inner}}ù), we don't need this line.
+
+    void g(V) { };
+}
+
+void client()
+{
+    f(outer::U());         // Error: (ù{\codeincomments{f}}ù) is not declared in this scope.
+    g(outer::inner::V());  // Error: (ù{\codeincomments{g}}ù) is not declared in this scope.
+}
+\end{lstlisting}
+    
+\noindent In the example above, a \texttt{client} invoking \texttt{f} with an
+object of type \texttt{outer::U} fails to compile because
+\texttt{f(outer::U)} is declared in the nested \texttt{inner} namespace,
+which is not the same as declaring it in \texttt{outer}. Because
+\textbf{ADL} does not look into namespaces added with the \texttt{using}
+directive, \textbf{ADL} does not find the needed
+\texttt{outer::inner::f} function. Similarly, the type \texttt{V},
+defined in namespace \texttt{outer::inner}, is not declared in the same
+namespace as the function \texttt{g} that operates on it. Hence, when
+\texttt{g} is invoked from within \texttt{client} on an object of type
+\texttt{outer::inner::V}, \textbf{ADL} again does not find the needed
+function \texttt{outer::g(outer::V)}.
+
+Simply making the \texttt{inner} namespace \texttt{inline} solves both
+of these \textbf{ADL}-related problems. All transitively nested
+\texttt{inline} namespaces --- up to and including the most proximate
+non-\texttt{inline} enclosing namespace --- are treated as one with
+respect to \textbf{ADL}.
+
+\subsubsection[The ability to specialize templates declared in a nested {\tt inline} namespace]{The ability to specialize templates declared in a nested {\SubsubsecCode inline} namespace}\label{the-ability-to-specialize-templates-declared-in-a-nested-inline-namespace}
+
+The third property that distinguishes \texttt{inline} namespaces from
+conventional ones, even when followed by a \texttt{using} directive, is
+the ability to specialize a class template defined within an
+\texttt{inline} namespace from within an enclosing one; this ability
+holds transitively up to and including the most proximate
+non-\texttt{inline} namespace:
+
+\begin{lstlisting}[language=C++]
+namespace out                      // proximate non-(ù{\codeincomments{inline}}ù) outer namespace
+{
+    inline namespace in1           // first-level nested (ù{\codeincomments{inline}}ù) namespace
+    {
+        inline namespace in2       // second-level nested (ù{\codeincomments{inline}}ù) namespace
+        {
+            template <typename T>  // primary class template general definition
+            struct S { };
+
+            template <>            // class template *full* specialization
+            struct S<char> { };
+        }
+
+        template <>                // class template *full* specialization
+        struct S<short> { };
+    }
+
+    template <>                    // class template *full* specialization
+    struct S<int> { };
+}
+
+using namespace out;               // conventional using directive
+
+template <>
+struct S<int> { };                 // error: cannot specialize from this scope
+\end{lstlisting}
+    
+\noindent Note that the conventional nested namespace \texttt{out} followed by a
+\texttt{using} directive in the enclosing namespace does not admit
+specialization from that outermost namespace, whereas all of the
+\texttt{inline} namespaces do. Function templates behave similarly
+except that --- unlike class templates, whose definitions must reside
+entirely within the namespace in which they are declared --- a function
+template can be \emph{declared} within a nested namespace and then be
+\emph{defined} from anywhere via a \textbf{qualified name}:
+
+\begin{lstlisting}[language=C++]
+namespace out                      // proximate non-(ù{\codeincomments{inline}}ù) outer namespace
+{
+    inline namespace in1           // first-level nested (ù{\codeincomments{inline}}ù) namespace
+    {
+        template <typename T>      // function template declaration
+        void f();
+
+        template <>                // function template (full) specialization
+        void f<short>() { }
+    }
+
+    template <>                    // function template (full) specialization
+    void f<int>() { }
+}
+
+template <typename T>              // function template general definition
+void out::in1::f() { }
+\end{lstlisting}
+    
+\noindent An important takeaway from the examples above is that every template
+entity --- be it \texttt{class} or function --- \emph{must} be declared
+in \emph{exactly} one place within the collection of namespaces that
+comprise the \texttt{inline} namespace set. In particular, declaring a
+class template in a nested \texttt{inline} namespace and then
+subsequently defining it in a containing namespace is not possible
+because, unlike a function definition, a type definition cannot be
+placed into a namespace via name qualification alone:
+
+\begin{lstlisting}[language=C++]
+namespace outer
+{
+    inline namespace inner
+    {
+        template <typename T>  // class template declaration
+        struct Z;              // (if defined, must be within same namespace)
+
+        template <>            // class template full specialization
+        struct Z<float> { };
+    }
+
+    template <typename T>      // inconsistent declaration (and definition)
+    struct Z { };              // (ù{\codeincomments{Z}}ù) is now ambiguous in namespace (ù{\codeincomments{outer}}ù).
+
+    const int i = sizeof(Z);   // Error: Reference to (ù{\codeincomments{Z}}ù) is ambiguous.
+
+    template <>                // attempted class template full specialization
+    struct Z<double> { };      // Error: (ù{\codeincomments{outer::Z}}ù) or (ù{\codeincomments{outer::inner::Z}}ù)?
+}
+\end{lstlisting}
+    
+
+\subsubsection[Reopening namespaces can reopen nested {\tt inline} ones]{Reopening namespaces can reopen nested {\SubsubsecCode inline} ones}\label{reopening-namespaces-can-reopen-nested-inline-ones}
+
+Another subtlety specific to \texttt{inline} namespaces is related to
+reopening namespaces. Consider a namespace \texttt{outer} that declares
+a nested namespace \texttt{outer::m} and an \texttt{inline}
+namespace \texttt{inner} that, in turn, declares a nested namespace
+\texttt{outer:inner::m}. In this case, subsequent attempts to reopen
+namespace \texttt{m} cause an ambiguity error:
+
+\begin{lstlisting}[language=C++]
+namespace outer
+{
+    namespace m { }      // opens and closes (ù{\codeincomments{::outer::m}}ù)
+
+    inline namespace inner
+    {
+        namespace n { }  // opens and closes (ù{\codeincomments{::outer::inner::n}}ù)
+        namespace m { }  // opens and closes (ù{\codeincomments{::outer::inner::m}}ù)
+    }
+
+    namespace n          // OK, reopens (ù{\codeincomments{::outer::inner::n}}ù)
+    {
+        struct S { };    // defines (ù{\codeincomments{::outer::inner::n::S}}ù)
+    }
+
+    namespace m          // error: (ù{\codeincomments{namespace m}}ù) is ambiguous
+    {
+        struct T { };    // with clang defines (ù{\codeincomments{::outer::m::T}}ù)
+    }
+}
+
+static_assert(std::is_same<outer::n::S, outer::inner::n::S>::value, "");
+\end{lstlisting}
+    
+\noindent In the code snippet above, no issue occurs with reopening
+\texttt{outer::inner:n} and no issue would have occurred with reopening
+\texttt{outer::m} but for the \texttt{inner} namespaces having been
+declared \texttt{inline}. When a new namespace declaration is
+encountered, a lookup determines if a matching namespace having that
+name appears anywhere in the \emph{\texttt{inline} namespace set} of the
+current namespace. If the namespace is ambiguous, as is the case with
+\texttt{m} in the example above, one can get the surprising error shown.{\cprotect\footnote{Note that reopening already declared
+namespaces, such as \texttt{m} and \texttt{n} in the \texttt{inner}
+and \texttt{outer} example, is handled incorrectly on several
+popular platforms. Clang, for example, will perform a name lookup when
+encountering a new namespace declaration and give preference to the
+outermost namespace found, causing the last declaration of \texttt{m}
+to reopen \texttt{::outer::m} instead of being ambiguous. GCC, prior
+to version~8.1, will not perform name lookup and will place \emph{any}
+nested namespace declarations directly within their enclosing
+namespace. This compiler defect causes the last declaration of
+\texttt{m} to reopen \texttt{::outer::m} instead of
+\texttt{::outer::inner::m} and the last declaration of \texttt{n} to
+open a new namespace, \texttt{::outer::n}, instead of reopening
+  \texttt{::outer::inner::n}.}} If a matching namespace is found
+unambiguously inside an \texttt{inline} namespace, \texttt{n} in this
+case, then it is that nested namespace that is reopened --- here,
+\texttt{::outer::inner::n}. The inner namespace is reopened even though
+the last declaration of \texttt{n} is not lexically scoped within
+\texttt{inner}. Notice that the definition of \texttt{S} is perhaps
+surprisingly defining \texttt{::outer::inner::n::S}, not
+\texttt{::outer::n::S}. For more on what is \emph{not} supported by this
+feature, see \textit{\titleref{annoyances-inlinenamespace}: \titleref{inability-to-redeclare-across-namespaces-impedes-code-factoring}} on page~\pageref{inability-to-redeclare-across-namespaces-impedes-code-factoring}.
+
+\subsection[Use Cases]{Use Cases}\label{use-cases-inlinenamespace}
+
+\subsubsection[Facilitating API migration]{Facilitating API migration}\label{facilitating-api-migration}
+
+Getting a large codebase to \emph{promptly} upgrade to a new version of
+a library in any sort of timely fashion can be challenging. As a
+simplistic illustration, imagine that we have just developed a new
+library, \texttt{parselib}, comprising a class template, \texttt{Parser},
+and a function template, \texttt{analyze}, that takes a \texttt{Parser}
+object as its only argument:
+
+\begin{lstlisting}[language=C++]
+namespace parselib
+{
+    template <typename T>
+    class Parser
+    {
+        // ...
+
+    public:
+        Parser();
+        int parse(T* result, const char* input);
+            // Load (ù{\codeincomments{result}}ù) from null-terminated (ù{\codeincomments{input}}ù); return (ù{\codeincomments{0}}ù) (on
+            // success) or nonzero (with no effect on (ù{\codeincomments{result}}ù)).
+    };
+
+    template <typename T>
+    double analyze(const Parser<T>& parser);
+}
+\end{lstlisting}
+    
+\noindent To use our library, clients will need to specialize our \texttt{Parser}
+class directly within the \texttt{parselib} namespace:
+
+\begin{lstlisting}[language=C++]
+struct MyClass { /*...*/ };  // end-user-defined type
+
+namespace parselib  // necessary to specialize (ù{\codeincomments{Parser}}ù)
+{
+    template <>            // Create *full* specialization of class
+    class Parser<MyClass>  // (ù{\codeincomments{Parser}}ù) for user-type (ù{\codeincomments{MyClass}}ù).
+    {
+        // ...
+
+    public:
+        Parser();
+        int parse(MyClass* result, const char* input);
+            // The *contract* for a specialization typically remains the same.
+    };
+
+    double analyze(const Parser<MyClass>& parser);
+};
+\end{lstlisting}
+    
+\noindent Typical \texttt{client} code will also look for the \texttt{Parser}
+class directly within the \texttt{parselib} namespace:
+
+\begin{lstlisting}[language=C++]
+void client()
+{
+    MyClass result;
+    parselib::Parser<MyClass> parser;
+
+    int status = parser.parse(&result, "...( MyClass value )...");
+    if (status != 0)
+    {
+        return;
+    }
+
+    double value = analyze(parser);
+    // ...
+}
+\end{lstlisting}
+    
+\noindent Note that invoking \texttt{analyze} on objects of some instantiated type
+of the \texttt{Parser} class template will rely on \textbf{ADL} to find
+the corresponding overload.
+
+We anticipate that our library's API will evolve over time so we want to
+enhance the design of \texttt{parselib} accordingly. One of our goals is
+to somehow encourage clients to move essentially all at once, yet also to
+accommodate both the early adopters and the inevitable stragglers that
+make up a typical adoption curve. Our approach will be to create, within
+our outer \texttt{parselib} namespace, a nested \texttt{inline}
+namespace, \texttt{v1}, which will hold the current implementation of
+our library software:
+
+\begin{lstlisting}[language=C++]
+namespace parselib
+{
+    inline namespace v1             // Note our use of (ù{\codeincomments{inline}}ù) namespace here.
+    {
+        template <typename T>
+        class Parser
+        {
+            // ...
+
+        public:
+            Parser();
+            int parse(T* result, const char* input);
+                // Load (ù{\codeincomments{result}}ù) from null-terminated (ù{\codeincomments{input}}ù); return 0 (on
+                // success) or nonzero (with no effect on (ù{\codeincomments{result}}ù)).
+        };
+
+        template <typename T>
+        double analyze(const Parser<T>& parser);
+    }
+}
+\end{lstlisting}
+    
+\noindent As suggested by the name \texttt{v1}, this namespace serves primarily as
+a mechanism to support library evolution through \textbf{API} and
+\textbf{ABI} versioning (see \textit{\titleref{use-cases-inlinenamespace}: \titleref{link-safe-abi-versioning}} on page~\pageref{link-safe-abi-versioning} and \textit{\titleref{use-cases-inlinenamespace}: \titleref{build-modes-and-abi-link-safety}} on page~\pageref{build-modes-and-abi-link-safety}). The need to specialize \texttt{class}~\texttt{Parser} and,
+independently, the reliance on ADL to find the free function template
+\texttt{analyze} require the use of \texttt{inline} namespaces, as
+opposed to a conventional namespace followed by a \texttt{using}
+directive.
+
+Note that, whenever a subsystem starts out directly in a first-level
+namespace and is subsequently moved to a second-level nested namespace
+for the purpose of versioning, declaring the inner namespace
+\texttt{inline} is the most reliable way to avoid inadvertently
+destabilizing existing clients; see also \textit{\titleref{potential-pitfalls-inlinenamespace}: \titleref{enabling-selective-using-directives-for-short-named-entities}} on page~\pageref{enabling-selective-using-directives-for-short-named-entities}.
+
+Now suppose we decide to enhance \texttt{parselib} in a
+non--backwards-compatible manner, such that the signature of
+\texttt{parse} takes a second argument \texttt{size} of type
+\texttt{std::size\_t} to allow parsing of non--null-terminated strings
+and to reduce the risk of buffer overruns. Instead of unilaterally
+removing all support for the previous version in the new release, we can
+instead create a second namespace, \texttt{v2}, containing the new
+implementation and then, at some point, make \texttt{v2} the
+\texttt{inline} namespace instead of \texttt{v1}:
+
+\begin{lstlisting}[language=C++]
+#include <cstddef>  // (ù{\codeincomments{std::size\_t}}ù)
+
+namespace parselib
+{
+    namespace v1  // Notice that (ù{\codeincomments{v1}}ù) is now just a nested namespace.
+    {
+        template <typename T>
+        class Parser
+        {
+            // ...
+
+        public:
+            Parser();
+            int parse(T* result, const char* input);
+                // Load (ù{\codeincomments{result}}ù) from null-terminated (ù{\codeincomments{input}}ù); return 0 (on
+                // success) or nonzero (with no effect on (ù{\codeincomments{result}}ù)).
+        };
+
+        template <typename T>
+        double analyze(const Parser<T>& parser);
+    }
+
+    inline namespace v2    // Notice that use of (ù{\codeincomments{inline}}ù) keyword has moved here.
+    {
+        template <typename T>
+        class Parser
+        {
+            // ...
+
+        public:  // note incompatible change to (ù{\codeincomments{Parser}}ù)'s essential API
+            Parser();
+            int parse(T* result, const char* input, std::size_t size);
+                // Load (ù{\codeincomments{result}}ù) from (ù{\codeincomments{input}}ù) of specified (ù{\codeincomments{size}}ù); return 0
+                // on success) or nonzero (with no effect on (ù{\codeincomments{result}}ù)).
+        };
+
+        template <typename T>
+        double analyze(const Parser<T>& parser);
+    }
+}
+\end{lstlisting}
+    
+\noindent When we release this new version with \texttt{v2} made \texttt{inline},
+all existing clients that rely on the version supported directly on
+\texttt{parselib} will, by design, break when they go to recompile. At
+that point, each client will have two options. The first and easy one is
+to upgrade the code immediately by passing in the size of the input
+string (e.g., \texttt{23}) along with the address of its first
+character:
+
+\begin{lstlisting}[language=C++]
+void client()
+{
+    // ...
+    int status = parser.parse(&result, "...( MyClass value )...", 23);
+    // ...                                                      ^^^^ Look here!
+}
+\end{lstlisting}
+    
+\noindent The second and more difficult option is to change all references to
+\texttt{parselib} to refer to the original version in \texttt{v1}
+explicitly:
+
+\begin{lstlisting}[language=C++]
+namespace parselib
+{
+    namespace v1  // specializations moved to nested namespace
+    {
+        template <>
+        class Parser<MyClass1>
+        {
+            // ...
+
+        public:
+            Parser();
+            int parse(MyClass1* result, const char* input);
+        };
+
+        double analyze(const Parser<MyClass1>& parser);
+    }
+};
+
+void client1()
+{
+    MyClass1 result;
+    parselib::v1::Parser<MyClass1> parser;  // reference nested namespace (ù{\codeincomments{v1}}ù)
+
+    int status = parser.parse(&result, "...( MyClass value )...");
+    if (status != 0)
+    {
+        return;
+    }
+
+    double value = analyze(parser);
+    // ...
+}
+\end{lstlisting}
+    
+\noindent Providing the updated version in a new \texttt{inline} namespace
+\texttt{v2} provides a more flexible migration path --- especially for a
+large population of independent client programs --- compared to manual
+targeted changes in client code.
+
+Although new users would pick up the latest version automatically either
+way, existing users of \texttt{parselib} will have the option of
+converting immediately by making a few small syntactic changes or
+opting to remain with the original version for a while longer by making
+all references to the library namespace refer explicitly to the desired
+version. If the library is released before the \texttt{inline} keyword
+is moved, early adopters will have the option of opting in by referring
+to \texttt{v2} explicitly until it becomes the default. Those who have
+no need for enhancements can achieve stability by referring to a
+particular version in perpetuity or until it is physically removed from
+the library source.
+
+Although this same functionality can sometimes be realized without the
+use of \texttt{inline} namespaces (i.e., by adding a
+\texttt{using}~\texttt{namespace} directive at the end of the
+\texttt{parselib} namespace), the use of ADL and the ability to
+specialize templates from within the enclosing \texttt{parselib}
+namespace itself would be lost.{\cprotect\footnote{Note that, because
+specialization doesn't kick in until overload resolution is completed,
+specializing overloaded functions is dubious at best; see \textit{\titleref{potential-pitfalls-inlinenamespace}: \titleref{specializing-templates-in-std-can-be-problematic}} on page~\pageref{specializing-templates-in-std-can-be-problematic}.}}
+
+Providing separate namespaces for each successive version has an
+additional advantage in an entirely separate dimension. Though not
+demonstrated by this specific example,{\cprotect\footnote{For distinct
+nested namespaces to effectively guard against accidental link-time
+errors, the symbols involved have to (1) reside in object code (e.g.,
+a \textbf{header-only library} would fail this requirement) and (2)
+have the same \textbf{name mangling} (i.e., linker symbol) in both
+versions. In this particular instance, however, the signature of the
+\texttt{parse} member function of \texttt{parser} did change, and its
+mangled name will consequently change as well; hence the same
+  \texttt{undefined}~\texttt{symbol} link error would result either way.}}
+cases do arise where simply changing which of the version namespaces is
+declared \texttt{inline} might lead to an \textbf{ill-formed, no-diagnostic
+required (IFNDR)} program. This might happen when one or more of
+its translation units that use the library are not recompiled before the
+program is relinked to the new static or dynamic library containing the
+updated version of the library software; see \textit{\titleref{use-cases-inlinenamespace}: \titleref{link-safe-abi-versioning}} on page~\pageref{link-safe-abi-versioning}.
+
+\subsubsection[Link-safe ABI versioning]{Link-safe ABI versioning}\label{link-safe-abi-versioning}
+
+\texttt{inline} namespaces are not intended as a mechanism for
+source-code versioning; instead, they prevent programs from being
+\textbf{ill-formed} due to linking some version of a library with client
+code compiled using some other, typically older version of the same
+library. Below, we present two examples: a simple pedagogical example
+to illustrate the principle followed by a more real-world example.
+Suppose we have a library component \texttt{my\_thing} that implements
+an example type, \texttt{Thing}, that wraps an \texttt{int} and
+initializes it with some value in its default constructor defined
+out-of-line in the \texttt{cpp} file:
+
+\begin{lstlisting}[language=C++]
+struct Thing  // version 1 of class (ù{\codeincomments{Thing}}ù)
+{
+    int i;    // integer data member (size is 4)
+    Thing();  // original non-(ù{\codeincomments{inline}}ù) constructor (defined in (ù{\codeincomments{.cpp}}ù) file)
+};
+\end{lstlisting}
+    
+\noindent Salient to this example is that information (e.g., the data member
+\texttt{i}) in the header file, when incorporated into a client's
+translation unit, produces a \texttt{.o} file that, if not recompiled,
+could be incompatible yet linkable with another version of the header
+compiled into a separate \texttt{.o} file:
+
+\begin{lstlisting}[language=C++]
+struct Thing   // version 2 of class (ù{\codeincomments{Thing}}ù)
+{
+    double d;  // double-precision floating-point data member (size is 8)
+    Thing();   // updated non-(ù{\codeincomments{inline}}ù) constructor (defined in (ù{\codeincomments{.cpp}}ù) file)
+};
+\end{lstlisting}
+    
+\noindent To make the problem that we are illustrating concrete, let's represent
+the client as a \texttt{main} program that does nothing but create a
+\texttt{Thing} and print the value of its only data member, \texttt{i}.
+
+\begin{lstlisting}[language=C++]
+// main.cpp
+#include "my_thing.h"  // (ù{\codeincomments{my::Thing}}ù) (version 1)
+#include <iostream>    // (ù{\codeincomments{std::cout}}ù)
+
+int main()
+{
+     my::Thing t;
+     std::cout << t.i << '\n';
+}
+\end{lstlisting}
+    
+\noindent If we compile this program, a reference to a locally undefined linker
+symbol, such as
+\texttt{\_ZN2my7impl\_v15ThingC1Ev},{\cprotect\footnote{On a Unix
+machine, typing \texttt{nm}~\texttt{main.o} reveals the symbols used
+in the specified object file. A symbol prefaced with a capital
+\texttt{U} represents an undefined symbol that must be resolved by the
+linker. Note that the linker symbol shown here incorporates an
+intervening \texttt{inline} namespace, \texttt{impl\_v1}, as will be
+  explained shortly.}} that represents the \texttt{my::thing::thing}
+constructor will be generated in the \texttt{main.o} file:
+
+\begin{lstlisting}[language=C++]
+$ g++ -c main.cpp
+\end{lstlisting}
+    
+\noindent Without explicit intervention, the spelling of this linker symbol would
+be unaffected by any subsequent changes made to the implementation of
+\texttt{my::Thing}, such as its data members or implementation of its
+default constructor, even after recompiling. The same, of course,
+applies to its definition in a separate translation unit.
+
+We now turn to the translation unit implementing type
+\texttt{my::Thing}. The \texttt{my\_thing} \textbf{component} consists
+of a \texttt{.h}/\texttt{.cpp} pair: \texttt{my\_thing.h} and
+\texttt{my\_thing.cpp}. The header file \texttt{my\_thing.h} provides
+the physical interface, such as the definition of the principal type,
+\texttt{Thing}, its member and associated free function declarations,
+plus definitions for inline functions and function templates, if any:
+
+\begin{lstlisting}[language=C++]
+// my_thing.h
+#ifndef INCLUDED_MY_THING
+#define INCLUDED_MY_THING
+
+namespace my                  // outer namespace (used directly by clients)
+{
+    inline namespace impl_v1  // inner namespace (for implementer use only)
+    {
+        struct Thing
+        {
+            int i;    // original data member, size = 4
+            Thing();  // default constructor (defined in (ù{\codeincomments{my\_thing.cpp}}ù))
+        };
+    };
+}
+
+#endif
+\end{lstlisting}
+    
+\noindent The implementation file \texttt{my\_thing.cpp} contains all of the
+non-\texttt{inline} function bodies that will be translated separately
+into the \texttt{my\_thing.o} file:
+
+\begin{lstlisting}[language=C++]
+// my_thing.cpp
+#include "my_thing.h"
+
+namespace my                   // outer namespace (used directly by clients)
+{
+    inline namespace impl_v1   // inner namespace (for implementer use only)
+    {
+        Thing::Thing() : i(0)  // load a 4-byte value into (ù{\codeincomments{Thing}}ù)'s data member
+        {
+        }
+    }
+}
+\end{lstlisting}
+    
+\noindent Observing common good practice, we include the filename of the component
+as the first substantive line of code to ensure that --- irrespective of
+anything else --- the header always compiles in isolation, thereby
+avoiding insidious include-order dependencies.{\cprotect\footnote{See
+  \textbf{{lakos20}}, section~1.6.1, ``Component Property 1," pp.~210--212.}} When we compile the source file \texttt{my\_thing.cpp},
+we produce an object file \texttt{my\_thing.o} containing the definition
+of the very same linker symbol, such as
+\texttt{\_ZN2my7impl\_v15ThingC1Ev}, for the default constructor of
+\texttt{my::Thing} needed by the client:
+
+\begin{lstlisting}[language=C++]
+$ g++ -c my_thing.cpp
+\end{lstlisting}
+    
+\noindent We can then link \texttt{main.o} and \texttt{my\_thing.o} into an
+executable and run it:
+
+\begin{lstlisting}[language=C++]
+$ g++ -o prog main.o my_thing.o
+$ ./prog
+
+0
+\end{lstlisting}
+    
+\noindent Now, suppose we were to change the definition of \texttt{my::thing} in
+place to hold a \texttt{double} instead of an \texttt{int}, recompile
+\texttt{my\_thing.cpp}, and then relink with the original
+\texttt{main.o} without recompiling \texttt{main.cpp} first. None of the
+relevant linker symbols would change, and the code would recompile and link
+just fine, but the resulting binary \texttt{prog} would be
+\textbf{IFNDR}: the client would be trying to print a 4-byte,
+\texttt{int} data member, \texttt{i}, in \texttt{main.o} that was loaded
+by the library component as an 8-byte, \texttt{double} into \texttt{d}
+in \texttt{my\_thing.o}. We can resolve this problem by changing --- or,
+if we didn't think of it in advance, by adding --- a new \texttt{inline}
+namespace and making that change there:
+
+\begin{lstlisting}[language=C++]
+// my_thing.cpp
+#include "my_thing.h"
+
+namespace my                     // outer namespace (used directly by clients)
+{
+    inline namespace impl_v2     // inner namespace (for implementer use only)
+    {
+        Thing::Thing() : d(0.0)  // load 8-byte value into (ù{\codeincomments{Thing}}ù)'s data member
+        {
+        }
+    }
+}
+\end{lstlisting}
+    
+\noindent Now clients that attempt to link against the new library will not find
+the new linker symbol, such as \texttt{\_Z...impl\_v1...v}, and the link
+stage will fail. Once clients recompile, however, the undefined linker
+symbol will match the one available in the new \texttt{my\_thing.o},
+such as \texttt{\_Z...impl\_v2...v}, the link stage will succeed, and
+the program will again work as expected. What's more, we have the option
+of keeping the original implementation. In that case, existing clients
+that have not as yet recompiled will continue to link against the old
+version until it is eventually removed after some suitable deprecation
+period.
+
+As a more realistic second example of using \texttt{inline} namespaces
+to guard against linking incompatible versions, suppose we have two
+versions of a \texttt{Key} class in a security library in the enclosing
+namespace, \texttt{auth} --- the original version in a regular nested
+namespace \texttt{v1}, and the new current version in an \texttt{inline}
+nested namespace \texttt{v2}:
+
+\begin{lstlisting}[language=C++]
+#include <cstdint>  // (ù{\codeincomments{std::uint32}}ù), (ù{\codeincomments{std::unit64}}ù)
+
+namespace auth      // outer namespace (used directly by clients)
+{
+    namespace v1    // inner namespace (optionally used by clients)
+    {
+        class Key
+        {
+        private:
+            std::uint32_t d_key;
+                // (ù{\codeincomments{sizeof(Key)}}ù) is 4 bytes
+
+        public:
+            std::uint32_t key() const;  // stable interface function
+
+            // ...
+        };
+    }
+
+    inline namespace v2    // inner namespace (default current version)
+    {
+        class Key
+        {
+        private:
+            std::uint64_t d_securityHash;
+            std::uint32_t d_key;
+                // (ù{\codeincomments{sizeof(Key)}}ù) is 16 bytes
+
+        public:
+            std::uint32_t key() const;  // stable interface function
+
+            // ...
+        };
+    }
+}
+\end{lstlisting}
+    
+\noindent Attempting to link together older binary artifacts built against version
+1 with binary artifacts built against version 2 will result in a
+link-time error rather than allowing an \textbf{ill-formed} program to
+be created because the two versions of, for example, the \texttt{key}
+accessor function will have different linker-symbol names, assuming it
+is not declared \texttt{inline} in the header.
+
+Finally, note that this approach works only if functionality essential
+to typical use is defined out of line in a \texttt{.cpp} file. This
+approach would add absolutely no value for, say, libraries that are
+shipped entirely as header files, since the versioning offered here
+occurs strictly at the binary level (i.e., between \texttt{.o} files)
+during the link stage.
+
+\subsubsection[Build modes and ABI link safety]{Build modes and ABI link safety}\label{build-modes-and-abi-link-safety}
+
+In certain scenarios, a class might have two different memory layouts
+depending on compilation flags. For instance, consider a low-level
+\texttt{ManualBuffer} class template in which an additional data member
+is added for debugging purposes{\cprotect\footnote{Note that we have
+  employed the C++11 \texttt{alignas} attribute (see ``\titleref{alignas}" on page~\pageref{alignas}) here
+  because it is exactly what's needed for this usage example.}}:
+
+\begin{lstlisting}[language=C++]
+template <typename T>
+struct ManualBuffer
+{
+private:
+    alignas(T) char d_data[sizeof(T)];  // aligned and big enough to hold a (ù{\codeincomments{T}}ù)
+
+#ifndef NDEBUG
+    bool d_engaged;  // tracks whether buffer is full (debug builds only)
+#endif
+
+public:
+    void construct(const T& obj);
+        // Emplace (ù{\codeincomments{obj}}ù). (Engage the buffer.) The behavior is undefined unless
+        // the buffer was not previously engaged.
+
+    void destroy();
+        // Destroy the current (ù{\codeincomments{obj}}ù). (Disengage the buffer.) The behavior is
+        // undefined unless the buffer was previously engaged.
+
+    // ...
+};
+\end{lstlisting}
+    
+\noindent The \texttt{d\_engaged} flag in the example above serves as a way to detect misuse of
+the \mbox{\texttt{ManualBuffer}} class but only in debug builds. The extra
+space and run time required to maintain this Boolean flag is undesirable
+in a release build because \mbox{\texttt{ManualBuffer}} is intended to be an
+efficient, lightweight abstraction over the direct use of
+\textbf{placement \texttt{new}} and explicit destruction.
+
+The linker symbol names generated for the methods of
+\texttt{ManualBuffer} are the same irrespective of the chosen build
+mode. If the same program links together two object files where
+\texttt{ManualBuffer} is used --- one built in debug mode and one built
+in release mode --- the \textbf{one definition rule} will be violated
+and the program will again be \textbf{IFNDR}.
+
+One way of avoiding these sorts of incompatibilities at link time is to
+introduce two \texttt{inline} namespaces, the entire purpose of which is
+to change the ABI-level names of the linker symbols associated with
+\texttt{ManualBuffer} depending on the build mode{\cprotect\footnote{Prior
+to \texttt{inline} namespaces, it was possible to control the
+ABI-level name of linked symbols by creating separate template
+instantiations on a per-build-mode basis:
+
+\begin{lstlisting}[language=C++, basicstyle={\ttfamily\footnotesize}]
+#ifndef NDEBUG
+enum { is_debug_build = 1 };
+#else
+enum { is_debug_build = 0 };
+#endif
+
+template <typename T, bool Debug = is_debug_build>
+struct ManualBuffer { /* ... */ };
+\end{lstlisting}
+    
+\noindent While the code above changes the interface of \texttt{ManualBuffer} to
+accept an additional template parameter, it also allows debug and
+release versions of the same class to coexist in the same program,
+  which might prove useful, e.g., for testing.}}:
+
+\begin{lstlisting}[language=C++]
+#ifndef NDEBUG            // perhaps a BAD IDEA
+inline namespace release
+#else
+inline namespace debug
+#endif
+{
+    template <typename T>
+    struct ManualBuffer
+    {
+        // ... (same as above)
+    };
+}
+\end{lstlisting}
+    
+\noindent The approach demonstrated in this example tries to ensure that a linker
+error will occur if any attempt is made to link objects built with a
+build mode different from that of \mbox{\texttt{manualbuffer.o}}. Tying it to
+the \texttt{NDEBUG} flag, however, might have unintended consequences;
+we might introduce unwanted restrictions in what we call
+\textbf{mixed-mode builds}. Most modern platforms support the notion of
+linking a collection of \texttt{.o} files irrespective of their
+optimization levels. The same is certainly true for whether or not
+C-style \texttt{assert} is enabled. In other words, we may want to have
+assertion enabled and/or optimized code in a program that is uniformly
+built either with or without this particular \textbf{defensive} runtime
+checking enabled. Hence, a more general, albeit more complicated and
+manual, approach would be to tie the non-interoperable behavior
+associated with this ``safe'' or ``defensive'' build mode to a different
+switch entirely. Another consideration would be to avoid ever inlining a
+namespace into the global namespace since no method is available to
+recover a symbol when there is a collision:
+
+\begin{lstlisting}[language=C++]
+namespace buflib  // GOOD IDEA: enclosing namespace for nested (ù{\codeincomments{inline}}ù) namespace
+{
+#ifndef SAFE_MODE  // GOOD IDEA: separate control of non-interoperable versions
+    inline namespace safe_build_mode
+#else
+    inline namespace normal_build_mode
+#endif
+    {
+        template <typename T>
+        struct ManualBuffer
+        {
+        private:
+            alignas(T) char d_data[sizeof(T)];  // aligned/sized to hold a (ù{\codeincomments{T}}ù)
+
+#ifdef SAFE_MODE
+            bool d_engaged;  // tracks whether buffer is full (safe mode only)
+#endif
+
+        public:
+            void construct(const T& obj);  // sets (ù{\codeincomments{d\_engaged}}ù) (safe mode only)
+            void destroy();                // sets (ù{\codeincomments{d\_engaged}}ù) (safe mode only)
+            // ...
+        };
+    }
+}
+\end{lstlisting}
+    
+\noindent And, of course, the appropriate conditional compilation within the
+function bodies would need to be in the corresponding \texttt{.cpp}
+file.
+
+Finally, if we have two implementations of a particular entity that are
+sufficiently distinct, we might choose to represent them in their
+entirety, controlled by their own bespoke conditional-compilation
+switches, as illustrated here using the \texttt{my::VersionedThing} type
+(see \textit{\titleref{use-cases-inlinenamespace}: \titleref{link-safe-abi-versioning}} on page~\pageref{link-safe-abi-versioning}:
+
+\begin{lstlisting}[language=C++]
+// my_versionedthing.h
+#ifndef INCLUDED_MY_VERSIONEDTHING
+#define INCLUDED_MY_VERSIONEDTHING
+
+namespace my
+{
+#ifdef MY_THING_VERSION_1  // bespoke switch for this component version
+    inline
+#endif
+    namespace v1
+    {
+        struct VersionedThing
+        {
+            int d_i;
+            VersionedThing();
+        };
+    }
+
+#ifdef MY_THING_VERSION_2  // bespoke switch for this component version
+    inline
+#endif
+    namespace v2
+    {
+        struct VersionedThing
+        {
+            double d_i;
+            VersionedThing();
+        };
+    }
+}
+#endif
+\end{lstlisting}
+    
+\noindent However, see \textit{\titleref{potential-pitfalls-inlinenamespace}: \titleref{inline-namespace-based-versioning-doesn’t-scale}} on page~\pageref{inline-namespace-based-versioning-doesn’t-scale}.
+
+\subsubsection[Enabling selective {\tt using} directives for short-named entities]{Enabling selective {\SubsubsecCode using} directives for short-named entities}\label{enabling-selective-using-directives-for-short-named-entities}
+
+Introducing a large number of small names into client code that doesn't
+follow rigorous nomenclature can be problematic. Hoisting these names
+into one or more nested namespaces so that they are easier to identify
+as a unit and can be used more selectively by clients, such as through
+explicit qualification or using directives, can sometimes be an
+effective way of organizing shared codebases. For example,
+\texttt{std::literals} and its nested namespaces, such as
+\texttt{chrono\_literals}, were introduced as \texttt{inline} namespaces
+in C++14. As it turns out, clients of these nested namespaces have no
+need to specialize any templates defined in these namespaces nor do they
+define types that must be found through \textbf{ADL}, but one can at
+least imagine special circumstances in which such tiny-named entities
+are either templates that require specialization or operator-like
+functions, such as \texttt{swap}, defined for local types within that
+nested namespace. In those cases, \texttt{inline} namespaces would be
+required to preserve the desired ``as if'' properties.
+
+Even without either of these two needs, another property of an
+\texttt{inline} namespace differentiates it from a non-\texttt{inline}
+one followed by a \texttt{using} directive. Recall from
+\textit{\titleref{description-inlinenamespace}: \titleref{loss-of-access-to-duplicate-names-in-enclosing-namespace}} on page~\pageref{loss-of-access-to-duplicate-names-in-enclosing-namespace} that a name in an outer namespace will
+hide a duplicate name imported via a \texttt{using} directive, whereas
+any access to that duplicate name within the enclosing namespace would
+be ambiguous when that symbol is installed by way of an \texttt{inline}
+namespace. To see why this more forceful clobbering behavior might be
+preferred over hiding, suppose we have a communal namespace \texttt{abc}
+that is shared across multiple disparate headers. The first header,
+\texttt{abc\_header1.h}, represents a collection of logically related
+small functions declared directly in \texttt{abc}:
+
+\begin{lstlisting}[language=C++]
+// abc_header1.h
+namespace abc
+{
+    int i();
+    int am();
+    int smart();
+}
+\end{lstlisting}
+    
+\noindent A second header, \texttt{abc\_header2.h}, creates a suite of many
+functions having tiny function names. In a perhaps misguided effort to
+avoid clobbering other symbols within the \texttt{abc} namespace having
+the same name, all of these tiny functions are sequestered within a
+\texttt{nested} namespace:
+
+\begin{lstlisting}[language=C++]
+// abc_header2.h
+namespace abc
+{
+    namespace nested  // Should this instead have been an (ù{\codeincomments{inline}}ù) namespace?
+    {
+        int a();  // lots of functions with tiny names
+        int b();
+        int c();
+        // ...
+        int h();
+        int i();  // might collide with another name declared in (ù{\codeincomments{abc}}ù)
+        // ...
+        int z();
+    }
+
+    using namespace nested;  // becomes superfluous if (ù{\codeincomments{nested}}ù) is made (ù{\codeincomments{inline}}ù)
+}
+\end{lstlisting}
+    
+\noindent Now suppose that a client application, for whatever reason, includes
+both of these headers to accomplish some task:
+
+\begin{lstlisting}[language=C++]
+// client.cpp
+#include "abc_header1.h"
+#include "abc_header2.h"
+
+int function()
+{
+    if (smart() < 0) { return -1; }  // uses (ù{\codeincomments{smart()}}ù) from (ù{\codeincomments{abc\_header1.h}}ù)
+    return abc::z() + abc::i() + abc::a() + abc::h() + abc::c();  // Oops!
+        // runtime error: silently uses the (ù{\codeincomments{abc::i()}}ù) defined in (ù{\codeincomments{abc\_header1.h}}ù)
+}
+\end{lstlisting}
+    
+\noindent In trying to cede control to the client as to whether the declared or
+imported \texttt{abc::i()} function is to be used, we have, in effect,
+invited the defect illustrated in the above example whereby the client
+was expecting the \texttt{abc::i()} from \texttt{abc\_header2.h} and yet
+picked up the one from \texttt{abc\_header1.h} by default. Had the
+\texttt{nested} namespace in \texttt{abc\_header2.h} been declared
+\texttt{inline}, the qualified name \texttt{abc::i()} would have
+automatically been rendered \emph{ambiguous} in namespace \texttt{abc},
+the translation would have failed \emph{safely}, and the defect would
+have been exposed at compile time. The downside, however, is that no
+method would be available to recover nominal access to the
+\texttt{abc::i()} defined in \texttt{abc\_header1.h} once
+\texttt{abc\_header2.h} is included, even though the two functions
+(e.g., including their \textbf{mangled names} at the ABI level) remain
+distinct.
+
+\subsection[Potential Pitfalls]{Potential Pitfalls}\label{potential-pitfalls-inlinenamespace}
+
+\subsubsection[{\tt inline}-namespace-based versioning doesn’t scale]{{\SubsubsecCode inline}-namespace-based versioning doesn’t scale}\label{inline-namespace-based-versioning-doesn’t-scale}
+
+The problem with using \texttt{inline} namespaces for ABI link safety is
+that the protection they offer is only partial; in a few major places,
+critical problems can linger until run time instead of being caught at
+compile time.
+
+Controlling which namespace is \texttt{inline} using macros, such as was
+done in the\linebreak[4] \texttt{my::VersionedThing} example in \textit{\titleref{use-cases-inlinenamespace}: \titleref{link-safe-abi-versioning}} on page~\pageref{link-safe-abi-versioning}, will result in code that
+directly uses the unversioned name, \texttt{my::VersionedThing} being
+bound directly to the versioned name \texttt{my::v1::VersionedThing} or
+\texttt{my::v2::VersionedThing}, along with the class layout of that
+particular entity. Sometimes details of the use of the \texttt{inline}
+namespace member are not resolved by the linker, such as the object
+layout when we use types from that namespace as member variables in
+other objects:
+
+\begin{lstlisting}[language=C++]
+// my_thingaggregate.h
+
+// ...
+#include "my_versionedthing.h"
+// ...
+
+namespace my
+{
+    struct ThingAggregate
+    {
+        // ...
+        VersionedThing d_thing;
+        // ...
+    };
+}
+\end{lstlisting}
+    
+\noindent This new \texttt{ThingAggregate} type does not have the versioned
+\texttt{inline} namespace as part of its mangled name; it does, however,
+have a completely different layout if built with
+\texttt{MY\_THING\_VERSION\_1} defined
+versus \texttt{MY\_THING\_VERSION\_2} defined. Linking a program with mixed
+versions of these flags will result in runtime failures that are
+decidedly difficult to diagnose.
+
+This same sort of problem will arise for functions taking arguments of
+such types; calling a function from code that is wrong about the layout
+of a particular type will result in stack corruption and other undefined
+and unpredictable behavior. This macro-induced problem will also arise in cases where an old object
+file is linked against new code that changes which namespace is
+\texttt{inline}d but still provides the definitions for the old version
+namespace. The old object file for the client can still link, but new
+object files using the headers for the old objects might attempt to
+manipulate those objects using the new namespace.
+
+The only viable workaround for this approach is to propagate the
+\texttt{inline} namespace hierarchy through the entire software stack.
+Every object or function that uses\linebreak[4] \texttt{my::VersionedThing} needs to
+also be in a namespace that differs based on the same control macro. In
+the case of \texttt{ThingAggregate}, one could just use the same
+\texttt{my::v1} and \texttt{my::v2} namespaces, but higher-level
+libraries would need their own \texttt{my}-specific nested namespaces.
+Even worse, for higher-level libraries, every lower-level library having
+a versioning scheme of this nature would need to be considered,
+resulting in having to provide the full cross-product of nested
+namespaces to get link-time protection against mixed-mode builds.
+
+This need for layers above a library to be aware of and to integrate
+into their own structure the same namespaces the library has removes all
+or most of the benefits of using \texttt{inline} namespaces for
+versioning. For an authentic real-world case study of heroic industrial use --- and
+eventual disuse --- of \texttt{inline}-namespaces for versioning, see
+\textit{\titleref{appendix:-case-study-of-using-inline-namespaces-for-versioning}} on page~\pageref{appendix:-case-study-of-using-inline-namespaces-for-versioning}.
+
+\subsubsection[Specializing templates in {\tt std} can be problematic]{Specializing templates in {\SubsubsecCode std} can be problematic}\label{specializing-templates-in-std-can-be-problematic}
+
+Fundamental to the nature of C++ is that the Standard Library can mostly
+be implemented in standard C++. This disposition gives the illusion that
+the Standard Library is like all other libraries and supports any
+interaction that might work with those libraries. Were this assumption
+true, the Standard Library would quickly become unacceptably limited in
+how it might evolve. To allow for its necessary evolution, the Standard
+Library --- the \texttt{std} namespace, in particular --- carries
+certain special restrictions on what one can do with it that are
+enforced by deeming certain constructs \textbf{ill formed} or
+engendering \textbf{undefined behavior}, a feat other libraries simply
+do not have the authority to pull off.
+
+Since C++11, several restrictions related to the Standard Library were
+put in place:
+\begin{itemize}
+\item{Users may not add any new declarations within namespace \texttt{std}. This means that users cannot add new \textit{functions}, \textit{overloads}, \textit{types}, or \textit{templates} to \texttt{std}. This restriction gives the Standard Library freedom to add new \textit{names} in future versions of the Standard.}
+\item{Users may not specialize member functions, member function templates, or member class templates. Specializing any of those entities might significantly inhibit a Standard Library vendor’s ability to maintain its otherwise encapsulated implementation details.}
+\item{Users may add specializations of top-level Standard Library templates only if the declaration depends on the name of a nonstandard user-defined type and only if that user-defined type meets all requirements of the original template. Specialization of function templates is allowed but generally discouraged because this practice doesn’t scale since function templates cannot be partially specialized. Specializing of standard class templates when the specialization names a nonstandard user-defined type, such as \texttt{vector<MyType*>}, is allowed but also problematic when not explicitly supported. While certain specific types, such as \texttt{std::hash}, are designed for user specialization, steering clear of the practice for any other types helps to avoid surprises.}
+\end{itemize}
+
+Several other good practices facilitate smooth evolution for the
+Standard Library{\cprotect\footnote{These restrictions are normative in
+C++20, having finally formalized what were long identified as best
+practices. Though these restrictions might not be codified in the
+Standard for pre-C++20 software, they have been recognized best
+practices for as long as the Standard Library has existed and
+adherence to them will materially improve the ability of software to
+migrate to future language standards irrespective of what version of
+  the language standard is being targeted.}}:
+\begin{itemize}
+\item{Avoid specializing variable templates, even if dependent on user-defined types, except for those variable templates where specialization is explicitly allowed.\cprotect\footnote{C++20 limits the specialization of variable templates to only those instances where specialization is explicitly allowed and does so only for the mathematical constants in \texttt{<numbers>}.}}
+\item{Other than a few very specific exceptions,\cprotect\footnote{C++20 identifies these functions as \texttt{addressable} and gives that property to only \texttt{iostream} manipulators since those are the only functions in the Standard Library for which taking their address is part of normal usage.} avoiding the forming of pointers to Standard Library functions — either explicitly or implicitly — allows the library to add overloads, either as part of the Standard or as an implementation detail for a particular Standard Library, without breaking user code.}
+\item{Overloads of Standard Library functions that depend on user-defined types are permitted, but, as with specializing Standard Library templates, users must still meet the requirements of the Standard Library function. Some functions, such as \texttt{std::swap}, are designed to be customization points via overloading, but leaving functions not specifically designed for this purpose to vendor implementations only helps to avoid surprises.}
+\end{itemize}
+
+Finally, upon reading about this \texttt{inline} namespace feature, one
+might think that all names in namespace \texttt{std} could be made
+available at a global scope simply by inserting an
+\texttt{inline}~\texttt{namespace}~\texttt{std}~\texttt{{}} before
+including any standard headers. This practice is, however, explicitly
+called out as ill-formed within the C++11 Standard.\footnote{Although not uniformly diagnosed as an error by
+all compilers, attempting this forbidden practice is apt to lead to
+surprising problems even if not diagnosed as an error immediately.}
+
+\subsubsection[Inconsistent use of {\tt inline} keyword is \textbf{ill formed, no diagnostic required}]{Inconsistent use of {\SubsubsecCode inline} keyword is \textbf{ill formed, no diagnostic required}}\label{inconsistent-use-of-inline-keyword-is-ifndr}
+
+It is an \textbf{ODR} violation, \textbf{IFNDR}, for a nested namespace
+to be \texttt{inline} in one translation unit and non-\texttt{inline} in
+another. And yet, the motivating use case of this feature relies on the
+linker to actively complain whenever different, incompatible versions
+--- nested within different, possibly \texttt{inline}-inconsistent,
+namespaces of an ABI --- are used within a single executable. Because
+declaring a nested namespace \texttt{inline} does not, by design, affect
+linker-level symbols, developers must take appropriate care, such as
+effective use of header files, to defend against such preventable
+inconsistencies.
+
+\subsection[Annoyances]{Annoyances}\label{annoyances-inlinenamespace}
+
+\subsubsection[Inability to redeclare across namespaces impedes code factoring]{Inability to redeclare across namespaces impedes code factoring}\label{inability-to-redeclare-across-namespaces-impedes-code-factoring}
+
+An essential feature of an \texttt{inline} namespace is the ability to
+declare a template within a nested \texttt{inline} namespace and then
+specialize it within its enclosing namespace. For example, we can
+declare
+\begin{itemize}
+\item{a type template, \texttt{S0}}
+\item{a couple of function templates, \texttt{f} and \texttt{g}}
+\item{and a member function template \texttt{h}, which is similar to \texttt{f}}
+\end{itemize}
+in an \texttt{inline} namespace, \texttt{inner}, and specialize each of
+them, such as for \texttt{int}, in the enclosing namespace,
+\texttt{outer}:
+
+\begin{lstlisting}[language=C++]
+namespace outer                                          // enclosing namespace
+{
+    inline namespace inner                               // nested namespace
+    {
+        template<typename T> struct S0;                  // declarations of
+        template<typename T> void f0();                  // various class
+        template<typename T> void g0(T v);               // and function
+        struct A0 { template <typename T> void h0(); };  // templates
+    }
+
+    template<> struct S0<int> { };                       // specializations
+    template<> void f0<int>() { }                        // of the various
+    void g0(int) { }  /* overload not specialization */  // class and function
+    template<> void A0::h0<int>() { }                    // declarations above
+}                                                        // in (ù{\codeincomments{outer}}ù) namespace
+\end{lstlisting}
+    
+\noindent Note that, in the case of \texttt{g0} in this example, the
+``specialization'' \texttt{void}~\texttt{g0(int)} is a non-template
+\emph{overload} of the function template \texttt{g0} rather than a
+specialization of it. We \emph{cannot}, however,
+portably{\cprotect\footnote{GCC provides the \texttt{-fpermissive} flag,
+which allows the example containing specializations within the inner
+namespace to compile with warnings. Note again that \texttt{g1(int)},
+being an \emph{overload} and not a \emph{specialization}, wasn't an
+  error and, therefore, isn't a warning either.}} declare these
+templates within the \texttt{outer} namespace and then specialize them
+within the \texttt{inner} one, even though the \texttt{inner} namespace
+is \texttt{inline}:
+
+\begin{lstlisting}[language=C++]
+namespace outer                                     // enclosing namespace
+{
+    template<typename T> struct S1;                 // class template
+    template<typename T> void f1();                 // function template
+    template<typename T> void g1(T v);              // function template
+
+    struct A1 { template <typename T> void h1(); }; // member function template
+
+    inline namespace inner                          // nested namespace
+    {                                               // BAD IDEA
+        template<> struct S1<int> { };              // error: (ù{\codeincomments{S1}}ù) not a template
+        template<> void f1<int>() { }               // error: (ù{\codeincomments{f1}}ù) not a template
+        void g1(int) { }                            // OK, overloaded function
+        template<> void A1::h1<int>() { }           // error: (ù{\codeincomments{h1}}ù) not a template
+    }
+}
+\end{lstlisting}
+    
+\noindent Attempting to declare a template in the \texttt{outer} namespace and
+then define, effectively redeclaring, it in an \texttt{inline} inner one
+causes the name to be inaccessible within the \texttt{outer} namespace:
+
+\begin{lstlisting}[language=C++]
+namespace outer                                          // enclosing namespace
+{                                                        // BAD IDEA
+    template<typename T> struct S2;                      // declarations of
+    template<typename T> void f2();                      // various class
+    template<typename T> void g2(T v);                   // and function
+    struct A2 { template <typename T> void h2(); };      // templates
+
+    inline namespace inner                               // nested namespace
+    {
+        template<typename T> struct S2 { };              // definitions of
+        template<typename T> void f2() { }               // unrelated class
+        template<typename T> void g2(T v) { }            // and function
+        template<typename T> void A2::h2() { };          // templates
+    }
+
+    template<> struct S2<int> { };     // Error: (ù{\codeincomments{S2}}ù) is ambiguous in (ù{\codeincomments{outer}}ù).
+    template<> void f2<int>() { }      // Error: (ù{\codeincomments{f2}}ù) is ambiguous in (ù{\codeincomments{outer}}ù).
+    void g2(int) { }                   // OK, (ù{\codeincomments{g2}}ù) is an overload definition.
+    template<> void A2::h2<int>() { }  // Error: (ù{\codeincomments{h2}}ù) is ambiguous in (ù{\codeincomments{outer}}ù).
+}
+\end{lstlisting}
+    
+\noindent Finally, declaring a template in the nested \texttt{inline} namespace
+\texttt{inner} in the example above and then subsequently defining it in
+the enclosing \texttt{outer} namespace has the same effect of making
+declared symbols ambiguous in the \texttt{outer} namespace:
+
+\begin{lstlisting}[language=C++]
+namespace outer                                          // enclosing namespace
+{                                                        // BAD IDEA
+    inline namespace inner                               // nested namespace
+    {
+        template<typename T> struct S3;                  // declarations of
+        template<typename T> void f3();                  // various class
+        template<typename T> void g3(T v);               // and function
+        struct A3 { template <typename T> void h3(); };  // templates
+    }
+
+    template<typename T> struct S3 { };                  // definitions of
+    template<typename T> void f3() { }                   // unrelated class
+    template<typename T> void g3(T v) { }                // and function
+    template<typename T> void A3::h3() { };              // templates
+
+    template<> struct S3<int> { };     // Error: (ù{\codeincomments{S3}}ù) is ambiguous in (ù{\codeincomments{outer}}ù).
+    template<> void f3<int>() { }      // Error: (ù{\codeincomments{f3}}ù) is ambiguous in (ù{\codeincomments{outer}}ù).
+    void g3(int) { }                   // OK, (ù{\codeincomments{g3}}ù) is an *overload* definition.
+    template<> void A3::h3<int>() { }  // Error: (ù{\codeincomments{h2}}ù) is ambiguous in (ù{\codeincomments{outer}}ù).
+}
+\end{lstlisting}
+    
+\noindent Note that, although the definition for a member function template must
+be located directly within the namespace in which it is declared, a
+class or function template, once declared, may be defined in a different
+scope by using an appropriate name qualification:
+
+\begin{lstlisting}[language=C++]
+template <typename T> struct outer::S3 { };        // OK, enclosing namespace
+template <typename T> void outer::inner::f3() { }  // OK, nested namespace
+template <typename T> void outer::g3(T v) { }      // OK, enclosing namespace
+template <typename T> void outer::A3::h3<T>() { }  // syntax error: ill-formed
+
+namespace outer
+{
+    inline namespace inner
+    {
+        template <typename T> void A3::h3<T>() { } // OK, within same namespace
+    }
+}
+\end{lstlisting}
+    
+\noindent Also note that, as ever, the corresponding definition of the declared
+template must have been seen before it can be used in a context
+requiring a complete type. The importance of ensuring that all
+specializations of a template have been seen before it is used
+substantively (i.e., \textbf{ODR-used}) cannot be overstated, giving
+rise to the only limerick, which is actually part of the normative text,
+in the C++ Language Standard{\cprotect\footnote{See \textbf{{iso11}},
+  section~14.7.3.7, pp.~375--375, specifically p.~376.}}:
+\begin{quote}
+When writing a specialization,\\
+be careful about its location;\\
+or to make it compile\\
+will be such a trial\\
+as to kindle its self-immolation.
+\end{quote}
+
+\subsubsection[Only one namespace can contain any given {\tt inline} namespace]{Only one namespace can contain any given {\SubsubsecCode inline} namespace}\label{only-one-namespace-can-contain-any-given-inline-namespace}
+
+Unlike conventional \texttt{using} directives, which can be used to
+generate arbitrary many-to-many relationships between different
+namespaces, \texttt{inline} namespaces can be used only to contribute
+names to the sequence of enclosing namespaces up to the first
+non-\texttt{inline} one. In cases in which the names from a namespace
+are desired in multiple other namespaces, the classical \texttt{using}
+directive must be used, with the subtle differences between the two
+modes properly addressed.
+
+As an example, the C++14 Standard Library provides a hierarchy of nested
+\texttt{inline} namespaces for literals of different sorts within
+namespace\linebreak[4] \texttt{std}: \texttt{std::literals::complex\_literals},
+\texttt{std::literals::chrono\_literals},\linebreak[4]
+\texttt{std::literals::string\_literals}, and
+\texttt{std::literals::string\_view\_literals}.\linebreak[4] 
+These namespaces can
+be imported to a local scope in one shot via a
+\texttt{using}~\texttt{std::literals} or instead, more selectively, by
+\texttt{using} the nested namespaces directly. This separation of the
+types used with user-defined literals, which are all in namespace
+\texttt{std}, from the user-defined literals that can be used to create
+those types led to some frustration; those who had a
+\texttt{using}~\texttt{namespace}~\texttt{std;} could reasonably have
+expected to get the user-defined literals associated with their
+\texttt{std} types. However, the types in the nested namespace
+\texttt{std::chrono} did \emph{not} meet this
+expectation.{\cprotect\footnote{\textbf{hinnant17}}}
+
+Eventually \emph{both} solutions for incorporating literal namespace,
+\texttt{inline} from\linebreak[4] \texttt{std::literals} and non-\texttt{inline} from
+\texttt{std::chrono}, were pressed into service when, in C++17, a
+\mbox{\texttt{using}~\texttt{namespace}~\texttt{literals::chrono\_literals;}}
+was added to the\linebreak[4]
+ \texttt{std::chrono} namespace. The Standard does not, however, benefit in any objective way from any of
+these namespaces being \texttt{inline} since the artifacts in the
+\texttt{literals} namespace neither depend on ADL nor are templates in
+need of user-defined specializations; hence having all
+non-\texttt{inline} namespaces with appropriate \texttt{using}
+declarations would have been functionally indistinguishable from the
+bifurcated approach taken.
+
+\subsection[See Also]{See Also}\label{see-also}
+
+\begin{itemize}
+\item{``\titleref{alignas}" on page~\pageref{alignas} — Safe C++11 feature used in the example in  \textit{\titleref{use-cases-inlinenamespace}: \titleref{build-modes-and-abi-link-safety}} on page~\pageref{build-modes-and-abi-link-safety} to provide properly aligned storage for an object of arbitrary type \texttt{T}.}
+\end{itemize}
+
+\subsection[Further Reading]{Further Reading}\label{further-reading}
+
+TODO, TBD
+
+\subsection[Appendix: Case study of using {\tt inline} namespaces for versioning]{Appendix: Case study of using {\SubsecCode inline} namespaces for versioning}\label{appendix:-case-study-of-using-inline-namespaces-for-versioning}
+
+\noindent\textbf{By Niall Douglas}\\[.5ex]
+
+\noindent Let me tell you what I (don't) use them for. It is not a conventional
+opinion.
+
+At a previous well-regarded company, they were shipping no less than
+forty-three copies of Boost in their application. Boost was not on the
+approved libraries list, but the great thing about header-only libraries
+is that they don't obviously appear in final binaries, unless you look
+for them. So each individual team was including bits of Boost quietly
+and without telling their legal department. Why? Because it saved time.
+(This was C++98, and \texttt{boost::shared\_ptr} and
+\texttt{boost::function} are both extremely attractive facilities).
+
+Here's the really interesting part: Most of these copies of Boost were
+not the same version. They were varying over a five-year release period.
+And, unfortunately, Boost makes no API or ABI guarantees. So,
+theoretically, you could get two different incompatible versions of
+Boost appearing in the same program binary, and BOOM! there goes memory
+corruption.
+
+I advocated to Boost that a simple solution would be for Boost to wrap
+up their implementation into an internal inline namespace. That inline
+namespace ought to mean something:
+\begin{itemize}
+\item{\texttt{lib::v1} is the \emph{stable}, version-1 ABI, which is guaranteed to be compatible with all past and future \texttt{lib::v1} ABIs, forever, as determined by the ABI-compliance-check tool that runs on \textbf{CI}. The same goes for \texttt{v2}, \texttt{v3}, and so on.}
+\item{\texttt{lib::v2\_a7fe42d} is the \emph{unstable}, version-2 ABI, which may be incompatible with any other \texttt{lib::*}~\texttt{ABI}; hence the seven hex chars after the underscore are the git short \textbf{SHA}, permuted by every commit to the git repository but, in practice, per CMake configure, because nobody wants to rebuild everything per commit. This ensures that no symbols from any revision of \texttt{lib} will \emph{ever} silently collide or otherwise interfere with any other revision of \texttt{lib}, when combined into a single binary by a dumb linker.}
+\end{itemize}
+
+I have been steadily making progress on getting Boost to avoid putting
+anything in the global namespace, so a straightforward find-and-replace
+can let you ``fix'' on a particular version of Boost.
+
+That's all the same as the pitch for \texttt{inline} namespaces. You'll
+see the same technique used in \texttt{libstdc++} and many other major modern C++
+codebases.
+
+But I'll tell you now, I don't use \texttt{inline} namespaces any more.
+Now what I do is use a macro defined to a uniquely named namespace. My
+build system uses the git SHA to synthesize namespace macros for my
+namespace name, beginning the namespace and ending the namespace.
+Finally, in the documentation, I teach people to always use a namespace
+alias to a macro to denote the namespace:
+
+\begin{lstlisting}[language=C++]
+namespace output = OUTCOME_V2_NAMESPACE;
+\end{lstlisting} 
+
+\noindent That macro expands to something like \texttt{::outcome\_v2\_ee9abc2},
+that is, I don't use \texttt{inline} namespaces any more.
+
+Why?
+
+Well, for \emph{existing} libraries that don't want to break backward
+source compatibility, I think \texttt{inline} namespaces serve a need.
+For \emph{new} libraries, I think a macro-defined namespace is clearer.
+\begin{itemize}
+\item{It causes users to publicly commit to ``I know what you’re doing here, what it means, and what its consequences are.''}
+\item{It declares to \emph{other} users that something unusual (i.e., go read the documentation) is happening here, instead of silent magic behind the scenes.}
+\item{It prevents accidents that interfere with ADL and other customization points, which induce surprise, such as accidentally injecting a customization point into \texttt{lib}, not into \texttt{lib::v2}.}
+\item{Using macros to denote namespace lets us reuse the preprocessor machinery to generate C++ modules using the exact same codebase; C++ modules are used if the compiler supports them, else we fall back to inclusion.}
+\end{itemize}
+
+Finally, and here's the real rub, because we now have namespace aliases,
+if I were tempted to use an \texttt{inline} namespace, nowadays I probably would
+instead use a uniquely named namespace instead, and, in the \texttt{include} file,
+I'd alias a user-friendly name to that uniquely named namespace. I think
+that approach is less likely to induce surprise in the typical
+developer's likely use cases than \texttt{inline} namespaces, such as
+injecting customization points into the wrong namespace.
+
+So now I hope you've got a good handle on \texttt{inline} namespaces: I
+was once keen on them, but after some years of experience, I've gone off
+them in favor of better-in-my-opinion alternatives. Unfortunately, if your type \texttt{x::S} has members of type
+\texttt{a::T} and macros decide if that is \texttt{a::v1::T} or
+\texttt{a::v2::T}, then no linker protects the higher-level types from
+ODR bugs, unless you also version \texttt{x}.
+
+

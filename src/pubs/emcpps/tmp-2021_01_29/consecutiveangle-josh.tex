@@ -1,0 +1,208 @@
+% 13 Jan 2021 copyedits in and proofed
+%% 27 Jan, code checked and replaced as needed by Josh
+
+In the context of template argument lists, \lstinline!>>! is parsed as two
+separate closing angle brackets.
+
+\subsection[Description]{Description}\label{description}
+
+Prior to C++11, a pair of consecutive right-pointing angle brackets anywhere in
+the source code was always interpreted as a bitwise right-shift
+operator, making an intervening space mandatory for them to be treated
+as separate closing-angle-bracket tokens:
+
+\begin{emcppshiddenlisting}[emcppsbatch=e1]
+#include <vector>  // (ù{\codeincomments{std::vector}}ù)
+\end{emcppshiddenlisting}
+\begin{emcppslisting}[emcppsbatch=e1]
+// C++03
+std::vector<std::vector<int>> v0;   // annoying compile-time error in C++03
+std::vector<std::vector<int> > v1;  // OK
+\end{emcppslisting}
+
+\noindent To facilitate the common use case above, a special rule was added
+whereby, when parsing a template-argument expression, \emph{non-nested}
+(i.e., within parentheses) appearances of \lstinline!>!, \lstinline!>>!,
+\lstinline!>>>!, and so on are to be treated as separate closing angle brackets:
+
+\begin{emcppshiddenlisting}[emcppsbatch=e2]
+#include <vector>  // (ù{\codeincomments{std::vector}}ù)
+\end{emcppshiddenlisting}
+\begin{emcppslisting}[emcppsbatch=e2]
+// C++11
+std::vector<std::vector<int>> v0;               // OK
+std::vector<std::vector<std::vector<int>>> v1;  // OK
+\end{emcppslisting}
+
+\subsubsection[Using the greater-than or right-shift operators within template-argument expressions]{Using the greater-than or right-shift operators\\[0.5ex] within template-argument expressions}\label{using-the-greater-than-or-right-shift-operators-within-template-argument-expressions}
+
+For templates that take only type parameters, there's no issue. When the
+template parameter is a non-type, however, the greater-than or right-shift operators might be
+useful. In the unlikely event that we need either the greater-than
+operator (\lstinline!>!) or the right-shift operator (\lstinline!>>!) within a
+non-type template-argument expression, we can achieve our goal by
+nesting that expression within parentheses:
+
+\begin{emcppslisting}
+const int i = 1, j = 2;  // arbitrary integer values (used below)
+
+template <int I> class C { /*...*/ };
+    // class (ù{\codeincomments{C}}ù) taking non-type template parameter (ù{\codeincomments{I}}ù) of type (ù{\codeincomments{int}}ù)
+
+C<i > j>    a1;  // Error, always has been
+C<i >> j>   b1;  // Error, in C++11, OK in C++03
+C<(i > j)>  a2;  // OK
+C<(i >> j)> b2;  // OK
+\end{emcppslisting}
+
+
+\noindent In the definition of \lstinline!a1! above, the first \lstinline!>! is
+interpreted as a closing angle bracket, and the subsequent \lstinline!j! is
+(and always has been) a syntax error. In the case of \lstinline!b1!, the
+\lstinline!>>! is, as of C++11, parsed as a pair of separate tokens in this
+context, so the second \lstinline!>! is now considered an error. For
+both \lstinline!a2! and \lstinline!b2!, however, the would-be operators appear
+nested within parentheses and thus are blocked from matching any
+active open angle bracket to the left of the parenthesized expression.
+
+\subsection[Use Cases]{Use Cases}\label{use-cases}
+
+\subsubsection[Avoiding annoying whitespace when composing template types]{Avoiding annoying whitespace when composing template types}\label{avoiding-annoying-whitespace-when-composing-template-types}
+
+When using nested templated types (e.g.,~nested containers) in C++03,
+having to remember to insert an intervening space between trailing angle
+brackets added no value. What made it even more galling was that every
+popular compiler was able to tell you confidently that you had forgotten
+to leave the space. With this new
+feature (rather, this repaired defect), we can now render closing angle
+brackets contiguously, just like parentheses and square brackets:
+
+\begin{emcppshiddenlisting}[emcppsbatch=e3]
+#include <list>    // (ù{\codeincomments{std::list}}ù)
+#include <vector>  // (ù{\codeincomments{std::vector}}ù)
+#include <map>     // (ù{\codeincomments{std::map}}ù)
+\end{emcppshiddenlisting}
+\begin{emcppslisting}[emcppsbatch=e3]
+// OK in both C++03 and C++11
+std::list<std::map<int, std::vector<std::string> > > idToNameMappingList1;
+
+// OK in C++11, compile-time error in C++03
+std::list<std::map<int, std::vector<std::string>>>   idToNameMappingList2;
+\end{emcppslisting}
+
+
+\subsection[Potential Pitfalls]{Potential Pitfalls}\label{potential-pitfalls}
+
+\subsubsection[Some C++03 programs may stop compiling in C++11]{Some C++03 programs may stop compiling in C++11}\label{some-c++03-programs-may-stop-working-in-c++11}
+
+If a right-shift operator is used in a template expression, the newer
+parsing rules may result in a compile-time error where before there was
+none:
+
+\begin{emcppshiddenlisting}[emcppsbatch=ped1,emcppsstandards=c++03]
+template <int i> class T {};
+\end{emcppshiddenlisting}
+\begin{emcppslisting}[emcppsbatch=ped1]
+T<1 >> 5> t;  // worked in C++03, compile-time error in C++11
+\end{emcppslisting}
+
+\noindent The easy fix is simply to parenthesize the expression:
+
+\begin{emcppshiddenlisting}[emcppsbatch=ped2,emcppsstandards={c++11,c++14}]
+template <int i> class T {};
+\end{emcppshiddenlisting}
+\begin{emcppslisting}[emcppsbatch=ped2]
+T<(1 >> 5)> t;  // OK
+\end{emcppslisting}
+
+\noindent This rare syntax error is invariably caught at compile time, avoiding undetected surprises at run time.
+
+\subsubsection[The meaning of a C++03 program can, in theory, silently change in C++11]{The meaning of a C++03 program can, in theory, silently change in C++11}\label{the-meaning-of-a-c++03-program-can-(in-theory)-silently-change-in-c++11}
+
+Though pathologically rare, the same valid expression can, in theory, have a different interpretation in C++11 than it had when compiled for C++03.
+Consider the case{\cprotect\footnote{Example adapted from \cite{gustedt13}}} where the
+\lstinline!>>! token is embedded as part of an expression involving
+templates:
+
+\begin{emcppslisting}[emcppsignore={Pathological}]
+S<G< 0 >>::c>::b>::a
+//   ^~~~~~~
+\end{emcppslisting}
+
+\noindent In the expression above, \lstinline!0!~\lstinline!>>::c! will be interpreted
+as a \emph{bitwise right-shift operator} in C++03 but not in C++11. Writing a program that (1) compiles under both C++03 and
+C++11 and (2) exposes the difference in parsing rules is possible:
+
+\begin{emcppshiddenlisting}[emcppsbatch=e4]
+#include <iostream>    // (ù{\codeincomments{std::cout}}ù)
+\end{emcppshiddenlisting}
+\begin{emcppslisting}[emcppsbatch=e4]
+enum Outer { a = 1, b = 2, c = 3 };
+
+template <typename> struct S
+{
+    enum Inner { a = 100, c = 102 };
+};
+
+template <int> struct G
+{
+    typedef int b;
+};
+
+int main()
+{
+    std::cout << (S<G< 0 >>::c>::b>::a) << '\n';
+}
+\end{emcppslisting}
+
+\noindent The program above will print \lstinline!100! when compiled for C++03 and
+\lstinline!0! for C++11:
+
+\begin{emcppslisting}[emcppsignore={Pathological}]
+// C++03
+
+//     (2) instantiation of (ù{\codeincomments{G<0>}}ù)
+//    (ù{\codeincomments{$\|$}}ù)~~~~~~~~~~~~
+//    (ù{\codeincomments{$\|\:\,|\:\,\|$}}ù)   (4) instantiation of (ù{\codeincomments{S<int>}}ù)
+//  ~~(ù{\codeincomments{$\|\downarrow\|$}}ù)~~~~~~~~~~~~~~(ù{\codeincomments{$\downarrow$}}ù)
+    S< G< 0 >>::c > ::b >::a
+//    ~~(ù{\codeincomments{$\|\,\,\uparrow\,\,\|$}}ù)~~~~~~~~~(ù{\codeincomments{$\uparrow$}}ù)
+//      (ù{\codeincomments{$\|\:\,\,\,|\:\,\,\,\|$}}ù) (3) type alias for (ù{\codeincomments{int}}ù)
+//      (ù{\codeincomments{$\|$}}ù)~~~~~~~
+// (1) bitwise right-shift ((ù{\codeincomments{0 >> 3}}ù))
+\end{emcppslisting}
+
+
+\begin{emcppslisting}[emcppsignore={Pathological}]
+// C++11
+
+//
+//
+//  (2) compare ((ù{\codeincomments{>}}ù)) (ù{\codeincomments{Inner::c}}ù) and (ù{\codeincomments{Outer::b}}ù)
+//  (ù{\codeincomments{$\downarrow$}}ù) ~~~~~~~~~~~~~~~~~~
+    S< G< 0 >>::c > ::b >::a
+//  (ù{\codeincomments{$\uparrow$}}ù) ~~~~~~~~~
+//  (1) instantiation of (ù{\codeincomments{S<G<0>>}}ù)
+//
+//
+\end{emcppslisting}
+
+\noindent Though theoretically possible, programs that (1) are syntactically valid
+in both C++03 and C++11 and (2) have distinct semantics have not
+emerged in practice anywhere that we are aware of.
+
+\subsection[Annoyances]{Annoyances}\label{annoyances}
+
+\hspace{\fill}
+
+\subsection[See Also]{See Also}\label{see-also}
+
+\hspace{\fill}
+
+\subsection[Further Reading]{Further Reading}\label{further-reading}
+
+\begin{itemize}
+\item{Daveed Vandevoorde, \textit{Right Angle Brackets,} \cite{vandevoorde05}}
+\end{itemize}
+
+

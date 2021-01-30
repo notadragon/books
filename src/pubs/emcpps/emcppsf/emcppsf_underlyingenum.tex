@@ -1,5 +1,7 @@
-\newpage
-\section[Underlying Type '11]{Explicit Enumeration Underlying Type}\label{explicit-enumeration-underlying-type}
+\emcppsFeature{
+        short={Underlying Type '11},
+        long={Explicit Enumeration Underlying Type},
+}{explicit-enumeration-underlying-type}
 
 The underlying type of an enumeration is the fundamental
 \textbf{integral type} used to represent its enumerated values, which
@@ -9,19 +11,8 @@ can be specified explicitly in C++11.
 
 Every enumeration employs an integral type, known as its
 \textbf{underlying type}, to represent its compile-time-enumerated
-values.{\cprotect\footnote{Note that \texttt{char} and
-\texttt{wchar\_t}, like enumerations, are their own distinct types (as
-opposed to \texttt{typedef}-like aliases such as
-\texttt{std::uint8\_t}) and have their own implemenation-defined
-underlying integral types. With \texttt{char}, for example, the
-\textbf{underlying type} will always be either
-\texttt{signed}~\texttt{char} or \texttt{unsigned}~\texttt{char} (both
-of which are also distinct C++ types). The same is true in C++11 for
-\texttt{char16\_t} and \texttt{char32\_t} and in C++20 for
-  \texttt{char8\_t}.}} By default, the \textbf{underlying type} of an
-\texttt{enum}{\cprotect\footnote{Note that the default underlying type
-of an \texttt{enum}~\texttt{class} is ubiquitously \texttt{int}, and
-it is not implementation defined; see ``\titleref{enumclass}" on page~\pageref{enumclass}.}} is chosen by the
+values. By default, the \textbf{underlying type} of a C++98
+\texttt{enum} is chosen by the
 implementation to be large enough to represent all of the values in an
 enumeration and is allowed to exceed the size of an \texttt{int}
 \emph{only} if there are enumerators having values that cannot be
@@ -47,14 +38,15 @@ that \texttt{enum}. If the value doesn't fit in an \texttt{int}, it will
 be selected deterministically as the first type able to represent all
 values from the sequence: \texttt{unsigned}~\texttt{int}, \texttt{long},
 \texttt{unsigned}~\texttt{long}, \texttt{long}~\texttt{long},
-\texttt{unsigned}~\texttt{long}~\texttt{long}.{\cprotect\footnote{While
-specifying an enumeration's underlying type was impossible before
-C++11, the compiler could be forced to choose at least a 32-bit or
-64-bit signed integral type by adding an enumerator having a
-sufficiently large negative value --- e.g.,
-\texttt{-1}~\texttt{<<}~\texttt{31} for a 32-bit and
-\texttt{-1}~\texttt{<<}~\texttt{63} for a 64-bit \emph{signed} integer
-  (assuming such is available on the target platform).}}
+\texttt{unsigned}~\texttt{long}~\texttt{long}.
+
+While specifying an enumeration’s underlying type was impossible before C++11, the compiler could be forced to choose at least a 32-bit or 64-bit signed integral type by adding an enumerator having a sufficiently large negative value --- e.g., \lstinline!1 << 31! for a 32-bit and \lstinline!1 << 63! for a 64-bit signed integer (assuming such is available on the target platform).
+
+The above applies only to C++98 \lstinline!enum!s; the default underlying type of an \lstinline!enum! \lstinline!class! is ubiquitously \lstinline!int!, and it is not implementation defined; see \featureref{\locationc}{enumclass}.
+
+Note that \lstinline!char! and \lstinline!wchar_t!, like enumerations, are their own distinct types (as opposed to \lstinline!typedef!-like aliases such as \lstinline!std::uint8_t!) and have their own implementation-defined underlying integral types. With \lstinline!char!, for example, the underlying type will always be either \lstinline!signed! \lstinline!char! or \lstinline!unsigned! \lstinline!char! (both of which are also distinct C++ types).{\cprotect\footnote{The same is true in C++11 for
+\texttt{char16\_t} and \texttt{char32\_t} and in C++20 for
+  \texttt{char8\_t}.}}
 
 \subsubsection[Specifying underlying type explicitly]{Specifying underlying type explicitly}\label{specifying-underlying-type-explicitly}
 
@@ -124,7 +116,7 @@ month to be enumerated. Still, the date class will be used in contexts
 where the numerical value of the month is significant, such as in calls
 to legacy functions that accept the month as an integer. Moreover,
 iterating over a range of months is common and requires that the
-enumerators convert automatically to their (integral) \textbf{underlying
+enumerators convert automatically to their integral \textbf{underlying
 type}, thus contraindicating use of the more strongly typed
 \texttt{enum} \texttt{class}:
 
@@ -140,7 +132,7 @@ enum Month  // defaulted underlying type (BAD IDEA)
 static_assert(sizeof(Month) == 4 && alignof(Month) == 4, "");
 \end{lstlisting}
 
-\noindent As it turns out, date values are used widely throughout this code base,
+\noindent As it turns out, date values are used widely throughout this codebase,
 and the proposed \texttt{Date} type is expected to be used in large
 aggregates. The underlying type of the \texttt{enum} in the code snippet
 above is implementation-defined and could be as small as a \texttt{char}
@@ -183,7 +175,7 @@ Date timeSeries[1000 * 1000];  // (ù{\codeincomments{sizeof(timeSeries)}}ù) is
 
 \subsection[Potential Pitfalls]{Potential Pitfalls}\label{potential-pitfalls-underlyingenum}
 
-\subsubsection[External use of opaque enumerators]{External use of opaque enumerators}\label{external-use-of-opaque-enumerators}
+\subsubsection[External use of opaque enumerators]{External use of opaque enumerators}\label{external-use-of-opaque-enumerators-enumunderlying}
 
 Providing an explicit underlying type to an \texttt{enum} enables
 clients to declare or redeclare it as a complete type with or without
@@ -244,11 +236,11 @@ though both enumerations are small enough to fit into a
 selected.
 
 One might want to get to the implementation-defined underlying type
-though, and the standard does provide a trait to do that:
+though, and the Standard does provide a trait to do that:
 \texttt{std::underlying\_type} in C++11 and the corresponding
 \texttt{std::underlying\_type\_t} alias in C++14. This trait can safely
-be used in a cast without risking loss of value{\cprotect\footnote{See
-  ``\titleref{auto}" on page~\pageref{auto}.}}:
+be used in a cast without risking loss of value (see
+  ``\titleref{auto}" on page~\pageref{auto}):
 
 \begin{lstlisting}[language=C++]
 template <typename E>
@@ -284,9 +276,9 @@ double gramsFromOunces(double ounces)
 \noindent Casting to the \textbf{underlying type} is \emph{not} necessarily the
 same as direct integral promotion. In this context, we might want to
 change our \texttt{enum} to a
-\texttt{constexpr}~\texttt{int}{\cprotect\footnote{See
-  ``\titleref{constexprvar}" on page~\pageref{constexprvar}.}} in the long
-term:
+\texttt{constexpr}~\texttt{int} in the long
+term (see
+  ``\titleref{constexprvar}" on page~\pageref{constexprvar}):
 
 \begin{lstlisting}[language=C++]
 constexpr int k_GRAMS_PER_OZ = 28;  // future proof
@@ -296,13 +288,15 @@ constexpr int k_GRAMS_PER_OZ = 28;  // future proof
 \subsection[See Also]{See Also}\label{see-also}
 
 \begin{itemize}
-\item{``\titleref{enumclass}" on page~\pageref{enumclass} — a scoped, more strongly typed enumeration}
-\item{``\titleref{enumopaque}" on page~\pageref{enumopaque} — a means of \textbf{insulating} individual enumerators from clients}
-\item{``\titleref{constexprvar}" on page~\pageref{constexprvar} — an alternative way of declaring compile-time constants}
+\item{\seealsoref{enumclass}{\locationc}Introduces a scoped, more strongly typed enumeration that can explicitly specify an underlying type.}
+\item{\seealsoref{enumopaque}{\locationc}Offers a means to insulate individual enumerators from clients.}
+\item{\seealsoref{constexprvar}{\locationc}Introduces an alternative way of declaring compile-time constants.}
 \end{itemize}
 
 \subsection[Further Reading]{Further Reading}\label{further-reading}
 
-TODO
-
+\begin{itemize}
+\item{``Item 10: Prefer scoped \texttt{enum}s to unscoped \texttt{enum}s," \cite{meyers15}}
+\item{\cite{grimm17}}
+\end{itemize}
 

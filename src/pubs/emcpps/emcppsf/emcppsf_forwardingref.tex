@@ -1,23 +1,26 @@
-\newpage
-\section[Forwarding References]{Forwarding {\SecCode \&\&} References}\label{forwardingref}\label{forwarding-references}
+\emcppsFeature{
+        short={Forwarding References},
+        long={Forwarding {\SecCode \&\&} References},
+}{forwardingref}
+\label{forwarding-references}
 
 A forwarding reference (\texttt{T\&\&}) --- distinguishable from an
-rvalue reference (\texttt{\&\&}) (see ``\titleref{Rvalue-References}" on page~\pageref{Rvalue-References}) only based on context
+rvalue reference (\texttt{\&\&}) (see ``\titleref{Rvalue-References}" on page~\pageref{Rvalue-References}) based only on context
 --- is a distinct, special kind of reference that (1) binds
-(universally) to the result of an expression of \emph{any} \textbf{value
+universally to the result of an expression of \emph{any} \textbf{value
 category} and (2) preserves aspects of that \textbf{value category} so
 that the bound object can be \emph{moved from}, if appropriate.
 
 \subsection[Description]{Description}\label{description-forwardingref}
 
-Sometimes we'll want the same reference to be able to bind to either an
+Sometimes we want the same reference to be able to bind to either an
 \emph{lvalue} or an \emph{rvalue} and then later be able to discern,
 from the reference itself, whether the result of the original expression
 was eligible to be \emph{moved from}. A \emph{forwarding reference}
-(e.g., \texttt{forRef}) used in the interface of a function
+(e.g., \texttt{forRef} in the example below) used in the interface of a function
 \emph{template} (e.g., \texttt{myFunc}) affords precisely this
 capability and will prove invaluable for the purpose of conditionally
-moving (or else copying) an object from within the function template's
+moving, or else copying, an object from within the function template's
 body:
 
 \begin{lstlisting}[language=C++]
@@ -32,25 +35,20 @@ void myFunc(T&& forRef)
 \noindent In the definition of the \texttt{myFunc} function template in the example above, the
 parameter \texttt{forRef} syntactically appears to be a
 non-\texttt{const} reference to an \emph{rvalue} of type \texttt{T}; in
-this very precise context,{\cprotect\footnote{The \texttt{T\&\&} syntax
-represents a \emph{forwarding} reference (as opposed to an
-\emph{rvalue} reference) whenever an \emph{individual} (possibly
-member) function template has a type parameter (e.g., \texttt{T}) and
-an unqualified function parameter of type that is exactly
-\texttt{T\&\&} (e.g., \texttt{const}~\texttt{T\&\&} would be an
-  \emph{rvalue} reference).}} however, the same \texttt{T\&\&} syntax
+this very precise context, however, the same \texttt{T\&\&} syntax
 designates a \textbf{forwarding reference}, with the effect of retaining
 the original value category of the object bound to the argument
-\texttt{forRef}; see \textit{\titleref{description-forwardingref}: \titleref{identifying-forwarding-references}} on page~\pageref{identifying-forwarding-references}.
+\texttt{forRef}; see \textit{\titleref{description-forwardingref}: \titleref{identifying-forwarding-references}} on page~\pageref{identifying-forwarding-references}. The \texttt{T\&\&} syntax
+represents a \emph{forwarding} reference --- as opposed to an
+\emph{rvalue} reference --- whenever an \emph{individual} function template has a type parameter (e.g., \texttt{T}) and
+an unqualified function parameter of type that is exactly
+\texttt{T\&\&} (e.g., \texttt{const}~\texttt{T\&\&} would be an
+  \emph{rvalue} reference, not a forwarding reference).
 
 Consider, for example, a function \texttt{f} that takes a single
 argument by reference and then attempts to use it to invoke one of two
 overloads of a function \texttt{g}, depending on whether the original
-argument was an \emph{lvalue} or \emph{rvalue}{\cprotect\footnote{In
-theory, we could have chosen a non-\texttt{const} \emph{lvalue}
-reference along with a (modifiable) \emph{rvalue} reference here for
-\emph{pedagogical} symmetry; such an inherently unharmonious overload
-set would, however, not typically occur in practice; see ``\titleref{Rvalue-References}" on page~\pageref{Rvalue-References}.}}:
+argument was an \emph{lvalue} or \emph{rvalue}:
 
 \begin{lstlisting}[language=C++]
 struct S { /* some UDT that might benefit from being able to be moved */ };
@@ -62,13 +60,17 @@ template <typename T>
 void f(T&& forRef); // forwards to target overload (ù{\codeincomments{g}}ù) based on value category
 \end{lstlisting}
 
-\noindent In this specific case --- where \texttt{f} is a function template,
+\noindent In
+theory, we could have chosen a non-\texttt{const} \emph{lvalue}
+reference along with a modifiable \emph{rvalue} reference here for
+\emph{pedagogical} symmetry; such an inherently unharmonious overload
+set would, however, not typically occur in practice; see ``\titleref{Rvalue-References}" on page~\pageref{Rvalue-References}. In this specific case --- where \texttt{f} is a function template,
 \texttt{T} is a template type parameter, and the type of the parameter
 itself is exactly \texttt{T\&\&} --- the \texttt{forRef} function
 parameter (in the code snippet above) denotes a \emph{forwarding reference}. If \texttt{f}\label{f-invoked-example}
 is invoked with an \emph{lvalue}, \texttt{forRef} is an \emph{lvalue}
 reference; otherwise \texttt{forRef} is an \emph{rvalue} reference.
-Given the dual nature of \texttt{forRef}, one (overly verbose) way of
+Given the dual nature of \texttt{forRef}, one rather verbose way of
 determining the original value category of the passed argument would be
 to use the \texttt{std::is\_lvalue\_reference} \textbf{type trait} on
 \texttt{forRef} itself:
@@ -92,7 +94,7 @@ void f(T&& forRef)      // (ù{\codeincomments{forRef}}ù) is a forwarding refer
 
 \noindent The \texttt{std::is\_lvalue\_reference<T>::value} predicate above asks
 the question, ``Did the object bound to \texttt{fRef} originate
-from an lvalue expression?'' allowing the developer to branch on the
+from an lvalue expression?'' and allows the developer to branch on the
 answer. A more concise but otherwise equivalent implementation is
 generally preferred; see \textit{\titleref{description-forwardingref}: \titleref{the-std::forward-utility}} on page~\pageref{the-std::forward-utility}:
 
@@ -207,7 +209,7 @@ as \textbf{reference collapsing}; see the next section) introduced as part of
 \emph{forwarding} reference is being deduced from an expression
 \texttt{E}, \texttt{T} itself will be deduced as an \emph{lvalue}
 reference if \texttt{E} is an \emph{lvalue}; otherwise normal
-type-deduction rules will apply and \texttt{T} will be deduced an \emph{rvalue}
+type-deduction rules will apply and \texttt{T} will be deduced as an \emph{rvalue}
 reference:
 
 \begin{lstlisting}[language=C++]
@@ -224,7 +226,7 @@ void g()
 }
 \end{lstlisting}
 
-\noindent For more on on general type deduction, see ``\titleref{auto-feature}" on page~\pageref{auto-feature}.
+\noindent For more on general type deduction, see ``\titleref{auto-feature}" on page~\pageref{auto-feature}.
 
 \subsubsection[Reference collapsing]{Reference collapsing}\label{reference-collapsing}
 
@@ -275,7 +277,7 @@ int& & irr = ir;  // error: (ù{\codeincomments{irr}}ù) declared as a reference
 \end{lstlisting}
 
 \noindent It is, however, easy to do so with type aliases and template parameters,
-and that is where reference collapsing will come into play:
+and that is where reference collapsing comes into play:
 
 \begin{lstlisting}[language=C++]
 using i = int&;  // OK
@@ -465,8 +467,8 @@ makes use of reference qualifiers (see ``\titleref{refqualifiers}" on page~\page
 
 The final piece of the forwarding reference puzzle is the
 \texttt{std::forward} utility function. Since the expression naming a
-forwarding reference \texttt{x} is always an \emph{lvalue} (due to its
-reachability either by name or address in virtual memory) and since our
+forwarding reference \texttt{x} is always an \emph{lvalue} --- due to its
+reachability either by name or address in virtual memory --- and since our
 intention is to move \texttt{x} in case it was an \emph{rvalue} to begin
 with, we need a conditional \emph{move} operation that will move
 \texttt{x} only in that case and otherwise let \texttt{x} pass through as
@@ -549,7 +551,7 @@ is commonly referred to as \textit{\titleref{use-cases-forwardingref}: \titleref
 
 \subsubsection[Handling multiple parameters concisely]{Handling multiple parameters concisely}\label{handling-multiple-parameters-concisely}
 
-Suppose you have a \textbf{value-Semantic type (VST)} that holds a
+Suppose you have a \textbf{value-semantic type (VST)} that holds a
 collection of attributes where some (not necessarily proper) subset of
 them need to be changed together{\cprotect\footnote{This type of
 value-semantic type can be classified more specifically as a
@@ -668,7 +670,7 @@ problem.
 Importantly, the use of \texttt{std::forward} to construct the element
 means that the arguments passed to \texttt{make\_shared} will be used to
 find the appropriate matching two-argument constructor of
-\texttt{ELEMENT\_TYPE}. When those arguments were \emph{rvalues}, the
+\texttt{ELEMENT\_TYPE}. When those arguments are \emph{rvalues}, the
 constructor found will again search for one that takes an \emph{rvalue}
 and the arguments will be moved from. Even more, because this function
 wants to forward exactly the \texttt{const}-ness and reference type of
@@ -713,9 +715,9 @@ ELEMENT_TYPE trackConstruction(ARGS&&... args)
 }
 \end{lstlisting}
 
-\noindent This let's us add tracking easily to convert any initialization to a
+\noindent This lets us add tracking easily to convert any initialization to a
 tracked one by inserting a call to this function around the constructor
-arguments.
+arguments:
 
 \begin{lstlisting}[language=C++]
 void myFunction()
@@ -747,8 +749,8 @@ that the copy constructor is never actually invoked with this pattern.
 \subsubsection[Emplacement]{Emplacement}\label{emplacement}
 
 Prior to C++11, inserting an object into a standard library container
-always required the programmer to first create such object and then
-copy it inside the container's storage. As an example, consider a
+always required the programmer to first create such an object and then
+copy it inside the container's storage. As an example, consider
 inserting a temporary \texttt{std::string} object in a\linebreak[4]
 \mbox{\texttt{std::vector<std::string>}}:
 
@@ -770,16 +772,16 @@ be somehow copied from the old buffer to the new, larger one.
 In C++11, the situation is significantly better thanks to
 rvalue references. The temporary will be moved into
 \texttt{v}, and any buffer reallocation will \emph{move} the elements
-between buffers rather copying them, assuming that the element's
+between buffers rather than copy them, assuming that the element's
 move-constructor is a noexcept specifier (see ``\titleref{noexcept-specifier}" on page~\pageref{noexcept-specifier}). The amount of work
 can, however, be further minimized: What if, instead of first creating
 an object externally, we constructed the new \texttt{std::string} object
 directly in \texttt{v}'s buffer?
 
 This is where \textbf{emplacement} comes into play. All standard library
-containers (including \texttt{std::vector}) now provide an
+containers, including \texttt{std::vector}, now provide an
 \textbf{emplacement} API powered by variadic templates (see ``\titleref{variadictemplate}" on page~\pageref{variadictemplate})
-and perfect forwarding (see \textit{\titleref{use-cases-forwardingref}: \titleref{perfect-forwarding-for-generic-factory-functions}} o page~\pageref{perfect-forwarding-for-generic-factory-functions}). Rather than accepting a
+and perfect forwarding (see \textit{\titleref{use-cases-forwardingref}: \titleref{perfect-forwarding-for-generic-factory-functions}} on page~\pageref{perfect-forwarding-for-generic-factory-functions}). Rather than accepting a
 fully-constructed element, \textbf{emplacement} operations accept an
 arbitrary number of arguments, which will in turn be used to construct a
 new element directly in the container's storage, thereby avoiding
@@ -818,9 +820,11 @@ void std::vector<T>::emplace_back(Args&&... args)
 
 \noindent \textbf{Emplacement} operations remove the need for copy or move
 operations when inserting elements into containers, potentially
-increasing the performance of a program and sometimes (depending on the
-container) even allowing even noncopyable or nonmovable objects to be stored
-in a container.\footnote{As previously mentioned,
+increasing the performance of a program and sometimes --- depending on the
+container --- even allowing even noncopyable or nonmovable objects to be stored
+in a container.
+
+As previously mentioned,
 declaring (but not defining) the \emph{copy} or \emph{move} ctor of a
 noncopyable or nonmovable type to be private is often a way to guarantee that
 a C++11/14 compiler constructed an object in place.
@@ -829,7 +833,7 @@ Containers that might need to move elements around for other operations
 movable elements, while node-based containers that never move the
 elements themselves after initial construction (such as
 \texttt{std::list} or \texttt{std::map}) can use emplace along with
-noncopyable or nonmovable objects.}
+noncopyable or nonmovable objects.
 
 \subsubsection[Decomposing complex expressions]{Decomposing complex expressions}\label{decomposing-complex-expressions}
 
@@ -934,7 +938,7 @@ has a name, but the net result of the lifetimes of each object is
 functionally the same. No new conversions have been introduced, and
 every object that was used as an \emph{rvalue} in the original
 expression will still be used as an \emph{rvalue} in this much longer
-(and more descriptive) implementation of the same functionality.
+and more descriptive implementation of the same functionality.
 
 \subsection[Potential Pitfalls]{Potential Pitfalls}\label{potential-pitfalls}
 
@@ -1021,7 +1025,7 @@ Invoking \texttt{std::forward<T>(x)} is equivalent to conditionally
 invoking \texttt{std::move} (if \texttt{T} is an
 \emph{lvalue} reference). Hence, any subsequent use of \texttt{x} is
 subject to the same caveats that would apply to an \emph{lvalue} cast to
-an (unnamed) \emph{rvalue} reference; see ``\titleref{Rvalue-References}" on page~\pageref{Rvalue-References}:
+an unnamed \emph{rvalue} reference; see ``\titleref{Rvalue-References}" on page~\pageref{Rvalue-References}:
 
 \begin{lstlisting}[language=C++]
 template <typename T>
@@ -1034,7 +1038,7 @@ void f(T&& x)
 
 \noindent Once an object has been passed as an argument using
 \texttt{std::forward}, it should typically not be accessed again
-(without first assigning it a new value) because it could now be in a
+without first assigning it a new value because it could now be in a
 moved-from state.
 
 \subsubsection[A perfect-forwarding constructor can hijack the copy constructor]{A perfect-forwarding constructor can hijack the copy constructor}\label{a-perfect-forwarding-constructor-can-hijack-the-copy-constructor}
@@ -1096,7 +1100,7 @@ void f()
 }
 \end{lstlisting}
 
-\noindent Similarly to the example involving class \texttt{S} (above), attempting
+\noindent Similarly to the example involving class \texttt{S} in the example above, attempting
 to copy-construct a non-\texttt{const} instance of \texttt{Wrapper}
 (e.g., \texttt{wr}, above) results in an error:
 
@@ -1194,7 +1198,7 @@ template <typename T> void g(const T&&);     // (ù{\codeincomments{const}}ù) r
 template <typename T> void h(volatile T&&);  // (ù{\codeincomments{volatile}}ù) rvalue reference
 \end{lstlisting}
 
-\noindent It is truly remarkable that we (still) do not have some unique syntax
+\noindent It is truly remarkable that we still do not have some unique syntax
 (e.g., \texttt{\&\&\&}) that we could use, at least optionally, to imply
 unequivocally a \emph{forwarding} reference that is independent of its
 context.
@@ -1226,11 +1230,11 @@ void PersonManager::addPerson(T&& person);
 \noindent This incantation to constrain \texttt{T} has a number of layers to it,
 so let's unpack them one at a time.
 \begin{itemize}
-\item{\texttt{T} is the template argument we are trying to deduce. We’d like to limit it to being \texttt{Person} that is \texttt{const}, \texttt{volatile}, \texttt{\&}, \texttt{\&\&}, or some (possibly empty) valid combination those.}
+\item{\texttt{T} is the template argument we are trying to deduce. We’d like to limit it to being a \texttt{Person} that is \texttt{const}, \texttt{volatile}, \texttt{\&}, \texttt{\&\&}, or some (possibly empty) valid combination of those.}
 \item{\texttt{std::decay<T>::type} is then the application of the standard metafunction (defined in \texttt{<type\_traits>}) \texttt{std::decay} to \texttt{T}. This metafunction removes all cv-qualifiers and ref-qualifiers from \texttt{T}, and so, for the types to which we want to limit \texttt{T}, this will \emph{always} be \texttt{Person}. Note that \texttt{decay} will also allow some other implicitly convertible transformations, such as converting an array type to the corresponding pointer type. For types we are concerned with --- those that decay to a \texttt{Person} --- this metafunction is equivalent to \texttt{std::remove\_cv<std::remove\_reference<T>::type>::type}, or the equivalent and shorter \texttt{std::remove\_cvref<T>::type>} available in C++20. Due to historical availability and readability, we will continue with our use of \texttt{decay} for this purpose.}
 \item{\texttt{std::is\_same<std::decay<T>::type,}~\texttt{Person>::value} is then the application of another metafunction, \texttt{std::is\_same}, to two arguments --- our decay expression and \texttt{Person}, which results in a \texttt{value} that is either \texttt{std::true\_type} or \texttt{std::false\_type} --- special types that can convert, in compile time, expressions to \texttt{true} or \texttt{false}. For the types \texttt{T} that we care about, this expression will be \texttt{true}, and for all other types this expression will be \texttt{false}.}
 \item{\texttt{std::enable\_if<X>::type} is yet another metafunction that evaluates to a valid type if and only if \texttt{X} is true. Unlike the \texttt{value} in \texttt{std::is\_same}, this expression is simply not valid if \texttt{X} is false.}
-\item{Finally, by using this \texttt{enable\_if} expression as a default-initialized template argument, the expression is going to be instantiated for any deduced \texttt{T} considered during overload resolution for \texttt{addPerson}. This instantiation (or \textit{substitution}), will fail for any of the types we don’t want to allow (something that is not a cv). Because of this, for any \texttt{T} that isn’t one of the types for which we want to allow \texttt{addPerson} to be invoked, this substitution will fail. Rather than being an error, this just removes \texttt{addPerson} from the overload set being considered, hence the term \textbf{SFINAE}. In this case, that would give us a different error indicating that we attempted to pass a non-\texttt{Person} to \texttt{addPerson}, which is exactly the result we want.}
+\item{Finally, by using this \texttt{enable\_if} expression as a default-initialized template argument, the expression is going to be instantiated for any deduced \texttt{T} considered during overload resolution for \texttt{addPerson}. This instantiation will fail for any of the types we don’t want to allow (something that is not a cv). Because of this, for any \texttt{T} that isn’t one of the types for which we want to allow \texttt{addPerson} to be invoked, this substitution will fail. Rather than being an error, this just removes \texttt{addPerson} from the overload set being considered, hence the term \textbf{SFINAE}. In this case, that would give us a different error indicating that we attempted to pass a non-\texttt{Person} to \texttt{addPerson}, which is exactly the result we want.}
 \end{itemize}
 Putting this all together means we get to call \texttt{addPerson} with
 \emph{lvalues} and \emph{rvalues} of type \texttt{Person}, and the value
@@ -1241,13 +1245,17 @@ definition).
 \subsection[See Also]{See Also}\label{see-also}
 
 \begin{itemize}
-\item{``\titleref{Rvalue-References}" on page~\pageref{Rvalue-References} — Conditionally safe C++11 feature which can syntactically look identical to forwarding references}
-\item{``\titleref{auto-feature}" on page~\pageref{auto-feature} — Conditionally safe C++11 feature that can introduce a forwarding reference with the \texttt{auto\&\&} syntax}
-\item{``\titleref{variadictemplate}" on page~\pageref{variadictemplate} — Conditionally safe C++11 feature commonly used in conjunction with forwarding references to provide highly generic interfaces}
+\item{\seealsoref{Rvalue-References}{\locationc}Feature that can be confused with forwarding references due to similar syntax.}
+\item{`\seealsoref{auto-feature}{\locationc}Feature that can introduce a forwarding reference with the \texttt{auto\&\&} syntax.}
+\item{\seealsoref{variadictemplate}{\locationc}Feature commonly used in conjunction with forwarding references to provide highly generic interfaces.}
 \end{itemize}
 
 \subsection[Further Reading]{Further Reading}\label{further-reading}
 
-None so far
+\begin{itemize}
+\item{``Item 24: Distinguish universal references from rvalue references," \cite{meyers15}}
+\item{\cite{sutter14}}
+\item{\cite{niebler13}}
+\end{itemize}
 
 

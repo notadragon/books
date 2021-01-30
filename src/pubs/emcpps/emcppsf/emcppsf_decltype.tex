@@ -1,8 +1,9 @@
-%%%% copyedits in and proofed
 \emcppsFeature{
         short={\tt{decltype}},
         long={Operator for Extracting Expression Types},
 }{decltype}
+%%%% copyedits in and proofed
+%% 27 Jan, code checked and replaced as needed by Josh
 
 The keyword \lstinline!decltype! enables the compile-time inspection of the \romeogloss{declared type} of an \romeogloss{entity} \emph{or} the type and
 \romeogloss{value category} of an expression. Note that the special construct \lstinline!decltype(auto)! has a separate meaning; see \featureref{\locationf}{decltypeauto}.
@@ -147,7 +148,7 @@ Consider two logically equivalent ways of declaring a vector of
 iterators into a list of \lstinline!Widgets!:
 
 \begin{emcppshiddenlisting}[emcppsbatch=e4]
-#include <list>    // (ù{\codeincomments{std::list}}ù)   
+#include <list>    // (ù{\codeincomments{std::list}}ù)
 #include <vector>  // (ù{\codeincomments{std::vector}}ù)
 struct Widget {};
 \end{emcppshiddenlisting}
@@ -158,7 +159,7 @@ std::vector<std::list<Widget>::iterator> widgetIterators;
     // needs to be explicitly named.
 \end{emcppslisting}
 \begin{emcppshiddenlisting}[emcppsbatch=e4-1]
-#include <list>    // (ù{\codeincomments{std::list}}ù)   
+#include <list>    // (ù{\codeincomments{std::list}}ù)
 #include <vector>  // (ù{\codeincomments{std::vector}}ù)
 struct Widget {};
 \end{emcppshiddenlisting}
@@ -190,7 +191,7 @@ representing the length of the packet's checksum:
 class Packet
 {
     // ...
-    
+
 public:
     std::uint8_t checksumLength() const;
 };
@@ -263,7 +264,7 @@ for (decltype(data.checksumLength()) i = 0; i < data.checksumLength(); ++i)
 \begin{emcppshiddenlisting}[emcppsbatch=e7]
 {}
 } // end g
-\end{emcppshiddenlisting}    
+\end{emcppshiddenlisting}
 
 \subsubsection[Creating an auxiliary variable of generic type]{Creating an auxiliary variable of generic type}\label{creating-an-auxiliary-variable-of-generic-type}
 
@@ -281,7 +282,7 @@ function (see %Section~\ref{trailing-function-return-types},
 \featureref{\locationa}{trailing-function-return-types}) and the auxiliary variable:
 
 \begin{emcppshiddenlisting}[emcppsbatch=e8]
-struct LogTrace {};  
+struct LogTrace {};
 constexpr LogTrace LOG_TRACE; // Quick and dirty syntactic simulation of logger
 template <typename T>
 const LogTrace& operator<<(const LogTrace& lhs, const T&) { return lhs; }
@@ -454,7 +455,7 @@ An alternate solution to this problem is to capture the result of the \lstinline
 
 \begin{emcppshiddenlisting}[emcppsbatch=e11]
 #include <utility>  // (ù{\codeincomments{std::declval}}ù)
-struct LogTrace {};  
+struct LogTrace {};
 constexpr LogTrace LOG_TRACE; // Quick and dirty syntactic simulation of logger
 template <typename T>
 const LogTrace& operator<<(const LogTrace& lhs, const T&) { return lhs; }

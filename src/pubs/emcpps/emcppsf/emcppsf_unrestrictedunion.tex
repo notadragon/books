@@ -1,8 +1,9 @@
-%%%%% copyedits in and proofed
 \emcppsFeature{
         short={{\tt union} '11},
-        long={Unions Having Non-Trivial Members},
+        long={Unions Having Non-Trivial Members\sectionmark{{\RHCode union}~'11}},
 }{unrestricted-unions}
+%%%%% copyedits in and proofed
+%% 27 Jan, code checked and replaced as needed by Josh
 
 Any nonreference type is permitted to be a member of a \lstinline!union!.
 
@@ -245,7 +246,7 @@ struct Nt  // used as part of a (ù{\codeincomments{union}}ù) (below)
         Nt   d_nt;  // non-trivial user-defined type
     };
 
-    bool d_useInt;  // discriminator    
+    bool d_useInt;  // discriminator
 // --- End
 \end{emcppshiddenlisting}
 \begin{emcppslisting}[emcppsbatch=e4]
