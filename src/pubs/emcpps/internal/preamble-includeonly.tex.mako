@@ -5,7 +5,7 @@
 %T%   for incl in includelistdecl.split(","):
 %T%     if incl.startswith("*"):
 %T%       includeonlylist.extend(pub.outline.sectionfiles(incl[1:]))
-%T%     else:
+%T%     elif incl:
 %T%       includeonlylist.append(incl)
 %T%%>
 %T%% if includeonlylist:

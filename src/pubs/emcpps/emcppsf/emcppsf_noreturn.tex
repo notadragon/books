@@ -37,7 +37,7 @@ pointer is not an error, though doing so has no actual effect in standard C++; s
 benefits for external tooling, code expressiveness, and future language
 evolution:
 
-\begin{emcppslisting}[emcppsbatch=e1]
+\begin{emcppslisting}[emcppsbatch=e1,emcppsignore={Only works on gcc -fpermissive}]
 void (*fp [[noreturn]])() = f;
 \end{emcppslisting}
 
@@ -230,7 +230,7 @@ it has no effect in standard C++; fortunately, most compilers will issue a warni
 %begin{emcppslisting}
 %void (*fp [[noreturn]])();  // not supported by standard C++ (will likely warn)
 %\end{emcppslisting}
-\begin{emcppslisting}[emcppsbatch=e6]
+\begin{emcppslisting}[emcppsbatch=e6,emcppsignore={Only works on gcc -fpermissive}]
 void (*fp [[noreturn]])();  // no effect in standard C++ (will likely warn)
 \end{emcppslisting}
 
@@ -238,7 +238,7 @@ void (*fp [[noreturn]])();  // no effect in standard C++ (will likely warn)
 that is not decorated with \lstinline![[noreturn]]! to an otherwise
 suitable function pointer that is so decorated is perfectly fine:
 
-\begin{emcppslisting}[emcppsbatch=e6]
+\begin{emcppslisting}[emcppsbatch=e6,emcppsignore={Only works on gcc -fpermissive}]
 void f() { return; };  // function that always returns
 
 void g()

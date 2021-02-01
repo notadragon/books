@@ -76,47 +76,69 @@
                               long = {},
                              }{}
 
-\newcommand{\emcppsShowTitleDefault}[3]{%
-  --- this should not be seen --- #1 --- #2 ---%
+% Default display macro for titles, this shoud not be seen
+\newcommand{\emcppsShowTitleDefaultImpl}[1]{%
+  --- this should not be seen --- #1 ---%
 }
 
-\newcommand{\emcppsShowTitleToc}[2]{%
-  \makebox[12em][l]{\sf #1} #2%
+% In-Section titles for macros
+\newcommand{\emcppsShowTitleSectionImpl}{%
+%  \cmdemcpps@section@headinglong%
+  \cmdemcpps@section@long%
 }
 
-\newcommand{\emcppsShowTitleSection}[2]{%
-  #2%
+\newcommand{\emcppsShowTitleRHImpl}{%
+%  \cmdemcpps@section@rhshort%
+  \cmdemcpps@section@short%
 }
 
-\newcommand{\emcppsShowTitleRH}[2]{%
-  #1%
+\newcommand{\emcppsSetShowTitleSection}{%
+  \renewcommand{\emcppsShowTitleImpl}{\emcppsShowTitleSectionImpl}%
+  \renewcommand{\emcppsShowTitleAltImpl}{\emcppsShowTitleRHImpl}%
 }
 
-\newcommand{\emcppsShowTitle}[2]{\emcppsShowTitleDefault{TITLE}{#1}{#2}}
-\newcommand{\emcppsShowTitleAlt}[2]{\emcppsShowTitleDefault{ALTTITLE}{#1}{#2}}
+% Table of contents implementation
+\newcommand{\emcppsSetShowTitleToc}{%
+  \renewcommand{\emcppsShowTitleAltImpl}{\emcppsShowTitleTocImpl}%
+}
+
+\newcommand{\emcppsShowTitleTocImpl}{%
+%  \makebox[12em][l]{\sf \cmdemcpps@section@tocshort} \cmdemcpps@section@toclong%
+  \makebox[12em][l]{\sf \cmdemcpps@section@short} \cmdemcpps@section@long%
+}
+
+
+% The default implementation macros, always show a diagnostic message
+\newcommand{\emcppsShowTitleImpl}{\emcppsShowTitleDefaultImpl{TITLE}}
+
+\newcommand{\emcppsShowTitleAltImpl}{\emcppsShowTitleDefaultImpl{ALTTITLE}}
 
 \newcommand{\emcppsRevertShowTitle}{%
-  \renewcommand{\emcppsShowTitle}[2]{\emcppsShowTitleDefault{TITLE}{##1}{##2}}%
-  \renewcommand{\emcppsShowTitleAlt}[2]{\emcppsShowTitleDefault{ALTTITLE}{##1}{##2}}%
+  \renewcommand{\emcppsShowTitleImpl}{\emcppsShowTitleDefaultImpl{TITLE}}%
+  \renewcommand{\emcppsShowTitleAltImpl}{\emcppsShowTitleDefaultImpl{ALTTITLE}}%
 }
 
-\newcommand{\emcppsSetShowTitleToc}{%
-  \renewcommand{\emcppsShowTitleAlt}[2]{\emcppsShowTitleToc{##1}{##2}}%
+% the top level commands, always protected, not renewed
+\newcommand{\emcppsShowTitle}[1]{%
+    \setkeys[emcpps]{section}{#1}
+    \protect\emcppsShowTitleImpl
 }
+\newcommand{\emcppsShowTitleAlt}[1]{%
+    \setkeys[emcpps]{section}{#1}
+    \protect\emcppsShowTitleAltImpl
+}
+
 
 % Start a feature
 % args: label, short title, long title
 \newcommand{\emcppsFeature}[2]{%
-  \setkeys[emcpps]{section}{#1}%
+  \setkeys[emcpps]{section}{#1}
   \refstepcounter{section}%
-  \newpage%
-%  \renewcommand{\emcppsShowTitle}[2]{\emcppsShowTitleSection{##1}{##2}}%
-%  \renewcommand{\emcppsShowTitleAlt}[2]{\emcppsShowTitleRH{##1}{##2}}%
-%  \addtocontents{toc}{\protect\renewcommand*\protect\cftsecindent{4.5em}}%
-  %  \section[\protect\emcppsShowTitleAlt{#2}{#3}]{\emcppsShowTitle{#2}{#3}}%
-  \section[\cmdemcpps@section@short]{\cmdemcpps@section@long}%
+  \newpage% 
+  \emcppsSetShowTitleSection%
+  \section[\protect\emcppsShowTitleAlt{#1}]%
+          {\protect\emcppsShowTitle{#1}}%
   \label{#2}%
-  \thesection --- \thefootnote  --- \theemcppslistings%
 }
 
 \makeatother
