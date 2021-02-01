@@ -51,8 +51,12 @@ will not be destroyed until after \lstinline!main! exits.
 A function such as \lstinline!f! might also be called before \lstinline!main!
 is entered:
 
-\begin{emcppslisting}
+\begin{emcppshiddenlisting}[emcppsbatch=e1]
 #include <cassert>  // standard (ù{\codeincomments{assert}}ù) macro
+int f(int i);
+\end{emcppshiddenlisting}
+\begin{emcppslisting}[emcppsbatch=e1]
+// ...
 
 int a = f(10);  // Initialize and return (ù{\codeincomments{iLocal}}ù).
 int b = f(20);  // Return (ù{\codeincomments{iLocal}}ù).
@@ -74,7 +78,10 @@ The rule for the initialization of \lstinline!static! objects at function
 scope becomes more subtle when the functions themselves are recursive
 but is nonetheless well defined:
 
-\begin{emcppslisting}
+\begin{emcppshiddenlisting}[emcppsbatch=e2]
+#include <cassert>  // standard (ù{\codeincomments{assert}}ù) macro
+\end{emcppshiddenlisting}
+\begin{emcppslisting}[emcppsbatch=e2]
 int fx(int i)  // self-recursive after creating function-(ù{\codeincomments{static}}ù) variable, (ù{\codeincomments{dx}}ù)
 {
     static int dx = i;     // Create (ù{\codeincomments{dx}}ù) first.
@@ -159,7 +166,14 @@ real-world example in which a single object --- e.g.,
 \lstinline!localLogger! in the example below --- is used widely throughout a program (see
 also \intraref{use-cases-functionstatic}{meyers-singleton}):
 
-\begin{emcppslisting}
+\begin{emcppshiddenlisting}[emcppsbatch=e3]
+struct Logger {
+  Logger(const char *f) {}
+};
+template <typename T>
+void operator<<(Logger&,const T&);
+\end{emcppshiddenlisting}
+\begin{emcppslisting}[emcppsbatch=e3]
 Logger& getLogger()  // ubiquitous pattern commonly known as "Meyers Singleton"
 {
     static Logger localLogger("log.txt");  // function-local (ù{\codeincomments{static}}ù) definition
@@ -210,7 +224,7 @@ To illustrate how defects might have been introduced by multithreading
 \emph{prior} to C++11, suppose that we have a simple type,
 \lstinline!MyString!, that always allocates dynamic memory on construction:
 
-\begin{emcppslisting}
+\begin{emcppslisting}[emcppsbatch=e4]
 #include <cstring>  // (ù{\codeincomments{std::size\_t}}ù), (ù{\codeincomments{std::memcpy}}ù), (ù{\codeincomments{std::strlen}}ù)
 
 class MyString
@@ -231,7 +245,7 @@ public:
 \lstinline!MyString! class in a function, \lstinline!f!, that might be invoked
 concurrently from multiple threads:
 
-\begin{emcppslisting}
+\begin{emcppslisting}[emcppsbatch=e4]
 void f()
 {
     static const MyString s("example");  // function-scope, (ù{\codeincomments{static}}ù)-duration
@@ -270,7 +284,12 @@ concurrently from multiple threads. Importantly, however, this same
 guarantee is \emph{not} extended for other \romeogloss{static-duration}
 objects such as those at file or namespace scope:
 
-\begin{emcppslisting}
+\begin{emcppshiddenlisting}[emcppsbatch=e5]
+struct S {
+    S(int i) {}
+};
+\end{emcppshiddenlisting}
+\begin{emcppslisting}[emcppsbatch=e5]
 static S global(3);         // runtime-initialized, file-scope (ù{\codeincomments{static}}ù)
 
 S& f1()                     // (ù{\codeincomments{f1}}ù) is not thread safe.
@@ -308,12 +327,20 @@ principle, have led to a race condition during the initialization of
 \lstinline!localLogger!, which was defined as a local \lstinline!static!
 object in \lstinline!getLogger!:
 
-\begin{emcppslisting}
+\begin{emcppshiddenlisting}[emcppsbatch={e6,e15}]
+struct Logger {
+  Logger(const char *f) {}
+};
+template <typename T>
+void operator<<(Logger&,const T&);
+Logger& getLogger();
+\end{emcppshiddenlisting}
+\begin{emcppslisting}[emcppsbatch=e6]
 #include <thread>  // (ù{\codeincomments{std::thread}}ù)
 
 void useLogger() { getLogger() << "example"; }  // concurrently called function
 
-void main()
+int main()
 {
     std::thread t0(&useLogger);
     std::thread t1(&useLogger);
@@ -323,6 +350,8 @@ void main()
 
     t0.join();  // Wait for (ù{\codeincomments{t0}}ù) to complete execution.
     t1.join();  // Wait for (ù{\codeincomments{t1}}ù) to complete execution.
+
+    return 0;
 }
 \end{emcppslisting}
 
@@ -349,8 +378,16 @@ Consider a library component, \lstinline!libcomp!, that defines a
 file-scope \lstinline!static! singleton, \lstinline!globalS!, that is
 initialized at run time:
 
-\begin{emcppslisting}
-// libcomp.h
+\begin{emcppshiddenlisting}[emcppsbatch=e7]
+// --- Replace
+struct S { /*... */ };
+struct S {
+  bool isInitialized();
+};
+// --- End
+\end{emcppshiddenlisting}[emcppsbatch=e7]
+\begin{emcppslisting}[emcppsbatch=e7]
+// libcomp.h:
 #ifndef INCLUDED_LIBCOMP
 #define INCLUDED_LIBCOMP
 
@@ -362,10 +399,9 @@ S& getGlobalS();  // access to global singleton object of type (ù{\codeincommen
 
 %%% ask if these are supposed to be one.
 
-\begin{emcppslisting}
-// libcomp.cpp
-#include "libcomp.h"
-#include <iostream>
+\begin{emcppslisting}[emcppsbatch=e7]
+// libcomp.cpp:
+#include <libcomp.h>
 
 static S globalS;
 S& getGlobalS() { return globalS; }  // access into this translation unit
@@ -381,8 +417,8 @@ would \emph{presumably} do so safely via the global
 \lstinline!main! and also makes use of \lstinline!globalS! prior to entering
 \lstinline!main!:
 
-\begin{emcppslisting}
-// main.cpp
+\begin{emcppslisting}[emcppsbatch=e7]
+// main.cpp:
 #include <libcomp.h>  // (ù{\codeincomments{getGlobalS()}}ù)
 
 bool globalInitFlag = getGlobalS().isInitialized();
@@ -403,7 +439,7 @@ files separately with GCC version~4.7.0 (c.~2017) and linking the
 \lstinline!.o! files may generate an assertion error depending on the
 order of the \lstinline!.o! files on the link line:
 
-\begin{emcppslisting}[basicstyle={\ttfamily\footnotesize}]
+\begin{lstlisting}[language=bash,basicstyle={\ttfamily\footnotesize}]
 $ g++ main.o libcomp.o
 $ ./a.exe               // Running this program produces no assertion failure.
 
@@ -412,7 +448,7 @@ $ ./a.exe               // Running this program produces an assertion failure.
 
     assertion "globalInitFlag" failed: file "main.cpp", line 9, function: int main()
     Aborted (core dumped)
-\end{emcppslisting}
+\end{lstlisting}
       }} Nothing in the Standard says that \lstinline!static! objects at
 file or namespace scope in separate translation units will be
 initialized just because a function located within that translation unit
@@ -425,7 +461,11 @@ An effective pattern for helping to ensure that a ``global'' object
 scope inside the scope of the function accessing it, making it a
 function-scope \lstinline!static! instead:
 
-\begin{emcppslisting}
+\begin{emcppshiddenlisting}[emcppsbatch=e8]
+struct S {
+};
+\end{emcppshiddenlisting}
+\begin{emcppslisting}[emcppsbatch=e8]
 S& getGlobalS()  // access into this translation unit
 {
     static S globalS;  // singleton is now function-scope (ù{\codeincomments{static}}ù)
@@ -455,7 +495,12 @@ thread-safety guarantee for the runtime initialization of
 effort required to create a thread-safe singleton regardless of whether
 such safety guarantees turn out to be needed:
 
-\begin{emcppslisting}
+\begin{emcppshiddenlisting}[emcppsbatch=e9]
+struct Logger {
+  Logger(const char *f) {}
+};
+\end{emcppshiddenlisting}
+\begin{emcppslisting}[emcppsbatch=e9]
 Logger& getLogger()
 {
     static Logger logger("log.txt");
@@ -471,9 +516,8 @@ The \romeogloss{Meyers Singleton} is also seen in a slightly different form
 where the singleton type's constructor is made \lstinline!private! to
 prevent more than just the one singleton object from being created:
 
-
 %%%% note ~ in code
-\begin{emcppslisting}
+\begin{emcppslisting}[emcppsbatch=e10]
 class Logger
 {
 private:
@@ -488,13 +532,17 @@ public:
     }
 };
 \end{emcppslisting}
+\begin{emcppshiddenlisting}[emcppsbatch=e10]
+template <typename T>
+void operator<<(Logger&,const T&);
+\end{emcppshiddenlisting}
 
 \noindent This variant of the function-scope-\lstinline!static! singleton pattern
 prevents users from manually creating rogue \lstinline!Logger! objects; the
 only way to get one is to invoke the logger's \lstinline!static!
 \lstinline!Logger::getInstance()! member function:
 
-\begin{emcppslisting}
+\begin{emcppslisting}[emcppsbatch=e10]
 void client()
 {
     Logger::getInstance() << "Hi";  // OK
@@ -522,18 +570,22 @@ type. A more finely factored solution would be to implement the
 e.g., perhaps using the \romeogloss{strong-\lstinline!typedef! idiom} (see \featureref{\locationa}{inheriting-constructors}), corresponding to each singleton
 use:
 
-
-
-\begin{emcppslisting}
+\begin{emcppshiddenlisting}[emcppsbatch=e11]
+struct Camera {
+  Camera();
+};    
+\end{emcppshiddenlisting}
+\begin{emcppslisting}[emcppsbatch=e11]
 class PrimaryCamera
 {
     Camera& d_camera_r;
-    PrimaryCamera(Camera& camera) d_camera_r(camera) { }  // implicit constructor
+    PrimaryCamera(Camera& camera)  // implicit constructor
+      : d_camera_r(camera) { }  
 
 public:
-    static PrimaryCamera& getInstance()
+    static PrimaryCamera getInstance()
     {
-        static Camera localCamera(/*...*/);
+        static Camera localCamera{/*...*/};
         return localCamera;
     }
 };
@@ -551,7 +603,12 @@ used.\footnote{An amusing workaround, the so-called \emph{Phoenix
 Singleton}, is proposed in \cite{alexandrescu01}, section~6.6, pp.~137--139.} One approach is to construct the logger object by
 explicitly allocating it and never deleting it:
 
-\begin{emcppslisting}
+\begin{emcppshiddenlisting}[emcppsbatch={e12,e13,e16,e17}]
+struct Logger {
+  Logger(const char *f) {}
+};
+\end{emcppshiddenlisting}
+\begin{emcppslisting}[emcppsbatch=e12]
 Logger& getLogger()
 {
     static Logger& l = *new Logger("log.txt");  // dynamically allocated
@@ -578,7 +635,7 @@ memory pool using our static allocation mechanism and supply that same
 mechanism to the \lstinline!Logger! object so that it could get all its
   internal memory from that static pool as well; see \cite{lakos22}.}}:
 
-\begin{emcppslisting}
+\begin{emcppslisting}[emcppsbatch=e13]
 #include <new>
 
 Logger& getLogger()
@@ -614,8 +671,11 @@ them as explicit arguments. Similarly to the example introduced in \intraref{des
 \lstinline!MetricsCollector! class whose purpose is to collect runtime
 performance metrics for the program:
 
+\begin{emcppshiddenlisting}[emcppsbatch=e14]
+#include <string>  // (ù{\codeincomments{std::string}}ù)
+\end{emcppshiddenlisting}
 %%%% note ~ in code
-\begin{emcppslisting}
+\begin{emcppslisting}[emcppsbatch=e14]
 class MetricsCollector  // used to collect runtime performance metrics
 {
 private:
@@ -642,7 +702,7 @@ designed to avoid race conditions, all that's left to do is to create a
 function returning a local \lstinline!static! object of type
 \lstinline!MetricsCollector! (but see \intraref{potential-pitfalls-functionstatic}{depending-on-order-of-destruction-of-local-objects-after-main-returns}):
 
-\begin{emcppslisting}
+\begin{emcppslisting}[emcppsbatch=e14]
 MetricsCollector& getMetricsCollector()  // Meyers Singleton pattern again
 {
     static MetricsCollector metricsCollector;  // function-local (ù{\codeincomments{static}}ù) object
@@ -659,7 +719,14 @@ now also possible. By creating an instance of the \romeogloss{RAII}-type
 \lstinline!BenchmarkGuard!, the elapsed run time of the surrounding scope
 will be measured and collected:
 
-\begin{emcppslisting}
+\begin{emcppshiddenlisting}[emcppsbatch=e14]
+class DataService {
+      void OnGetValueRequest(const std::string &key);
+      void sendResponse(int value);
+      int getValueFromKey(const std::string &key);
+};
+\end{emcppshiddenlisting}
+\begin{emcppslisting}[emcppsbatch=e14]
 void DataService::OnGetValueRequest(const std::string& key)
 {
     MetricsCollector::BenchmarkGuard guard =
@@ -702,7 +769,7 @@ namespace scope used before \lstinline!main!, consider the
 \lstinline!b.cpp!:
 
 \begin{emcppslisting}
-// a.cpp
+// a.cpp:
 extern int setB(int);      // declaration (only) of setter in other TU
 static int *p = new int;   // runtime initialization of file-scope (ù{\codeincomments{static}}ù)
 int setA(int i)            // Initialize this (ù{\codeincomments{static}}ù) variable; then that one.
@@ -712,7 +779,7 @@ int setA(int i)            // Initialize this (ù{\codeincomments{static}}ù) va
     return 0;              // Return successful status.
 }
 
-// b.cpp
+// b.cpp:
 static int *p = new int;   // runtime initialization of file-scope (ù{\codeincomments{static}}ù)
 int setB(int i)            // Initialize this (ù{\codeincomments{static}}ù) variable.
 {
@@ -733,18 +800,18 @@ entered in some order, but --- regardless of that order --- the program
 in the example above will likely wind up dereferencing a null pointer
 before entering \lstinline!main!:
 
-\begin{emcppslisting}
+\begin{lstlisting}[language=bash]
 $ g++ a.cpp b.cpp main.cpp
 $ ./a.exe
   Segmentation fault (core dumped)
-\end{emcppslisting}
+\end{lstlisting}
 
 \noindent Suppose we were to instead move the file-scope \lstinline!static! pointers,
 corresponding to both \lstinline!setA! and \lstinline!setB!, inside their
 respective function bodies:
 
 \begin{emcppslisting}
-// a.cpp
+// a.cpp:
 extern int setB(int);  // declaration (only) of setter in other TU
 int setA(int i)        // Initialize this (ù{\codeincomments{static}}ù) variable; then that one.
 {
@@ -754,16 +821,16 @@ int setA(int i)        // Initialize this (ù{\codeincomments{static}}ù) variab
     return 0;                 // Return successful status.
 }
 
-// b.cpp (same idea)
+// b.cpp: (same idea)
 \end{emcppslisting}
 
 \noindent Now the program reliably executes without incident:
 
-\begin{emcppslisting}
+\begin{lstlisting}[language=bash]
 $ g++ a.cpp b.cpp main.cpp
 $ ./a.exe
 $
-\end{emcppslisting}
+\end{lstlisting}
 
 \noindent In other words, even though no order exists in which the translation
 units as a whole could have been initialized prior to entering
@@ -778,7 +845,7 @@ behavior would again be undefined and likely result in deadlock, even
 when implemented using a Meyers Singleton:
 
 \begin{emcppslisting}
-// a.cpp
+// a.cpp:
 extern int setB(int);  // declaration (only) of setter in other TU
 int setA(int i)        // Initialize this (ù{\codeincomments{static}}ù) variable to that one.
 {
@@ -789,7 +856,7 @@ int setA(int i)        // Initialize this (ù{\codeincomments{static}}ù) variab
     return 0;                 // Return successful status.
 }
 
-// b.cpp (same idea as (ù{\codeincomments{a.cpp}}ù))
+// b.cpp: (same idea as (ù{\codeincomments{a.cpp}}ù))
 \end{emcppslisting}
 
 \noindent In other words, avoid mutual recursion, as well as self-recursion,
@@ -819,7 +886,7 @@ function-scope \lstinline!static! object (i.e., including one in the same
 translation unit). For example, suppose we have implemented a low-level
 logging facility as a Meyers Singleton:
 
-\begin{emcppslisting}
+\begin{emcppslisting}[emcppsbatch=e15]
 Logger& getLogger()
 {
     static Logger local("log.txt");
@@ -831,7 +898,7 @@ Logger& getLogger()
 on the function-scope \lstinline!static! logger object:
 
 %%% note ~ in code
-\begin{emcppslisting}
+\begin{emcppslisting}[emcppsbatch=e15]
 struct FileManager
 {
     FileManager()
@@ -851,7 +918,7 @@ struct FileManager
 \noindent Now, consider a Meyers Singleton implementation for
 \lstinline!FileManager!:
 
-\begin{emcppslisting}
+\begin{emcppslisting}[emcppsbatch=e15]
 FileManager& getFileManager()
 {
     static FileManager fileManager;
@@ -936,10 +1003,10 @@ instructions if the \romeogloss{user-provided} constructor of \lstinline!S!
   type, implying that no code needs to be executed during
   initialization:
 
-  \begin{emcppslisting}[basicstyle={\ttfamily\footnotesize}]
+  \begin{lstlisting}[language=bash,basicstyle={\ttfamily\footnotesize}]
   xor eax, eax  ; zero out 'eax' register
   ret           ; return from 'main'
-  \end{emcppslisting}
+  \end{lstlisting}
 
 \noindent A sufficiently smart compiler might, however, not generate
   synchronization code in a single-threaded context or else provide a
@@ -968,10 +1035,13 @@ Wrapping access in a mutex was often a significant performance cost, so
 using the unreliable, double-checked lock pattern was often attempted to
 avoid the overhead:
 
-\begin{emcppslisting}
+\begin{emcppshiddenlisting}[emcppsbatch=e16]
+#include <mutex>  // (ù{\codeincomments{std::mutex}}ù), (ù{\codeincomments{std::lock\_guard}}ù)
+\end{emcppshiddenlisting}
+\begin{emcppslisting}[emcppsbatch=e16]
 Logger& getInstance()
 {
-    static volatile Logger* loggerPtr = 0;  // hack, used to simulate *atomics*
+    static Logger* volatile loggerPtr = 0;  // hack, used to simulate *atomics*
 
     if (!loggerPtr)  // Does the logger need to be initialized?
     {
@@ -1022,7 +1092,7 @@ initialization in modern C++ is to simply let the compiler do the work
 and to use the simplest implementation that gets the job done, e.g., a
 Meyers Singleton (see \intraref{use-cases-functionstatic}{meyers-singleton}):
 
-\begin{emcppslisting}
+\begin{emcppslisting}[emcppsbatch=e17]o
 Logger& getInstance()
 {
     static Logger logger("log.txt");

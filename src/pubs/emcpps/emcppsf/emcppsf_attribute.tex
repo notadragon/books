@@ -459,7 +459,7 @@ properties that cannot otherwise be deduced. Consider a function, \texttt{f}, th
 pointers must refer to the same contiguous block of memory. Using the standard attribute to inform the analyzer of such a precondition has a distinct advantage of requiring nothing other than the agreement between the developer and the static analyzer regarding the namespace and the name of the attribute. For example, we could choose to designate \lstinline!home_grown::in_same_block(p1, p2)! for this purpose:
 
 \begin{lstlisting}[language=C++]
-// lib.h
+// lib.h:
 
 [[home_grown::in_same_block(p1, p2)]]
 int f(double* p1, double* p2);
@@ -469,7 +469,7 @@ int f(double* p1, double* p2);
 \noindent The compiler will simply ignore this unknown attribute. However, because our static-analysis tool knows the meaning of the \lstinline!home_grown::in_same_block! attribute, it will report, at analysis time, defects that might otherwise have resulted in \romeogloss{undefined behavior} at run time:
 
 \begin{lstlisting}[language=C++]
-// client.cpp
+// client.cpp:
 #include <lib.h>
 
 void client()

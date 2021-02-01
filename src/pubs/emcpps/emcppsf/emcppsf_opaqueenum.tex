@@ -42,8 +42,8 @@ to create objects of that type. Specifying an underlying
 type %(see \featureref{\locationc}{explicit-enumeration-underlying-type})
 explicitly makes \romeogloss{opaque declaration} possible:
 
-\begin{emcppslisting}
-enum    : char { e_A, e_B );     // OK, (anonymous) complete definition
+\begin{emcppslisting}[emcppsbatch=e1]
+enum    : char { e_A, e_B };     // OK, (anonymous) complete definition
 enum E3 : char;                  // OK, forward declaration w/underlying type
 enum E3 : char { e_A3, e_B3 };   // OK, compatible complete definition
 enum E4 : short { e_A4, e_B4 };  // OK, complete definition
@@ -60,7 +60,7 @@ scope, also comes with a default \romeogloss{underlying type} of
 \lstinline!int!, thereby making it eligible to be declared without a
 definition (even without explicit qualification):
 
-\begin{emcppslisting}
+\begin{emcppslisting}[emcppsbatch=e1]
 enum class E6;                 // OK, implicit underlying type ((ù{\codeincomments{int}}ù))
 enum class E6 : int;           // OK, explicit matching underlying type
 enum class E6 { e_A3, e_B3 };  // OK, compatible complete definition
@@ -78,9 +78,9 @@ enum class    { e_A, e_B };    // Error, anonymous (ù{\codeincomments{enum}}ù)
 specified \romeogloss{{underlying type}} and every modern \lstinline!enum!~\lstinline!class! type can be declared (e.g., for the first
 time in a TU) as a \romeogloss{complete type}:
 
-\begin{emcppslisting}
-enum E10 : char;  static_assert(sizeof(E9)  == 1);
-enum class E11;   static_assert(sizeof(E10) == sizeof(int));
+\begin{emcppslisting}[emcppsbatch=e1]
+enum E10 : char;  static_assert(sizeof(E10)  == 1);
+enum class E11;   static_assert(sizeof(E11) == sizeof(int));
 
 E10 a;            static_assert(sizeof a == 1);
 E11 b;            static_assert(sizeof b == sizeof(int));
@@ -93,13 +93,13 @@ second header), thereby \romeogloss{insulating} (at least some) clients from
 changes to the enumerator list (see \intraref{use-cases-opaqueenum}{using-opaque-enumerations-within-a-header-file}):
 
 \begin{emcppslisting}
-// mycomponent.h
+// mycomponent.h:
 // ...
 enum E9 : char;   // forward declaration of (ù{\codeincomments{enum E9}}ù)
 enum class E10;   // forward declaration of (ù{\codeincomments{enum class E10}}ù)
 
 
-// mycomponent.cpp
+// mycomponent.cpp:
 #include <mycomponent.h>
 // ...
 enum E9 : char { e_A9, e_B9, e_C9 };
@@ -136,8 +136,8 @@ As a first example of \romeogloss{opaque-enumeration} usage, consider a
 non-\emph{value-semantic} \romeogloss{mechanism} class, \lstinline!Proctor!,
 implemented as a finite-state machine:
 
-\begin{emcppslisting}
-// proctor.h
+\begin{emcppslisting}[emcppsbatch=e2]
+// proctor.h:
 // ...
 class Proctor
 {
@@ -160,8 +160,8 @@ reside outside of the header. Hence, the complete definition of the
 enumeration of the states (including the enumerator list itself) is
 sequestered within the corresponding \lstinline!.cpp! file:
 
-\begin{emcppslisting}
-// proctor.cpp
+\begin{emcppslisting}[emcppsbatch=e2]
+// proctor.cpp:
 #include <proctor.h>
 
 enum State { e_STARTING, e_READY, e_RUNNING, e_DONE };
@@ -177,8 +177,18 @@ the advent of modern C++, we now have better options. First, we might
 consider adding an explicit underlying type to the enumeration in the
 \lstinline!.cpp! file:
 
-\begin{emcppslisting}
-// proctor.cpp
+\begin{emcppshiddenlisting}[emcppsbatch=e3]
+// proctor.h:
+// duplicate for second example cpp file below
+class Proctor
+{
+    int d_current;
+public:
+    Proctor();
+};
+\end{emcppshiddenlisting}
+\begin{emcppslisting}[emcppsbatch=e3]
+// proctor.cpp:
 #include <proctor.h>
 
 enum State : int { e_STARTING, e_READY, e_RUNNING, e_DONE };
@@ -195,8 +205,8 @@ and not just an \emph{opaque declaration}. Compilation of
 compatible. Having this \emph{forward declaration} improves (somewhat)
 our type safety:
 
-\begin{emcppslisting}
-// proctor.h
+\begin{emcppslisting}[emcppsbatch=e4]
+// proctor.h:
 // ...
 enum State : int;  // opaque declaration of enumeration (new in C++11)
 
@@ -217,8 +227,8 @@ needless namespace pollution. What's more, because the numerical values
 of the enumerators are not relevant, we can more closely model our
 intent by nesting a more strongly typed \lstinline!enum!~\lstinline!class! instead:
 
-\begin{emcppslisting}
-// proctor.h
+\begin{emcppslisting}[emcppsbatch=e5]
+// proctor.h:
 // ...
 class Proctor
 {
@@ -237,8 +247,8 @@ public:
 accordingly in the
 \lstinline!.cpp! file:
 
-\begin{emcppslisting}
-// proctor.cpp
+\begin{emcppslisting}[emcppsbatch=e5]
+// proctor.cpp:
 #include <proctor.h>
 
 enum class Proctor::State { e_STARTING, e_READY, e_RUNNING, e_DONE };
@@ -323,10 +333,10 @@ the simple guarantee of, ``If you don't reregister, then the engine will
 clean everything up; if you do, then the callback function will continue
 its lifetime,'' a very tractable paradigm to follow.
 
-\begin{emcppslisting}
-// callbackengine.h
-#include <deque>
-#include <functional>  // for (ù{\codeincomments{std::function}}ù)
+\begin{emcppslisting}[emcppsbatch=e6]
+// callbackengine.h:
+#include <deque>          // (ù{\codeincomments{std::deque}}ù)
+#include <functional>     // (ù{\codeincomments{std::function}}ù)
 
 class EventData;       // information that clients will need to process an event
 class CallbackEngine;  // the driver for processing and delivering events
@@ -351,18 +361,18 @@ public:
         // changes to the enumerator list without forcing clients to recompile
 
 private:
-    std::deque<CallbackData>  d_pendingCallbacks; // waiting for next event
-
-    // ... (other state that might need to be stored for an active or inactive
-    //      registration of interest in events)
+    // ... (a smart pointer to an opaque object containing the state and the
+    //      callback to invoke)
 
 public:
+    CallbackData(const Callback &cb, State init);
+
     // ... (constructors, other manipulators and accessors, etc.)
 
     State getState() const;
         // Return the current (ù{\codeincomments{state}}ù) of this callback.
 
-    void setState(State state);
+    void setState(State state) const;
         // Set the current state to the specified (ù{\codeincomments{state}}ù).
 
     Callback& getCallback() const;
@@ -374,11 +384,11 @@ class CallbackEngine
 private:
     // ... (other, stable (ù{\codeincomments{private}}ù) data members implementing this object)
 
-    std::unordered_map<int, CallbackData> d_clientStateMap;
-        // mapping from an internally generated (ù{\codeincomments{id}}ù) to the full state for a
-        // client, including the opaque enumerated state that tracks which
-        // other data structures within this (ù{\codeincomments{CallbackEngine}}ù) have references
-        // to this callback
+    bool d_running;  // active state
+
+    std::deque<CallbackData> d_pendingCallbacks;
+        // The collection of clients currently registered for interest, or having
+        // callbacks delivered, with this (ù{\codeincomments{CallbackEngine}}ù).
         //
         // Reregistering or skipping reregistering when
         // called back will lead to updating internal data structures based on
@@ -407,9 +417,11 @@ public:
 when events happen, register interest, and then let the engine
 \lstinline!run!:
 
-\begin{emcppslisting}
-// myapplication.cpp
+\begin{emcppslisting}[emcppsbatch=e6]
+// myapplication.cpp:
 // ...
+#include <callbackengine.h>
+
 static void myCallback(const EventData&    event,
                        CallbackEngine*     engine,
                        const CallbackData& cookie);
@@ -427,7 +439,7 @@ int main()
 
    // ...create and register other clients for interest...
 
-   m.run();    // Cede control to (ù{\codeincomments{e}}ù)'s event loop until complete.
+   e.run();    // Cede control to (ù{\codeincomments{e}}ù)'s event loop until complete.
 
    return 0;
 }
@@ -439,7 +451,14 @@ to reregister at a later time, or complete its task and let the
 \lstinline!CallbackEngine! take care of properly cleaning up all now
 unnecessary resources:
 
-\begin{emcppslisting}
+\begin{emcppshiddenlisting}[emcppsbatch=e6]
+// myapplication.cpp:
+struct EventProcessor {
+    static int processEvent(const EventData &event);
+    static void storeCallback(CallbackEngine *, const CallbackData&);    
+};
+\end{emcppshiddenlisting}
+\begin{emcppslisting}[emcppsbatch=e6,emcppsoutputfile=myapplication.cpp]
 void myCallback(const EventData&     event,
                 CallbackEngine      *engine,
                 const CallbackData&  cookie)
@@ -481,8 +500,16 @@ To see what is involved, we can consider the business end of the
 \lstinline!CallbackEngine! implementation and an outline of what a
 single-threaded implementation might involve:
 
-\begin{emcppslisting}
-// callbackengine.cpp
+\begin{emcppshiddenlisting}[emcppsbatch=e6]
+// callbackengine.cpp:
+class EventData
+{
+};
+EventData getNextEvent();
+\end{emcppshiddenlisting}
+\begin{emcppslisting}[emcppsbatch=e6]
+// callbackengine.cpp:
+#include <callbackengine.h>
 
 enum class CallbackData::State
 {
@@ -495,11 +522,11 @@ enum class CallbackData::State
     e_FREED
 };
 
-void CallbackEngine::registerInterest(Callback cb)
+void CallbackEngine::registerInterest(CallbackData::Callback cb)
 {
     // Create a (ù{\codeincomments{CallbackData}}ù) instance with a state of (ù{\codeincomments{e\_INITIAL}}ù) and
     // insert it into the set of active clients.
-    callbacks.push_back(CallbackData(cb, CallbackData::State::e_INITIAL));
+    d_pendingCallbacks.push_back(CallbackData(cb, CallbackData::State::e_INITIAL));
 }
 
 void CallbackEngine::run()
@@ -526,7 +553,8 @@ void CallbackEngine::run()
 
         while (!callbacks.empty())
         {
-            CallbackData callback = callbacks.pop_front();
+            CallbackData callback = callbacks.front();
+            callbacks.pop_front();
 
             // Mark the callback as processing and invoke it.
             callback.setState(CallbackData::State::e_PROCESSING);
@@ -635,7 +663,7 @@ For example, consider an \lstinline!enum!~\lstinline!class!, \lstinline!Event!,
 intended for public use by external clients:
 
 \begin{emcppslisting}
-// event.h
+// event.h:
 // ...
 enum class Event : char { /*... changes frequently ...*/ };
 // ...             ^^^^
@@ -647,10 +675,11 @@ coupling itself to the enumerator list by
 embedding, for whatever reason, a \romeogloss{local declaration} of \lstinline!Event! instead:
 
 \begin{emcppslisting}
-// badclient.h
+// badclient.h:
 // ...
 enum class Event : char;  // BAD IDEA: local external declaration
 // ...
+struct BadObject
 {
     Event d_currentEvent;  // object of locally declare enumeration
     // ...
@@ -663,7 +692,7 @@ exceeded and we decide to change the definition to have an underlying
 type of \lstinline!short!:
 
 \begin{emcppslisting}
-// event.h
+// event.h:
 // ...
 enum class Event : short { /*... changes frequently ...*/ };
 // ...             ^^^^^
@@ -683,8 +712,8 @@ clients a \emph{safe} alternative to local declaration by also providing
 an auxiliary header containing \emph{just} the corresponding opaque
 declaration:
 
-\begin{emcppslisting}
-// event.fwd.h
+\begin{emcppslisting}[emcppsbatch=e7]
+// event.fwd.h:
 // ...
 enum class Event : char;
 // ...
@@ -701,8 +730,8 @@ parsed if the full header file is included in a given translation
 unit. To ensure consistency, we thus \lstinline!#include! this forwarding
 header in the original header defining the full enumeration:
 
-\begin{emcppslisting}
-// event.h
+\begin{emcppslisting}[emcppsbatch=e7]
+// event.h:
 // ...                  // Ensure opaque declaration (included here) is
 #include <event.fwd.h>  // consistent with complete definition (below).
 // ...
@@ -715,8 +744,8 @@ serve to ensure that the forward declaration and definition match;
 hence, clients can incorporate safely only the presumably more stable
 forwarding header:
 
-\begin{emcppslisting}
-// goodclient.h
+\begin{emcppslisting}[emcppsbatch=e7]
+// goodclient.h:
 // ...
 #include <event.fwd.h>  // GOOD IDEA: consistent opaque declaration
 // ...
@@ -761,8 +790,12 @@ physical coupling between components. Unlike a \romeogloss{forward class
 declaration}, an opaque enumeration declaration produces a complete
 type, sufficient for substantive use (e.g., via the linker):
 
-\begin{emcppslisting}
-// client.cpp
+\begin{emcppshiddenlisting}[emcppsbatch=e8]
+// client.cpp:
+#include <cstdint>  // (ù{\codeincomments{std::uint8\_t}}ù)
+\end{emcppshiddenlisting}
+\begin{emcppslisting}[emcppsbatch=e8]
+// client.cpp:
 enum Event : std::uint8_t;
 Event e;  // OK, (ù{\codeincomments{Event}}ù) is a complete type.
 \end{emcppslisting}
@@ -774,8 +807,12 @@ incorporating both is automatically \romeogloss{IFNDR}. Updating an
 lead to latent defects when these changes are not propagated to all
 local declarations:
 
-\begin{emcppslisting}
-// library.h
+\begin{emcppshiddenlisting}[emcppsbatch=e9]
+// library.h:
+#include <cstdint>  // (ù{\codeincomments{std::uint16\_t}}ù)
+\end{emcppshiddenlisting}
+\begin{emcppslisting}[emcppsbatch=e9]
+// library.h:
 enum Event : std::uint16_t { /* now more than 256 events */ };
 \end{emcppslisting}
 
@@ -796,14 +833,14 @@ via just the linker invites instability:
 
 \noindent\begin{minipage}{.45\textwidth}
 \begin{emcppslisting}
-// main.cpp
+// main.cpp:
 extern int x;  // BAD IDEA!
 // ...
 \end{emcppslisting}
 \end{minipage}\hfill
 \begin{minipage}{.45\textwidth}
 \begin{emcppslisting}
-// library.cpp
+// library.cpp:
 int x;
 // ...
 \end{emcppslisting}
@@ -818,14 +855,14 @@ linked, the resulting program will be \romeogloss{IFNDR}:
 
 \noindent\begin{minipage}{.65\textwidth}
 \begin{emcppslisting}
-// main.cpp
+// main.cpp:
 extern int x;  // ILL-FORMED PROGRAM
 // ...
 \end{emcppslisting}
 \end{minipage}\hfill
 \begin{minipage}{.35\textwidth}
 \begin{emcppslisting}
-// library.cpp
+// library.cpp:
 double x;
 // ...
 \end{emcppslisting}
@@ -838,23 +875,23 @@ the translation unit in which it is defined; that header is then
 included by both the supplier and each consumer:
 
 \noindent\begin{minipage}{.3\textwidth}
-\begin{emcppslisting}
-// main.cpp
+\begin{emcppslisting}[emcppsbatch=e10]
+// main.cpp:
 #include <library.h>
 // ...
 \end{emcppslisting}
 \end{minipage}\hfill
 \begin{minipage}{.3\textwidth}
-\begin{emcppslisting}
-// library.h
+\begin{emcppslisting}[emcppsbatch=e10]
+// library.h:
 // ...
 extern int x;
 // ...
 \end{emcppslisting}
 \end{minipage}
 \begin{minipage}{.3\textwidth}
-\begin{emcppslisting}
-// library.cpp
+\begin{emcppslisting}[emcppsbatch=e10]
+// library.cpp:
 #include <library.h>
 int x;
 // ...
@@ -949,7 +986,7 @@ void f(Bozo);     // forward declaration of function (ù{\codeincomments{f}}ù)
 
 void g()
 {
-    Bozo clown{0};
+    Bozo clown{};
     f(clown);      // OK, who knows if zero is a valid value?!
 }
 \end{emcppslisting}

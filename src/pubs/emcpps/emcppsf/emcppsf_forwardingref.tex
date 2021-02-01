@@ -50,7 +50,7 @@ argument by reference and then attempts to use it to invoke one of two
 overloads of a function \texttt{g}, depending on whether the original
 argument was an \emph{lvalue} or \emph{rvalue}:
 
-\begin{emcppslisting}
+\begin{emcppslisting}[emcppsbatch=e1]
 struct S { /* some UDT that might benefit from being able to be moved */ };
 
 void g(const S&);  // target function - overload for (ù{\codeincomments{const}}ù) (ù{\codeincomments{int}}ù) lvalues
@@ -75,8 +75,9 @@ determining the original value category of the passed argument would be
 to use the \texttt{std::is\_lvalue\_reference} \textbf{type trait} on
 \texttt{forRef} itself:
 
-\begin{emcppslisting}
+\begin{emcppslisting}[emcppsbatch=e1]
 #include <type_traits>  // (ù{\codeincomments{std::is\_lvalue\_reference}}ù)
+#include <utility>  // (ù{\codeincomments{std::move}}ù)
 
 template <typename T>
 void f(T&& forRef)      // (ù{\codeincomments{forRef}}ù) is a forwarding reference.
@@ -98,7 +99,12 @@ from an lvalue expression?'' and allows the developer to branch on the
 answer. A more concise but otherwise equivalent implementation is
 generally preferred; see \textit{\titleref{description-forwardingref}: \titleref{the-std::forward-utility}} on page~\pageref{the-std::forward-utility}:
 
-\begin{emcppslisting}
+\begin{emcppshiddenlisting}[emcppsbatch=e2]
+struct S {};
+void g(const S&);
+void g(S&&);
+\end{emcppshiddenlisting}
+\begin{emcppslisting}[emcppsbatch=e2]
 #include <utility>  // (ù{\codeincomments{std::forward}}ù)
 
 template <typename T>
@@ -114,7 +120,7 @@ void f(T&& forRef)
 behavior with either of the two implementation alternatives offered
 above:
 
-\begin{emcppslisting}
+\begin{emcppslisting}[emcppsbatch=e2]
 void client()
 {
     S s;
@@ -144,9 +150,9 @@ template <typename T> void h(T y, T z);
 
 void example0()
 {
-    f();        // error: couldn't infer template argument (ù{\codeincomments{T}}ù)
+    f();        // Error, couldn't infer template argument (ù{\codeincomments{T}}ù)
     g(0);       // OK, (ù{\codeincomments{T}}ù) deduced as (ù{\codeincomments{int}}ù) from literal (ù{\codeincomments{0}}ù) -- (ù{\codeincomments{x}}ù) is an (ù{\codeincomments{int}}ù).
-    h(0, 'a');  // error: deduced conflicting types for (ù{\codeincomments{T}}ù) ((ù{\codeincomments{int}}ù) vs. (ù{\codeincomments{char}}ù))
+    h(0, 'a');  // Error, deduced conflicting types for (ù{\codeincomments{T}}ù) ((ù{\codeincomments{int}}ù) vs. (ù{\codeincomments{char}}ù))
 }
 \end{emcppslisting}
 
@@ -181,7 +187,7 @@ void example2()
     rf(i);   // OK, (ù{\codeincomments{T}}ù) is deduced as (ù{\codeincomments{int}}ù) -- (ù{\codeincomments{x}}ù) is an (ù{\codeincomments{int\&}}ù).
     crf(i);  // OK, (ù{\codeincomments{T}}ù) is deduced as (ù{\codeincomments{int}}ù) -- (ù{\codeincomments{x}}ù) is a (ù{\codeincomments{const int\&}}ù).
 
-    rf(0);   // error: expects an lvalue for 1st argument
+    rf(0);   // Error, expects an lvalue for 1st argument
     crf(0);  // OK, (ù{\codeincomments{T}}ù) is deduced as (ù{\codeincomments{int}}ù) -- (ù{\codeincomments{x}}ù) is a (ù{\codeincomments{const int\&}}ù).
 }
 \end{emcppslisting}
@@ -191,7 +197,7 @@ where the only qualifier on the template argument is \texttt{\&\&}. For
 the sake of exposition, consider a function template declaration,
 \texttt{f}, accepting a forwarding reference, \texttt{forRef}:
 
-\begin{emcppslisting}
+\begin{emcppslisting}[emcppsbatch=e3]
 template <typename T> void f(T&& forRef);
 \end{emcppslisting}
 
@@ -212,7 +218,7 @@ reference if \texttt{E} is an \emph{lvalue}; otherwise normal
 type-deduction rules will apply and \texttt{T} will be deduced as an \emph{rvalue}
 reference:
 
-\begin{emcppslisting}
+\begin{emcppslisting}[emcppsbatch=e3]
 void g()
 {
     int i;
@@ -220,9 +226,9 @@ void g()
            // (ù{\codeincomments{T}}ù) is therefore deduced as (ù{\codeincomments{int\&}}ù) -- special rule!
            // (ù{\codeincomments{T\&\&}}ù) becomes (ù{\codeincomments{int\& \&\&}}ù), which collapses to (ù{\codeincomments{int\&}}ù).
 
-    f(0)  // (ù{\codeincomments{0}}ù) is an *rvalue* expression.
-          // (ù{\codeincomments{T}}ù) is therefore deduced as (ù{\codeincomments{int}}ù).
-          // (ù{\codeincomments{T\&\&}}ù) becomes (ù{\codeincomments{int\&\&}}ù), which is an *rvalue* reference.
+    f(0);  // (ù{\codeincomments{0}}ù) is an *rvalue* expression.
+           // (ù{\codeincomments{T}}ù) is therefore deduced as (ù{\codeincomments{int}}ù).
+           // (ù{\codeincomments{T\&\&}}ù) becomes (ù{\codeincomments{int\&\&}}ù), which is an *rvalue* reference.
 }
 \end{emcppslisting}
 
@@ -273,16 +279,17 @@ type in C++\linebreak%%%%%
 \begin{emcppslisting}
 int    i   = 0;   // OK
 int&   ir  = i;   // OK
-int& & irr = ir;  // error: (ù{\codeincomments{irr}}ù) declared as a reference to a reference
+int& & irr = ir;  // Error, (ù{\codeincomments{irr}}ù) declared as a reference to a reference
 \end{emcppslisting}
 
 \noindent It is, however, easy to do so with type aliases and template parameters,
 and that is where reference collapsing comes into play:
 
-\begin{emcppslisting}
+\begin{emcppslisting}[emcppsbatch=e4]
+#include <type_traits>  // (ù{\codeincomments{std::is\_same)}ù)
 using i = int&;  // OK
 using j = i&;    // OK, (ù{\codeincomments{int\& \&}}ù) becomes (ù{\codeincomments{int\&}}ù).
-static_assert(std::is_same_v<j,int&>);
+static_assert(std::is_same<j,int&>::value);
 \end{emcppslisting}
 
 \noindent During computations involving \textbf{metafunctions}, or as part of
@@ -327,7 +334,7 @@ struct S0
     void f(T&& forRef);
         // OK, fully eligible for template-argument type deduction: (ù{\codeincomments{forRef}}ù)
         // is a forwarding reference.
-}
+};
 \end{emcppslisting}
 
 \noindent Note that if the function parameter is qualified, the syntax reverts to
@@ -340,7 +347,7 @@ struct S1
     void f(const T&& crRef);
         // Eligible for type deduction but is not a forwarding reference: due
         // to the (ù{\codeincomments{const}}ù) qualifier, (ù{\codeincomments{crRef}}ù) is an *rvalue* reference.
-}
+};
 \end{emcppslisting}
 
 \noindent If a member function of a class template is not itself also a template,
@@ -411,7 +418,12 @@ of the expression used to initialize a \emph{forwarding} reference
 variable can be propagated during subsequent function invocation --
 e.g., using \texttt{std::forward} (see \textit{\titleref{description-forwardingref}: \titleref{the-std::forward-utility}} on page~\pageref{the-std::forward-utility}):
 
-\begin{emcppslisting}
+\begin{emcppshiddenlisting}[emcppsbatch=e5]
+#include <utility>  // (ù{\codeincomments{std::forward}}ù)
+template <typename T>
+T get();
+\end{emcppshiddenlisting}
+\begin{emcppslisting}[emcppsbatch=e5]
 template <typename T>
 void use(T&& t); // Here (ù{\codeincomments{use}}ù) also takes a forwarding reference parameter
                  // to do with as it pleases.
@@ -441,7 +453,13 @@ a forwarding reference function parameter at all can be useful, instead employin
 and universal binding semantics. As an example, consider the task of
 obtaining iterators over a range of an unknown \textbf{value category}:
 
-\begin{emcppslisting}
+\begin{emcppshiddenlisting}[emcppsbatch=e6]
+template <typename T>
+T getRange();
+\end{emcppshiddenlisting}
+\begin{emcppslisting}[emcppsbatch=e6]
+#include <iterator>  // (ù{\codeincomments{std::begin}}ù), (ù{\codeincomments{std::end}}ù),
+
 template <typename T>
 void m()
 {
@@ -477,7 +495,11 @@ an \emph{lvalue}.
 The declaration for \texttt{std::forward<T>} is as follows (in
 \texttt{<utility>}):
 
-\begin{emcppslisting}
+\begin{emcppshiddenlisting}[emcppsbatch=e7]
+#include <type_traits>  // (ù{\codeincomments{std::remove\_reference}}ù)
+using namespace std; // to avoid qualifying remove_reference
+\end{emcppshiddenlisting}
+\begin{emcppslisting}[emcppsbatch=e7]
 template <class T> T&& forward(typename remove_reference<T>::type& t) noexcept;
 template <class T> T&& forward(typename remove_reference<T>::type&& t) noexcept;
 \end{emcppslisting}
@@ -520,7 +542,12 @@ that accepts a \texttt{std::string} either by \texttt{const}
 \emph{lvalue} reference (e.g., with the intention of \textit{copying} from it) or
 \emph{rvalue} reference (e.g., with the intention of \textit{moving} from it):
 
-\begin{emcppslisting}
+\begin{emcppshiddenlisting}[emcppsbatch=e8]
+#include <string>   // (ù{\codeincomments{std::string}}ù)
+#include <utility>  // (ù{\codeincomments{std::move}}ù)
+std::string target;
+\end{emcppshiddenlisting}
+\begin{emcppslisting}[emcppsbatch=e8]
 void sink(const std::string& s) { target = s; }
 void sink(std::string&& s)      { target = std::move(s); }
 \end{emcppslisting}
@@ -533,7 +560,7 @@ corresponding overload of \texttt{sink}. By accepting a
 \texttt{std::forward} as part of \texttt{pipe}'s body, we can achieve
 our original goal without any code duplication:
 
-\begin{emcppslisting}
+\begin{emcppslisting}[emcppsbatch=e8]
 template <typename T>
 void pipe(T&& x)
 {
@@ -558,6 +585,9 @@ value-semantic type can be classified more specifically as a
 \emph{complex}-\emph{constrained} attribute class; see \textbf{lakos2a}, section~4.2.}}:
 
 \begin{emcppslisting}
+#include <type_traits>  // (ù{\codeincomments{std::enable\_if}}ù)
+#include <utility>      // (ù{\codeincomments{std::forward}}ù)
+
 struct Person { /* UDT that benefits from move semantics */ };
 
 class StudyGroup
@@ -632,9 +662,14 @@ heap with \texttt{new} and constructs a \texttt{std::shared\_ptr} to
 manage the lifetime of that element. The declaration of this form of
 make shared would be structured like this:
 
-\begin{emcppslisting}
+\begin{emcppshiddenlisting}[emcppsbatch=e9]
+#include <memory>  // (ù{\codeincomments{std::shared\_ptr}}ù)
+\end{emcppshiddenlisting}
+\begin{emcppslisting}[emcppsbatch=e9]
+namespace my {
 template <typename ELEMENT_TYPE, typename ARG1, typename ARG2>
-std::shared_ptr<ELEMENT_TYPE> my::make_shared(ARG1&& arg1, ARG2&& arg2)
+std::shared_ptr<ELEMENT_TYPE> make_shared(ARG1&& arg1, ARG2&& arg2);
+}
 \end{emcppslisting}
 
 \noindent As you can see, we have two forwarding reference arguments ---
@@ -643,7 +678,7 @@ std::shared_ptr<ELEMENT_TYPE> my::make_shared(ARG1&& arg1, ARG2&& arg2)
 construct our \texttt{ELEMENT\_TYPE} object on the heap and then create
 our output \texttt{shared\_ptr}:
 
-\begin{emcppslisting}
+\begin{emcppslisting}[emcppsbatch=e9]
 template <typename ELEMENT_TYPE, typename ARG1, typename ARG2>
 std::shared_ptr<ELEMENT_TYPE> my::make_shared(ARG1&& arg1, ARG2&& arg2)
 {
@@ -690,7 +725,13 @@ function call wrapping the actual construction of that object. Suppose
 we have a tracking system that we want to use to monitor how many times
 certain initializers have been invoked:
 
-\begin{emcppslisting}
+\begin{emcppshiddenlisting}[emcppsbatch=e10]
+#include <utility>      // (ù{\codeincomments{std::forward}}ù)
+struct BigObject {
+    BigObject(const char *, const char *);
+};
+\end{emcppshiddenlisting}
+\begin{emcppslisting}[emcppsbatch=e10]
 struct TrackingSystem
 {
     template <typename T>
@@ -706,7 +747,7 @@ construction for us. Here we will use a variadic pack (see
 ``\titleref{variable-templates}" on page~\pageref{variable-templates}) of forwarding references to handle
 calling the constructor for us:
 
-\begin{emcppslisting}
+\begin{emcppslisting}[emcppsbatch=e10]
 template <class ELEMENT_TYPE, typename... ARGS>
 ELEMENT_TYPE trackConstruction(ARGS&&... args)
 {
@@ -719,11 +760,11 @@ ELEMENT_TYPE trackConstruction(ARGS&&... args)
 tracked one by inserting a call to this function around the constructor
 arguments:
 
-\begin{emcppslisting}
+\begin{emcppslisting}[emcppsbatch=e10]
 void myFunction()
 {
     BigObject untracked("Hello", "World");
-    BigObject tracked = trackConstruction("Hello","World");
+    BigObject tracked = trackConstruction<BigObject>("Hello","World");
 }
 \end{emcppslisting}
 
@@ -754,7 +795,11 @@ copy it inside the container's storage. As an example, consider
 inserting a temporary \texttt{std::string} object in a\linebreak[4]
 \mbox{\texttt{std::vector<std::string>}}:
 
-\begin{emcppslisting}
+\begin{emcppshiddenlisting}[emcppsbatch=e11]
+#include <vector>  // (ù{\codeincomments{std::vector}}ù)
+#include <string>  // (ù{\codeincomments{std::string}}ù)
+\end{emcppshiddenlisting}
+\begin{emcppslisting}[emcppsbatch=e11]
 void f(std::vector<std::string>& v)
 {
     v.push_back(std::string("hello world"));
@@ -787,7 +832,7 @@ arbitrary number of arguments, which will in turn be used to construct a
 new element directly in the container's storage, thereby avoiding
 unnecessary copies or even moves:
 
-\begin{emcppslisting}
+\begin{emcppslisting}[emcppsbatch=e11]
 void g(std::vector<std::string>& v)
 {
     v.emplace_back("hello world");
@@ -807,7 +852,18 @@ templates and forwarding references; it accepts any
 number of forwarding references and internally \textit{perfectly forwards} them
 to the constructor of \texttt{T} via \texttt{std::forward}:
 
-\begin{emcppslisting}
+\begin{emcppshiddenlisting}[emcppsbatch=e12]
+#include <new>     // placement (ù{\codeincomments{new}}ù)
+namespace std {
+template <typename T>
+class vector {
+    template <typename... Args>
+    void emplace_back(Args&&... args);
+};
+char freeLocationInBuffer[10];
+}
+\end{emcppshiddenlisting}
+\begin{emcppslisting}[emcppsbatch=e12]
 template <typename T>
 template <typename... Args>
 void std::vector<T>::emplace_back(Args&&... args)
@@ -849,7 +905,28 @@ list of incorrect words and corresponding suggested proper spellings,
 and you have a range-like library with common utilities similar to
 standard UNIX processing utilities:
 
-\begin{emcppslisting}
+\begin{emcppshiddenlisting}[emcppsbatch={e13,e14},emcppsstandards=c++14]
+#include <map>     // (ù{\codeincomments{std::map}}ù)
+#include <string>  // (ù{\codeincomments{std::string}}ù)
+#include <tuple>   // (ù{\codeincomments{std::tuple}}ù)
+
+class SpellingSuggestion {
+    bool isCorrect() const;
+};
+class LineSeq {};
+LineSeq openFile(const std::string&);
+LineSeq splitRegex(LineSeq seq, const std::string &);
+LineSeq filterRegex(LineSeq seq, const std::string &);
+LineSeq sort(LineSeq seq);
+LineSeq uniq(LineSeq seq);
+template <typename F>
+LineSeq transform(LineSeq seq, F&& func) { return {}; }
+template <typename F>
+LineSeq filter(LineSeq seq, F&& pred) { return {}; }
+std::map<std::string,SpellingSuggestion> makeMap(LineSeq seq);
+SpellingSuggestion checkSpelling(const std::string& word);
+\end{emcppshiddenlisting}
+\begin{emcppslisting}[emcppsbatch=e13]
 SpellingSuggestion checkSpelling(const std::string& word);
 
 std::map<std::string, SpellingSuggestion> checkFileSpelling(
@@ -857,7 +934,7 @@ std::map<std::string, SpellingSuggestion> checkFileSpelling(
 {
     return makeMap(
         filter(transform(
-            uniq(sort(filterRegex(splitRegex(openFile(filename),"\S+"),"\w+")))
+           uniq(sort(filterRegex(splitRegex(openFile(filename),"\\S+"),"\\w+"))),
         [](const std::string& x)
         {
             return std::tuple<std::string, SpellingSuggestion>(x,
@@ -892,7 +969,7 @@ decode it manually from the expression. Here is where \texttt{auto\&\&}
 forwarding references can be used effectively to decompose and document
 this expression while achieving the same:
 
-\begin{emcppslisting}
+\begin{emcppslisting}[emcppsbatch=e14]
 std::map<std::string, SpellingSuggestion> checkFileSpelling(
                                                    const std::string& filename)
 {
@@ -901,11 +978,11 @@ std::map<std::string, SpellingSuggestion> checkFileSpelling(
 
     // Split the file by whitespace.
     auto&& potentialWords = splitRegex(
-        std::forward<decltype(openedFile)>(openedFile), "\S+");
+        std::forward<decltype(openedFile)>(openedFile), "\\S+");
 
     // Filter out only words made from word-characters.
     auto&& words = filterRegex(
-        std::forward<decltype(potentialWords)>(potentialWords), "\w+");
+        std::forward<decltype(potentialWords)>(potentialWords), "\\w+");
 
     // Sort all words.
     auto&& sortedWords = sort(std::forward<decltype(words)>(words));
@@ -925,7 +1002,7 @@ std::map<std::string, SpellingSuggestion> checkFileSpelling(
     // second element of the tuple, which is a (ù{\codeincomments{SpellingSuggestion}}ù), is not
     // (ù{\codeincomments{correct}}ù).
     auto&& corrections = filter(
-        std::forward<decltype(corrections)>(corrections),
+        std::forward<decltype(suggestions)>(suggestions),
         [](auto&& suggestion){ return !std::get<1>(suggestion).isCorrect(); });
 
     // Return a map made from these 2-element tuples:
@@ -953,8 +1030,10 @@ using string literals.
 
 Consider, as an example, a \texttt{Dictionary} class containing two
 overloads of an \texttt{addWord} member function:
-
-\begin{emcppslisting}
+\begin{emcppshiddenlisting}[emcppsbatch={e15,e16}]
+#include <string>  // (ù{\codeincomments{std::string}}ù)
+\end{emcppshiddenlisting}
+\begin{emcppslisting}[emcppsbatch=e15]
 class Dictionary
 {
     // ...
@@ -984,7 +1063,7 @@ void f()
 single \textit{perfectly forwarding} template member function, with the intention
 of avoiding code repetition between the two overloads:
 
-\begin{emcppslisting}
+\begin{emcppslisting}[emcppsbatch=e16]
 class Dictionary
 {
     // ...
@@ -997,7 +1076,7 @@ public:
 
 \noindent Perhaps surprisingly, the number of template instantiations skyrockets:
 
-\begin{emcppslisting}
+\begin{emcppslisting}[emcppsbatch=e16]
 void f()
 {
     Dictionary d;
@@ -1027,7 +1106,12 @@ invoking \texttt{std::move} (if \texttt{T} is an
 subject to the same caveats that would apply to an \emph{lvalue} cast to
 an unnamed \emph{rvalue} reference; see ``\titleref{Rvalue-References}" on page~\pageref{Rvalue-References}:
 
-\begin{emcppslisting}
+\begin{emcppshiddenlisting}[emcppsbatch=e17]
+#include <utility>      // (ù{\codeincomments{std::forward}}ù)
+template <typename T>
+void g(T&& x);
+\end{emcppshiddenlisting}
+\begin{emcppslisting}[emcppsbatch=e17]
 template <typename T>
 void f(T&& x)
 {
@@ -1050,6 +1134,7 @@ resolution compared to \texttt{S}'s copy constructor:
 \begin{emcppslisting}
 struct S
 {
+    S();                           // default constructor
     template <typename T> S(T&&);  // forwarding constructor
     S(const S&);                   // copy constructor
 };
@@ -1075,7 +1160,11 @@ This potential pitfall can arise in practice, for example, when writing
 a value-semantic wrapper template (e.g., \texttt{Wrapper}) that can be
 initialized by \textit{perfectly forwarding} the object to be wrapped into it:
 
-\begin{emcppslisting}
+\begin{emcppshiddenlisting}[emcppsbatch=e18]
+#include <string>   // (ù{\codeincomments{std::string}}ù)
+#include <utility>  // (ù{\codeincomments{std::forward}}ù)
+\end{emcppshiddenlisting}
+\begin{emcppslisting}[emcppsbatch=e18]
 template <typename T>
 class Wrapper  // wrapper for an object of arbitrary type 'T'
 {
@@ -1104,11 +1193,11 @@ void f()
 to copy-construct a non-\texttt{const} instance of \texttt{Wrapper}
 (e.g., \texttt{wr}, above) results in an error:
 
-\begin{emcppslisting}
+\begin{emcppslisting}[emcppsbatch=e18]
 void g(Wrapper<int>& wr)  // The same would happen if (ù{\codeincomments{wr}}ù) were passed by value.
 {
     Wrapper<int> w2(10);  // OK, invokes perfect-forwarding constructor
-    Wrapper<int> w3(wr);  // error: no conversion from (ù{\codeincomments{Wrapper<int>}}ù) to (ù{\codeincomments{int}}ù)
+    Wrapper<int> w3(wr);  // Error, no conversion from (ù{\codeincomments{Wrapper<int>}}ù) to (ù{\codeincomments{int}}ù)
 }
 \end{emcppslisting}
 
@@ -1120,7 +1209,11 @@ perfect forwarding constructor via \textbf{SFINAE} (e.g., with
 \texttt{std::enable\_if}) to explicitly \emph{not} accept objects whose
 type is \texttt{Wrapper} fixes this problem:
 
-\begin{emcppslisting}
+\begin{emcppshiddenlisting}[emcppsbatch=e19]
+#include <type_traits>  // (ù{\codeincomments{std::enable\_if}}ù), (ù{\codeincomments{std::decay}}ù)
+#include <utility>  // (ù{\codeincomments{std::forward}}ù)
+\end{emcppshiddenlisting}
+\begin{emcppslisting}[emcppsbatch=e19]
 template <typename T>
 class Wrapper
 {
@@ -1167,7 +1260,7 @@ reference; looking for the presence of the mandatory \texttt{auto}
 keyword is helpful in identifying whether a type is a forwarding
 reference or \emph{rvalue} reference:
 
-\begin{emcppslisting}[basicstyle={\ttfamily\footnotesize}]
+\begin{emcppslisting}[emcppsstandards=c++20,basicstyle={\ttfamily\footnotesize}]
 template<typename T>
 concept Addable = requires(T a, T b) { a + b; };
 
@@ -1219,12 +1312,20 @@ cv-qualified or ref-qualified version of the type that you want to
 accept. As an example, let's consider a function intended to \emph{copy}
 or \emph{move} a \texttt{Person} object into a data structure:
 
-\begin{emcppslisting}
+\begin{emcppshiddenlisting}[emcppsbatch=e20]
+#include <type_traits>  // (ù{\codeincomments{std::enable\_if}}ù), (ù{\codeincomments{std::decay}}ù), (ù{\codeincomments{std::is\_same}}ù)
+class Person {};
+\end{emcppshiddenlisting}
+\begin{emcppslisting}[emcppsbatch=e20]
+class PersonManager {
+// ...
 template <typename T, typename = typename std::enable_if<
-                       std::is_same<std::decay<T>::type, Person>::value>::type>
-void PersonManager::addPerson(T&& person);
+       std::is_same<typename std::decay<T>::type, Person>::value>::type>
+void addPerson(T&& person) {}
     // This function participates in overload resolution only if (ù{\codeincomments{T}}ù) is
     // (possibly cv- or ref-qualified) (ù{\codeincomments{Person}}ù).
+// ...
+};
 \end{emcppslisting}
 
 \noindent This incantation to constrain \texttt{T} has a number of layers to it,

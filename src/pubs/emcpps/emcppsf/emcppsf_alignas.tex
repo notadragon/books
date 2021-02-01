@@ -477,10 +477,10 @@ translation units, no mainstream compiler is likely to diagnose the
 problem:
 
 \begin{lstlisting}[language=C++]
-// file1.cpp
+// file1.cpp:
 struct Bam { char ch; } bam, *p = &bam;
 
-// file2.cpp
+// file2.cpp:
 struct alignas(int) Bam;  // Error: definition of (ù{\codeincomments{Bam}}ù) lacks alignment specifier.
 extern Bam* p;            //        (no diagnostic required)
 \end{lstlisting}

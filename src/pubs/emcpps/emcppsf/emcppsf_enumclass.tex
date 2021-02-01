@@ -47,7 +47,7 @@ If the only issue were the leakage of the enumerators into the enclosing
 scope, then the long-established workaround of enclosing the enumeration
 within a \texttt{struct} would suffice:
 
-\begin{emcppslisting}
+\begin{emcppslisting}[emcppsbatch=e1]
 struct Color { enum Enum { e_RED, e_ORANGE, e_YELLOW };  };   // OK
 struct Fruit { enum Enum { e_APPLE, e_ORANGE, e_BANANA }; };  // OK (scoped)
 \end{emcppslisting}
@@ -58,7 +58,7 @@ function, the distinguishing name of the \texttt{enum} is subsumed by
 its enclosing \texttt{struct} and the \texttt{enum} name itself, such as
 \texttt{Enum}, becomes \textbf{boilerplate code}:
 
-\begin{emcppslisting}
+\begin{emcppslisting}[emcppsbatch=e1]
 int enumeratorValue1 = Color::e_ORANGE;  // OK
 int enumeratorValue2 = Fruit::e_ORANGE;  // OK
 
@@ -146,14 +146,21 @@ types is a compile-time error. Note that explicitly converting at least one of t
 integral type --- for example, using built-in unary plus --- both
 makes our intentions clear and avoids warnings.
 
-\begin{emcppslisting}[basicstyle={\ttfamily\footnotesize}]
-if (e_A0 < 0)       { /* ... */ }  // OK, comparison with integral type
-if (1.0 != e_B1)    { /* ... */ }  // OK, comparison with arithmetic type
-if (A() <= e_A2)    { /* ... */ }  // OK, comparison with same enumerated type
-if (e_A0 == e_B0)   { /* ... */ }  // warning, deprecated (error as of C++20)
-if ( e_A0 == +e_B0) { /* ... */ }  // OK, unary (ù{\codeincomments{+}}ù) converts to integral type
-if (+e_A0 ==  e_B0) { /* ... */ }  // OK,   "        "     "     "      "
-if (+e_A0 == +e_B0) { /* ... */ }  // OK,   "        "     "     "      "
+\begin{emcppshiddenlisting}[emcppsbatch=e2]
+    enum A { e_A0, e_A1, e_A2 };
+    enum B { e_B0, e_B1, e_B2 };
+\end{emcppshiddenlisting}
+\begin{emcppslisting}[emcppsbatch=e2,basicstyle={\ttfamily\footnotesize}]
+void test()
+{
+  if (e_A0 < 0)       { /* ... */ }  // OK, comparison with integral type
+  if (1.0 != e_B1)    { /* ... */ }  // OK, comparison with arithmetic type
+  if (A() <= e_A2)    { /* ... */ }  // OK, comparison with same enumerated type
+  if (e_A0 == e_B0)   { /* ... */ }  // warning, deprecated (error as of C++20)
+  if ( e_A0 == +e_B0) { /* ... */ }  // OK, unary (ù{\codeincomments{+}}ù) converts to integral type
+  if (+e_A0 ==  e_B0) { /* ... */ }  // OK,   "        "     "     "      "
+  if (+e_A0 == +e_B0) { /* ... */ }  // OK,   "        "     "     "      "
+}
 \end{emcppslisting}
       }}
 
@@ -190,9 +197,9 @@ its enumerators into the enclosing scope and can therefore help avoid
 collisions with other enumerations having like-named enumerators defined
 in the same scope:
 
-\begin{emcppslisting}
+\begin{emcppslisting}[emcppsbatch=e3]
 enum       VehicleUnscoped  { e_CAR, e_TRAIN, e_PLANE };
-struct     VehicleScopedExplicitly { enum { e_CAR, e_TRAIN, e_PLANE }; };
+struct     VehicleScopedExplicitly { enum Enum { e_CAR, e_TRAIN, e_PLANE }; };
 enum class VehicleScopedImplicitly { e_CAR, e_BOAT,  e_PLANE };
 \end{emcppslisting}
 
@@ -200,25 +207,25 @@ enum class VehicleScopedImplicitly { e_CAR, e_BOAT,  e_PLANE };
 \texttt{enum}~\texttt{class} is passed as a parameter to a function
 using the enumerator name itself:
 
-\begin{emcppslisting}
+\begin{emcppslisting}[emcppsbatch=e3]
 void f1(VehicleUnscoped value);          // classic enumeration passed by value
 void f2(VehicleScopedImplicitly value);  // modern enumeration passed by value
 \end{emcppslisting}
 
 If we use the approach for
 adding scope to enumerators that is described in \textit{\titleref{description-enumclass}: \titleref{drawbacks-relating-to-weakly-typed,-c++03-enumerators}} on page~\pageref{drawbacks-relating-to-weakly-typed,-c++03-enumerators}, the name of the enclosing \texttt{struct} together with a
-  consistent tag, such as \texttt{Enum}, has to be used to indicate an
-  enumerated type:
+consistent name for the enumeration, such as \texttt{Enum}, has to be used to indicate an
+enumerated type:
 
-  \begin{emcppslisting}[basicstyle={\ttfamily\footnotesize}]
-  void f1(VehicleScopedExplicitly::Enum value);
-      // classically scoped (ù{\codeincomments{enum}}ù) passed by value
-  \end{emcppslisting}
+\begin{emcppslisting}[emcppsbatch=e3,basicstyle={\ttfamily\footnotesize}]
+void f3(VehicleScopedExplicitly::Enum value);
+    // classically scoped (ù{\codeincomments{enum}}ù) passed by value
+\end{emcppslisting}
 
 \noindent Qualifying the enumerators of a scoped enumeration is the same,
 irrespective of whether the scoping is explicit or implicit:
 
-\begin{emcppslisting}
+\begin{emcppslisting}[emcppsbatch=e3]
 void g()
 {
     f1(VehicleUnscoped::e_PLANE);
@@ -233,21 +240,24 @@ void g()
 \texttt{enum}~\texttt{class} deliberately does \emph{not} support
 implicit conversion, in any context, to its \textbf{underlying type}:
 
-\begin{emcppslisting}
-int i1 = VehicleScopedExplicitly::e_PLANE;
-    // OK, scoped C++03 (ù{\codeincomments{enum}}ù) (implicit conversion)
+\begin{emcppslisting}[emcppsbatch=e3]
+void h()
+{
+    int i1 = VehicleScopedExplicitly::e_PLANE;
+       // OK, scoped C++03 (ù{\codeincomments{enum}}ù) (implicit conversion)
+ 
+    int i2 = VehicleScopedImplicitly::e_PLANE;
+        // Error, no implicit conversion to underlying type
 
-int i2 = VehicleScopedImplicitly::e_PLANE;
-    // Error, no implicit conversion to underlying type
-
-if (VehicleScopedExplicitly::e_PLANE > 3) { /* OK */ }
-if (VehicleScopedImplicitly::e_PLANE > 3) { /* Error, implicit conversion */ }
+    if (VehicleScopedExplicitly::e_PLANE > 3) {} // OK
+    if (VehicleScopedImplicitly::e_PLANE > 3) {} // Error, implicit conversion
+}
 \end{emcppslisting}
 
 \noindent Enumerators of an \texttt{enum}~\texttt{class} do, however, admit
 equality and ordinal comparisons within their own type:
 
-\begin{emcppslisting}
+\begin{emcppslisting}[emcppsbatch=e4]
 enum class E { e_A, e_B, e_C };  // By default, enumerators increase from 0.
 
 static_assert(E::e_A < E::e_C, "");  // OK, comparison between same-type values
@@ -273,13 +283,13 @@ enum Ec : char { e_X, e_Y, e_Z };
     // underlying type is (ù{\codeincomments{char}}ù)
 
 static_assert(1 == sizeof(Ec),     "");
-static_assert(1 == sizeof Ec::E_X, "");
+static_assert(1 == sizeof Ec::e_X, "");
 
 enum class Es : short { e_X, e_Y, e_Z };
     // underlying type is (ù{\codeincomments{short int}}ù)
 
 static_assert(sizeof(short) == sizeof(Es),     "");
-static_assert(sizeof(short) == sizeof Es::E_X, "");
+static_assert(sizeof(short) == sizeof Es::e_X, "");
 \end{emcppslisting}
 
 \noindent Unlike a classic \texttt{enum}, which has an
@@ -292,7 +302,7 @@ enum class Ei { e_X, e_Y, e_Z };
     // When not specified the underlying type of an (ù{\codeincomments{enum class}}ù) is (ù{\codeincomments{int}}ù).
 
 static_assert(sizeof(int) == sizeof(Ei),     "");
-static_assert(sizeof(int) == sizeof Ei::E_X, "");
+static_assert(sizeof(int) == sizeof Ei::e_X, "");
 \end{emcppslisting}
 
 \noindent Note that, because the default \textbf{underlying type} of an
@@ -322,7 +332,10 @@ works well when typical use of the enumerator involves knowing its
 cardinal value, such promotions are less than ideal when cardinal values
 have no role in intended usage:
 
-\begin{emcppslisting}
+\begin{emcppshiddenlisting}[emcppsbatch=e5]
+void attachDoor(int i);
+\end{emcppshiddenlisting}
+\begin{emcppslisting}[emcppsbatch=e5]
 class Car { /* ... */ };
 
 struct Trans
@@ -332,9 +345,9 @@ struct Trans
 
 int buildCar(Car* result, int numDoors, Trans::Enum trans)
 {
-    int status = Trans::e_MANUAL;    // Oops, accidental misuse!
+    int status = Trans::e_MANUAL;    // Bug, accidental misuse!
 
-    for (int i = 0; i < trans; ++i)  // Oops, accidental misuse!
+    for (int i = 0; i < trans; ++i)  // Bug, accidental misuse!
     {
          attachDoor(i);
     }
@@ -350,7 +363,7 @@ be considered a mistake and, ideally, flagged by the compiler as an
 error. The stronger typing provided by \texttt{enum}~\texttt{class}
 achieves this goal:
 
-\begin{emcppslisting}
+\begin{emcppslisting}[emcppsignore={Fails to build with all Declarations marked Error}]
 class Car { /* ... */ };
 
 enum class Trans { e_MANUAL, e_AUTOMATIC };  // modern (ù{\codeincomments{enum class}}ù) (GOOD IDEA)
@@ -377,7 +390,12 @@ In an unlikely event that the numeric value of a strongly typed
 enumerator is needed (e.g., for serialization), it can be extracted
 explicitly via a \texttt{static\_cast}:
 
-\begin{emcppslisting}
+\begin{emcppshiddenlisting}[emcppsbatch=e6]
+class Car { /* ... */ };
+
+enum class Trans { e_MANUAL, e_AUTOMATIC };  // modern (ù{\codeincomments{enum class}}ù) (GOOD IDEA)
+\end{emcppshiddenlisting}
+\begin{emcppslisting}[emcppsbatch=e6]
 const int manualIntegralValue    = static_cast<int>(Trans::e_MANUAL);
 const int automaticIntegralValue = static_cast<int>(Trans::e_AUTOMATIC);
 static_assert(0 == manualIntegralValue,    "");
@@ -390,17 +408,17 @@ Classic, C-style enumerations do not provide scope for their
 enumerators, leading to unintended latent name collisions:
 
 \begin{emcppslisting}
-// vehicle.h
+// vehicle.h:
 // ...
 enum Vehicle  { e_CAR, e_TRAIN, e_PLANE };  // classic, C-style (ù{\codeincomments{enum}}ù)
 // ...
 
-// geometry.h
+// geometry.h:
 // ...
 enum Geometry { e_POINT, e_LINE,  e_PLANE };  // classic, C-style (ù{\codeincomments{enum}}ù)
 // ...
 
-// client
+// client.cpp:
 #include <vehicle.h>  // OK
 #include <geometry.h> // Error, (ù{\codeincomments{e\_PLANE}}ù) redefined
 // ...
@@ -410,21 +428,21 @@ enum Geometry { e_POINT, e_LINE,  e_PLANE };  // classic, C-style (ù{\codeincom
 or \texttt{namespace}:
 
 \begin{emcppslisting}
-// vehicle.h
+// vehicle.h:
 // ...
 struct Vehicle {                            // explicitly scoped
     enum Enum { e_CAR, e_TRAIN, e_PLANE };  // classic, C-style (ù{\codeincomments{enum}}ù)
 };
 // ...
 
-// geometry.h
+// geometry.h:
 // ...
 struct Geometry {                            // explicitly scoped
     enum Enum { e_POINT, e_LINE, e_PLANE };  // classic, C-style (ù{\codeincomments{enum}}ù)
 };
 // ...
 
-// client
+// client.cpp:
 #include <vehicle.h>    // OK
 #include <geometry.h>   // OK, enumerators are scoped explicitly.
 // ...
@@ -437,17 +455,17 @@ safety and slightly less boilerplate --- i.e., without the
 \texttt{enum}~\texttt{class} instead:
 
 \begin{emcppslisting}
-// vehicle.h
+// vehicle.h:
 // ...
 enum class Vehicle { e_CAR, e_TRAIN, e_PLANE };
 // ...
 
-// geometry.h
+// geometry.h:
 // ...
 enum class Geometry { e_POINT, e_LINE, e_PLANE };
 // ...
 
-// client
+// client.cpp:
 #include <vehicle.h>  // OK
 #include <geometry.h>   // OK, enumerators are scoped implicitly.
 // ...
@@ -464,7 +482,7 @@ difficulties, suppose that we have a widely used, named type,
 unique, and irrelevant. Imagine we have chosen to represent
 \texttt{Color} as a \emph{classic} \texttt{enum}:
 
-\begin{emcppslisting}
+\begin{emcppslisting}[emcppsbatch=e7]
 struct Color
 {                                           // explicitly scoped
     enum Enum { e_RED, e_BLUE /*, ...*/ };  // classic, C-style (ù{\codeincomments{enum}}ù)
@@ -475,7 +493,7 @@ struct Color
 having two parameters, with one signature's parameters including the
 enumeration \texttt{Color}:
 
-\begin{emcppslisting}
+\begin{emcppslisting}[emcppsbatch=e7]
 void clearScreen(int pattern, int orientation);          // (0)
 void clearScreen(Color::Enum background, double alpha);  // (1)
 \end{emcppslisting}
@@ -486,7 +504,7 @@ program will fail to compile{\cprotect\footnote{GCC version 7.4.0
 incorrectly diagnoses both ambiguity errors as warnings, although it
 states in the warning that it is an error:
 
-\begin{emcppslisting}[basicstyle={\ttfamily\footnotesize}]
+\begin{lstlisting}[language=bash,basicstyle={\ttfamily\footnotesize}]
 warning: ISO C++ says that these are ambiguous, even though the worst conversion for the
          first is better than the worst conversion for the second:
 
@@ -496,10 +514,10 @@ void clearScreen(int pattern, int orientation);
 note: candidate 2: void clearScreen(Color::Enum, double)
 void clearScreen(Color::Enum background, double alpha;
      ^~~~~~~~~~~
-\end{emcppslisting}
+\end{lstlisting}
       }}:
 
-\begin{emcppslisting}
+\begin{emcppslisting}[emcppsbatch=e7]
 void f0()
 {
     clearScreen(1           , 1           );  // calls (0) above
@@ -519,7 +537,7 @@ void f0()
 \noindent Now suppose that we had instead defined our \texttt{Color} enumeration
 as a modern \texttt{enum}~\texttt{class}:
 
-\begin{emcppslisting}
+\begin{emcppslisting}[emcppsbatch=e8]
 enum class Color { e_RED, e_BLUE /*, ...*/ };
 
 void clearScreen(int pattern, int orientation);    // (2)
@@ -529,7 +547,7 @@ void clearScreen(Color background, double alpha);  // (3)
 \noindent The function that will be called from a given set of arguments becomes
 clear:
 
-\begin{emcppslisting}
+\begin{emcppslisting}[emcppsbatch=e8]
 void f1()
 {
     clearScreen(1           , 1           );  // calls (2) above
@@ -550,7 +568,13 @@ void f1()
 find we need to add a third parameter, \texttt{bool}~\texttt{z}, to the
 second overload:
 
-\begin{emcppslisting}
+\begin{emcppshiddenlisting}[emcppsbatch=e9]
+struct Color
+{
+    enum Enum { e_RED, e_BLUE /*, ...*/ };
+};
+\end{emcppshiddenlisting}
+\begin{emcppslisting}[emcppsbatch=e9]
 void clearScreen(int pattern, int orientation);                  // (0)
 void clearScreen(Color::Enum background, double alpha, bool z);  // (4) classic
 \end{emcppslisting}
@@ -559,7 +583,7 @@ void clearScreen(Color::Enum background, double alpha, bool z);  // (4) classic
 \texttt{Color::Enum} will now be flagged as errors, we are going to be
 very disappointed:
 
-\begin{emcppslisting}
+\begin{emcppslisting}[emcppsbatch=e9]
 void f2()
 {
     clearScreen(Color::e_RED, 1.0);  // calls (0) above
@@ -569,7 +593,7 @@ void f2()
 \noindent In fact, every combination of arguments above --- all nine of them ---
 will call function (0) above with no warnings at all:
 
-\begin{emcppslisting}
+\begin{emcppslisting}[emcppsbatch=e9]
 void f3()
 {
     clearScreen(1           , 1           );  // calls (0) above
@@ -590,7 +614,10 @@ void f3()
 \texttt{enum}~\texttt{class} to implement our \texttt{Color}\linebreak[4]
 \mbox{enumeration}:
 
-\begin{emcppslisting}
+\begin{emcppshiddenlisting}[emcppsbatch=e10]
+enum class Color { e_RED, e_BLUE /*, ...*/ };
+\end{emcppshiddenlisting}
+\begin{emcppslisting}[emcppsbatch=e10]
 void clearScreen(int pattern, int orientation);            // (2)
 void clearScreen(Color background, double alpha, bool z);  // (5) modern
 
@@ -603,7 +630,7 @@ void f4()
 \noindent And in fact, the \emph{only} calls that succeed unmodified are precisely
 those that do not involve the enumeration \texttt{Color}, as desired:
 
-\begin{emcppslisting}
+\begin{emcppslisting}[emcppsbatch=e10]
 void f5()
 {
     clearScreen(1           , 1           );  // calls (2) above
@@ -629,7 +656,7 @@ Note that strongly typed enumerations help to avoid accidental misuse by
 requiring an explicit \emph{cast} should conversion to an arithmetic
 type be desired:
 
-\begin{emcppslisting}
+\begin{emcppslisting}[emcppsbatch=e10]
 void f6()
 {
     clearScreen(Color::e_RED, 1.0);                   // Error, no match
@@ -655,6 +682,8 @@ and an accompanying \texttt{inline} function to quickly determine
 whether a given enumerator represents such a month:
 
 \begin{emcppslisting}
+#include <type_traits>  // (ù{\codeincomments{std::underlying\_type}}ù)
+
 enum class MonthOfYear : unsigned char  // optimized to flag long months
 {
     e_JAN = ( 1 << 4) + 0x1,
@@ -716,7 +745,7 @@ invites defects.
 Suppose, for example, we have a function, \texttt{setPort}, from an
 external library that takes an integer port number:
 
-\begin{emcppslisting}
+\begin{emcppslisting}[emcppsbatch=e11]
 int setPort(int portNumber);
     // Set the current port; return (ù{\codeincomments{0}}ù) on success and a nonzero value otherwise.
 \end{emcppslisting}
@@ -725,7 +754,7 @@ int setPort(int portNumber);
 \texttt{enum}~\texttt{class} feature to implement an enumeration,
 \texttt{SysPort}, that identifies well-known ports on our system:
 
-\begin{emcppslisting}
+\begin{emcppslisting}[emcppsbatch=e11]
 enum class SysPort { e_INPUT = 27, e_OUTPUT = 29, e_ERROR = 32, e_CTRL = 6 };
     // enumerated port values used to configure our systems
 \end{emcppslisting}
@@ -733,7 +762,7 @@ enum class SysPort { e_INPUT = 27, e_OUTPUT = 29, e_ERROR = 32, e_CTRL = 6 };
 \noindent Now suppose we want to call the function \texttt{f} using one of these
 enumerated values:
 
-\begin{emcppslisting}
+\begin{emcppslisting}[emcppsbatch=e11]
 void setCurrentPortToCtrl()
 {
     setPort(SysPort::e_CTRL);  // Error, cannot convert (ù{\codeincomments{SetPort}}ù) to (ù{\codeincomments{int}}ù)
@@ -746,16 +775,19 @@ integral type, so anyone using this enumeration will be forced to
 somehow explicitly \textbf{cast} the enumerator to some arithmetic type.
 There are, however, multiple choices for performing this cast:
 
-\begin{emcppslisting}
+\begin{emcppslisting}[emcppsbatch=e11]
 #include <type_traits>  // (ù{\codeincomments{std::underlying\_type}}ù)
 
-setPort(int(SysPort::e_CTRL));                                           // (1)
-setPort((int)SysPort::e_CTRL);                                           // (2)
-setPort(static_cast<int>(SysPort::e_CTRL));                              // (3)
-setPort(static_cast<std::underlying_type<SysPort>::type>(                // (4)
+void test()
+{
+    setPort(int(SysPort::e_CTRL));                                       // (1)
+    setPort((int)SysPort::e_CTRL);                                       // (2)
+    setPort(static_cast<int>(SysPort::e_CTRL));                          // (3)
+    setPort(static_cast<std::underlying_type<SysPort>::type>(            // (4)
                                                          SysPort::e_CTRL));
-setPort(static_cast<int>(                                                // (5)
-         static_cast<std::underlying_type<SysPort>::type>(SysPort::e_CTRL)));
+    setPort(static_cast<int>(                                            // (5)
+             static_cast<std::underlying_type<SysPort>::type>(SysPort::e_CTRL)));
+}
 \end{emcppslisting}
 
 \noindent Any of the above casts would work in this case, but consider a future
@@ -778,7 +810,11 @@ C-style \texttt{enum} would have avoided any manually written cast
 entirely and the proper value would propagate into \texttt{setPort} even
 as the range of values used for ports changes:
 
-\begin{emcppslisting}
+\begin{emcppshiddenlisting}[emcppsbatch=e12]
+#include <type_traits>  // (ù{\codeincomments{std::is\_same}}ù)
+int setPort(long portNumber);
+\end{emcppshiddenlisting}
+\begin{emcppslisting}[emcppsbatch=e12]
 struct SysPort  // explicit scoping for a classic, C-style (ù{\codeincomments{enum}}ù)
 {
     enum Enum { e_INPUT = 27, e_OUTPUT = 29, e_ERROR = 32,
@@ -821,14 +857,14 @@ For example, suppose we want to collect the coefficients for various
 numerical suffixes representing \emph{thousands}, \emph{millions}, and
 \emph{billions} using an enumeration:
 
-\begin{emcppslisting}
+\begin{emcppslisting}[emcppsbatch=e13]
 enum class S0 { e_K = 1000, e_M = e_K * e_K, e_G = e_M * e_K };  // (BAD IDEA)
 \end{emcppslisting}
 
 \noindent A client trying to access one of these enumerated values would need to
 cast it explicitly:
 
-\begin{emcppslisting}
+\begin{emcppslisting}[emcppsbatch=e13]
 void client0()
 {
     int distance = 5 * static_cast<int>(S0::e_K);  // casting is error-prone
@@ -891,7 +927,7 @@ arithmetic types, leading to yet more code that needs to be written,
 tested, and maintained. This is often the case for bit flags. Consider, for example, an
 enumeration used to control a file system:
 
-\begin{emcppslisting}
+\begin{emcppslisting}[emcppsbatch=e14]
 enum class Ctrl { e_READ = 0x1, e_WRITE = 0x2, e_EXEC = 0x4 };  // (BAD IDEA)
     // low-level bit flags used to control file system
 
@@ -902,11 +938,11 @@ void chmodFile(int fd, int access);
 \noindent We could conceivably write a series of functions to combine the
 individual flags in a type-safe manner:
 
-\begin{emcppslisting}
+\begin{emcppslisting}[emcppsbatch=e14]
 #include <type_traits>  // (ù{\codeincomments{std::underlying\_type}}ù)
 
 int flags() { return 0; }
-int flags(Ctrl a) { return static_cast<std::underlying_type<a>::type>(a); }
+int flags(Ctrl a) { return static_cast<std::underlying_type<Ctrl>::type>(a); }
 int flags(Ctrl a, Ctrl b) { return flags(a) | flags(b); }
 int flags(Ctrl a, Ctrl b, Ctrl c) { return flags(a, b) | flags(c); }
 
@@ -942,7 +978,7 @@ Sometimes the relative values of enumerators are considered important as
 well. For example, let's again consider enumerating the months of the
 year:
 
-\begin{emcppslisting}
+\begin{emcppslisting}[emcppsbatch={e15,e16}]
 enum class MonthOfYear  // modern, strongly typed enumeration
 {
     e_JAN, e_FEB, e_MAR,  // winter
@@ -955,7 +991,7 @@ enum class MonthOfYear  // modern, strongly typed enumeration
 \noindent If all we need to do is compare the ordinal values of the enumerators,
 there's no problem:
 
-\begin{emcppslisting}
+\begin{emcppslisting}[emcppsbatch=e15]
 bool isSummer(MonthOfYear month)
 {
     return MonthOfYear::e_JUL <= month && month <= MonthOfYear::e_AUG;
@@ -967,7 +1003,7 @@ and equality operations between like-typed enumerators, no arithmetic
 operations are supported directly, which becomes problematic when we
 need to iterate over the enumerated values:
 
-\begin{emcppslisting}
+\begin{emcppslisting}[emcppsbatch=e15,emcppsignore={Entire for block is marked Error}]
 void doSomethingWithEachMonth()
 {
     for (MonthOfYear i =  MonthOfYear::e_JAN;
@@ -982,12 +1018,12 @@ void doSomethingWithEachMonth()
 \noindent To make this code compile, an explicit cast from and to the enumerated
 type will be required:
 
-\begin{emcppslisting}
+\begin{emcppslisting}[emcppsbatch=e15]
 void doSomethingWithEachMonth()
 {
     for (MonthOfYear i =  MonthOfYear::e_JAN;
                      i <= MonthOfYear::e_DEC;
-                     i = static_cast<MonthOfYear>(static_cast<int>(i) + 1)
+                     i = static_cast<MonthOfYear>(static_cast<int>(i) + 1))
     {
         // ...
     }
@@ -997,7 +1033,7 @@ void doSomethingWithEachMonth()
 \noindent Alternatively, an auxiliary, helper function could be supplied to allow
 clients to bump the enumerator:
 
-\begin{emcppslisting}
+\begin{emcppslisting}[emcppsbatch=e16]
 MonthOfYear nextMonth(MonthOfYear value)
 {
     return static_cast<MonthOfYear>(static_cast<int>(value) + 1);
@@ -1007,7 +1043,7 @@ void doSomethingWithEachMonth()
 {
     for (MonthOfYear i =  MonthOfYear::e_JAN;
                      i <= MonthOfYear::e_DEC;
-                     i = nextMonth(i)
+                     i = nextMonth(i))
     {
         // ...
     }
@@ -1075,7 +1111,7 @@ function, forcing an additional scope on the enumerators is superfluous.
 For example, consider a function that returns an integer status
 \texttt{0} on success and a nonzero value otherwise:
 
-\begin{emcppslisting}
+\begin{emcppslisting}[emcppserrorlines={5,7}]
 int f()
 {
     enum { e_ERROR = -1, e_OK = 0 } result = e_OK;
@@ -1092,7 +1128,7 @@ int f()
 potentially needless qualification --- and perhaps even casting ---
 where it might not be warranted:
 
-\begin{emcppslisting}
+\begin{emcppslisting}[emcppserrorlines={5,7}]
 int f()
 {
     enum class RC { e_ERROR = -1, e_OK = 0 } result = RC::e_OK;

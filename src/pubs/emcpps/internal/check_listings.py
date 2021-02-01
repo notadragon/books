@@ -20,7 +20,7 @@ headerRe = re.compile("// ----(Batch|Ignore|Standards|ErrorLines|OutputFile): (.
 sourceRe = re.compile("// ----(?:Hidden )?Listing start: (.*):(\d+)-----")
 replaceStartRe = re.compile("// --- Replace")
 replaceEndRe = re.compile("// --- End")
-targetFileRe = re.compile("// (([?:A-Za-z0-9_]+).(?:h|cpp)):")
+targetFileRe = re.compile("// (([?:A-Za-z0-9_\\.]+).(?:h|cpp)):( .*)?")
 
 class Env:
     def __init__(self,args):
@@ -31,6 +31,8 @@ class Env:
         self.lstfiles = [ f for f in self.listdir.iterdir() ]
         self.data = []
 
+        self.shownErrorFiles = set()
+
 class ListingData:
     def __init__(self,f):
         self.f = f
@@ -40,7 +42,7 @@ class ListingData:
         self.sourceFile = m.group(1)
         self.lstnum = int(m.group(2))
 
-        self.batch = f"l_{m.group(2)}"
+        self.batches = [ f"l_{int(m.group(2)):03}" ]
         self.ignore = False
         self.standards = None
         self.outputFile = None
@@ -52,7 +54,7 @@ class ListingData:
         for i,l in enumerate(self.data):
             m = batchRe.match(l)
             if m:
-                self.batch = m.group(1)
+                self.batches = m.group(1).split(",")
                 continue
 
             m = ignoreRe.match(l)
@@ -147,7 +149,7 @@ class BatchData:
         self.batch = batch
         self.listings = []
 
-        self.compilers=[ "clang++-10", "gcc-9", ]
+        self.compilers=[ "clang++-10", "gcc-10", ]
         self.standards=[ "c++11", "c++14", ]
 
         self.goodfiles = []
@@ -193,6 +195,10 @@ class BatchData:
     def compileGoodFiles(self,env):
         good = set()
         bad = set()
+
+        firstbadfile = None
+        firstbadoutput = None
+        
         for goodfile in self.goodfiles:
             for compiler in self.compilers:
                 for standard in self.standards:
@@ -207,10 +213,21 @@ class BatchData:
                     result = subprocess.call(args, stderr=outfile.open("w"), cwd=goodfile.parent)
                     if result:
                         bad.add( (goodfile.name, compiler, standard) )
+
+                        firstbadfile = goodfile
+                        firstbadoutput = outfile
                     else:
                         good.add( (goodfile.name, compiler, standard) )
         if bad:
             print(f"{self.sourceFile}/{self.batch}: [Errors: {len(bad)}/{len(bad) + len(good)}]")
+
+            if env.verbose > 2 or (env.verbose == 2 and not self.sourceFile in env.shownErrorFiles):
+                env.shownErrorFiles.add(self.sourceFile)
+
+                print(f"  Error in source: {firstbadfile.absolute()}")
+                print(f"  Error file: {firstbadoutput.name}")
+                for l in firstbadoutput.open().readlines():
+                    print(f"  {l.rstrip()}")
             
             return False
         else:
@@ -238,15 +255,16 @@ def checkListings(args):
     if env.codedir.exists():
         print(f"Cleaning code dir {env.codedir}")
         
-    env.data.sort(key=lambda x : (x.sourceFile,x.batch,x.lstnum) )
+    env.data.sort(key=lambda x : (x.sourceFile,x.lstnum) )
 
     env.batches = {}
     for f in env.data:
-        bkey = (f.sourceFile,f.batch)
-        if bkey not in env.batches:
-            env.batches[bkey] = BatchData(f.sourceFile,f.batch)
-        bdata = env.batches[bkey]
-        bdata.listings.append(f)
+        for batch in f.batches:
+            bkey = (f.sourceFile,batch)
+            if bkey not in env.batches:
+                env.batches[bkey] = BatchData(f.sourceFile,batch)
+            bdata = env.batches[bkey]
+            bdata.listings.append(f)
 
     batches = [ v for v in env.batches.values() ]
     batches.sort(key = lambda x : (x.sourceFile,x.batch) )
@@ -268,7 +286,7 @@ def checkListings(args):
             
 #---------------------------------------main processing below
 parser = argparse.ArgumentParser()
-parser.add_argument("--verbose", "-v", action="count", default=1)
+parser.add_argument("--verbose", "-v", action="count", default=2)
 parser.add_argument("--listdir", type=pathlib.Path)
 parser.add_argument("--codedir", type=pathlib.Path)
 parser.add_argument("--source", type=str, default=".*")

@@ -66,6 +66,7 @@ for fname, sectionroot in masterfiles.items():
     outlines = []
     
     for l in flines:
+        l = l.rstrip()
         if "cftaddtitleline" and "C++11" in l:
             vindex = 0
             continue

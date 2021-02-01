@@ -19,17 +19,17 @@ enumeration and is allowed to exceed the size of an \texttt{int}
 represented as an \texttt{int} or \texttt{unsigned}~\texttt{int}:
 
 \begin{emcppslisting}
-enum RGB { e_RED, e_GREEN, e_BLUE };                    // fits any (ù{\codeincomments{char}}ù)
+enum RGB { e_RED, e_GREEN, e_BLUE };                     // OK, fits any (ù{\codeincomments{char}}ù)
 
-enum Port { e_LEFT = -81, e_RIGHT = -82 };              // fits (ù{\codeincomments{signed char}}ù)
+enum Port { e_LEFT = -81, e_RIGHT = -82 };               // OK, fits (ù{\codeincomments{signed char}}ù)
 
-enum Mask { e_LOW = 32767, e_HIGH = 65535 };            // fits (ù{\codeincomments{unsigned short}}ù)
+enum Mask { e_LOW = 32767, e_HIGH = 65535 };             // OK, fits (ù{\codeincomments{unsigned short}}ù)
 
-enum Big { e_32 = 1<<32 };                              // too big for (ù{\codeincomments{int}}ù)
+enum Big { e_32 = 1<<32 };                               // Error, too big for (ù{\codeincomments{int}}ù)
 
-enum Err { K = 1024, M = K*K, G = M*K, T = G*K };       // (ù{\codeincomments{G*K}}ù) overflows (ù{\codeincomments{int}}ù)...
+enum Err { K = 1024, M = K*K, G = M*K, T = G*K };        // Error, (ù{\codeincomments{G*K}}ù) overflows (ù{\codeincomments{int}}ù)...
 
-enum OK { K = 1<<10, M = 1<<20, G = 1<<30, T = 1<<40 }; // ...but (ù{\codeincomments{1<<40}}ù) is OK
+enum OK { K = 1<<10, M = 1<<20, G = 1<<30, T = 1l<<40 }; // OK
 \end{emcppslisting}
 
 \noindent The default underlying type chosen for an \texttt{enum} is always
@@ -63,7 +63,7 @@ enum Port : unsigned char
     e_INPUT        =  37,  // OK, would have fit in a (ù{\codeincomments{signed char}}ù) too
     e_OUTPUT       = 142,  // OK, would not have fit in a (ù{\codeincomments{signed char}}ù)
     e_CONTROL      = 255,  // OK, barely fits in an 8-bit unsigned integer
-    e_BACK_CHANNEL = 256,  // error, doesn't fit in an 8-bit unsigned integer
+    e_BACK_CHANNEL = 256,  // Error, doesn't fit in an 8-bit unsigned integer
 };
 \end{emcppslisting}
 
@@ -86,16 +86,20 @@ inside a date class having an internal representation that maintains the
 year as a two-byte signed integer, the month as an enumeration, and the
 day as an 8-bit signed integer:
 
-\begin{emcppslisting}
+\begin{emcppshiddenlisting}[emcppsbatch=e1]
+enum Month { January=1 };
+\end{emcppshiddenlisting}
+\begin{emcppslisting}[emcppsbatch=e1]
 #include <cstdint>  // (ù{\codeincomments{std::int8\_t}}ù), (ù{\codeincomments{std::int16\_t}}ù)
 
 class Date
 {
     std::int16_t d_year;
-    Month d_month;
-    std::int8_t day;
+    Month        d_month;
+    std::int8_t  d_day;
 
 public:
+    Date();
     Date(int year, Month month, int day);
 
     // ...
@@ -103,7 +107,7 @@ public:
     int year() const    { return d_year; }
     Month month() const { return d_month; }
     int day() const     { return d_day; }
-}
+};
 \end{emcppslisting}
 
 \noindent Within the software, the \texttt{Date} is typically constructed using
@@ -153,6 +157,8 @@ be, e.g., \texttt{std::int8\_t} or \texttt{signed}~\texttt{char}, on
 every platform:
 
 \begin{emcppslisting}
+#include <cstdint>  // (ù{\codeincomments{std::int8\_t}}ù)
+
 enum Month : std::int8_t  // user-provided underlying type (GOOD IDEA)
 {
     e_JAN = 1, e_FEB, e_MAR,    // winter
@@ -168,7 +174,7 @@ static_assert(sizeof(Month) == 1 && alignof(Month) == 1, "");
 \texttt{Date} class is 4 bytes, which is especially valuable for large
 aggregates:
 
-\begin{emcppslisting}
+\begin{emcppslisting}[emcppsbatch=e1]
 Date timeSeries[1000 * 1000];  // (ù{\codeincomments{sizeof(timeSeries)}}ù) is now 4Mb (not 12Mb)
 \end{emcppslisting}
 
@@ -209,20 +215,20 @@ In most arithmetic expressions, this difference is irrelevant.
 Subtleties arise, however, when one relies on overload resolution for
 identifying the underlying type:
 
-\begin{emcppslisting}
+\begin{emcppslisting}[emcppsbatch=e2]
 void f(signed char x);
 void f(short x);
 void f(int x);
 void f(long x);
 void f(long long x);
 
-enum E1         { a, b, c, d, e };
-enum E2 : short { f, g, h, i ,j };
+enum E1         { q, r, s, t, u };
+enum E2 : short { v, w, x, y, z };
 
-void g()
+void test()
 {
-   f(E1::a);  // always calls (ù{\codeincomments{f(int)}}ù) on all platforms
-   f(E2::f);  // always calls (ù{\codeincomments{f(short)}}ù) on all platforms
+   f(E1::q);  // always calls (ù{\codeincomments{f(int)}}ù) on all platforms
+   f(E2::v);  // always calls (ù{\codeincomments{f(short)}}ù) on all platforms
 }
 \end{emcppslisting}
 
@@ -242,17 +248,19 @@ though, and the Standard does provide a trait to do that:
 be used in a cast without risking loss of value (see
   ``\titleref{auto}" on page~\pageref{auto}):
 
-\begin{emcppslisting}
+\begin{emcppslisting}[emcppsbatch=e2]
+#include <type_traits>  // (ù{\codeincomments{std::underlying\_type}}ù)
+
 template <typename E>
-std::underlying_type<E>::type toUnderlying(E value)
+typename std::underlying_type<E>::type toUnderlying(E value)
 {
-    return static_cast<std::underlying_type<E>::type>(value);
+    return static_cast<typename std::underlying_type<E>::type>(value);
 }
 
 void h()
 {
-    auto e1 = toUnderlying(E1::a); // might be anywhere from (ù{\codeincomments{signed char}}ù) to (ù{\codeincomments{int}}ù)
-    auto e2 = toUnderlying(E2::f); // always deduced as (ù{\codeincomments{short}}ù)
+    auto e1 = toUnderlying(E1::q); // might be anywhere from (ù{\codeincomments{signed char}}ù) to (ù{\codeincomments{int}}ù)
+    auto e2 = toUnderlying(E2::v); // always deduced as (ù{\codeincomments{short}}ù)
 }
 \end{emcppslisting}
 

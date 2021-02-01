@@ -182,7 +182,7 @@ function} and thus will suppress the generation of other
 \textbf{special member functions} accordingly.
 
 \begin{lstlisting}[language=C++,label=default-exampleh-code]
-// example.h
+// example.h:
 
 struct S6
 {
@@ -585,7 +585,7 @@ compile time, per se, but compile-time \emph{coupling}; see
   \textbf{{lakos20}}, section 3.10.5, pp.~783--789.}}:
 
 \begin{lstlisting}[language=C++]
-// smallscale.h
+// smallscale.h:
 
 struct SmallScale
 {
@@ -598,7 +598,7 @@ struct SmallScale
 file):
 
 \begin{lstlisting}[language=C++]
-// largescale.h
+// largescale.h:
 
 struct LargeScale
 {
@@ -613,7 +613,7 @@ associated header (\texttt{.h}) file and often vice versa  (with the \texttt{.cp
   pages 209--216 and 256--259, respectively.}}~\texttt{.cpp} file:
 
 \begin{lstlisting}[language=C++]
-// largescale.cpp
+// largescale.cpp:
 #include <largescale.h>
 
 LargeScale::LargeScale() = default;
