@@ -1,0 +1,127 @@
+%------------------------------------------------------------------------------
+% FEATURE SECTION declaration
+%------------------------------------------------------------------------------
+
+\makeatletter
+
+% These keys define the options available to the \emcppsFeature command
+\define@cmdkey[emcpps]{section}{tocshort}{}
+\define@cmdkey[emcpps]{section}{toclong}{}
+\define@cmdkey[emcpps]{section}{rhshort}{}
+\define@cmdkey[emcpps]{section}{headinglong}{}
+\define@cmdkey[emcpps]{section}{short}{}
+\define@cmdkey[emcpps]{section}{long}{}
+
+\presetkeys[emcpps]{section}{ tocshort = {},
+                              toclong  = {},
+                              rhshort  = {},
+                              headinglong = {},
+                              short = {},
+                              long = {},
+                             }{}
+
+% Default display macro for titles, this shoud never be rendered, and will
+% only be visible if the corresponding macro has not been set properly.
+\newcommand{\emcppsShowTitleDefaultImpl}[1]{%
+  --- this should not be seen --- #1 --- \cmdecpps@section@short --- \cmdemcpps@section@long%
+}
+
+% ------------------------section headings-------------------------------------
+% The title of a section at the start will use the "headinglong" option if
+% it is set, otherwise the "long" option will be used
+\newcommand{\emcppsShowTitleSectionImpl}{%
+  \ifthenelse{\equal{}{\cmdemcpps@section@headinglong}}%
+    {\cmdemcpps@section@long}%
+    {\cmdemcpps@section@headinglong}%
+}
+
+% The runnning head in a section, which uses the alt title from the \section
+% command, will use the "rhshort" option if set, otherwise the "long" option.
+\newcommand{\emcppsShowTitleRHImpl}{%
+  \ifthenelse{\equal{}{\cmdemcpps@section@rhshort}}%
+    {\cmdemcpps@section@short}%
+    {\cmdemcpps@section@rhshort}%
+}
+
+% ----------------------toc contents ------------------------------------------
+% The table of contents will place the short title in a box and the long title
+% after it, prefer the "toc" options ("tocshort", "toclong") if those are set
+% and otherwise using the basic options ("short", "long").
+\newcommand{\emcppsShowTitleTocImpl}{%
+  \makebox[12em][l]{\sf %
+    \ifthenelse{\equal{}{\cmdemcpps@section@tocshort}}%
+      {\cmdemcpps@section@short}%
+      {\cmdemcpps@section@tocshort}%
+  }%
+  \ifthenelse{\equal{}{\cmdemcpps@section@toclong}}%
+    {\cmdemcpps@section@long}%
+    {\cmdemcpps@section@toclong}%
+}
+
+%------------------------------------------------------------------------------
+% Section title rendering will delegate to the below two macros, which will be
+% redefined in different contexts to point to different renderers.  These
+% macros will be invoked with the option keys passed to the coresponding
+% \emcppsFeatureSection command having already been processed.
+\newcommand{\emcppsShowTitleImpl}{\emcppsShowTitleDefaultImpl{TITLE}}
+\newcommand{\emcppsShowTitleAltImpl}{\emcppsShowTitleDefaultImpl{ALTTITLE}}
+
+% Prior to calling the \section command this command should be invoked in order
+% to configure the title and running head to pick up the proper options.  This
+% is handled by \emcppsFeatureSection.
+\newcommand{\emcppsSetShowTitleSection}{%
+  \renewcommand{\emcppsShowTitleImpl}{\emcppsShowTitleSectionImpl}%
+  \renewcommand{\emcppsShowTitleAltImpl}{\emcppsShowTitleRHImpl}%
+}
+
+% Prior to rendering the table of contents this macro should be invoked in order
+% to have the toc pick up the proper options.
+\newcommand{\emcppsSetShowTitleToc}{%
+  \renewcommand{\emcppsShowTitleAltImpl}{\emcppsShowTitleTocImpl}%
+}
+
+% After the table of contents, or after all feature sections are finished, this
+% macro should be invoked to be restore the impl commands have their default
+% configurations.
+\newcommand{\emcppsRevertShowTitle}{%
+  \renewcommand{\emcppsShowTitleImpl}{\emcppsShowTitleDefaultImpl{TITLE}}%
+  \renewcommand{\emcppsShowTitleAltImpl}{\emcppsShowTitleDefaultImpl{ALTTITLE}}%
+}
+
+
+% The below two commands will be passed to \section by \emcppsFeatureSection in
+% order to render the section title in the appropriate context-sensitive manner.
+\newcommand{\emcppsShowTitle}[1]{%
+    \setkeys[emcpps]{section}{#1}
+    \protect\emcppsShowTitleImpl
+}
+\newcommand{\emcppsShowTitleAlt}[1]{%
+    \setkeys[emcpps]{section}{#1}
+    \protect\emcppsShowTitleAltImpl
+}
+
+
+% Each feature should start with the below command, \emcppsFeature.
+% The first argument is a list of key=value options, with the following keys
+% supported:
+%   short:       The short title of the section
+%   long:        The long title of the section
+%   tocshort, toclong: Override the short and long portions of the table of
+%                      contents entry, if specified.
+%   rhshort:     Override the running head short title, if specified.
+%   headinglong: Override the long title to be placed in the heading, if
+%                specified.
+% The second argument is the label associated with the feature section.  This
+% might potentially be used to generate other references within the section,
+% so it should be unique within the book.
+\newcommand{\emcppsFeature}[2]{%
+  \setkeys[emcpps]{section}{#1}%
+  \refstepcounter{section}%
+  \newpage% 
+  \emcppsSetShowTitleSection%
+  \section[\protect\emcppsShowTitleAlt{#1}]%
+          {\protect\emcppsShowTitle{#1}}%
+  \label{#2}%
+}
+
+\makeatother

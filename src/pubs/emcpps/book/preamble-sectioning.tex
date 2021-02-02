@@ -1,12 +1,9 @@
-\usepackage{etoolbox}
-
 \makeatletter
 
 \newcommand\subsubemdash{\sfbsubsubRomeo\char"2014} %% for whatever reason, emdashes are not displaying properly in subsubsection heads. This creates a direct command to create them. 
 
 \newcommand\romeovalue[1]{\textit{#1}}  % for normal text usage
 \newcommand\romeovalueinside{\itshape} % for inside other environments, like table cells
-\newcommand\romeogloss[1]{\textbf{#1}}
 \newcommand\intraref[2]{\textit{\titleref{#1}~\intrarefdelim~\titleref{#2}} on page~\pageref{#2}}
 \newcommand\intrarefsimple[1]{\textit{\titleref{#1}} on page~\pageref{#1}}
 \newcommand\intrarefnopage[1]{\textit{\titleref{#1}}}
@@ -57,98 +54,6 @@
   \cftaddnumtitleline{toc}{section}{\thechapter.\thecppxx}{#2}{\thepage}%
   \label{sec-\theEmcppsFeatureChapter-#1}%
   \renewcommand{\cppxx}{#1}%
-}
-
-%------------------------------------------------------------------------------
-% FEATURE SECTION declaration
-%------------------------------------------------------------------------------
-
-% These keys define the options available to the \emcppsFeature command
-\define@cmdkey[emcpps]{section}{tocshort}{}
-\define@cmdkey[emcpps]{section}{toclong}{}
-\define@cmdkey[emcpps]{section}{rhshort}{}
-\define@cmdkey[emcpps]{section}{headinglong}{}
-\define@cmdkey[emcpps]{section}{short}{}
-\define@cmdkey[emcpps]{section}{long}{}
-
-\presetkeys[emcpps]{section}{ tocshort = {},
-                              toclong  = {},
-                              rhshort  = {},
-                              headinglong = {},
-                              short = {},
-                              long = {},
-                             }{}
-
-% Default display macro for titles, this shoud not be seen
-\newcommand{\emcppsShowTitleDefaultImpl}[1]{%
-  --- this should not be seen --- #1 ---%
-}
-
-% In-Section titles for macros
-\newcommand{\emcppsShowTitleSectionImpl}{%
-%  \cmdemcpps@section@headinglong%
-  \cmdemcpps@section@long%
-}
-
-\newcommand{\emcppsShowTitleRHImpl}{%
-%  \cmdemcpps@section@rhshort%
-  \cmdemcpps@section@short%
-}
-
-\newcommand{\emcppsSetShowTitleSection}{%
-  \renewcommand{\emcppsShowTitleImpl}{\emcppsShowTitleSectionImpl}%
-  \renewcommand{\emcppsShowTitleAltImpl}{\emcppsShowTitleRHImpl}%
-}
-
-% Table of contents implementation
-\newcommand{\emcppsSetShowTitleToc}{%
-  \renewcommand{\emcppsShowTitleAltImpl}{\emcppsShowTitleTocImpl}%
-}
-
-\newcommand{\emcppsShowTitleTocImpl}{%
-%  \makebox[12em][l]{\sf \cmdemcpps@section@tocshort} \cmdemcpps@section@toclong%
-  \makebox[12em][l]{\sf %
-    \ifthenelse{\equal{}{\cmdemcpps@section@tocshort}}%
-      {\cmdemcpps@section@short}%
-      {\cmdemcpps@section@tocshort}%
-  }%
-    \ifthenelse{\equal{}{\cmdemcpps@section@toclong}}%
-      {\cmdemcpps@section@long}%
-      {\cmdemcpps@section@toclong}%
-}
-
-
-% The default implementation macros, always show a diagnostic message
-\newcommand{\emcppsShowTitleImpl}{\emcppsShowTitleDefaultImpl{TITLE}}
-
-\newcommand{\emcppsShowTitleAltImpl}{\emcppsShowTitleDefaultImpl{ALTTITLE}}
-
-\newcommand{\emcppsRevertShowTitle}{%
-  \renewcommand{\emcppsShowTitleImpl}{\emcppsShowTitleDefaultImpl{TITLE}}%
-  \renewcommand{\emcppsShowTitleAltImpl}{\emcppsShowTitleDefaultImpl{ALTTITLE}}%
-}
-
-% the top level commands, always protected, not renewed
-\newcommand{\emcppsShowTitle}[1]{%
-    \setkeys[emcpps]{section}{#1}
-    \protect\emcppsShowTitleImpl
-}
-\newcommand{\emcppsShowTitleAlt}[1]{%
-    \setkeys[emcpps]{section}{#1}
-    \protect\emcppsShowTitleAltImpl
-}
-
-
-% Start a feature
-% args: label, short title, long title
-\newcommand{\emcppsFeature}[2]{%
-  \setkeys[emcpps]{section}{#1}%
-  \refstepcounter{section}%
-  \newpage% 
-  \emcppsSetShowTitleSection%
-  \section[\protect\emcppsShowTitleAlt{#1}]%
-          {\protect\emcppsShowTitle{#1}}%
-  \label{#2}%
 }
 
 \makeatother
