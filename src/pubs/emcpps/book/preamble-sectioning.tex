@@ -1,3 +1,5 @@
+\usepackage{etoolbox}
+
 \makeatletter
 
 \newcommand\subsubemdash{\sfbsubsubRomeo\char"2014} %% for whatever reason, emdashes are not displaying properly in subsubsection heads. This creates a direct command to create them. 
@@ -53,7 +55,7 @@
   \stepcounter{cppxx}%
   \addtocontents{toc}{\protect\renewcommand*\protect\cftsecindent{1.25em}}%
   \cftaddnumtitleline{toc}{section}{\thechapter.\thecppxx}{#2}{\thepage}%
-  label{sec-\theEmcppsFeatureChapter-#1}%
+  \label{sec-\theEmcppsFeatureChapter-#1}%
   \renewcommand{\cppxx}{#1}%
 }
 
@@ -61,6 +63,7 @@
 % FEATURE SECTION declaration
 %------------------------------------------------------------------------------
 
+% These keys define the options available to the \emcppsFeature command
 \define@cmdkey[emcpps]{section}{tocshort}{}
 \define@cmdkey[emcpps]{section}{toclong}{}
 \define@cmdkey[emcpps]{section}{rhshort}{}
@@ -104,7 +107,14 @@
 
 \newcommand{\emcppsShowTitleTocImpl}{%
 %  \makebox[12em][l]{\sf \cmdemcpps@section@tocshort} \cmdemcpps@section@toclong%
-  \makebox[12em][l]{\sf \cmdemcpps@section@short} \cmdemcpps@section@long%
+  \makebox[12em][l]{\sf %
+    \ifthenelse{\equal{}{\cmdemcpps@section@tocshort}}%
+      {\cmdemcpps@section@short}%
+      {\cmdemcpps@section@tocshort}%
+  }%
+    \ifthenelse{\equal{}{\cmdemcpps@section@toclong}}%
+      {\cmdemcpps@section@long}%
+      {\cmdemcpps@section@toclong}%
 }
 
 
@@ -132,7 +142,7 @@
 % Start a feature
 % args: label, short title, long title
 \newcommand{\emcppsFeature}[2]{%
-  \setkeys[emcpps]{section}{#1}
+  \setkeys[emcpps]{section}{#1}%
   \refstepcounter{section}%
   \newpage% 
   \emcppsSetShowTitleSection%

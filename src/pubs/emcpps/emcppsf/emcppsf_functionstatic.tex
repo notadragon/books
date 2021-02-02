@@ -1,6 +1,7 @@
 \emcppsFeature{
-        short={Function {\tt static} '11},
-        long={Threadsafe Function-Scope {\SecCode static} Variables},
+    toclong={Threadsafe Function-Scope {\tt static} Variables},
+    short={Function {\tt static} '11},
+    long={Threadsafe Function-Scope {\SecCode static} Variables},
 }{thread-safe-function-static-variables}
 
 % 01 Feb, 2021 JMB - packet 4 compilation fixes
@@ -573,14 +574,14 @@ use:
 \begin{emcppshiddenlisting}[emcppsbatch=e11]
 struct Camera {
   Camera();
-};    
+};
 \end{emcppshiddenlisting}
 \begin{emcppslisting}[emcppsbatch=e11]
 class PrimaryCamera
 {
     Camera& d_camera_r;
     PrimaryCamera(Camera& camera)  // implicit constructor
-      : d_camera_r(camera) { }  
+      : d_camera_r(camera) { }
 
 public:
     static PrimaryCamera getInstance()

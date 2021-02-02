@@ -50,8 +50,8 @@ def processHead(lines):
     #print(f"SHORT: {shortTit}  LONG: {longTit}  LABELS: {labels}")
 
     output.append(f"\emcppsFeature{{")
-    output.append(f"        short={{{shortTit}}},")
-    output.append(f"        long={{{longTit}}},")
+    output.append(f"    short={{{shortTit}}},")
+    output.append(f"    long={{{longTit}}},")
     output.append(f"}}{{{labels[0]}}}")
 
     for l in labels[1:]:

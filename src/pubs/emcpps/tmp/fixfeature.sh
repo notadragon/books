@@ -1,5 +1,7 @@
 #!/bin/bash
 
+# script to do initial conversion of a feature from lstlisting to emcppslisting
+
 for f in emcppsf_enumclass.tex emcppsf_forwardingref.tex emcppsf_underlyingenum.tex emcppsf_opaqueenum.tex emcppsf_functionstatic.tex emcppsf_externtemplate.tex  ; do
   sed -i \
       -e  "s|\\\\begin{lstlisting}\\[language=C++\\]|\\\\begin{emcppslisting}|" \
