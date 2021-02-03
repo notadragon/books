@@ -48,7 +48,7 @@
 % after it, prefer the "toc" options ("tocshort", "toclong") if those are set
 % and otherwise using the basic options ("short", "long").
 \newcommand{\emcppsShowTitleTocImpl}{%
-  \makebox[12em][l]{\sf %
+  \makebox[12em][l]{\sf%
     \ifthenelse{\equal{}{\cmdemcpps@section@tocshort}}%
       {\cmdemcpps@section@short}%
       {\cmdemcpps@section@tocshort}%
@@ -92,12 +92,12 @@
 % The below two commands will be passed to \section by \emcppsFeatureSection in
 % order to render the section title in the appropriate context-sensitive manner.
 \newcommand{\emcppsShowTitle}[1]{%
-    \setkeys[emcpps]{section}{#1}
-    \protect\emcppsShowTitleImpl
+    \setkeys[emcpps]{section}{#1}%
+    \protect\emcppsShowTitleImpl%
 }
 \newcommand{\emcppsShowTitleAlt}[1]{%
-    \setkeys[emcpps]{section}{#1}
-    \protect\emcppsShowTitleAltImpl
+    \setkeys[emcpps]{section}{#1}%
+    \protect\emcppsShowTitleAltImpl%
 }
 
 
