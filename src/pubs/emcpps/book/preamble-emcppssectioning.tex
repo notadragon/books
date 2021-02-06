@@ -113,7 +113,7 @@
   \emcppsShowTitleImpl{\theemcppsAltTitleMode}%
 }
 
-% When a local setting for these commands is done, i.e., after the table of
+% When a local setting for the section title modes is done, i.e., after the table of
 % contents or a running header display, revert to the defaults with this command
 \newcommand{\emcppsRevertShowTitle}{%
   \setcounter{emcppsTitleMode}{0}%
@@ -148,6 +148,7 @@
 \newcommand{\emcppsPickRH}[1]{
   \setcounter{emcppsAltTitleMode}{3}%
   #1%
+  \emcppsRevertShowTitle
 }
 
 % Each feature should start with the below command, \emcppsFeature.
