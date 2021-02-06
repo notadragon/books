@@ -203,7 +203,7 @@ footskip=.025in}
 \include{emcppsc-index}
 
 %T%% for f in pub.outline.sectionfiles("book_back"):
-\input{${f}}
+\include{${f}}
 %T%% endfor
 
 % 

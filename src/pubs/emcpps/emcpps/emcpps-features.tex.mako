@@ -1,7 +1,7 @@
 %%%%%% RHs redefined for Chs 1-3
-%\fancyhead[RO]{\sectionmark}
+%\fancyhead[RO]{\emcppsRHMark}
 \fancyhead[LO]{\sfnine\cppxx}
-%\fancyhead[RE]{\sectionmark}
+%\fancyhead[RE]{\emcppsRHMark}
 %\fancyhead[LE]{\chaptermark}
 %%%%%%%%%%
 

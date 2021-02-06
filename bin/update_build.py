@@ -113,15 +113,23 @@ class PublicationOutline:
         for section in config.sections():
             files = []
             for f in config.options(section):
-                files.append(f)
+                priority = config.get(section,f)
+                if not priority:
+                    priority = 0
+                else:
+                    priority = int(priority)
+                files.append( (priority,f) )
             if section in self.sections:
                 self.sections[section].extend(files)
             else:
                 self.sections[section] = files
-
+        for section,fs in self.sections.items():
+            print(f"{fs}")
+            fs.sort(key=lambda x : x[0])
+            
     def sectionfiles(self,section):
         if section in self.sections:
-            return self.sections[section]
+            return [ x[1] for x in self.sections[section]]
         else:
             return []
     

@@ -25,13 +25,13 @@ featureRe = re.compile("\\\\emcppsFeature\\{(.*)\\}\\{(.*)\\}")
 featureParamRe = re.compile("([a-z]+)=\\{(.*)\\}")
 
 def translateTocShort(s):
-    return s
+    return s.replace("\\SecCode","\\TOCCode")
 
 def translateTocLong(l):
-    return l.replace("\\SecCode","\\tt")
+    return l.replace("\\SecCode","\\TOCCode")
 
 def translateRhShort(s):
-    return s
+    return s.replace("\\SecCode","\\RHCode")
 
 def translateHeadingLong(l):
     return l
@@ -62,6 +62,8 @@ def findParams(s):
                     break
             n = n + 1
         val = s[vstart:n]
+
+        val = val.replace("\\tt","\\SecCode")
 
         if val[0] == "{" and val[-1] == "}":
             val = val[1:-1]

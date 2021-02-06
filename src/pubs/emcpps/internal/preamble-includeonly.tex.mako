@@ -11,5 +11,3 @@
 %T%% if includeonlylist:
 \includeonly{${",".join(includeonlylist)}}
 %T%% endif
-
-
