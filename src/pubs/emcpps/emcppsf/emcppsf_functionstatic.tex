@@ -1,11 +1,24 @@
 \emcppsFeature{
-    tocshort={Function {\TOCCode static} '11},
-    toclong={Threadsafe Function-Scope {\TOCCode static} Variables},
-    short={Function {\SecCode static} '11},
+    short={Function {\tt static} '11},
     long={Threadsafe Function-Scope {\SecCode static} Variables},
 }{thread-safe-function-static-variables}
 
 % 01 Feb, 2021 JMB - packet 4 compilation fixes
+
+
+\emcppsFeature{
+    short={Function \lstinline!static! '11},
+    tocshort={Function {\TOCCode static} '11},
+    long={Threadsafe Function-Scope {\SecCode static} Variables},
+    toclong={Threadsafe Function-Scope \lstinline!static! Variables},
+    rhshort={Function {\RHCode static} '11},
+}{thread-safe-function-static-variables}
+\setcounter{table}{0}
+\setcounter{footnote}{0}
+\setcounter{lstlisting}{0}
+%\section[Function {\tt static} '11]{Threadsafe Function-Scope {\SecCode static} Variables}\label{thread-safe-function-static-variables}
+
+
 
 Function-scope \lstinline!static! objects are now guaranteed to be
 initialized free of race conditions in the presence

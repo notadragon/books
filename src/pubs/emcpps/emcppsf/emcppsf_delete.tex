@@ -1,5 +1,4 @@
 \emcppsFeature{
-    toclong={Using {\TOCCode =}\,{\TOCCode delete} for Arbitrary Functions},
     short={Deleted Functions},
     long={Using {\SecCode =}\,{\SecCode delete} for Arbitrary Functions},
 }{deleted-functions}
@@ -7,6 +6,18 @@
 % 27 Jan, code compiled by Josh
 % 27 Jan, new section added
 % 27 Jan, new section copyedited and copyedits entered
+
+\emcppsFeature{
+    toclong={Using \lstinline!=!\,\lstinline!delete! for Arbitrary Functions},
+    short={Deleted Functions},
+    long={Using {\SecCode =}\,{\SecCode delete} for Arbitrary Functions},
+}{deleted-functions}
+%\section[Deleted Functions]{Using {\SecCode =delete} for Arbitrary Functions}\label{deleted-functions}
+\setcounter{table}{0}
+\setcounter{footnote}{0}
+\setcounter{lstlisting}{0}
+
+
 
 
 Using \lstinline!=!\,\lstinline!delete! in a function's first declaration
@@ -48,9 +59,11 @@ functions can be affected by the existence of other user-defined special
 member functions or by limitations imposed by the specific types of
 any data members or base types; see
 %Section~\ref{Defaulted-Special-Member-Functions}, ``\titleref{Defaulted-Special-Member-Functions} on page~\pageref{Defaulted-Special-Member-Functions}."
-\featureref{\locationa}{Defaulted-Special-Member-Functions}. For certain kinds of types, the notion of \romeogloss{copy semantics}
-including \romeogloss{move semantics} is not meaningful, and
-hence permitting the generation of copy operations is contraindicated. The two special member functions controlling \romeogloss{\emph{move} operations}, introduced in C++11, are sometimes implemented as effective optimizations of \romeogloss{\emph{copy} operations} and much less frequently with \romeogloss{\emph{copy} operations} explicitly deleted; see \featureref{\locationc}{Rvalue-References}.
+\featureref{\locationa}{Defaulted-Special-Member-Functions}.
+%For certain kinds of types, the notion of \romeogloss{copy semantics}
+%including \romeogloss{move semantics} is not meaningful, and
+%hence permitting the generation of copy operations is contraindicated. The two special member functions controlling \romeogloss{\emph{move} operations}, introduced in C++11, are sometimes implemented as effective optimizations of \romeogloss{\emph{copy} operations} and much less frequently with \romeogloss{\emph{copy} operations} explicitly deleted; see \featureref{\locationc}{Rvalue-References}.
+For certain kinds of types, the notion of \emph{copying} is not meaningful, and hence permitting the compiler to generate \emph{copy} operations would be inappropriate. The two special member functions controlling \romeogloss{move operations}, introduced in C++11, are typically implemented as effective optimizations of \romeogloss{\emph{copy} operations} and thus would be similarly contraindicated. Much less frequently, a useful notion of moving exists where copying does not, and so we may choose to have move operations generated, while \romeogloss{\emph{copy} operations} are explicitly deleted; see \featureref{\locationc}{Rvalue-References}.
 
 Consider a class, \lstinline!FileHandle!, that uses the \romeogloss{RAII} idiom
 to safely acquire and release an I/O stream. As \romeogloss{copy semantics}

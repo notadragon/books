@@ -53,7 +53,6 @@ footskip=.025in}
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \newcommand{\fncodeincomments}{\color{grey}\ttfamily}
-\newcommand{\emphincomments}{\color{purple}\ttfamily\itshape}
 %%%%%%%%%%%%%%%%%
 
 

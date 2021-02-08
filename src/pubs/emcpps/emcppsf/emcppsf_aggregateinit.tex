@@ -2,18 +2,28 @@
     short={Aggregate Init '14},
     long={Aggregates Having Default Member Initializers},
 }{aggregate-member-initialization-relaxation}
+%%% 2 Feb 2021, copyedits entered and proofed
 
+
+\emcppsFeature{
+    short={Aggregate Init '14},
+    long={Aggregates Having Default Member Initializers},
+}{aggregate-member-initialization-relaxation}
+\setcounter{table}{0}
+\setcounter{footnote}{0}
+\setcounter{lstlisting}{0}
+%\section[Aggregate Init '14]{Aggregates Having Default Member Initializers}\label{aggregate-member-initialization-relaxation}
 
 
 C++14 enables the use of \romeogloss{aggregate initialization} with classes
-employing Default Member Initializers (see \featureref{\locationa}{Default-Member-Initializers}).
+employing default member initializers (see \featureref{\locationa}{Default-Member-Initializers}).
 
 \subsection[Description]{Description}\label{description}
 
-Prior to C++14, classes that made use of default member initializers (see \featureref{\locationa}{Default-Member-Initializers}) --- i.e., initializers that appear directly within the
+Prior to C++14, classes that used default member initializers (see \featureref{\locationa}{Default-Member-Initializers}) --- i.e., initializers that appear directly within the
 scope of the class --- were not considered \romeogloss{aggregate} types:
 
-\begin{lstlisting}[language=C++]
+\begin{emcppslisting}[language=C++]
 struct S                // aggregate type in C++14 but not C++11
 {
     int i;
@@ -25,29 +35,29 @@ struct A                // aggregate type in C++11 and C++14
     int  i;
     bool b;             // does not use default member initializer
 };
-\end{lstlisting}
+\end{emcppslisting}
 
 \noindent Because \lstinline!A! (but not \lstinline!S!) is considered an \romeogloss{aggregate} in
 C++11, instances of \lstinline!A! can be created via \romeogloss{aggregate
 initialization} (whereas instances of \lstinline!S! cannot):
 
-\begin{lstlisting}[language=C++]
+\begin{emcppslisting}[language=C++]
 A a={100, true};  // OK in both C++11 and C++14
 S s={100, true};  // error in C++11; OK in C++14
-\end{lstlisting}
+\end{emcppslisting}
 
 
 \noindent Note that since C++11, direct-list-initialization may be used to perform aggregate initialization (see \featureref{\locationc}{bracedinit}):
-\begin{lstlisting}[language=C++]
+\begin{emcppslisting}[language=C++]
 A a{100, true};  // OK in both C++11 and C++14 but not in C++03
-\end{lstlisting}
+\end{emcppslisting}
 As of C++14, the requirements for a type to be categorized as an
 \romeogloss{aggregate} are relaxed, allowing classes employing default
-member initializers to be considered as such; hence both \lstinline!A! and
+member initializers to be considered as such; hence, both \lstinline!A! and
 \lstinline!S! are considered \romeogloss{aggregates} in C++14 and eligible for
 \romeogloss{aggregate initialization}:
 
-\begin{lstlisting}[language=C++]
+\begin{emcppslisting}[language=C++]
 void f()
 {
     S s0{100, true};        // OK in C++14 but not in C++11
@@ -58,11 +68,11 @@ void f()
     assert(s1.i == 456);    // set via explicit aggregate initialization (above)
     assert(s1.b == false);  // set via default member initializer
 }
-\end{lstlisting}
+\end{emcppslisting}
 
 \noindent In the code snippet above, the C++14 aggregate \lstinline!S! is initialized
 in two ways: \lstinline!s0! is created using aggregate initialization for
-both data members; \lstinline!s1! is created using aggregate
+both data members, and \lstinline!s1! is created using aggregate
 initialization for only the first data member (and the second is set via its
 default member \nobreak{initializer}).
 
@@ -75,7 +85,7 @@ configuration \lstinline!struct!s, packaged with typical default values. As
 an example, consider a configuration \lstinline!struct! for an HTTP request
 handler:
 
-\begin{lstlisting}[language=C++]
+\begin{emcppslisting}[language=C++]
 struct HTTPRequestHandlerConfig
 {
     int maxQueuedRequests = 1024;
@@ -83,26 +93,26 @@ struct HTTPRequestHandlerConfig
     int minThreads        = 4;
     int maxThreads        = 8;
 };
-\end{lstlisting}
+\end{emcppslisting}
 
 \noindent \romeogloss{Aggregate initialization} can be used when creating objects of
 type \nobreak{\lstinline!HTTPRequestHandlerConfig!} (above) to override one or more
 of the defaults in definition order{\cprotect\footnote{In C++20, the
-Designated Initializers feature adds flexibility (e.g., for
+designated initializers feature adds flexibility (e.g., for
 configuration \lstinline!struct!s, such as
 \lstinline!HTTPRequestHandlerConfig!) by enabling explicit specification
 of the names of the data members:
 
-\begin{lstlisting}[language=C++, basicstyle={\ttfamily\footnotesize}]
+\begin{emcppslisting}[language=C++, basicstyle={\ttfamily\footnotesize}]
 HTTPRequestHandlerConfig lowTimeout{.timeout = 15};
     // (ù{\codeincomments{maxQueuedRequests}}ù), (ù{\codeincomments{minThreads}}ù), and (ù{\codeincomments{maxThreads}}ù) have their default value.
 
 HTTPRequestHandlerConfig highPerformance{.timeout = 120, .maxThreads = 16};
     // (ù{\codeincomments{maxQueuedRequests}}ù) and (ù{\codeincomments{minThreads}}ù) have their default value.
-\end{lstlisting}
+\end{emcppslisting}
       }}:
 
-\begin{lstlisting}[language=C++]
+\begin{emcppslisting}[language=C++]
 HTTPRequestHandlerConfig getRequestHandlerConfig(bool inLowMemoryEnvironment)
 {
     if (inLowMemoryEnvironment)
@@ -118,7 +128,7 @@ HTTPRequestHandlerConfig getRequestHandlerConfig(bool inLowMemoryEnvironment)
 }
 
 // ...
-\end{lstlisting}
+\end{emcppslisting}
 
 
 \subsection[Potential Pitfalls]{Potential Pitfalls}\label{potential-pitfalls}
@@ -133,7 +143,7 @@ During the initialization of multilevel \romeogloss{aggregates}, braces
 around the initialization of a nested aggregate can be omitted
 (\romeogloss{brace elision}):
 
-\begin{lstlisting}[language=C++]
+\begin{emcppslisting}[language=C++]
 struct S
 {
     int arr[3];
@@ -141,7 +151,7 @@ struct S
 
 S s0{{0, 1, 2}};  // OK, nested (ù{\codeincomments{arr}}ù) initialized explicitly
 S s1{0, 1, 2};    // OK, brace elision for nested (ù{\codeincomments{arr}}ù)
-\end{lstlisting}
+\end{emcppslisting}
 
 \noindent The possibility of \romeogloss{brace elision} creates an interesting
 syntactical ambiguity when used alongside \romeogloss{aggregates} with
@@ -149,19 +159,19 @@ default member initializers (see \featureref{\locationa}{Default-Member-Initiali
 \lstinline!struct!~\lstinline!X! containing three data members, one of which
 has a default value:
 
-\begin{lstlisting}[language=C++]
+\begin{emcppslisting}[language=C++]
 struct X
 {
     int a;
     int b;
     int c = 0;
 };
-\end{lstlisting}
+\end{emcppslisting}
 
 \noindent Now, consider various ways in which an array of elements of type
 \lstinline!X! can be initialized:
 
-\begin{lstlisting}[language=C++]
+\begin{emcppslisting}[language=C++]
 X xs0[] = {{0, 1}, {2, 3}, {4, 5}};
     // OK, clearly 3 elements having the respective values:
     // (ù{\codeincomments{\{0, 1, 0\}}}ù), (ù{\codeincomments{\{2, 3, 0\}}}ù), (ù{\codeincomments{\{4, 5, 0\}}}ù)
@@ -172,7 +182,7 @@ X xs1[] = {{0, 1, 2}, {3, 4, 5}};
 
 X xs2[] = {0, 1, 2, 3, 4, 5};
     // ...?
-\end{lstlisting}
+\end{emcppslisting}
 
 \noindent Upon seeing the definition of \lstinline!xs2!, a programmer not versed in
 the details of the C++ Language Standard might be unsure as to whether the
@@ -185,11 +195,11 @@ will be replaced with \lstinline!2! and \lstinline!5!, respectively.
 \subsection[See Also]{See Also}\label{see-also}
 
 \begin{itemize}
-\item{\seealsoref{Default-Member-Initializers}{\locationa}Conditionally safe C++11 feature that allows developers to provide a default initializer for a data member directly in the definition of a class}
-\item{\seealsoref{bracedinit}{\locationc}XXXXXXXXXXXXXXXXXXX}
+\item{\seealsoref{Default-Member-Initializers}{\seealsolocationa}allows developers to provide a default initializer for a data member directly in the definition of a class.}
+\item{\seealsoref{bracedinit}{\seealsolocationc}introduces a syntactically similar feature for initializing objects in a uniform manner.}
 \end{itemize}
 
 \subsection[Further Reading]{Further Reading}\label{further-reading}
 
-None so far
+
 

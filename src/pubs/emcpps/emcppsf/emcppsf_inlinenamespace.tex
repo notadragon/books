@@ -1,10 +1,20 @@
 \emcppsFeature{
-    tocshort={{\TOCCode inline} {\TOCCode namespace}},
-    short={{\SecCode inline} {\SecCode namespace}},
+    short={{\tt inline} {\tt namespace}},
     long={Transparently Nested Namespaces},
 }{inline-namespaces}
 
-% 01 Feb, 2021 JMB - minor fixes to c++ include style used and file headings within listings
+
+\emcppsFeature{
+    short={\lstinline!inline!~\lstinline!namespace!},
+    tocshort={{\TOCCode inline}~{\TOCCode namespace}},
+    long={Transparently Nested Namespaces},
+    rhshort={{\RHCode inline}~{\RHCode namespace}},
+}{inline-namespaces}
+\setcounter{table}{0}
+\setcounter{footnote}{0}
+\setcounter{lstlisting}{0}
+%\section[{\tt inline} {\tt namespace}]{Transparently Nested Namespaces}\label{inline-namespaces}%
+
 
 An \texttt{inline} namespace is a nested namespace whose member entities
 closely behave as if they were declared directly within the enclosing
@@ -36,7 +46,7 @@ namespace inline a::b { }  // error: (ù{\codeincomments{inline}}ù) at front of
       }}:
 
 \begin{lstlisting}[language=C++]
-// example.cpp:
+// example.cpp
 namespace n
 {
     namespace v1  // conventional nested namespace followed by (ù{\codeincomments{using}}ù) directive
@@ -730,8 +740,8 @@ the client as a \texttt{main} program that does nothing but create a
 \texttt{Thing} and print the value of its only data member, \texttt{i}.
 
 \begin{lstlisting}[language=C++]
-// main.cpp:
-#include <my_thing.h>  // (ù{\codeincomments{my::Thing}}ù) (version 1)
+// main.cpp
+#include "my_thing.h"  // (ù{\codeincomments{my::Thing}}ù) (version 1)
 #include <iostream>    // (ù{\codeincomments{std::cout}}ù)
 
 int main()
@@ -771,7 +781,7 @@ the physical interface, such as the definition of the principal type,
 plus definitions for inline functions and function templates, if any:
 
 \begin{lstlisting}[language=C++]
-// my_thing.h:
+// my_thing.h
 #ifndef INCLUDED_MY_THING
 #define INCLUDED_MY_THING
 
@@ -795,8 +805,8 @@ non-\texttt{inline} function bodies that will be translated separately
 into the \texttt{my\_thing.o} file:
 
 \begin{lstlisting}[language=C++]
-// my_thing.cpp:
-#include <my_thing.h>
+// my_thing.cpp
+#include "my_thing.h"
 
 namespace my                   // outer namespace (used directly by clients)
 {
@@ -847,8 +857,8 @@ if we didn't think of it in advance, by adding --- a new \texttt{inline}
 namespace and making that change there:
 
 \begin{lstlisting}[language=C++]
-// my_thing.cpp:
-#include <my_thing.h>
+// my_thing.cpp
+#include "my_thing.h"
 
 namespace my                     // outer namespace (used directly by clients)
 {
@@ -1074,7 +1084,7 @@ switches, as illustrated here using the \texttt{my::VersionedThing} type
 (see \textit{\titleref{use-cases-inlinenamespace}: \titleref{link-safe-abi-versioning}} on page~\pageref{link-safe-abi-versioning}:
 
 \begin{lstlisting}[language=C++]
-// my_versionedthing.h:
+// my_versionedthing.h
 #ifndef INCLUDED_MY_VERSIONEDTHING
 #define INCLUDED_MY_VERSIONEDTHING
 
@@ -1142,7 +1152,7 @@ that is shared across multiple disparate headers. The first header,
 small functions declared directly in \texttt{abc}:
 
 \begin{lstlisting}[language=C++]
-// abc_header1.h:
+// abc_header1.h
 namespace abc
 {
     int i();
@@ -1158,7 +1168,7 @@ the same name, all of these tiny functions are sequestered within a
 \texttt{nested} namespace:
 
 \begin{lstlisting}[language=C++]
-// abc_header2.h:
+// abc_header2.h
 namespace abc
 {
     namespace nested  // Should this instead have been an (ù{\codeincomments{inline}}ù) namespace?
@@ -1181,9 +1191,9 @@ namespace abc
 both of these headers to accomplish some task:
 
 \begin{lstlisting}[language=C++]
-// client.cpp:
-#include <abc_header1.h>
-#include <abc_header2.h>
+// client.cpp
+#include "abc_header1.h"
+#include "abc_header2.h"
 
 int function()
 {
@@ -1229,10 +1239,10 @@ layout when we use types from that namespace as member variables in
 other objects:
 
 \begin{lstlisting}[language=C++]
-// my_thingaggregate.h:
+// my_thingaggregate.h
 
 // ...
-#include <my_versionedthing.h>
+#include "my_versionedthing.h"
 // ...
 
 namespace my

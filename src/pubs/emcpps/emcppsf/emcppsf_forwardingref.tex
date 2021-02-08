@@ -1,10 +1,19 @@
 \emcppsFeature{
-    toclong={Forwarding {\TOCCode \&\&} References},
     short={Forwarding References},
     long={Forwarding {\SecCode \&\&} References},
 }{forwardingref}
 
 % 01 Feb, 2021 JMB - packet 4 compilation fixes
+
+\emcppsFeature{
+    short={Forwarding References},
+    long={Forwarding {\SecCode \&\&} References},
+    toclong={Forwarding \lstinline!\&\&! References},
+}{forwardingref}
+\setcounter{table}{0}
+\setcounter{footnote}{0}
+\setcounter{lstlisting}{0}
+%\section[Forwarding References]{Forwarding {\SecCode \&\&} References}\label{forwardingref}
 
 A forwarding reference (\texttt{T\&\&}) --- distinguishable from an
 rvalue reference (\texttt{\&\&}) (see ``\titleref{Rvalue-References}" on page~\pageref{Rvalue-References}) based only on context

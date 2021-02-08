@@ -1,5 +1,4 @@
 [safe_cpp11]
-emcppsf_alignof
 emcppsf_attribute
 emcppsf_consecutiveangle
 emcppsf_ctordelegating
@@ -24,12 +23,11 @@ emcppsf_aggregateinit
 emcppsf_binaryliteral
 emcppsf_deprecated
 emcppsf_digitseparator
-emcppsf_lambdacapture
 emcppsf_variabletemplate
-emcppsf_relaxedconstexpr
 
 [conditionallysafe_cpp11]
 emcppsf_alignas
+emcppsf_alignof
 emcppsf_auto-placeholder
 emcppsf_bracedinit-placeholder
 emcppsf_constexprfunc-placeholder
@@ -42,19 +40,30 @@ emcppsf_underlyingenum
 emcppsf_extendedfriend
 emcppsf_externtemplate
 emcppsf_forwardingref
+emcppsf_gpods-placeholder
+emcppsf_initlist-placeholder
 emcppsf_lambda-placeholder
+emcppsf_noexcept-operator-placeholder
+emcppsf_rangefor-placeholder
 emcppsf_rvalueref-placeholder
 emcppsf_unrestrictedunion
+emcppsf_userdeflit-placeholder
 emcppsf_variadictemplate-placeholder
 
 [conditionallysafe_cpp14]
 emcppsf_genericlambda-placeholder
+emcppsf_relaxedconstexpr
+emcppsf_lambdacapture
 
 [unsafe_cpp11]
 emcppsf_carriesdependency-placeholder
+emcppsf_final-placeholder
 emcppsf_inlinenamespace
+emcppsf_noexcept-specifier-placeholder
+emcppsf_refqualifier
 
 [unsafe_cpp14]
+emcppsf_decltypeauto
 emcppsf_autoreturn-placeholder
 
 [packet1]
@@ -70,7 +79,7 @@ emcppsf_noreturn
 emcppsf_nullptr
 
 [packet4]
-emcppsf_enumclass 
+emcppsf_enumclass
 emcppsf_forwardingref
 emcppsf_underlyingenum
 emcppsf_opaqueenum

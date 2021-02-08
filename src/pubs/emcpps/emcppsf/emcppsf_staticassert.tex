@@ -1,10 +1,21 @@
 \emcppsFeature{
-    tocshort={{\TOCCode static\_assert}},
-    short={{\SecCode static\_assert}},
+    short={{\tt static\_assert}},
     long={Compile-Time Assertions},
 }{compile-time-assertions-(static_assert)}
 %%%% 15 Jan: copyedits in and proofed
 %% 27 Jan, code checked and replaced as needed by Josh
+
+\emcppsFeature{
+    short={\lstinline!static_assert!},
+    tocshort={\TOCCode static\_assert},
+    long={Compile-Time Assertions},
+    rhshort={\RHCode static\_assert},
+}{compile-time-assertions-(static_assert)}
+%\section[{\tt static\_assert}]{Compile-Time Assertions\sectionmark{\RHCode static\_assert}}\label{compile-time-assertions-(static_assert)}\sectionmark{\RHCode static\_assert}
+\setcounter{table}{0}
+\setcounter{footnote}{0}
+\setcounter{lstlisting}{0}
+
 
 The \lstinline!static_assert! keyword allows programmers to intentionally terminate compilation whenever a given compile-time predicate
  evaluates to \lstinline!false!.

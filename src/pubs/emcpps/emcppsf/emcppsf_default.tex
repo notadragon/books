@@ -1,14 +1,24 @@
 \emcppsFeature{
-    toclong={Using {\TOCCode =default} for Special Member Functions},
     short={Defaulted Functions},
     long={Using {\SecCode =default} for Special Member Functions},
 }{Defaulted-Special-Member-Functions}
 
-% 01 Feb, 2021 JMB - minor fixes to file heading within listings
 
 
-Use of \texttt{=}~\texttt{default} in a \textbf{special member function}'s
-declaration instructs the compiler to attempt generating the function
+\emcppsFeature{
+    short={Defaulted Functions},
+    long={Using {\SecCode =}\,{\SecCode default} for Special Member Functions},
+    toclong={Using \lstinline!=!\,\lstinline!default! for Special Member Functions},
+}{defaulted-special-member-functions}
+\label{Defaulted-Special-Member-Functions}
+\setcounter{table}{0}
+\setcounter{footnote}{0}
+\setcounter{lstlisting}{0}
+%\section[Defaulted Functions]{Using {\SecCode =default} for Special Member Functions}\label{Defaulted-Special-Member-Functions}\label{defaulted-special-member-functions}
+
+
+Use of \lstinline!=!\,\lstinline!default! in a \romeoglossf{special member function}'s
+declaration instructs the compiler to attempt to generate the function
 automatically.
 
 \subsection[Description]{Description}\label{description}
@@ -16,11 +26,13 @@ automatically.
 An important aspect of C++ class design is the understanding that the
 compiler will attempt to generate certain member functions to
 \emph{create}, \emph{copy}, \emph{destroy}, and now
-\emph{move} (see Section~\ref{Rvalue-References}, ``\titleref{Rvalue-References}") an object unless
+\emph{move} (see \featureref{\locationc}{Rvalue-References})
+%Section~\ref{Rvalue-References}, ``\titleref{Rvalue-References}")
+an object unless
 developers implement some or all of these functions
-themselves. Determining which of the \textbf{special member functions}
+themselves. Determining which of the \romeogloss{special member functions}
 will continue to be generated and which will be suppressed in the
-presence of \textbf{user-provided special member functions}
+presence of \romeoglossf{user-provided special member functions}
 requires remembering the numerous rules the compiler uses.
 
 \subsubsection[Declaring a special member function explicitly]{Declaring a special member function explicitly}\label{declaring-a-special-member-function-explicitly}
@@ -28,48 +40,55 @@ requires remembering the numerous rules the compiler uses.
 The rules specifying what happens in the presence of one or more
 user-provided special member functions are inherently complex and not
 necessarily intuitive; in fact, some have been
-deprecated.{\cprotect\footnote{Even in the presence of a user-provided
-destructor, both the copy constructor and copy-assignment operator
+deprecated. Specifically, even in the presence of a user-provided
+destructor, both the copy constructor and the copy-assignment operator
 have historically been generated implicitly. Relying on such generated
-behavior is not recommended because it is unlikely that a class
+behavior is problematic because it is unlikely that a class
 requiring a user-provided destructor will function correctly without
 corresponding user-provided copy operations. As of C++11, reliance on
-  such dubious implicitly generated behavior is deprecated.}} Here, we
+  such dubious implicitly generated behavior is deprecated.
+
+Here, we
 will briefly illustrate a few common cases and then refer you to Howard
-Hinnant's now famous table (see page~\pageref{default-table1} of {\it\titleref{appendix:-implicit-generation-of-special-member-functions}}) to
+Hinnant's now famous table (see page~\pageref{default-table1} of \intrarefnopage{appendix:-implicit-generation-of-special-member-functions})
+%{\it\titleref{appendix:-implicit-generation-of-special-member-functions}})
+to
 demystify what's going on under the hood.
 
 \paragraph[Example 1: Providing just the default constructor]{Example 1: Providing just the default constructor}\label{example-1:-providing-just-the-default-constructor}
 
-Consider a \texttt{struct} with a user-provided default constructor:
+Consider a \lstinline!struct! with a user-provided default constructor:
 
-\begin{lstlisting}[language=C++]
+\begin{emcppslisting}[language=C++]
 struct S1
 {
     S1();  // user-provided default constructor
 };
-\end{lstlisting}
+\end{emcppslisting}
 
 \noindent A user-provided default constructor has no effect on other special
 member functions. Providing any other constructor, however, will
-suppress automatic generation{\cprotect\footnote{A nondeclared
+suppress automatic generation of the default constructor. We can, however, use
+\lstinline!=!\,\lstinline!default! to restore the constructor as a \romeoglossf{trivial
+operation}; see \intraref{default-use-cases}{restoring-the-generation-of-a-special-member-function-suppressed-by-another}.
+%{\it\titleref{default-use-cases}: \titleref{restoring-the-generation-of-a-special-member-function-suppressed-by-another}} on page~\pageref{restoring-the-generation-of-a-special-member-function-suppressed-by-another}.
+Note that a nondeclared
 function is nonexistent, which means that it will \emph{not}
 participate in overload resolution at all. In contrast, a
-\textbf{deleted function} participates in overload resolution and, if
-selected, results in a compilation failure; see Section~\ref{deleted-functions}, ``\titleref{deleted-functions}."}} of the default constructor. We can, however, use
-\texttt{=}~\texttt{default} to restore the constructor as a \textbf{trivial
-operation}; see {\it\titleref{default-use-cases}: \titleref{restoring-the-generation-of-a-special-member-function-suppressed-by-another}} on page~\pageref{restoring-the-generation-of-a-special-member-function-suppressed-by-another}.
+\romeoglossf{deleted function} participates in overload resolution and, if
+selected, results in a compilation failure; see \featureref{\locationa}{deleted-functions}.
+%Section~\ref{deleted-functions}, ``\titleref{deleted-functions}."
 
 \paragraph[Example 2: Providing just a copy constructor]{Example 2: Providing just a copy constructor}\label{example-2:-providing-just-a-copy-constructor}
 
-Now, consider a \texttt{struct} with a user-provided copy constructor:
+Now, consider a \lstinline!struct! with a user-provided copy constructor:
 
-\begin{lstlisting}[language=C++]
+\begin{emcppslisting}[language=C++]
 struct S2
 {
     S2(const S2&);  // user-provided copy constructor
 };
-\end{lstlisting}
+\end{emcppslisting}
 
 \noindent A user-provided copy constructor (1) suppresses the generation of the
 default constructor and both move operations and (2) allows implicit
@@ -77,21 +96,21 @@ generation of both the copy-assignment operator and the destructor.
 Similarly, providing just the copy-assignment operator would allow the
 compiler to implicitly generate both the copy constructor and the
 destructor, but, in this case, it would also generate the default
-constructor (see \texttt{S6} in the \texttt{example.h} code snippet on page~\pageref{default-exampleh-code}). Note that --- in either of these
+constructor. Note that --- in either of these
 cases --- relying on the compiler's implicitly generated copy operation
 is deprecated.
 
 \paragraph[Example 3: Providing just the destructor]{Example 3: Providing just the destructor}\label{example-3:-providing-just-the-destructor}
 
-Finally, consider a \texttt{struct} with a user-provided destructor:
+Finally, consider a \lstinline!struct! with a user-provided destructor:
 
 
-\begin{lstlisting}[language=C++]
+\begin{emcppslisting}[language=C++]
 struct S3
 {
     ~S3();  // user-provided destructor
 };
-\end{lstlisting}
+\end{emcppslisting}
 
 \noindent A user-provided destructor suppresses the generation of move
 operations but still allows copy operations to be generated. Again,
@@ -104,29 +123,29 @@ When more than one special member function is declared explicitly, the
 \emph{union} of their respective declaration suppressions and the
 \emph{intersection} of their respective implicit generations pertain ---
 e.g., if just the default constructor and destructor are provided
-(\texttt{S1} + \texttt{S3} in Examples 1 and 3), then the declarations of both move
-operations are suppressed and both copy operations are generated
+(\lstinline!S1! + \lstinline!S3! in Examples 1 and 3), then the declarations of both move
+operations are suppressed, and both copy operations are generated
 implicitly.
 
 \subsubsection[Defaulting the first declaration of a special member function explicitly]{Defaulting the first declaration of a special member function explicitly}\label{defaulting-the-first-declaration-of-a-special-member-function-explicitly}
 
-Using the \texttt{=}~\texttt{default} syntax with the first declaration
+Using the \lstinline!=!\,\lstinline!default! syntax with the first declaration
 of a special member function instructs the compiler to synthesize such a
 function automatically without treating it as being
-user provided.{\cprotect\footnote{The compiler-generated version for a
+user provided. The compiler-generated version for a
 special member function is required to call the corresponding special
 member functions on every base class in base-class-declaration
 order and then every data member of the encapsulating type in
 declaration order (regardless of any access specifiers). Note that the
 destructor calls will be in exactly the opposite order of the
-  other special-member-function calls.}}
+  other special-member-function calls.
 
-For example, consider struct \texttt{S4} (in the code snippet below) in which we have chosen
+For example, consider struct \lstinline!S4! (in the code snippet below) in which we have chosen
 to make explicit that the copy operations are to be autogenerated by
 the compiler; note, in particular, that implicit declaration and generation
 of each of the other special member functions is left unaffected.
 
-\begin{lstlisting}[language=C++]
+\begin{emcppslisting}[language=C++]
 struct S4
 {
     S4(const S4&) = default;             // copy constructor
@@ -136,12 +155,12 @@ struct S4
     // implicitly generates the default constructor, the destructor,
     // the move constructor, and the move-assignment operator
 };
-\end{lstlisting}
+\end{emcppslisting}
 
-\noindent A defaulted declaration may appear with any \textbf{access specifier} ---
-i.e., \texttt{private},\linebreak[4] \texttt{protected}, or \texttt{public} --- and access to that generated function will be regulated accordingly:
+\noindent A defaulted declaration may appear with any \romeoglossf{access specifier} ---
+i.e., \lstinline!private!,\linebreak[4] \lstinline!protected!, or \lstinline!public! --- and access to that generated function will be regulated accordingly:
 
-\begin{lstlisting}[language=C++]
+\begin{emcppslisting}[language=C++]
 struct S5
 {
 private:
@@ -154,36 +173,37 @@ protected:
 public:
      S5() = default;                     // public default constructor
 };
-\end{lstlisting}
+\end{emcppslisting}
 
 \noindent In the example above, copy operations exist for use by \emph{member} and
 \emph{friend} functions only. Declaring the destructor
-\texttt{protected} or \texttt{private} limits which functions can create
+\lstinline!protected! or \lstinline!private! limits which functions can create
 automatic variables of the specified type to those functions with the
 appropriately privileged access to the class. Declaring the default
-constructor \texttt{public} is necessary to avoid its declaration's
+constructor \lstinline!public! is necessary to avoid its declaration's
 being suppressed by another constructor (e.g., the private copy
 constructor in the code snippet above) or \emph{any} move operation.
 
-In short, use of \texttt{=}~\texttt{default} on first declaration
+In short, using \lstinline!=!\,\lstinline!default! on the first declaration
 denotes that a special member function is intended to be generated by
 the compiler --- irrespective of any user-provided declarations; in
-conjunction with {\texttt{=}~\texttt{delete}} (see Section~\ref{deleted-functions}, ``\titleref{deleted-functions}"),
-use of
-\texttt{=}~\texttt{default} affords the fine-grained control over which
+conjunction with {\lstinline!=!\,\lstinline!delete!} (see \featureref{\locationa}{deleted-functions}),
+%Section~\ref{deleted-functions}, ``\titleref{deleted-functions}"),
+using
+\lstinline!=!\,\lstinline!default! affords the fine-grained control over which
 special member functions are to be generated and/or made publicly
 available.
 
 \subsubsection[Defaulting the implementation of a user-provided special member function]{Defaulting the implementation of a user-provided special member function}\label{defaulting-the-implementation-of-a-user-provided-special-member-function}
 
-The \texttt{=}~\texttt{default} syntax can also be used after the first
+The \lstinline!=!\,\lstinline!default! syntax can also be used after the first
 declaration, but with a distinctly different meaning: The compiler will
-treat the first declaration as a \textbf{user-provided special member
+treat the first declaration as a \romeogloss{user-provided special member
 function} and thus will suppress the generation of other
-\textbf{special member functions} accordingly.
+\romeogloss{special member functions} accordingly.
 
-\begin{lstlisting}[language=C++,label=default-exampleh-code]
-// example.h:
+\begin{emcppslisting}[language=C++,label=default-exampleh-code]
+// example.h
 
 struct S6
 {
@@ -197,25 +217,26 @@ inline S6& S6::operator=(const S6&) = default;
     // Explicitly request the compiler to generate the default implementation
     // for this copy-assignment operator. This request might fail (e.g., if (ù{\codeincomments{S6}}ù)
     // were to contain a non-copy-assignable data member).
-\end{lstlisting}
+\end{emcppslisting}
 
-\noindent Alternatively, an explicitly defaulted non-inline implementation of this
-copy-assignment operator may appear in a separate (\texttt{.cpp}) file;
-see {\it\titleref{default-use-cases}: \titleref{physically-decoupling-the-interface-from-the-implementation}} on page~\pageref{physically-decoupling-the-interface-from-the-implementation}.
+\noindent Alternatively, an explicitly defaulted noninline implementation of this
+copy-assignment operator may appear in a separate (\lstinline!.cpp!) file;
+see \intraref{default-use-cases}{physically-decoupling-the-interface-from-the-implementation}.
+%{\it\titleref{default-use-cases}: \titleref{physically-decoupling-the-interface-from-the-implementation}} on page~\pageref{physically-decoupling-the-interface-from-the-implementation}.
 
 \subsection[Use Cases]{Use Cases}\label{default-use-cases}
 
 \subsubsection[Restoring the generation of a special member function suppressed by another]{Restoring the generation of a special member function suppressed by another}\label{restoring-the-generation-of-a-special-member-function-suppressed-by-another}
 
-Incorporating \texttt{=}~\texttt{default} in the declaration of a
+Incorporating \lstinline!=!\,\lstinline!default! in the declaration of a
 special member function instructs the compiler to generate its
 definition regardless of any other user-provided special member
-functions. As an example, consider a \textbf{value-semantic}
-\texttt{SecureToken} class that wraps a standard string
-(\texttt{std::string}) and an arbitrary-precision-integer
-(\texttt{BigInt}) token code that together satisfy certain invariants:
+functions. As an example, consider a \romeoglossf{value-semantic}
+\lstinline!SecureToken! class that wraps a standard string
+(\lstinline!std::string!) and an arbitrary-precision-integer
+(\lstinline!BigInt!) token code that together satisfy certain invariants:
 
-\begin{lstlisting}[language=C++]
+\begin{emcppslisting}[language=C++]
 class SecureToken
 {
     std::string d_value;  // The default-constructed value is the empty string.
@@ -228,27 +249,27 @@ public:
     const char* value() const;
     BigInt code() const;
 };
-\end{lstlisting}
+\end{emcppslisting}
 
-\noindent By default, a secure token's \texttt{value} will be the empty-string
-value and the token's \texttt{code} will be the numerical value of zero
-(because those are, respectively, the \textbf{default-initialized} values
-of the two data members, \texttt{d\_value} and \texttt{d\_code}):
+\noindent By default, a secure token's \lstinline!value! will be the empty-string
+value, and the token's \lstinline!code! will be the numerical value of zero
+because those are, respectively, the \romeoglossf{default-initialized} values
+of the two data members, \lstinline!d_value! and \lstinline!d_code!:
 
-\begin{lstlisting}[language=C++,label=default-voidf-code]
+\begin{emcppslisting}[language=C++,label=default-voidf-code]
 void f()
 {
     SecureToken token;                       // default constructed         (1)
     assert(token.value() == std::string());  // default value: empty string (2)
     assert(token.code() == BigInt());        // default value: zero         (3)
 }
-\end{lstlisting}
+\end{emcppslisting}
 
-\noindent Now suppose that we get a request to add a \textbf{value constructor}
-that creates and initializes a \texttt{SecureToken} from a specified
+\noindent Now suppose that we get a request to add a \romeoglossf{value constructor}
+that creates and initializes a \lstinline!SecureToken! from a specified
 token string:
 
-\begin{lstlisting}[language=C++]
+\begin{emcppslisting}[language=C++]
 class SecureToken
 {
     std::string d_value;  // The default-constructed value is the empty string.
@@ -264,15 +285,15 @@ public:
     const char* value() const;
     const BigInt& code() const;
 };
-\end{lstlisting}
+\end{emcppslisting}
 
-\noindent Attempting to compile function \texttt{f} (from page~\pageref{default-voidf-code}) would now fail on the
+\noindent Attempting to compile function \lstinline!f! (from page~\pageref{default-voidf-code}) would now fail on the
 first line, where it attempts to default-construct the token. Using
-the \texttt{=}~\texttt{default} feature, however, we can reinstate the
+the \lstinline!=!\,\lstinline!default! feature, however, we can reinstate the
 default constructor to work trivially, just as
 it did before:
 
-\begin{lstlisting}[language=C++]
+\begin{emcppslisting}[language=C++]
 class SecureToken
 {
     std::string d_value;  // The default-constructed value is the empty string.
@@ -288,7 +309,7 @@ public:
     const char *value() const;
     const BigInt& code() const;
 };
-\end{lstlisting}
+\end{emcppslisting}
 
 
 \subsubsection[Making class APIs explicit at no runtime cost]{Making class APIs explicit at no runtime cost}\label{making-class-apis-explicit-at-no-runtime-cost}
@@ -298,7 +319,7 @@ required that each special member function be declared explicitly so
 that it could be documented or even just to know that it hadn't been
 forgotten:
 
-\begin{lstlisting}[language=C++]
+\begin{emcppslisting}[language=C++]
 class C1
 {
      // ...
@@ -316,17 +337,18 @@ public:
    C1& operator=(const C1& rhs);
        // Assign to this object the value of the specified (ù{\codeincomments{rhs}}ù) object.
 };
-\end{lstlisting}
+\end{emcppslisting}
 
 \noindent Over time, explicitly writing out what the compiler
 could do more reliably itself became more clearly an inefficient use of developer time and a maintenance burden.
 What's more, even if the function definition was empty, implementing it
-explicitly often degraded performance compared to a \textbf{trivial} default. Hence, such
+explicitly often degraded performance compared to a \romeoglossf{trivial} default. Hence, such
 standards tended to evolve toward conventionally commenting out (e.g.,
-using \texttt{//!}) the declarations of functions having an empty
+using \lstinline|//!|)
+the declarations of functions having an empty
 body rather than providing it explicitly:
 
-\begin{lstlisting}[language=C++]
+\begin{emcppslisting}[language=C++]
 class C2
 {
      // ...
@@ -344,16 +366,16 @@ public:
    //! C2& operator=(const C2& rhs);
        // Assign to this object the value of the specified (ù{\codeincomments{rhs}}ù) object.
 };
-\end{lstlisting}
+\end{emcppslisting}
 
 \noindent Note, however, that the compiler does not check the commented code, which is easily susceptible to copy-paste and other errors. By
 uncommenting the code and defaulting it explicitly in class scope, we
 regain the compiler's syntactic checking of the function signatures
 without incurring the cost of turning what would have been
-\textbf{trivial} functions into equivalent
-non-\textbf{trivial} ones:
+\romeogloss{trivial} functions into equivalent
+non-\romeogloss{trivial} ones:
 
-\begin{lstlisting}[language=C++]
+\begin{emcppslisting}[language=C++]
 class C3
 {
      // ...
@@ -371,7 +393,7 @@ public:
    C3& operator=(const C3& rhs) = default;
        // Assign to this object the value of the specified (ù{\codeincomments{rhs}}ù) object.
 };
-\end{lstlisting}
+\end{emcppslisting}
 
 
 %\subsubsection[Preserving trivial copyability]{Preserving trivial copyability}\label{preserving-trivial-copyability}
@@ -518,9 +540,9 @@ public:
 %%%% new material from Slava
 \subsubsection{Preserving type triviality}
 
-It can be beneficial if a particular type is \romeogloss{trivial}.  The type is considered \romeogloss{trivial} if its default constructor is \romeogloss{trivial} and it is \romeogloss{trivially copyable} --- i.e., it has no non-trivial copy or move constructors, no non-trivial copy or move assignment operators, has at least one of those non-deleted, and has a trivial destructor.  As an example, consider a simple \romeogloss{trivial}  \lstinline!Metrics! type in the code snippet below containing certain collected metrics for our application:
+It can be beneficial if a particular type is \romeogloss{trivial}.  The type is considered \romeogloss{trivial} if its default constructor is \romeogloss{trivial} and it is \romeoglossf{trivially copyable} --- i.e., it has no non-trivial copy or move constructors, no non-trivial copy or move assignment operators, at least one of those nondeleted, and a trivial destructor.  As an example, consider a simple \romeogloss{trivial}  \lstinline!Metrics! type in the code snippet below containing certain collected metrics for our application:
 
-\begin{lstlisting}
+\begin{emcppslisting}
 struct Metrics
 {
     int d_numRequests;  // number of requests to the service
@@ -528,11 +550,11 @@ struct Metrics
 
     // All special member functions are generated implicitly.
 };
-\end{lstlisting}
+\end{emcppslisting}
 
 \noindent Now imagine that we would like to add a constructor to this struct to make its use more convenient:
 
-\begin{lstlisting}
+\begin{emcppslisting}
 struct Metrics
 {
     int d_numRequests;  // number of requests to the service
@@ -542,11 +564,11 @@ struct Metrics
 
     // Generation of default constructor is suppressed.
 };
-\end{lstlisting}
+\end{emcppslisting}
 
-\noindent As illustrated in \intrarefsimple{appendix:-implicit-generation-of-special-member-functions}, the presence of a user-provided constructor suppressed the implicit generation of the default constructor.  Replacing the default constructor with seemingly equivalent user-provided one might appear to work as intended:
+\noindent As illustrated in \intrarefsimple{appendix:-implicit-generation-of-special-member-functions}, the presence of a user-provided constructor suppressed the implicit generation of the default constructor.  Replacing the default constructor with a seemingly equivalent user-provided one might appear to work as intended:
 
-\begin{lstlisting}
+\begin{emcppslisting}
 struct Metrics
 {
     int d_numRequests;  // number of requests to the service
@@ -557,11 +579,11 @@ struct Metrics
 
     // Default constructor is user-provided: (ù{\codeincomments{Metrics}ù) is (ù{\emphincomments{not}ù) trivial.
 };
-\end{lstlisting}
+\end{emcppslisting}
 
-\noindent The user-provided nature of the default constructor, however, renders \lstinline!Metrics! type non-trivial --- even if the definitions are identical!  In contrast, explicitly requesting the default constructor be generated using \lstinline!=!\,\lstinline!default! restores the triviality of the type:
+\noindent The user-provided nature of the default constructor, however, renders the \lstinline!Metrics! type non-trivial --- even if the definitions are identical!  In contrast, explicitly requesting the default constructor be generated using \lstinline!=!\,\lstinline!default! restores the triviality of the type:
 
-\begin{lstlisting}
+\begin{emcppslisting}
 struct Metrics
 {
     int d_numRequests;  // number of requests to the service
@@ -572,7 +594,7 @@ struct Metrics
 
     // Default constructor is defaulted: (ù{\codeincomments{Metrics}ù) (ù{\emphincomments{is}ù) trivial.
 };
-\end{lstlisting}
+\end{emcppslisting}
 %%%%%%%%%%%%% new material ends
 
 \subsubsection[Physically decoupling the interface from the implementation]{Physically decoupling the interface from the implementation}\label{physically-decoupling-the-interface-from-the-implementation}
@@ -581,45 +603,46 @@ Sometimes, especially during large-scale development, avoiding compile-time coup
 implementations of individual methods offers distinct maintenance advantages. Specifying that a special member
 function is defaulted on its first declaration (i.e., in class scope)
 implies that making any change to this implementation will force all
-clients to recompile{\cprotect\footnote{The issue here is not just
-compile time, per se, but compile-time \emph{coupling}; see
-  \textbf{{lakos20}}, section 3.10.5, pp.~783--789.}}:
+clients to recompile:
 
-\begin{lstlisting}[language=C++]
-// smallscale.h:
+\begin{emcppslisting}[language=C++]
+// smallscale.h
 
 struct SmallScale
 {
     SmallScale() = default;  // explicitly defaulted default constructor
 };
-\end{lstlisting}
+\end{emcppslisting}
 
-\noindent Alternatively, we can choose to declare the function but deliberately
-\emph{not} default it in class scope (or anywhere in the \texttt{.h}
+\noindent The important issue regarding recompilation here is not merely compile time per se but compile-time coupling{\cprotect\footnote{See
+  \cite{lakos20}, section 3.10.5, pp.~783--789.}}
+
+Alternatively, we can choose to declare the function but deliberately
+\emph{not} default it in class scope (or anywhere in the \lstinline!.h!
 file):
 
-\begin{lstlisting}[language=C++]
-// largescale.h:
+\begin{emcppslisting}[language=C++]
+// largescale.h
 
 struct LargeScale
 {
     LargeScale();  // user-provided default constructor
 };
-\end{lstlisting}
+\end{emcppslisting}
 
-\noindent We can then default just the (non-inline) implementation in a
-corresponding{\cprotect\footnote{In practice, every \texttt{.cpp} file
-(other than the one containing \texttt{main}) typically has a unique
-associated header (\texttt{.h}) file and often vice versa  (with the \texttt{.cpp} and \texttt{.h} pair of files constituting a component); see \textbf{{lakos20}}, sections 1.6 and 1.11,
-  pages 209--216 and 256--259, respectively.}}~\texttt{.cpp} file:
+\noindent We can then default just the non-inline implementation in a
+corresponding{\cprotect\footnote{In practice, every \lstinline!.cpp! file
+(other than the one containing \lstinline!main!) typically has a unique
+associated header (\lstinline!.h!) file and often vice versa  (with the \lstinline!.cpp! and \lstinline!.h! pair of files constituting a component); see \cite{lakos20}, sections 1.6 and 1.11,
+  pages 209--216 and 256--259, respectively.}}~\lstinline!.cpp! file:
 
-\begin{lstlisting}[language=C++]
-// largescale.cpp:
+\begin{emcppslisting}[language=C++]
+// largescale.cpp
 #include <largescale.h>
 
 LargeScale::LargeScale() = default;
     // Generate the default implementation for this default destructor.
-\end{lstlisting}
+\end{emcppslisting}
 
 \noindent Using this \emph{insulation} technique, we are free to change our minds
 and implement the default constructor ourselves in any way we see fit
@@ -627,28 +650,42 @@ without necessarily forcing our clients to recompile.
 
 \subsection[Potential Pitfalls]{Potential Pitfalls}\label{potential-pitfalls}
 
+%%%% REMEMBER TO NOTE THIS CHANGE ON PDF SO PROOFREADER KNOWS
+%%%%%%%%%%%%%%%% Moved from Annoyances to Pitfalls
+\subsubsection[Defaulted special member functions cannot restore trivial copyability]{Defaulted special member functions cannot restore trivial copyability}
+
+Library classes often rely on whether the type on which they are operating is eligible for being copied with \lstinline!memcpy! for optimization purposes.  Such could be the case for implementing, say, \lstinline!vector!, which would make a single call to \lstinline!memcpy! when growing its buffer.  For the \lstinline!memcpy! or \lstinline!memmove! to be well-defined, however, the type of the object that is stored in the buffer must be \romeogloss{trivially copyable}.  One might assume that this trait means that, as long as the copy constructor of the type is trivial, this optimization will apply.  Defaulting the copy operations would then allow us to achieve this goal, while allowing the type to have a non-trivial destructor or move operation.  Such, however, is not the case.
+
+The requirements for a type to be considered \romeogloss{trivially copyable} --- and thus eligible for use with \lstinline!memcpy! --- include triviality of all of its nondeleted copy and move operations as well as of its destructor.  Furthermore, library authors cannot perform fine-grained dispatch based on which operations on the type are in fact trivial.  Even if we detect that the type is trivially copy-constructible with the \lstinline!std::is_trivially_copy_constructible! trait and know that our code would use only copy constructors (and not copy assignment nor any move operations), we still would not be able to use \lstinline!memcpy! unless the more restrictive \lstinline!std::is_trivially_copyable! trait is also \lstinline!true!.
+%%%%%%%%%%%%%%%%
+
+\subsection{Annoyances}
+
+%%%%%%%%%%%%%%%%%%%% Moved from Pitfalls to Annoyances
 \subsubsection[Generation of defaulted functions is not guaranteed]{Generation of defaulted functions is not guaranteed}\label{generation-of-defaulted-functions-is-not-guaranteed}
 
-Use of \texttt{=}~\texttt{default} does not guarantee that the special
-member function of a type, \texttt{T}, will be generated. For example, a
-noncopyable member variable (or base class) of \texttt{T} will inhibit
-generation of \texttt{T}'s copy constructor even when
-\texttt{=}~\texttt{default} is used. Such behavior can be observed in
-the presence of a \texttt{std::unique\_ptr}{\cprotect\footnote{\texttt{std::unique\_ptr<T>}
+Using \lstinline!=!\,\lstinline!default! does not guarantee that the special
+member function of a type, \lstinline!T!, will be generated. For example, a
+noncopyable member variable (or base class) of \lstinline!T! will inhibit
+generation of \lstinline!T!'s copy constructor even when
+\lstinline!=!\,\lstinline!default! is used. Such behavior can be observed in
+the presence of a \lstinline!std::unique_ptr!{\cprotect\footnote{\lstinline!std::unique_ptr<T>!
 is a move-only (movable but noncopyable) class template introduced in
 C++11. It models unique ownership over a dynamically allocated
-  \texttt{T} instance, leveraging rvalue references (see Section~\ref{Rvalue-References}, ``\titleref{Rvalue-References}") to represent ownership transfer between instances:
+  \lstinline!T! instance, leveraging rvalue references (see \featureref{\locationc}{Rvalue-References})
+%  Section~\ref{Rvalue-References}, ``\titleref{Rvalue-References}")
+  to represent ownership transfer between instances:
   %%% question
 
-  \begin{lstlisting}[language=C++, basicstyle={\ttfamily\footnotesize}]
+  \begin{emcppslisting}[language=C++, basicstyle={\ttfamily\footnotesize}]
   int* p = new int(42);
   std::unique_ptr<int> up(p);                   // OK, take ownership of (ù{\codeincomments{p}}ù).
   std::unique_ptr<int> upCopy = up;             // compile-time error
   std::unique_ptr<int> upMove = std::move(up);  // OK, transfer ownership.
-  \end{lstlisting}
+  \end{emcppslisting}
       }} data member:
 
-\begin{lstlisting}[language=C++]
+\begin{emcppslisting}[language=C++]
 class Connection
 {
 private:
@@ -658,26 +695,27 @@ public:
     Connection() = default;
     Connection(const Connection&) = default;
 };
-\end{lstlisting}
+\end{emcppslisting}
 
-\noindent Despite the defaulted copy constructor, \texttt{Connection} will not be
-copy-constructible as\linebreak[4] \texttt{std::unique\_ptr} is a noncopyable type.
+\noindent Despite the defaulted copy constructor, \lstinline!Connection! will not be
+copy-constructible as\linebreak[4] \lstinline!std::unique_ptr! is a noncopyable type.
 Some compilers \emph{may} produce a warning on the declaration of
-{\texttt{Connection(const} \texttt{Connection\&)}, but they are not
+{\lstinline!Connection(const! \lstinline!Connection&)!, but they are not
 required to do so since the example code above is well formed and would produce a
 compilation failure only if an attempt were made to default-construct or
-copy a \texttt{Connection}.{\cprotect\footnote{Clang 8.x
+copy a \lstinline!Connection!.{\cprotect\footnote{Clang 8.x
 and later produces a diagnostic with no warning flags specified.
-MSVC produces a diagnostic if \texttt{/Wall} is specified. As of this writing, GCC produces no warning, even with both
-  \texttt{-Wall} and \texttt{-Wextra} enabled.}}
+MSVC produces a diagnostic if \lstinline!/Wall! is specified. As of this writing, GCC produces no warning, even with both
+  \lstinline!-Wall! and \lstinline!-Wextra! enabled.}}
 
 If desired, a possible way to ensure that a defaulted special member
 function has indeed been generated is to use
-{\texttt{static\_assert}} (see Section~\ref{compile-time-assertions-(static_assert)}, ``\titleref{compile-time-assertions-(static_assert)}")
+{\lstinline!static_assert!} (see \featureref{\locationa}{compile-time-assertions-(static_assert)})
+%Section~\ref{compile-time-assertions-(static_assert)}, ``\titleref{compile-time-assertions-(static_assert)}")
 in conjunction with an
-appropriate trait from the \texttt{<type\_traits>} header:
+appropriate trait from the \lstinline!<type_traits>! header:
 
-\begin{lstlisting}[language=C++]
+\begin{emcppslisting}[language=C++]
 class IdCollection
 {
     std::vector<int> d_ids;
@@ -695,34 +733,27 @@ static_assert(std::is_copy_constructible<IdCollection>::value,
               "IdCollection must be copy constructible.");
 
 // ...
-\end{lstlisting}
+\end{emcppslisting}
 
-\noindent Routine use of such compile-time testing techniques can help to ensure
+\noindent Routinely using such compile-time testing techniques can help to ensure
 that a type will continue to behave as expected (at no additional
 runtime cost) even when member and base types evolve as a result
 of ongoing software maintenance.
-
-\subsection{Annoyances}
-
-\subsubsection[Defaulted special member functions cannot restore trivial copyability]{Defaulted special member functions cannot restore trivial copyability}
-
-Library classes often rely on whether the type on which they are operating is eligible for being copied with \lstinline!memcpy! for optimization purposes.  Such could be the case for implementing, say, \lstinline!vector!, which would make a single call to \lstinline!memcpy! when growing its buffer.  For the \lstinline!memcpy! or \lstinline!memmove! to be well-defined, however, the type of the object that is stored in the buffer must be \romeogloss{trivially copyable}.  One might assume that this trait means that, as long as the copy constructor of the type is trivial, this optimization will apply.  Defaulting the copy operations would then allow us to achieve this goal, while allowing the type to have a non-trivial destructor or move operation.  Such, however, is not the case.
-
-The requirements for a type to be considered \romeogloss{trivially copyable} --- and thus eligible for use with \lstinline!memcpy! --- include triviality of all of its non-deleted copy and move operations as well as of its destructor.  Furthermore, library authors cannot perform fine-grained dispatch based on which operations on the type are in fact trivial.  Even if we detect that the type is trivially copy-constructible with the \lstinline!std::is_trivially_copy_constructible! trait and know that our code would use only copy constructors (and not copy assignment nor any move operations), we still would not be able to use \lstinline!memcpy! unless the more restrictive \lstinline!std::is_trivially_copyable! trait is also \lstinline!true!.
+%%%%%%%%%%%%%%%%%%%%%%%
 
 \subsection[See Also]{See Also}\label{see-also}
 
 \begin{itemize}
-\item{Section~\ref{Rvalue-References}, ``\titleref{Rvalue-References}" — Conditionally Safe C++11 feature that is the foundation of \textbf{move semantics} — the move-constructor and move-assignment special member functions can be defaulted}
-\item{Section~\ref{deleted-functions}, ``\titleref{deleted-functions}" — Safe C++11 feature that, among other use cases, allows the prevention of generation of special member functions, providing fine-grained control over the interface of a class if used in conjunction with \texttt{=}~\texttt{default}}
-\item{Section~\ref{compile-time-assertions-(static_assert)}, ``\titleref{compile-time-assertions-(static_assert)}" — Safe C++11 feature that checks a predicate at compile time; useful to verify that a class’s special copy and move operations are available as expected}
+\item{\seealsoref{deleted-functions}{\seealsolocationa}describes a companion feature, \lstinline!=!\,\lstinline!delete!, that can be used to suppress access to implicitly generated \romeogloss{special member functions}.}
+\item{\seealsoref{compile-time-assertions-(static_assert)}{\seealsolocationa}describes a facility that can be used to verify at compile time that undesirable copy and move operations are declared to be accessibly.}
+\item{\seealsoref{Rvalue-References}{\seealsolocationc}provides the bases for \romeoglossf{move operations}, namely, the move-constructor and move-assignment \romeogloss{special member functions}, which too can be defaulted.}
 \end{itemize}
 
 \subsection[Further Reading]{Further Reading}\label{further-reading}
 
 \begin{itemize}
-\item{Howard Hinnant, ``Everything You Ever Wanted to Know About Move Semantics (and Then Some)," \textbf{hinnant14}}
-\item{Howard Hinnant, ``Everything You Ever Wanted to Know About Move Semantics," \textbf{hinnant16}}
+\item{Howard Hinnant, ``Everything You Ever Wanted to Know About Move Semantics (and Then Some)," \cite{hinnant14}}
+\item{Howard Hinnant, ``Everything You Ever Wanted to Know About Move Semantics," \cite{hinnant16}}
 \end{itemize}
 
 \subsection[Appendix: Implicit Generation of Special Member Functions]{Appendix: Implicit Generation of Special Member Functions}\label{appendix:-implicit-generation-of-special-member-functions}
@@ -730,7 +761,7 @@ The requirements for a type to be considered \romeogloss{trivially copyable} ---
 The rules a compiler uses to decide if a special member function
 should be generated implicitly are not entirely intuitive. Howard
 Hinnant, lead designer and author of the C++11 proposal for move
-semantics\footnote{\textbf{hinnant02}} (among other proposals), produced a tabular representation of
+semantics\footnote{\cite{hinnant02}} (among other proposals), produced a tabular representation\footnote{\cite{hinnant16}} of
 such rules in the situation where the user provides a single special
 member function and leaves the rest to the compiler. To understand Table~\ref{default-table1}, after picking a special member function in the first
 column, the corresponding row will show what is implicitly generated by
@@ -739,7 +770,7 @@ the compiler.
 \begin{table}[h!]  %%% PRODUCTION: REQUIRES REPRINT PERMISSION;
 \begin{center}
 \begin{threeparttable}
-\caption{Implicit generation of special member functions. NEEDS A CREDIT LINE TO HINNANT.}\label{default-table1}
+\caption{Implicit Generation of Special Member Functions.}\label{default-table1}
 {\footnotesize %%% setting smaller to fit
 \begin{tabular}{p{.127\textwidth}|p{.1\textwidth}|p{.11\textwidth}|p{.1\textwidth}|p{.127\textwidth}|p{.1\textwidth}|p{.127\textwidth}}
 \thickhline
@@ -783,10 +814,10 @@ implicitly generated member \mbox{function}.}
 \end{center}
 \end{table}
 
-As an example, explicitly declaring a \emph{copy-assignment} operator
-would result in the \emph{default constructor}, \emph{destructor}, and
-\emph{copy constructor} being defaulted and in the \emph{move}
-operations not being declared. If more than one \emph{special member
+As an example, explicitly declaring a copy-assignment operator
+would result in the default constructor, destructor, and
+copy constructor being defaulted and in the move
+operations not being declared. If more than one \romeogloss{special member
 function} is user declared (regardless of whether or how it is
 implemented), the remaining generated member functions are those in the
 intersection of the corresponding rows. For example, explicitly

@@ -1,10 +1,20 @@
 \emcppsFeature{
-    tocshort={{\TOCCode extern} {\TOCCode template}},
-    short={{\SecCode extern} {\SecCode template}},
+    short={{\tt extern} {\tt template}},
     long={Explicit Instantiation Declarations},
 }{explicit-template-instantiations}
 
 % 01 Feb, 2021 JMB - packet 4 compilation fixes
+
+\emcppsFeature{
+    short={\lstinline!extern!~\lstinline!template!},
+    tocshort={{\TOCCode extern}~{\TOCCode template}},
+    long={Explicit Instantiation Declarations},
+    rhshort={{\RHCode extern}~{\RHCode template}},
+}{explicit-template-instantiations}
+\setcounter{table}{0}
+\setcounter{footnote}{0}
+\setcounter{lstlisting}{0}
+%\section[{\tt extern} {\tt template}]{Explicit Instantiation Declarations}\label{explicit-template-instantiations}
 
 The \lstinline!extern!~\lstinline!template! prefix can be used to suppress
 \emph{implicit} generation of local object code for the definitions of

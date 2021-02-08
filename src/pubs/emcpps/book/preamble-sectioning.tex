@@ -1,6 +1,7 @@
 \makeatletter
 
 \newcommand\subsubemdash{\sfbsubsubRomeo\char"2014} %% for whatever reason, emdashes are not displaying properly in subsubsection heads. This creates a direct command to create them. 
+\newcommand\subsubapos{\sfbsubsubRomeo\char"2019} %% same problem with curly apostrophes
 
 \newcommand\romeovalue[1]{\textit{#1}}  % for normal text usage
 \newcommand\romeovalueinside{\itshape} % for inside other environments, like table cells
@@ -28,6 +29,12 @@
 \newcommand{\locationd}{Section~2.2}
 \newcommand{\locatione}{Section~3.1}
 \newcommand{\locationf}{Section~3.2}
+\newcommand{\seealsolocationa}{{\S}1.1}
+\newcommand{\seealsolocationb}{{\S}1.2}
+\newcommand{\seealsolocationc}{{\S}2.1}
+\newcommand{\seealsolocationd}{{\S}2.2}
+\newcommand{\seealsolocatione}{{\S}3.1}
+\newcommand{\seealsolocationf}{{\S}3.2}
 
 % counter within chapter
 \newcommand{\cppxx}{C++xx}

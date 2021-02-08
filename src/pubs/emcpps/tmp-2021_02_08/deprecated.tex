@@ -1,0 +1,237 @@
+
+
+\emcppsFeature{
+    short={\lstinline!deprecated!},
+    tocshort={\TOCCode deprecated},
+    long={The {\SecCode [[deprecated]]} Attribute},
+    toclong={The \lstinline![[deprecated]]! Attribute},
+    rhshort={\RHCode deprecated},
+}{the-standard-[[deprecated]]-attribute}
+\label{deprecated}
+\setcounter{table}{0}
+\setcounter{footnote}{0}
+\setcounter{lstlisting}{0}
+%\section[{\tt deprecated}]{The {\SecCode [[deprecated]]} Attribute}\label{deprecated}\label{the-standard-[[deprecated]]-attribute}
+
+
+
+The \texttt{[[deprecated]]} attribute discourages the use of a decorated
+\textbf{entity}, typically via the emission of a compiler warning.
+
+\subsection[Description]{Description}\label{description}
+
+The standard \texttt{[[deprecated]]} attribute is used to portably
+indicate that a particular \textbf{entity} is no longer recommended and
+to actively discourage its use. Such deprecation typically follows the
+introduction of alternative constructs that, in (ideally) all ways, are
+superior to the original one, providing time for clients to migrate to
+them (\emph{asynchronously}{\cprotect\footnote{A process for ongoing
+improvement of legacy codebases, sometimes known as
+\textbf{continuous refactoring}, often allows time for clients to
+migrate --- on their own respective schedules and time frames --- from
+existing \emph{deprecated} constructs to newer ones, rather than
+having every client change in lock step. Allowing clients time to move
+\emph{asynchronously} to newer alternatives is often the only viable
+approach unless (1) the codebase is a closed system, (2) all of the
+relevant code is governed by a single authority, and (3) there is some
+  sort of mechanical way to make the change.}}) before the deprecated
+one is (in some subsequent release) removed. Although not strictly
+required, the Standard explicitly encourages{\cprotect\footnote{The C++
+Standard characterizes what constitutes a well-formed program, but
+compiler vendors require a great deal of leeway to facilitate the
+needs of their users. In case any feature induces warnings,
+command-line options are typically available to disable those warnings
+(\texttt{-Wno-deprecated} in GCC) or methods are in place to suppress those warnings
+locally (e.g.,
+  \texttt{\#pragma}~\texttt{GCC}~\texttt{diagnostic}~\texttt{ignored}~\texttt{"-Wdeprecated"}).}}
+conforming compilers to produce a diagnostic message in case a program
+refers to any \textbf{entity} to which the \texttt{[[deprecated]]}
+attribute pertains. For instance, most popular compilers emit a
+warning whenever a \texttt{[[deprecated]]} function or
+object{\cprotect\footnote{The \texttt{[[deprecated]]} attribute can be
+used portably to decorate other entities: \texttt{class},
+\texttt{struct}, \texttt{union}, type alias, variable, data member,
+function, enumeration, template specialization. Applying
+\texttt{[[deprecated]]} to a specific enumerator or namespace,
+however, is guaranteed to be supported only since C++17; see
+  \textbf{smith15a} for more information.}} is used:
+
+\begin{lstlisting}[language=C++]
+               void f();
+[[deprecated]] void g();
+
+               int a;
+[[deprecated]] int b;
+
+void h()
+{
+    f();
+    g();  // Warning: (ù{\codeincomments{g}}ù) is deprecated.
+    a;
+    b;    // Warning: (ù{\codeincomments{b}}ù) is deprecated.
+}
+\end{lstlisting}
+    
+\noindent A programmer can (optionally) supply a \textbf{string literal} as an
+argument to the\linebreak[4] \mbox{\texttt{[[deprecated]]}} attribute (e.g.,
+\mbox{\texttt{[[deprecated("message")]]}}) to inform human users regarding the
+reason for the deprecation:
+
+\begin{lstlisting}[language=C++]
+[[deprecated("too slow, use (ù{\codeincomments{algo1}}ù) instead")]] void algo0();
+                                                void algo1();
+
+void f()
+{
+    algo0();  // Warning: (ù{\codeincomments{algo0}}ù) is deprecated; too slow, use (ù{\codeincomments{algo1}}ù) instead.
+    algo1();
+}
+\end{lstlisting}
+    
+\noindent An \textbf{entity} that is initially \emph{declared} without
+\texttt{[[deprecated]]} can later be redeclared with the attribute and
+vice versa:
+
+\begin{lstlisting}[language=C++]
+void f();
+void g0() { f(); }  // OK, likely no warnings
+
+[[deprecated]] void f();
+void g1() { f(); }  // Warning: (ù{\codeincomments{f}}ù) is deprecated.
+
+void f();
+void g2() { f(); }  // Warning: (ù{\codeincomments{f}}ù) is deprecated (still).
+\end{lstlisting}
+    
+\noindent As seen in \texttt{g2} (above), redeclaring an \textbf{entity} that was
+previously decorated with\linebreak[4] \mbox{\texttt{[[deprecated]]}} without the attribute
+does not un-deprecate the entity.
+
+\subsection[Use Cases]{Use Cases}\label{use-cases}
+
+\subsubsection[Discouraging use of an obsolete or unsafe \textbf{entity}]{Discouraging use of an obsolete or unsafe \textbf{entity}}\label{discouraging-use-of-an-obsolete-or-unsafe-entity}
+
+Decorating any \textbf{entity} with \texttt{[[deprecated]]} serves both
+to indicate a particular feature should not be used in the future and
+to actively encourage migration of existing uses to a better
+alternative. Obsolescence, lack of safety, and poor performance are
+common motivators for deprecation.
+
+As an example of productive deprecation, consider the
+\texttt{RandomGenerator} class having a static \texttt{nextRandom}
+member function to generate random numbers:
+
+\begin{lstlisting}[language=C++]
+struct RandomGenerator
+{
+    static int nextRandom();
+        // Generate a random value between 0 and 32767 (inclusive).
+};
+\end{lstlisting}
+    
+\noindent Although such a simple random number generator can be very useful, it
+might become unsuitable for heavy use because good pseudorandom number
+generation requires more state (and the overhead of synchronizing such
+state for a single \texttt{static} function can be a significant
+performance bottleneck) while good random number generation requires
+potentially very high overhead access to external sources of
+entropy.{\cprotect\footnote{The C Standard Library provides
+\texttt{rand}, available in C++ through the \texttt{<cstdlib>} header.
+It has similar issues to our \texttt{RandomGenerator::nextRandom}
+function, and similarly developers are guided to use the facilities
+  provided in the \texttt{<random>} header since C++11.}} One
+solution is to provide an alternative random number generator that
+maintains more state, allows users to decide where to store that state
+(the random number generator objects), and overall offers more
+flexibility for clients. The downside of such a change is that it comes
+with a functionally distinct API, requiring that users update their code
+to move away from the inferior solution:
+
+\begin{lstlisting}[language=C++]
+class BetterRandomGenerator
+{
+    // ... (internal state of a quality pseudorandom number generator) ...
+
+public:
+    int nextRandom();
+       // Generate a quality random value between 0 and 32767 (inclusive).
+};
+\end{lstlisting}
+    
+\noindent Any user of the original random number generator can migrate to the new
+facility with little effort, but that is not a completely trivial
+operation, and migration will take some time before the original feature is no
+longer in use. The empathic maintainers of \texttt{RandomGenerator} can
+decide, instead of removing it completely, to use the
+\texttt{[[deprecated]]} attribute to (gently) discourage continued use
+of \texttt{RandomGenerator::nextRandom()}:
+
+\begin{lstlisting}[language=C++]
+struct RandomGenerator
+{
+    [[deprecated("Use (ù{\codeincomments{BetterRandomGenerator::nextRandom()}}ù) instead.")]]
+    static int nextRandom();
+        // ...
+};
+\end{lstlisting}
+    
+\noindent By using \texttt{[[deprecated]]} as shown above, existing clients of
+\texttt{RandomGenerator} are informed that a superior
+alternative, \texttt{BetterRandomGenerator}, is available, yet they are granted time to
+migrate their code to the new solution (rather than their code being broken by the
+removal of the old solution). When clients are notified of the
+deprecation (thanks to a compiler diagnostic), they can schedule time to
+(eventually) rewrite their applications to consume the new interface.{\cprotect\footnote{All joking aside, \textbf{continuous refactoring} is
+an essential responsibility of a development organization, and
+deciding when to go back and fix what's suboptimal instead of writing
+new code that will please users and contribute more immediately to the
+bottom line will forever be a source of tension. Allowing disparate
+development teams to address such improvements in their own respective
+time frames (perhaps subject to some reasonable overall deadline
+date) is a proven real-world practical way of ameliorating this
+  tension.}}
+
+\subsection[Potential Pitfalls]{Potential Pitfalls}\label{potential-pitfalls}
+
+\subsubsection[Interaction with {\tt -Werror} (e.g., GCC, Clang) or {\tt /WX} (MSVC)]{Interaction with {\SubsubsecCode -Werror} (e.g., GCC, Clang) or {\SubsubsecCode /WX} (MSVC)}\label{interaction-with--werror-(e.g,-gcc,-clang)-or-/wx-(msvc)}
+
+To prevent warnings from being overlooked, the \texttt{-Werror} flag
+(\texttt{/WX} on MSVC) is sometimes used, which promotes warnings to
+errors. Consider the case where a project has been successfully using
+\texttt{-Werror} for years, only to one day face an unexpected
+compilation failure due to one of the project's dependencies using
+\texttt{[[deprecated]]} as part of their API.
+
+Having the compilation process completely stopped due to use of a
+deprecated \textbf{entity} defeats the purpose of the attribute because users of such an \textbf{entity} are given no time to adapt their code
+to use a newer alternative. On GCC and Clang, users can selectively demote deprecation errors back to warnings by using the
+\texttt{-Wno-error=deprecated-declarations} compiler flag. On MSVC,
+however, such demotion of warnings is not possible: The (unsatisfactory)
+workarounds are to disable (entirely) either \texttt{/WX} or deprecation
+diagnostics (using the \texttt{-wd4996} flag).
+
+Furthermore, this interaction between \texttt{[[deprecated]]} and
+\texttt{-Werror} makes it impossible for owners of a low-level library
+to deprecate a function when releasing their code requires that they do
+not break the ability for \textit{any} of their higher-level clients to compile;
+a single client using the to-be-deprecated function along with
+\texttt{-Werror} prevents the release of the code with the
+\texttt{[[deprecated]]} attribute on it. With the default behaviors of
+compilers and the frequent advice given in practice to use
+\texttt{-Werror} aggressively, this can make any use of
+\texttt{[[deprecated]]} completely unfeasible.
+
+\subsection[Annoyances]{Annoyances}\label{annoyances}
+
+None so far
+
+\subsection[See Also]{See Also}\label{see-also}
+
+None so far
+
+\subsection[Further Reading]{Further Reading}\label{further-reading}
+
+None so far
+
+
+

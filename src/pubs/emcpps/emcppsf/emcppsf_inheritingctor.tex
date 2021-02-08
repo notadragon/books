@@ -3,7 +3,19 @@
     long={Inheriting Base Class Constructors},
 }{ctorinheriting}
 
-% 01 Feb, 2021 JMB - minor fixes to c++ include style used
+
+
+\emcppsFeature{
+    short={Inheriting Ctors},
+    long={Inheriting Base Class Constructors},
+}{ctorinheriting}
+\label{inheriting-constructors}
+\setcounter{table}{0}
+\setcounter{footnote}{0}
+\setcounter{lstlisting}{0}
+%\section[Inheriting Ctors]{Inheriting Base Class Constructors}\label{ctorinheriting}\label{inheriting-constructors}
+
+
 
 The term \textit{inheriting constructors} refers to the use of a
 \textbf{{\ttfamily\bfseries using}-declaration} to expose nearly all of the
@@ -589,7 +601,7 @@ without its having to know what those constructors are:
 \begin{lstlisting}[language=C++]
 #include <string>   // (ù{\codeincomments{std::string}}ù)
 #include <vector>   // (ù{\codeincomments{std::vector}}ù)
-#include <myfoo.h>  // (ù{\codeincomments{MyFoo}}ù)
+#include "myfoo.h"  // (ù{\codeincomments{MyFoo}}ù)
 
 Counted<std::string>        cs;  // Construct a counted string.
 Counted<std::vector<char>> cvc;  // Construct a counted vector of (ù{\codeincomments{char}}ù).

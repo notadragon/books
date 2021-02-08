@@ -1,11 +1,21 @@
 \emcppsFeature{
-    tocshort={{\TOCCode friend} '11},
-    toclong={Extended {\TOCCode friend} Declarations},
-    short={{\SecCode friend} '11},
+    short={{\tt friend} '11},
     long={Extended {\SecCode friend} Declarations},
 }{extended-friend-declarations}
 
-% 01 Feb, 2021 JMB - minor fixes to file headings within listings
+
+\emcppsFeature{
+    short={\lstinline!friend! '11},
+    tocshort={{\TOCCode friend} '11},
+    long={Extended {\SecCode friend} Declarations},
+    toclong={Extended \lstinline!friend! Declarations},
+    rhshort={{\RHCode friend} '11},
+}{extended-friend-declarations}
+\setcounter{table}{0}
+\setcounter{footnote}{0}
+\setcounter{lstlisting}{0}
+%\section[{\tt friend} '11]{Extended {\SecCode friend} Declarations}\label{extended-friend-declarations}
+
 
 Extended \texttt{friend} declarations enable a class's author to
 designate a type alias, a template parameter, or any other previously
@@ -248,7 +258,7 @@ macros to configure that alias:
 %%% yes, and VR requests some separation
 
 \begin{lstlisting}[language=C++]
-// windowmanager_win32.h:
+// windowmanager_win32.h
 
 #ifdef WIN32
 class Win32WindowManager { /* ... */ };
@@ -258,7 +268,7 @@ class Win32WindowManager { /* ... */ };
 \vspace*{2ex}
 
 \begin{lstlisting}[language=C++]
-// windowmanager_unix.h:
+// windowmanager_unix.h
 
 #ifdef UNIX
 class UnixWindowManager { /* ... */ };
@@ -268,7 +278,7 @@ class UnixWindowManager { /* ... */ };
 \vspace*{2ex}
 
 \begin{lstlisting}[language=C++]
-// windowmanager.h:
+// windowmanager.h
 
 #ifdef WIN32
 #include <windowmanager_win32.h>
@@ -282,7 +292,7 @@ typedef UnixWindowManager WindowManager;
 \vspace*{2ex}
 
 \begin{lstlisting}[language=C++]
-// window.h:
+// window.h
 #include <windowmanager.h>
 
 class Window

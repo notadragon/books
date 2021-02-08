@@ -1,10 +1,23 @@
 \emcppsFeature{
-    tocshort={Opaque {\TOCCode enum}s},
-    short={Opaque {\SecCode enum}s},
+    short={Opaque {\tt enum}s},
     long={Opaque Enumeration Declarations},
 }{enumopaque}
 
 % 01 Feb, 2021 JMB - packet 4 compilation fixes
+
+
+\emcppsFeature{
+    short={Opaque \lstinline!enum!s},
+    tocshort={Opaque {\TOCCode enum}s},
+    long={Opaque Enumeration Declarations},
+    rhshort={Opaque {\RHCode enum}s},
+}{enumopaque}
+\label{opaque-enumeration-declarations}
+\setcounter{table}{0}
+\setcounter{footnote}{0}
+\setcounter{lstlisting}{0}
+%\section[Opaque {\tt enum}s]{Opaque Enumeration Declarations}\label{enumopaque}\label{opaque-enumeration-declarations}
+
 
 Enumerated types, such as an \lstinline!enum! or \lstinline!enum! class (see \featureref{\locationc}{enumclass}), whose underlying type (see \featureref{\locationc}{explicit-enumeration-underlying-type}) is well-specified, can be
 declared without being defined, i.e., declared without its enumerators.

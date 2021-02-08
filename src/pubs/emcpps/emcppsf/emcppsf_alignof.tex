@@ -1,12 +1,20 @@
 \emcppsFeature{
-    tocshort={{\TOCCode alignof - TOCSHORT}},
-    toclong={The (Compile-Time) {\TOCCode alignof} Operator - TOCLONG},
-    rhshort={{\SecCode alignof - RHSHORT}},
-    short={{\SecCode alignof - SHORT}},
-    long={The (Compile-Time) {\SecCode alignof} Operator - LONG},
+    short={{\tt alignof}},
+    long={The (Compile-Time) {\SecCode alignof} Operator},
 }{alignof}
 
-\titleref{constexprvar} \\
+
+\emcppsFeature{
+    short={\lstinline!alignof!},
+    tocshort={\TOCCode alignof},
+    long={The (Compile-Time) {\SecCode alignof} Operator},
+    toclong={The (Compile-Time) \lstinline!alignof! Operator},
+    rhshort={\RHCode alignof},
+}{alignof}
+\setcounter{table}{0}
+\setcounter{footnote}{0}
+\setcounter{lstlisting}{0}
+%\section[{\tt alignof}]{The (Compile-Time) {\SecCode alignof} Operator}\label{alignof}
 
 The keyword \texttt{alignof} serves as a compile-time operator used to
 query the \textbf{alignment requirements} of a type on the current

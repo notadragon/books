@@ -54,8 +54,8 @@ def processHead(lines):
     output.append(f"    long={{{longTit}}},")
     output.append(f"}}{{{labels[0]}}}")
 
-    for l in labels[1:]:
-        output.append(f"\\label{{{l}}}")
+    #for l in labels[1:]:
+    #    output.append(f"\\label{{{l}}}")
     
     return output
 

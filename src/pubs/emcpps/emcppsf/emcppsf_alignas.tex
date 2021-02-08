@@ -1,11 +1,21 @@
 \emcppsFeature{
-    tocshort={{\TOCCode alignas}~},
-    toclong={The {\TOCCode alignas} Decorator},
-    short={{\SecCode alignas}~},
+    short={{\tt alignas}~},
     long={The {\SecCode alignas} Decorator},
 }{alignas}
 
-% 01 Feb, 2021 JMB - minor fixes to file headings within listings
+
+
+\emcppsFeature{
+    short={\lstinline!alignas!},
+    tocshort={\TOCCode alignas},
+    long={The {\SecCode alignas} Decorator},
+    toclong={The \lstinline!alignas! Decorator},
+    rhshort={\RHCode alignas},
+}{alignas}
+%\section[{\tt alignas}]{The {\SecCode alignas} Decorator\sectionmark{\RHCode alignas}}\label{alignas}\sectionmark{\RHCode alignas}
+\setcounter{table}{0}
+\setcounter{footnote}{0}
+\setcounter{lstlisting}{0}
 
 \texttt{alignas}, a keyword that acts like an attribute, is used to widen (make more strict)
 the \textbf{alignment} of a \textbf{variable}, \textbf{user-defined
@@ -480,10 +490,10 @@ translation units, no mainstream compiler is likely to diagnose the
 problem:
 
 \begin{lstlisting}[language=C++]
-// file1.cpp:
+// file1.cpp
 struct Bam { char ch; } bam, *p = &bam;
 
-// file2.cpp:
+// file2.cpp
 struct alignas(int) Bam;  // Error: definition of (ù{\codeincomments{Bam}}ù) lacks alignment specifier.
 extern Bam* p;            //        (no diagnostic required)
 \end{lstlisting}

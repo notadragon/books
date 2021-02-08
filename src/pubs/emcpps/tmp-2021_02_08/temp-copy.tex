@@ -1,0 +1,606 @@
+% Options for packages loaded elsewhere
+\PassOptionsToPackage{unicode}{hyperref}
+\PassOptionsToPackage{hyphens}{url}
+%
+
+% \documentclass[
+% % % % % % ]{report}
+
+% PEARSON
+\documentclass[twoside,10pt,letterpaper,usenames]{newstyle-PearsonGeneric-7-38}
+\usepackage[twoside]{geometry} % to set the dimensions of the page
+
+% PEARSON
+\geometry{                                  % setting all the necessary dimensions...
+paperwidth=7.375in,                  % Do not change these settings.
+paperheight=9.125in,                 % These set up the trim size for the book.
+lmargin=1in,
+rmargin=.875in,
+bmargin=.650in,
+tmargin=.95in,
+width=5.5in,
+height=7.4in,
+marginparwidth=0in,
+marginparsep=0in,
+headheight=0.2in,
+headsep=.25in,
+footskip=.025in}
+
+% PEARSON
+%%%%%%%% Skip over this part.  These lines should remain unaltered.
+%
+%%    These lines input packages that are used for this template.
+\usepackage[letter,cam,center]{crop-AlteredCamMarks}  % to add trim marks; updated Nov 2015 to allow more space between marks and trim edge
+\usepackage{graphicx} % for graphics layout
+
+%%%% CHANGED FOR ROMEO
+% Changing code font to Cousine
+\usepackage{mathspec}
+\setmonofont[Ligatures=NoCommon,Scale=.9,SlantedFont={Cousine Italic},BoldSlantedFont={Cousine Bold Italic}]{Cousine Regular} % to set our code font
+
+\usepackage{amsfonts} % to ensure attractive mathematics
+\usepackage{amssymb} % to ensure attractive mathematics
+\usepackage{float}      % to allow things to float even if they normally don't
+\usepackage{wrapfig} % to allow text to wrap around small figures
+\usepackage{outline} % to allow outline creation
+\usepackage{framed-PearsonGeneric} % to create the leftside vertical bar for the example environment
+
+\usepackage{listings}  % for setting attractive computer code
+%%%%% CHANGED FOR ROMEO
+% changed font to Cousine, removed 5ex indent
+\lstset{basicstyle=\ttfamily\small,framerule=0.5pt} % setting the code in small sans serif font and
+% setting	the margin for the code.  Nov 2015: setting the rules to be 0.5pt
+%%%%%%%%%%%%%
+\usepackage[stable,bottom]{footmisc} % to stabilize the footnote environment and to ensure footnotes
+							  % appear at the bottom of the page, even if a figure or table
+							  % appears at the bottom
+\usepackage[flushleft]{threeparttable} % to set attractive footnotes within table environments
+\usepackage{titleref} % to allow cross-referencing by title
+\usepackage{xr} % to allow cross-referencing between files
+% \usepackage{colortbl} % to allow the use of color/shading in tables (TODO)
+\usepackage{caption} % to set the appearance of captions
+\captionsetup[table]{singlelinecheck=off,labelfont={sf,bf,small},font={sf,bf,small}}
+\captionsetup[figure]{labelfont={sf,bf,small},font={sf,bf,small}}
+\captionsetup[lstlisting]{labelfont={sf,bf,small},font={sf,bf,small}}
+\usepackage{tocloft-hacked-PearsonGeneric} % to allow manipulation of the TOC
+
+%%%%%%%% Determine your indexing plan.
+%
+% Most of the time, the publisher will hire an independent indexing expert to create an
+%    index for your book.  Your production editor can let you know the plan for your book.
+% Use the line below only if your production plan includes the creation of a LaTeX index.
+% Note that this situation is uncommon.
+%\makeindex           % if your book will include a LaTeX-generated index
+%\usepackage{See-makeidx}
+
+%%%%%%%%%% These lines set up the Preamble of the document. You can skip over this part.
+%% Preamble:
+\input{definitions-PearsonGeneric}  % Loading the definitions needed for this book:
+
+
+%%%%%%%%%%CHANGED FOR ROMEO
+\setcounter{secnumdepth}{2}
+
+% Required for PANDOC conversion
+\newcommand{\passthrough}[1]{\lstset{mathescape=false}#1\lstset{mathescape=true}}
+
+% Hack to allow PANDOC to parse Markdown in inline LaTeX environments
+\let\Begin\begin
+\let\End\end
+
+% PANDOC stuff
+\IfFileExists{upquote.sty}{\usepackage{upquote}}{}
+\IfFileExists{microtype.sty}{% use microtype if available
+  \usepackage[]{microtype}
+  \UseMicrotypeSet[protrusion]{basicmath} % disable protrusion for tt fonts
+}{}
+\makeatletter
+\@ifundefined{KOMAClassName}{% if non-KOMA class
+  \IfFileExists{parskip.sty}{%
+    \usepackage{parskip}
+  }{% else
+    \setlength{\parindent}{0pt}
+    \setlength{\parskip}{6pt plus 2pt minus 1pt}}
+}{% if KOMA class
+  \KOMAoptions{parskip=half}}
+\makeatother
+\usepackage{fancyvrb}
+\usepackage{xcolor}
+\IfFileExists{xurl.sty}{\usepackage{xurl}}{} % add URL line breaks if available
+\IfFileExists{bookmark.sty}{\usepackage{bookmark}}{\usepackage{hyperref}}
+\hypersetup{
+  hidelinks,
+  pdfcreator={LaTeX via pandoc}}
+\urlstyle{same} % disable monospaced font for URLs
+\VerbatimFootnotes % allow verbatim text in footnotes
+
+
+\usepackage{longtable,booktabs}
+% Correct order of tables after \paragraph or \subparagraph
+\usepackage{etoolbox}
+\makeatletter
+\patchcmd\longtable{\par}{\if@noskipsec\mbox{}\fi\par}{}{}
+\makeatother
+% Allow footnotes in longtable head/foot
+\IfFileExists{footnotehyper.sty}{\usepackage{footnotehyper}}{\usepackage{footnote}}
+\makesavenoteenv{longtable}
+
+% 
+
+
+\setlength{\emergencystretch}{3em} % prevent overfull lines
+\providecommand{\tightlist}{%
+\setlength{\itemsep}{0pt}\setlength{\parskip}{0pt}}
+
+% 
+
+
+
+
+\author{}
+\date{}
+
+\begin{document}
+
+% PEARSON
+\input{cft-definitions-PearsonGeneric} % Loading a few commands related to the tocloft package
+
+
+
+
+% %
+% %
+% %
+% %
+% 
+% @lorihughes: Pandoc markdown supports inline LaTeX. We can reuse existing `.tex` components easily.
+% @lorihughes: We could also do the opposite! Take a look at https://tex.stackexchange.com/questions/374890
+\input{emcpps_frontmatter}
+
+% @lorihughes: For "uncommon" pieces such as pages introducing parts, or even tables, we could use inline LaTeX. We could work on a hybrid Markdown/LaTeX source, which will probably generate a cleaner final LaTeX result. -->
+\include{part1}
+
+% Chapter heading. This could be converted to a nice Markdown special class, but we could also just embed LaTeX as below.
+\input{emcpps_chapter1head}
+
+\hypertarget{c11}{%
+\section{C++11}\label{c11}}
+
+Small amount of intro text here. Lorem ipsum dolor sit amet, consectetur
+adipiscing elit. Suspendisse non nisi ex. Ut non sollicitudin est. Donec
+laoreet, risus pretium egestas condimentum, ex eros tempor diam, quis
+congue nisi metus in tellus. Proin tempor ac lectus nec elementum.
+Maecenas augue turpis, pellentesque sed eros sit amet, tincidunt pretium
+nulla. Nunc lacus ligula, ullamcorper a porta eget, fringilla sed orci.
+Maecenas eget ultricies risus. Donec varius vehicula diam.
+
+\hypertarget{auto}{%
+\subsection{\texorpdfstring{\texttt{auto}}{auto}}\label{auto}}
+
+Small amount of intro text here. The \passthrough{\lstinline!auto!}
+keyword was repurposed\footnote{Footnote. Lorem ipsum dolor sit amet,
+  consectetur adipiscing elit.} in C++11 to act as a \emph{placeholder}
+type. When used instead of a type as part of a variable declaration, the
+{compiler} will use the same rules as {template argument deduction} to
+deduce the type of the variable.
+
+\hypertarget{description}{%
+\subsubsection{Description}\label{description}}
+
+Description of the feature here. Lorem ipsum dolor sit amet, consectetur
+adipiscing elit. Suspendisse non nisi ex. Ut non sollicitudin est. Donec
+laoreet, risus pretium egestas condimentum, ex eros tempor diam, quis
+congue nisi metus in tellus. Proin tempor ac lectus nec elementum.
+Maecenas augue turpis, pellentesque sed eros sit amet, tincidunt pretium
+nulla. Nunc lacus ligula, ullamcorper a porta eget, fringilla sed orci.
+Maecenas eget ultricies risus. Donec varius vehicula diam.
+
+\hypertarget{automatic-type-deduction-rules}{%
+\paragraph{\texorpdfstring{\emph{Automatic type deduction
+rules}}{Automatic type deduction rules}}\label{automatic-type-deduction-rules}}
+
+Sub-section that describes a particular aspect of the feature in
+abstract terms. Lorem ipsum dolor sit amet, consectetur adipiscing elit.
+Suspendisse non nisi ex. Ut non sollicitudin est. Donec laoreet, risus
+pretium egestas condimentum, ex eros tempor diam, quis congue nisi metus
+in tellus.
+
+\Begin{leftbar}
+
+Proin tempor ac lectus nec elementum. Maecenas augue turpis,
+pellentesque sed eros sit amet, tincidunt pretium nulla. Nunc lacus
+ligula, ullamcorper a porta eget, fringilla sed orci. Maecenas eget
+ultricies risus. Donec varius vehicula diam.
+
+\begin{lstlisting}[language=C++, caption={ example caption for recordcount }, label={ testlabel }, frame=tb]
+int recordCount;
+while (cursor.next()) { ++recordCount; }
+    //                  ^~~~~~~~~~~~~
+    //                Undefined behavior.
+\end{lstlisting}
+    
+
+\End{leftbar}
+
+Lorem ipsum dolor sit amet, consectetur adipiscing elit. Suspendisse non
+nisi ex. Ut non sollicitudin est. Donec laoreet, risus pretium egestas
+condimentum, ex eros tempor diam, quis congue nisi metus in tellus.
+Proin tempor ac lectus nec elementum. Maecenas augue turpis,
+pellentesque sed eros sit amet, tincidunt pretium nulla. Nunc lacus
+ligula, ullamcorper a porta eget, fringilla sed orci. Maecenas eget
+ultricies risus. Donec varius vehicula diam.
+
+\begin{lstlisting}[language=C++, caption={ missing caption }, label={ testlabel }, frame=tb]
+auto recordCount; // Compile-time error.
+while (cursor.next()) { ++recordCount; }
+\end{lstlisting}
+    
+
+Lorem ipsum dolor sit amet, consectetur adipiscing elit. Suspendisse non
+nisi ex. Ut non sollicitudin est.
+
+\begin{itemize}
+\item
+  Donec \passthrough{\lstinline!laoreet!}, risus pretium egestas
+  condimentum, ex eros tempor diam, quis congue nisi metus in tellus.
+\item
+  Proin tempor ac lectus nec elementum. Maecenas augue turpis.
+\item
+  Lorem ipsum dolor sit amet, consectetur adipiscing elit. Suspendisse
+  non nisi ex. Ut non sollicitudin est.
+\end{itemize}
+
+\hypertarget{use-cases}{%
+\subsubsection{Use Cases}\label{use-cases}}
+
+Small amount of intro text can optionally be here. Lorem ipsum dolor sit
+amet, consectetur adipiscing elit. Suspendisse non nisi ex. Ut non
+sollicitudin est. Donec laoreet, risus pretium egestas condimentum, ex
+eros tempor diam.
+
+\hypertarget{avoiding-type-repetition}{%
+\paragraph{\texorpdfstring{\emph{Avoiding type
+repetition}}{Avoiding type repetition}}\label{avoiding-type-repetition}}
+
+Sub-section that describes a particular aspect of the feature in
+concreteterms. Lorem ipsum dolor sit amet, consectetur adipiscing elit.
+Suspendisse non nisi ex. Ut non sollicitudin est. Donec laoreet, risus
+pretium egestas condimentum, ex eros tempor diam, quis congue nisi metus
+in tellus. Proin tempor ac lectus nec elementum\footnote{The relative
+  position of \passthrough{\lstinline!decltype(range.sort())!} in the
+  signature of \passthrough{\lstinline!sortRangeImpl!} is not
+  significant, as long as it is visible to the compiler during template
+  substitution. This particular example (shown in the main text) makes
+  use of a function parameter that is defaulted to
+  \passthrough{\lstinline!nullptr!}. Alternatives involving a trailing
+  return type or a default template argument are also viable:}.
+
+\begin{lstlisting}[language=C++, caption={ missing caption }, label={ testlabel }, frame=tb]
+int x = 10;
+auto y = x;
+\end{lstlisting}
+    
+
+Maecenas augue turpis, pellentesque sed eros sit amet, tincidunt pretium
+nulla. Nunc lacus ligula, ullamcorper a porta eget, fringilla sed orci.
+Maecenas eget ultricies risus. Donec varius vehicula diam.\footnote{For
+  more information on foobar, see \textbf{lakos20}, section 1.2.3, pp
+  208-234, especially Figure 1-35, p.~215.}
+
+\hypertarget{potential-pitfalls}{%
+\subsubsection{Potential Pitfalls}\label{potential-pitfalls}}
+
+Lorem ipsum dolor sit amet, consectetur adipiscing elit. Suspendisse non
+nisi ex. Ut non sollicitudin est. Donec laoreet, risus pretium egestas
+condimentum, ex eros tempor diam, quis congue nisi metus in tellus.
+Proin tempor ac lectus nec elementum. Maecenas augue turpis,
+pellentesque sed eros sit amet, tincidunt pretium nulla. Nunc lacus
+ligula, ullamcorper a porta eget, fringilla sed orci. Maecenas eget
+ultricies risus. Donec varius vehicula diam.\footnote{\textbf{lakos20},
+  section 0.5, pp 34-42
+
+  \begin{lstlisting}[language=C++, label={ testlabel }, basicstyle=\footnotesize]
+  template <typename Range>
+  auto sortRangeImpl(Range& range, int) -> decltype(range.sort(), void());
+      // The comma operator is used to force the return type to `void`,
+      // regardless of the return type of `range.sort()`.
+
+  template <typename Range, typename = decltype(std::declval<Range&>().sort()>
+  auto sortRangeImpl(Range& range, int);
+      // `std::declval` is used to generate a reference to `Range` that can be
+      // used in an unevaluated expression
+  \end{lstlisting}
+      }
+
+In the example above, \passthrough{\lstinline!localhost!} will be
+initialized in the following manner\footnote{Footnote. Lorem ipsum dolor
+  sit amet, consectetur adipiscing elit.}:
+
+\begin{enumerate}
+\def\labelenumi{\arabic{enumi}.}
+\item
+  {Constructor} \textbf{(0)} will be invoked;
+\item
+  On line \textbf{(1)}, execution will be delegated to constructor
+  \textbf{(2)};
+\item
+  The body of constructor \textbf{(2)} will be executed;
+\item
+  The body of constructor \textbf{(1)} will be executed.
+\end{enumerate}
+
+This feature, when used in conjunction with \emph{explicit instantiation
+definitions}, can significantly improve compilation times for a set of
+translation units that often instantiate common templates:
+
+\begin{longtable}[]{@{}lll@{}}
+\toprule
+\endhead
+\begin{minipage}[t]{0.30\columnwidth}\raggedright
+\begin{lstlisting}[language=C++, caption={ missing caption }, label={ testlabel }, frame=tb]
+// foo.h
+
+template <typename T>
+void foo() { /* ... */ }
+    // Template definition
+
+
+
+
+
+
+
+\end{lstlisting}
+    \strut
+\end{minipage} & \begin{minipage}[t]{0.30\columnwidth}\raggedright
+\begin{lstlisting}[language=C++, caption={ missing caption }, label={ testlabel }, frame=tb]
+// foo.h
+
+template <typename T>
+void foo() { /* ... */ }
+    // Template definition
+
+
+
+
+
+
+
+\end{lstlisting}
+    \strut
+\end{minipage} & \begin{minipage}[t]{0.30\columnwidth}\raggedright
+\begin{lstlisting}[language=C++, caption={ missing caption }, label={ testlabel }, frame=tb]
+// foo.h
+
+template <typename T>
+void foo() { /* ... */ }
+    // Template definition
+
+
+
+
+
+
+
+\end{lstlisting}
+    \strut
+\end{minipage}\tabularnewline
+\bottomrule
+\end{longtable}
+
+Attempting to compile \passthrough{\lstinline!main.cpp!} on its own will
+produce a linker error along the lines of:
+
+\begin{lstlisting}[language=C++, caption={ missing caption }, label={ testlabel }, frame=tb]
+undefined reference to `Vector2D<float>::normalize()'
+\end{lstlisting}
+    
+
+The linker error is expected as the inclusion of
+\passthrough{\lstinline!vector2d.h!} suppresses implicit instantiation
+of \passthrough{\lstinline!Vector2D<float>!}. Note that
+\passthrough{\lstinline!iVec!} is not affected, as the
+\passthrough{\lstinline!Vector2D<int>!} instantiation does take place.
+
+\hypertarget{readability-concerns}{%
+\paragraph{\texorpdfstring{\emph{Readability
+concerns}}{Readability concerns}}\label{readability-concerns}}
+
+Using \passthrough{\lstinline!auto!} can hide all information regarding
+a variable's type, increasing cognitive overhead for the readers. In
+conjunction with unclear variable naming, disproportionate usage of
+\passthrough{\lstinline!auto!} can make code unreadable. E.g.
+
+\begin{lstlisting}[language=C++, caption={ missing caption }, label={ testlabel }, frame=tb]
+int main(int argc, char** argv)
+{
+    const auto args0 = parseArgs(argc, argv);
+        // The behavior of `parseArgs` is unclear.
+
+    const std::vector<std::string> args1 = parseArgs(argc, argv);
+        // It is obvious what `parseArgs` does.
+}
+\end{lstlisting}
+    
+
+While it may be necessary to read \passthrough{\lstinline!parseArgs!}'s
+contract at least once to fully understand its behavior, an explicit
+type in the usage site helps readers understand its purpose
+\href{http://wg21.link/cwg1655}{CWG1655}.
+
+\begin{lstlisting}
+testing column width for code 
+123456789A123456789B123456789C123456789D123456789E123456789F123456789G123456789H 
+this is 80 characters!}
+\end{lstlisting}
+
+C++11 introduces three new types of string literal, which provide strong
+guarantees on the encoding of character sequences:
+
+\begin{longtable}[]{@{}lll@{}}
+\toprule
+Encoding & Example & Character Type\tabularnewline
+\midrule
+\endhead
+UTF-8 & \passthrough{\lstinline!u8"Hello"!} &
+\passthrough{\lstinline!char!}\tabularnewline
+UTF-16 & \passthrough{\lstinline!u"Hello"!} &
+\passthrough{\lstinline!char16\_t!}\tabularnewline
+UTF-32 & \passthrough{\lstinline!U"Hello"!} &
+\passthrough{\lstinline!char32\_t!}\tabularnewline
+\bottomrule
+\end{longtable}
+
+Raw string literals enable developers to embed strings in a program's
+source code without requiring to escape special character sequences and
+preserving whitespace, with the goal of enhancing readability. The
+syntax of the feature is easily understood through an example showing a
+\emph{regular expression} embedded in source code:
+
+\begin{lstlisting}[language=C++, caption={ missing caption }, label={ testlabel }, frame=tb]
+//            delimiter and round parenthesis
+//                    v~~~             v~~~
+const char* regex = R"xxx([0-9]\(".*"\))xxx";
+//                  ^     ^~~~~~~~~~~~~
+//                  |      string contents
+//                  |
+//                  | uppercase R
+\end{lstlisting}
+    
+
+\hypertarget{lack-of-interface-restrictions}{%
+\paragraph{\texorpdfstring{\emph{Lack of interface
+restrictions}}{Lack of interface restrictions}}\label{lack-of-interface-restrictions}}
+
+In generic code, even if concrete types are dependent on template
+arguments, \passthrough{\lstinline!auto!} is needlessly lax. It is
+always possible to identify a \emph{concept}\footnote{Authors' Note: We
+  will have some footnotes that are authors' notes.} which provides
+information regarding operations allowed on a type to the reader {[}see
+@AGE86, pp. 33-35{]}, albeit specifying it in code is
+cumbersome.\footnote{Unless explicitly specified, the \emph{underlying
+  type} of non-strongly typed enumerations is
+  {[}\emph{implementation-defined}{]}.}
+
+In some particular cases, concepts also carry important semantic meaning
+that could be lost by using \passthrough{\lstinline!auto!}. E.g.
+
+\begin{lstlisting}[language=C++, caption={ missing caption }, label={ testlabel }, frame=tb]
+Packet* PacketCache::findFirstCorruptPacket() const
+{
+    auto it = std::begin(this->d_packet);
+
+    static_assert(IsRandomAccessIterator<decltype(it)>::value,
+                  "`it` must be a random access iterator.");
+
+    return it == std::end(this->d_employees) ? nullptr
+                                             : &*it;
+}
+\end{lstlisting}
+    
+
+\hypertarget{list-initialization}{%
+\paragraph{\texorpdfstring{\emph{List
+initialization}}{List initialization}}\label{list-initialization}}
+
+The meaning of \passthrough{\lstinline!auto!} completely changes when
+using \emph{list initialization}:
+\passthrough{\lstinline!std::initializer\_list!} is always deduced.
+
+\begin{lstlisting}[language=C++, caption={ missing caption }, label={ testlabel }, frame=tb]
+auto example0 = 0; // Copy initialiation, deduced as `int`.
+auto example1(0);  // Direct initialiation, deduced as `int`.
+auto example2{0};  // List initialiation, deduced as `std::initializer_list<int>`.
+\end{lstlisting}
+    
+
+\begin{longtable}[]{@{}clrl@{}}
+\toprule
+\endhead
+\begin{minipage}[t]{0.15\columnwidth}\centering
+First\strut
+\end{minipage} & \begin{minipage}[t]{0.10\columnwidth}\raggedright
+row\strut
+\end{minipage} & \begin{minipage}[t]{0.20\columnwidth}\raggedleft
+12.0\strut
+\end{minipage} & \begin{minipage}[t]{0.32\columnwidth}\raggedright
+Example of a row that spans multiple lines.\strut
+\end{minipage}\tabularnewline
+\begin{minipage}[t]{0.15\columnwidth}\centering
+Second\strut
+\end{minipage} & \begin{minipage}[t]{0.10\columnwidth}\raggedright
+row\strut
+\end{minipage} & \begin{minipage}[t]{0.20\columnwidth}\raggedleft
+5.0\strut
+\end{minipage} & \begin{minipage}[t]{0.32\columnwidth}\raggedright
+Here's another one. Note the blank line between rows.\strut
+\end{minipage}\tabularnewline
+\bottomrule
+\end{longtable}
+
+This surprising behavior contradicts the idea of ``uniform
+initialization'' and has been widely regarded as a mistake and rectified
+in C++14.
+
+The \passthrough{\lstinline!decltype!} keyword allows inspecting the
+declared type of an entity or the type and value category of an
+expression. What \passthrough{\lstinline!decltype!} yields as the result
+depends on the provided argument:
+
+\begin{itemize}
+\item
+  With an unparenthesized \emph{id-expression}\footnote{Footnote. Lorem
+    ipsum dolor sit amet, consectetur adipiscing elit.} or
+  unparenthesized \emph{class member access expression}\footnote{Footnote.
+    Lorem ipsum dolor sit amet, consectetur adipiscing elit.},
+  \passthrough{\lstinline!decltype!} yields the \emph{``declared
+  type''}\footnote{Footnote. Lorem ipsum dolor sit amet, consectetur
+    adipiscing elit.} of the given expression.
+\item
+  With any other expression of type \passthrough{\lstinline!T!},
+  \passthrough{\lstinline!decltype!} yields:
+
+  \begin{itemize}
+  \item
+    \passthrough{\lstinline!T\&\&!} if the value category of the
+    expression is \emph{xvalue};
+  \item
+    \passthrough{\lstinline!T\&!} if the value category of the
+    expression is \emph{lvalue};
+  \item
+    \passthrough{\lstinline!T!} if the value category of the expression
+    is \emph{prvalue}.
+  \end{itemize}
+\end{itemize}
+
+Similarly to \passthrough{\lstinline!sizeof!}, the provided expression
+is not evaluated.
+
+\newpage
+
+\cleardoublepage
+
+\chapter*{Glossary}\label{Glossary}
+
+\gloss{word to be defined}{Definition text follows. At vero eos et accusamus et iusto odio dignissimos ducimus qui blanditiis praesentium voluptatum deleniti atque corrupti quos dolores et quas molestias excepturi sint occaecati cupiditate non provident, similique sunt in culpa qui officia deserunt mollitia animi, id est laborum et dolorum fuga.}
+
+\gloss{word to be defined}{Definition text follows. Itaque earum rerum hic tenetur a sapiente delectus, ut aut reiciendis voluptatibus maiores alias consequatur aut perferendis doloribus asperiores repellat.}
+
+\gloss{word to be defined}{Definition text follows.Nam libero tempore, cum soluta nobis est eligendi optio cumque nihil impedit quo minus id quod maxime placeat facere possimus, omnis voluptas assumenda est, omnis dolor repellendus.  }
+
+\gloss{word to be defined}{Definition text follows. At vero eos et accusamus et iusto odio dignissimos ducimus qui blanditiis praesentium voluptatum deleniti atque corrupti quos dolores et quas molestias excepturi sint occaecati cupiditate non provident, similique sunt in culpa qui officia deserunt mollitia animi, id est laborum et dolorum fuga. }
+
+\cleardoublepage
+\bibliographystyle{ieeetr-hacked}
+
+\bibliography{samplebib}
+\nocite{*}
+
+\cleardoublepage
+\include{index}
+
+% 
+% %
+% 
+% 
+\end{document}

@@ -1,13 +1,25 @@
 \emcppsFeature{
-    tocshort={\TOCCode{decltype}},
-    short={\SecCode{decltype}},
+    short={\tt{decltype}},
     long={Operator for Extracting Expression Types},
 }{decltype}
 %%%% copyedits in and proofed
 %% 27 Jan, code checked and replaced as needed by Josh
 
-The keyword \lstinline!decltype! enables the compile-time inspection of the \romeogloss{declared type} of an \romeogloss{entity} \emph{or} the type and
-\romeogloss{value category} of an expression. Note that the special construct \lstinline!decltype(auto)! has a separate meaning; see \featureref{\locationf}{decltypeauto}.
+\emcppsFeature{
+    toclong={Operator for Extracting Expression Types},
+    tocshort={\TOCCode decltype},
+    short={\lstinline!decltype!},
+    long={Operator for Extracting Expression Types},
+    rhshort={\RHCode decltype},
+    }{decltype}
+%\section[{\tt decltype}]{Operator for Extracting Expression Types\sectionmark{\RHCode decltype}}\label{decltype}\sectionmark{\RHCode decltype}
+\setcounter{table}{0}
+\setcounter{footnote}{0}
+\setcounter{lstlisting}{0}
+
+
+The keyword \lstinline!decltype! enables the compile-time inspection of the \romeoglossf{declared type} of an \romeoglossf{entity} \emph{or} the type and
+\romeoglossf{value category} of an expression. Note that the special construct \lstinline!decltype(auto)! has a separate meaning; see \featureref{\locationf}{decltypeauto}.
 %``\titleref{decltypeauto}" on page~\pageref{decltypeauto}.}
 
 \subsection[Description]{Description}\label{description}
@@ -18,7 +30,7 @@ its operand.
 \subsubsection[Use with entities]{Use with entities}\label{use-with-(typically-named)-entities}
 
 %If an unparenthesized operand is either an \textbf{id-expression} that names an entity (or a non-type template parameter) or a \textbf{class member access expression}\glossary{class member access expression} (that identifies a class member), \texttt{decltype} yields the \emph{declared type} (the type of the \emph{entity} indicated by the operand):
-If the operand is an unparenthesized \romeogloss{id-expression} or unparenthesized member access, \lstinline!decltype! yields the \emph{declared type}, meaning the type of the \emph{entity} indicated by the operand:
+If the operand is an unparenthesized \romeoglossf{id-expression} or unparenthesized member access, \lstinline!decltype! yields the \emph{declared type}, meaning the type of the \emph{entity} indicated by the operand:
 
 
 \begin{emcppshiddenlisting}[emcppsbatch=e1]
@@ -298,7 +310,7 @@ auto loggedSum(const A& a, const B& b)
     return result;
 }
 \end{emcppslisting}
-Using \lstinline!decltype(a!~\lstinline!+!~\lstinline!b)! as a return type is significantly different from relying on automatic \romeogloss{\lstinline!return!-type
+Using \lstinline!decltype(a!~\lstinline!+!~\lstinline!b)! as a return type is significantly different from relying on automatic \romeoglossf{\lstinline!return!-type
 deduction}; see \featureref{\locationc}{auto-feature}. Note that this particular use involves significant repetition of the expression \lstinline!a+b!.  See
 %\textit{\titleref{annoyances-decltype}: \titleref{decltype-mechanical}} on page~\pageref{decltype-mechanical}
 \intraref{annoyances-decltype}{decltype-mechanical}
@@ -307,11 +319,11 @@ for a discussion of ways in which this might be avoided.
 \subsubsection[Determining the validity of a generic expression]{Determining the validity of a generic expression}\label{determining-the-validity-of-a-generic-expression}
 
 In the context of generic-library development, \lstinline!decltype! can be
-used in conjunction with \romeogloss{SFINAE} (``Substitution Failure Is Not An Error") to validate an expression involving a
+used in conjunction with \romeoglossf{SFINAE} (``Substitution Failure Is Not An Error") to validate an expression involving a
 template parameter.
 
 For example, consider the task of writing a generic \lstinline!sortRange!
-function template that, given a \romeogloss{range}, either invokes the
+function template that, given a \romeoglossf{range}, either invokes the
 \lstinline!sort! member function of the argument (the one specifically
 optimized for that type) if available or falls back to the more
 general \lstinline!std::sort!:
@@ -326,7 +338,7 @@ void sortRange(Range& range)
 
 \noindent The client-facing \lstinline!sortRange! function (above) delegates its
 behavior to an overloaded \lstinline!sortRangeImpl! function (below),
-invoking the latter with the \lstinline!range! and a \romeogloss{disambiguator}
+invoking the latter with the \lstinline!range! and a \romeoglossf{disambiguator}
 of type \lstinline!int!. The type of this additional parameter, whose value
 is arbitrary, is used to give priority to the \lstinline!sort! member
 function at compile time by exploiting overload resolution rules in
@@ -371,7 +383,7 @@ not a valid expression for the deduced \lstinline!Range!
 type.{\cprotect\footnote{The technique of exposing a possibly unused
 unevaluated expression --- e.g., using \lstinline!decltype! --- in a function's
 declaration for the purpose of expression-validity detection prior to
-template instantiation is commonly known as \romeogloss{expression SFINAE},
+template instantiation is commonly known as \romeoglossf{expression SFINAE},
 which is a restricted form of the more general (classical) SFINAE, and acts exclusively on
 expressions visible in a function's signature rather than on frequently obscure
   template-based type computations.}}
@@ -473,7 +485,7 @@ Result loggedSum(const A& a, const B& b)
 }
 \end{emcppslisting}
 
-Here, \lstinline!std::declval!, a function that cannot be executed at runtime and is only appropriate for use in \romeogloss{unevaluated contexts}, produces an expression of the specified type.  When mixed with \lstinline!decltype!, this lets us determine the result types for expressions without needing to construct (or even being able to construct) objects of the needed types.
+Here, \lstinline!std::declval!, a function that cannot be executed at runtime and is only appropriate for use in \romeoglossf{unevaluated contexts}, produces an expression of the specified type.  When mixed with \lstinline!decltype!, this lets us determine the result types for expressions without needing to construct (or even being able to construct) objects of the needed types.
 
 \subsection[See Also]{See Also}\label{see-also}
 

@@ -1,11 +1,23 @@
 \emcppsFeature{
-    tocshort={Consecutive {\TOCCode >}s},
-    short={Consecutive {\SecCode >}s},
+    short={Consecutive {\tt >}s},
     long={Consecutive Right-Angle Brackets},
 }{consecutive-right-angle-brackets}
 % 13 Jan 2021 copyedits in and proofed
 % 27 Jan, code checked and replaced as needed by Josh
 % 01 Feb, 2021 JMB - added a missing include to hidden listing (line 88)
+
+\emcppsFeature{
+toclong={Consecutive Right-Angle Brackets},
+tocshort={Consecutive {\TOCCode >}s},
+short={Consecutive \lstinline!>!s},
+long={Consecutive Right-Angle Brackets},
+rhshort={Consecutive {\RHCode >}s},
+}{consecutive-right-angle-brackets}
+%\section[Consecutive {\tt >}s]{Consecutive Right-Angle Brackets\sectionmark{Consecutive {\RHCode >}s}}\label{consecutive-right-angle-brackets}\sectionmark{Consecutive {\RHCode >}s}
+\setcounter{table}{0}
+\setcounter{footnote}{0}
+\setcounter{lstlisting}{0}
+
 
 In the context of template argument lists, \lstinline!>>! is parsed as two
 separate closing angle brackets.

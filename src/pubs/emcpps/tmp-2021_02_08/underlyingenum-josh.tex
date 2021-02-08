@@ -1,0 +1,319 @@
+
+% 01 Feb, 2021 JMB - packet 4 compilation fixes
+
+
+\emcppsFeature{
+    short={Underlying Type '11},
+    long={Explicit Enumeration Underlying Type},
+}{explicit-enumeration-underlying-type}
+\setcounter{table}{0}
+\setcounter{footnote}{0}
+\setcounter{lstlisting}{0}
+%\section[Underlying Type '11]{Explicit Enumeration Underlying Type}\label{explicit-enumeration-underlying-type}
+
+
+The underlying type of an enumeration is the fundamental
+\textbf{integral type} used to represent its enumerated values, which
+can be specified explicitly in C++11.
+
+\subsection[Description]{Description}\label{description}
+
+Every enumeration employs an integral type, known as its
+\textbf{underlying type}, to represent its compile-time-enumerated
+values. By default, the \textbf{underlying type} of a C++98
+\texttt{enum} is chosen by the
+implementation to be large enough to represent all of the values in an
+enumeration and is allowed to exceed the size of an \texttt{int}
+\emph{only} if there are enumerators having values that cannot be
+represented as an \texttt{int} or \texttt{unsigned}~\texttt{int}:
+
+\begin{emcppslisting}
+enum RGB { e_RED, e_GREEN, e_BLUE };                     // OK, fits any (ù{\codeincomments{char}}ù)
+
+enum Port { e_LEFT = -81, e_RIGHT = -82 };               // OK, fits (ù{\codeincomments{signed char}}ù)
+
+enum Mask { e_LOW = 32767, e_HIGH = 65535 };             // OK, fits (ù{\codeincomments{unsigned short}}ù)
+
+enum Big { e_32 = 1<<32 };                               // Error, too big for (ù{\codeincomments{int}}ù)
+
+enum Err { K = 1024, M = K*K, G = M*K, T = G*K };        // Error, (ù{\codeincomments{G*K}}ù) overflows (ù{\codeincomments{int}}ù)...
+
+enum OK { K = 1<<10, M = 1<<20, G = 1<<30, T = 1l<<40 }; // OK
+\end{emcppslisting}
+
+\noindent The default underlying type chosen for an \texttt{enum} is always
+sufficiently large to represent \emph{all} enumerator values defined for
+that \texttt{enum}. If the value doesn't fit in an \texttt{int}, it will
+be selected deterministically as the first type able to represent all
+values from the sequence: \texttt{unsigned}~\texttt{int}, \texttt{long},
+\texttt{unsigned}~\texttt{long}, \texttt{long}~\texttt{long},
+\texttt{unsigned}~\texttt{long}~\texttt{long}.
+
+While specifying an enumeration’s underlying type was impossible before C++11, the compiler could be forced to choose at least a 32-bit or 64-bit signed integral type by adding an enumerator having a sufficiently large negative value --- e.g., \lstinline!1 << 31! for a 32-bit and \lstinline!1 << 63! for a 64-bit signed integer (assuming such is available on the target platform).
+
+The above applies only to C++98 \lstinline!enum!s; the default underlying type of an \lstinline!enum! \lstinline!class! is ubiquitously \lstinline!int!, and it is not implementation defined; see \featureref{\locationc}{enumclass}.
+
+Note that \lstinline!char! and \lstinline!wchar_t!, like enumerations, are their own distinct types (as opposed to \lstinline!typedef!-like aliases such as \lstinline!std::uint8_t!) and have their own implementation-defined underlying integral types. With \lstinline!char!, for example, the underlying type will always be either \lstinline!signed! \lstinline!char! or \lstinline!unsigned! \lstinline!char! (both of which are also distinct C++ types).{\cprotect\footnote{The same is true in C++11 for
+\texttt{char16\_t} and \texttt{char32\_t} and in C++20 for
+  \texttt{char8\_t}.}}
+
+\subsubsection[Specifying underlying type explicitly]{Specifying underlying type explicitly}\label{specifying-underlying-type-explicitly}
+
+As of C++11, we have the ability to specify the \textbf{integral type}
+that is used to represent an \texttt{enum}. This is achieved by
+providing the type explicitly in the \texttt{enum}'s declaration
+following the enumeration's (optional) name and preceded by a colon:
+
+\begin{emcppslisting}
+enum Port : unsigned char
+{
+    // Each enumerator of (ù{\codeincomments{Port}}ù) is represented as an (ù{\codeincomments{unsigned char}}ù) type.
+
+    e_INPUT        =  37,  // OK, would have fit in a (ù{\codeincomments{signed char}}ù) too
+    e_OUTPUT       = 142,  // OK, would not have fit in a (ù{\codeincomments{signed char}}ù)
+    e_CONTROL      = 255,  // OK, barely fits in an 8-bit unsigned integer
+    e_BACK_CHANNEL = 256,  // Error, doesn't fit in an 8-bit unsigned integer
+};
+\end{emcppslisting}
+
+\noindent If any of the values specified in the definition of the \texttt{enum} is
+outside the boundaries of what the provided \textbf{underlying type} is
+able to represent, the compiler will emit an error, but see \textit{\titleref{potential-pitfalls-underlyingenum}: \titleref{subtleties-of-integral-promotion}} on page~\pageref{subtleties-of-integral-promotion}.
+
+\subsection[Use Cases]{Use Cases}\label{use-cases}
+
+\subsubsection[Ensuring a compact representation where enumerator values are salient]{Ensuring a compact representation where enumerator values are salient}\label{ensuring-a-compact-representation-where-enumerator-values-are-salient}
+
+When the enumeration needs to have an efficient representation, e.g.,
+when it is used as a data member of a widely replicated type,
+restricting the width of the underlying type to something smaller than
+would occur by default on the target platform might be justified.
+
+As a concrete example, suppose that we want to enumerate the months of
+the year, for example, in anticipation of placing that enumeration
+inside a date class having an internal representation that maintains the
+year as a two-byte signed integer, the month as an enumeration, and the
+day as an 8-bit signed integer:
+
+\begin{emcppshiddenlisting}[emcppsbatch=e1]
+enum Month { January=1 };
+\end{emcppshiddenlisting}
+\begin{emcppslisting}[emcppsbatch=e1]
+#include <cstdint>  // (ù{\codeincomments{std::int8\_t}}ù), (ù{\codeincomments{std::int16\_t}}ù)
+
+class Date
+{
+    std::int16_t d_year;
+    Month        d_month;
+    std::int8_t  d_day;
+
+public:
+    Date();
+    Date(int year, Month month, int day);
+
+    // ...
+
+    int year() const    { return d_year; }
+    Month month() const { return d_month; }
+    int day() const     { return d_day; }
+};
+\end{emcppslisting}
+
+\noindent Within the software, the \texttt{Date} is typically constructed using
+the values obtained through the GUI, where the month is always selected
+from a drop-down menu. Management has requested that the month be
+supplied to the constructor as an \texttt{enum} to avoid recurring
+defects where the individual fields of the date are supplied in
+month/day/year format. New functionality will be written to expect the
+month to be enumerated. Still, the date class will be used in contexts
+where the numerical value of the month is significant, such as in calls
+to legacy functions that accept the month as an integer. Moreover,
+iterating over a range of months is common and requires that the
+enumerators convert automatically to their integral \textbf{underlying
+type}, thus contraindicating use of the more strongly typed
+\texttt{enum} \texttt{class}:
+
+\begin{emcppslisting}
+enum Month  // defaulted underlying type (BAD IDEA)
+{
+    e_JAN = 1, e_FEB, e_MAR,    // winter
+    e_APR    , e_MAY, e_JUN,    // spring
+    e_JUL    , e_AUG, e_SEP,    // summer
+    e_OCT    , e_NOV, e_DEC     // autumn
+};
+
+static_assert(sizeof(Month) == 4 && alignof(Month) == 4, "");
+\end{emcppslisting}
+
+\noindent As it turns out, date values are used widely throughout this codebase,
+and the proposed \texttt{Date} type is expected to be used in large
+aggregates. The underlying type of the \texttt{enum} in the code snippet
+above is implementation-defined and could be as small as a \texttt{char}
+or as large as an \texttt{int} despite all the values fitting in a
+\texttt{char}. Hence, if this enumeration were used as a data member in
+the \texttt{Date} class, \texttt{sizeof(Date)} would likely balloon to
+12 bytes on some relevant platforms due to \textbf{natural alignment}!
+(See ``\titleref{alignas}" on page~\pageref{alignas}.)
+
+While reordering the data members of \texttt{Date} such that \texttt{d\_year} and
+\texttt{d\_day} were adjacent would ensure that \texttt{sizeof(Date)}
+would not exceed 8 bytes, a better approach is to explicitly specify the
+enumeration's underlying type to ensure \texttt{sizeof(Date)} is exactly
+the 4 bytes needed to accurately represent the value of the
+\texttt{Date} object. Given that the values in this enumeration fit in
+an 8-bit signed integer, we can specify its \textbf{underlying type} to
+be, e.g., \texttt{std::int8\_t} or \texttt{signed}~\texttt{char}, on
+every platform:
+
+\begin{emcppslisting}
+#include <cstdint>  // (ù{\codeincomments{std::int8\_t}}ù)
+
+enum Month : std::int8_t  // user-provided underlying type (GOOD IDEA)
+{
+    e_JAN = 1, e_FEB, e_MAR,    // winter
+    e_APR    , e_MAY, e_JUN,    // spring
+    e_JUL    , e_AUG, e_SEP,    // summer
+    e_OCT    , e_NOV, e_DEC     // autumn
+};
+
+static_assert(sizeof(Month) == 1 && alignof(Month) == 1, "");
+\end{emcppslisting}
+
+\noindent With this revised definition of \texttt{Month}, the size of a
+\texttt{Date} class is 4 bytes, which is especially valuable for large
+aggregates:
+
+\begin{emcppslisting}[emcppsbatch=e1]
+Date timeSeries[1000 * 1000];  // (ù{\codeincomments{sizeof(timeSeries)}}ù) is now 4Mb (not 12Mb)
+\end{emcppslisting}
+
+
+\subsection[Potential Pitfalls]{Potential Pitfalls}\label{potential-pitfalls-underlyingenum}
+
+\subsubsection[External use of opaque enumerators]{External use of opaque enumerators}\label{external-use-of-opaque-enumerators-enumunderlying}
+
+Providing an explicit underlying type to an \texttt{enum} enables
+clients to declare or redeclare it as a complete type with or without
+its enumerators. Unless the opaque form of its definition is exported in
+a header file separate from its full definition, external clients
+wishing to exploit the opaque version will be forced to locally declare
+it with its \textbf{underlying type} but without its enumerator list. If
+the underlying type of the full definition were to change, any program
+incorporating \emph{its own} original and now inconsistent elided
+definition and the \emph{new} full one would become silently ill formed, no diagnostic required (\textbf{IFNDR}). (See ``\titleref{enumopaque}" on page~\pageref{enumopaque}.)
+
+\subsubsection[Subtleties of integral promotion]{Subtleties of integral promotion}\label{subtleties-of-integral-promotion}
+
+When used in an arithmetic context, one might naturally assume that the
+type of a classic \texttt{enum} will first convert to its
+\textbf{underlying type}, which is not always the case. When used in a
+context that does not explicitly operate on the \texttt{enum} type
+itself, such as a parameter to a function that takes that enum type,
+\textbf{integral promotion} comes into play. For unscoped enumerations
+without an explicitly specified underlying type and for character types
+such as \texttt{wchar\_t}, \texttt{char16\_t}, and \texttt{char32\_t},
+integral promotion will directly convert the value to the first type in
+the list \texttt{int}, \texttt{unsigned}~\texttt{int}, \texttt{long},
+\texttt{unsigned}~\texttt{long}, \texttt{long}~\texttt{long}, and
+\texttt{unsigned}~\texttt{long}~\texttt{long} that is sufficiently large
+to represent all of the values of the underlying type. Enumerations
+having a fixed underlying type will, as a first step, behave as if they
+had decayed to their underlying type.
+
+In most arithmetic expressions, this difference is irrelevant.
+Subtleties arise, however, when one relies on overload resolution for
+identifying the underlying type:
+
+\begin{emcppslisting}[emcppsbatch=e2]
+void f(signed char x);
+void f(short x);
+void f(int x);
+void f(long x);
+void f(long long x);
+
+enum E1         { q, r, s, t, u };
+enum E2 : short { v, w, x, y, z };
+
+void test()
+{
+   f(E1::q);  // always calls (ù{\codeincomments{f(int)}}ù) on all platforms
+   f(E2::v);  // always calls (ù{\codeincomments{f(short)}}ù) on all platforms
+}
+\end{emcppslisting}
+
+\noindent The overload resolution for \texttt{f} considers the type to which each
+\emph{individual} enumerator can be directly integrally promoted. This
+conversion for \texttt{E1} can be only to \texttt{int}. For \texttt{E2},
+the conversion will consider \texttt{int} \emph{and} \texttt{short}, and
+\texttt{short}, being an exact match, will be selected. Note that even
+though both enumerations are small enough to fit into a
+\texttt{signed}~\texttt{char}, that overload of \texttt{f} will never be
+selected.
+
+One might want to get to the implementation-defined underlying type
+though, and the Standard does provide a trait to do that:
+\texttt{std::underlying\_type} in C++11 and the corresponding
+\texttt{std::underlying\_type\_t} alias in C++14. This trait can safely
+be used in a cast without risking loss of value (see
+  ``\titleref{auto}" on page~\pageref{auto}):
+
+\begin{emcppslisting}[emcppsbatch=e2]
+#include <type_traits>  // (ù{\codeincomments{std::underlying\_type}}ù)
+
+template <typename E>
+typename std::underlying_type<E>::type toUnderlying(E value)
+{
+    return static_cast<typename std::underlying_type<E>::type>(value);
+}
+
+void h()
+{
+    auto e1 = toUnderlying(E1::q); // might be anywhere from (ù{\codeincomments{signed char}}ù) to (ù{\codeincomments{int}}ù)
+    auto e2 = toUnderlying(E2::v); // always deduced as (ù{\codeincomments{short}}ù)
+}
+\end{emcppslisting}
+
+\noindent As of C++20, however, the use of a classic enumerator in a context in
+which it is compared to or otherwise used in a binary operation with
+either an enumerator of another type or a nonintegral type (i.e., a
+floating-point type, such as \texttt{float}, \texttt{double}, or
+\texttt{long}~\texttt{double}) is deprecated, with the the possibility
+of being removed in C++23. Platforms might decide to warn against such
+uses retroactively:
+
+\begin{emcppslisting}
+enum { k_GRAMS_PER_OZ = 28 };  // not the best idea
+
+double gramsFromOunces(double ounces)
+{
+    return ounces * k_GRAMS_PER_OZ;  // deprecated in C++20; might warn
+}
+\end{emcppslisting}
+
+\noindent Casting to the \textbf{underlying type} is \emph{not} necessarily the
+same as direct integral promotion. In this context, we might want to
+change our \texttt{enum} to a
+\texttt{constexpr}~\texttt{int} in the long
+term (see
+  ``\titleref{constexprvar}" on page~\pageref{constexprvar}):
+
+\begin{emcppslisting}
+constexpr int k_GRAMS_PER_OZ = 28;  // future proof
+\end{emcppslisting}
+
+
+\subsection[See Also]{See Also}\label{see-also}
+
+\begin{itemize}
+\item{\seealsoref{enumclass}{\locationc}Introduces a scoped, more strongly typed enumeration that can explicitly specify an underlying type.}
+\item{\seealsoref{enumopaque}{\locationc}Offers a means to insulate individual enumerators from clients.}
+\item{\seealsoref{constexprvar}{\locationc}Introduces an alternative way of declaring compile-time constants.}
+\end{itemize}
+
+\subsection[Further Reading]{Further Reading}\label{further-reading}
+
+\begin{itemize}
+\item{``Item 10: Prefer scoped \texttt{enum}s to unscoped \texttt{enum}s," \cite{meyers15}}
+\item{\cite{grimm17}}
+\end{itemize}
+

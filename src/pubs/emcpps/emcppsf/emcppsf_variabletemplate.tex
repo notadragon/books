@@ -1,9 +1,18 @@
 \emcppsFeature{
+    short={None},
+    long={None},
+}{variable-templates}
+
+
+\emcppsFeature{
     short={Variable Templates},
     long={Templated Variable Declarations/Definitions},
 }{variable-templates}
+\setcounter{table}{0}
+\setcounter{footnote}{0}
+\setcounter{lstlisting}{0}
+%\section[Variable Templates]{Templated Variable Declarations/Definitions}\label{variable-templates}
 
-% 01 Feb, 2021 JMB - minor fixes to whitespace and file headings within listings
 
 Variable templates extend traditional template syntax to define, in namespace or
 class (but not function) scope, a family of like-named variables that
@@ -295,7 +304,7 @@ Consider, for example, a boolean trait designating whether a particular
 type \texttt{T} can be serialized to JSON:
 
 \begin{lstlisting}[language=C++]
-// isSerializableToJson.h:
+// isSerializableToJson.h
 
 template <typename T>
 constexpr bool isSerializableToJson = false;
@@ -306,7 +315,7 @@ default, concludes that a given type is not serializable to JSON. Next
 we consider the streaming utility itself:
 
 \begin{lstlisting}[language=C++]
-// serializeToJson.h:
+// serializeToJson.h
 #include <isSerializableToJson.h>  // general trait variable template
 
 template <typename T>
@@ -330,7 +339,7 @@ like to advertise at compile time as being serializable to JSON. Like
 other templates, variable templates can be specialized explicitly:
 
 \begin{lstlisting}[language=C++]
-// companyData.h:
+// companyData.h
 #include <isSerializableToJson.h>  // general trait variable template
 
 struct CompanyData { /* ... */ };  // type to be JSON serialized
@@ -345,7 +354,7 @@ attempts to serialize both a \texttt{CompanyData} object and an
 \texttt{std::map<int,}~\texttt{char>}:
 
 \begin{lstlisting}[language=C++]
-// client.h:
+// client.h
 #include <isSerializableToJson.h>  // general trait template
 #include <companyData.h>           // JSON serializable type
 #include <serializeToJson.h>       // serialization function
