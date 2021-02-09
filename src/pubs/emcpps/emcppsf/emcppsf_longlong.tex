@@ -26,7 +26,7 @@ at least 64~bits on all conforming platforms{\cprotect\footnote{\lstinline!long!
 has been available in C since the C99 standard, and many C++ compilers
   supported it as an extension prior to C++11.}}:
 
-\begin{emcppslisting}[language=C++]
+\begin{emcppslisting}
 #include <climits>  // (ù{\codeincomments{CHAR\_BIT}}ù) (a.k.a.~8, see below)
 
 long long          a;  // (ù{\codeincomments{sizeof(a) * CHAR\_BIT >= 64}}ù)
@@ -47,9 +47,9 @@ are accepted: \lstinline!ull!, \lstinline!ULL!, \lstinline!uLL!, \lstinline!Ull!
 \lstinline!llu!, \lstinline!LLU!, \lstinline!LLu!,
 \lstinline!llU!:
 
-\begin{emcppslisting}[language=C++]
-auto i = 0LL;  // (ù{\codeincomments{long long}}ù), (ù{\codeincomments{sizeof(i) * CHAR\_BIT >= 64}}ù)
-auto u = 0uLL  // (ù{\codeincomments{unsigned long long}}ù), (ù{\codeincomments{sizeof(u) * CHAR\_BIT >= 64}}ù)
+\begin{emcppslisting}
+auto i = 0LL;   // (ù{\codeincomments{long long}}ù), (ù{\codeincomments{sizeof(i) * CHAR\_BIT >= 64}}ù)
+auto u = 0uLL;  // (ù{\codeincomments{unsigned long long}}ù), (ù{\codeincomments{sizeof(u) * CHAR\_BIT >= 64}}ù)
 \end{emcppslisting}
 
 \noindent Note that \lstinline!long!~\lstinline!long!
@@ -93,7 +93,10 @@ be well under the maximum value a signed \lstinline!int! supports (more
 than 2 billion on our production platforms), we might at first think to write the function
 to return \lstinline!int!:
 
-\begin{emcppslisting}[language=C++]
+\begin{emcppshiddenlisting}[emcppsbatch={e1,e2,e3,e4,e5,e6}]
+struct SecId {};
+\end{emcppshiddenlisting}
+\begin{emcppslisting}[emcppsbatch=e1]
 int volYMD(SecId equity, int year, int month, int day);  // (1) BAD IDEA
 \end{emcppslisting}
 
@@ -107,7 +110,7 @@ been at times seemingly exponential. To gain an extra
 insurance factor of two, we might opt to replace the return type
 \lstinline!int! with an \lstinline!unsigned!~\lstinline!int!:
 
-\begin{emcppslisting}[language=C++]
+\begin{emcppslisting}[emcppsbatch=e2]
 unsigned volYMD(SecId stock, int year, int month, int day);  // (2) BAD IDEA!
 \end{emcppslisting}
 
@@ -130,7 +133,7 @@ typically go well; hence, many compilers will warn when the two types
 If we happen to be on a 64-bit platform, we might choose to return a
 \lstinline!long!:
 
-\begin{emcppslisting}[language=C++]
+\begin{emcppslisting}[emcppsbatch=e3]
 long volYMD(SecId stock, int year, int month, int day);  // (3) NOT A GOOD IDEA
 \end{emcppslisting}
 
@@ -144,7 +147,7 @@ and (2) would reduce portability (see
 
 Prior to C++11, we might have considered returning a \lstinline!double!:
 
-\begin{emcppslisting}[language=C++]
+\begin{emcppslisting}[emcppsbatch=e4]
 double volYMD(SecId stock, int year, int month, int day);  // (4) OK
 \end{emcppslisting}
 
@@ -159,7 +162,10 @@ either.
 With the advent of C++11, we might consider using one of the type aliases
 in \lstinline!<cstdint>!:
 
-\begin{emcppslisting}[language=C++]
+\begin{emcppshiddenlisting}[emcppsbatch={e5}]
+#include <cstdint>  // (ù{\codeincomments{std::int64\_t}}ù)
+\end{emcppshiddenlisting}
+\begin{emcppslisting}[emcppsbatch=e5]
 std::int64_t volYMD(SecId stock, int year, int month, int day);  // (4) OK
 \end{emcppslisting}
 
@@ -175,7 +181,7 @@ interoperability).
 
 All of this leads us to our final alternative, \lstinline!long!~\lstinline!long!:
 
-\begin{emcppslisting}[language=C++]
+\begin{emcppslisting}[emcppsbatch=e6]
 long long volYMD(SecId stock, int year, int month, int day);  // (5) GOOD IDEA
 \end{emcppslisting}
 
@@ -290,7 +296,10 @@ almost universally considered to be exactly 8 bits. Instead of
 scrupulously and actively using \lstinline!CHAR_BIT! for the number of bits
 in a \lstinline!char!, consider statically asserting it instead:
 
-\begin{emcppslisting}[language=C++]
+\begin{emcppshiddenlisting}[emcppsbatch=e7]
+#include <climits>  // (ù{\codeincomments{CHAR\_BIT}}ù)
+\end{emcppshiddenlisting}
+\begin{emcppslisting}[emcppsbatch=e7]
 static_assert(CHAR_BIT == 8, "A (ù{\codeincomments{char}}ù) is not 8-bits on this CrAzY platform!");
 \end{emcppslisting}
 

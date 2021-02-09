@@ -30,7 +30,7 @@ declared \lstinline!static! within the body of a function (e.g.,
 control} passes through the \romeogloss{definition} of that object:
 
 \begin{emcppslisting}
-#include <cassert>  // standard (ù{\codeincomments{assert}}ù) macro
+#include <cassert>  // standard C (ù{\codeincomments{assert}}ù) macro
 
 int f(int i) // function returning the first argument with which it is called
 {
@@ -63,7 +63,7 @@ A function such as \lstinline!f! might also be called before \lstinline!main!
 is entered:
 
 \begin{emcppshiddenlisting}[emcppsbatch=e1]
-#include <cassert>  // standard (ù{\codeincomments{assert}}ù) macro
+#include <cassert>  // standard C (ù{\codeincomments{assert}}ù) macro
 int f(int i);
 \end{emcppshiddenlisting}
 \begin{emcppslisting}[emcppsbatch=e1]
@@ -90,7 +90,7 @@ scope becomes more subtle when the functions themselves are recursive
 but is nonetheless well defined:
 
 \begin{emcppshiddenlisting}[emcppsbatch=e2]
-#include <cassert>  // standard (ù{\codeincomments{assert}}ù) macro
+#include <cassert>  // standard C (ù{\codeincomments{assert}}ù) macro
 \end{emcppshiddenlisting}
 \begin{emcppslisting}[emcppsbatch=e2]
 int fx(int i)  // self-recursive after creating function-(ù{\codeincomments{static}}ù) variable, (ù{\codeincomments{dx}}ù)
@@ -434,7 +434,7 @@ would \emph{presumably} do so safely via the global
 
 bool globalInitFlag = getGlobalS().isInitialized();
 
-#include <cassert>  // standard (ù{\codeincomments{assert}}ù) macro
+#include <cassert>  // standard C (ù{\codeincomments{assert}}ù) macro
 
 int main()
 {
@@ -647,7 +647,7 @@ mechanism to the \lstinline!Logger! object so that it could get all its
   internal memory from that static pool as well; see \cite{lakos22}.}}:
 
 \begin{emcppslisting}[emcppsbatch=e13]
-#include <new>
+#include <new>  // placement (ù{\codeincomments{new}}ù)
 
 Logger& getLogger()
 {

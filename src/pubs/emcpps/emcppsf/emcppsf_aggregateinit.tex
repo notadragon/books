@@ -19,7 +19,7 @@ employing default member initializers (see \featureref{\locationa}{Default-Membe
 Prior to C++14, classes that used default member initializers (see \featureref{\locationa}{Default-Member-Initializers}) --- i.e., initializers that appear directly within the
 scope of the class --- were not considered \romeogloss{aggregate} types:
 
-\begin{emcppslisting}[language=C++]
+\begin{emcppslisting}[emcppsbatch={e1,e2,e3}]
 struct S                // aggregate type in C++14 but not C++11
 {
     int i;
@@ -37,14 +37,14 @@ struct A                // aggregate type in C++11 and C++14
 C++11, instances of \lstinline!A! can be created via \romeogloss{aggregate
 initialization} (whereas instances of \lstinline!S! cannot):
 
-\begin{emcppslisting}[language=C++]
-A a={100, true};  // OK in both C++11 and C++14
-S s={100, true};  // error in C++11; OK in C++14
+\begin{emcppslisting}[emcppsbatch=e1]
+A a={100, true};  // OK, in both C++11 and C++14
+S s={100, true};  // Error, in C++11; OK, in C++14
 \end{emcppslisting}
 
 
 \noindent Note that since C++11, direct-list-initialization may be used to perform aggregate initialization (see \featureref{\locationc}{bracedinit}):
-\begin{emcppslisting}[language=C++]
+\begin{emcppslisting}[emcppsbatch=e2]
 A a{100, true};  // OK in both C++11 and C++14 but not in C++03
 \end{emcppslisting}
 As of C++14, the requirements for a type to be categorized as an
@@ -53,7 +53,10 @@ member initializers to be considered as such; hence, both \lstinline!A! and
 \lstinline!S! are considered \romeogloss{aggregates} in C++14 and eligible for
 \romeogloss{aggregate initialization}:
 
-\begin{emcppslisting}[language=C++]
+\begin{emcppshiddenlisting}[emcppsbatch=e3]
+#include <cassert>  // standard C (ù{\codeincomments{assert}}ù) macro
+\end{emcppshiddenlisting}
+\begin{emcppslisting}[emcppsbatch=e3,emcppsstandards={c++14}]
 void f()
 {
     S s0{100, true};        // OK in C++14 but not in C++11
@@ -81,7 +84,7 @@ configuration \lstinline!struct!s, packaged with typical default values. As
 an example, consider a configuration \lstinline!struct! for an HTTP request
 handler:
 
-\begin{emcppslisting}[language=C++]
+\begin{emcppslisting}[emcppsbatch=e4,emcppsstandards={c++14}]
 struct HTTPRequestHandlerConfig
 {
     int maxQueuedRequests = 1024;
@@ -99,7 +102,7 @@ configuration \lstinline!struct!s, such as
 \lstinline!HTTPRequestHandlerConfig!) by enabling explicit specification
 of the names of the data members:
 
-\begin{emcppslisting}[language=C++, basicstyle={\ttfamily\footnotesize}]
+\begin{emcppslisting}[emcppsbatch=e4, basicstyle={\ttfamily\footnotesize}]
 HTTPRequestHandlerConfig lowTimeout{.timeout = 15};
     // (ù{\codeincomments{maxQueuedRequests}}ù), (ù{\codeincomments{minThreads}}ù), and (ù{\codeincomments{maxThreads}}ù) have their default value.
 
@@ -108,7 +111,7 @@ HTTPRequestHandlerConfig highPerformance{.timeout = 120, .maxThreads = 16};
 \end{emcppslisting}
       }}:
 
-\begin{emcppslisting}[language=C++]
+\begin{emcppslisting}[emcppsbatch=e4]
 HTTPRequestHandlerConfig getRequestHandlerConfig(bool inLowMemoryEnvironment)
 {
     if (inLowMemoryEnvironment)
@@ -139,7 +142,7 @@ During the initialization of multilevel \romeogloss{aggregates}, braces
 around the initialization of a nested aggregate can be omitted
 (\romeogloss{brace elision}):
 
-\begin{emcppslisting}[language=C++]
+\begin{emcppslisting}
 struct S
 {
     int arr[3];
@@ -155,7 +158,7 @@ default member initializers (see \featureref{\locationa}{Default-Member-Initiali
 \lstinline!struct!~\lstinline!X! containing three data members, one of which
 has a default value:
 
-\begin{emcppslisting}[language=C++]
+\begin{emcppslisting}[emcppsbatch=e5]
 struct X
 {
     int a;
@@ -167,7 +170,7 @@ struct X
 \noindent Now, consider various ways in which an array of elements of type
 \lstinline!X! can be initialized:
 
-\begin{emcppslisting}[language=C++]
+\begin{emcppslisting}[emcppsbatch=e5,emcppsstandards={c++14},emcppserrorlines={9}]
 X xs0[] = {{0, 1}, {2, 3}, {4, 5}};
     // OK, clearly 3 elements having the respective values:
     // (ù{\codeincomments{\{0, 1, 0\}}}ù), (ù{\codeincomments{\{2, 3, 0\}}}ù), (ù{\codeincomments{\{4, 5, 0\}}}ù)

@@ -24,7 +24,7 @@ The syntax for invoking another constructor is to specify
 the name of the type as the only element in the \romeoglossf{member
 initializer list}:
 
-%\begin{lstlisting}[language=C++]
+%\begin{emcppslisting}
 %struct S0
 %{
 %    int d_i;
@@ -33,9 +33,9 @@ initializer list}:
 %    S0()      : S0(0)         { }  // OK, delegates to (ù{\codeincomments{S0(int)}}ù)
 %    S0(bool)  : S0(0), d_i(0) { }  // error: delegation must be on its own
 %};
-%\end{lstlisting}
+%\end{emcppslisting}
 \begin{emcppslisting}
-#include <string>  // std::string
+#include <string>  // (ù{\codeincomments{std::string}}ù)
 
 struct S0
 {
@@ -54,7 +54,7 @@ exactly one other) so long as cycles are avoided (see \intraref{ctordelegrating-
 Once a \emph{target} (i.e., invoked via delegation) constructor returns,
 the body of the delegator is invoked:
 
-\begin{emcppslisting}[language=C++]
+\begin{emcppslisting}
 #include <iostream>  // (ù{\codeincomments{std::cout}}ù)
 
 struct S1
@@ -76,7 +76,7 @@ constructed} (i.e., the object is not yet known to be in a valid state),
 and hence its destructor will \emph{not} be
 invoked:
 
-\begin{emcppslisting}[language=C++]
+\begin{emcppslisting}
 #include <iostream>  // (ù{\codeincomments{std::cout}}ù)
 
 struct S2
@@ -94,8 +94,8 @@ constructed} object will not be invoked, the destructors of
 each successfully constructed base and of data members will still be
 invoked:
 
-\begin{emcppslisting}[language=C++]
-#include <iostream>
+\begin{emcppslisting}
+#include <iostream>  // (ù{\codeincomments{std::string}}ù)
 
 using std::cout;
 struct A { A() { cout << "A() "; } ~A() { cout << "~A() "; } };
@@ -123,14 +123,14 @@ constructor, the object being initialized is considered \romeoglossf{fully
 constructed}, as the target constructor must have returned control to
 the delegator; hence, the object's destructor \emph{is} invoked:
 
-\begin{emcppslisting}[language=C++]
+\begin{emcppslisting}
 #include <iostream>  // (ù{\codeincomments{std::cout}}ù)
 
 struct S3
 {
-    S3()           { std::cout << "S3() "              }
+    S3()           { std::cout << "S3() ";             }
     S3(int) : S3() { std::cout << "S3(int) "; throw 0; }
-    ~S3()          { std::cout << "~S3() "             }
+    ~S3()          { std::cout << "~S3() ";            }
 };
 
 void f() try { S3 s(0); } catch(int) { }
@@ -165,9 +165,19 @@ factored out into a separate \romeoglossf{value-semantic} class, say,
   see \intraref{ctordelegrating-potential-pitfalls}{suboptimal-factoring}.}}:
 %  {\it\titleref{ctordelegrating-potential-pitfalls}:} {\it\titleref{suboptimal-factoring}} on page~\pageref{suboptimal-factoring}.}}:
 
-\begin{emcppslisting}[language=C++]
+
+\begin{emcppshiddenlisting}[emcppsbatch={e1,e2,e3,e4}]
 #include <cstdint> // (ù{\codeincomments{std::uint16\_t}}ù), (ù{\codeincomments{std::uint32\_t}}ù)
-#include <string>
+#include <string>   // (ù{\codeincomments{std::string}}ù)
+struct ConnectionException {
+    ConnectionException(std::uint32_t address, std::uint16_t port);
+};
+std::uint32_t extractAddress(const std::string &);
+std::uint16_t extractPort(const std::string &);
+\end{emcppshiddenlisting}
+\begin{emcppslisting}[emcppsbatch=e1]
+#include <cstdint>  // (ù{\codeincomments{std::uint16\_t}}ù), (ù{\codeincomments{std::uint32\_t}}ù)
+#include <string>   // (ù{\codeincomments{std::string}}ù)
 
 class IPV4Host
 {
@@ -201,7 +211,7 @@ public:
 introduction of a separate, private helper function that
 would be called by each of the constructors:
 
-\begin{emcppslisting}[language=C++]
+\begin{emcppslisting}[emcppsbatch=e2]
 // C++03 (obsolete)
 #include <cstdint>  // (ù{\codeincomments{std::uint16\_t}}ù), (ù{\codeincomments{std::uint32\_t}}ù)
 
@@ -239,9 +249,9 @@ public:
 delegate to the one accepting \lstinline!address! and \lstinline!port!,
 avoiding repetition without having to use a private function:
 
-\begin{emcppslisting}[language=C++]
-#include <cstdint> // (ù{\codeincomments{std::uint16\_t}}ù), (ù{\codeincomments{std::uint32\_t}}ù)
-#include <string>
+\begin{emcppslisting}[emcppsbatch=e3]
+#include <cstdint>  // (ù{\codeincomments{std::uint16\_t}}ù), (ù{\codeincomments{std::uint32\_t}}ù)
+#include <string>   // (ù{\codeincomments{std::string}}ù)
 
 class IPV4Host
 {
@@ -280,12 +290,12 @@ cycle at compile time and produces a binary that, if run, will
 necessarily exhibit \romeoglossf{undefined behavior}. Clang 10.x, on the
 other hand, halts compilation with a helpful error message:
 
-\begin{emcppslisting}[style=plain, basicstyle={\ttfamily\footnotesize}]
+\begin{lstlisting}[language=bash, style=plain, basicstyle={\ttfamily\footnotesize}]
 error: constructor for S creates a delegation cycle
-\end{emcppslisting}\vspace*{-1ex}
+\end{lstlisting}\vspace*{-1ex}
       }}:
 
-\begin{emcppslisting}[language=C++]
+\begin{emcppslisting}[emcppsignore={Intentionally Fails Everywhere}]
 struct S  // Object
 {
     S(int)  : S(true) { }  // delegating constructor
@@ -313,9 +323,10 @@ referred to as separation of (logical) concerns or
   sections 0.4, 3.2.7, and 3.5.9, pp.~20--28, 529--530, and 674--676,
   respectively.}}:
 
-\begin{emcppslisting}[language=C++]
-#include <cstdint> // (ù{\codeincomments{std::uint16\_t}}ù), (ù{\codeincomments{std::uint32\_t}}ù)
-#include <string>
+\begin{emcppslisting}[emcppsbatch=e4]
+#include <cstdint>  // (ù{\codeincomments{std::uint16\_t}}ù), (ù{\codeincomments{std::uint32\_t}}ù)
+#include <string>   // (ù{\codeincomments{std::string}}ù)
+
 
 class IPV4Address
 {

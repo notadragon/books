@@ -159,8 +159,16 @@ class BatchData:
         if not batchdir.exists():
             batchdir.mkdir(parents=True)
 
-        if self.listings and self.listings[0].standards:
-            self.standards = self.listings[0].standards
+        lststandards = None
+        for lst in self.listings:
+            if lst.standards:
+                if lststandards == None:
+                    lststandards = set(lst.standards)
+                else:
+                    lststandards = lststandards.intersect(set(lst.standards))
+
+        if lststandards != None:
+            self.standards=list(lststandards)
 
         goodfile = batchdir.joinpath(f"{self.batch}.cpp")
         replacements = {}

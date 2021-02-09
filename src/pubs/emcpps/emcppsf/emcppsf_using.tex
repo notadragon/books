@@ -35,7 +35,7 @@ previously be accomplished with a \lstinline!typedef! declaration but in a
 syntactic form that many people find more natural and intuitive (but
 that offers nothing profoundly new):
 
-\begin{emcppslisting}[language=C++]
+\begin{emcppslisting}
 using Type1 = int;     // equivalent to (ù{\codeincomments{typedef int Type1;}}ù)
 using Type2 = double;  // equivalent to (ù{\codeincomments{typedef double Type2;}}ù)
 \end{emcppslisting}
@@ -47,7 +47,7 @@ which becomes apparent with more involved types, such as
 \emph{pointer-to-function}, \emph{pointer-to-member-function}, or
 \emph{pointer-to-data-member}:
 
-\begin{emcppslisting}[language=C++]
+\begin{emcppslisting}
 struct S { int i; void f(); };  // user-defined type (ù{\codeincomments{S}}ù) defined at file scope
 
 using Type3 = void(*)();        // equivalent to (ù{\codeincomments{typedef void(*Type3)();}}ù)
@@ -58,7 +58,7 @@ using Type5 = int S::*;         // equivalent to (ù{\codeincomments{typedef int
 \noindent Just as with a \lstinline!typedef!, the name representing the type can be
 qualified, but the symbol representing the synonym cannot:
 
-\begin{emcppslisting}[language=C++]
+\begin{emcppslisting}
 namespace N { struct S { }; }  // original type (ù{\codeincomments{S}}ù) defined with namespace (ù{\codeincomments{N}}ù)
 
 using Type6 = N::S;            // equivalent to (ù{\codeincomments{typedef N::S Type6;}}ù)
@@ -69,7 +69,7 @@ using ::Type7 = int;           // Error, the alias's name must be unqualified.
 \lstinline!using! can itself be a template, known as an \emph{alias
 template}:
 
-\begin{emcppslisting}[language=C++]
+\begin{emcppslisting}
 template <typename T>
 using Type8 = T;  // "identity" alias template
 
@@ -80,7 +80,7 @@ Type8<double> d;  // equivalent to (ù{\codeincomments{double d;}}ù)
 \noindent Note, however, that neither partial nor full specialization of alias
 templates is supported:
 
-\begin{emcppslisting}[language=C++]
+\begin{emcppslisting}[emcppserrorlines={4,7}]
 template <typename, typename>   // general alias template
 using Type9 = char;             // OK
 
@@ -95,7 +95,7 @@ using Type10<int, int> = char;  // Error, expected unqualified-id before (ù{\co
 programmers to \emph{bind} one or more template parameters to a fixed
 type, while leaving others open:
 
-\begin{emcppslisting}[language=C++]
+\begin{emcppslisting}
 #include <utility>  // (ù{\codeincomments{std::pair}}ù)
 
 template <typename T>
@@ -110,7 +110,10 @@ PairOfCharAnd<double> pcd;  // equivalent to (ù{\codeincomments{std::pair<char,
 achieved in C++03, it suppresses type deduction and requires additional boilerplate code at both the
 point of definition and the call site:
 
-\begin{emcppslisting}[language=C++]
+\begin{emcppshiddenlisting}[emcppsbatch=e1]
+#include <utility>  // (ù{\codeincomments{std::pair}}ù)
+\end{emcppshiddenlisting}
+\begin{emcppslisting}[emcppsbatch=e1]
 // C++03 (obsolete)
 template <typename T>
 struct PairOfCharAnd
@@ -134,7 +137,7 @@ member functions, or data members require looking in the middle of the
 declaration to find the alias name. As an example, consider a
 \emph{callback} type alias intended to be used with asynchronous functions:
 
-\begin{emcppslisting}[language=C++]
+\begin{emcppslisting}
 typedef void(*CompletionCallback)(void* userData);
 \end{emcppslisting}
 
@@ -144,7 +147,7 @@ above declaration hard to parse since the name of the alias
 Replacing \lstinline!typedef! with \lstinline!using! results in a simpler,
 more consistent formulation of the same alias:
 
-\begin{emcppslisting}[language=C++]
+\begin{emcppslisting}
 using CompletionCallback = void(*)(void* userData);
 \end{emcppslisting}
 
@@ -156,7 +159,7 @@ specified after the \lstinline!using! keyword. To make the\linebreak[4]
 %  Section~\ref{trailing-function-return-types}, ``\titleref{trailing-function-return-types}")
 can be used:
 
-  \begin{emcppslisting}[language=C++]
+  \begin{emcppslisting}
   using CompletionCallback = auto(*)(void* userData) -> void;
   \end{emcppslisting}
 
@@ -173,7 +176,15 @@ other parameters open to variation. Suppose, for example, we have a class, \lsti
 several distinct instances of \lstinline!std::map! --- each
 having the same key type, \lstinline!UserId!, but with different payloads:
 
-\begin{emcppslisting}[language=C++]
+\begin{emcppshiddenlisting}[emcppsbatch={e2,e3}]
+#include <map>  // (ù{\codeincomments{std::map}}ù)
+#include <set>  // (ù{\codeincomments{std::set}}ù)
+struct UserId {};
+struct Message {};
+struct Photos {};
+struct Article {};
+\end{emcppshiddenlisting}
+\begin{emcppslisting}[emcppsbatch=e2]
 class UserData  // class having excessive code repetition (BAD IDEA)
 {
 private:
@@ -202,7 +213,7 @@ significantly faster average access times. See
   \cite{cpprefb}.}}) by performing the change in only
 one place:
 
-\begin{emcppslisting}[language=C++]
+\begin{emcppslisting}[emcppsbatch=e3]
 class UserData  // class with well-factored implementation (GOOD IDEA)
 {
 private:
@@ -224,7 +235,7 @@ traits}, avoiding \romeogloss{boilerplate code} in the usage site. As an
 example, consider a simple type trait that adds a pointer to a given
 type (akin to \lstinline!std::add_pointer!):
 
-\begin{emcppslisting}[language=C++]
+\begin{emcppslisting}[emcppsbatch=e4]
 template <typename T>
 struct AddPointer
 {
@@ -235,7 +246,7 @@ struct AddPointer
 \noindent To use the trait above, the \lstinline!AddPointer! class template must be instantiated, and its nested
 \lstinline!Type! alias must be accessed. Furthermore, in the generic context, it has to be prepended with the \lstinline!typename! keyword::
 
-\begin{emcppslisting}[language=C++]
+\begin{emcppslisting}[emcppsbatch=e4]
 template <typename T>void f()
 {
     T t;
@@ -247,7 +258,7 @@ template <typename T>void f()
 creating an alias template for its nested type alias, such as
 \lstinline!AddPointer_t!:
 
-\begin{emcppslisting}[language=C++]
+\begin{emcppslisting}[emcppsbatch=e4]
 template <typename T>
 using AddPointer_t = typename AddPointer<T>::Type;
 \end{emcppslisting}
@@ -255,7 +266,7 @@ using AddPointer_t = typename AddPointer<T>::Type;
 \noindent Using \lstinline!AddPointer_t! instead of \lstinline!AddPointer! results in
 shorter code devoid of boilerplate:
 
-\begin{emcppslisting}[language=C++]
+\begin{emcppslisting}[emcppsbatch=e4]
 void g()
 {
     int i;
@@ -270,7 +281,10 @@ boilerplate code. For instance, C++14 introduces the
 \lstinline!std::remove_reference_t! alias template for the C++11
 \lstinline!std::remove_reference! type trait:
 
-\begin{emcppslisting}[language=C++]
+\begin{emcppshiddenlisting}[emcppsbatch=e5]
+#include <type_traits>  // (ù{\codeincomments{std::remove\_reference}}ù)
+\end{emcppshiddenlisting}
+\begin{emcppslisting}[emcppsbatch=e5,emcppsstandards={c++14}]
 typename std::remove_reference<int&>::type i0 = 5; // OK in both C++11 and C++14
 std::remove_reference_t<int&> i1 = 5;              // OK in C++14
 \end{emcppslisting}

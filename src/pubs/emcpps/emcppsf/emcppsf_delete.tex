@@ -142,8 +142,8 @@ to write the character \lstinline!*! five times in a row, starting at a
 specified memory address, \lstinline!buf!:
 
 %begin{emcppslisting}
-%#include <cstring>
-%#include <cstdio>
+%#include <cstring>  // (ù{\codeincomments{puts}}ù)
+%#include <cstdio>   // (ù{\codeincomments{memset}}ù)
 %
 %void f()
 %{
@@ -153,8 +153,8 @@ specified memory address, \lstinline!buf!:
 %}
 %\end{emcppslisting}
 \begin{emcppslisting}
-#include <cstdio>  // (ù{\codeincomments{puts}}ù)
-#include <cstring> // (ù{\codeincomments{memset}}ù)
+#include <cstdio>   // (ù{\codeincomments{puts}}ù)
+#include <cstring>  // (ù{\codeincomments{memset}}ù)
 
 void f()
 {
@@ -170,7 +170,7 @@ recurring error, and the C language provides no help. As shown above, \lstinline
 can target such observed misuse using an extra deleted overload:
 
 %begin{emcppslisting}
-%#include <cstring>  // memset()
+%#include <cstring>  // (ù{\codeincomments{memset}}ù)
 %void* memset(void* str, int ch, size_t n);      // standard library function
 %void* memset(void* str, int n, char) = delete;  // defensive against misuse
 %\end{emcppslisting}

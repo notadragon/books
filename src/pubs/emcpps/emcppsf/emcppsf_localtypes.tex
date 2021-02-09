@@ -25,7 +25,7 @@ restriction, making use of local or unnamed types consistent with
 nonlocal, named ones, thereby obviating the need to gratuitously name
 or enlarge the scope of a type.
 
-\begin{emcppslisting}[language=C++]
+\begin{emcppslisting}
 template <typename T>
 void f(T) { };            // function template
 
@@ -53,10 +53,10 @@ These new relaxed rules for template arguments are essential to the
 ergonomics of \romeoglossf{lambda expressions} (see \featureref{\locationc}{lambda}), as such types are both
 unnamed and local in typical usage:
 
-\begin{emcppslisting}[language=C++]
-#include <algorithm> // (ù{\codeincomments{std::sort}}ù)
-#include <string>
-#include <vector>
+\begin{emcppslisting}
+#include <algorithm>  // (ù{\codeincomments{std::sort}}ù)
+#include <string>     // (ù{\codeincomments{std::string}}ù)
+#include <vector>     // (ù{\codeincomments{std::vector}}ù)
 
 struct Person { std::string d_name; };
 
@@ -87,8 +87,17 @@ Consider, for instance, an implementation of Dijkstra's algorithm that
 uses a local type to keep track of metadata for each vertex in the input
 graph:
 
-\begin{emcppslisting}[language=C++]
-// dijkstra.h
+\begin{emcppshiddenlisting}[emcppsbatch=e1]
+// dijkstra.h:
+#include <vector>  // (ù{\codeincomments{std::vector}}ù)
+struct Vertex {};
+struct VertexMetadata {};
+struct Graph { std::size_t numNodes() const; };
+\end{emcppshiddenlisting}
+\begin{emcppslisting}[emcppsbatch=e1]
+// dijkstra.h:
+
+#include <vector>  // (ù{\codeincomments{std::vector}}ù)
 
 inline int dijkstra(std::vector<Vertex>* path, const Graph& graph)
 {
@@ -131,25 +140,27 @@ type with its sole purpose.{\cprotect\footnote{For a detailed
 Suppose that we have a program that makes wide use of an aggregate data
 type, \lstinline!City!:
 
-\begin{emcppslisting}[language=C++]
-#include <iostream>
-#include <iterator>
-#include <set>
-#include <vector>
+\begin{emcppslisting}[emcppsbatch={e2,e3}]
+#include <algorithm>  // (ù{\codeincomments{std::copy}}ù)
+#include <iostream>   // (ù{\codeincomments{std::ostream}}ù)
+#include <iterator>   // (ù{\codeincomments{std::ostream\_iterator}}ù)
+#include <set>        // (ù{\codeincomments{std::set}}ù)       
+#include <string>     // (ù{\codeincomments{std::string}}ù)
+#include <vector>     // (ù{\codeincomments{std::vector}}ù)
 
 struct City
 {
     int         d_uniqueId;
     std::string d_name;
-    std::ostream& operator<<(std::ostream& stream,
-                         const City&   object);
 };
+std::ostream& operator<<(std::ostream& stream,
+                         const City&   object);
 \end{emcppslisting}
 
 \noindent Consider now the task of writing a function to print unique elements of
 an\linebreak[4] \lstinline!std::vector<City>!, ordered by name:
 
-\begin{emcppslisting}[language=C++]
+\begin{emcppslisting}[emcppsbatch=e2]
 void printUniqueCitiesOrderedByName(const std::vector<City>& cities)
 {
     struct OrderByName
@@ -175,12 +186,15 @@ function scope --- again enforces and readily communicates its tightly
 encapsulated (and therefore \emph{malleable}) status.
 
 As an aside, note that using a lambda (see \featureref{\locationc}{lambda}) in such scenario requires using \lstinline!decltype! and passing the closure to the set's constructor:
-\begin{emcppslisting}[language=C++]
-auto compare = [](const City& lhs, const City& rhs) {
-    return lhs.d_name < rhs.d_name;
-};
-const std::set<City, decltype(compare)>
-    tmp(cities.begin(), cities.end(), compare);
+\begin{emcppslisting}[emcppsbatch=e3]
+void printUniqueCitiesOrderedByName(const std::vector<City>& cities)
+{
+    auto compare = [](const City& lhs, const City& rhs) {
+        return lhs.d_name < rhs.d_name;
+    };
+    const std::set<City, decltype(compare)>
+        tmp(cities.begin(), cities.end(), compare);
+}
 \end{emcppslisting}
 
 \noindent We discuss the topic of lambda expressions further in the very next section; see \intrarefnopage{configuring-algorithms-via-lambda-expressions}.
@@ -203,7 +217,7 @@ These days, we might reasonably elect to implement this functionality
 using the C++11 standard algorithm
 \lstinline!std::any_of!{\cprotect\footnote{\cite{cpprefa}}}:
 
-\begin{emcppslisting}[language=C++]
+\begin{emcppslisting}[emcppsbatch=e4]
 template <typename InputIterator, typename UnaryPredicate>
 bool any_of(InputIterator first, InputIterator last, UnaryPredicate pred);
     // Return (ù{\codeincomments{true}}ù) if any of the elements in the range satisfies (ù{\codeincomments{pred}}ù).
@@ -213,7 +227,25 @@ bool any_of(InputIterator first, InputIterator last, UnaryPredicate pred);
 \lstinline!any_of!, would have required a separate function or
 function object (defined \emph{outside} of the scope of the function):
 
-\begin{emcppslisting}[language=C++]
+\begin{emcppshiddenlisting}[emcppsbatch={e4,e5}]
+#include <vector>     // (ù{\codeincomments{std::vector}}ù)
+struct SceneNode {
+    bool isDirty() const;
+    bool isNew() const;
+};
+template <typename InputIterator, typename UnaryPredicate>
+bool any_of(InputIterator first, InputIterator last, UnaryPredicate pred)
+{
+   // this needs an implementation
+   for (; first != last; ++first) {
+      if (pred(*first)) {
+          return true;
+      }
+  }
+  return false;
+}
+\end{emcppshiddenlisting}
+\begin{emcppslisting}[emcppsbatch=e4]
 // C++03 (obsolete)
 namespace {
 
@@ -235,7 +267,7 @@ bool mustRecalculateGeometry(const std::vector<SceneNode>& nodes)
 
 \noindent Because unnamed types can serve as arguments to this function template, we can also employ a lambda expression instead of a function object that would be required in C++03:
 
-\begin{emcppslisting}[language=C++]
+\begin{emcppslisting}[emcppsbatch=e5]
 #include <algorithm> // (ù{\codeincomments{'std::any\_of'}}ù)
 bool mustRecalculateGeometry(const std::vector<SceneNode>& nodes)
 {

@@ -34,7 +34,7 @@ literal to visually separate its digits without affecting its value:
 %%%%%%%%%%%%%%%%
 % 8 Feb 2021: Our final design does not use color in this way. Removing these color and shape commands and asking authors to review.
 
-%\begin{emcppslisting}[language=C++]
+%\begin{emcppslisting}
 %int          (ù{\color{black} i = -12'345;}ù)                    (ù{\itshape\color{skyblue}// same as}ù) (ù{\codeincomments{-12345}}ù)
 %(ù{\color{maroon}unsigned int}ù) (ù{\color{black}u = 1'000'000u;}ù)                 (ù{\itshape\color{skyblue}// same as}ù) (ù{\codeincomments{1000000u}}ù)
 %(ù{\color{maroon}long}ù)         (ù{\color{black}j = 500'000L;}ù)                   // same as (ù{\codeincomments{500000L}}ù)
@@ -46,14 +46,14 @@ literal to visually separate its digits without affecting its value:
 %int        (ù{\color{black}oct = 044'73'26;}ù)                  // same as (ù{\codeincomments{0447326}}ù)
 %int        (ù{\color{black}bin = 0b1001'0110'1010'0111;}ù)      (ù{\itshape\color{skyblue}// same as}ù) (ù{\codeincomments{0b1001011010100111}}ù)
 %\end{emcppslisting}
-\begin{emcppslisting}[language=C++]
+\begin{emcppslisting}[emcppsstandards={c++14}]
 int          i = -12'345;                    (ù{\commentcolor{// same as}ù) (ù{\codeincomments{-12345}}ù)
 unsigned int u = 1'000'000u;                 (ù{\commentcolor{// same as}ù) (ù{\codeincomments{1000000u}}ù)
 long         j = 500'000L;                   // same as (ù{\codeincomments{500000L}}ù)
 long long    k = 9'223'372'036'854'775'807;  // same as (ù{\codeincomments{9223372036854775807}}ù)
-float        f = 3.14159'26535f              (ù{\commentcolor{// same as}ù) (ù{\codeincomments{3.1415926535f}}ù)
+float        f = 3.14159'26535f;             (ù{\commentcolor{// same as}ù) (ù{\codeincomments{3.1415926535f}}ù)
 double       d = 3.14159'26535'89793;        (ù{\commentcolor{// same as}ù) (ù{\codeincomments{3.141592653589793}}ù)
-long double  e = 20'812.80745'23204          (ù{\commentcolor{// same as}ù) (ù{\codeincomments{20812.8074523204}}ù)
+long double  e = 20'812.80745'23204;         (ù{\commentcolor{// same as}ù) (ù{\codeincomments{20812.8074523204}}ù)
 int        hex = 0x8C'25'00'F9;              // same as (ù{\codeincomments{0x8C2500F9}}ù)
 int        oct = 044'73'26;                  // same as (ù{\codeincomments{0447326}}ù)
 int        bin = 0b1001'0110'1010'0111;      (ù{\commentcolor{// same as}ù) (ù{\codeincomments{0b1001011010100111}}ù)
@@ -64,7 +64,7 @@ cannot be contiguous, nor can they appear either before or after the
 \emph{numeric} part (i.e., digit sequence) of the
 literal:
 
-%\begin{emcppslisting}[language=C++]
+%\begin{emcppslisting}
 %int (ù{\color{black}e0 = 10''00;}ù)  // Error, consecutive digit separators
 %int (ù{\color{black}e1 = -'1000;}ù)  // Error, before numeric part
 %(ù{\color{maroon}int}ù) (ù{\color{black}e2 = 1000'u;}ù)  // Error, after numeric part
@@ -73,7 +73,7 @@ literal:
 %int (ù{\color{black}e5 = 0'89;}ù)    // Error, non-octal digits
 %(ù{\color{maroon}int}ù) (ù{\color{black}e6 = 0'67;}ù)    // OK, valid octal literal
 %\end{emcppslisting}
-\begin{emcppslisting}[language=C++]
+\begin{emcppslisting}[emcppsstandards={c++14},emcppserrorlines={2,4,6}]
 int e0 = 10''00;  // Error, consecutive digit separators
 int e1 = -'1000;  (ù{\commentcolor{// Error, before numeric part}ù)
 int e2 = 1000'u;  // Error, after numeric part
@@ -91,13 +91,13 @@ that is too large to fit in a \lstinline!long!~\lstinline!long!~\lstinline!int! 
 \lstinline!unsigned!~\lstinline!long!~\lstinline!long!~\lstinline!int! might
 generate a warning{\cprotect\footnote{Tested on GCC 7.4.0.}}:
 
-%\begin{emcppslisting}[language=C++]
+%\begin{emcppslisting}
 %(ù{\color{maroon}unsigned long long}ù) (ù{\color{black}big1 = 9'223'372'036'854'775'808;}ù)  // (ù{\codeincomments{2\^{}63}}ù)
 %    // warning: integer constant is so large that it is an
 %    // unsigned long long big1 = 9'223'372'036'854'775'808;
 %    //                           ^~~~~~~~~~~~~~~~~~~~~~~~~~
 %\end{emcppslisting}
-\begin{emcppslisting}[language=C++]
+\begin{emcppslisting}[emcppsstandards={c++14}]
 unsigned long long big1 = 9'223'372'036'854'775'808;  // (ù{\codeincomments{2\^{}63}}ù)
     // warning: integer constant is so large that it is an
     // unsigned long long big1 = 9'223'372'036'854'775'808;
@@ -107,21 +107,21 @@ unsigned long long big1 = 9'223'372'036'854'775'808;  // (ù{\codeincomments{2\^
 \noindent Such warnings can typically be suppressed by adding a \lstinline!ull!
 suffix to the literal:
 
-%\begin{emcppslisting}[language=C++]
+%\begin{emcppslisting}
 %(ù{\color{maroon}unsigned long long}ù) (ù{\color{black}big2 = 9'223'372'036'854'775'808ull;}ù)  // OK
 %\end{emcppslisting}
-\begin{emcppslisting}[language=C++]
+\begin{emcppslisting}[emcppsstandards={c++14}]
 unsigned long long big2 = 9'223'372'036'854'775'808ull;  // OK
 \end{emcppslisting}
 
 \noindent Warnings like the one above, however, are not typical when the implied
 precision of a floating-point literal exceeds what can be represented:
 
-%\begin{emcppslisting}[language=C++]
+%\begin{emcppslisting}
 %(ù{\color{maroon}float}ù) (ù{\color{black}reallyPrecise = 3.141'592'653'589'793'238'462'643'383'279'502'884;}ù)  // OK
 %    // Everything after (ù{\codeincomments{3.141'592'6}}ù) is typically ignored silently.
 %\end{emcppslisting}
-\begin{emcppslisting}[language=C++]
+\begin{emcppslisting}[emcppsstandards={c++14}]
 float reallyPrecise = 3.141'592'653'589'793'238'462'643'383'279'502'884;  (ù{\commentcolor{// OK}ù)
     (ù{\commentcolor{// Everything after}ù) (ù{\codeincomments{3.141'592'6}}ù) (ù{\commentcolor{is typically ignored silently.}ù)
 \end{emcppslisting}
@@ -259,12 +259,12 @@ removed{\cprotect\footnote{Note that affixing the \lstinline!f!
 equivalent to applying a \lstinline!static_cast<float>! to the
 (unsuffixed) literal:
 
-\begin{emcppslisting}[language=C++, basicstyle={\ttfamily\footnotesize}]
+\begin{emcppslisting}[emcppsstandards={c++14}, basicstyle={\ttfamily\footnotesize}]
 static_assert(3.14'159'265'358f == static_cast<float>(3.14'159'265'358));
 \end{emcppslisting}\vspace*{-1ex}
       }}:
 
-\begin{emcppslisting}[language=C++]
+\begin{emcppslisting}[emcppsignore={Bold numbers prevent assertions from not compiling properly}]
 static_assert(3.141592653(ù{\bfseries 5}ù)f != 3.141592653f, "too precise for float");
     // This assert will fire on a typical platform.
 

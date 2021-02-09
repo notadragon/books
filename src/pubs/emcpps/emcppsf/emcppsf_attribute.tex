@@ -37,13 +37,13 @@ pair of \lstinline![[! and \lstinline!]]!, the simplest of which is a single
 attribute represented using a simple identifier, e.g.,
 \lstinline!attribute_name!:
 
-\begin{emcppslisting}[language=C++]
+\begin{emcppslisting}[emcppsbatch=e1]
 [[attribute_name]]
 \end{emcppslisting}
 
 \noindent A single annotation can consist of zero or more attributes:
 
-\begin{emcppslisting}[language=C++]
+\begin{emcppslisting}[emcppsbatch=e2]
 [[]]           // permitted in every position where any attribute is allowed
 [[foo, bar]]   // equivalent to (ù{\codeincomments{[[foo]] [[bar]]}}ù)
 \end{emcppslisting}
@@ -51,9 +51,9 @@ attribute represented using a simple identifier, e.g.,
 \noindent An attribute may have an argument list consisting of an
 arbitrary sequence of tokens:
 
-\begin{emcppslisting}[language=C++]
+\begin{emcppslisting}[emcppsbatch=e3]
 [[attribute_name()]]            // same as (ù{\codeincomments{attribute\_name}}ù)
-[[deprecated("bad API")]]      // single-argument attribute
+[[deprecated("bad API")]]       // single-argument attribute
 [[theoretical(1, "two", 3.0)]]  // multiple-argument attribute
 [[complicated({1, 2, 3} + 5)]]  // arbitrary tokens(ù{\footnotemark}ù)
 \end{emcppslisting}
@@ -72,10 +72,15 @@ only \romeoglossf{conditionally supported} in C++11 and C++14, but
 historically they were supported by all major compilers, including both
 Clang and GCC; all C++17-conforming compilers \emph{must} support attribute namespaces.}} (a single arbitrary\linebreak[4] \mbox{identifier}):
 
-\begin{emcppslisting}[language=C++]
+\begin{emcppslisting}[emcppsbatch=e4]
 [[gnu::const]]  // (GCC-specific) namespace-(ù{\codeincomments{gnu}}ù)-qualified (ù{\codeincomments{const}}ù) attribute
 [[my::own]]     // (user-specified) namespace-(ù{\codeincomments{my}}ù)-qualified (ù{\codeincomments{own}}ù) attribute
 \end{emcppslisting}
+
+\begin{emcppshiddenlisting}[emcppsbatch={e1,e2,e3,e4}]
+// the above listings with just atttributes need to be on something, like a function
+void foo();
+\end{emcppshiddenlisting}
 
 
 \subsubsection[C++ attribute placement]{C++ attribute placement}\label{c++-attribute-placement}
@@ -95,21 +100,21 @@ Clang and GCC; all C++17-conforming compilers \emph{must} support attribute name
 %every entity being declared, whereas an attribute placed immediately
 %after the named entity applies to just that one entity:
 %
-%\begin{lstlisting}[language=C++]
+%\begin{emcppslisting}
 %[[noreturn]] void f(), g();  // Both (ù{\codeincomments{f()}}ù) and (ù{\codeincomments{g()}}ù) are (ù{\codeincomments{noreturn}}ù).
 %void u(), v() [[noreturn]];  // Only (ù{\codeincomments{v()}}ù) is (ù{\codeincomments{noreturn}}ù).
-%\end{lstlisting}
+%\end{emcppslisting}
 %
 %\noindent Attributes placed in front of a declaration statement and immediately
 %behind the name{\cprotect\footnote{There are rare edge cases in which an
 %entity (e.g., an anonymous \texttt{union} or \texttt{enum}) is
 %declared without a name:
 %
-%%\begin{lstlisting}[language=C++, basicstyle={\ttfamily\footnotesize}]
+%%\begin{emcppslisting}[basicstyle={\ttfamily\footnotesize}]
 %\begin{lstlisting}[style=footcode]
 %struct S { union [[attribute_name]] { int a; float b }; };
 %enum [[attribute_name]] { SUCCESS, FAIL } result;
-%\end{lstlisting} \vspace*{-1ex}
+%\end{emcppslisting} \vspace*{-1ex}
 %      }} of an individual entity in the same statement are additive (for
 %that entity). The behavior of attributes associated with an entity
 %across multiple declaration statements, however, depends on the
@@ -118,11 +123,11 @@ Clang and GCC; all C++17-conforming compilers \emph{must} support attribute name
 %attributes might be additive, such as the hypothetical \texttt{foo} and
 %\texttt{bar} shown here:
 %
-%\begin{lstlisting}[language=C++]
+%\begin{emcppslisting}
 %[[foo]] void f(), g();  // declares both (ù{\codeincomments{f()}}ù) and (ù{\codeincomments{g()}}ù) to be (ù{\codeincomments{foo}}ù)
 %void f [[bar]](), g();  // Now (ù{\codeincomments{f()}}ù) is both (ù{\codeincomments{foo}}ù) and (ù{\codeincomments{bar}}ù) while
 %                        //     (ù{\codeincomments{g()}}ù) is still just (ù{\codeincomments{foo}}ù).
-%\end{lstlisting}
+%\end{emcppslisting}
 %\pagebreak%%%%%%%
 
 %\noindent Redundant attributes are not themselves necessarily considered an error;
@@ -131,7 +136,7 @@ Clang and GCC; all C++17-conforming compilers \emph{must} support attribute name
 %attributes might no longer be an error in future revisions of the
 %  C++ Standard; see \textbf{{iso20a}}.}}:
 %
-%\begin{lstlisting}[language=C++]
+%\begin{emcppslisting}
 %[[attr1]] void f [[attr2]](), f [[attr3]](int);
 %                                      // (ù{\codeincomments{f()}}ù)    is (ù{\codeincomments{attr1}}ù) and (ù{\codeincomments{attr2}}ù).
 %                                      // (ù{\codeincomments{f(int)}}ù) is (ù{\codeincomments{attr1}}ù) and (ù{\codeincomments{attr3}}ù).
@@ -141,18 +146,18 @@ Clang and GCC; all C++17-conforming compilers \emph{must} support attribute name
 %void g [[noreturn]] [[noreturn]]();   // (ù{\codeincomments{g()}}ù) is (ù{\codeincomments{noreturn}}ù).
 %
 %void h [[noreturn, noreturn]]();      // error: repeated (standard) attribute
-%\end{lstlisting}
+%\end{emcppslisting}
 %
 %\noindent In most other cases, an attribute will typically apply to the statement
 %(including a block statement) that immediately (apart from other
 %attributes) follows it:
 %
-%\begin{lstlisting}[language=C++]
+%\begin{emcppslisting}
 %[[attr1]];                                // null statement
 %[[attr2]] return 0;                       // return statement
 %[[attr3]] for (int i = 0; i < 10; ++i);   // for statement
 %[[attr4]] [[attr5]] { /* ... */ }         // block statement
-%\end{lstlisting}
+%\end{emcppslisting}
 %
 %\noindent The valid positions of any particular attribute, however, will be
 %constrained by whatever entities to which it applies. That is, an
@@ -166,10 +171,10 @@ Clang and GCC; all C++17-conforming compilers \emph{must} support attribute name
 %compile. Hence creative use of even a standard attribute might
 %  lead to different behavior on different compilers.}}:
 %
-%\begin{lstlisting}[language=C++]
+%\begin{emcppslisting}
 %void [[noreturn]] g() { throw; }  // error: appertains to type specifier
 %void i() [[noreturn]] { throw; }  // error: appertains to type specifier
-%\end{lstlisting}
+%\end{emcppslisting}
 
 
 %%%%%% new section
@@ -182,8 +187,8 @@ void u(), v [[foo]] ();  // foo appertains only to v().
 
 \noindent Attributes can apply to an entity without a name (e.g., anonymous \lstinline!union! or \lstinline!enum!):
 
-\begin{emcppslisting}[language=C++]
-struct S { union [[attribute_name]] { int a; float b }; };
+\begin{emcppslisting}
+struct S { union [[attribute_name]] { int a; float b; }; };
 enum [[attribute_name]] { SUCCESS, FAIL } result;
 \end{emcppslisting}
 
@@ -197,7 +202,7 @@ unauthorized syntactic position, whereas Clang (correctly) fails to
 compile. Hence, using even a standard attribute might
   lead to a different behavior on different compilers.}:
 
-\begin{emcppslisting}[language=C]
+\begin{emcppslisting}[emcppserrorlines={4}]
 void [[noreturn]] x() {       // Error, cannot be applied to a type
      [[noreturn]] int i;      // Error, cannot be applied to a variable
      [[noreturn]] { throw; }  // Error, cannot be applied to a statement
@@ -259,7 +264,7 @@ function's return value should not be ignored{\cprotect\footnote{The
 C++17 Standard \lstinline![[nodiscard]]! attribute serves the same
   purpose and is portable.}}:
 
-\begin{emcppslisting}[language=C++]
+\begin{emcppslisting}[emcppsbatch=e5]
 struct UDPListener
 {
     [[gnu::warn_unused_result]] int start();
@@ -283,7 +288,7 @@ corresponding definition in the context of an annotated one (or vice
 versa); such is not always the case for other attributes, however, and
   best practice might argue in favor of consistency regardless.}}:
 
-\begin{emcppslisting}[language=C++]
+\begin{emcppslisting}[emcppsbatch=e5]
 void init()
 {
     UDPListener listener;
@@ -294,10 +299,10 @@ void init()
 
 \noindent For the code above, GCC produces a useful warning:
 
-\begin{emcppslisting}[style=plain]
+\begin{lstlisting}[style=plain]
 warning: ignoring return value of 'int UDPListener::start()' declared
          with attribute 'warn_unused_result' [-Wunused-result]
-\end{emcppslisting}
+\end{lstlisting}
 
 
 \subsubsection[Hinting at additional optimization opportunities]{Hinting at additional optimization opportunities}\label{hinting-at-additional-optimization-opportunities}
@@ -309,7 +314,7 @@ efficient or smaller binaries. For example, decorating the function
 compiler that the developer believes the function is unlikely to be
 called often:
 
-\begin{emcppslisting}[language=C++]
+\begin{emcppslisting}[emcppsbatch=e6]
 [[gnu::cold]] void reportError(const char* message) { /* ... */ }
 \end{emcppslisting}
 
@@ -317,7 +322,7 @@ called often:
 optimized differently (e.g., for space over speed), any use of this
 function will likely be given lower priority during branch \mbox{prediction}:
 
-\begin{emcppslisting}[language=C++]
+\begin{emcppslisting}[emcppsbatch=e6]
 void checkBalance(int balance)
 {
     if (balance >= 0)  // likely branch
@@ -351,7 +356,7 @@ Clang). When applied to a function, this attribute instructs the compiler to \em
 that the function is a \romeoglossf{pure function}, which has no
 \romeoglossf{side effects}. In other words, the function always returns the same value for a given set of arguments, and the globally reachable state of the program is not altered by the function. For example, a function performing a linear interpolation between two values may be annotated with \lstinline![[gnu::const]]!:
 
-\begin{emcppslisting}[language=C++]
+\begin{emcppslisting}[emcppsbatch={e7,e8}]
 [[gnu::const]]
 double linearInterpolation(double start, double end, double factor)
 {
@@ -367,7 +372,13 @@ of this function comprises two invocations to the
 \mbox{\lstinline!linearInterpolation!} function (above) --- one per vector
 component:
 
-\begin{emcppslisting}[language=C++]
+\begin{emcppshiddenlisting}[emcppsbatch={e7,e8}]
+struct Vector2D {
+    double x, y;
+    Vector2D(double, double);
+};
+\end{emcppshiddenlisting}
+\begin{emcppslisting}[emcppsbatch=e7]
 Vector2D vectorLerp(const Vector2D& start, const Vector2D& end, double factor)
 {
     return Vector2D(linearInterpolation(start.x, end.x, factor),
@@ -381,7 +392,7 @@ are the same, the compiler is allowed to invoke
 \lstinline!linearInterpolation! only once --- even if its body is not
 visible in \lstinline!vectorLerp!'s translation unit:
 
-\begin{emcppslisting}[language=C++]
+\begin{emcppslisting}[emcppsbatch=e8]
 // pseudocode (hypothetical compiler transformation)
 Vector2D vectorLerp(const Vector2D& start, const Vector2D& end, double factor)
 {
@@ -434,7 +445,10 @@ an alternative to both pointer/size or iterator-pair arguments and in
 implementations as an alternative to (raw) pointer arithmetic. Since
   C++20, the standard \lstinline!std::span! template can be used instead.}}:
 
-\begin{emcppslisting}[language=C++]
+\begin{emcppshiddenlisting}[emcppsbatch={e9,e10}]
+void printElements(int*,int*);
+\end{emcppshiddenlisting}
+\begin{emcppslisting}[emcppsbatch=e9]
 void hereticalFunction()
 {
     int array[] = {0, 1, 2, 3, 4, 5};
@@ -447,7 +461,9 @@ void hereticalFunction()
 undesirable can be decorated with the
 \lstinline![[gsl::suppress(bounds.1)]]! attribute:
 
-\begin{emcppslisting}[language=C++]
+% gsl::suppress is ignored by gcc, requires a string on clang, and an identifier
+% on MSVC.  sigh.
+\begin{emcppslisting}[emcppsbatch=e10,emcppserrorlines=5]
 void hereticalFunction()
 {
     int array[] = {0, 1, 2, 3, 4, 5};
@@ -467,8 +483,8 @@ properties that cannot otherwise be deduced. Consider a function, \lstinline!f!,
 \lstinline!p1! and \lstinline!p2!, and has a \romeoglossf{precondition} that both
 pointers must refer to the same contiguous block of memory. Using the standard attribute to inform the analyzer of such a precondition has a distinct advantage of requiring nothing other than the agreement between the developer and the static analyzer regarding the namespace and the name of the attribute. For example, we could choose to designate \lstinline!home_grown::in_same_block(p1, p2)! for this purpose:
 
-\begin{emcppslisting}[language=C++]
-// lib.h
+\begin{emcppslisting}[emcppsbatch=e11]
+// lib.h:
 
 [[home_grown::in_same_block(p1, p2)]]
 int f(double* p1, double* p2);
@@ -477,8 +493,8 @@ int f(double* p1, double* p2);
 
 \noindent The compiler will simply ignore this unknown attribute. However, because our static-analysis tool knows the meaning of the \lstinline!home_grown::in_same_block! attribute, it will report, at analysis time, defects that might otherwise have resulted in \romeoglossf{undefined behavior} at run time:
 
-\begin{emcppslisting}[language=C++]
-// client.cpp
+\begin{emcppslisting}[emcppsbatch=e11]
+// client.cpp:
 #include <lib.h>
 
 void client()
@@ -503,9 +519,9 @@ void client()
 %\texttt{const}~\texttt{int\&}) but typically cannot be associated
 %within named objects outside of a declaration statement:
 %
-%\begin{lstlisting}[language=C++]
+%\begin{emcppslisting}
 %[[]] static [[]] int [[]] a [[]], /*[[]]*/ b [[]];  // declaration statement
-%\end{lstlisting}
+%\end{emcppslisting}
 %
 %\noindent Notice how we have used the empty attribute syntax \texttt{[[]]} above
 %to probe for positions allowed for arbitrary attributes by the compiler
@@ -514,7 +530,7 @@ void client()
 %statement, however, viable attribute locations are typically far more
 %limited:
 %
-%\begin{lstlisting}[language=C++,label=attribute-gcc-example]
+%\begin{emcppslisting}[label=attribute-gcc-example]
 %[[]] void [[]] f [[]] ( [[]] int [[]] n [[]] )
 %[[]] {
 %    [[]] n /**/ *= /**/ sizeof /**/ ( [[]] const [[]] int [[]] & [[]] ) /**/;
@@ -525,7 +541,7 @@ void client()
 %        [[]] ;             // (ù{\codeincomments{[[]]}}ù) denotes viable attribute location (on GCC)
 %    /**/ }
 %/**/ }                     // (ù{\codeincomments{/**/}}ù) denotes no attribute allowed (on GCC)
-%\end{lstlisting}
+%\end{emcppslisting}
 %
 %\noindent Type expressions --- e.g., the argument to \texttt{sizeof} (above) ---
 %are a notable exception; see {\it\titleref{attribute-potential-pitfalls}:} {\it\titleref{not-every-syntactic-location-is-viable-for-an-attribute}} on page~\pageref{not-every-syntactic-location-is-viable-for-an-attribute}.
@@ -553,8 +569,10 @@ results and/or \romeogloss{undefined behavior}.
 For example, consider the \lstinline!myRandom! function that is intended to
 return a new random number between $[0.0$ and $0.1]$ on each successive
 call:
-
-\begin{emcppslisting}[language=C++]
+\begin{emcppshiddenlisting}[emcppsbatch=e12]
+#include <random>  // (ù{\codeincomments{std::random\_device}}ù), (ù{\codeincomments{std::mt19937}}ù), (ù{\codeincomments{std::uniform\_real\_distribution}}ù)
+\end{emcppshiddenlisting}
+\begin{emcppslisting}[emcppsbatch=e12]
 double myRandom()
 {
     static std::random_device randomDevice;
@@ -587,7 +605,7 @@ constant for all time.
 %{\it\titleref{attribute-use-cases}:} {\it\titleref{probing-where-attributes-are-permitted-in-the-compiler’s-c++-grammar}} on page~\pageref{attribute-gcc-example}, yet Clang had
 %issues with the third line in two places:
 %
-%\begin{lstlisting}[language=C++]
+%\begin{emcppslisting}
 %<source>:3:39: error: expected variable name or 'this' in lambda capture list
 %    [[]] n /**/ *= /**/ sizeof /**/ ([[]] const [[]] int [[]] & [[]] ) /**/;
 %                                      ^
@@ -595,7 +613,7 @@ constant for all time.
 %<source>:3:48: error: an attribute list cannot appear here
 %    [[]] n /**/ *= /**/ sizeof /**/ (/**/ const [[]] int [[]] & [[]] ) /**/;
 %                                                ^~~~
-%\end{lstlisting}
+%\end{emcppslisting}
 %
 %\noindent Hence, just because an arbitrary syntactic location is valid for an
 %attribute on one compiler doesn't mean that it is necessarily valid on

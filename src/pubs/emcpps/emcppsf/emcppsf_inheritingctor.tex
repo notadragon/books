@@ -241,8 +241,8 @@ struct S : T  // The base type, (ù{\codeincomments{T}}ù), is a *dependent type
     using T::T;  // inheriting constructors (generically) from a dependent type
 };
 
-#include <string>
-#include <vector>
+#include <string>  // (ù{\codeincomments{std::string}}ù)
+#include <vector>  // (ù{\codeincomments{std::vector}}ù)
 
 S<std::string>        ss("hello");     // OK, uses constructor from base
 S<std::vector<char>> svc("goodbye");  // Error: no suitable constructor in base
@@ -294,8 +294,8 @@ want to provide a proxy for a \texttt{std::vector} that performs
 explicit checking of indices supplied to its index operator:
 
 \begin{lstlisting}[language=C++]
-#include <vector>
-#include <cassert>
+#include <vector>   // (ù{\codeincomments{std::vector}}ù)
+#include <cassert>  // standard C (ù{\codeincomments{assert}}ù) macro
 
 template <typename T>
 struct CheckedVector : std::vector<T>
@@ -597,7 +597,7 @@ without its having to know what those constructors are:
 \begin{lstlisting}[language=C++]
 #include <string>   // (ù{\codeincomments{std::string}}ù)
 #include <vector>   // (ù{\codeincomments{std::vector}}ù)
-#include "myfoo.h"  // (ù{\codeincomments{MyFoo}}ù)
+#include <myfoo.h>  // (ù{\codeincomments{MyFoo}}ù)
 
 Counted<std::string>        cs;  // Construct a counted string.
 Counted<std::vector<char>> cvc;  // Construct a counted vector of (ù{\codeincomments{char}}ù).

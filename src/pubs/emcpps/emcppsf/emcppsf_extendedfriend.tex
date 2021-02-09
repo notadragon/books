@@ -254,7 +254,7 @@ macros to configure that alias:
 %%% yes, and VR requests some separation
 
 \begin{lstlisting}[language=C++]
-// windowmanager_win32.h
+// windowmanager_win32.h:
 
 #ifdef WIN32
 class Win32WindowManager { /* ... */ };
@@ -264,7 +264,7 @@ class Win32WindowManager { /* ... */ };
 \vspace*{2ex}
 
 \begin{lstlisting}[language=C++]
-// windowmanager_unix.h
+// windowmanager_unix.h:
 
 #ifdef UNIX
 class UnixWindowManager { /* ... */ };
@@ -274,7 +274,7 @@ class UnixWindowManager { /* ... */ };
 \vspace*{2ex}
 
 \begin{lstlisting}[language=C++]
-// windowmanager.h
+// windowmanager.h:
 
 #ifdef WIN32
 #include <windowmanager_win32.h>
@@ -288,7 +288,7 @@ typedef UnixWindowManager WindowManager;
 \vspace*{2ex}
 
 \begin{lstlisting}[language=C++]
-// window.h
+// window.h:
 #include <windowmanager.h>
 
 class Window
@@ -802,7 +802,7 @@ bool operator<(const S& lhs, const S& rhs)
     return lhs.d_size < rhs.d_size;
 }
 
-#include <cassert>
+#include <cassert>  // standard C (ù{\codeincomments{assert}}ù) macro
 
 void test1()
 {
