@@ -2,9 +2,38 @@
 \newcommand\romeogloss[1]{\textbf{#1}}
 \newcommand\romeoglossf[1]{\textbf{#1}}
 
-\newcommand\emcppsfirstgloss[1]{\color{purple}\testbf{#1}}
-\newcommand\emcppslatergloss[1]{\color{blue}\testbf{#1}}
+\newtoggle{emcppsGlossDebug}
+\toggletrue{emcppsGlossDebug}
+%\togglefalse{emcppsGlossDebug}
 
+\newcommand\emcppsfirstgloss[1]{{\color{purple}\textbf{#1}}}
+\newcommand\emcppslatergloss[1]{{\color{red}{#1}}}
 
-\newcommand\emcppsgloss[1]{\emcppsfirstgloss{#1}}
+\appto\emcppschapterstart{\glsresetall}
+\appto\emcppsfeaturestart{\glsresetall}
+
+\newcommand\emcppsgloss[2][]{%
+  \ifthenelse{\equal{}{#1}}%
+  {%
+    \def\emcppsglossid{#2}%
+  }%
+  {%
+    \def\emcppsglossid{#1}%
+  }%
+  \ifglsused{\emcppsglossid}%
+  {%
+    \iftoggle{emcppsGlossDebug}{<LATER <\emcppsglossid> > }{}%
+    \emcppslatergloss{#2}%
+  }%
+  {%
+    \iftoggle{emcppsGlossDebug}{<FIRST <\emcppsglossid> > }{}%
+    \emcppsfirstgloss{#2}%
+  }%
+  \glsadd{\emcppsglossid}%
+  \glsunset{\emcppsglossid}%
+}
+
 \newcommand\emcppsglossgloss[1]{\emcppslatergloss{#1}}
+
+
+%TODO: add \glsresetall to the beginning of every chapter and section

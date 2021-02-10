@@ -93,42 +93,7 @@ def checkFile(f):
 
     headerlines = []
     end = False
-    newlines = None
-    for l in lines:
-        if newlines != None:
-            newlines.append(l)
-            continue
-        headerlines.append(l)
-        if l.startswith("}{"):
-            newlines = []
-
-    header = "".join([l.strip() for l in headerlines])
-    m = featureRe.match(header)
-    if not m:
-        print(f"Invalid header {header}")
-        return
-
-    featureLabel = m.group(2)
-    featureParamSpec = m.group(1)
-    featureParams = {}
-    
-    for key,val in findParams(featureParamSpec):
-        featureParams[key] = val
-
-    newheader = []
-    newheader.append(f"\emcppsFeature{{\n")
-
-    for key,fromkey,tfunc in translations:
-        oldval = featureParams[fromkey]
-        newval = tfunc(oldval)
-        if newval != oldval:
-            newheader.append(f"    {key}={{{newval}}},\n")
-    
-    newheader.append(f"    short={{{featureParams['short']}}},\n")
-    newheader.append(f"    long={{{featureParams['long']}}},\n")
-    newheader.append(f"}}{{{featureLabel}}}\n")
-
-    newlines = newheader + newlines
+    newlines = lines[:]
 
     for n,l in enumerate(newlines):
         checkLine(f,n,l)

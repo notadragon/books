@@ -1,5 +1,6 @@
 \cleardoublepage
 \chapter*{Diagnostic Information}
+\emcppschapterstart{}
 
 \makeatletter
 
@@ -23,6 +24,31 @@
 \end{threeparttable}
 \end{center}
 \end{table}
+
+\newpage
+This is the a first glossary entry: \emcppsgloss{move semantics}
+
+This is the a second glossary entry: \emcppsgloss{move semantics}
+
+This is the a first glossary entry: \emcppsgloss{copy semantics}
+
+This is the a second glossary entry: \emcppsgloss{copy semantics}
+
+NEW SECTION: \glsresetall
+
+This is the a first glossary entry: \emcppsgloss{move semantics}
+
+This is the a second glossary entry: \emcppsgloss{move semantics}
+
+This is the a first glossary entry: \emcppsgloss{copy semantics}
+
+This is the a second glossary entry: \emcppsgloss{copy semantics}
+
+
+This is the a second glossary entry with different text: \emcppsgloss[copy semantics]{\emph{Copy} Semantics}
+
+This is the a first glossary entry with different text: \emcppsgloss[value semantics]{value value value}
+
 
 
 \makeatother

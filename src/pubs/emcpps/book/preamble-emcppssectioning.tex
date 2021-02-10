@@ -151,6 +151,9 @@
   \emcppsRevertShowTitle
 }
 
+% Default the feature start hook to not do anything
+\appto\emcppsfeaturestart{}
+
 % Each feature should start with the below command, \emcppsFeature.
 % The first argument is a list of key=value options, with the following keys
 % supported:
@@ -167,6 +170,7 @@
 \newcommand{\emcppsFeature}[2]{%
   \setkeys[emcpps]{section}{#1}%
   \refstepcounter{section}%
+  \emcppsfeaturestart%
   \newpage% 
   \emcppsSetShowTitleSection{}%
   \section[\protect\emcppsShowTitleAlt{#1}]%

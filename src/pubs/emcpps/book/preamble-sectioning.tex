@@ -41,6 +41,9 @@
 \newcounter{cppxx}[chapter]
 \newcommand{\theEmcppsFeatureChapter}{}
 
+% Default the chapter start hook to not do anything
+\appto\emcppschapterstart{}
+
 % start a feature chapter - safe, conditionally safe, unsafe
 % args: label, title
 \newcommand{\emcppsFeatureChapter}[2]{%
@@ -48,6 +51,7 @@
   \chapter[#2]{#2}%
   \label{ch-#1}%
   \renewcommand{\theEmcppsFeatureChapter}{#1}%
+  \emcppschapterstart%
 }
 
 % start a language standard section of features
