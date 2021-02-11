@@ -19,7 +19,7 @@ or namespace members without explicit qualification.
 
 C++11 offers an alternative function-declaration syntax in which the
 return type of a function is located to the right of its
-\romeogloss{signature} (name, parameters, and qualifiers), offset by the
+\emcppsgloss{signature} (name, parameters, and qualifiers), offset by the
 arrow token (\lstinline!->!); the function itself is introduced by the
 keyword \lstinline!auto!, which acts as a type placeholder:
 %\cprotect\footnote{Note that, when using the alternative trailing return syntax for a function (e.g., one returning a \texttt{double}), the override keyword would be inserted after call qualifiers and before the arrow:
@@ -110,7 +110,7 @@ T    N::h4()      { /*...*/ }  // Error, (ù{\codeincomments{T}}ù) is unknown i
 Finally, since the syntactic element to be provided after the arrow
 token is a separate type unto itself, return types involving pointers to
 functions are somewhat simplified. Suppose, for example, we want to
-describe a \romeogloss{higher-order function}, \lstinline!f!, that takes as its
+describe a \emcppsgloss[higher order function]{higher-order function}, \lstinline!f!, that takes as its
 argument a \lstinline!long!~\lstinline!long! and returns a pointer to a
 function that takes an \lstinline!int! and returns a
 \lstinline!double!{\cprotect\footnote{Co-author John Lakos first used the shown verbose declaration notation
@@ -188,8 +188,7 @@ this interface necessarily supports any set of input types for which
 \lstinline!a!~\lstinline!+!~\lstinline!factor!~\lstinline!*!~\lstinline!(b!~\lstinline!-!~\lstinline!a)!
 is valid, including types such as mathematical vectors, matrices, or
 expression templates. As an added benefit, the presence of the
-expression in the function's declaration enables \romeogloss{expression
-SFINAE}, which is typically desirable for generic template functions
+expression in the function's declaration enables \emcppsgloss[expression sfinae]{expression SFINAE}, which is typically desirable for generic template functions
 (see %Section~\ref{decltype}, ``\titleref{decltype}" on page~\pageref{decltype}
 \featureref{\locationa}{decltype}).
 
@@ -273,7 +272,7 @@ auto getOperation(Operation kind)  // (1) function taking a kind of (ù{\codeinc
         //     (ù{\codeincomments{double}}ù) and returning a (ù{\codeincomments{double}}ù)
 \end{emcppslisting}
 
-\noindent Using this divide-and-conquer approach, writing such functions becomes fairly straightforward. Declaring a \romeogloss{higher-order function} that
+\noindent Using this divide-and-conquer approach, writing such functions becomes fairly straightforward. Declaring a \emcppsgloss[higher order function]{higher-order function} that
 takes a function pointer as an argument might be even easier to read
 if a type alias is used via \lstinline!typedef! or, as of C++11,
   \lstinline!using!.

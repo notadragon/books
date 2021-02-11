@@ -11,13 +11,13 @@
 %\section[Aggregate Init '14]{Aggregates Having Default Member Initializers}\label{aggregate-member-initialization-relaxation}
 
 
-C++14 enables the use of \romeogloss{aggregate initialization} with classes
+C++14 enables the use of \emcppsgloss{aggregate initialization} with classes
 employing default member initializers (see \featureref{\locationa}{Default-Member-Initializers}).
 
 \subsection[Description]{Description}\label{description}
 
 Prior to C++14, classes that used default member initializers (see \featureref{\locationa}{Default-Member-Initializers}) --- i.e., initializers that appear directly within the
-scope of the class --- were not considered \romeogloss{aggregate} types:
+scope of the class --- were not considered \emcppsgloss{aggregate} types:
 
 \begin{emcppslisting}[emcppsbatch={e1,e2,e3}]
 struct S                // aggregate type in C++14 but not C++11
@@ -33,9 +33,8 @@ struct A                // aggregate type in C++11 and C++14
 };
 \end{emcppslisting}
 
-\noindent Because \lstinline!A! (but not \lstinline!S!) is considered an \romeogloss{aggregate} in
-C++11, instances of \lstinline!A! can be created via \romeogloss{aggregate
-initialization} (whereas instances of \lstinline!S! cannot):
+\noindent Because \lstinline!A! (but not \lstinline!S!) is considered an \emcppsgloss{aggregate} in
+C++11, instances of \lstinline!A! can be created via \emcppsgloss{aggregate initialization} (whereas instances of \lstinline!S! cannot):
 
 \begin{emcppslisting}[emcppsbatch=e1]
 A a={100, true};  // OK, in both C++11 and C++14
@@ -48,10 +47,10 @@ S s={100, true};  // Error, in C++11; OK, in C++14
 A a{100, true};  // OK in both C++11 and C++14 but not in C++03
 \end{emcppslisting}
 As of C++14, the requirements for a type to be categorized as an
-\romeogloss{aggregate} are relaxed, allowing classes employing default
+\emcppsgloss{aggregate} are relaxed, allowing classes employing default
 member initializers to be considered as such; hence, both \lstinline!A! and
-\lstinline!S! are considered \romeogloss{aggregates} in C++14 and eligible for
-\romeogloss{aggregate initialization}:
+\lstinline!S! are considered \emcppsgloss[aggregate]{aggregates} in C++14 and eligible for
+\emcppsgloss{aggregate initialization}:
 
 \begin{emcppshiddenlisting}[emcppsbatch=e3]
 #include <cassert>  // standard C (ù{\codeincomments{assert}}ù) macro
@@ -79,7 +78,7 @@ default member \nobreak{initializer}).
 
 \subsubsection[Configuration \lstinline!struct!s]{Configuration {\SubsubsecCode struct}s}\label{configuration-structs}
 
-\romeogloss{Aggregates} in conjunction with default member initializers (see \featureref{\locationa}{Default-Member-Initializers}) can be used to provide concise customizable
+\emcppsgloss[aggregate]{Aggregates} in conjunction with default member initializers (see \featureref{\locationa}{Default-Member-Initializers}) can be used to provide concise customizable
 configuration \lstinline!struct!s, packaged with typical default values. As
 an example, consider a configuration \lstinline!struct! for an HTTP request
 handler:
@@ -94,7 +93,7 @@ struct HTTPRequestHandlerConfig
 };
 \end{emcppslisting}
 
-\noindent \romeogloss{Aggregate initialization} can be used when creating objects of
+\noindent \emcppsgloss[aggregate initialization]{Aggregate initialization} can be used when creating objects of
 type \nobreak{\lstinline!HTTPRequestHandlerConfig!} (above) to override one or more
 of the defaults in definition order{\cprotect\footnote{In C++20, the
 designated initializers feature adds flexibility (e.g., for
@@ -138,9 +137,9 @@ None so far
 
 \subsubsection[Syntactical ambiguity in the presence of brace elision]{Syntactical ambiguity in the presence of brace elision}\label{syntactical-ambiguity-in-the-presence-of-brace-elision}
 
-During the initialization of multilevel \romeogloss{aggregates}, braces
+During the initialization of multilevel \emcppsgloss[aggregate]{aggregates}, braces
 around the initialization of a nested aggregate can be omitted
-(\romeogloss{brace elision}):
+(\emcppsgloss{brace elision}):
 
 \begin{emcppslisting}
 struct S
@@ -152,8 +151,8 @@ S s0{{0, 1, 2}};  // OK, nested (ù{\codeincomments{arr}}ù) initialized explici
 S s1{0, 1, 2};    // OK, brace elision for nested (ù{\codeincomments{arr}}ù)
 \end{emcppslisting}
 
-\noindent The possibility of \romeogloss{brace elision} creates an interesting
-syntactical ambiguity when used alongside \romeogloss{aggregates} with
+\noindent The possibility of \emcppsgloss{brace elision} creates an interesting
+syntactical ambiguity when used alongside \emcppsgloss[aggregate]{aggregates} with
 default member initializers (see \featureref{\locationa}{Default-Member-Initializers}). Consider a
 \lstinline!struct!~\lstinline!X! containing three data members, one of which
 has a default value:

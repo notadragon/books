@@ -16,7 +16,7 @@ C++11 allows function-scope and unnamed types to be used as template arguments.
 
 \subsection[Description]{Description}\label{description}
 
-Historically, types without \romeoglossf{linkage} (i.e., local and unnamed
+Historically, types without \emcppsgloss{linkage} (i.e., local and unnamed
 types) were forbidden as template arguments due to implementability
 concerns using the compiler technology available at that
 time.{\cprotect\footnote{\cite{narkive}}} Modern C++ lifts this
@@ -49,7 +49,7 @@ void g()
 keyword} (see \featureref{\locationa}{decltype}) to extract the unnamed type of the object \lstinline!obj!.
 
 These new relaxed rules for template arguments are essential to the
-ergonomics of \romeoglossf{lambda expressions} (see \featureref{\locationc}{lambda}), as such types are both
+ergonomics of \emcppsgloss{lambda expressions} (see \featureref{\locationc}{lambda}), as such types are both
 unnamed and local in typical usage:
 
 \begin{emcppslisting}
@@ -77,7 +77,7 @@ itself is a function template.
 
 \subsubsection[Encapsulating a type within a function]{Encapsulating a type within a function}\label{encapsulating-a-type-within-a-function}
 
-Limiting the scope and visibility of an \romeoglossf{entity} to the body of a
+Limiting the scope and visibility of an \emcppsgloss{entity} to the body of a
 function actively prevents its direct use, even when the function body
 is exposed widely --- say, as an \lstinline!inline! function or function
 template defined within a header file.
@@ -208,7 +208,7 @@ used in computer games and 3D-modeling software, represents the
   logical and spatial hierarchy of objects in a scene). Our \lstinline!SceneNode! class supports a variety of
 \lstinline!const! member functions used to query its status (e.g.,
 \lstinline!isDirty! and \lstinline!isNew!). Our task is to implement a
-\romeoglossf{predicate function}, \lstinline!mustRecalculateGeometry!, that
+\emcppsgloss{predicate function}, \lstinline!mustRecalculateGeometry!, that
 returns \lstinline!true! if and only if at least one of the nodes is either
 ``dirty'' or ``new.''
 
@@ -280,7 +280,7 @@ bool mustRecalculateGeometry(const std::vector<SceneNode>& nodes)
 }
 \end{emcppslisting}
 
-\noindent By creating a \romeoglossf{closure} of unnamed type via a lambda
+\noindent By creating a \emcppsgloss{closure} of unnamed type via a lambda
 expression, unnecessary boilerplate, excessive scope, and even local
 symbol visibility are avoided.
 

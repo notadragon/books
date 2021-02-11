@@ -157,8 +157,8 @@ illustrated in Table~\ref{digitseparator-table1}.
 \end{center}
 \end{table}
 \noindent Use of digit separators is especially useful with binary
-literals to group bits in octets (\romeoglossf{bytes}) or quartets
-(\romeoglossf{nibbles}), as shown in Table~\ref{digitseparator-table2}. In addition, using a binary literal with digits grouped in triplets instead of an octal literal to represent UNIX file permissions might improve code readability --- e.g., \lstinline!0b111'101'101! instead of \lstinline!0755!.\begin{table}[h!]
+literals to group bits in octets (\emcppsgloss{bytes}) or quartets
+(\emcppsgloss{nibbles}), as shown in Table~\ref{digitseparator-table2}. In addition, using a binary literal with digits grouped in triplets instead of an octal literal to represent UNIX file permissions might improve code readability --- e.g., \lstinline!0b111'101'101! instead of \lstinline!0755!.\begin{table}[h!]
 \begin{center}
 \begin{threeparttable}
 \caption{Use of digit separators in binary data}\label{digitseparator-table2}\vspace{1.5ex}
@@ -182,7 +182,7 @@ literals to group bits in octets (\romeoglossf{bytes}) or quartets
 \subsection[See Also]{See Also}\label{see-also}
 
 \begin{itemize}
-\item{\seealsoref{binary-literals}{\seealsolocationb}represents a binary constant for which digit separators are commonly used to group bits in octets (\romeogloss{bytes}) or quartets (\romeogloss{nibbles})}
+\item{\seealsoref{binary-literals}{\seealsolocationb}represents a binary constant for which digit separators are commonly used to group bits in octets (\emcppsgloss{bytes}) or quartets (\emcppsgloss{nibbles})}
 \end{itemize}
 
 \subsection[Further Reading]{Further Reading}\label{further-reading}
@@ -236,10 +236,10 @@ binary64 & Double precision & \multicolumn{1}{r|}{53} & \multicolumn{1}{r|}{15.9
 \end{tabular}
 } % end small
 \begin{tablenotes}{\footnotesize
-\item[a]{Note that the most significant bit of the \romeoglossf{mantissa}
+\item[a]{Note that the most significant bit of the \emcppsgloss{mantissa}
 is always a \lstinline!1! for normalized numbers, and 0 for denormalized ones and, hence, is not stored explicitly. This leaves 1
 additional bit to represent the sign of the overall floating-point value
-(the sign of the exponent is encoded using \romeoglossf{excess-$\mathbf{n}$}
+(the sign of the exponent is encoded using \emcppsgloss[excess n]{excess-$\mathbf{n}$}
 notation).}
 } % end footnotesize
 \end{tablenotes} % we end the table footnotes

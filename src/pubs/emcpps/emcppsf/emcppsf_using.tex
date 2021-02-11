@@ -17,7 +17,7 @@
 
 %Alias declarations and alias templates provide an expanded use of the
 %\lstinline!using! keyword, offering an alternative syntax (to
-%\lstinline!typedef!) for creating a \romeogloss{type alias} that can itself be
+%\lstinline!typedef!) for creating a \emcppsgloss{type alias} that can itself be
 %a template.
 
 Alias declarations and alias templates provide an expanded use of the \lstinline!using! keyword to introduce aliases for types and templates, thus providing a more general alternative to \lstinline!typedef!.
@@ -197,8 +197,7 @@ private:
 
 \noindent The example above, though clear and regular, involves significant
 repetition, making it more difficult to maintain should we later opt to
-change data structures. If we were to instead use an \romeogloss{alias
-template} to bind the \lstinline!UserId! type to the first type
+change data structures. If we were to instead use an \emcppsgloss{alias template} to bind the \lstinline!UserId! type to the first type
 parameter of \lstinline!std::map!, we could both reduce code repetition
 and enable the programmer to consistently replace \lstinline!std::map!
 to another container
@@ -230,8 +229,7 @@ private:
 
 \subsubsection[Providing a shorthand notation for type traits]{Providing a shorthand notation for type traits}\label{providing-a-shorthand-notation-for-type-traits}
 
-Alias templates can provide a shorthand notation for \romeogloss{type
-traits}, avoiding \romeogloss{boilerplate code} in the usage site. As an
+Alias templates can provide a shorthand notation for \emcppsgloss{type traits}, avoiding \emcppsgloss{boilerplate code} in the usage site. As an
 example, consider a simple type trait that adds a pointer to a given
 type (akin to \lstinline!std::add_pointer!):
 

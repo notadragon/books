@@ -15,13 +15,12 @@ constructor of the same class.
 
 \subsection[Description]{Description}\label{description}
 
-A \romeoglossf{delegating constructor} is a constructor of a
-\romeoglossf{user-defined type (UDT)} --- i.e., \lstinline!class!, \lstinline!struct!, or
+A \emcppsgloss{delegating constructor} is a constructor of a
+\emcppsgloss[user defined type]{user-defined type (UDT)} --- i.e., \lstinline!class!, \lstinline!struct!, or
 \lstinline!union! --- that invokes another constructor defined for the same
-\romeogloss{UDT} as part of its initialization of an object of that type.
+\emcppsgloss{UDT} as part of its initialization of an object of that type.
 The syntax for invoking another constructor is to specify
-the name of the type as the only element in the \romeoglossf{member
-initializer list}:
+the name of the type as the only element in the \emcppsgloss{member initializer list}:
 
 %\begin{emcppslisting}
 %struct S0
@@ -70,8 +69,7 @@ void f()
 \end{emcppslisting}
 
 \noindent If an exception is thrown while executing a nondelegating constructor,
-the object being initialized is considered only \romeoglossf{partially
-constructed} (i.e., the object is not yet known to be in a valid state),
+the object being initialized is considered only \emcppsgloss{partially constructed} (i.e., the object is not yet known to be in a valid state),
 and hence its destructor will \emph{not} be
 invoked:
 
@@ -88,8 +86,7 @@ void f() try { S2 s; } catch(int) { }
     // prints only "(ù{\codeincomments{S2() }}ù)" to (ù{\codeincomments{stdout}}ù) (the destructor of (ù{\codeincomments{S2}}ù) is never invoked)
 \end{emcppslisting}
 
-\noindent Although the destructor of a \romeogloss{partially
-constructed} object will not be invoked, the destructors of
+\noindent Although the destructor of a \emcppsgloss{partially constructed} object will not be invoked, the destructors of
 each successfully constructed base and of data members will still be
 invoked:
 
@@ -118,8 +115,7 @@ are called, even though the destructor for class \lstinline!C! itself is
   never \mbox{executed}.
 
 However, if an exception is thrown in the body of a delegating
-constructor, the object being initialized is considered \romeoglossf{fully
-constructed}, as the target constructor must have returned control to
+constructor, the object being initialized is considered \emcppsgloss{fully constructed}, as the target constructor must have returned control to
 the delegator; hence, the object's destructor \emph{is} invoked:
 
 \begin{emcppslisting}
@@ -148,7 +144,7 @@ directly has not. Classic workarounds included repeating the code or
 else factoring the code into a private member function that would be
 called from multiple constructors. The drawback with this workaround is
 that the private member function, not being a constructor, would be unable to
-make use of \romeogloss{member initialization lists} to initialize base classes and data members efficiently. As of C++11, \emph{delegating
+make use of \emcppsgloss{member initialization lists} to initialize base classes and data members efficiently. As of C++11, \emph{delegating
 constructors} can be used to minimize code duplication when some of
 the same operations are performed across multiple constructors without
 having to forgo efficient initialization.
@@ -159,7 +155,7 @@ and a 16-bit port or (2) by an IPV4 string with
 \lstinline!XXX.XXX.XXX.XXX:XXXXX! format{\cprotect\footnote{Note that
 this initial design might itself be suboptimal in that the
 representation of the IPV4 address and port value might profitably be
-factored out into a separate \romeoglossf{value-semantic} class, say,
+factored out into a separate \emcppsgloss[value semantic]{value-semantic} class, say,
 \lstinline!IPV4Address!, that itself might be constructed in multiple ways;
   see \intraref{ctordelegrating-potential-pitfalls}{suboptimal-factoring}.}}:
 %  {\it\titleref{ctordelegrating-potential-pitfalls}:} {\it\titleref{suboptimal-factoring}} on page~\pageref{suboptimal-factoring}.}}:
@@ -276,17 +272,17 @@ public:
 
 \noindent Using delegating constructors results in less boilerplate and fewer runtime
 operations, as data members and base classes can be initialized
-directly through the \romeogloss{member initialization list}.
+directly through the \emcppsgloss{member initialization list}.
 
 \subsection[Potential Pitfalls]{Potential Pitfalls}\label{ctordelegrating-potential-pitfalls}
 
 \subsubsection[Delegation cycles]{Delegation cycles}\label{delegation-cycles}
 
 If a constructor delegates to itself either directly or indirectly, the
-program is \romeoglossf{ill formed, no diagnostic required (IFNDR)}. While some compilers can, under certain conditions, detect delegation cycles at compile time, they are neither
+program is \emcppsgloss[ill formed, no diagnostic required]{ill formed, no diagnostic required (IFNDR)}. While some compilers can, under certain conditions, detect delegation cycles at compile time, they are neither
 required nor necessarily able to do so. For example, even the simplest delegation cycles might not result in a diagnostic from a compiler{\cprotect\footnote{GCC 10.x does not detect this delegation
 cycle at compile time and produces a binary that, if run, will
-necessarily exhibit \romeoglossf{undefined behavior}. Clang 10.x, on the
+necessarily exhibit \emcppsgloss{undefined behavior}. Clang 10.x, on the
 other hand, halts compilation with a helpful error message:
 
 \begin{lstlisting}[language=bash, style=plain, basicstyle={\ttfamily\footnotesize}]
@@ -305,16 +301,16 @@ struct S  // Object
 \subsubsection[Suboptimal factoring]{Suboptimal factoring}\label{suboptimal-factoring}
 
 The need for delegating constructors might result from initially
-suboptimal factoring --- e.g., in the case where the same \romeoglossf{value}
+suboptimal factoring --- e.g., in the case where the same \emcppsgloss{value}
 is being presented in different forms to a variety of different
-\romeoglossf{mechanisms}. For example, consider the \lstinline!IPV4Host! class
+\emcppsgloss{mechanisms}. For example, consider the \lstinline!IPV4Host! class
 in \intrarefsimple{ctordelegating-use-cases}. %{\titleref{ctordelegating-use-cases}}
 %(which starts on page~\pageref{ctordelegating-use-cases}).
 While having two constructors to
 initialize the host might be appropriate, if either (1) the number of
 ways of expressing the same value increases or (2) the number of
 consumers of that value increases, we might be well advised to create a
-separate \romeoglossf{value-semantic} type, e.g., \lstinline!IPV4Address!, to
+separate \emcppsgloss[value semantic]{value-semantic} type, e.g., \lstinline!IPV4Address!, to
 represent that value{\cprotect\footnote{The notion that each component
 in a subsystem ideally performs one focused function well is sometimes
 referred to as separation of (logical) concerns or

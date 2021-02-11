@@ -14,14 +14,14 @@
 %\section[{\tt long} {\tt long}]{The {\SecCode long} {\SecCode long} ({\large $\boldsymbol{\geq}$}64 bits) Integral Type}\label{long-long}
 
 
-\lstinline!long!~\lstinline!long! is a \romeoglossf{fundamental integral type} guaranteed to have at least 64 bits on all
+\lstinline!long!~\lstinline!long! is a \emcppsgloss{fundamental integral type} guaranteed to have at least 64 bits on all
 platforms.
 
 \subsection[Description]{Description}\label{description}
 
-The \romeoglossf{integral type} \lstinline!long!~\lstinline!long! and its companion
+The \emcppsgloss{integral type} \lstinline!long!~\lstinline!long! and its companion
 type \lstinline!unsigned!~\lstinline!long!~\lstinline!long! are the only two
-\romeogloss{fundamental integral types} in C++ that are guaranteed to have
+\emcppsgloss{fundamental integral types} in C++ that are guaranteed to have
 at least 64~bits on all conforming platforms{\cprotect\footnote{\lstinline!long!~\lstinline!long!
 has been available in C since the C99 standard, and many C++ compilers
   supported it as an extension prior to C++11.}}:
@@ -103,8 +103,7 @@ int volYMD(SecId equity, int year, int month, int day);  // (1) BAD IDEA
 \noindent One obvious problem with this interface is that the daily fluctuations
 in turbulent times might exceed the maximum value representable by a
 32-bit \lstinline!int!, which, unless detected internally, would result in
-\romeoglossf{signed integer overflow}, which is both \romeoglossf{undefined
-behavior} and potentially a pervasive defect enabling avenues of deliberate attack from outside sources.{\cprotect\footnote{For an overview of integer overflow in C++, see \cite{ballman}. For a more focused discussion of secure coding in CPP using CERT standards, see \cite{seacord13}, Ch.~5, ``Integer Security," pp. 225--307.}} What's more, the growth rate of some companies,
+\emcppsgloss{signed integer overflow}, which is both \emcppsgloss{undefined behavior} and potentially a pervasive defect enabling avenues of deliberate attack from outside sources.{\cprotect\footnote{For an overview of integer overflow in C++, see \cite{ballman}. For a more focused discussion of secure coding in CPP using CERT standards, see \cite{seacord13}, Ch.~5, ``Integer Security," pp. 225--307.}} What's more, the growth rate of some companies,
 especially technology startups, has
 been at times seemingly exponential. To gain an extra
 insurance factor of two, we might opt to replace the return type
@@ -138,7 +137,7 @@ long volYMD(SecId stock, int year, int month, int day);  // (3) NOT A GOOD IDEA
 \end{emcppslisting}
 
 \noindent The problems using \lstinline!long! as the return type are that it (1) is
-not yet generally considered a \romeoglossf{vocabulary type} (see
+not yet generally considered a \emcppsgloss{vocabulary type} (see
 \intrarefsimple{longlong-appendix}),
 %{\it\titleref{longlong-appendix}} on page~\pageref{longlong-appendix}),
 and (2) would reduce portability (see
@@ -176,7 +175,7 @@ certainly a \lstinline!long!~\lstinline!long! on a 32-bit one. Such exact size
 requirements are often necessary for packing data in structures and
 arrays but are not as useful when reasoning about them in the
 interfaces of functions where having a common set of fundamental
-\romeogloss{vocabulary types} becomes much more important (e.g., for
+\emcppsgloss{vocabulary types} becomes much more important (e.g., for
 interoperability).
 
 All of this leads us to our final alternative, \lstinline!long!~\lstinline!long!:
@@ -315,7 +314,7 @@ early 1990s and realized one a decade later. As we progressed into
 the 2000s, the common notion of \emph{word size} --- i.e., the width (in
 bits) of typical registers within the CPU itself --- began to shift from
 ``the size of an \lstinline!int!'' to ``the size of a simple (nonmember)
-pointer type,'' e.g., \lstinline!8!~\lstinline!*!~\lstinline!sizeof(void*)!, on the host platform. By this time, 16-bit \lstinline!int! types --- like 16-bit architectures for \romeoglossf{general-purpose machines} (i.e., excluding \romeoglossf{embedded systems}) --- were long gone but a \lstinline!long!~\lstinline!int! was still expected to be 32 bits on a 32-bit platform. Embedded systems are designed specifically to work with high-performance hardware, such as digital-signal processors (DSPs). Sadly,
+pointer type,'' e.g., \lstinline!8!~\lstinline!*!~\lstinline!sizeof(void*)!, on the host platform. By this time, 16-bit \lstinline!int! types --- like 16-bit architectures for \emcppsgloss[general purpose machines]{general-purpose machines} (i.e., excluding \emcppsgloss{embedded systems}) --- were long gone but a \lstinline!long!~\lstinline!int! was still expected to be 32 bits on a 32-bit platform. Embedded systems are designed specifically to work with high-performance hardware, such as digital-signal processors (DSPs). Sadly,
 \lstinline!long! was often used (improperly) to hold an address; hence,
 the size of \lstinline!long! is associated with a de facto need (due to immeasurable amounts of legacy code) to remain in lockstep with pointer size.
 

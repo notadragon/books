@@ -24,7 +24,7 @@ assumptions at run time is to use the classic \lstinline!assert! macro found
 in \lstinline!<cassert>!. Such runtime assertions are not always ideal
 because (1) the program must already be built and running for them to
 even have a chance of being triggered and (2) executing a
-\romeogloss{redundant check} at run time typically{\cprotect\footnote{It is
+\emcppsgloss{redundant check} at run time typically{\cprotect\footnote{It is
 not unheard of for a program having runtime assertions to run faster with them
 enabled than disabled. For example, asserting that a pointer is not
 null enables the optimizer to elide all code branches that
@@ -40,14 +40,14 @@ several drawbacks:
 
 \subsubsection[Syntax and semantics]{Syntax and semantics}\label{syntax-and-semantics}
 
-We can use \romeogloss{static assertion declarations} to conditionally trigger
+We can use \emcppsgloss{static assertion declarations} to conditionally trigger
 controlled compilation failures depending on the truthfulness of a
-\romeogloss{constant expression}. Such declarations are introduced by the
+\emcppsgloss{constant expression}. Such declarations are introduced by the
 \lstinline!static_assert! keyword, followed by a parenthesized list
 consisting of (1) a constant Boolean expression and (2) a mandatory (see
 %{\it\titleref{static-annoyances}: \titleref{mandatory-string-literal}} on page~\pageref{mandatory-string-literal})
 \intraref{static-annoyances}{mandatory-string-literal})
-\romeogloss{string literal}, which will be
+\emcppsgloss{string literal}, which will be
 part of the compiler diagnostics if the compiler determines that the
 assertion fails to hold:
 
@@ -95,7 +95,7 @@ The C++ Standard does not explicitly specify at precisely what point during
 the compilation process the expressions tested by static assertion declarations are
 evaluated. In particular, when used within the body of a template, the expression tested by a
 \lstinline!static_assert! declaration might not be evaluated until
-\romeogloss{template instantiation time}. In practice, however, a
+\emcppsgloss{template instantiation time}. In practice, however, a
 \lstinline!static_assert! that does not depend on any template parameters
 is essentially always{\cprotect\footnote{E.g.,
 GCC~10.1, Clang~10.0, and MSVC~19.24}} evaluated immediately --- i.e., as
@@ -150,7 +150,7 @@ void g()
 
 \noindent The standard does, however, specify that a program containing any
 template definition for which no valid specialization exists is
-\romeogloss{ill-formed, no diagnostic required (IFNDR)}, which was the case for
+\emcppsgloss[ill formed, no diagnostic required]{ill-formed, no diagnostic required (IFNDR)}, which was the case for
 \lstinline!f2! but not \lstinline!f3!, above. Contrast each of the
 \lstinline!h*!\lstinline[basicstyle=\ttfamily\itshape]!n!\lstinline!*! definitions below with its correspondingly numbered
 \lstinline!f*!\lstinline[basicstyle=\ttfamily\itshape]!n!\lstinline!*!  definition above\footnote{The formula used --- \lstinline!int!~\lstinline!a[-1];! --- leads to $-1$, not $0$, to avoid a nonconforming extension to GCC that allows \lstinline!a[0]!.}:
@@ -305,7 +305,7 @@ void SmallObjectBuffer<N>::set(const T& object)
 
 The principle of constraining inputs can be applied to most class and
 function templates. \lstinline!static_assert! is particularly useful in
-conjunction with standard \romeogloss{type traits} provided in
+conjunction with standard \emcppsgloss{type traits} provided in
 \lstinline!<type_traits>!. In the \lstinline!rotateLeft! function template
 (below), we have used two static assertions to ensure that only unsigned
 integral types will be accepted:
@@ -331,7 +331,7 @@ T rotateLeft(T x)
 
 As mentioned in the description, any program containing a template for
 which no valid specialization can be generated is
-\romeogloss{IFNDR}. Attempting to prevent the
+\emcppsgloss{IFNDR}. Attempting to prevent the
 use of, say, a particular function template overload by using a static
 assertion that never holds produces such a program:
 
@@ -354,7 +354,7 @@ void serialize(char* buffer, const T& object, SerializableTag<false>)  // (2a)
 provided with the intent of eliciting a meaningful compile-time error
 message in the event that an attempt is made to serialize a
 nonserializable type. The program, however, is technically
-\romeogloss{ill-formed} and, in this simple case, will likely result in a
+\emcppsgloss[ill formed]{ill-formed} and, in this simple case, will likely result in a
 compilation failure --- irrespective of whether either overload of
 \lstinline!serialize! is ever instantiated.
 
@@ -362,7 +362,7 @@ A commonly attempted workaround
 is to make the predicate of the assertion somehow dependent on a
 template parameter, ostensibly forcing the compiler to withhold
 evaluation of the \lstinline!static_assert! unless and until the template
-is actually instantiated (a.k.a. \romeogloss{instantiation time}):
+is actually instantiated (a.k.a. \emcppsgloss{instantiation time}):
 
 \begin{emcppshiddenlisting}[emcppsbatch=e4]
 template <bool>
@@ -392,7 +392,7 @@ only when \lstinline!serialize! is invoked with unsuitable arguments),
 sufficiently ``smart'' compilers looking at just the current translation
 unit would still be able to know that no valid instantiation of
 \lstinline!serialize! exists and would therefore be well within their
-rights to refuse to compile this still technically \romeogloss{ill-formed}
+rights to refuse to compile this still technically \emcppsgloss[ill formed]{ill-formed}
 program.
 
 Equivalent workarounds achieving the same result without a
@@ -444,13 +444,13 @@ dispatch to one of the two mutually exclusive overloads, the ill-fated
 implementation above will not compile because the signatures of the two
 overloads are identical, leading to a redefinition error. The semantics
 of \lstinline!static_assert! are not suitable for the purposes of
-\romeogloss{compile-time dispatch}, and \romeogloss{SFINAE}-based approaches should be used instead.
+\emcppsgloss[compile time dispatch]{compile-time dispatch}, and \emcppsgloss{SFINAE}-based approaches should be used instead.
 
 To achieve the goal of removing up
 front a specialization from consideration, we will need to employ
-\romeogloss{SFINAE}. To do that, we must instead find a way to get the
+\emcppsgloss{SFINAE}. To do that, we must instead find a way to get the
 failing compile-time expression to be part of the function's
-\romeogloss{declaration}:
+\emcppsgloss{declaration}:
 
 \begin{emcppslisting}[emcppsbatch=e6]
 template <bool> struct Check { };
@@ -480,9 +480,9 @@ void process(const T& x)  // (2)
 just one of its two possible specializations conditionally
 exposes the \lstinline!Ok! type alias \emph{only} if the provided boolean
 template parameter evaluates to \lstinline!true!. (Otherwise, by default, it
-does not.) C++11 provides a library function, \lstinline!std::enable_if!, that more directly addresses this use case.\footnote{\romeogloss{Concepts} --- a
+does not.) C++11 provides a library function, \lstinline!std::enable_if!, that more directly addresses this use case.\footnote{\emcppsgloss[concepts]{Concepts} --- a
 language feature introduced in C++20 --- provides a far less baroque
-alternative to \romeogloss{SFINAE} that allows for overload sets to be governed by
+alternative to \emcppsgloss{SFINAE} that allows for overload sets to be governed by
   the syntactic properties of their (compile-time) template arguments.}
 
 During the substitution phase of template instantiation,
@@ -508,7 +508,7 @@ void client()
 
 \noindent This general technique of pairing template specializations is used widely
 in modern C++ programming. For another, often more convenient way of
-constraining overloads using \romeogloss{expression SFINAE}, see
+constraining overloads using \emcppsgloss[expression sfinae]{expression SFINAE}, see
 %Section~\ref{trailing-function-return-types}, ``\titleref{trailing-function-return-types} on page~\pageref{trailing-function-return-types}."
 \featureref{\locationa}{trailing-function-return-types}.
 
@@ -551,7 +551,7 @@ static_assert(0 < x, "x is negative");
 
 \begin{itemize}
 \item{%Section~\ref{trailing-function-return-types}, ``\titleref{trailing-function-return-types}" on page~\pageref{trailing-function-return-types} —
-\seealsoref{trailing-function-return-types}{\locationa}Enabling expression \romeogloss{SFINAE} directly as part of a function's \romeogloss{declaration}  allows simple and fine-grained control over overload resolution.}
+\seealsoref{trailing-function-return-types}{\locationa}Enabling expression \emcppsgloss{SFINAE} directly as part of a function's \emcppsgloss{declaration}  allows simple and fine-grained control over overload resolution.}
 \end{itemize}
 
 \subsection[Further Reading]{Further Reading}\label{further-reading}

@@ -11,7 +11,7 @@
 %\section[Attribute Syntax]{Generalized Attribute Support}\label{attributes}
 
 An \emph{attribute} is an annotation (e.g., of a statement or named
-\romeoglossf{entity}) used to provide supplementary information.
+\emcppsgloss{entity}) used to provide supplementary information.
 
 \subsection[Description]{Description}\label{description}
 
@@ -63,12 +63,12 @@ arbitrary sequence of tokens:
 argument type is a compile-time error for all  attributes defined by the Standard; %\pagebreak%%%%%%%
 the behavior for all other attributes,
  however, is
-\romeoglossf{implementation-defined} (see \intraref{attribute-potential-pitfalls}{unrecognized-attributes-have-implementation-defined-behavior}).
+\emcppsgloss[implementation defined]{implementation-defined} (see \intraref{attribute-potential-pitfalls}{unrecognized-attributes-have-implementation-defined-behavior}).
 %{\it\titleref{attribute-potential-pitfalls}:} {\it\titleref{unrecognized-attributes-have-implementation-defined-behavior}} on page~\pageref{unrecognized-attributes-have-implementation-defined-behavior}).
 
 Any attribute may be qualified with an attribute namespace{\cprotect\footnote{Attributes
 having a namespace-qualified name (e.g., \lstinline![[gnu::const]]!) were
-only \romeoglossf{conditionally supported} in C++11 and C++14, but
+only \emcppsgloss{conditionally supported} in C++11 and C++14, but
 historically they were supported by all major compilers, including both
 Clang and GCC; all C++17-conforming compilers \emph{must} support attribute namespaces.}} (a single arbitrary\linebreak[4] \mbox{identifier}):
 
@@ -353,8 +353,8 @@ which, if incorrect, could alter the intended behavior of the program. As an
 example of this more forceful form of attribute, consider the
 GCC-specific \lstinline![[gnu::const]]! attribute (also available in
 Clang). When applied to a function, this attribute instructs the compiler to \emph{assume}
-that the function is a \romeoglossf{pure function}, which has no
-\romeoglossf{side effects}. In other words, the function always returns the same value for a given set of arguments, and the globally reachable state of the program is not altered by the function. For example, a function performing a linear interpolation between two values may be annotated with \lstinline![[gnu::const]]!:
+that the function is a \emcppsgloss{pure function}, which has no
+\emcppsgloss{side effects}. In other words, the function always returns the same value for a given set of arguments, and the globally reachable state of the program is not altered by the function. For example, a function performing a linear interpolation between two values may be annotated with \lstinline![[gnu::const]]!:
 
 \begin{emcppslisting}[emcppsbatch={e7,e8}]
 [[gnu::const]]
@@ -480,7 +480,7 @@ void hereticalFunction()
 
 Other uses of attributes for static analysis include statements of
 properties that cannot otherwise be deduced. Consider a function, \lstinline!f!, that takes two pointers,
-\lstinline!p1! and \lstinline!p2!, and has a \romeoglossf{precondition} that both
+\lstinline!p1! and \lstinline!p2!, and has a \emcppsgloss{precondition} that both
 pointers must refer to the same contiguous block of memory. Using the standard attribute to inform the analyzer of such a precondition has a distinct advantage of requiring nothing other than the agreement between the developer and the static analyzer regarding the namespace and the name of the attribute. For example, we could choose to designate \lstinline!home_grown::in_same_block(p1, p2)! for this purpose:
 
 \begin{emcppslisting}[emcppsbatch=e11]
@@ -491,7 +491,7 @@ int f(double* p1, double* p2);
 \end{emcppslisting}
 %\pagebreak%%%%%%%%%
 
-\noindent The compiler will simply ignore this unknown attribute. However, because our static-analysis tool knows the meaning of the \lstinline!home_grown::in_same_block! attribute, it will report, at analysis time, defects that might otherwise have resulted in \romeoglossf{undefined behavior} at run time:
+\noindent The compiler will simply ignore this unknown attribute. However, because our static-analysis tool knows the meaning of the \lstinline!home_grown::in_same_block! attribute, it will report, at analysis time, defects that might otherwise have resulted in \emcppsgloss{undefined behavior} at run time:
 
 \begin{emcppslisting}[emcppsbatch=e11]
 // client.cpp:
@@ -564,7 +564,7 @@ attributes will go unreported.{\cprotect\footnote{Ideally, every relevant platfo
 Many attributes are benign in that they might improve diagnostics or
 performance but cannot themselves cause a program to behave incorrectly.
 However, misuse of some attributes can lead to incorrect
-results and/or \romeogloss{undefined behavior}.
+results and/or \emcppsgloss{undefined behavior}.
 
 For example, consider the \lstinline!myRandom! function that is intended to
 return a new random number between $[0.0$ and $0.1]$ on each successive

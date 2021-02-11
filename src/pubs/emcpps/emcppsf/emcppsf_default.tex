@@ -12,7 +12,7 @@
 %\section[Defaulted Functions]{Using {\SecCode =default} for Special Member Functions}\label{Defaulted-Special-Member-Functions}\label{defaulted-special-member-functions}
 
 
-Use of \lstinline!=!\,\lstinline!default! in a \romeoglossf{special member function}'s
+Use of \lstinline!=!\,\lstinline!default! in a \emcppsgloss{special member function}'s
 declaration instructs the compiler to attempt to generate the function
 automatically.
 
@@ -25,9 +25,9 @@ compiler will attempt to generate certain member functions to
 %Section~\ref{Rvalue-References}, ``\titleref{Rvalue-References}")
 an object unless
 developers implement some or all of these functions
-themselves. Determining which of the \romeogloss{special member functions}
+themselves. Determining which of the \emcppsgloss{special member functions}
 will continue to be generated and which will be suppressed in the
-presence of \romeoglossf{user-provided special member functions}
+presence of \emcppsgloss[user provided special member functions]{user-provided special member functions}
 requires remembering the numerous rules the compiler uses.
 
 \subsubsection[Declaring a special member function explicitly]{Declaring a special member function explicitly}\label{declaring-a-special-member-function-explicitly}
@@ -64,13 +64,12 @@ struct S1
 \noindent A user-provided default constructor has no effect on other special
 member functions. Providing any other constructor, however, will
 suppress automatic generation of the default constructor. We can, however, use
-\lstinline!=!\,\lstinline!default! to restore the constructor as a \romeoglossf{trivial
-operation}; see \intraref{default-use-cases}{restoring-the-generation-of-a-special-member-function-suppressed-by-another}.
+\lstinline!=!\,\lstinline!default! to restore the constructor as a \emcppsgloss{trivial operation}; see \intraref{default-use-cases}{restoring-the-generation-of-a-special-member-function-suppressed-by-another}.
 %{\it\titleref{default-use-cases}: \titleref{restoring-the-generation-of-a-special-member-function-suppressed-by-another}} on page~\pageref{restoring-the-generation-of-a-special-member-function-suppressed-by-another}.
 Note that a nondeclared
 function is nonexistent, which means that it will \emph{not}
 participate in overload resolution at all. In contrast, a
-\romeoglossf{deleted function} participates in overload resolution and, if
+\emcppsgloss{deleted function} participates in overload resolution and, if
 selected, results in a compilation failure; see \featureref{\locationa}{deleted-functions}.
 %Section~\ref{deleted-functions}, ``\titleref{deleted-functions}."
 
@@ -152,7 +151,7 @@ struct S4
 };
 \end{emcppslisting}
 
-\noindent A defaulted declaration may appear with any \romeoglossf{access specifier} ---
+\noindent A defaulted declaration may appear with any \emcppsgloss{access specifier} ---
 i.e., \lstinline!private!,\linebreak[4] \lstinline!protected!, or \lstinline!public! --- and access to that generated function will be regulated accordingly:
 
 \begin{emcppslisting}
@@ -193,9 +192,8 @@ available.
 
 The \lstinline!=!\,\lstinline!default! syntax can also be used after the first
 declaration, but with a distinctly different meaning: The compiler will
-treat the first declaration as a \romeogloss{user-provided special member
-function} and thus will suppress the generation of other
-\romeogloss{special member functions} accordingly.
+treat the first declaration as a \emcppsgloss[user provided special member function]{user-provided special member function} and thus will suppress the generation of other
+\emcppsgloss{special member functions} accordingly.
 
 \begin{emcppslisting}[language=C++,label=default-exampleh-code]
 // example.h:
@@ -226,7 +224,7 @@ see \intraref{default-use-cases}{physically-decoupling-the-interface-from-the-im
 Incorporating \lstinline!=!\,\lstinline!default! in the declaration of a
 special member function instructs the compiler to generate its
 definition regardless of any other user-provided special member
-functions. As an example, consider a \romeoglossf{value-semantic}
+functions. As an example, consider a \emcppsgloss[value semantic]{value-semantic}
 \lstinline!SecureToken! class that wraps a standard string
 (\lstinline!std::string!) and an arbitrary-precision-integer
 (\lstinline!BigInt!) token code that together satisfy certain invariants:
@@ -254,7 +252,7 @@ public:
 
 \noindent By default, a secure token's \lstinline!value! will be the empty-string
 value, and the token's \lstinline!code! will be the numerical value of zero
-because those are, respectively, the \romeoglossf{default-initialized} values
+because those are, respectively, the \emcppsgloss[default initialized]{default-initialized} values
 of the two data members, \lstinline!d_value! and \lstinline!d_code!:
 
 \begin{emcppslisting}[emcppsbatch=e1,label=default-voidf-code]
@@ -266,7 +264,7 @@ void f()
 }
 \end{emcppslisting}
 
-\noindent Now suppose that we get a request to add a \romeoglossf{value constructor}
+\noindent Now suppose that we get a request to add a \emcppsgloss{value constructor}
 that creates and initializes a \lstinline!SecureToken! from a specified
 token string:
 
@@ -343,7 +341,7 @@ public:
 \noindent Over time, explicitly writing out what the compiler
 could do more reliably itself became more clearly an inefficient use of developer time and a maintenance burden.
 What's more, even if the function definition was empty, implementing it
-explicitly often degraded performance compared to a \romeoglossf{trivial} default. Hence, such
+explicitly often degraded performance compared to a \emcppsgloss{trivial} default. Hence, such
 standards tended to evolve toward conventionally commenting out (e.g.,
 using \lstinline|//!|)
 the declarations of functions having an empty
@@ -373,8 +371,8 @@ public:
 uncommenting the code and defaulting it explicitly in class scope, we
 regain the compiler's syntactic checking of the function signatures
 without incurring the cost of turning what would have been
-\romeogloss{trivial} functions into equivalent
-non-\romeogloss{trivial} ones:
+\emcppsgloss{trivial} functions into equivalent
+non-\emcppsgloss{trivial} ones:
 
 \begin{emcppslisting}
 class C3
@@ -541,7 +539,7 @@ public:
 %%%% new material from Slava
 \subsubsection{Preserving type triviality}
 
-It can be beneficial if a particular type is \romeogloss{trivial}.  The type is considered \romeogloss{trivial} if its default constructor is \romeogloss{trivial} and it is \romeoglossf{trivially copyable} --- i.e., it has no non-trivial copy or move constructors, no non-trivial copy or move assignment operators, at least one of those nondeleted, and a trivial destructor.  As an example, consider a simple \romeogloss{trivial}  \lstinline!Metrics! type in the code snippet below containing certain collected metrics for our application:
+It can be beneficial if a particular type is \emcppsgloss{trivial}.  The type is considered \emcppsgloss{trivial} if its default constructor is \emcppsgloss{trivial} and it is \emcppsgloss{trivially copyable} --- i.e., it has no non-trivial copy or move constructors, no non-trivial copy or move assignment operators, at least one of those nondeleted, and a trivial destructor.  As an example, consider a simple \emcppsgloss{trivial}  \lstinline!Metrics! type in the code snippet below containing certain collected metrics for our application:
 
 \begin{emcppslisting}
 struct Metrics
@@ -655,9 +653,9 @@ without necessarily forcing our clients to recompile.
 %%%%%%%%%%%%%%%% Moved from Annoyances to Pitfalls
 \subsubsection[Defaulted special member functions cannot restore trivial copyability]{Defaulted special member functions cannot restore trivial copyability}
 
-Library classes often rely on whether the type on which they are operating is eligible for being copied with \lstinline!memcpy! for optimization purposes.  Such could be the case for implementing, say, \lstinline!vector!, which would make a single call to \lstinline!memcpy! when growing its buffer.  For the \lstinline!memcpy! or \lstinline!memmove! to be well-defined, however, the type of the object that is stored in the buffer must be \romeogloss{trivially copyable}.  One might assume that this trait means that, as long as the copy constructor of the type is trivial, this optimization will apply.  Defaulting the copy operations would then allow us to achieve this goal, while allowing the type to have a non-trivial destructor or move operation.  Such, however, is not the case.
+Library classes often rely on whether the type on which they are operating is eligible for being copied with \lstinline!memcpy! for optimization purposes.  Such could be the case for implementing, say, \lstinline!vector!, which would make a single call to \lstinline!memcpy! when growing its buffer.  For the \lstinline!memcpy! or \lstinline!memmove! to be well-defined, however, the type of the object that is stored in the buffer must be \emcppsgloss{trivially copyable}.  One might assume that this trait means that, as long as the copy constructor of the type is trivial, this optimization will apply.  Defaulting the copy operations would then allow us to achieve this goal, while allowing the type to have a non-trivial destructor or move operation.  Such, however, is not the case.
 
-The requirements for a type to be considered \romeogloss{trivially copyable} --- and thus eligible for use with \lstinline!memcpy! --- include triviality of all of its nondeleted copy and move operations as well as of its destructor.  Furthermore, library authors cannot perform fine-grained dispatch based on which operations on the type are in fact trivial.  Even if we detect that the type is trivially copy-constructible with the \lstinline!std::is_trivially_copy_constructible! trait and know that our code would use only copy constructors (and not copy assignment nor any move operations), we still would not be able to use \lstinline!memcpy! unless the more restrictive \lstinline!std::is_trivially_copyable! trait is also \lstinline!true!.
+The requirements for a type to be considered \emcppsgloss{trivially copyable} --- and thus eligible for use with \lstinline!memcpy! --- include triviality of all of its nondeleted copy and move operations as well as of its destructor.  Furthermore, library authors cannot perform fine-grained dispatch based on which operations on the type are in fact trivial.  Even if we detect that the type is trivially copy-constructible with the \lstinline!std::is_trivially_copy_constructible! trait and know that our code would use only copy constructors (and not copy assignment nor any move operations), we still would not be able to use \lstinline!memcpy! unless the more restrictive \lstinline!std::is_trivially_copyable! trait is also \lstinline!true!.
 %%%%%%%%%%%%%%%%
 
 \subsection{Annoyances}
@@ -753,9 +751,9 @@ of ongoing software maintenance.
 \subsection[See Also]{See Also}\label{see-also}
 
 \begin{itemize}
-\item{\seealsoref{deleted-functions}{\seealsolocationa}describes a companion feature, \lstinline!=!\,\lstinline!delete!, that can be used to suppress access to implicitly generated \romeogloss{special member functions}.}
+\item{\seealsoref{deleted-functions}{\seealsolocationa}describes a companion feature, \lstinline!=!\,\lstinline!delete!, that can be used to suppress access to implicitly generated \emcppsgloss{special member functions}.}
 \item{\seealsoref{compile-time-assertions-(static_assert)}{\seealsolocationa}describes a facility that can be used to verify at compile time that undesirable copy and move operations are declared to be accessibly.}
-\item{\seealsoref{Rvalue-References}{\seealsolocationc}provides the bases for \romeoglossf{move operations}, namely, the move-constructor and move-assignment \romeogloss{special member functions}, which too can be defaulted.}
+\item{\seealsoref{Rvalue-References}{\seealsolocationc}provides the bases for \emcppsgloss{move operations}, namely, the move-constructor and move-assignment \emcppsgloss{special member functions}, which too can be defaulted.}
 \end{itemize}
 
 \subsection[Further Reading]{Further Reading}\label{further-reading}
@@ -826,8 +824,7 @@ implicitly generated member \mbox{function}.}
 As an example, explicitly declaring a copy-assignment operator
 would result in the default constructor, destructor, and
 copy constructor being defaulted and in the move
-operations not being declared. If more than one \romeogloss{special member
-function} is user declared (regardless of whether or how it is
+operations not being declared. If more than one \emcppsgloss{special member function} is user declared (regardless of whether or how it is
 implemented), the remaining generated member functions are those in the
 intersection of the corresponding rows. For example, explicitly
 declaring both the destructor and the default constructor would still

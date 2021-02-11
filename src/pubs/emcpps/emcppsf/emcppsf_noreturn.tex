@@ -136,7 +136,7 @@ If the compiler knows that it is going to invoke a function
 that is guaranteed not to return, the compiler is within its rights to optimize
 that function by removing what it can now determine to be dead code. As
 an example, consider a utility component, \lstinline!util!, that defines a
-function, \lstinline!throwBadAlloc!, that is used to \romeogloss{insulate} the
+function, \lstinline!throwBadAlloc!, that is used to \emcppsgloss{insulate} the
 throwing of an \lstinline!std::bad\_alloc! exception in what would
 otherwise be template code fully exposed to clients:
 
@@ -201,7 +201,7 @@ the semantics of a well-formed program, potentially introducing a
 runtime defect and/or making the program ill-formed. If a function that
 can potentially return is decorated with \lstinline![[noreturn]]! and then,
 in the course of executing a program, it ever does return, that behavior
-is \romeogloss{undefined}.
+is \emcppsgloss{undefined}.
 
 Consider a \lstinline!printAndExit! function whose role is to print a fatal
 error message before aborting the program:
@@ -226,9 +226,9 @@ compiler of the client is informed that function will not return, the compiler i
 free to optimize accordingly. If the function then does return, any
 number of hard-to-diagnose defects (e.g., due to incorrectly elided
 code) might materialize as a consequence of the ensuing
-\romeogloss{undefined behavior}. Furthermore, if a function is declared \lstinline![[noreturn]]! in some
+\emcppsgloss{undefined behavior}. Furthermore, if a function is declared \lstinline![[noreturn]]! in some
 translation units within a program but not in others, that program is
-\romeogloss{ill-formed, no diagnostic required (IFNDR)}.
+\emcppsgloss[ill formed, no diagnostic required]{ill-formed, no diagnostic required (IFNDR)}.
 
 \subsubsection[Misuse of {\tt[[noreturn]]} on function pointers]{Misuse of {\SubsubsecCode [[noreturn]]} on function pointers}\label{misuse-of-[[noreturn]]-on-function-pointers}
 

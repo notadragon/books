@@ -21,7 +21,7 @@ null-pointer-value literal.
 
 The \lstinline!nullptr! keyword is a \romeovalue{prvalue} (pure rvalue) of type
 \lstinline!std::nullptr_t! representing the implementation-defined
-bit pattern corresponding to a \romeogloss{null address} on the host platform;
+bit pattern corresponding to a \emcppsgloss{null address} on the host platform;
 \lstinline!nullptr! and other values of type \lstinline!std::nullptr_t!, along with the integer literal \lstinline!0! and the macro \lstinline!NULL!, can be converted implicitly to any pointer or pointer-to-member type:
 
 \begin{emcppslisting}
@@ -82,7 +82,7 @@ macro was a common way of indicating, mostly to the human
 reader, that the literal value the macro conveys is intended specifically to
 represent a \emph{null address} rather than the literal \lstinline!int!
 value \lstinline!0!. In the C Standard, the macro \lstinline!NULL! is
-defined as an \romeogloss{implementation-defined} integral or \lstinline!void*!
+defined as an \emcppsgloss[implementation defined]{implementation-defined} integral or \lstinline!void*!
 constant. Unlike C, C++ forbids conversions from \lstinline!void*! to
 arbitrary pointer types and instead, prior to C++11, defined
 \lstinline!NULL! as an ``integral constant expression rvalue of
@@ -225,7 +225,7 @@ void g()
 converted to a typed pointer having the same null-address value, such
 overloads are dubious when used to control essential behavior.
 Nonetheless, we can envision such use to, say, aid in compile-time
-diagnostics when passing a \romeogloss{null address} would otherwise result in
+diagnostics when passing a \emcppsgloss{null address} would otherwise result in
 a runtime error (see
 %``\titleref{deleted-functions}" on page~\pageref{deleted-functions}
 \featureref{\locationb}{deleted-functions}):

@@ -14,8 +14,8 @@
 \setcounter{lstlisting}{0}
 
 
-The keyword \lstinline!decltype! enables the compile-time inspection of the \romeoglossf{declared type} of an \romeoglossf{entity} \emph{or} the type and
-\romeoglossf{value category} of an expression. Note that the special construct \lstinline!decltype(auto)! has a separate meaning; see \featureref{\locationf}{decltypeauto}.
+The keyword \lstinline!decltype! enables the compile-time inspection of the \emcppsgloss{declared type} of an \emcppsgloss{entity} \emph{or} the type and
+\emcppsgloss{value category} of an expression. Note that the special construct \lstinline!decltype(auto)! has a separate meaning; see \featureref{\locationf}{decltypeauto}.
 %``\titleref{decltypeauto}" on page~\pageref{decltypeauto}.}
 
 \subsection[Description]{Description}\label{description}
@@ -26,7 +26,7 @@ its operand.
 \subsubsection[Use with entities]{Use with entities}\label{use-with-(typically-named)-entities}
 
 %If an unparenthesized operand is either an \textbf{id-expression} that names an entity (or a non-type template parameter) or a \textbf{class member access expression}\glossary{class member access expression} (that identifies a class member), \texttt{decltype} yields the \emph{declared type} (the type of the \emph{entity} indicated by the operand):
-If the operand is an unparenthesized \romeoglossf{id-expression} or unparenthesized member access, \lstinline!decltype! yields the \emph{declared type}, meaning the type of the \emph{entity} indicated by the operand:
+If the operand is an unparenthesized \emcppsgloss[id expression]{id-expression} or unparenthesized member access, \lstinline!decltype! yields the \emph{declared type}, meaning the type of the \emph{entity} indicated by the operand:
 
 
 \begin{emcppshiddenlisting}[emcppsbatch=e1]
@@ -45,8 +45,8 @@ double g(int);        // (ù{\codeincomments{decltype(g)}}ù)   -> (ù{\codeinco
 
 \subsubsection[Use with expressions]{Use with expressions}\label{use-with-(unnamed)-expressions}
 
-When \lstinline!decltype! is used with any other expression \lstinline!E! of type \lstinline!T!, including parenthesized \romeogloss{id-expression} or parenthesized member access, the result incorporates both the expression's type and
-its \romeogloss{value category} (see \featureref{\locationc}{Rvalue-References}):
+When \lstinline!decltype! is used with any other expression \lstinline!E! of type \lstinline!T!, including parenthesized \emcppsgloss[id expression]{id-expression} or parenthesized member access, the result incorporates both the expression's type and
+its \emcppsgloss{value category} (see \featureref{\locationc}{Rvalue-References}):
 %\mclhead{Value category of \texttt{E}} & \mclhead{Result of
 %\texttt{decltype(E)}} \\
 %\emph{prvalue} & \texttt{T} \\
@@ -306,8 +306,7 @@ auto loggedSum(const A& a, const B& b)
     return result;
 }
 \end{emcppslisting}
-Using \lstinline!decltype(a!~\lstinline!+!~\lstinline!b)! as a return type is significantly different from relying on automatic \romeoglossf{\lstinline!return!-type
-deduction}; see \featureref{\locationc}{auto-feature}. Note that this particular use involves significant repetition of the expression \lstinline!a+b!.  See
+Using \lstinline!decltype(a!~\lstinline!+!~\lstinline!b)! as a return type is significantly different from relying on automatic \emcppsgloss[return type deduction]{\lstinline!return!-type deduction}; see \featureref{\locationc}{auto-feature}. Note that this particular use involves significant repetition of the expression \lstinline!a+b!.  See
 %\textit{\titleref{annoyances-decltype}: \titleref{decltype-mechanical}} on page~\pageref{decltype-mechanical}
 \intraref{annoyances-decltype}{decltype-mechanical}
 for a discussion of ways in which this might be avoided.
@@ -315,11 +314,11 @@ for a discussion of ways in which this might be avoided.
 \subsubsection[Determining the validity of a generic expression]{Determining the validity of a generic expression}\label{determining-the-validity-of-a-generic-expression}
 
 In the context of generic-library development, \lstinline!decltype! can be
-used in conjunction with \romeoglossf{SFINAE} (``Substitution Failure Is Not An Error") to validate an expression involving a
+used in conjunction with \emcppsgloss{SFINAE} (``Substitution Failure Is Not An Error") to validate an expression involving a
 template parameter.
 
 For example, consider the task of writing a generic \lstinline!sortRange!
-function template that, given a \romeoglossf{range}, either invokes the
+function template that, given a \emcppsgloss{range}, either invokes the
 \lstinline!sort! member function of the argument (the one specifically
 optimized for that type) if available or falls back to the more
 general \lstinline!std::sort!:
@@ -334,7 +333,7 @@ void sortRange(Range& range)
 
 \noindent The client-facing \lstinline!sortRange! function (above) delegates its
 behavior to an overloaded \lstinline!sortRangeImpl! function (below),
-invoking the latter with the \lstinline!range! and a \romeoglossf{disambiguator}
+invoking the latter with the \lstinline!range! and a \emcppsgloss{disambiguator}
 of type \lstinline!int!. The type of this additional parameter, whose value
 is arbitrary, is used to give priority to the \lstinline!sort! member
 function at compile time by exploiting overload resolution rules in
@@ -355,10 +354,10 @@ void sortRangeImpl(Range& range,
 \end{emcppslisting}
 
 \noindent The fallback overload of \lstinline!sortRangeImpl! (above) will accept a
-\lstinline!long! \romeogloss{disambiguator}, requiring a standard conversion from
+\lstinline!long! \emcppsgloss{disambiguator}, requiring a standard conversion from
 \lstinline!int!, and will simply invoke \lstinline!std::sort!. The more
 specialized overload of \lstinline!sortRangeImpl! (below) will accept an
-\lstinline!int! \romeogloss{disambiguator} requiring no conversions and thus
+\lstinline!int! \emcppsgloss{disambiguator} requiring no conversions and thus
 will be a better match, provided a range-specific sort is available:
 
 \begin{emcppslisting}
@@ -379,7 +378,7 @@ not a valid expression for the deduced \lstinline!Range!
 type.{\cprotect\footnote{The technique of exposing a possibly unused
 unevaluated expression --- e.g., using \lstinline!decltype! --- in a function's
 declaration for the purpose of expression-validity detection prior to
-template instantiation is commonly known as \romeoglossf{expression SFINAE},
+template instantiation is commonly known as \emcppsgloss[expression sfinae]{expression SFINAE},
 which is a restricted form of the more general (classical) SFINAE, and acts exclusively on
 expressions visible in a function's signature rather than on frequently obscure
   template-based type computations.}}
@@ -421,7 +420,7 @@ outcomes exist for the original client-facing \lstinline!sortRange! function
 invoked with a range argument of type \lstinline!R!:
 
 \begin{itemize}
-\item{If \lstinline!R! does have a \lstinline!sort! member function, the more specialized overload of\linebreak[4] \lstinline!sortRangeImpl! will be viable as \lstinline!range.sort()! is a well-formed expression and preferred because the \romeogloss{disambiguator} \lstinline!0! (of type \lstinline!int!) requires no conversion.}
+\item{If \lstinline!R! does have a \lstinline!sort! member function, the more specialized overload of\linebreak[4] \lstinline!sortRangeImpl! will be viable as \lstinline!range.sort()! is a well-formed expression and preferred because the \emcppsgloss{disambiguator} \lstinline!0! (of type \lstinline!int!) requires no conversion.}
 \item{Otherwise, the more specialized overload will be discarded during template substitution as \lstinline!range.sort()! is not a well-formed expression, and the only remaining more general \lstinline!sortRangeImpl! overload will be chosen instead.}
 \end{itemize}
 
@@ -447,9 +446,9 @@ int& ref = i;  // (ù{\codeincomments{decltype(ref)}}ù) yields (ù{\codeincomme
 \end{emcppslisting}
 
 \noindent Wrapping its operand with parentheses ensures \lstinline!decltype! yields
-the \romeogloss{value category} of a given expression. This technique can be
+the \emcppsgloss{value category} of a given expression. This technique can be
 useful in the context of metaprogramming --- particularly in the case of
-\romeogloss{value category} propagation.
+\emcppsgloss{value category} propagation.
 
 \subsection[Annoyances]{Annoyances}\label{annoyances-decltype}
 
@@ -481,7 +480,7 @@ Result loggedSum(const A& a, const B& b)
 }
 \end{emcppslisting}
 
-Here, \lstinline!std::declval!, a function that cannot be executed at runtime and is only appropriate for use in \romeoglossf{unevaluated contexts}, produces an expression of the specified type.  When mixed with \lstinline!decltype!, this lets us determine the result types for expressions without needing to construct (or even being able to construct) objects of the needed types.
+Here, \lstinline!std::declval!, a function that cannot be executed at runtime and is only appropriate for use in \emcppsgloss{unevaluated contexts}, produces an expression of the specified type.  When mixed with \lstinline!decltype!, this lets us determine the result types for expressions without needing to construct (or even being able to construct) objects of the needed types.
 
 \subsection[See Also]{See Also}\label{see-also}
 
