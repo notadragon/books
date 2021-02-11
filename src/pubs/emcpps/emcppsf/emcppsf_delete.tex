@@ -47,7 +47,7 @@ and produce a compile-time error when selected as the best candidate.
 
 \subsubsection[Suppressing special member function generation]{Suppressing special member function generation}\label{suppressing-special-member-function-generation}
 
-When instantiating an object of user-defined type, \emcppsgloss{special member functions} that have not been declared explicitly are
+When instantiating an object of user-defined type, \emcppsgloss[special member function]{special member functions} that have not been declared explicitly are
 often generated automatically by the compiler.
 The generation of individual special member
 functions can be affected by the existence of other user-defined special
@@ -317,7 +317,7 @@ int y = f(123);       // Error, exact match for (2) (Ã¹{\codeincomments{f(int)}Ã
 can participate in overload resolution; it is only after the inaccessible
 overload is selected tat it will be reported as a compile-time error.
 
-When it comes to deleting certain \emcppsgloss{special member functions} of a class (or
+When it comes to deleting certain \emcppsgloss[special member function]{special member functions} of a class (or
 class  template), however, what might seem like a tiny bit of extra,
 self-documenting code can have subtle, unintended consequences as evidenced
 below.
@@ -332,7 +332,7 @@ S0 x0;  // OK, invokes the implicitly generated default constructor
 
 \noindent As \lstinline!S0! defines not constructors, destructors, or assignment operators,
 the compiler will generate (\emcppsgloss{declare} and \emcppsgloss{define}), for \lstinline!S0!, all
-\emph{six} of  the \emcppsgloss{special member functions} available as of C++11; see
+\emph{six} of  the \emcppsgloss[special member function]{special member functions} available as of C++11; see
 \featureref{\locationa}{defaulted-special-member-functions}.
 
 Next, suppose we create a second \lstinline!struct!, \lstinline!S1!, that differs from \lstinline!S0!
@@ -374,7 +374,7 @@ appear that we (1) made our intentions clear and (2) improved diagnostics for ou
 clients at the cost of a single extra line of self-documenting code.  Ah, if
 C++ were only that straightforward.
 
-Deleting certain \emcppsgloss{special member functions} --- i.e., \emph{default} constructor,
+Deleting certain \emcppsgloss[special member function]{special member functions} --- i.e., \emph{default} constructor,
 \emph{move} constructor, or \emph{move}-assignment operator --- that are not necessarily
 implicitly declared can have nonobvious consequence that adversely affect
 subtle compile-time properties of a class. One such subtle property is whether

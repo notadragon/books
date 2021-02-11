@@ -20,14 +20,14 @@ declared without being defined, i.e., declared without its enumerators.
 
 \subsection[Description]{Description}\label{description}
 
-We identify two distinct forms of \emcppsgloss{opaque declarations}, i.e.,
+We identify two distinct forms of \emcppsgloss[opaque declaration]{opaque declarations}, i.e.,
 declarations that are not also definitions:
 \begin{enumerate}
 \item{A \emcppsgloss{forward declaration} has some translation unit in which the full definition and that declaration both appear. This can be a declaration in a header file where the definition is in the same header or in the corresponding implementation file. It can also be a declaration that appears in the same implementation file as the corresponding definition.}
 \item{A \emcppsgloss{local declaration} has no translation unit that includes both that declaration and the corresponding full definition.}
 \end{enumerate}
 
-A classic (C++03) C-style \lstinline!enum! cannot have \emcppsgloss{opaque declarations}, nor can its definition be repeated within the same
+A classic (C++03) C-style \lstinline!enum! cannot have \emcppsgloss[opaque declaration]{opaque declarations}, nor can its definition be repeated within the same
 \emcppsgloss{translation unit} (TU):
 
 \begin{emcppslisting}
@@ -42,7 +42,7 @@ enum E2 { e_A2, e_B2 };  // Error, redefinition in same TU
 \noindent The underlying integral types used to represent objects of each of the
 (classic) enumerations in the example above is \emcppsgloss{implementation defined}, making
 all of them ineligible for \emcppsgloss{opaque declaration}. This restriction
-on \emcppsgloss{opaque declarations} exists because the specific values of
+on \emcppsgloss[opaque declaration]{opaque declarations} exists because the specific values of
 the enumerators might affect the underlying type %(see \featureref{\locationc}{explicit-enumeration-underlying-type})
 (e.g.,
 size, alignment, \lstinline!signed!ness), and therefore the declaration
@@ -309,7 +309,7 @@ maintainability of the facility issuing the cookie. With respect
 to not just \emph{encapsulating} but \emph{insulating} pure
 implementation details that are held but not used substantively by
 clients, we offer this Memento pattern as a possible use case
-for \emcppsgloss{opaque enumerations}.
+for \emcppsgloss[opaque enumeration]{opaque enumerations}.
 
 Event-driven programming,\footnote{See also \cite{gamma95}, Chapter 5, section ``Observer,''  pp.~293--???} historically implemented using \emcppsgloss{callback functions}, introduces a style of programming that is decidedly
 different from that to which we might have become accustomed. In this
@@ -959,7 +959,7 @@ redeclare that enumeration locally.
 The problems associated with local declarations of data whose types are
 maintained in separate translation units is not limited to enumerations;
 see \intrarefsimple{redeclaring-an-externally-defined-enumeration-locally}. The maintainability pitfall associated with
-\emcppsgloss{opaque enumerations}, however, is qualitatively more severe than
+\emcppsgloss[opaque enumeration]{opaque enumerations}, however, is qualitatively more severe than
 for other external-linkage types, such as a global \lstinline!int!, in that
 the ability to elide the enumerators amounts to an \emph{attractive
 nuisance} wherein a client --- wanting to do so and having access to

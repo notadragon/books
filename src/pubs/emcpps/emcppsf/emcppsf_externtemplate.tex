@@ -130,7 +130,7 @@ had the \lstinline!extern!~\lstinline!template! declaration been omitted. The
 is to suppress object-code generation for this particular template
 instantiation for the current translation unit.
 
-Finally, note that the use of \emcppsgloss[explicit instantiation directives]{explicit-instantiation \emph{directives}} have absolutely no affect on the logical meaning of a
+Finally, note that the use of \emcppsgloss[explicit instantiation directive]{explicit-instantiation \emph{directives}} have absolutely no affect on the logical meaning of a
 well-formed program; in particular, when applied to specializations of
 function templates, they have no affect whatsoever on overload
 resolution:
@@ -154,13 +154,13 @@ bool bu = f(u);  // not exact match: Object code is generated locally.
 
 \noindent As the example above illustrates, overload resolution and template
 parameter deduction occur independently of any
-\emcppsgloss[explicit instantiation declarations]{explicit-instantiation declarations}. Only \emph{after}
+\emcppsgloss[explicit instantiation declaration]{explicit-instantiation declarations}. Only \emph{after}
 the template to be instantiated is determined does the
 \lstinline!extern!~\lstinline!template! syntax take effect; see also \intraref{potential-pitfalls-externtemplate}{corresponding-explicit-instantiation-declarations-and-definitions}.
 
 \subsubsection[A more complete illustrative example]{A more complete illustrative example}\label{a-more-complete-illustrative-example}
 
-So far, we have seen the use of \emcppsgloss[explicit instantiation declarations]{explicit-instantiation declarations} and \emcppsgloss[explicit instantiation definitions]{explicit-instan\-tiation definitions} applied to only a
+So far, we have seen the use of \emcppsgloss[explicit instantiation declaration]{explicit-instantiation declarations} and \emcppsgloss[explicit instantiation definition]{explicit-instan\-tiation definitions} applied to only a
 (standard) \emph{class} template, \lstinline!std::vector!. The same syntax
 shown in the previous code snippet applies also to full specializations of individual
 function templates and variable templates. % (see \featureref{\locationb}{variable-templates}).
@@ -289,10 +289,10 @@ constructs instruct the compiler to generate object-level definitions
 for general templates declared in \lstinline!my_vector.h! specialized on
 the built-in type \lstinline!int!.
 
-Having installed the necessary \emcppsgloss[explicit instantiation definitions]{explicit-instantiation definitions} in the component's \lstinline!my_vector.cpp! file, we
+Having installed the necessary \emcppsgloss[explicit instantiation definition]{explicit-instantiation definitions} in the component's \lstinline!my_vector.cpp! file, we
 must now go back to its \lstinline!my_vector.h! file and, without altering
 any of the previously existing lines of code, \emph{add} the
-corresponding \emcppsgloss[explicit instantiation declarations]{explicit-instantiation declarations} to
+corresponding \emcppsgloss[explicit instantiation declaration]{explicit-instantiation declarations} to
 suppress redundant local code generation:
 
 \begin{emcppshiddenlisting}[emcppsbatch=e1b]
@@ -331,7 +331,7 @@ extern template std::size_t Vector<int>::s_count;
 \end{emcppslisting}
 
 \noindent Each of the constructs that begin with \lstinline!extern!~\lstinline!template!
-in the example above are \emcppsgloss[explicit instantiation declarations]{explicit-instantiation declarations}, which serve only to suppress the generation of any
+in the example above are \emcppsgloss[explicit instantiation declaration]{explicit-instantiation declarations}, which serve only to suppress the generation of any
 object code emitted to the \lstinline!.o! file of the current translation
 unit in which such specializations are used. These added
 \lstinline!extern!~\lstinline!template! declarations must appear in the
@@ -341,7 +341,7 @@ relevant definitions are ever used.
 
 \subsubsection[The effect on various \lstinline!.o! files]{The effect on various {\SubsubsecCode .o} files}\label{the-effect-on-various-.o-files}
 
-To illustrate the effect of \emcppsgloss[explicit instantiation declarations]{explicit-instantiation declarations} and \emcppsgloss[explicit instantiation definitions]{explicit-instantiation definitions} on the contents of object and executable files,
+To illustrate the effect of \emcppsgloss[explicit instantiation declaration]{explicit-instantiation declarations} and \emcppsgloss[explicit instantiation definition]{explicit-instantiation definitions} on the contents of object and executable files,
 we'll use a simple \lstinline!lib_interval! library \emcppsgloss{component}
 consisting of a header file, \lstinline!lib_interval.h!, and an
 implementation file, \lstinline!lib_interval.cpp!. The latter, apart from
@@ -524,7 +524,7 @@ empty \lstinline!lib_interval.o!. Achieving this objective is precisely what the
 
 Returning to our \lstinline!lib_interval.h! file, we need not change one
 line of code; we need only to \emph{add} two
-\emcppsgloss[explicit instantiation declarations]{explicit-instantiation declarations} --- one for the
+\emcppsgloss[explicit instantiation declaration]{explicit-instantiation declarations} --- one for the
 template \emph{class}, \lstinline!Interval<double>!, and one for the
 template \emph{function},
 \lstinline!intersect<double>(const!~\lstinline!double&,!~\lstinline!const!~\lstinline!double&)!
@@ -698,7 +698,7 @@ enable software architects to reduce code bloat in individual
 function, and, as of C++14, variable templates in
 large-scale C++ software systems. The practical benefit is in reducing
 the physical size of libraries, which \emph{might} lead to improved link
-times. \emcppsgloss[explicit instantiation declarations]{Explicit-instantiation declarations} do \emph{not}
+times. \emcppsgloss[explicit instantiation declaration]{Explicit-instantiation declarations} do \emph{not}
 (1) affect the meaning of a program, (2) suppress template
 instantiation, (3) impede the compiler's ability to \lstinline!inline!, or
 (4) meaningfully improve compile time. To be clear, the \emph{only}
@@ -953,7 +953,7 @@ $ nm -C app_physics.o
 0000000000000000 W game::Unit::centerOfMass()
 \end{lstlisting}
 
-\noindent Whether optimization involving \emcppsgloss[explicit instantiation directives]{explicit-instantiation directives} reduces library sizes on disc has no noticeable effect or
+\noindent Whether optimization involving \emcppsgloss[explicit instantiation directive]{explicit-instantiation directives} reduces library sizes on disc has no noticeable effect or
 actually makes matters worse will depend on the particulars of the
 system at hand. Having this optimization applied to frequently used
 templates across a large organization has been known to decrease object
@@ -961,7 +961,7 @@ file sizes, storage needs, link times, and overall build times, but see \intrare
 
 \subsubsection[Insulating template definitions from clients]{Insulating template definitions from clients}\label{insulating-template-definitions-from-clients}
 
-Even before the introduction of \emcppsgloss[explicit instantiation declarations]{explicit-instantiation \emph{declarations}}, strategic use of \emcppsgloss[explicit instantiation definitions]{explicit-instantiation \emph{definitions}} made it possible to \emcppsgloss{insulate} the
+Even before the introduction of \emcppsgloss[explicit instantiation declaration]{explicit-instantiation \emph{declarations}}, strategic use of \emcppsgloss[explicit instantiation definition]{explicit-instantiation \emph{definitions}} made it possible to \emcppsgloss{insulate} the
 \emph{definition} of a template from client code, presenting instead
 just a limited set of instantiations against which clients may link.
 Such insulation enables the definition of the template to change without
@@ -1008,12 +1008,12 @@ template float transform(const float&);    // Instantiate for type (ù{\codeinco
 template double transform(const double&);  // Instantiate for type (ù{\codeincomments{double}}ù).
 \end{emcppslisting}
 
-\noindent Without the two \emcppsgloss[explicit instantiation definitions]{explicit-instantiation definitions} in
+\noindent Without the two \emcppsgloss[explicit instantiation definition]{explicit-instantiation definitions} in
 the \lstinline!transform.cpp! file above, its corresponding object file,
 \lstinline!transform.o!, would be empty.
 
 Note that, as of C++11, we \emph{could} place the corresponding
-\emcppsgloss[explicit instantiation definitions]{explicit-instantiation definitions} in the header file
+\emcppsgloss[explicit instantiation definition]{explicit-instantiation definitions} in the header file
 for, say, documentation purposes:
 
 \begin{emcppslisting}
@@ -1034,7 +1034,7 @@ extern template double transform(const double&);  // has no effect whatsoever
 
 \noindent But because no definition of the \lstinline!transform! free-function
 template is visible in the header, no \emph{implicit} instantiation can
-result from client use; hence, the two \emcppsgloss[explicit instantiation declarations]{explicit-instantiation declarations} above for \lstinline!float! and \lstinline!double!,
+result from client use; hence, the two \emcppsgloss[explicit instantiation declaration]{explicit-instantiation declarations} above for \lstinline!float! and \lstinline!double!,
 respectively, do nothing.
 
 \subsection[Potential Pitfalls]{Potential Pitfalls}\label{potential-pitfalls-externtemplate}
@@ -1140,7 +1140,7 @@ The language feature is sufficiently flexible that one can suppress and
 preinstantiate just one or a handful of member functions of such a type. Intuition is all well and good, but measurement simply has no
 substitute.
 
-If one suspects that \emcppsgloss[explicit instantiation directives]{explicit-instantiation directives}
+If one suspects that \emcppsgloss[explicit instantiation directive]{explicit-instantiation directives}
 might profitably reduce the size of libraries resulting from object code
 that is bloated due to redundant local reinstantiations of popular
 templates on common types, measuring before and after and retaining the
@@ -1265,7 +1265,7 @@ void useWU0()
 \end{emcppslisting}
 
 \noindent Unfortunately, the only workaround to achieve a comparable reduction in
-code bloat is to provide member-specific \emcppsgloss[explicit instantiation directives]{explicit-instantiation directives} for each valid member of \lstinline!W<U>!, an approach
+code bloat is to provide member-specific \emcppsgloss[explicit instantiation directive]{explicit-instantiation directives} for each valid member of \lstinline!W<U>!, an approach
 that would likely carry a significantly greater maintenance burden:
 
 \begin{emcppslisting}[emcppsbatch=e8]

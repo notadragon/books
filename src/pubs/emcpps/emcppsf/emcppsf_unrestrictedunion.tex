@@ -181,7 +181,7 @@ struct U2
 
 \noindent Now if we were to try to copy-construct or assign one object of type
 \lstinline!U2! to another, the operation would fail because we have not
-yet specifically addressed those \emcppsgloss{special member functions}:
+yet specifically addressed those \emcppsgloss[special member function]{special member functions}:
 
 \begin{emcppslisting}[emcppsbatch=e2]
 void f()
@@ -572,7 +572,7 @@ in C++17, is the standard construct used to represent a \emcppsgloss{sum type} a
 
 When implementing a type that makes use of an unrestricted union,
 forgetting to initialize a non-trivial object (using either a
-\emph{member initialization list} or \emcppsgloss[placement new]{placement \lstinline!new!}) or
+\emph{member initializer list} or \emcppsgloss[placement new]{placement \lstinline!new!}) or
 accessing a different object than the one that was actually initialized
 can result in tacit \emcppsgloss{undefined behavior}. Although forgetting to
 destroy an object does not necessarily result in \emcppsgloss{undefined behavior}, failing to do so for any object that manages a resource such

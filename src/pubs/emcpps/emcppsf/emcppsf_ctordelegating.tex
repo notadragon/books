@@ -144,7 +144,7 @@ directly has not. Classic workarounds included repeating the code or
 else factoring the code into a private member function that would be
 called from multiple constructors. The drawback with this workaround is
 that the private member function, not being a constructor, would be unable to
-make use of \emcppsgloss{member initialization lists} to initialize base classes and data members efficiently. As of C++11, \emph{delegating
+make use of \emcppsgloss[member initializer list]{member initializer lists} to initialize base classes and data members efficiently. As of C++11, \emph{delegating
 constructors} can be used to minimize code duplication when some of
 the same operations are performed across multiple constructors without
 having to forgo efficient initialization.
@@ -272,7 +272,7 @@ public:
 
 \noindent Using delegating constructors results in less boilerplate and fewer runtime
 operations, as data members and base classes can be initialized
-directly through the \emcppsgloss{member initialization list}.
+directly through the \emcppsgloss{member initializer list}.
 
 \subsection[Potential Pitfalls]{Potential Pitfalls}\label{ctordelegrating-potential-pitfalls}
 
