@@ -1,0 +1,182 @@
+%------------------------------------------------------------------------------
+% FEATURE SECTION declaration
+%------------------------------------------------------------------------------
+
+\makeatletter
+
+% These keys define the options available to the \emcppsFeature command
+\define@cmdkey[emcpps]{section}{tocshort}{}
+\define@cmdkey[emcpps]{section}{toclong}{}
+\define@cmdkey[emcpps]{section}{rhshort}{}
+\define@cmdkey[emcpps]{section}{headinglong}{}
+\define@cmdkey[emcpps]{section}{short}{}
+\define@cmdkey[emcpps]{section}{long}{}
+
+% controls additional information shown when titles are displayed
+\newtoggle{emcppsTitleDebug}
+%\toggletrue{emcppsTitleDebug}
+\togglefalse{emcppsTitleDebug}
+
+% controls how an alt title and a tilte will appear when next rendered.
+\newcounter{emcppsTitleMode}
+\setcounter{emcppsTitleMode}{0}
+\newcounter{emcppsAltTitleMode}
+\setcounter{emcppsAltTitleMode}{1}
+
+% these are the values for the mode counters, and what they will show
+% 0 -> long
+% 1 -> short
+% 2 -> toc entry
+% 3 -> rh entry
+% 4 -> heading entry
+
+\presetkeys[emcpps]{section}{ tocshort = {},
+                              toclong  = {},
+                              rhshort  = {},
+                              headinglong = {},
+                              short = {},
+                              long = {},
+                             }{}
+
+% This is the primary command that drivers rendering all short/long titles based
+% on the specified mode.
+\newcommand{\emcppsShowTitleImpl}[1]{%
+  \iftoggle{emcppsTitleDebug}{Mode: #1}{}%
+  \ifnumequal{#1}{0}{%  Show long title
+    \iftoggle{emcppsTitleDebug}{<0-LONG>}{}%
+    \cmdemcpps@section@long%
+  }{}%
+  \ifnumequal{#1}{1}{%  Show short title
+    \iftoggle{emcppsTitleDebug}{<1-SHORT>}{}%
+    \cmdemcpps@section@short%
+  }{}%
+  \ifnumequal{#1}{2}{%  Show TOC Entry
+    \iftoggle{emcppsTitleDebug}{%
+      \ifthenelse{\equal{}{\cmdemcpps@section@tocshort}}%
+        {%
+          \ifthenelse{\equal{}{\cmdemcpps@section@toclong}}%
+          {%
+            <2-TOC-SHORT-LONG> %
+          }%
+          {%
+            <2-TOC-SHORT-TOCLONG> %
+          }%
+        }%
+        {%
+          \ifthenelse{\equal{}{\cmdemcpps@section@toclong}}%
+          {%
+            <2-TOC-TOCSHORT-LONG> %
+          }%
+          {%
+            <2-TOC-TOCSHORT-TOCLONG> %
+          }%
+        }%
+    }{}%
+    \makebox[12em][l]{\sf%
+      \ifthenelse{\equal{}{\cmdemcpps@section@tocshort}}%
+        {\cmdemcpps@section@short}%
+        {\cmdemcpps@section@tocshort}%
+    }%
+    \ifthenelse{\equal{}{\cmdemcpps@section@toclong}}%
+      {\cmdemcpps@section@long}%
+      {\cmdemcpps@section@toclong}%
+  }{}%
+  \ifnumequal{#1}{3}{%  Show Running Head
+    \ifthenelse{\equal{}{\cmdemcpps@section@rhshort}}%
+      {%
+        \iftoggle{emcppsTitleDebug}{<3-RH-SHORT>}{}%
+        \cmdemcpps@section@short%
+      }%
+      {%
+        \iftoggle{emcppsTitleDebug}{<3-RH-RHSHORT>}{}%
+        \cmdemcpps@section@rhshort%
+      }%
+  }{}%
+  \ifnumequal{#1}{4}{%  Show Section Heading
+    \ifthenelse{\equal{}{\cmdemcpps@section@headinglong}}%
+      {%
+        \iftoggle{emcppsTitleDebug}{<4-HD-LONG>}{}%
+        \cmdemcpps@section@long%
+      }%
+      {%
+        \iftoggle{emcppsTitleDebug}{<4-HD-HEADINGLONG>}{}%
+        \cmdemcpps@section@headinglong%
+      }%
+  }{}%
+}
+
+\newcommand{\emcppsShowTitleMainImpl}{%
+  \emcppsShowTitleImpl{\theemcppsTitleMode}%
+}
+
+\newcommand{\emcppsShowTitleAltImpl}{%
+  \emcppsShowTitleImpl{\theemcppsAltTitleMode}%
+}
+
+% When a local setting for the section title modes is done, i.e., after the table of
+% contents or a running header display, revert to the defaults with this command
+\newcommand{\emcppsRevertShowTitle}{%
+  \setcounter{emcppsTitleMode}{0}%
+  \setcounter{emcppsAltTitleMode}{1}%
+}
+
+% Prior to calling the \section command this command should be invoked in order
+% to configure the title and running head to pick up the proper options.  This
+% is handled by \emcppsFeatureSection.
+\newcommand{\emcppsSetShowTitleSection}{%
+  \setcounter{emcppsTitleMode}{4}%
+}
+
+% Prior to rendering the table of contents this macro should be invoked in order
+% to have the toc pick up the proper options.
+\newcommand{\emcppsSetShowTitleToc}{%
+  \setcounter{emcppsAltTitleMode}{2}%
+}
+
+% The below two commands will be passed to \section by \emcppsFeatureSection in
+% order to render the section title in the appropriate context-sensitive manner.
+\newcommand{\emcppsShowTitle}[1]{%
+    \setkeys[emcpps]{section}{#1}%
+    \protect\emcppsShowTitleMainImpl%
+}
+\newcommand{\emcppsShowTitleAlt}[1]{%
+    \setkeys[emcpps]{section}{#1}%
+    \protect\emcppsShowTitleAltImpl%
+}
+
+% This is the command that should be used as the running head entry
+\newcommand{\emcppsPickRH}[1]{
+  \setcounter{emcppsAltTitleMode}{3}%
+  #1%
+  \emcppsRevertShowTitle
+}
+
+% Default the feature start hook to not do anything
+\appto\emcppsfeaturestart{}
+
+% Each feature should start with the below command, \emcppsFeature.
+% The first argument is a list of key=value options, with the following keys
+% supported:
+%   short:       The short title of the section
+%   long:        The long title of the section
+%   tocshort, toclong: Override the short and long portions of the table of
+%                      contents entry, if specified.
+%   rhshort:     Override the running head short title, if specified.
+%   headinglong: Override the long title to be placed in the heading, if
+%                specified.
+% The second argument is the label associated with the feature section.  This
+% might potentially be used to generate other references within the section,
+% so it should be unique within the book.
+\newcommand{\emcppsFeature}[2]{%
+  \setkeys[emcpps]{section}{#1}%
+  \refstepcounter{section}%
+  \emcppsfeaturestart%
+  \newpage% 
+  \emcppsSetShowTitleSection{}%
+  \section[\protect\emcppsShowTitleAlt{#1}]%
+          {\protect\emcppsShowTitle{#1}}%
+  \emcppsRevertShowTitle{}%
+  \label{#2}%
+}
+
+\makeatother

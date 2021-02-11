@@ -1,0 +1,337 @@
+% 5 Feb 2021, copyedits in and proofed
+% 8 Feb 2021 JMB, compilation fixes
+
+\emcppsFeature{
+    short={\lstinline!long!~\lstinline!long!},
+    tocshort={{\TOCCode long}~{\TOCCode long}},
+    long={The {\SecCode long}~{\SecCode long} ({\large $\boldsymbol{\geq}$}64 bits) Integral Type},
+    toclong={The \lstinline!long!~\lstinline!long! ({\small$\boldsymbol{\geq}$}64 bits) Integral Type},
+    rhshort={{\RHCode long}~{\RHCode long}},
+}{long-long}
+\setcounter{table}{0}
+\setcounter{footnote}{0}
+\setcounter{lstlisting}{0}
+%\section[{\tt long} {\tt long}]{The {\SecCode long} {\SecCode long} ({\large $\boldsymbol{\geq}$}64 bits) Integral Type}\label{long-long}
+
+
+\lstinline!long!~\lstinline!long! is a \emcppsgloss{fundamental integral type} guaranteed to have at least 64 bits on all
+platforms.
+
+\subsection[Description]{Description}\label{description}
+
+The \emcppsgloss{integral type} \lstinline!long!~\lstinline!long! and its companion
+type \lstinline!unsigned!~\lstinline!long!~\lstinline!long! are the only two
+\emcppsgloss{fundamental integral types} in C++ that are guaranteed to have
+at least 64~bits on all conforming platforms{\cprotect\footnote{\lstinline!long!~\lstinline!long!
+has been available in C since the C99 standard, and many C++ compilers
+  supported it as an extension prior to C++11.}}:
+
+\begin{emcppslisting}
+#include <climits>  // (ù{\codeincomments{CHAR\_BIT}}ù) (a.k.a.~8, see below)
+
+long long          a;  // (ù{\codeincomments{sizeof(a) * CHAR\_BIT >= 64}}ù)
+unsigned long long b;  // (ù{\codeincomments{sizeof(b) * CHAR\_BIT >= 64}}ù)
+
+static_assert(sizeof(a) == sizeof(b), "");
+    // I.e., (ù{\codeincomments{a}}ù) and (ù{\codeincomments{b}}ù) necessarily have the same size in every program.
+\end{emcppslisting}
+
+\noindent On all conforming platforms, \lstinline!CHAR_BIT! --- the number of bits
+in a byte --- is at least~8 and, on virtually all commonly available
+commercial platforms today, is exactly~8.
+
+The corresponding integer-literal suffixes indicating type
+\lstinline!long!~\lstinline!long! are \lstinline!ll! and \lstinline!LL!; for
+\lstinline!unsigned!~\lstinline!long!~\lstinline!long!, any of eight alternatives
+are accepted: \lstinline!ull!, \lstinline!ULL!, \lstinline!uLL!, \lstinline!Ull!,
+\lstinline!llu!, \lstinline!LLU!, \lstinline!LLu!,
+\lstinline!llU!:
+
+\begin{emcppslisting}
+auto i = 0LL;   // (ù{\codeincomments{long long}}ù), (ù{\codeincomments{sizeof(i) * CHAR\_BIT >= 64}}ù)
+auto u = 0uLL;  // (ù{\codeincomments{unsigned long long}}ù), (ù{\codeincomments{sizeof(u) * CHAR\_BIT >= 64}}ù)
+\end{emcppslisting}
+
+\noindent Note that \lstinline!long!~\lstinline!long!
+and \lstinline!unsigned!~\lstinline!long!~\lstinline!long! are also candidates
+for the type of an integer literal having a large enough value. As an
+example, the type of the literal \lstinline!2147483648! (one more than
+the upper bound of a 32-bit integer) is likely to be
+  \lstinline!long!~\lstinline!long! on a 32-bit platform. For a historical perspective on how integral types have evolved (and
+continue to evolve) over time, see \intrarefsimple{historical-perspective-on-the-evolution-of-use-of-fundamental-integral-types}.
+%{\it\titleref{historical-perspective-on-the-evolution-of-use-of-fundamental-integral-types}} on page~\pageref{historical-perspective-on-the-evolution-of-use-of-fundamental-integral-types}.
+
+\subsection[Use Cases]{Use Cases}\label{use-cases}
+
+\subsubsection[Storing values that won't safely fit in 32 bits]{Storing values that won{\subsubapos}t safely fit in 32 bits}\label{when-your-pedestrian-four-byte-int-might-not-cut-it}\label{Storing-values-that-won't-safely-fit-in-32-bits}
+
+For many quantities that need to be represented as an integral value in a program, plain \lstinline!int! is a natural choice. For example, this could be the case for years of a person's age, score in a ten-pin bowling game, or number of stories in a building. For efficient storage in a \lstinline!class!
+or \lstinline!struct!, however, we may well decide to represent such
+quantities more compactly using a \lstinline!short! or \lstinline!char!; see
+  also the aliases found in C++11's \lstinline!<cstdint>!.
+
+Sometimes the size of the virtual address space for the
+underlying architecture itself dictates how large an integer you will
+need. For example, on a 64-bit platform, specifying the \emph{distance} between two pointers
+into a contiguous array or the size of the array itself could well exceed the size of an \lstinline!int! or
+\lstinline!unsigned!~\lstinline!int!, respectively. Using either
+\lstinline!long!~\lstinline!long! or
+\lstinline!unsigned!~\lstinline!long!~\lstinline!long! here would, however, not
+be indicated as the respective platform-dependent integer types
+(\lstinline!typedef!s) \lstinline!std::ptrdiff_t! and \lstinline!std::size_t!
+are provided expressly for such use, and avoid wasting space where it
+cannot be used by the underlying hardware.
+
+Occasionally, however, the decision of whether to use an \lstinline!int! is
+neither platform dependent nor clear cut, in which case using an
+\lstinline!int! is almost certainly a bad idea. As part of a financial
+library, suppose we were asked to provide a function that, given a date,
+returns the number of shares of some particular stock, identified by its
+security id (\lstinline!SecId!) traded on the New York Stock Exchange
+(NYSE).\footnote{There are more than 3,200 listed symbols on the NYSE. Composite daily volume of NYSE-listed securities across all exchanges  ranges from 3.5 to 6~billion shares, with a high reached in March 2020 of more than 9~billion shares.} Since the average daily volume of even the most heavily traded stocks (roughly 70 million shares) appears to
+be well under the maximum value a signed \lstinline!int! supports (more
+than 2 billion on our production platforms), we might at first think to write the function
+to return \lstinline!int!:
+
+\begin{emcppshiddenlisting}[emcppsbatch={e1,e2,e3,e4,e5,e6}]
+struct SecId {};
+\end{emcppshiddenlisting}
+\begin{emcppslisting}[emcppsbatch=e1]
+int volYMD(SecId equity, int year, int month, int day);  // (1) BAD IDEA
+\end{emcppslisting}
+
+\noindent One obvious problem with this interface is that the daily fluctuations
+in turbulent times might exceed the maximum value representable by a
+32-bit \lstinline!int!, which, unless detected internally, would result in
+\emcppsgloss{signed integer overflow}, which is both \emcppsgloss{undefined behavior} and potentially a pervasive defect enabling avenues of deliberate attack from outside sources.{\cprotect\footnote{For an overview of integer overflow in C++, see \cite{ballman}. For a more focused discussion of secure coding in CPP using CERT standards, see \cite{seacord13}, Ch.~5, ``Integer Security," pp. 225--307.}} What's more, the growth rate of some companies,
+especially technology startups, has
+been at times seemingly exponential. To gain an extra
+insurance factor of two, we might opt to replace the return type
+\lstinline!int! with an \lstinline!unsigned!~\lstinline!int!:
+
+\begin{emcppslisting}[emcppsbatch=e2]
+unsigned volYMD(SecId stock, int year, int month, int day);  // (2) BAD IDEA!
+\end{emcppslisting}
+
+\noindent Use of an \lstinline!unsigned!~\lstinline!int!, however, simply delays the
+inevitable as the number of shares being traded is almost certainly
+going to grow over time.
+
+Furthermore, the algebra for unsigned quantities is entirely different
+from what one would normally expect from an \lstinline!int!. For example, if we
+were to try to express the day-over-day change in volume by
+subtracting two calls to this function and if the number of shares
+traded were to have decreased, then the \lstinline!unsigned!~\lstinline!int!
+difference would wrap, and the result would be a typically large,
+erroneous value. Because integer
+literals are themselves of type \lstinline!int! and not \lstinline!unsigned!,
+comparing an unsigned value with a negative signed one does not
+typically go well; hence, many compilers will warn when the two types
+  are mixed, which itself is problematic.
+
+If we happen to be on a 64-bit platform, we might choose to return a
+\lstinline!long!:
+
+\begin{emcppslisting}[emcppsbatch=e3]
+long volYMD(SecId stock, int year, int month, int day);  // (3) NOT A GOOD IDEA
+\end{emcppslisting}
+
+\noindent The problems using \lstinline!long! as the return type are that it (1) is
+not yet generally considered a \emcppsgloss{vocabulary type} (see
+\intrarefsimple{longlong-appendix}),
+%{\it\titleref{longlong-appendix}} on page~\pageref{longlong-appendix}),
+and (2) would reduce portability (see
+\intraref{longlong-potential-pitfalls}{relying-on-the-relative-sizes-of-int,-long,-and-long-long}).
+%{\it\titleref{longlong-potential-pitfalls}: \titleref{relying-on-the-relative-sizes-of-int,-long,-and-long-long}} on page~\pageref{relying-on-the-relative-sizes-of-int,-long,-and-long-long}).
+
+Prior to C++11, we might have considered returning a \lstinline!double!:
+
+\begin{emcppslisting}[emcppsbatch=e4]
+double volYMD(SecId stock, int year, int month, int day);  // (4) OK
+\end{emcppslisting}
+
+\noindent At least with \lstinline!double! we know that we will have sufficient precision (53 bits) to express
+integers accurately into the quadrillions, which will certainly cover us
+for any foreseeable future. The main drawback is that \lstinline!double!
+doesn't properly describe the nature of the type that we are returning
+--- i.e., a whole integer number of shares --- and so its algebra,
+although not as dubious as \lstinline!unsigned!~\lstinline!int!, isn't ideal
+either.
+
+With the advent of C++11, we might consider using one of the type aliases
+in \lstinline!<cstdint>!:
+
+\begin{emcppshiddenlisting}[emcppsbatch={e5}]
+#include <cstdint>  // (ù{\codeincomments{std::int64\_t}}ù)
+\end{emcppshiddenlisting}
+\begin{emcppslisting}[emcppsbatch=e5]
+std::int64_t volYMD(SecId stock, int year, int month, int day);  // (4) OK
+\end{emcppslisting}
+
+\noindent This choice addresses most of the issues discussed above except that,
+instead of being a specific C++ type, it is a platform-dependent alias
+that is likely to be a \lstinline!long! on a 64-bit platform and almost
+certainly a \lstinline!long!~\lstinline!long! on a 32-bit one. Such exact size
+requirements are often necessary for packing data in structures and
+arrays but are not as useful when reasoning about them in the
+interfaces of functions where having a common set of fundamental
+\emcppsgloss{vocabulary types} becomes much more important (e.g., for
+interoperability).
+
+All of this leads us to our final alternative, \lstinline!long!~\lstinline!long!:
+
+\begin{emcppslisting}[emcppsbatch=e6]
+long long volYMD(SecId stock, int year, int month, int day);  // (5) GOOD IDEA
+\end{emcppslisting}
+
+\noindent In addition to being a signed fundamental integral type of sufficient
+capacity on all platforms, \lstinline!long!~\lstinline!long! is the same C++
+type \emph{relative} to other C++ types on all platforms.
+
+\subsection[Potential Pitfalls]{Potential Pitfalls}\label{longlong-potential-pitfalls}
+
+\subsubsection[Relying on the relative sizes of \lstinline!int!, \lstinline!long!, and \lstinline!long!~\lstinline!long!]{Relying on the relative sizes of {\SubsubsecCode int}, {\SubsubsecCode long}, and {\SubsubsecCode long}~{\SubsubsecCode long}}\label{relying-on-the-relative-sizes-of-int,-long,-and-long-long}
+
+As discussed at some length in \intrarefsimple{longlong-appendix},
+%{\it\titleref{longlong-appendix}} on page~\pageref{longlong-appendix},
+the
+fundamental integral types have historically been a moving target. On
+older, 32-bit platforms, a \lstinline!long! was often 32~bits and, \lstinline!long!~\lstinline!long!, which was nonstandard prior to C++11, or its platform-dependent equivalent was needed to ensure that 64~bits were
+available. When the correctness of code depends on either
+\lstinline!sizeof(int)!~\lstinline!<!~\lstinline!sizeof(long)! or
+\lstinline!sizeof(long)!~\lstinline!<!~\lstinline!sizeof(long!~\lstinline!long)!,
+portability is needlessly restricted. Relying instead on only the
+guaranteed{\cprotect\footnote{Due to the unfathomable amount of software
+that would stop working if an \lstinline!int! were ever anything but
+exactly \emph{four} bytes, we --- along with the late Richard Stevens
+  of Unix fame (see \cite{stevens93}, section~2.5.1., pp.~31--32, specifically row~6, column~4, Figure~2.2, p.~32) --- are prepared
+  to \emph{guarantee} that it will never become as large as a
+  \lstinline!long!~\lstinline!long! for any general-purpose computer.}}
+property that
+\lstinline!sizeof(int)! \lstinline!<! \lstinline!sizeof(long! \lstinline!long)!
+avoids such portability issues since the relative sizes of the \lstinline!long! and \lstinline!long!~\lstinline!long! integral
+types continue to evolve.
+
+When precise control of size \emph{in the implementation} (as opposed to
+in the interface) matters, consider using one of the standard signed
+(\texttt{int{\itshape n}\_t}) or unsigned (\texttt{uint{\itshape n}\_t}) integer
+%%%%% cannot escape within lstinline, so those two terms are set \texttt{}
+aliases provided, since C++11, in \lstinline!<cstdint>! and
+summarized here in Table~\ref{longlong-table1}.%\newpage
+
+\begin{table}[h!]
+\begin{center}
+\begin{threeparttable}
+\caption{Useful {\bfseries\lstinline!typedef!}s found in {\bfseries \lstinline!<cstdint>!} (since
+C++11)}\label{longlong-table1} \vspace{1.5ex}
+{\small \begin{tabular}{c|c|c}\thickhline
+\rowcolor[gray]{.9} {\sffamily\bfseries Exact Size (optional)\tnote{a}} & {\sffamily\bfseries Fastest integral type } & {\sffamily\bfseries Smallest integer type }\\
+\rowcolor[gray]{.9}  & {\sffamily\bfseries having at least N bits} & {\sffamily\bfseries  having at least N bits}\\\hline
+\multicolumn{1}{r|}{\lstinline!int8_t!} & \multicolumn{1}{r|}{\lstinline!int_fast8_t!} & \multicolumn{1}{r}{\lstinline!int_least8_t!}\\ \hline
+\multicolumn{1}{r|}{\lstinline!int16_t!} & \multicolumn{1}{r|}{\lstinline!int_fast16_t!} & \multicolumn{1}{r}{\lstinline!int_least16_t!}\\ \hline
+\multicolumn{1}{r|}{\lstinline!int32_t!} & \multicolumn{1}{r|}{\lstinline!int_fast32_t!} & \multicolumn{1}{r}{\lstinline!int_least32_t!}\\ \hline
+\multicolumn{1}{r|}{\lstinline!int64_t!} & \multicolumn{1}{r|}{\lstinline!int_fast64_t!} & \multicolumn{1}{r}{\lstinline!int_least64_t!}\\ \medhline
+\multicolumn{1}{r|}{\lstinline!uint8_t!} & \multicolumn{1}{r|}{\lstinline!uint_fast8_t!} & \multicolumn{1}{r}{\lstinline!uint_least8_t!}\\ \hline
+\multicolumn{1}{r|}{\lstinline!uint16_t!\tnote{a}} & \multicolumn{1}{r|}{\lstinline!uint_fast16_t!} & \multicolumn{1}{r}{\lstinline!uint_least16_t!}\\ \hline
+\multicolumn{1}{r|}{\lstinline!uint32_t!} & \multicolumn{1}{r|}{\lstinline!uint_fast32_t!} & \multicolumn{1}{r}{\lstinline!uint_least32_t!}\\ \hline
+\multicolumn{1}{r|}{\lstinline!uint64_t!} & \multicolumn{1}{r|}{\lstinline!uint_fast64_t!} & \multicolumn{1}{r}{\lstinline!uint_least64_t!}\\ \thickhline
+\end{tabular} }
+\begin{tablenotes}{\footnotesize
+\item[a]{The compiler doesn't need to fabricate the exact-width type if the target platform doesn't support it.\\
+Note: Also see \lstinline!intmax_t!, the maximum width integer type, which might be different from all of the above.}
+}
+\end{tablenotes}
+\end{threeparttable}
+    \end{center}
+\end{table}
+
+\subsection[See Also]{See Also}\label{see-also}
+
+\begin{itemize}
+\item{\seealsoref{binary-literals}{\seealsolocationb}explains how programmers can specify binary constants directly in the source code; large binary values might only fit in a \lstinline!long!~\lstinline!long! or even \lstinline!unsigned!~\lstinline!long!~\lstinline!long!.}
+\item{\seealsoref{digit-separators}{\seealsolocationb}describes visually separating digits of large \lstinline!long!~\lstinline!long! literals.}
+\end{itemize}
+
+\subsection[Further Reading]{Further Reading}\label{further-reading}
+
+\begin{itemize}
+\item{\cite{adamczyk05}}
+\end{itemize}
+
+\subsection[Appendix: Historical Perspective on the Evolution of Use of Fundamental Integral Types]{Appendix: Historical Perspective on the Evolution of Use of\\ Fundamental Integral Types}\label{longlong-appendix}
+\label{historical-perspective-on-the-evolution-of-use-of-fundamental-integral-types}
+
+The designers of C got it right back in 1972 when
+they created a portable \lstinline!int! type that could act as a bridge
+from a single-word (16-bit) integer, \lstinline!short!, to a double-word
+(32-bit) integer, \lstinline!long!. Just by using \lstinline!int!, one would
+get the optimal space versus speed trade-off as the 32-bit computer \emph{word}
+was on its way to becoming the norm. As an example, the Motorola
+68000 series (c.~1979) was a hybrid \emph{CISC} architecture employing
+a 32-bit instruction set with 32-bit registers and a 32-bit external
+data bus; internally, however, it used only 16-bit ALUs and a 16-bit
+  data bus.
+
+During the late 1980s and into the 1990s, the word size of the machine and
+the size of an \lstinline!int! were synonymous. Some of
+the earlier mainframe computers, such as IBM 701 (c.~1954), had a word
+size of 36 characters (1) to allow accurate representation of a signed
+10-digit decimal number or (2) to hold up to six 6-bit characters.
+Smaller computers, such as Digital Equipment Corporation's
+PDP-1/PDP-9/PDP-15 used 18-bit words (so a double word held 36 bits);
+memory addressing, however, was limited to just 12--18 bits (i.e., a
+maximum 4K--256K 18-bit words of \emph{DRAM}). With the standardization
+of 7-bit ASCII (c.~1967), its adoption throughout the 1970s, and its most
+recent update (c.~1986), the common typical notion of character size
+moved from 6 to 7 bits. Some early conforming implementations (of C)
+would choose to set \lstinline!CHAR_BIT! to 9 to allow two characters
+per half word. (On some early vector-processing computers,
+\lstinline!CHAR_BIT! is 32, making every type, including a
+\lstinline!char!, at least a 32-bit quantity.) As double-precision floating-point calculations --- enabled by type \lstinline!double! and supported by floating-point coprocessors --- became typical in the scientific community, machine architectures
+naturally evolved from 9-, 18-, and 36-bit words to the familiar 8-,
+16-, 32-, and now 64-bit addressable integer words we have today.
+Apart from embedded systems and \emph{DSPs}, a \lstinline!char! is now
+almost universally considered to be exactly 8 bits. Instead of
+scrupulously and actively using \lstinline!CHAR_BIT! for the number of bits
+in a \lstinline!char!, consider statically asserting it instead:
+
+\begin{emcppshiddenlisting}[emcppsbatch=e7]
+#include <climits>  // (ù{\codeincomments{CHAR\_BIT}}ù)
+\end{emcppshiddenlisting}
+\begin{emcppslisting}[emcppsbatch=e7]
+static_assert(CHAR_BIT == 8, "A (ù{\codeincomments{char}}ù) is not 8-bits on this CrAzY platform!");
+\end{emcppslisting}
+
+\noindent As cost of \emph{main memory} was decreasing exponentially
+throughout the final two decades of the 20th
+century,{\cprotect\footnote{Moore's law (c.~1965) --- the observation
+that the number of transistors in densely packed integrated circuits
+(e.g., DRAM) grows exponentially over time, doubling every 1--2 years
+or so --- held for nearly a half century, until finally saturating in
+  the 2010s.}} the need for a much larger \emph{virtual address space}
+quickly followed. Intel began its work on 64-bit architectures in the
+early 1990s and realized one a decade later. As we progressed into
+the 2000s, the common notion of \emph{word size} --- i.e., the width (in
+bits) of typical registers within the CPU itself --- began to shift from
+``the size of an \lstinline!int!'' to ``the size of a simple (nonmember)
+pointer type,'' e.g., \lstinline!8!~\lstinline!*!~\lstinline!sizeof(void*)!, on the host platform. By this time, 16-bit \lstinline!int! types --- like 16-bit architectures for \emcppsgloss[general purpose machines]{general-purpose machines} (i.e., excluding \emcppsgloss{embedded systems}) --- were long gone but a \lstinline!long!~\lstinline!int! was still expected to be 32 bits on a 32-bit platform. Embedded systems are designed specifically to work with high-performance hardware, such as digital-signal processors (DSPs). Sadly,
+\lstinline!long! was often used (improperly) to hold an address; hence,
+the size of \lstinline!long! is associated with a de facto need (due to immeasurable amounts of legacy code) to remain in lockstep with pointer size.
+
+Something new was needed to mean at least 64 bits on all platforms.
+Enter \lstinline!long!~\lstinline!long!. We have now come full circle. On
+64-bit platforms, an \lstinline!int! is still 4~bytes, but a \lstinline!long!
+is now --- for practical reasons --- typically 8~bytes unless requested
+explicitly{\cprotect\footnote{On 64-bit systems, \lstinline!sizeof(long)!
+is typically 8~bytes. Compiling with the \lstinline!-m32! flag on either
+GCC or Clang emulates compiling on a 32-bit platform:
+\lstinline!sizeof(long)! is likely to be~4, while
+  \lstinline!sizeof(long!~\lstinline!long)! remains~8.}} to be otherwise. To ensure portability until 32-bit machines go the way of 16-bit ones,
+we have \lstinline!long!~\lstinline!long! to (1) provide a common \emph{vocabulary type}, (2)
+make our intent clear, and (3) avoid the portability issue for
+at least the next decade or two; still, see \intraref{longlong-potential-pitfalls}{relying-on-the-relative-sizes-of-int,-long,-and-long-long}
+%{\it\titleref{longlong-potential-pitfalls}: \titleref{relying-on-the-relative-sizes-of-int,-long,-and-long-long}} on page~\pageref{relying-on-the-relative-sizes-of-int,-long,-and-long-long}
+for some alternative ideas.
+
+
+
