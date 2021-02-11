@@ -183,7 +183,10 @@ TODO
 \newglossaryentry{copy semantics}{
   name={Copy Semantics},
   description={
-TODO
+An operation on two objects, a destination and a source, has \emcppsglossgloss{copy semantics}
+if, after it completes, the \emcppsglossgloss{value} of the source object remains unchanged and the target object
+has the same \emcppsglossgloss{value} as does the source.   ..  for some criteria the source and destination are
+the same, for a value semantic type that property is value...
 }}
 
 \newglossaryentry{critical section}{
@@ -636,10 +639,15 @@ TODO
 TODO
 }}
 
-\newglossaryentry{move semantics}{
+\longnewglossaryentry{move semantics}{
   name={Move Semantics},
   description={
-TODO
+An operation on two objects, a destination and a source, has \emcppsglossgloss{move semantics}
+if, after it completes, the target object has the same \emcppsglossgloss{value} that the source object had before
+the operation began.  Note that the source object may be modified, and is left in an unspecified state after
+the operation completes.
+
+Also note that any operation that has \emcppsglossgloss{copy semantics} also has \emcppsglossgloss{move semantics}.
 }}
 
 \newglossaryentry{multithreading context}{
@@ -1038,10 +1046,12 @@ TODO
 TODO
 }}
 
-\newglossaryentry{value value value}{
-  name={Value Value Value},
+\newglossaryentry{value semantics}{
+  name={Value Semantics},
+  alts={{value value value},
+       },
   description={
-TODO
+a property of the type
 }}
 
 \newglossaryentry{vocabulary type}{

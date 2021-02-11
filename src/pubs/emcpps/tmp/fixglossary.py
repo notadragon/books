@@ -228,7 +228,7 @@ def updateGE(step, env, f, ref):
     if step == 0:
         ref.finalRef = EmcppsGlossEntry(ref.args[0], ref.args[1], False)
 
-def updateGEL(step, ref, env, f):
+def updateGEL(step, env, f, ref):
     # new glossary entry command,
     if step == 0:
         ref.finalRef = EmcppsGlossEntry(ref.args[0], ref.args[1], True)
