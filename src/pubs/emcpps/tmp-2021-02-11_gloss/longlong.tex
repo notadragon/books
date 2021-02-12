@@ -21,7 +21,7 @@ platforms.
 
 The \emcppsgloss{integral type} \lstinline!long!~\lstinline!long! and its companion
 type \lstinline!unsigned!~\lstinline!long!~\lstinline!long! are the only two
-\emcppsgloss{fundamental integral types} in C++ that are guaranteed to have
+\emcppsgloss[fundamental integral type]{fundamental integral types} in C++ that are guaranteed to have
 at least 64~bits on all conforming platforms{\cprotect\footnote{\lstinline!long!~\lstinline!long!
 has been available in C since the C99 standard, and many C++ compilers
   supported it as an extension prior to C++11.}}:
@@ -175,7 +175,7 @@ certainly a \lstinline!long!~\lstinline!long! on a 32-bit one. Such exact size
 requirements are often necessary for packing data in structures and
 arrays but are not as useful when reasoning about them in the
 interfaces of functions where having a common set of fundamental
-\emcppsgloss{vocabulary types} becomes much more important (e.g., for
+\emcppsgloss[vocabulary type]{vocabulary types} becomes much more important (e.g., for
 interoperability).
 
 All of this leads us to our final alternative, \lstinline!long!~\lstinline!long!:

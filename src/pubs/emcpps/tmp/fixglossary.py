@@ -87,33 +87,51 @@ def doParseTexKV(args):
 
     pos = 0
     while pos < len(args):
-        ndx = args.find("=", pos)
-        if ndx < 0:
-            key = args[pos:]
-            pos = len(args)
-        else:
-            key = args[pos:ndx]
-            pos = ndx+1
-
+        kstart = pos
         depth = 0
-        vstart = pos
         while pos < len(args):
             if args[pos] in "[{":
                 depth = depth + 1
             elif depth > 0 and args[pos] in "]}":
                 depth = depth - 1
             elif depth == 0 and args[pos] == ",":
+                key = args[kstart:pos]
+                break
+            elif depth == 0 and args[pos] == "=":
+                key = args[kstart:pos]
                 break
             pos = pos + 1
-        value = args[vstart:pos].strip()
-        while value[0] == "{" and value[-1] == "}":
+        if pos == len(args):
+            key = args[kstart:]
+
+        depth = 0
+        if pos < len(args) and args[pos] == ",":
+            pos = pos + 1
+            value = ""
+        elif pos < len(args) and args[pos] == "=":
+            pos = pos + 1
+            vstart = pos
+            while pos < len(args):
+                if args[pos] in "[{":
+                    depth = depth + 1
+                elif depth > 0 and args[pos] in "]}":
+                    depth = depth - 1
+                elif depth == 0 and args[pos] == ",":
+                    break
+                pos = pos + 1
+            value = args[vstart:pos].strip()
+        else:
+            value = ""
+
+        while value and (value[0] == "{" and value[-1] == "}"):
             value = value[1:-1].strip()
 
-        if pos < len(args):
+        if pos < len(args) and args[pos] == ",":
             pos = pos + 1
         
         if key:
             output[key.strip()] = value
+
     return output
 
 class EmcppsGlossRef:
@@ -203,10 +221,15 @@ class EmcppsGlossEntry:
                 out.append(f"{{{alt}}},\n")
             out.append(f"       }},\n")
         
+        if self.count == 0:
+            out.append(f"  nonumberlist,\n")
+        
         out.append(f"  description={{\n")
         out.append(description)
         out.append(f"\n}}}}\n")
-            
+
+        if self.count == 0:
+            out.append(f"\AtBeginDocument{{\glsadd{{{self.gid}}}}}\n")
         
         return "".join(out)
     

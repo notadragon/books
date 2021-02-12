@@ -15,7 +15,7 @@ TODO
 \newglossaryentry{aggregate}{
   name={Aggregate},
   description={
-TODO
+TODO: from standard: An aggregate is an array or a class (Clause 9) with no user-provided constructors (12.1), [[no brace-or-equal-initializers for non-static data members (9.2)]]{PRIOR TO C++14}, no private or protected non-static data members (Clause 11), no base classes (Clause 10), and no virtual functions (10.3). --- Comments from Josh: *"This should be broken down a bit more per standard version... Specifically, 'no base classes' goes away in c++17, and it should be noted that there was no formal definition prior to c++11. It would also be useful to mention the related concepts of POD, standard-layout type, and literal types"*
 }}
 
 \newglossaryentry{aggregate initialization}{
@@ -30,8 +30,20 @@ TODO
 TODO
 }}
 
+\newglossaryentry{alignment}{
+  name={Alignment},
+  description={
+The alignment of an \emph{object type} is a \lstinline!std::size\_t! value (always a power of two) representing the number of bytes between successive addresses at which objects of this type can be allocated. It is the reason why \emph{padding} might be introduced between non-static members of a \lstinilne!class!.
+}}
+
 \newglossaryentry{architectural insulation}{
   name={Architectural Insulation},
+  description={
+TODO
+}}
+
+\newglossaryentry{as if}{
+  name={As If},
   description={
 TODO
 }}
@@ -46,6 +58,19 @@ TODO
   name={Barriers},
   description={
 TODO
+}}
+
+\newglossaryentry{basic source character set}{
+  name={Basic Source Character Set},
+  description={
+TODO (SMD: the basic source character set is the abstract character set that must be available for expressing C++ source code. It's not the same as the source file encoding, which is what it is in C
+
+    <!-- from unicode footnote: Implementations are free to map characters outside the basic source character set to sequences of its members, resulting in the possibility of embedding other characters (e.g. emojis) in a C++ source file. -->
+
+    <!-- @SuperV1234 so are you saying that there are holes that can act as escape sequences?  So like 0xfe means the next character is in play and 0xff means the next 3 characters are in play?  Just don't get it. @SMD shift encodings? I'm not sure if we really want to go there?-->
+
+    <!-- @SMD this is about the ways your editor and compiler can conspire to lie to you. A octets in a u8 literal are not interpreted as unicode. They are interpreted however the compiler interprets source in phase 1 of translation. The fact that the common encoding on Windows is 8 bit complete with no shift characters means that even though your editor will display 🍸, the compiler will see 0xF0 0x9F 0x8D 0xB8, which the compiler will emit as that sequence of bytes, even though the 0xBD is not canonically mapped. -->
+)
 }}
 
 \newglossaryentry{boilerplate code}{
@@ -76,6 +101,12 @@ TODO
   name={Callback Functions},
   description={
 TODO
+}}
+
+\newglossaryentry{class member access expression}{
+  name={Class Member Access Expression},
+  description={
+TODO (include any expression that is used to refer to a class member, such as \lstinline!object.member!, \lstinline!object->member!, \lstinline!object.*member!.)
 }}
 
 \newglossaryentry{closure}{
@@ -135,13 +166,13 @@ TODO
 \newglossaryentry{conditionally supported}{
   name={Conditionally Supported},
   description={
-TODO
+A conforming implementation can choose not to support a feature that is specified as \emcppsglossgloss{conditionally supported}; if used and not supported, however, at least one diagnostic --- stating such lack of support --- is required.
 }}
 
 \newglossaryentry{constant expression}{
   name={Constant Expression},
   description={
-TODO
+TODO: An expression that can be evaluated at compile-time.  Mention \lstinline!constexpr! and state that \lstinline!const! variables that are initialized from a compile-time constants are themselves required to be compile-time constants.  New info to me in June 2020, worthwhile to have.
 }}
 
 \newglossaryentry{constant initialization}{
@@ -150,10 +181,16 @@ TODO
 TODO
 }}
 
+\newglossaryentry{contextual conversion to bool}{
+  name={Contextual Conversion to \lstinline!bool!},
+  description={
+A property of certain particular language construct (e.g., an \lstinilne!if! expression) that permits conversion from any expression \lstinline!E! to be treated \emcppsglossgloss{as if} a \lstinline!static_cast! to type bool had been applied --- e.g., \lstinline!if (E)! is definitional equivalent to \lstinline!if (static_cast<bool>(E))!. See also [explicit conversion operators]{.xref}.
+}}
+
 \newglossaryentry{contextual keyword}{
   name={Contextual Keyword},
   description={
-TODO
+A \emph{``contextual keyword''} is a special identifier that acts like a \emph{keyword} when used in particular contexts. \lstinline!override! is an example as it can be used as a regular identifier outside of member-function declarators.
 }}
 
 \newglossaryentry{cookie}{
@@ -228,7 +265,7 @@ TODO
 \newglossaryentry{declared type}{
   name={Declared Type},
   description={
-TODO
+The type of the \emcppsglossgloss{entity} named by the given expression.
 }}
 
 \newglossaryentry{default initialized}{
@@ -306,7 +343,7 @@ TODO
 \newglossaryentry{entity}{
   name={Entity},
   description={
-TODO
+One of the primary building blocks of a C++ program. An entity is one of: \emph{value}, \emph{object}, \emph{reference}, \emph{function}, \emph{enumerator}, \emph{type}, \emph{class member}, \emph{bit-field}, \emph{template}, \emph{template specialization}, \emph{namespace}, \emph{parameter pack}, or \lstinline!this!.
 }}
 
 \newglossaryentry{escalating}{
@@ -316,7 +353,7 @@ TODO
 }}
 
 \newglossaryentry{excess n}{
-  name={Excess N},
+  name={Excess $\mathbf{n}$},
   description={
 TODO
 }}
@@ -327,20 +364,8 @@ TODO
 TODO
 }}
 
-\newglossaryentry{explicit instantiation declarations}{
-  name={Explicit Instantiation Declarations},
-  description={
-TODO
-}}
-
 \newglossaryentry{explicit instantiation definition}{
   name={Explicit Instantiation Definition},
-  description={
-TODO
-}}
-
-\newglossaryentry{explicit instantiation definitions}{
-  name={Explicit Instantiation Definitions},
   description={
 TODO
 }}
@@ -351,14 +376,8 @@ TODO
 TODO
 }}
 
-\newglossaryentry{explicit instantiation directives}{
-  name={Explicit Instantiation Directives},
-  description={
-TODO
-}}
-
 \newglossaryentry{expression sfinae}{
-  name={Expression Sfinae},
+  name={Expression SFINAE},
   description={
 TODO
 }}
@@ -390,7 +409,7 @@ TODO
 \newglossaryentry{forward declaration}{
   name={Forward Declaration},
   description={
-TODO
+TODO - mention about enums that this was Impossible prior to C++11 as the compiler could not determine the underlying type without visibility of the enumerators.
 }}
 
 \newglossaryentry{forward declare}{
@@ -429,12 +448,6 @@ TODO
 TODO
 }}
 
-\newglossaryentry{fundamental integral types}{
-  name={Fundamental Integral Types},
-  description={
-TODO
-}}
-
 \newglossaryentry{fundamental types}{
   name={Fundamental Types},
   description={
@@ -446,7 +459,6 @@ TODO
   description={
 General-purpose machines are what Big Tech, the financial industry, and many other large companies use exclusively.
 }}
-
 
 \newglossaryentry{hide}{
   name={Hide or Hiding},
@@ -465,7 +477,7 @@ TODO
 \newglossaryentry{IFNDR}{
   name={IFNDR},
   description={
-TODO
+see Ill-formed, No Diagnostic Required
 }}
 
 \newglossaryentry{id expression}{
@@ -477,13 +489,13 @@ TODO
 \newglossaryentry{ill formed}{
   name={Ill Formed},
   description={
-TODO
+TODO (`[temp.res]p8`). The program is not valid C++. Generally, the compiler is required to produce a diagnostic (error) message, but see [^ndr](.glossary).
 }}
 
 \newglossaryentry{ill formed, no diagnostic required}{
-  name={Ill Formed, No Diagnostic Required},
+  name={Ill-Formed, No Diagnostic Required},
   description={
-TODO
+TODO *No diagnostic required*. The compiler is not mandated by the Standard to produce a diagnostic and the behavior of the code is *undefined*.
 }}
 
 \newglossaryentry{implementation defined}{
@@ -600,18 +612,6 @@ TODO
 TODO
 }}
 
-\newglossaryentry{member initialization list}{
-  name={Member Initialization List},
-  description={
-TODO
-}}
-
-\newglossaryentry{member initialization lists}{
-  name={Member Initialization Lists},
-  description={
-TODO
-}}
-
 \newglossaryentry{member initializer list}{
   name={Member Initializer List},
   description={
@@ -701,20 +701,8 @@ TODO
 TODO
 }}
 
-\newglossaryentry{opaque declarations}{
-  name={Opaque Declarations},
-  description={
-TODO
-}}
-
 \newglossaryentry{opaque enumeration}{
   name={Opaque Enumeration},
-  description={
-TODO
-}}
-
-\newglossaryentry{opaque enumerations}{
-  name={Opaque Enumerations},
   description={
 TODO
 }}
@@ -770,13 +758,13 @@ TODO
 \newglossaryentry{pure function}{
   name={Pure Function},
   description={
-TODO
+A function that produces no side effects and always returns the same value given the same sequence of argument values.
 }}
 
 \newglossaryentry{RAII}{
   name={RAII},
   description={
-TODO
+See Resource Acquisiition is Initialization
 }}
 
 \newglossaryentry{range}{
@@ -812,7 +800,13 @@ TODO
 \newglossaryentry{SFINAE}{
   name={SFINAE},
   description={
-TODO
+See Substitution Failure Is Not An Error
+}}
+
+\newglossaryentry{safe bool idiom}{
+  name={Safe bool idiom},
+  description={
+A technique in class design that suppresses unwanted comparisons made available by the presence of a non-\lstinline!explicit! conversion function to \lstinline!bool!. See also [explicit conversion operators]{.xref}. <!-- TODO: "Given a class \lstinline!C!, the idiom requires \lstinilne!C! to provide a (implicit in C++03) conversion operator to return a type that is \emph{contextually convertible to \lstinline!bool!} (e.g., any integral or pointer type) but does not support arithmetic (e.g., a \emcppsglossgloss{pointer to member}), and the presence of non-member template comparison functions that invokes a \lstinline!private! (unimplemented) member function, purposefully causing a compile-time error, should two objects of \lstinline!C! ever be compared -- e.g., using equality or relational operations (valid on \emph{all} pointers types); see [Karlsson04]{.ref}. An early version of a return type designed for this purpose, known as \lstinline!unspecified_bool_type! was implemented in Boost; see [semashev07]{.ref}." -->
 }}
 
 \newglossaryentry{section}{
@@ -860,13 +854,7 @@ TODO
 \newglossaryentry{special member function}{
   name={Special Member Function},
   description={
-TODO
-}}
-
-\newglossaryentry{special member functions}{
-  name={Special Member Functions},
-  description={
-TODO
+As per the C++17 standard, the following are considered special member functions: \emph{destructors}, \emph{default constructors}, \emph{copy constructors}, \emph{move constructors}, \emph{copy assignment operators}, and \emph{move assignment operators}.
 }}
 
 \newglossaryentry{standard conversion}{
@@ -908,7 +896,7 @@ TODO
 \newglossaryentry{sum type}{
   name={Sum Type},
   description={
-Abstract data type allowing the representation of one of multiple possible alternative types. Each alternative has its own type (and state), and only one alternative can be ``active" at any given point in time. Sum types automatically keep track of which choice is ``active," and properly implement value-sematic special member functions (even for non-trivial types). They can be implemented efficiently as a C++ \texttt{class} using a C++ \texttt{union} and a separate (integral) discriminator. This sort of implementation is commonly referred to as a discriminating (or ``tagged") union.
+Abstract data type allowing the representation of one of multiple possible alternative types. Each alternative has its own type (and state), and only one alternative can be ``active" at any given point in time. Sum types automatically keep track of which choice is ``active,'' and properly implement value-sematic special member functions (even for non-trivial types). They can be implemented efficiently as a C++ \texttt{class} using a C++ \texttt{union} and a separate (integral) discriminator. This sort of implementation is commonly referred to as a discriminating (or ``tagged'') union.
 }}
 
 \newglossaryentry{template head}{
@@ -951,6 +939,17 @@ TODO
   name={Trivially Constructible},
   description={
 TODO
+}}
+
+\newglossaryentry{trivially copy constructor}{
+  name={Trivially Copy Constructor},
+  description={
+The requirements for the copy constructor of a class \lstinilne!T! to be considered trivial are as follows:
+
+  - It must not be user-provided;
+  - If defaulted, its signature must be the same as implicitly-defined (exception specification and qualifiers on the argument must match);
+  - \lstinline!T! must have no \lstinline!virtual! member functions or \lstinline!virtual! base classes;
+  - The copy constructor for every single data member and base class of \lstinline!T! must be trivial (recursively).
 }}
 
 \newglossaryentry{trivially copyable}{
@@ -1069,22 +1068,8 @@ TODO
 TODO
 }}
 
-\newglossaryentry{value semantics}{
-  name={Value Semantics},
-  alts={{value value value},
-       },
-  description={
-a property of the type
-}}
-
 \newglossaryentry{vocabulary type}{
   name={Vocabulary Type},
-  description={
-TODO
-}}
-
-\newglossaryentry{vocabulary types}{
-  name={Vocabulary Types},
   description={
 TODO
 }}

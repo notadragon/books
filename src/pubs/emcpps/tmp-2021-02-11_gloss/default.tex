@@ -25,7 +25,7 @@ compiler will attempt to generate certain member functions to
 %Section~\ref{Rvalue-References}, ``\titleref{Rvalue-References}")
 an object unless
 developers implement some or all of these functions
-themselves. Determining which of the \emcppsgloss{special member functions}
+themselves. Determining which of the \emcppsgloss[special member function]{special member functions}
 will continue to be generated and which will be suppressed in the
 presence of \emcppsgloss[user provided special member functions]{user-provided special member functions}
 requires remembering the numerous rules the compiler uses.
@@ -193,7 +193,7 @@ available.
 The \lstinline!=!\,\lstinline!default! syntax can also be used after the first
 declaration, but with a distinctly different meaning: The compiler will
 treat the first declaration as a \emcppsgloss[user provided special member function]{user-provided special member function} and thus will suppress the generation of other
-\emcppsgloss{special member functions} accordingly.
+\emcppsgloss[special member function]{special member functions} accordingly.
 
 \begin{emcppslisting}[language=C++,label=default-exampleh-code]
 // example.h:
@@ -751,9 +751,9 @@ of ongoing software maintenance.
 \subsection[See Also]{See Also}\label{see-also}
 
 \begin{itemize}
-\item{\seealsoref{deleted-functions}{\seealsolocationa}describes a companion feature, \lstinline!=!\,\lstinline!delete!, that can be used to suppress access to implicitly generated \emcppsgloss{special member functions}.}
+\item{\seealsoref{deleted-functions}{\seealsolocationa}describes a companion feature, \lstinline!=!\,\lstinline!delete!, that can be used to suppress access to implicitly generated \emcppsgloss[special member function]{special member functions}.}
 \item{\seealsoref{compile-time-assertions-(static_assert)}{\seealsolocationa}describes a facility that can be used to verify at compile time that undesirable copy and move operations are declared to be accessibly.}
-\item{\seealsoref{Rvalue-References}{\seealsolocationc}provides the bases for \emcppsgloss{move operations}, namely, the move-constructor and move-assignment \emcppsgloss{special member functions}, which too can be defaulted.}
+\item{\seealsoref{Rvalue-References}{\seealsolocationc}provides the bases for \emcppsgloss{move operations}, namely, the move-constructor and move-assignment \emcppsgloss[special member function]{special member functions}, which too can be defaulted.}
 \end{itemize}
 
 \subsection[Further Reading]{Further Reading}\label{further-reading}

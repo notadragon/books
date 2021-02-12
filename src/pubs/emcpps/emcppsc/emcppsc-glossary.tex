@@ -15,7 +15,7 @@ TODO
 \newglossaryentry{aggregate}{
   name={Aggregate},
   description={
-TODO: from standard: An aggregate is an array or a class (Clause 9) with no user-provided constructors (12.1), [[no brace-or-equal-initializers for non-static data members (9.2)]]{PRIOR TO C++14}, no private or protected non-static data members (Clause 11), no base classes (Clause 10), and no virtual functions (10.3). --- Comments from Josh: *"This should be broken down a bit more per standard version... Specifically, 'no base classes' goes away in c++17, and it should be noted that there was no formal definition prior to c++11. It would also be useful to mention the related concepts of POD, standard-layout type, and literal types"*
+TODO: from standard: An aggregate is an array or a class (Clause 9) with no user-provided constructors (12.1), %[[no brace-or-equal-initializers for non-static data members (9.2)]]{PRIOR TO C++14}, no private or protected non-static data members (Clause 11), no base classes (Clause 10), and no virtual functions (10.3). --- Comments from Josh: *"This should be broken down a bit more per standard version... Specifically, 'no base classes' goes away in c++17, and it should be noted that there was no formal definition prior to c++11. It would also be useful to mention the related concepts of POD, standard-layout type, and literal types"*
 }}
 
 \newglossaryentry{aggregate initialization}{
@@ -32,9 +32,11 @@ TODO
 
 \newglossaryentry{alignment}{
   name={Alignment},
+  nonumberlist,
   description={
-The alignment of an \emph{object type} is a \lstinline!std::size\_t! value (always a power of two) representing the number of bytes between successive addresses at which objects of this type can be allocated. It is the reason why \emph{padding} might be introduced between non-static members of a \lstinilne!class!.
+The alignment of an \emph{object type} is a \lstinline!std::size\_t! value (always a power of two) representing the number of bytes between successive addresses at which objects of this type can be allocated. It is the reason why \emph{padding} might be introduced between non-static members of a \lstinline!class!.
 }}
+\AtBeginDocument{\glsadd{alignment}}
 
 \newglossaryentry{architectural insulation}{
   name={Architectural Insulation},
@@ -44,9 +46,11 @@ TODO
 
 \newglossaryentry{as if}{
   name={As If},
+  nonumberlist,
   description={
 TODO
 }}
+\AtBeginDocument{\glsadd{as if}}
 
 \newglossaryentry{atomic}{
   name={Atomic},
@@ -60,18 +64,20 @@ TODO
 TODO
 }}
 
-\newglossaryentry{basic source character set}{
+\longnewglossaryentry{basic source character set}{
   name={Basic Source Character Set},
+  nonumberlist,
   description={
 TODO (SMD: the basic source character set is the abstract character set that must be available for expressing C++ source code. It's not the same as the source file encoding, which is what it is in C
 
-    <!-- from unicode footnote: Implementations are free to map characters outside the basic source character set to sequences of its members, resulting in the possibility of embedding other characters (e.g. emojis) in a C++ source file. -->
+    from unicode footnote: Implementations are free to map characters outside the basic source character set to sequences of its members, resulting in the possibility of embedding other characters (e.g. emojis) in a C++ source file. 
 
-    <!-- @SuperV1234 so are you saying that there are holes that can act as escape sequences?  So like 0xfe means the next character is in play and 0xff means the next 3 characters are in play?  Just don't get it. @SMD shift encodings? I'm not sure if we really want to go there?-->
+    @SuperV1234 so are you saying that there are holes that can act as escape sequences?  So like 0xfe means the next character is in play and 0xff means the next 3 characters are in play?  Just don't get it. @SMD shift encodings? I'm not sure if we really want to go there?
 
-    <!-- @SMD this is about the ways your editor and compiler can conspire to lie to you. A octets in a u8 literal are not interpreted as unicode. They are interpreted however the compiler interprets source in phase 1 of translation. The fact that the common encoding on Windows is 8 bit complete with no shift characters means that even though your editor will display 🍸, the compiler will see 0xF0 0x9F 0x8D 0xB8, which the compiler will emit as that sequence of bytes, even though the 0xBD is not canonically mapped. -->
+    @SMD this is about the ways your editor and compiler can conspire to lie to you. A octets in a u8 literal are not interpreted as unicode. They are interpreted however the compiler interprets source in phase 1 of translation. The fact that the common encoding on Windows is 8 bit complete with no shift characters means that even though your editor will display 🍸, the compiler will see 0xF0 0x9F 0x8D 0xB8, which the compiler will emit as that sequence of bytes, even though the 0xBD is not canonically mapped. 
 )
 }}
+\AtBeginDocument{\glsadd{basic source character set}}
 
 \newglossaryentry{boilerplate code}{
   name={Boilerplate Code},
@@ -105,9 +111,11 @@ TODO
 
 \newglossaryentry{class member access expression}{
   name={Class Member Access Expression},
+  nonumberlist,
   description={
 TODO (include any expression that is used to refer to a class member, such as \lstinline!object.member!, \lstinline!object->member!, \lstinline!object.*member!.)
 }}
+\AtBeginDocument{\glsadd{class member access expression}}
 
 \newglossaryentry{closure}{
   name={Closure},
@@ -183,9 +191,11 @@ TODO
 
 \newglossaryentry{contextual conversion to bool}{
   name={Contextual Conversion to \lstinline!bool!},
+  nonumberlist,
   description={
-A property of certain particular language construct (e.g., an \lstinilne!if! expression) that permits conversion from any expression \lstinline!E! to be treated \emcppsglossgloss{as if} a \lstinline!static_cast! to type bool had been applied --- e.g., \lstinline!if (E)! is definitional equivalent to \lstinline!if (static_cast<bool>(E))!. See also [explicit conversion operators]{.xref}.
+A property of certain particular language construct (e.g., an \lstinline!if! expression) that permits conversion from any expression \lstinline!E! to be treated \emcppsglossgloss{as if} a \lstinline!static\_cast! to type bool had been applied --- e.g., \lstinline!if (E)! is definitional equivalent to \lstinline!if (static\_cast<bool>(E))!. %See also [explicit conversion operators]{.xref}.
 }}
+\AtBeginDocument{\glsadd{contextual conversion to bool}}
 
 \newglossaryentry{contextual keyword}{
   name={Contextual Keyword},
@@ -464,9 +474,11 @@ General-purpose machines are what Big Tech, the financial industry, and many oth
   name={Hide or Hiding},
   alts={{hiding},
        },
+  nonumberlist,
   description={
 Function-name \textbf{hiding} occurs when a member function in a derived class has the same name as one in the base class, but it is not overriding it due to a difference in the function signature or because the member function in the base class is not \texttt{virtual}. The hidden member function will \textbf{not} participate in dynamic dispatch; the member function of the base class will be invoked instead when invoked via a pointer or reference to the base class . The same code would have invoked the derived class's implementation had the member function of the base class had been \textbf{overridden} rather than \textbf{hidden}.
 }}
+\AtBeginDocument{\glsadd{hide}}
 
 \newglossaryentry{higher order function}{
   name={Higher Order Function},
@@ -489,7 +501,7 @@ TODO
 \newglossaryentry{ill formed}{
   name={Ill Formed},
   description={
-TODO (`[temp.res]p8`). The program is not valid C++. Generally, the compiler is required to produce a diagnostic (error) message, but see [^ndr](.glossary).
+TODO % (`[temp.res]p8`). The program is not valid C++. Generally, the compiler is required to produce a diagnostic (error) message, but see % [^ndr](.glossary).
 }}
 
 \newglossaryentry{ill formed, no diagnostic required}{
@@ -805,9 +817,11 @@ See Substitution Failure Is Not An Error
 
 \newglossaryentry{safe bool idiom}{
   name={Safe bool idiom},
+  nonumberlist,
   description={
-A technique in class design that suppresses unwanted comparisons made available by the presence of a non-\lstinline!explicit! conversion function to \lstinline!bool!. See also [explicit conversion operators]{.xref}. <!-- TODO: "Given a class \lstinline!C!, the idiom requires \lstinilne!C! to provide a (implicit in C++03) conversion operator to return a type that is \emph{contextually convertible to \lstinline!bool!} (e.g., any integral or pointer type) but does not support arithmetic (e.g., a \emcppsglossgloss{pointer to member}), and the presence of non-member template comparison functions that invokes a \lstinline!private! (unimplemented) member function, purposefully causing a compile-time error, should two objects of \lstinline!C! ever be compared -- e.g., using equality or relational operations (valid on \emph{all} pointers types); see [Karlsson04]{.ref}. An early version of a return type designed for this purpose, known as \lstinline!unspecified_bool_type! was implemented in Boost; see [semashev07]{.ref}." -->
+A technique in class design that suppresses unwanted comparisons made available by the presence of a non-\lstinline!explicit! conversion function to \lstinline!bool!. %See also [explicit conversion operators]{.xref}. TODO: "Given a class \lstinline!C!, the idiom requires \lstinline!C! to provide a (implicit in C++03) conversion operator to return a type that is \emph{contextually convertible to \lstinline!bool!} (e.g., any integral or pointer type) but does not support arithmetic (e.g., a \emcppsglossgloss{pointer to member}), and the presence of non-member template comparison functions that invokes a \lstinline!private! (unimplemented) member function, purposefully causing a compile-time error, should two objects of \lstinline!C! ever be compared -- e.g., using equality or relational operations (valid on \emph{all} pointers types); see %[Karlsson04]{.ref}. An early version of a return type designed for this purpose, known as \lstinline!unspecified\_bool\_type! was implemented in Boost; see %[semashev07]{.ref}."
 }}
+\AtBeginDocument{\glsadd{safe bool idiom}}
 
 \newglossaryentry{section}{
   name={Section},
@@ -941,16 +955,20 @@ TODO
 TODO
 }}
 
-\newglossaryentry{trivially copy constructor}{
+\longnewglossaryentry{trivially copy constructor}{
   name={Trivially Copy Constructor},
+  nonumberlist,
   description={
-The requirements for the copy constructor of a class \lstinilne!T! to be considered trivial are as follows:
+The requirements for the copy constructor of a class \lstinline!T! to be considered trivial are as follows:
 
-  - It must not be user-provided;
-  - If defaulted, its signature must be the same as implicitly-defined (exception specification and qualifiers on the argument must match);
-  - \lstinline!T! must have no \lstinline!virtual! member functions or \lstinline!virtual! base classes;
-  - The copy constructor for every single data member and base class of \lstinline!T! must be trivial (recursively).
+%\begin{itemize}
+%\item It must not be user-provided;
+%\item If defaulted, its signature must be the same as implicitly-defined (exception specification and qualifiers on the argument must match);
+%\item  \lstinline!T! must have no \lstinline!virtual! member functions or \lstinline!virtual! base classes;
+%\item The copy constructor for every single data member and base class of \lstinline!T! must be trivial (recursively).
+%\end{itemize}
 }}
+\AtBeginDocument{\glsadd{trivially copy constructor}}
 
 \newglossaryentry{trivially copyable}{
   name={Trivially Copyable},
@@ -1035,7 +1053,7 @@ In the C++11 standard, a special member function is considered \emcppsglossgloss
 %};
 %\end{emcppslisting}
 
-One of the requirement for a special member function to be considered \emcppsglossgloss{trivial} is that it is not user-provided. Trivial classes (i.e. with all special member function being trivial) have special semantics (e.g. they can be safely used with \lstinline!std::memcpy!, or copied into a suitable array of \lstinline!char! and back). See [Generalized PODs]{.xref} for more information.
+One of the requirement for a special member function to be considered \emcppsglossgloss{trivial} is that it is not user-provided. Trivial classes (i.e. with all special member function being trivial) have special semantics (e.g. they can be safely used with \lstinline!std::memcpy!, or copied into a suitable array of \lstinline!char! and back). See %[Generalized PODs]{.xref} for more information.
 }}
 
 \newglossaryentry{user provided special member functions}{
