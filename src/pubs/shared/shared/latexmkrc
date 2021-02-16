@@ -3,8 +3,6 @@ add_cus_dep('acn', 'acr', 0, 'run_makeglossaries');
 
 sub run_makeglossaries {
   if ( -x "./custommakeglossaries" ) {
-    system("makeglossaries '$_[0]'");
-    system("cp '$_[0].gls' '$_[0].gls-real'");
     system("./custommakeglossaries '$_[0]'");
     return
   }
