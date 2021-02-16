@@ -1,4 +1,6 @@
-% 8 Feb 2021 JMB, fixes to include comments
+% 12 Feb 2021, revisions in; ready for Josh's code fixes
+
+
 
 \emcppsFeature{
     short={Inheriting Ctors},
@@ -12,24 +14,25 @@
 
 
 
-The term \textit{inheriting constructors} refers to the use of a
-\textbf{{\ttfamily\bfseries using}-declaration} to expose nearly all of the
+The term \emph{inheriting constructors} refers to the use of a
+\romeogloss{\lstinline!using! declaration} to expose nearly all of the
 constructors of a base class in the scope of a derived class.
 
 \subsection[Description]{Description}\label{description-inheritingctor}
 
-In a class definition, a \textbf{{\ttfamily\bfseries using} declaration} naming a
+In a class definition, a \romeogloss{\lstinline!using! declaration} naming a
 base class's constructor results in the derived class ``inheriting'' all
 of the nominated base class's constructors, except for \emph{copy} and
-\emph{move} constructors. Just like other \texttt{using} declarations, the nominated base class's
-constructors will be searched when no matching constructor is found in
+\emph{move} constructors. Just like \lstinline!using! declarations of member functions, the nominated base class's
+constructors will be considered when no matching constructor is found in
 the derived class. When a base class constructor is selected in this way,
 that constructor will be used to construct the base class and the
 remaining bases and data members of the subclass will be initialized as
 if by the default constructor (e.g., applying default initializers;
-see ``\titleref{Default-Member-Initializers}" on page~\pageref{Default-Member-Initializers}).
+see \featureref{\locationc}{Default-Member-Initializers}).
+%``\titleref{Default-Member-Initializers}" on page~\pageref{Default-Member-Initializers}). 
 
-\begin{lstlisting}[language=C++]
+\begin{emcppslisting}[language=C++]
 struct B0
 {
     B0() = default;      // public, default constructor
@@ -37,68 +40,73 @@ struct B0
     B0(int, int)    { }  // public, two argument value constructor
 
 private:
-    B0(const char*) { }  // private, one argument constructor
+    B0(const char*) { }  // private, one argument (implicit) value constructor
 };
 
 struct D0 : B0
 {
-    using B0::B0;  // (ù{\codeincomments{using}}ù) declaration
+    using B0::B0;  // (Ã¹{\codeincomments{using}}Ã¹) declaration
     D0(double d);  // suppress implicit default constructor
 };
 
-D0 t(1);     // OK, inherited from (ù{\codeincomments{B0::B0(int)}}ù)
-D0 u(2, 3);  // OK, inherited from (ù{\codeincomments{B0::B0(int, int)}}ù)
-D0 v("hi");  // Error: Base constructor is declared (ù{\codeincomments{private}}ù).
-\end{lstlisting}
-
+D0 t(1);     // OK, inherited from (Ã¹{\codeincomments{B0::B0(int)}}Ã¹)
+D0 u(2, 3);  // OK, inherited from (Ã¹{\codeincomments{B0::B0(int, int)}}Ã¹)
+D0 v("hi");  // Error: Base constructor is declared (Ã¹{\codeincomments{private}}Ã¹).
+\end{emcppslisting}
+    
 \noindent The only constructors that are explicitly \emph{not} inheritable by the
 derived class are the (potentially compiler-generated) \emph{copy} and
-\emph{move} constructors{\cprotect\footnote{Note that we use
- braced initialization (see ``\titleref{bracedinit}" on page~\pageref{bracedinit}) in \texttt{D0}~\texttt{x(B0{});}
-  to ensure that a variable \texttt{x} of type \texttt{D0} is declared.
-  \texttt{D0}~\texttt{x(B0());} would instead be interpreted as a
-  declaration of a function \texttt{x} returning \texttt{D0} and
-  accepting a pointer to a nullary function returning \texttt{B0}, which
-  is referred to as the \textbf{most vexing parse}.}}:
+\emph{move} constructors:
 
-\begin{lstlisting}[language=C++]
-#include <utility>  // (ù{\codeincomments{std::move}}ù)
+\begin{emcppslisting}[language=C++]
+#include <utility>  // (Ã¹{\codeincomments{std::move}}Ã¹)
 
 B0 b1(1);              // OK, base-class object can be created.
 B0 b2(2, 3);           // OK, base-class object can be created.
 B0 b3(b1);             // OK, base-class object can be copied (from *lvalue*).
-B0 b4(std::move(b1));  // OK, base-class object can be moved (from *rvalue).
+B0 b4(std::move(b1));  // OK, base-class object can be moved (from *rvalue*).
 
 D0 w(b1);    // Error: Base-class copy constructor is not inherited.
 D0 v;        // OK, base-class default constructor is inherited.
-D0 x(B0{});  // Error: Base-class move constructor is not inherited.
+D0 x(B0{});  // Error: Base-class move constructor is not inherited.(Ã¹{\footnotemark}Ã¹)
 
 D0 y(B0(4));  // Error: Base-class move constructor is not inherited.
-D0 z(t);      // OK, uses compiler-generated (ù{\codeincomments{D0::D0(const D0\&)}}ù)
-D0 j(D0(5));  // OK, uses compiler-generated (ù{\codeincomments{DO::D0(D\&\&)}}ù)
-\end{lstlisting}
-
+D0 z(t);      // OK, uses compiler-generated (Ã¹{\codeincomments{D0::D0(const D0\&)}}Ã¹)
+D0 j(D0(5));  // OK, uses compiler-generated (Ã¹{\codeincomments{D0::D0(D\&\&)}}Ã¹)
+\end{emcppslisting}
+{\cprotect\footnotetext{Note that we use
+ braced initialization (see \featureref{\locationc}{bracedinit}) 
+% ``\titleref{bracedinit}" on page~\pageref{bracedinit})
+  in \lstinline!D0!~\lstinline!x(B0{});!
+  to ensure that a variable \lstinline!x! of type \lstinline!D0! is declared.
+  \lstinline!D0!~\lstinline!x(B0());! would instead be interpreted as a
+  declaration of a function \lstinline!x! returning \lstinline!D0! and
+  accepting a pointer to a nullary function returning \lstinline!B0!, which
+  is referred to as the \romeogloss{most vexing parse}.}}
+    
 \noindent The constructors inherited by the derived class have the same effect on
 whether the compiler implicitly generates special member functions as
-explicitly implemented ones would. For example, \texttt{D0}'s default
-constructor would be implicitly \emph{deleted} (see ``\titleref{deleted-functions}" on page~\pageref{deleted-functions}) if
-\texttt{B0} doesn't have a default constructor. Note that since the copy
+explicitly implemented ones would. For example, \lstinline!D0!'s default
+constructor would be implicitly \emph{deleted} (see \featureref{\locationa}{deleted-functions}) 
+%``\titleref{deleted-functions}" on page~\pageref{deleted-functions}) 
+if
+\lstinline!B0! doesn't have a default constructor. Note that since the copy
 and move constructors are \emph{not} inherited, their presence in the
 base class wouldn't suppress implicit generation of copy and move
-assignment in the derived class. For instance, \texttt{D0}'s implicitly
-generated assignment operators obliviously \textbf{hide} their
-counterparts in \texttt{B0}:
+assignment in the derived class. For instance, \lstinline!D0!'s implicitly
+generated assignment operators \romeogloss{hide} their
+counterparts in \lstinline!B0!:
 
-\begin{lstlisting}[language=C++]
+\begin{emcppslisting}[language=C++]
 void f()
 {
-    B0 b(0), bb(0);  // Create destination and source (ù{\codeincomments{B0}}ù) objects.
-    D0 d(0), dd(0);  //   "         "       "    "    (ù{\codeincomments{D0}}ù)    ".
+    B0 b(0), bb(0);  // Create destination and source (Ã¹{\codeincomments{B0}}Ã¹) objects.
+    D0 d(0), dd(0);  //   "         "       "    "    (Ã¹{\codeincomments{D0}}Ã¹)    ".
 
     b = bb;          // OK, assign base from lvalue base.
     b = B0(0);       // OK,   "       "   "  rvalue   "
 
-    d = bb;          // Error: (ù{\codeincomments{B0::operator=}}ù) is hidden by (ù{\codeincomments{D0::operator=}}ù).
+    d = bb;          // Error: (Ã¹{\codeincomments{B0::operator=}}Ã¹) is hidden by (Ã¹{\codeincomments{D0::operator=}}Ã¹).
     d = B0(0);       // Error:       "         "    "     "        "
 
     d.B0::operator=(bb);     // OK, explicit slicing is still possible.
@@ -107,18 +115,19 @@ void f()
     d = dd;          // OK, assign derived from lvalue derived.
     d = D0(0);       // OK,   "        "     "  rvalue    "
 }
-\end{lstlisting}
-
+\end{emcppslisting}
+    
 \noindent Note that, when inheriting constructors, private constructors in the
 base class are accessed as private constructors of that base class and
-are subject to the same access controls; see \textit{\titleref{annoyances-inheritingctor}: \titleref{access-levels-of-inherited-constructors-are-same-as-in-base-class}} on page~\pageref{access-levels-of-inherited-constructors-are-same-as-in-base-class}.
+are subject to the same access controls; see \intraref{annoyances-inheritingctor}{access-levels-of-inherited-constructors-are-same-as-in-base-class}. 
+% \textit{\titleref{annoyances-inheritingctor}: \titleref{access-levels-of-inherited-constructors-are-same-as-in-base-class}} on page~\pageref{access-levels-of-inherited-constructors-are-same-as-in-base-class}.
 
-Inheriting constructors having the same \textbf{signature} from multiple
+Inheriting constructors having the same \romeogloss{signature} from multiple
 base classes lead to ambiguity errors:
 
-\begin{lstlisting}[language=C++]
-struct B1A { B1A(int); };
-struct B1B { B1B(int); };
+\begin{emcppslisting}[language=C++]
+struct B1A { B1A(int)Í¾ }Í¾ // Here we have two bases classes, each of which
+struct B1B { B1B(int)Í¾ }Í¾ // provides a conversion constructor from an int.
 
 struct D1 : B1A, B1B
 {
@@ -126,19 +135,21 @@ struct D1 : B1A, B1B
     using B1B::B1B;
 };
 
-D1 d1(0);  // Error: Call of overloaded (ù{\codeincomments{D1(int)}}ù) is ambiguous.
-\end{lstlisting}
-
+D1 d1(0);  // Error: Call of overloaded (Ã¹{\codeincomments{D1(int)}}Ã¹) is ambiguous.
+\end{emcppslisting}
+    
 \noindent Each inherited constructor shares the same characteristics as the
-corresponding one in the nominated base class's constructors and then
-delegates to it. This means the \textbf{access specifiers}, the
-\texttt{explicit} specifier, the \texttt{constexpr} specifier, the
+corresponding one in the nominated base class's constructor and then
+delegates to it. This means the \romeogloss{access specifiers}, the
+\lstinline!explicit! specifier, the \lstinline!constexpr! specifier, the
 default arguments, and the exception specification are also preserved by
-constructor inheritance; see ``\titleref{noexcept}" on page~\pageref{noexcept} and ``\titleref{constexprfunc}" on page~\pageref{constexprfunc}. For template
+constructor inheritance; see \featureref{\locatione}{noexcept-specifier} and \featureref{\locationc}{constexprfunc}.  
+%``\titleref{noexcept}" on page~\pageref{noexcept} and ``\titleref{constexprfunc}" on page~\pageref{constexprfunc}. 
+For template
 constructors, the template parameter list and the default template
 arguments are preserved as well:
 
-\begin{lstlisting}[language=C++]
+\begin{emcppslisting}[language=C++]
 struct B2
 {
     template <typename T = int>
@@ -146,198 +157,212 @@ struct B2
 };
 
 struct D2 : B2 { using B2::B2; };
-\end{lstlisting}
-
-\noindent The declaration \texttt{using}~\texttt{B2::B2} above behaves as if a
+\end{emcppslisting}
+    
+\noindent The declaration \lstinline!using!~\lstinline!B2::B2! above behaves as if a
 constructor template that delegates to its nominated base class's
-template was provided in \texttt{D2}:
+template was provided in \lstinline!D2!:
 
-\begin{lstlisting}[language=C++]
+\begin{emcppslisting}[language=C++]
 // pseudocode
 struct D2 : B2
 {
     template <typename T = int>
     explicit D2(T i) : B2(i) { }
-}
-\end{lstlisting}
-
+};
+\end{emcppslisting}
+    
 \noindent When deriving from a base class in which inheriting most
 (but not all) of its constructors is desirable, suppressing
 inheritance of one or more of them is possible by providing constructors in the
 derived class having the same signature as the ones that would be
 inherited:
 
-\begin{lstlisting}[language=C++]
-struct B2
+\begin{emcppslisting}[language=C++]
+struct B3
 {
-    B2()         { std::cout << "B2()\n"; }
-    B2(int)      { std::cout << "B2(int)\n"; }
-    B2(int, int) { std::cout << "B2(int, int)\n"; }
+    B3()         { std::cout << "B3()\n"; }
+    B3(int)      { std::cout << "B3(int)\n"; }
+    B3(int, int) { std::cout << "B3(int, int)\n"; }
 };
 
-struct D2 : B2
+struct D3 : B3
 {
-    using B2::B2;
-    D2(int) { std::cout << "D2(int)\n"; }
+    using B3::B3;
+    D3(int) { std::cout << "D3(int)\n"; }
 };
 
-D2 d;        // prints (ù{\codeincomments{"B2()"}}ù)
-D2 e(0);     // Prints (ù{\codeincomments{"D2(int)"}}ù) --- The derived constructor is invoked.
-D2 f(0, 0);  // prints (ù{\codeincomments{"B2(int, int)"}}ù)
-\end{lstlisting}
-
+D3 d;        // prints (Ã¹{\codeincomments{"B3()"}}Ã¹)
+D3 e(0);     // prints (Ã¹{\codeincomments{"D3(int)"}}Ã¹) --- The derived constructor is invoked.
+D3 f(0, 0);  // prints (Ã¹{\codeincomments{"B3(int, int)"}}Ã¹)
+\end{emcppslisting}
+    
 \noindent In other words, we can suppress what would otherwise be an inherited
 constructor from a nominated base class by simply declaring a
 replacement with the same signature in the derived class. We can then
-choose to either implement it ourselves, default it (see ``\titleref{defaulted-special-member-functions}" on page~\pageref{defaulted-special-member-functions}), or \texttt{delete} it (see ``\titleref{deleted-functions}" on page~\pageref{deleted-functions}).
+choose to either implement it ourselves, \lstinline!default! it (see \featureref{\locationa}{defaulted-special-member-functions}), 
+%``\titleref{defaulted-special-member-functions}" on page~\pageref{defaulted-special-member-functions}), 
+or \lstinline!delete! it (see \featureref{\locationa}{deleted-functions}). 
+% ``\titleref{deleted-functions}" on page~\pageref{deleted-functions}).
 
 If we have chosen to inherit the constructors from multiple
 base classes, we can disambiguate conflicts by declaring the offending
 constructor(s) explicitly in the derived class and then delegating to
 the base classes if and as appropriate:
 
-\begin{lstlisting}[language=C++]
-struct B1A { B1A(int); };  // Here we have two bases classes, each of which
-struct B1B { B1B(int); };  // provides a conversion constructor from an (ù{\codeincomments{int}}ù).
+\begin{emcppslisting}[language=C++]
+struct B1A { B1A(int); };  // Here we have two base classes, each of which
+struct B1B { B1B(int); };  // provides a conversion constructor from an (Ã¹{\codeincomments{int}}Ã¹).
 
-struct D1 : B1A, B1B
+struct D3 : B1A, B1B
 {
-    using B1A::B1A;  // Inherit the (ù{\codeincomments{int}}ù) constructor from base class (ù{\codeincomments{B1A}}ù).
-    using B1B::B1B;  // Inherit the (ù{\codeincomments{int}}ù) constructor from base class (ù{\codeincomments{B1B}}ù).
+    using B1A::B1A;  // Inherit the (Ã¹{\codeincomments{int}}Ã¹) constructor from base class (Ã¹{\codeincomments{B1A}}Ã¹).
+    using B1B::B1B;  // Inherit the (Ã¹{\codeincomments{int}}Ã¹) constructor from base class (Ã¹{\codeincomments{B1B}}Ã¹).
 
-    D1(int i) : B1A(i), B1B(i) { }  // Declare the (ù{\codeincomments{int}}ù) conversion constructor
-};                                  // explicitly, and then delegate to bases.
+    D3(int i) : B1A(i), B1B(i) { }  // User-declare (Ã¹{\codeincomments{int}}Ã¹) conversion constructor
+};                                  // that delegates to bases.
 
-D1 d1(0);  // OK, calls (ù{\codeincomments{D1(int)}}ù)
-\end{lstlisting}
-
-\noindent Lastly, inheriting constructors from a \textbf{dependent
+D3 d3(0);  // OK, calls (Ã¹{\codeincomments{D3(int)}}Ã¹)
+\end{emcppslisting}
+    
+\noindent Lastly, inheriting constructors from a \romeogloss{dependent
 type} affords a capability over C++03 that is more than just convenience
 and avoidance of boilerplate code.{\cprotect\footnote{A decidedly more
 complex alternative affording a different set of tradeoffs would
-  involve variadic template constructors (see ``\titleref{variadictemplate}" on page~\pageref{variadictemplate}) having
- forwarding references (see ``\titleref{forwardingref}" on page~\pageref{forwardingref}) as parameters. In this
+  involve variadic template constructors (see \featureref{\locationc}{variadictemplate}) 
+%  ``\titleref{variadictemplate}" on page~\pageref{variadictemplate}) 
+  having
+ forwarding references (see \featureref{\locationc}{forwardingref}) 
+% ``\titleref{forwardingref}" on page~\pageref{forwardingref}) 
+ as parameters. In this
   alternative approach, all of the constructors from the
-  \mbox{\texttt{public}}, \mbox{\texttt{protected}}, and \mbox{\texttt{private}} regions of the
+  \mbox{\lstinline!public!}, \mbox{\lstinline!protected!}, and \mbox{\lstinline!private!} regions of the
   bases class would now appear under the same access specifier --- i.e.,
   the one in which the perfectly forwarding constructor is declared.
   What's more, this approach would not retain other constructor
-  characteristics, such as \texttt{explicit}, \texttt{noexcept},
-  \texttt{constexpr}, and so on. The forwarding can, however, be restricted to
-  inheriting just the \texttt{public} constructors (without
-  characteristics) by constraining on \texttt{std::is\_constructible}
-  using \textbf{SFINAE}; see \textit{\titleref{annoyances-inheritingctor}: \titleref{access-levels-of-inherited-constructors-are-same-as-in-base-class}} on page~\pageref{access-levels-of-inherited-constructors-are-same-as-in-base-class}.}} In all of the example code in \textit{\titleref{description-inheritingctor}} thus far, we know how to spell the
+  characteristics, such as \lstinline!explicit!, \lstinline!noexcept!,
+  \lstinline!constexpr!, and so on. The forwarding can, however, be restricted to
+  inheriting just the \lstinline!public! constructors (without
+  characteristics) by constraining on \lstinline!std::is_constructible!
+  using \romeogloss{SFINAE}; see \intraref{annoyances-inheritingctor}{access-levels-of-inherited-constructors-are-same-as-in-base-class}.}} 
+%  \textit{\titleref{annoyances-inheritingctor}: \titleref{access-levels-of-inherited-constructors-are-same-as-in-base-class}} on page~\pageref{access-levels-of-inherited-constructors-are-same-as-in-base-class}.}} 
+  In all of the example code in \intrarefsimple{description-inheritingctor} 
+%  \textit{\titleref{description-inheritingctor}} 
+  thus far, we know how to ``spell" the
 base-class constructor; we are simply automating some drudge work. In
 the case of a \emph{dependent} base class, however, we do \emph{not}
 know how to spell the constructors, so we \emph{must} rely on
-\textbf{inheriting constructors} if that is the forwarding semantic we
+\romeogloss{inheriting constructors} if that is the forwarding semantic we
 seek:
 
-\begin{lstlisting}[language=C++]
-template <class T>
-struct S : T  // The base type, (ù{\codeincomments{T}}ù), is a *dependent type*.
+\begin{emcppslisting}[language=C++]
+template <typename T>
+struct S : T  // The base type, (Ã¹{\codeincomments{T}}Ã¹), is a *dependent type*.
 {
     using T::T;  // inheriting constructors (generically) from a dependent type
 };
 
-#include <string>  // (ù{\codeincomments{std::string}}ù)
-#include <vector>  // (ù{\codeincomments{std::vector}}ù)
+#include <string>
+#include <vector>
 
-S<std::string>        ss("hello");     // OK, uses constructor from base
+S<std::string>        ss("hello");    // OK, uses constructor from base
 S<std::vector<char>> svc("goodbye");  // Error: no suitable constructor in base
-\end{lstlisting}
-
-\noindent In this example, we created a class template, \texttt{S}, that
-derived publicly from its template argument, \texttt{T}. Then, when
-creating an object of type \texttt{S} parameterized by
-\texttt{std::string}, we were able to pass it a string literal via
-the inherited \texttt{std::string} constructor overloaded on a
-\texttt{const}~\texttt{char*}. Notice, however, that no such constructor
-is available in \texttt{std::vector}; hence, attempting to create the
-derived class from a literal string results in a compile-time error. See \textit{\titleref{use-cases-ctorinheriting}: \titleref{incorporating-reusable-functionality-via-a-mix-in-class}} on page~\pageref{incorporating-reusable-functionality-via-a-mix-in-class}.
+\end{emcppslisting}
+    
+\noindent In this example, we created a class template, \lstinline!S!, that
+derives publicly from its template argument, \lstinline!T!. Then, when
+creating an object of type \lstinline!S! parameterized by
+\lstinline!std::string!, we were able to pass it a string literal via
+the inherited \lstinline!std::string! constructor overloaded on a
+\lstinline!const!~\lstinline!char*!. Notice, however, that no such constructor
+is available in \lstinline!std::vector!; hence, attempting to create the
+derived class from a literal string results in a compile-time error. See \intraref{use-cases-ctorinheriting}{incorporating-reusable-functionality-via-a-mix-in-class}. 
+%\textit{\titleref{use-cases-ctorinheriting}: \titleref{incorporating-reusable-functionality-via-a-mix-in-class}} on page~\pageref{incorporating-reusable-functionality-via-a-mix-in-class}.
 
 \subsection[Use Cases]{Use Cases}\label{use-cases-ctorinheriting}
+%\subsubsection[Abstract use case]{Abstract use case}
+\label{abstract-use-case}
 
-\subsubsection[Abstract use case]{Abstract use case}\label{abstract-use-case}
-
-Use of this form of \texttt{using} declaration to inherit a nominated
+Use of this form of \lstinline!using! declaration to inherit a nominated
 base class's constructors --- essentially verbatim --- suggests that one
 or more of those constructors is sufficient to initialize the
 \emph{entire} derived-class object to a valid useful state. Typically,
 such will pertain only when the derived class adds no member data of its
 own. While additional derived-class member data could possibly
-default, this state must be \emph{orthogonal} to
+be initialized if by a \emph{defaulted} default constructor, this state must be \emph{orthogonal} to
 any modifiable state initialized in the base class, as such state is
-subject to independent change via \textbf{slicing}, which might in turn
-invalidate \textbf{object invariants}. Derived-class data will need either
-to default or to have its value set using member
-initializers (see ``\titleref{Default-Member-Initializers}" on page~\pageref{Default-Member-Initializers}). Hence, most typical use cases will involve wrapping an
+subject to independent change via \romeogloss{slicing}, which might in turn
+invalidate \romeogloss{object invariants}. Derived-class data will be either default-initialized or have its value set using member
+initializers (see \featureref{\locationc}{Default-Member-Initializers}).  
+%``\titleref{Default-Member-Initializers}" on page~\pageref{Default-Member-Initializers}). 
+Hence, most typical use cases will involve wrapping an
 existing class by deriving from it (either publicly or privately),
 adding only defaulted data members having orthogonal values, and then
-adjusting the derived class's behavior via \textbf{overriding} its virtual
-or \textbf{hiding} its and non-virtual member functions.
+adjusting the derived class's behavior via \romeogloss{overriding} its virtual
+or \romeogloss{hiding} its non-virtual member functions.
 
 \subsubsection[Avoiding boilerplate code when employing structural inheritance]{Avoiding boilerplate code when employing structural inheritance}\label{avoiding-boilerplate-code-code-when-employing-structural-inheritance}
 
 A key indication for the use of inheriting constructors is that the
 derived class addresses only auxiliary or optional, rather than required
 or necessary, functionality to its self-sufficient base class. As an
-interesting, albeit mostly pedagogical,{\cprotect\footnote{Although this
-example might be compelling, it suffers from inherent deficiencies
-making it insufficient for general use in practice: Passing the
-derived class to a function --- whether by value or reference -- will
-strip it of its auxiliary functionality. The best-known solution --- a
-C++2x language-based contract-checking facility --- is exactly what's
-  needed ubiquitously. We plan to cover this topic in \textbf{lakos23}.}} example, suppose we
-want to provide a proxy for a \texttt{std::vector} that performs
+interesting, albeit mostly pedagogical,{\cprotect\footnote{Although this example might be compelling, it suffers from inherent deficiencies making it insufficient for general use in practice: Passing the derived class to a function --- whether by value or reference --- will
+strip it of its auxiliary functionality. When we have access to the source, and alternative solution would be to use conditional compilation to add explicit checks in certain build configurations (e.g., using C-style \lstinline!assert! macros). A more robust solution along these same lines is anticipated for a future release of the C++ language standard and will be addressed in \cite{lakos23}.}} example, suppose we
+want to provide a proxy for a \lstinline!std::vector! that performs
 explicit checking of indices supplied to its index operator:
 
-\begin{lstlisting}[language=C++]
-#include <vector>   // (ù{\codeincomments{std::vector}}ù)
-#include <cassert>  // standard C (ù{\codeincomments{assert}}ù) macro
+\begin{emcppslisting}[language=C++]
+#include <cassert>                                                              
+#include <vector>
 
 template <typename T>
 struct CheckedVector : std::vector<T>
 {
-    using std::vector<T>::vector;      // Inherit (ù{\codeincomments{std::vector}}ù)'s constructors.
+    using std::vector<T>::vector;      // Inherit (Ã¹{\codeincomments{std::vector}}Ã¹)'s constructors.
 
-    T& operator[](std::size_t index)   // Hide (ù{\codeincomments{std::vector}}ù)'s index operator.
+    T& operator[](std::size_t index)   // Hide (Ã¹{\codeincomments{std::vector}}Ã¹)'s index operator.
     {
          assert(index < std::vector<T>::size());
          return std::vector<T>::operator[](index);
     }
 
-    const T& operator[](std::size_t index) const  // Hide (ù{\codeincomments{const}}ù) index operator.
+    const T& operator[](std::size_t index) const  // Hide (Ã¹{\codeincomments{const}}Ã¹) index operator.
     {
          assert(index < std::vector<T>::size());
          return std::vector<T>::operator[](index);
     }
 };
-\end{lstlisting}
-
+\end{emcppslisting}
+    
 \noindent In the example above, inheriting constructors allowed us to use public
-(structural) inheritance to readily create a distinct new type having
+structural inheritance to readily create a distinct new type having
 all of the functionality of its base type except for a couple of
 functions where we chose to augment the original behavior.
 
 \subsubsection[Avoiding boilerplate code when employing implementation inheritance]{Avoiding boilerplate code when employing implementation inheritance}\label{avoiding-boilerplate-code-when-employing-implementation-inheritance}
 
-Sometimes it can be cost effective to adapt a \textbf{concrete class}
+Sometimes it can be cost effective to adapt a \romeogloss{concrete class}
 having virtual functions{\cprotect\footnote{Useful design patterns
-exist where a \textbf{partial implementation} class, derived from a
-pure abstract interface (a.k.a. a \textbf{protocol}), contains data,
+exist where a \romeogloss{partial implementation} class, derived from a
+pure abstract interface (a.k.a. a \romeogloss{protocol}), contains data,
 constructors, and pure virtual functions; see
-  \textbf{lakos2a}, section~4.7.}} to a specialized purpose
+  \cite{lakos2a}, section~4.7.}} to a specialized purpose
 using inheritance.{\cprotect\footnote{Such inheritance, known as
-\textbf{implementation inheritance}, is decidedly distinct from pure
-\textbf{interface inheritance}, which is often the preferred design
-  pattern in practice; see \textbf{{lakos2b}}, section~4.6.}}
-As an example, consider a \textbf{concrete} base class,
-\texttt{NetworkDataStream}, that allows overriding its virtual functions
+\romeogloss{implementation inheritance}, is decidedly distinct from pure
+\romeogloss{interface inheritance}, which is often the preferred design
+  pattern in practice; see \cite{lakos2b}, section~4.6.}}
+As an example, consider a base class,
+\lstinline!NetworkDataStream!, that allows overriding its virtual functions
 for processing a stream of data from an expanding variety of arbitrary
 sources over the network:
 
-\begin{lstlisting}[language=C++]
+\begin{emcppshiddenlisting}
+class DataPacket;                                                               
+class RawDataStreamHandle;                                                      
+class TCPConnection;                                                            
+class UDPConnection
+\end{emcppshiddenlisting}
+\begin{emcppslisting}[language=C++]
 class NetworkDataStream
 {
 private:
@@ -352,19 +377,25 @@ public:
 
     virtual void onPacketReceived(DataPacket& dataPacket) = 0;
         // Derived classes must override this method.
-\end{lstlisting}
-
-\noindent The concrete class above now provides three constructors (with more
+};        
+\end{emcppslisting}
+    
+\noindent The \lstinline!NetworkDataStream! class above provides three constructors (with more
 under development) that can be used assuming no per-packet processing is
 required. Now, imagine the need for logging information about received
 packets (e.g., for auditing purposes). Inheriting constructors make
-deriving from \texttt{NetworkDataStream} and overriding (see
-``\titleref{override}" on page~\pageref{override})
-\texttt{onPacketReceived(DataPacket\&)} more convenient --- i.e.,
-without having to reimplement each of the constructors, which are
+deriving from \lstinline!NetworkDataStream! and overriding (see \featureref{\locationa}{override}) 
+%``\titleref{override}" on page~\pageref{override}) 
+\lstinline!onPacketReceived(DataPacket&)! more convenient because we don't need to reimplement each of the constructors, which are
 anticipated to increase in number over time:
 
-\begin{lstlisting}[language=C++]
+\begin{emcppshiddenlisting}
+#include <iostream> // 'std::cerr'                                              
+#include <ostream>                                                              
+                                                                                
+std::ostream& operator<<(std::ostream& stream, const DataPacket& data);
+\end{emcppshiddenlisting}
+\begin{emcppslisting}[language=C++]
 class LoggedNetworkDataStream : public NetworkDataStream
 {
 public:
@@ -376,36 +407,45 @@ public:
         NetworkDataStream::onPacketReceived(dataPacket);  // Delegate to base.
     }
 };
-\end{lstlisting}
+\end{emcppslisting}
+    
 
+\subsubsection[Implementing a strong \lstinline!typedef!]{Implementing a strong {\SubsubsecCode typedef}}\label{implementing-a-strong-typedef}
 
-\subsubsection[Implementing a strong {\tt typedef}]{Implementing a strong {\SubsubsecCode typedef}}\label{implementing-a-strong-typedef}
-
-Classic \texttt{typedef} declarations --- just like C++11
-\texttt{using} declarations (see ``\titleref{alias-declarations-and-alias-templates}" on page~\pageref{alias-declarations-and-alias-templates}) --- are just synonyms; they
+Classic \lstinline!typedef! declarations --- just like C++11
+\lstinline!using! declarations (see \featureref{\locationa}{alias-declarations-and-alias-templates}) 
+% ``\titleref{alias-declarations-and-alias-templates}" on page~\pageref{alias-declarations-and-alias-templates}) 
+--- are just synonyms; they
 offer absolutely no type safety. A commonly desired capability is to
-provide an alias to an existing type \texttt{T} that is uniquely
-interoperable with itself, explicitly convertible from \texttt{T}, but
-not implicitly convertible from \texttt{T}. This somewhat \emph{more}
-``type-safe'' form of alias is sometimes referred to as a \textbf{strong
-\texttt{typedef}}.{\cprotect\footnote{A so-called \textbf{strong
-  \texttt{typedef}} is similar to a classic, C-style enumeration in
-  that it is (1) its own type and (2) implicitly convertible to its
-  base type (which for enumerators corresponds to its
-  \textbf{underlying type}; see ``\titleref{explicit-enumeration-underlying-type}" on page~\pageref{explicit-enumeration-underlying-type}). Unlike a classic
-  \texttt{enum}, however, a typical implementation of a \textbf{strong
-  \texttt{typedef}} allows only for explicit conversion from its base
-  type. An analogy to the more strongly typed
-\texttt{enum}~\texttt{class} (see ``\titleref{enumclass}" on page~\pageref{enumclass}) would suppress conversion
-  in either direction, e.g., via private inheritance and then
-  \texttt{explicit} conversion constructors and
- \texttt{explicit} conversion operators (see ``\titleref{explicit-conversion-operators}" on page~\pageref{explicit-conversion-operators}).}}
+provide an alias to an existing type \lstinline!T! that is uniquely
+interoperable with itself, explicitly convertible from \lstinline!T!, but
+not implicitly convertible from \lstinline!T!. This somewhat \emph{more}
+type-safe form of alias is sometimes referred to as a \romeogloss{strong
+\lstinline!typedef!}.{\cprotect\footnote{A typical implementation of a \romeogloss{strong \lstinline!typedef!} suppresses implicit conversions both from the new type to the type it wraps and vice versa via \lstinline!explicit! converting constructors and \lstinline!explicit! conversion operators.  In this respect, the relationship of \romeogloss{strong \lstinline!typedef!} with the type it wraps is analogous to that of a scoped enumeration (\lstinline!enum!~\lstinline!class!)  to its \romeogloss{underlying type}; see \featureref{\locationc}{explicit-enumeration-underlying-type}.}}
+%A so-called \romeogloss{strong
+%  \lstinline!typedef!} is similar to a classic, C-style enumeration in
+%  that it is (1) its own type and (2) implicitly convertible to its
+%  base type (which for enumerators corresponds to its
+%  \romeogloss{underlying type}; see \featureref{\locationc}{explicit-enumeration-underlying-type}). 
+%%  ``\titleref{explicit-enumeration-underlying-type}" on page~\pageref{explicit-enumeration-underlying-type}). 
+%  Unlike a classic
+%  \lstinline!enum!, however, a typical implementation of a \romeogloss{strong
+%  \lstinline!typedef!} allows only for explicit conversion from its base
+%  type. An analogy to the more strongly typed
+%\lstinline!enum!~\lstinline!class! (see \featureref{\locationc}{enumclass}) 
+%% ``\titleref{enumclass}" on page~\pageref{enumclass}) 
+%would suppress conversion
+%  in either direction, e.g., via private inheritance and then
+%  \lstinline!explicit! conversion constructors and
+% \lstinline!explicit! conversion operators (see \featureref{\locationa}{explicit-conversion-operators}).
+% [Underlying Type'11]{.xref}, [`enum class`]{.xref}, and [`explicit` Operators]{.xref}.}}
+% ``\titleref{explicit-conversion-operators}" on page~\pageref{explicit-conversion-operators}).}}
 
 As a practical example, suppose we are exposing, to a fairly wide and varied audience, a class,
-\texttt{PatientInfo}, that associates two \texttt{Date} objects to a
+\lstinline!PatientInfo!, that associates two \lstinline!Date! objects to a
 given hospital patient:
 
-\begin{lstlisting}[language=C++]
+\begin{emcppslisting}[language=C++]
 class Date
 {
     // ...
@@ -427,13 +467,13 @@ public:
         // Please pass the birthday as the first date and the appointment as
         // the second one!
 };
-\end{lstlisting}
-
-\noindent For the sake of argument, imagine that our users are not as assiduous as
+\end{emcppslisting}
+    
+\noindent For the sake of argument, imagine that our users are not as diligent as
 they should be in reading documentation to know which constructor
 argument is which:
 
-\begin{lstlisting}[language=C++]
+\begin{emcppslisting}[language=C++]
 PatientInfo client1(Date birthday, Date appointment)
 {
     return PatientInfo(birthday, appointment);  // OK
@@ -444,10 +484,10 @@ int client2(PatientInfo* result, Date birthday, Date appointment)
     *result = PatientInfo(appointment, birthday);  // Oops! wrong order
     return 0;
 }
-\end{lstlisting}
-
+\end{emcppslisting}
+    
 \noindent Now suppose that we continue to get complaints, from folks like
-\texttt{client2} in the example above, that our code doesn't work. What can we
+\lstinline!client2! in the example above, that our code doesn't work. What can we
 do?{\cprotect\footnote{Although this example is presented lightheartedly, misuse by clients is a perennial problem in large-scale
 software organizations. Choosing the same type for both arguments
 might well be the right choice in some environments but not in others.
@@ -455,54 +495,55 @@ We are not advocating use of this technique; we are merely
   acknowledging that it exists.}}
 
 One way is to force clients to make a conscious and explicit decision in
-their own source code as to which \texttt{Date} is the birthday and
-which is the appointment. Employing a \textbf{strong \texttt{typedef}}
+their own source code as to which \lstinline!Date! is the birthday and
+which is the appointment. Employing a \romeogloss{strong \lstinline!typedef!}
 can help us to achieve this goal. Inheriting constructors provide a
-concise way to define a \textbf{strong \texttt{typedef}}; for
+concise way to define a \romeogloss{strong \lstinline!typedef!}; for
 the example above, they can be used to define two new types to
-represent, uniquely, a birthday and an appointment date:
+ uniquely represent a birthday and an appointment date:
 
-\begin{lstlisting}[language=C++]
-struct Birthday : Date  // somewhat type-safe alias for a (ù{\codeincomments{Date}}ù)
+\begin{emcppslisting}[language=C++]
+struct Birthday : Date  // somewhat type-safe alias for a (Ã¹{\codeincomments{Date}}Ã¹)
 {
-    using Date::Date;  // inherit (ù{\codeincomments{Date}}ù)'s three integer ctor
-    explicit Birthday(Date d) : Date(d) { }  // (ù{\codeincomments{explicit}}ù) conversion from (ù{\codeincomments{Date}}ù)
+    using Date::Date;  // inherit (Ã¹{\codeincomments{Date}}Ã¹)'s three integer ctor
+    explicit Birthday(Date d) : Date(d) { }  // (Ã¹{\codeincomments{explicit}}Ã¹) conversion from (Ã¹{\codeincomments{Date}}Ã¹)
 };
 
-struct Appointment : Date  // somewhat type-safe alias for a (ù{\codeincomments{Date}}ù)
+struct Appointment : Date  // somewhat type-safe alias for a (Ã¹{\codeincomments{Date}}Ã¹)
 {
-    using Date::Date;  // inherit (ù{\codeincomments{Date}}ù)'s three integer ctor
-    explicit Appointment(Date d) : Date(d) { }  // (ù{\codeincomments{explicit}}ù) conv. from (ù{\codeincomments{Date}}ù)
+    using Date::Date;  // inherit (Ã¹{\codeincomments{Date}}Ã¹)'s three integer ctor
+    explicit Appointment(Date d) : Date(d) { }  // (Ã¹{\codeincomments{explicit}}Ã¹) conv. from (Ã¹{\codeincomments{Date}}Ã¹)
 };
-\end{lstlisting}
-
-\noindent The \texttt{Birthday} and \texttt{Appointment} types expose the same
-interface of \texttt{Date}, yet, given our inheritance-based design,
-\texttt{Date} is not implicitly convertible to either. Most importantly,
+\end{emcppslisting}
+    
+\noindent The \lstinline!Birthday! and \lstinline!Appointment! types expose the same
+interface of \lstinline!Date!, yet, given our inheritance-based design,
+\lstinline!Date! is not implicitly convertible to either. Most importantly,
 however, these two new types are not implicitly convertible to each
 other:
 
-\begin{lstlisting}[language=C++]
+\begin{emcppslisting}[language=C++]
 Birthday b0(1994, 10, 4);  // OK, thanks to inheriting constructors
 Date d0 = b0;              // OK, thanks to public inheritance
-Birthday b1 = d0;          // error: no implicit conversion from (ù{\codeincomments{Date}}ù)
-Appointment a0;            // Error: (ù{\codeincomments{Appointment}}ù) has no default ctor.
-Appointment a1 = b0;       // error: no implicit conversion from (ù{\codeincomments{Birthday}}ù)
-Birthday n2(d0);           // OK, thanks to an (ù{\codeincomments{explicit}}ù) constructor in (ù{\codeincomments{Birthday}}ù)
-Birthday b3(a0);           // OK, an (ù{\codeincomments{Appointment}}ù) (unfortunately) is a (ù{\codeincomments{Date}}ù).
-\end{lstlisting}
-
-\noindent We can now reimagine a \texttt{PatientInfo} class that exploits this
+Birthday b1 = d0;          // Error: no implicit conversion from (Ã¹{\codeincomments{Date}}Ã¹)
+Appointment a0;            // Error: (Ã¹{\codeincomments{Appointment}}Ã¹) has no default ctor.
+Appointment a1 = b0;       // Error: no implicit conversion from (Ã¹{\codeincomments{Birthday}}Ã¹)
+Birthday n2(d0);           // OK, thanks to an (Ã¹{\codeincomments{explicit}}Ã¹) constructor in (Ã¹{\codeincomments{Birthday}}Ã¹)
+Appointment a2(1999, 9, 17); // OK, thanks to inheriting constructors           
+Birthday    b3(a2);          // OK, an (Ã¹{\codeincomments{Appointment}}Ã¹) (unfortunately) is a (Ã¹{\codeincomments{Date.}}Ã¹)
+\end{emcppslisting}
+    
+\noindent We can now reimagine a \lstinline!PatientInfo! class that exploits this
 newfound (albeit artificially manufactured{\cprotect\footnote{Replicating
 types that have identical behavior in the name of type safety can run
 afoul of interoperability. Distinct types that are otherwise
 physically similar are often most appropriate when their respective
 behaviors are inherently distinct and unlikely to interact in practice
-(e.g., a \mbox{\texttt{CartesianPoint}} and a \mbox{\texttt{RationalNumber}},
+(e.g., a \mbox{\lstinline!CartesianPoint!} and a \mbox{\lstinline!RationalNumber!},
 each implemented as having two integral data members); see
-  \textbf{{lakos2a}}, section~4.4.}}) type-safety:
+  \cite{lakos2a}, section~4.4.}}) type-safety:
 
-\begin{lstlisting}[language=C++]
+\begin{emcppslisting}[language=C++]
 class PatientInfo
 {
 private:
@@ -511,43 +552,50 @@ private:
 
 public:
     PatientInfo(Birthday birthday, Appointment appointment);
-        // Why should I bother to write documentation you won't read anyway!?
+        // Please pass the birthday as the first argument and the appointment as
+        // the second one! 
 };
-\end{lstlisting}
-
+\end{emcppslisting}
+    
 \noindent Now our clients have no choice but to make their intentions clear at the
-call site:
+call site. The previous implementation of the client functions no longer compile:
 
-\begin{lstlisting}[language=C++]
-PatientInfo client0(Date birthday, Date appointment)
+\begin{emcppslisting}[language=C++]
+PatientInfo client1(Date birthday, Date appointment)
 {
     return PatientInfo(birthday, appointment);  // Sorry, doesn't compile.
 }
 
-int client1(PatientInfo* result, Date birthday, Date appointment)
+int client2(PatientInfo* result, Date birthday, Date appointment)
 {
     *result = PatientInfo(appointment, birthday);  // Nope! Doesn't compile.
     return 0;
 }
-
-PatientInfo client3(Date birthday, Date appointment)
+\end{emcppslisting}
+Because the clients now need to explicitly convert their \lstinline!Date! objects to the appropriate \romeogloss{strong \lstinline!typedef!s}, it is easy to spot and fix the defect in \lstinline!client2!:
+\begin{emcppslisting}
+PatientInfo client1(Date birthday, Date appointment)
 {
     return PatientInfo(Birthday(birthday), Appointment(appointment));  // OK
 }
 
-int client4(PatientInfo* result, Date birthday, Date appointment)
+int client2(PatientInfo* result, Date birthday, Date appointment)
 {
     Birthday b(birthday);
     Appointment a(appointment)
     *result = PatientInfo(b, a);  // OK
 }
-\end{lstlisting}
-
-\noindent This example works because the \textbf{value constructor} takes three
-arguments and cannot be invoked as part of an implicit conversion
-sequence; see \textit{\titleref{potential-pitfalls-ctorinheriting}: \titleref{beware-of-inheriting-implicit-constructors}} on page~\pageref{beware-of-inheriting-implicit-constructors}. Note that, in an ideal
-world where thorough unit testing is ubiquitous, such machinations would
-most likely be supererogatory.
+\end{emcppslisting}
+    
+\noindent 
+%This example works because the \romeogloss{value constructor} takes three
+%arguments and cannot be invoked as part of an implicit conversion
+%sequence; see \intraref{potential-pitfalls-ctorinheriting}{beware-of-inheriting-implicit-constructors}. 
+%%\textit{\titleref{potential-pitfalls-ctorinheriting}: \titleref{beware-of-inheriting-implicit-constructors}} on page~\pageref{beware-of-inheriting-implicit-constructors}. 
+%Note that, in an ideal
+%world where thorough unit testing is ubiquitous, such machinations would
+%most likely be supererogatory.
+In this example, the client functions failed to compile after the introduction of the \romeogloss{strong \lstinline!typedef!s} which is the intended effect. However, if \lstinline!Date! objects were \emph{implicitly} constructed when client functions created \lstinline!PatientInfo!, the defective code would continue to compile because both \romeogloss{strong \lstinline!typedef!s} can be implicitly constructed from the same arguments; see \intraref{potential-pitfalls-ctorinheriting}{beware-of-inheriting-implicit-constructors}.
 
 \subsubsection[Incorporating reusable functionality via a mix-in]{Incorporating reusable functionality via a mix-in}\label{incorporating-reusable-functionality-via-a-mix-in-class}
 
@@ -555,54 +603,54 @@ Some classes are designed to generically enhance the behavior of a class
 just by inheriting from it; such classes are sometimes referred to as
 \emph{mix-ins}. If we wish to adapt a class to support the additional
 behavior of the mix-in, with no other change to its behavior, we can use
-simple \textbf{structural inheritance} (e.g., to preserve reference
+simple \romeogloss{structural inheritance} (e.g., to preserve reference
 compatibility through function calls). To preserve the public interface,
 however, we will need it to inherit the constructors as well.
 
 Consider, for example, a simple class to track the total number of
 objects created:
 
-\begin{lstlisting}[language=C++]
+\begin{emcppslisting}[language=C++]
 template <typename T>
 struct CounterImpl  // mix-in used to augment implementation of arbitrary type
 {
-    static int s_constructed;  // count of the number of (ù{\codeincomments{T}}ù) objects constructed
+    static int s_constructed;  // count of the number of (Ã¹{\codeincomments{T}}Ã¹) objects constructed
 
     CounterImpl()                   { ++s_constructed; }
     CounterImpl(const CounterImpl&) { ++s_constructed; }
 };
 
 template <typename T>
-CounterImpl<T>::s_constructed;  // required member definition
-\end{lstlisting}
+int CounterImpl<T>::s_constructed;  // required member definition
+\end{emcppslisting}
+    
+\noindent The class template \lstinline!CounterImpl!, in the example above, counts the number of
+times an object of type \lstinline!T! was constructed during a run of the
+program. We can then write a generic adapter, \lstinline!Counted!, to
+facilitate use of \lstinline!CounterImpl! as a \emph{mix-in}:
 
-\noindent The class template \texttt{CounterImpl}, in the example above, counts the number of
-times an object of type \texttt{T} was constructed during a run of the
-program. We can then write a generic adapter, \texttt{Counted}, to
-facilitate use of \texttt{CounterImpl} as a \emph{mix-in}:
-
-\begin{lstlisting}[language=C++]
-template <class T>
+\begin{emcppslisting}[language=C++]
+template <typename T>
 struct Counted : T, CounterImpl<T>
 {
     using T::T;
 };
-\end{lstlisting}
-
-\noindent Note that the \texttt{Counted} adaptor class inherits all of the
-constructors of the \emph{dependent} class, \texttt{T}, that it wraps,
+\end{emcppslisting}
+    
+\noindent Note that the \lstinline!Counted! adaptor class inherits all of the
+constructors of the \emph{dependent} class, \lstinline!T!, that it wraps,
 without its having to know what those constructors are:
 
-\begin{lstlisting}[language=C++]
-#include <string>   // (ù{\codeincomments{std::string}}ù)
-#include <vector>   // (ù{\codeincomments{std::vector}}ù)
-#include <myfoo.h>  // (ù{\codeincomments{MyFoo}}ù)
+\begin{emcppslisting}[language=C++]
+#include <string>   // (Ã¹{\codeincomments{std::string}}Ã¹)
+#include <vector>   // (Ã¹{\codeincomments{std::vector}}Ã¹)
+#include "myfoo.h"  // (Ã¹{\codeincomments{MyFoo}}Ã¹)
 
-Counted<std::string>        cs;  // Construct a counted string.
-Counted<std::vector<char>> cvc;  // Construct a counted vector of (ù{\codeincomments{char}}ù).
-Counted<MyFoo>             cmf;  // Construct a counted (ù{\codeincomments{MyFoo}}ù) object.
-\end{lstlisting}
-
+Counted<std::string>       cs ("ABC");  // Construct a counted (Ã¹{\codeincomments{string}Ã¹).          
+Counted<std::vector<char>> cvc(3, 'a'); // Construct a counted vector of (Ã¹{\codeincomments{char}Ã¹).
+Counted<MyFoo>             cmf;         // Construct a counted (Ã¹{\codeincomments{MyFoo}}Ã¹) object.
+\end{emcppslisting}
+    
 \noindent While inheriting constructors are a convenience in nongeneric
 programming, they can be an essential tool for generic idioms.
 
@@ -613,62 +661,71 @@ programming, they can be an essential tool for generic idioms.
 The introduction of a new constructor in a base class might silently
 change a program's run-time behavior if that constructor happens to be a
 better match during overload resolution of an existing instantiation of
-a derived class. Consider a \texttt{Session} class that initially provides only two constructors:
+a derived class. Consider a \lstinline!Session! class that initially provides only two constructors:
 
-\begin{lstlisting}[language=C++]
+\begin{emcppshiddenlisting}
+class RawSessionHandle;
+\end{emcppshiddenlisting}
+\begin{emcppslisting}[language=C++]
 struct Session
 {
     Session();
     explicit Session(RawSessionHandle* rawSessionHandle);
 };
-\end{lstlisting}
-
-\noindent Now, imagine that a class, \texttt{AuthenticatedSession}, derived from
-\texttt{Session}, inherits the two constructors of its base class and provides its own constructor that accepts an integral
+\end{emcppslisting}
+    
+\noindent Now, imagine that a class, \lstinline!AuthenticatedSession!, derived from
+\lstinline!Session!, inherits the two constructors of its base class and provides its own constructor that accepts an integral
 authentication token:
 
-\begin{lstlisting}[language=C++]
+\begin{emcppslisting}[language=C++]
 struct AuthenticatedSession : Session
 {
     using Session::Session;
     explicit AuthenticatedSession(long long authToken);
 };
-\end{lstlisting}
-
-\noindent Finally, consider an instantiation of \texttt{AuthenticatedSession} in
+\end{emcppslisting}
+    
+\noindent Finally, consider an instantiation of \lstinline!AuthenticatedSession! in
 user-facing code:
 
-\begin{lstlisting}[language=C++]
+\begin{emcppslisting}[language=C++]
 AuthenticatedSession authSession(45100);
-\end{lstlisting}
-
-\noindent In the line above and the example above that, \texttt{authSession} will be initialized by
-invoking the constructor accepting a \texttt{long}~\texttt{long} (see ``\titleref{long-long}" on page~\pageref{long-long}) authentication token. If, however, a new
-constructor having the signature \texttt{Session(int)} is added to the
+\end{emcppslisting}
+    
+\noindent In the example above, \lstinline!authSession! will be initialized by
+invoking the constructor accepting a \lstinline!long!~\lstinline!long! (see \featureref{\locationa}{long-long}) 
+%``\titleref{long-long}" on page~\pageref{long-long}) 
+authentication token. If, however, a new
+constructor having the signature \lstinline!Session(int!~\lstinline!fd)! is added to the
 base class, it will be invoked instead because it is a better match to the
-literal \texttt{45100} (of type \texttt{int}) than the constructor
-taking a \texttt{long}~\texttt{long} supplied explicitly in the derived
+literal \lstinline!45100! (of type \lstinline!int!) than the constructor
+taking a \lstinline!long!~\lstinline!long! supplied explicitly in the derived
 class; hence, adding a constructor to a base class might lead to a
-potential latent (runtime) defect that would go unreported at compile
+potential latent defect that would go unreported at compile
 time.
 
-Note that this problem with shifting implicit conversions is not unique
-to inheriting constructors; any form of \texttt{using} declaration or
+Note that this problem with implicit conversions for function parameters is not unique
+to inheriting constructors; any form of \lstinline!using! declaration or
 invocation of an overloaded function carries a similar risk. Imposing
-stronger typing --- e.g., by using \textbf{strong \texttt{typedef}s} (see \textit{\titleref{use-cases-ctorinheriting}: \titleref{implementing-a-strong-typedef}} on page~\pageref{implementing-a-strong-typedef}) --- might sometimes, however, help to prevent such
+stronger typing --- e.g., by using \romeogloss{strong \lstinline!typedef!s} (see \intraref{use-cases-ctorinheriting}{implementing-a-strong-typedef}) 
+%\textit{\titleref{use-cases-ctorinheriting}: \titleref{implementing-a-strong-typedef}} on page~\pageref{implementing-a-strong-typedef}) 
+--- might sometimes, however, help to prevent such
 unfortunate missteps.
 
-\subsubsection[Beware of inheriting implicit constructors]{Beware of inheriting implicit constructors}\label{beware-of-inheriting-implicit-constructors}
+\subsubsection[Inheriting \emph{implicit} constructors]{Inheriting {\sfbsubsubsecitalRomeo implicit} constructors}\label{beware-of-inheriting-implicit-constructors}
 
 Inheriting from a class that has implicit constructors can cause
 surprises. Consider again the use of inheriting constructors to
-implement a \textbf{strong \texttt{typedef}} from \textit{\titleref{use-cases-ctorinheriting}: \titleref{implementing-a-strong-typedef}} on page~\pageref{implementing-a-strong-typedef}. This time, however, let's suppose we are
-exposing, to a fairly wide and varied audience, a class
-\texttt{PointOfInterest}, that associates the name and address of a
+implement a \romeogloss{strong \lstinline!typedef!} from \intraref{use-cases-ctorinheriting}{implementing-a-strong-typedef}. 
+%\textit{\titleref{use-cases-ctorinheriting}: \titleref{implementing-a-strong-typedef}} on page~\pageref{implementing-a-strong-typedef}. 
+This time, however, let's suppose we are
+exposing a class,
+\lstinline!PointOfInterest!, that associates the name and address of a
 given popular tourist attraction:
 
-\begin{lstlisting}[language=C++]
-#include <string>  // (ù{\codeincomments{std::string}}ù)
+\begin{emcppslisting}[language=C++]
+#include <string>  // (Ã¹{\codeincomments{std::string}}Ã¹)
 
 class PointOfInterest
 {
@@ -678,60 +735,63 @@ private:
 
 public:
     PointOfInterest(const std::string& name, const std::string& address);
-        // Please pass the (ù{\codeincomments{name}}ù) as the *first* and the (ù{\codeincomments{address}}ù) *second*!
+        // Please pass the (Ã¹{\codeincomments{name}}Ã¹) as the *first* and the (Ã¹{\codeincomments{address}}Ã¹) *second*!
 };
-\end{lstlisting}
-
+\end{emcppslisting}
+    
 \noindent Again imagine that our users are not always careful about inspecting the
 function prototype:
 
-\begin{lstlisting}[language=C++]
-PointOfInterested client1(const char* name, const char* address)
+\begin{emcppslisting}[language=C++]
+PointOfInterest client1(const std::string& name, const std::string& address)
 {
     return PointOfInterest(name, address);  // OK
 }
 
-int client2(PointOfInterest* result, const char* name, const char* address)
+int client2(PointOfInterest*   result,                                          
+            const std::string& name,                                            
+            const std::string& address)
 {
     *result = PointOfInterest(address, name);  // Oops! wrong order
     return 0;
 }
-\end{lstlisting}
+\end{emcppslisting}
+    
+\noindent We might think to again use \romeogloss{strong \lstinline!typedef!s} here as we
+did for \lstinline!PatientInfo! in \intraref{use-cases-ctorinheriting}{implementing-a-strong-typedef}: 
+%\textit{\titleref{use-cases-ctorinheriting}: \titleref{implementing-a-strong-typedef}} on page~\pageref{implementing-a-strong-typedef}:
 
-\noindent We might think to again use \textbf{strong \texttt{typedef}s} here as we
-did for \texttt{PatientAppointment} in \textit{\titleref{use-cases-ctorinheriting}: \titleref{implementing-a-strong-typedef}} on page~\pageref{implementing-a-strong-typedef}:
-
-\begin{lstlisting}[language=C++]
-struct Name : std::string  // somewhat type-safe alias for a (ù{\codeincomments{std::string}}ù)
+\begin{emcppslisting}[language=C++]
+struct Name : std::string  // somewhat type-safe alias for a (Ã¹{\codeincomments{std::string}}Ã¹)
 {
-    using std::string::string;  // Inherit, as is, all of (ù{\codeincomments{std::string}}ù)'s ctors.
+    using std::string::string;  // Inherit, as is, all of (Ã¹{\codeincomments{std::string}}Ã¹)'s ctors.
     explicit Name(const std::string& s) : std::string(s) { }  // conversion
 };
 
-struct Address : std::string  // somewhat type-safe alias for a (ù{\codeincomments{std::string}}ù)
+struct Address : std::string  // somewhat type-safe alias for a (Ã¹{\codeincomments{std::string}}Ã¹)
 {
-    using std::string::string;  // Inherit, as is, all of (ù{\codeincomments{std::string}}ù)'s ctors.
+    using std::string::string;  // Inherit, as is, all of (Ã¹{\codeincomments{std::string}}Ã¹)'s ctors.
     explicit Address(const std::string& s) : std::string(s) { }  // conversion
 };
-\end{lstlisting}
-
-\noindent The \texttt{Name} and \texttt{Address} types are not interconvertible; they expose the same interfaces as \texttt{std::string} but are not
+\end{emcppslisting}
+    
+\noindent The \lstinline!Name! and \lstinline!Address! types are not interconvertible; they expose the same interfaces as \lstinline!std::string! but are not
 implicitly convertible from it:
 
-\begin{lstlisting}[language=C++]
+\begin{emcppslisting}[language=C++]
 Name n0 = "Big Tower";  // OK, thanks to inheriting constructors
 std::string s0 = n0;    // OK, thanks to public inheritance
-Name n1 = s0;           // error: no implicit conversion from (ù{\codeincomments{std::string}}ù)
-Address a0;             // OK, unfortunately a (ù{\codeincomments{std::string}}ù) has a default ctor.
-Address a1 = n0;        // error: no implicit conversion from (ù{\codeincomments{Name}}ù)
-Name n2(s0);            // OK, thanks to an (ù{\codeincomments{explicit}}ù) constructor in (ù{\codeincomments{Name}}ù)
-Name b3(a0);            // OK, an (ù{\codeincomments{Address}}ù) (unfortunately) is a (ù{\codeincomments{std::string}}ù).
-\end{lstlisting}
+Name n1 = s0;           // error: no implicit conversion from (Ã¹{\codeincomments{std::string}}Ã¹)
+Address a0;             // OK, unfortunately a (Ã¹{\codeincomments{std::string}}Ã¹) has a default ctor.
+Address a1 = n0;        // error: no implicit conversion from (Ã¹{\codeincomments{Name}}Ã¹)
+Name n2(s0);            // OK, thanks to an (Ã¹{\codeincomments{explicit}}Ã¹) constructor in (Ã¹{\codeincomments{Name}}Ã¹)
+Name b3(a0);            // OK, an (Ã¹{\codeincomments{Address}}Ã¹) (unfortunately) is a (Ã¹{\codeincomments{std::string}}Ã¹).
+\end{emcppslisting}
+    
+\noindent We can rework the \lstinline!PointOfInterest! class to use the
+\romeogloss{strong \lstinline!typedef!} idiom:
 
-\noindent We can rework the \texttt{PointOfInterest} class to use the
-\textbf{strong \texttt{typedef}} idiom:
-
-\begin{lstlisting}[language=C++]
+\begin{emcppslisting}[language=C++]
 class PointOfInterest
 {
 private:
@@ -741,43 +801,46 @@ private:
 public:
     PointOfInterest(const Name& name, const Address& address);
 };
-\end{lstlisting}
-
+\end{emcppslisting}
+    
 \noindent Now if our clients use the base class itself as a parameter, they will
 again need to make their intentions known:
 
-\begin{lstlisting}[language=C++]
-PointOfInterested client1(const std::string& name, const std::string address)
+\begin{emcppslisting}[language=C++]
+PointOfInterest client1(const std::string& name, const std::string& address)    
+{                                                                               
+    return PointOfInterest(Name(name), Address(address));
+} 
+
+int client2(PointOfInterest*   result,                                          
+            const std::string& name,                                            
+            const std::string& address)                                         
 {
-    return PointOfInterest(address, name);  // sorry, doesn't compile
+   *result = PointOfInterest(Name(name), Address(address)); // Fix forced.     
+    return 0;                                                                   
 }
+\end{emcppslisting}
+    
+\noindent But suppose that some clients pass the arguments by
+\lstinline!const!~\lstinline!char*! instead of\linebreak[4]
+\mbox{\lstinline!const!~\lstinline!std::string&!}:
 
-PointOfInterested client2(const char* name, const char* address)
-{
-    return PointOfInterest(Name(name), Address(address));  // OK
-}
-\end{lstlisting}
-
-\noindent But suppose that some clients instead pass the arguments by
-\texttt{const}~\texttt{char*} instead of\linebreak[4]
-\mbox{\texttt{const}~\texttt{std::string\&}}:
-
-\begin{lstlisting}[language=C++]
-PointOfInterested client3(const char* name, const char* address)
+\begin{emcppslisting}[language=C++]
+PointOfInterest client3(const char* name, const char* address)
 {
     return PointOfInterest(address, name);  // Oops! compiles but runtime error
 }
-\end{lstlisting}
-
-\noindent In the case of \texttt{client3} in the code snippet above, passing the arguments through
-\emph{does} compile because the \texttt{const}~\texttt{char*}
+\end{emcppslisting}
+    
+\noindent In the case of \lstinline!client3! in the code snippet above, passing the arguments through
+\emph{does} compile because the \lstinline!const!~\lstinline!char*!
 constructors are inherited; hence, there is no attempt to convert
-to a \texttt{std::string} before matching the \emph{implicit} conversion
-constructor. Had the \texttt{std::string} conversion
-constructor been declared to be \texttt{explicit}, the code would not
+to a \lstinline!std::string! before matching the \emph{implicit} conversion
+constructor. Had the \lstinline!std::string! conversion
+constructor been declared to be \lstinline!explicit!, the code would not
 have compiled. In short, inheriting constructors from types that perform implicit
-conversions seriously undermine the effectiveness of the \textbf{strong
-\texttt{typedef}} idiom.
+conversions can seriously undermine the effectiveness of the \romeogloss{strong
+\lstinline!typedef!} idiom.
 
 \subsection[Annoyances]{Annoyances}\label{annoyances-inheritingctor}
 
@@ -790,12 +853,14 @@ with the same signature is provided in the derived class. If the
 programmer desires to inherit all constructors of a base class except
 for perhaps one or two, the straightforward workaround would be to
 declare the undesired constructors in the derived class and then use
-deleted functions (see ``\titleref{deleted-functions}" on page~\pageref{deleted-functions}) to explicitly exclude them.
+deleted functions (see \featureref{\locationa}{deleted-functions}) 
+% ``\titleref{deleted-functions}" on page~\pageref{deleted-functions}) 
+to explicitly exclude them.
 
-For example, suppose we have a general class, \texttt{Datum}, that can
+For example, suppose we have a general class, \lstinline!Datum!, that can
 be constructed from a variety of types:
 
-\begin{lstlisting}[language=C++]
+\begin{emcppslisting}[language=C++]
 struct Datum
 {
     Datum(bool);
@@ -805,99 +870,104 @@ struct Datum
     Datum(long);
     Datum(long long);
 };
-\end{lstlisting}
-
-\noindent If we wanted to create a version of \texttt{Datum}, call it
-\texttt{NumericalDatum}, that inherits all but the one constructor
-taking a \texttt{bool}, our derived class would (1) inherit publicly,
+\end{emcppslisting}
+    
+\noindent If we wanted to create a version of \lstinline!Datum!, call it
+\lstinline!NumericalDatum!, that inherits all but the one constructor
+taking a \lstinline!bool!, our derived class would (1) inherit publicly, 
 (2) declare the unwanted constructor, and then (3) mark it with
-\texttt{=}~\texttt{delete}:
+\lstinline!=!\,\lstinline!delete!:
 
-\begin{lstlisting}[language=C++]
+\begin{emcppslisting}[language=C++]
 struct NumericalDatum : Datum
 {
     using Datum::Datum;             // Inherit all the constructors...
-    NumericalDatum(bool) = delete;  // ...except the one taking a (ù{\codeincomments{bool}}ù).
+    NumericalDatum(bool) = delete;  // ...except the one taking a (Ã¹{\codeincomments{bool}}Ã¹).
 };
-\end{lstlisting}
-
+\end{emcppslisting}
+    
 \noindent Note that the subsequent addition of any non-numerical constructor to
-\texttt{Datum} (e.g., a constructor taking \texttt{std::string}) would
-defeat the purpose of \texttt{NumericalDatum}.
+\lstinline!Datum! (e.g., a constructor taking \lstinline!std::string!) would
+defeat the purpose of \lstinline!NumericalDatum! unless that inherited constructor were explicitly excluded from \lstinline!NumericalDataum! by use of \lstinline!=!\,\lstinline!delete!.
 
 \subsubsection[Access levels of inherited constructors are the same as in base class]{Access levels of inherited constructors are the same as in base class}\label{access-levels-of-inherited-constructors-are-same-as-in-base-class}
 
 Unlike base-class member functions that can be introduced with a
-\texttt{using} directive with an arbitrary access level into the derived
+\lstinline!using! directive with an arbitrary access level into the derived
 class (as long as they are accessible by the derived class), the access
-level of the \texttt{using} declaration for inherited constructors is
-ignored.{\cprotect\footnote{Alisdair Meredith, one of the authors of the
-Standards paper that proposed this feature (\textbf{meredith08}), suggests that
-placing the \texttt{using} declaration for \textbf{inheriting
-constructors} as the very first member declaration and preceding any
-\textbf{access specifiers} might be the least confusing location. Programmers might still be confused by
-the disparate default access levels of \texttt{class} versus
-  \texttt{struct}.}} The inherited constructor overload is instead
+level of the \lstinline!using! declaration for inherited constructors is
+ignored. The inherited constructor overload is instead
 accessible \emph{if} the corresponding base-class constructor would be
 accessible:
 
-\begin{lstlisting}[language=C++]
+\begin{emcppslisting}[language=C++]
 struct Base
 {
 private:
-    Base(int) { }  // This constructor is declared (ù{\codeincomments{private}}ù) in the base class.
+    Base(int) { }  // This constructor is declared (Ã¹{\codeincomments{private}}Ã¹) in the base class.
     void pvt0() { }
     void pvt1() { }
 
 public:
-    Base() { }     // This constructor is declared (ù{\codeincomments{public}}ù) in the base class.
+    Base() { }     // This constructor is declared (Ã¹{\codeincomments{public}}Ã¹) in the base class.
     void pub0() { }
     void pub1() { }
 };
-\end{lstlisting}
-
-\noindent Note that, when employing \texttt{using} to (1) inherit constructors or
+\end{emcppslisting}
+    
+\noindent Note that, when employing \lstinline!using! to (1) inherit constructors or
 (2) elevate base-class definitions in the presence of private
-inheritance, public clients of the class might find it necessary
+inheritance, public clients of the class might find it necessary 
 to look at what are ostensibly private implementation details of the
 derived class to make proper use of that type through its
 public interface:
 
-\begin{lstlisting}[language=C++]
-struct Derived : private Base
+\begin{emcppslisting}[language=C++]
+struct Derived(Ã¹{\footnotemark}Ã¹) : private Base
 {
-    using Base::Base;  // OK, inherited (ù{\codeincomments{Base()}}ù) as (ù{\codeincomments{public}}ù) constructor
-                       // and (ù{\codeincomments{Base(int)}}ù) as (ù{\codeincomments{private}}ù) constructor
+    using Base::Base;  // OK, inherited (Ã¹{\codeincomments{Base()}}Ã¹) as (Ã¹{\codeincomments{public}}Ã¹) constructor
+                       // and (Ã¹{\codeincomments{Base(int)}}Ã¹) as (Ã¹{\codeincomments{private}}Ã¹) constructor
 
 private:
-    using Base::pub0;  // OK, (ù{\codeincomments{pub0}}ù) is declared (ù{\codeincomments{private}}ù) in derived class.
-    using Base::pvt0;  // Error: (ù{\codeincomments{pvt0}}ù) was declared private in base class.
+    using Base::pub0;  // OK, (Ã¹{\codeincomments{pub0}}Ã¹) is declared (Ã¹{\codeincomments{private}}Ã¹) in derived class.
+    using Base::pvt0;  // Error: (Ã¹{\codeincomments{pvt0}}Ã¹) was declared private in base class.
 
 public:
-    using Base::pub1;  // OK, (ù{\codeincomments{pub1}}ù) is declared (ù{\codeincomments{public}}ù) in derived class.
-    using Base::pvt1;  // Error: (ù{\codeincomments{pvt1}}ù) was declared (ù{\codeincomments{private}}ù) in base class.
+    using Base::pub1;  // OK, (Ã¹{\codeincomments{pub1}}Ã¹) is declared (Ã¹{\codeincomments{public}}Ã¹) in derived class.
+    using Base::pvt1;  // Error: (Ã¹{\codeincomments{pvt1}}Ã¹) was declared (Ã¹{\codeincomments{private}}Ã¹) in base class.
 };
 
 void client()
 {
      Derived x(0);  // Error: Constructor was declared private in base class.
-     Derived d;     // OK, constructor was declared (ù{\codeincomments{public}}ù) in base class.
-     d.pub0();      // Error: (ù{\codeincomments{pub0}}ù) was declared (ù{\codeincomments{private}}ù) in derived class.
-     d.pub1();      // OK, (ù{\codeincomments{pub1}}ù) was declared (ù{\codeincomments{public}}ù) in derived class.
-     d.pvt0();      // Error: (ù{\codeincomments{pvt0}}ù) was declared private in base class.
-     d.pvt1();      // Error: (ù{\codeincomments{pvt1}}ù) was declared private in base class.
+     Derived d;     // OK, constructor was declared (Ã¹{\codeincomments{public}}Ã¹) in base class.
+     d.pub0();      // Error: (Ã¹{\codeincomments{pub0}}Ã¹) was declared (Ã¹{\codeincomments{private}}Ã¹) in derived class.
+     d.pub1();      // OK, (Ã¹{\codeincomments{pub1}}Ã¹) was declared (Ã¹{\codeincomments{public}}Ã¹) in derived class.
+     d.pvt0();      // Error: (Ã¹{\codeincomments{pvt0}}Ã¹) was declared private in base class.
+     d.pvt1();      // Error: (Ã¹{\codeincomments{pvt1}}Ã¹) was declared private in base class.
 }
-\end{lstlisting}
-
+\end{emcppslisting}
+{\cprotect\footnotetext{Alisdair Meredith, one of the authors of the
+Standards paper that proposed this feature (\cite{meredith08}), suggests that
+placing the \lstinline!using! declaration for \romeogloss{inheriting
+constructors} as the very first member declaration and preceding any
+\romeogloss{access specifiers} might be the least confusing location. Programmers might still be confused by
+the disparate default access levels of \lstinline!class! versus
+  \lstinline!struct!.}}
+    
 \noindent This C++11 feature was itself created because the previously proposed
 solution --- which also involved a couple of features new in C++11, namely
 forwarding the arguments to base-class constructors with
-forwarding references (see ``\titleref{forwardingref}" on page~\pageref{forwardingref}) and variadic
-templates (see ``\titleref{variadictemplate}" on page~\pageref{variadictemplate}) --- made somewhat different tradeoffs and was
+forwarding references (see \featureref{\locationc}{forwardingref}) 
+% ``\titleref{forwardingref}" on page~\pageref{forwardingref}) 
+and variadic
+templates (see \featureref{\locationc}{variadictemplate}) 
+% ``\titleref{variadictemplate}" on page~\pageref{variadictemplate}) 
+--- made somewhat different tradeoffs and was
 considered too onerous and fragile to be practically useful:
 
-\begin{lstlisting}[language=C++]
-#include <utility>  // (ù{\codeincomments{std::forward}}ù)
+\begin{emcppslisting}[language=C++]
+#include <utility>  // (Ã¹{\codeincomments{std::forward}}Ã¹)
 
 struct Base
 {
@@ -912,44 +982,28 @@ protected:
     {
     }
 };
-\end{lstlisting}
-
-\noindent In the example above, we have used forwarding references (see ``\titleref{forwardingref}" on page~\pageref{forwardingref})
+\end{emcppslisting}
+    
+\noindent In the example above, we have used forwarding references (see \featureref{\locationc}{forwardingref}) 
+% ``\titleref{forwardingref}" on page~\pageref{forwardingref})
 to properly delegate the implementation of a constructor that is
-declared \mbox{\texttt{protected}} in the derived class to a \texttt{public}
+declared \mbox{\lstinline!protected!} in the derived class to a \lstinline!public!
 constructor of a privately inherited base class. Although this approach
 fails to preserve many of the characteristics of the inheriting
-constructors (e.g., \texttt{explicit}, \texttt{constexpr},
-\texttt{noexcept}, and so on), the functionality described in the code snippet above is
+constructors (e.g., \lstinline!explicit!, \lstinline!constexpr!,
+\lstinline!noexcept!, and so on), the functionality described in the code snippet above is
 simply not possible using the C++11 inheriting-constructors feature.
 
-\subsection[See Also]{See Also}\label{see-also}
-
-\begin{itemize}
-\item{``\titleref{override}" on page~\pageref{override} — Used to ensure that a member function intended to override a virtual function actual does}
-\item{``\titleref{deleted-functions}" on page~\pageref{deleted-functions} — Can be used to exclude inherited constructors that are unwanted entirely}
-\item{``\titleref{Defaulted-Special-Member-Functions}" on page~\pageref{Defaulted-Special-Member-Functions} — Used to implement functions that might otherwise have been suppressed by inherited constructors}
-\item{``\titleref{delegating-constructors}" on page~\pageref{delegating-constructors} — Related feature used to call one constructor from another from within the same user-defined type}
-\item{``\titleref{Default-Member-Initializers}" on page~\pageref{Default-Member-Initializers} — Useful in conjunction with this feature when a derived class adds member data}
-\item{``\titleref{forwardingref}" on page~\pageref{forwardingref} — Used in alternative (workaround) when access levels differ from those for base-class constructors}
-\item{``\titleref{variadictemplate}" on page~\pageref{variadictemplate} — Used in alternative (workaround) when access levels differ from those for base-class constructors}
-\item{``\titleref{Default-Member-Initializers}" on page~\pageref{Default-Member-Initializers} — Can be used to provide nondefault values for data members in derived classes that make use of inheriting constructors}
-\end{itemize}
-
-\subsection[Further Reading]{Further Reading}\label{further-reading}
-
-None so far
-
-\subsection[Appendix: C++17 Improvements Made Retroactive to C++11/14]{Appendix: C++17 Improvements Made Retroactive to C++11/14}\label{appendix}\label{c++17-improvements-made-retroactive-to-c++11/14}
+\subsubsection[Flawed initial specification led to diverging early implementations]{Flawed initial specification led to diverging early implementations}
 
 The original specification of inheriting constructors in C++11 had a
-significant number of problems with general use. As originally specified,
+significant number of problems with general use.\footnote{For the detailed analysis of the issues that were the consequence of the flawed initial C++11 specification of inheriting constructors, see [PRODUCTION: LINK TO BOOK WEBSITE SUPPLEMENTAL MATERIAL.]} As originally specified,
 inherited constructors were treated as if they were redeclared in
-the derived class. For C++17, a significant rewording of this feature\footnote{\textbf{smith15b}}
+the derived class. For C++17, a significant rewording of this feature\footnote{\cite{smith15b}}
 happened to instead find the base class
 constructors and then define how they are used to construct an instance
 of the derived class, as we have presented here. With a final fix in
-C++20 with the resolution of CWG issue \#2356,\footnote{\textbf{smith18}} a complete
+C++20 with the resolution of CWG issue \#2356,\footnote{\cite{smith18}} a complete
 working feature was specified. All of these fixes for C++17 were
 accepted as defect reports and thus apply retroactively to C++11 and
 C++14. For the major compilers, this was either standardizing already
@@ -958,166 +1012,210 @@ and Clang versions above 4.0 all have the modern behavior
 fully implemented regardless of which standard version is chosen when
   compiling.}}
 
-The subsections that follow describe the subtle bugs that came with the previous
-specification, both for completeness and to give a better
-understanding of what to expect on very old compilers, though none fully
-implemented the original specification as written.
+\subsection[See Also]{See Also}\label{see-also}
 
-\subsubsection[Inheriting constructors declared with a C-style ellipsis]{Inheriting constructors declared with a C-style ellipsis}
+\begin{itemize}
+\item{%``\titleref{delegating-constructors}" on page~\pageref{delegating-constructors} â€” 
+\seealsoref{delegating-constructors}{\seealsolocationa}Related feature used to call one constructor from another from within the same user-defined type.}
+\item{%``\titleref{Defaulted-Special-Member-Functions}" on page~\pageref{Defaulted-Special-Member-Functions} â€” 
+\seealsoref{Defaulted-Special-Member-Functions}{\seealsolocationa}Used to implement functions that might otherwise have been suppressed by inherited constructors.}
+\item{%``\titleref{deleted-functions}" on page~\pageref{deleted-functions} â€” 
+\seealsoref{deleted-functions}{\seealsolocationa}Can be used to exclude inherited constructors that are unwanted entirely.}
+\item{%``\titleref{override}" on page~\pageref{override} â€” 
+\seealsoref{override}{\seealsolocationa}Used to ensure that a member function intended to override a virtual function actually does so.}
+\item{%``\titleref{Default-Member-Initializers}" on page~\pageref{Default-Member-Initializers} â€” 
+\seealsoref{Default-Member-Initializers}{\seealsolocationc}Useful in conjunction with this feature when a derived class adds member data.}
+\item{`%`\titleref{Default-Member-Initializers}" on page~\pageref{Default-Member-Initializers} â€” 
+\seealsoref{Default-Member-Initializers}{\seealsolocationc}Can be used to provide nondefault values for data members in derived classes that make use of inheriting constructors.}
+\item{%``\titleref{forwardingref}" on page~\pageref{forwardingref} â€” 
+\seealsoref{forwardingref}{\seealsolocationc}Used in alternative (workaround) when access levels differ from those for base-class constructors.}
+\item{%``\titleref{variadictemplate}" on page~\pageref{variadictemplate} â€” 
+\seealsoref{variadictemplate}{\seealsolocationc}Used in alternative (workaround) when access levels differ from those for base-class constructors.}
+\end{itemize}
 
-Forwarding arguments from a constructor declared using a C-style ellipsis cannot forward correctly. Arguments passed through the ellipsis are not available as named arguments but must instead be accessed through the \texttt{va\_arg} family of macros. Without named arguments, no easily supported way is available to call the base-class constructor with the additional arguments:
-\begin{lstlisting}[language=C++]
-struct Base
-{
-    Base(int x, ...) { }  // constructor taking C-style variadic args
-};
+\subsection[Further Reading]{Further Reading}\label{further-reading}
 
-struct Derived : Base
-{
-    using Base::Base;  // Error: Prior to C++17 fixes, standard wording
-                       // does not allow forwarding C-style variadic args.
-};
-\end{lstlisting}
-    This problem is sidestepped in C++17 because the base-class constructor becomes available just like any other base-class function made available through a \texttt{using} declaration in the derived class.
+None so far
 
-\subsubsection[Inheriting constructors that rely on friendship to declare function parameters]{Inheriting constructors that rely on friendship to declare\\ function parameters}
-
-When a constructor depends on access to a \texttt{private} member of a class (e.g., a \texttt{typedef}), an inheriting constructor does not implicitly grant friendship that the base class might have that makes the constructor valid. For example, consider the following class template, which grants friendship to class \texttt{B}:
-\begin{lstlisting}[language=C++]
-template <typename T>
-struct S
-{
-private:
-    typedef int X;
-    friend struct B;
-};
-\end{lstlisting}
-    Then, we can create a class with a constructor that relies on that friendship. In this case, we consider a constructor template using the dependent member \texttt{X}, assuming that, in the normal case, \texttt{X} would be publicly accessible:
-\begin{lstlisting}[language=C++]
-struct B
-{
-    template <typename T>
-    B(T, typename T::X);
-};
-\end{lstlisting}
-    Now consider class \texttt{D} derived from \texttt{B} and inheriting its constructors:
-\begin{lstlisting}[language=C++]
-struct D : B
-{
-    using B::B;
-};
-\end{lstlisting}
-    Without friendship, we cannot construct a \texttt{D} from an \texttt{S}, but we can construct a \texttt{B} from an \texttt{S}, suggesting something is wrong with the inheritance. Note that the SFINAE rules for templates mean that the inheriting constructor is a problem only if we try to construct an \texttt{S} with the problem type and does not cause a hard error without that use case. The following example illustrates the problematic usage:
-\begin{lstlisting}[language=C++]
-S<int> s;   // full specialization of (ù{\codeincomments{S}}ù) for type (ù{\codeincomments{int}}ù)
-B b(s, 2);  // OK, thanks to friendship
-D d(s, 2);  // Error: Prior to C++17 fixes, friendship is not inherited.
-\end{lstlisting}
-    As C++17 redefines the semantics of the inheriting constructor as if the base class’s constructors were merely exposed in the derived one, friendship is evaluated within the scope of the base class.
-
-\subsubsection[Inheriting constructor templates would be ill formed for a local class]{Inheriting constructor templates would be ill formed for a local class}
-
-A class declared within a function is a \textbf{local class}. Local classes have many restrictions, one of which is that they cannot declare member templates. If we inherit constructors from a base class with constructor templates, even \texttt{private} ones, the implicit declaration of a constructor template to forward arguments to the base-class constructor would be \textbf{ill formed}:
-\begin{lstlisting}[language=C++]
-struct Base
-{
-    template <typename T>
-    Base(T);
-};
-
-void f()
-{
-    class Local : Base
-    {
-        using Base::Base;  // Error: Prior to C++17 fixes, we cannot redeclare
-                           // the constructor template in local class.
-    };
-}
-\end{lstlisting}
-    C++17 resolves this by directly exposing the base-class constructors, rather than defining new constructors to forward arguments.
-
-\subsubsection[SFINAE evaluation context with default function arguments]{SFINAE evaluation context with default function arguments}
-
-Constructors that employ \textbf{SFINAE} tricks in default function arguments perform \mbox{\textbf{SFINAE}} checks in the wrong context and therefore inherit ill-formed constructors. No such issues occur when these \textbf{SFINAE} tricks are performed on default template arguments instead. As an example, consider a class template \texttt{Wrap} that has a template constructor with a \textbf{SFINAE} constraint:
-\begin{lstlisting}[language=C++]
-struct S { };
-
-template <typename T>
-struct Wrap
-{
-    template <typename U>
-    Wrap(U, typename std::enable_if<
-        std::is_constructible<T, U>::value>::type* = nullptr)
-        // This constructor is enabled only if (ù{\codeincomments{T}}ù) is constructible from (ù{\codeincomments{U}}ù).
-    {
-        std::cout << "SFINAE ctor\n";
-    }
-
-    Wrap(S)
-    {
-        std::cout << "S ctor\n";
-    }
-};
-\end{lstlisting}
-    If we derive from \texttt{Wrap} and inherit its constructors, we would expect the \textbf{SFINAE} constraint to behave exactly as in the base class, i.e., the template constructor overload would be silently discarded if \texttt{std::is\_constructible<T,}~\texttt{U>::value} evaluates to \texttt{false}:
-\begin{lstlisting}[language=C++]
-template <typename T>
-struct Derived : Wrap<T>
-{
-    using Wrap<T>::Wrap;
-};
-\end{lstlisting}
-    However, prior to C++17’s retroactive fixes, \textbf{SFINAE} was triggered only for \texttt{Wrap}, not for \texttt{Derived}:
-\begin{lstlisting}[language=C++]
-void f()
-{
-    S s;
-    Wrap<int> w(s);     // prints (ù{\codeincomments{"S ctor"}}ù)
-    Derived<int> d(s);  // error prior to fixes; prints (ù{\codeincomments{"S ctor"}}ù) afterward
-}
-\end{lstlisting}
-
-\subsubsection[Suppression of constructors in the presence of default arguments]{Suppression of constructors in the presence of default arguments}
-
-A constructor having one or more default arguments in the derived class does not suppress any corresponding constructors matching only the nondefaulted arguments in the base class, leading to ambiguities:
-\begin{lstlisting}[language=C++]
-struct B          // base class
-{
-    B(int, int);  // value constructor with two (required) (ù{\codeincomments{int}}ù) parameters
-};
-
-struct D : B
-{
-    using B::B;
-    D(int, int, int = 0);  // doesn't suppress (ù{\codeincomments{D(int, int)}}ù) from (ù{\codeincomments{B(int, int)}}ù)
-};
-\end{lstlisting}
-    In the code example above, the original defective behavior was that there would be two overloaded constructors in \texttt{D}; attempting to construct a \texttt{D} from two integers became ambiguous. In the corrected behavior, the inheriting \texttt{D(int,}~\texttt{int)} from the base-class constructor \texttt{B(int,}~\texttt{int)}, whose domain is fully subsumed by the derived class’s explicitly specified constructor \texttt{D(int,}~\texttt{int,}~\texttt{int}~\texttt{=}~\texttt{0)}, is suppressed.
-
-\subsubsection[Suprising behavior with unary constructor templates]{Suprising behavior with unary constructor templates}
-
-Because inherited constructors are redeclarations within the derived class and expect to forward properly to the corresponding base-class constructors, constructor templates may do very surprising things. In particular, a gregarious, templated constructor can appear to cause inheritance of a base-class copy constructor. Consider the following class with a constructor template:
-\begin{lstlisting}[language=C++]
-struct A
-{
-    A() = default;
-    A(const A&) { std::cout << "copy\n"; }
-
-    template <typename T>
-    A(T) { std::cout << "convert\n"; }
-};
-\end{lstlisting}
-    This simple class can convert from any type and prints those of its constructors that were called. Now consider we want to make a \textbf{strong \texttt{typedef}} for \texttt{A}:
-\begin{lstlisting}[language=C++]
-struct B : A
-{
-    using A::A;  // inherited base class (ù{\codeincomments{A}}ù)'s constructors
-};
-\end{lstlisting}
-    The problem is that because \texttt{A} can convert from anything, when \texttt{B} inherits \texttt{A}'s constructor template, \texttt{B} can then use the inherited constructor to construct an instance of \texttt{B} from \texttt{A}. Perhaps more surprising, because the definition of the inherited constructor in \texttt{B} is to initialize the \texttt{A} subobject with its parameters, the nontemplate inherited constructor will be chosen as the best match, not the templated, converting constructor!\cprotect\footnote{Note that if the template constructor for \texttt{A} were a \emph{copy} or \emph{move} constructor for \texttt{A}, then it would be excluded from being an inherited constructor and this odd behavior would be avoided. The by-value parameter of this constructor is also why \texttt{"copy"} is output twice in this example.
-\begin{lstlisting}[language=C++, basicstyle={\ttfamily\footnotesize}]
-A x;
-B y = x;  // Surprise! This compiles, and it prints (ù{\codeincomments{"copy"}}ù) twice!
-\end{lstlisting}
-    }
-
+%%%%%%%%%%% first para moves to be a final annoyance; remainder moves to supplemental material on website. See folder "For Web," file "inheritingctor-appendix"  
+%\subsection[Appendix: C++17 Improvements Made Retroactive to C++11/14]{Appendix: C++17 Improvements Made Retroactive to C++11/14}\label{appendix}\label{c++17-improvements-made-retroactive-to-c++11/14}
+%
+%The original specification of inheriting constructors in C++11 had a
+%significant number of problems with general use. As originally specified,
+%inherited constructors were treated as if they were redeclared in
+%the derived class. For C++17, a significant rewording of this feature\footnote{\cite{smith15b}}
+%happened to instead find the base class
+%constructors and then define how they are used to construct an instance
+%of the derived class, as we have presented here. With a final fix in
+%C++20 with the resolution of CWG issue \#2356,\footnote{\cite{smith18}} a complete
+%working feature was specified. All of these fixes for C++17 were
+%accepted as defect reports and thus apply retroactively to C++11 and
+%C++14. For the major compilers, this was either standardizing already
+%existing practice or quickly adopting the changes.{\cprotect\footnote{For example, GCC versions above 7.0
+%and Clang versions above 4.0 all have the modern behavior
+%fully implemented regardless of which standard version is chosen when
+%  compiling.}}
+%
+%The subsections that follow describe the subtle bugs that came with the previous
+%specification, both for completeness and to give a better
+%understanding of what to expect on very old compilers, though none fully
+%implemented the original specification as written.
+%
+%\subsubsection[Inheriting constructors declared with a C-style ellipsis]{Inheriting constructors declared with a C-style ellipsis}
+%
+%Forwarding arguments from a constructor declared using a C-style ellipsis cannot forward correctly. Arguments passed through the ellipsis are not available as named arguments but must instead be accessed through the \lstinline!va_arg! family of macros. Without named arguments, no easily supported way is available to call the base-class constructor with the additional arguments:
+%\begin{emcppslisting}[language=C++]
+%struct Base
+%{
+%    Base(int x, ...) { }  // constructor taking C-style variadic args
+%};
+%
+%struct Derived : Base
+%{
+%    using Base::Base;  // Error: Prior to C++17 fixes, standard wording
+%                       // does not allow forwarding C-style variadic args.
+%};
+%\end{emcppslisting}
+%    This problem is sidestepped in C++17 because the base-class constructor becomes available just like any other base-class function made available through a \lstinline!using! declaration in the derived class.
+%    
+%\subsubsection[Inheriting constructors that rely on friendship to declare function parameters]{Inheriting constructors that rely on friendship to declare\\ function parameters}
+%
+%When a constructor depends on access to a \lstinline!private! member of a class (e.g., a \lstinline!typedef!), an inheriting constructor does not implicitly grant friendship that the base class might have that makes the constructor valid. For example, consider the following class template, which grants friendship to class \lstinline!B!:
+%\begin{emcppslisting}[language=C++]
+%template <typename T>
+%struct S
+%{
+%private:
+%    typedef int X;
+%    friend struct B;
+%};
+%\end{emcppslisting}
+%    Then, we can create a class with a constructor that relies on that friendship. In this case, we consider a constructor template using the dependent member \lstinline!X!, assuming that, in the normal case, \lstinline!X! would be publicly accessible:
+%\begin{emcppslisting}[language=C++]
+%struct B
+%{
+%    template <typename T>
+%    B(T, typename T::X);
+%};
+%\end{emcppslisting}
+%    Now consider class \lstinline!D! derived from \lstinline!B! and inheriting its constructors:
+%\begin{emcppslisting}[language=C++]
+%struct D : B
+%{
+%    using B::B;
+%};
+%\end{emcppslisting}
+%    Without friendship, we cannot construct a \lstinline!D! from an \lstinline!S!, but we can construct a \lstinline!B! from an \lstinline!S!, suggesting something is wrong with the inheritance. Note that the SFINAE rules for templates mean that the inheriting constructor is a problem only if we try to construct an \lstinline!S! with the problem type and does not cause a hard error without that use case. The following example illustrates the problematic usage:
+%\begin{emcppslisting}[language=C++]
+%S<int> s;   // full specialization of (Ã¹{\codeincomments{S}}Ã¹) for type (Ã¹{\codeincomments{int}}Ã¹)
+%B b(s, 2);  // OK, thanks to friendship
+%D d(s, 2);  // Error: Prior to C++17 fixes, friendship is not inherited.
+%\end{emcppslisting}
+%    As C++17 redefines the semantics of the inheriting constructor as if the base classâ€™s constructors were merely exposed in the derived one, friendship is evaluated within the scope of the base class.
+%    
+%\subsubsection[Inheriting constructor templates would be ill formed for a local class]{Inheriting constructor templates would be ill formed for a local class}
+%
+%A class declared within a function is a \romeogloss{local class}. Local classes have many restrictions, one of which is that they cannot declare member templates. If we inherit constructors from a base class with constructor templates, even \lstinline!private! ones, the implicit declaration of a constructor template to forward arguments to the base-class constructor would be \romeogloss{ill formed}:
+%\begin{emcppslisting}[language=C++]
+%struct Base
+%{
+%    template <typename T>
+%    Base(T);
+%};
+%
+%void f()
+%{
+%    class Local : Base
+%    {
+%        using Base::Base;  // Error: Prior to C++17 fixes, we cannot redeclare
+%                           // the constructor template in local class.
+%    };
+%}
+%\end{emcppslisting}
+%    C++17 resolves this by directly exposing the base-class constructors, rather than defining new constructors to forward arguments.
+%    
+%\subsubsection[SFINAE evaluation context with default function arguments]{SFINAE evaluation context with default function arguments}
+%
+%Constructors that employ \romeogloss{SFINAE} tricks in default function arguments perform \mbox{\romeogloss{SFINAE}} checks in the wrong context and therefore inherit ill-formed constructors. No such issues occur when these \romeogloss{SFINAE} tricks are performed on default template arguments instead. As an example, consider a class template \lstinline!Wrap! that has a template constructor with a \romeogloss{SFINAE} constraint:
+%\begin{emcppslisting}[language=C++]
+%struct S { };
+%
+%template <typename T>
+%struct Wrap
+%{
+%    template <typename U>
+%    Wrap(U, typename std::enable_if<
+%        std::is_constructible<T, U>::value>::type* = nullptr)
+%        // This constructor is enabled only if (Ã¹{\codeincomments{T}}Ã¹) is constructible from (Ã¹{\codeincomments{U}}Ã¹).
+%    {
+%        std::cout << "SFINAE ctor\n";
+%    }
+%
+%    Wrap(S)
+%    {
+%        std::cout << "S ctor\n";
+%    }
+%};
+%\end{emcppslisting}
+%    If we derive from \lstinline!Wrap! and inherit its constructors, we would expect the \romeogloss{SFINAE} constraint to behave exactly as in the base class, i.e., the template constructor overload would be silently discarded if \lstinline!std::is_constructible<T,!~\lstinline!U>::value! evaluates to \lstinline!false!:
+%\begin{emcppslisting}[language=C++]
+%template <typename T>
+%struct Derived : Wrap<T>
+%{
+%    using Wrap<T>::Wrap;
+%};
+%\end{emcppslisting}
+%    However, prior to C++17â€™s retroactive fixes, \romeogloss{SFINAE} was triggered only for \lstinline!Wrap!, not for \lstinline!Derived!:
+%\begin{emcppslisting}[language=C++]
+%void f()
+%{
+%    S s;
+%    Wrap<int> w(s);     // prints (Ã¹{\codeincomments{"S ctor"}}Ã¹)
+%    Derived<int> d(s);  // error prior to fixes; prints (Ã¹{\codeincomments{"S ctor"}}Ã¹) afterward
+%}
+%\end{emcppslisting}
+%    
+%\subsubsection[Suppression of constructors in the presence of default arguments]{Suppression of constructors in the presence of default arguments}
+%
+%A constructor having one or more default arguments in the derived class does not suppress any corresponding constructors matching only the nondefaulted arguments in the base class, leading to ambiguities:
+%\begin{emcppslisting}[language=C++]
+%struct B          // base class
+%{
+%    B(int, int);  // value constructor with two (required) (Ã¹{\codeincomments{int}}Ã¹) parameters
+%};
+%
+%struct D : B
+%{
+%    using B::B;
+%    D(int, int, int = 0);  // doesn't suppress (Ã¹{\codeincomments{D(int, int)}}Ã¹) from (Ã¹{\codeincomments{B(int, int)}}Ã¹)
+%};
+%\end{emcppslisting}
+%    In the code example above, the original defective behavior was that there would be two overloaded constructors in \lstinline!D!; attempting to construct a \lstinline!D! from two integers became ambiguous. In the corrected behavior, the inheriting \lstinline!D(int,!~\lstinline!int)! from the base-class constructor \lstinline!B(int,!~\lstinline!int)!, whose domain is fully subsumed by the derived classâ€™s explicitly specified constructor \lstinline!D(int,!~\lstinline!int,!~\lstinline!int!~\lstinline!=!~\lstinline!0)!, is suppressed.
+%    
+%\subsubsection[Suprising behavior with unary constructor templates]{Suprising behavior with unary constructor templates}
+%
+%Because inherited constructors are redeclarations within the derived class and expect to forward properly to the corresponding base-class constructors, constructor templates may do very surprising things. In particular, a gregarious, templated constructor can appear to cause inheritance of a base-class copy constructor. Consider the following class with a constructor template:
+%\begin{emcppslisting}[language=C++]
+%struct A
+%{
+%    A() = default;
+%    A(const A&) { std::cout << "copy\n"; }
+%
+%    template <typename T>
+%    A(T) { std::cout << "convert\n"; }
+%};
+%\end{emcppslisting}
+%    This simple class can convert from any type and prints those of its constructors that were called. Now consider we want to make a \romeogloss{strong \lstinline!typedef!} for \lstinline!A!:
+%\begin{emcppslisting}[language=C++]
+%struct B : A
+%{
+%    using A::A;  // inherited base class (Ã¹{\codeincomments{A}}Ã¹)'s constructors
+%};
+%\end{emcppslisting}
+%    The problem is that because \lstinline!A! can convert from anything, when \lstinline!B! inherits \lstinline!A!'s constructor template, \lstinline!B! can then use the inherited constructor to construct an instance of \lstinline!B! from \lstinline!A!. Perhaps more surprising, because the definition of the inherited constructor in \lstinline!B! is to initialize the \lstinline!A! subobject with its parameters, the nontemplate inherited constructor will be chosen as the best match, not the templated, converting constructor!\cprotect\footnote{Note that if the template constructor for \lstinline!A! were a \emph{copy} or \emph{move} constructor for \lstinline!A!, then it would be excluded from being an inherited constructor and this odd behavior would be avoided. The by-value parameter of this constructor is also why \lstinline!"copy"! is output twice in this example.
+%\begin{emcppslisting}[language=C++, style=footcode]
+%A x;
+%B y = x;  // Surprise! This compiles, and it prints (Ã¹{\codeincomments{"copy"}}Ã¹) twice!
+%\end{emcppslisting}
+%    }
+%
