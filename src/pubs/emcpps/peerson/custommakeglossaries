@@ -1,0 +1,118 @@
+#!/usr/bin/env python3
+
+import sys, pathlib, re
+
+
+gloEntryRe = re.compile("\\\\glossaryentry\\{(.*)\\?(\\\\glsnonextpages )?\\\\glossentry\\{(.*)\\}\\|setentrycounter\\[\\]\\{page\\}\\\\glsnumberformat\\}\\{(.*)\\}")
+
+class GloEntry:
+   def __init__(self,name,id):
+      self.name = name
+      self.id = id
+      self.count = 0
+      self.pnums = []
+
+class GloFile:
+   def __init__(self,f):
+      self.f = f
+
+      self.lines = f.open().readlines()
+
+      self.entries = {}
+
+      for line  in self.lines:
+         m = gloEntryRe.match(line)
+         if not m:
+            print(f"Invalid Line: {line}")
+            sys.exit(-1)
+         
+         #print(f"Valid line: {line} {m.groups()}")
+         glossname = m.group(1)
+         glossid = m.group(3)
+
+         if not glossid in self.entries:
+            self.entries[glossid] = GloEntry(glossname,glossid)
+
+         gentry = self.entries[glossid]
+         if not m.group(2):
+            gentry.pnums.append(int(m.group(4)))
+
+def makeuniq(nums):
+   last = None
+   for n in nums:
+      if n == last:
+         continue
+      yield n
+      last = n
+   
+def makeranges(nums):
+   r = None
+   for n in makeuniq(nums):
+      if r == None:
+         r = [ n, n ]
+      elif n == r[1] + 1:
+         r[1] = n
+      else:
+         yield r
+         r = [ n, n]
+   if r != None:
+      yield r
+         
+def makeGlossary(rootname):
+   glofile = pathlib.Path(f"./{rootname}.glo")
+   glsout = pathlib.Path(f"./{rootname}.gls")
+
+   if not glofile.exists():
+      print(f"GLossary file does not exist {glofile.name}", file=sys.stderr)
+      return -1
+
+   print(f"Making glossary {glofile.name} -> {glsout.name}")
+
+   gf = GloFile(glofile)
+
+   glsentries = list(gf.entries.values())
+   glsentries.sort(key=lambda x : x.name)
+
+   newlines = []
+   newlines.append(f"\\glossarysection[\\glossarytoctitle]{{\\glossarytitle}}\\glossarypreamble\n")
+   newlines.append(f"\\begin{{theglossary}}\\glossaryheader\n")
+
+   lastentry = None
+   for e in glsentries:
+      #print(f"{e.name} -> {e.pnums}")
+      if not lastentry or lastentry.name[0] != e.name[0]:
+         if lastentry != None:
+            newlines.append(f"\\glsgroupskip\n")
+         newlines.append(f"\\glsgroupheading{{{e.name[0]}}}\\relax \\glsresetentrylist %\n")
+
+      if not e.pnums:
+         newlines.append(f"\\glsnonextpages ")
+      newlines.append(f"\\glossentry{{{e.id}}}{{\\glossaryentrynumbers{{\\relax %\n")
+
+      if e.pnums:
+         pranges = list(makeranges(e.pnums))
+         for n,pr in enumerate(pranges):
+            if pr[0] == pr[1]:
+               newlines.append(f"  \\setentrycounter[]{{page}}\\glsnumberformat{{{pr[0]}}}")
+            elif pr[0] + 1 == pr[1]:
+               newlines.append(f"  \\setentrycounter[]{{page}}\\glsnumberformat{{{pr[0]}}}\\delimN\n")
+               newlines.append(f"  \\setentrycounter[]{{page}}\\glsnumberformat{{{pr[1]}}}")
+            else:
+               newlines.append(f"  \\setentrycounter[]{{page}}\\glsnumberformat{{{pr[0]}\\delimR {pr[1]}}}")
+
+            if n == len(pranges)-1:
+               newlines.append(f"}}}}\n")
+            else:
+               newlines.append(f"\\delimN\n")
+      else:
+         newlines.append(f"  \\setentrycounter[]{{page}}\\glsnumberformat{{1}}}}}}%\n")
+         
+      lastentry = e
+
+   newlines.append(f"\\end{{theglossary}}\\glossarypostamble")
+   #for line in newlines:
+   #   print(line)
+
+   glsout.open("w").writelines(newlines)
+
+makeGlossary(sys.argv[1])

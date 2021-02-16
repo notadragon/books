@@ -1,8 +1,17 @@
 \usepackage{listings}  % for setting attractive computer code
+\usepackage{xespotcolor-Romeo}
+
 \makeatletter
 \@addtoreset{lstlisting}{section}  % to renumber listings per section
 \makeatother
 
+\NewSpotColorSpace{PANTONE}
+\AddSpotColor     {PANTONE}  {PANTONE661PC} {PANTONE\SpotSpace 661\SpotSpace PC} {1 0 0.05 0.72}
+\SetPageColorSpace{PANTONE}
+\definecolor{PANTONE661PC}  {spotcolor} {PANTONE661PC,1.0}
+\definecolor{PANTONE661PCA} {spotcolor} {PANTONE661PC,0.5}
+\definecolor{grey}           {gray}      {0.5}
+\definecolor{grey}           {gray}      {0.5}
 
 \definecolor{maroon}{cmyk}{.26,1,.63,.17}
 \definecolor{skyblue}{cmyk}{.62,.07,0,0}
@@ -14,65 +23,55 @@
 %%%%% CHANGED FOR ROMEO
 % changed font to Cousine, changed to 2ex indent
 
-%%% PRINT BOOK SETTINGS
-%\lstset{language=C++,basicstyle=\ttfamily\small,framerule=0.5pt,
-%emph=[1]{const},
-%  emphstyle=[1]{\color{forestgreen}\ttfamily},
-%  moreemph=[2]{int,void,char},
-%  emphstyle=[2]{\color{forestgreen}\ttfamily},
-%    moreemph=[3]{decltype},
-%      emphstyle=[3]{\color{forestgreen}\ttfamily},
-%    keywordstyle={\color{forestgreen}\ttfamily\bfseries},
-%  stringstyle={\color{forestgreen}},
-%commentstyle={\color{codegray}\itshape},
-%numberstyle=\color{forestgreen},
-%xleftmargin=2ex,
-%    escapeinside={(ù}{ù)},
-%    showstringspaces=false, 
-%} 
-% setting the code in small sans serif font and
-% setting the margin for the code.  Nov 2015: setting the rules to be 0.5pt
-%%%%%%%%%%%%%
-%\newcommand{\codeincomments}{\color{codegray}\ttfamily}
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-
-
-%%% EBOOK SETTINGS
-\lstset{language=C++,basicstyle=\ttfamily\small,framerule=0.5pt,
-emph=[1]{const},
-  emphstyle=[1]{\color{mustard}\ttfamily},
-  moreemph=[2]{int,void,char},
-  emphstyle=[2]{\color{maroon}\ttfamily},
-    moreemph=[3]{decltype},
-      emphstyle=[3]{\color{forestgreen}\ttfamily},
-    keywordstyle={\color{forestgreen}\ttfamily\bfseries},
-  stringstyle={\color{purple}},
-commentstyle={\color{skyblue}\itshape},
-numberstyle=\color{purple},
-xleftmargin=2ex,
+\makeatletter
+\lstdefinestyle{Romeo}{
+language=C++,
+ framerule=0.5pt,
+    keywordstyle={\ttfamily\bfseries},
+    commentstyle={\color{PANTONE661PCA}\ttfamily},
+    xleftmargin=2ex,
     escapeinside={(ù}{ù)},
     showstringspaces=false, 
-} 
+  basicstyle=\ttfamily%
+   \lst@ifdisplaystyle\small\fi
+ }
+\makeatother
+\lstset{style=Romeo}
 
-\lstdefinestyle {plain}{basicstyle=\ttfamily\small,framerule=0.5pt,xleftmargin=2ex,
-emph=[1]{const},
-  emphstyle=[1]{\ttfamily},
-  moreemph=[2]{int,void,char},
-  emphstyle=[2]{\ttfamily},
-    moreemph=[3]{decltype},
-      emphstyle=[3]{\ttfamily},
+\lstdefinestyle{plain}{basicstyle=\ttfamily\small,framerule=0.5pt,
     keywordstyle={\ttfamily},
-  stringstyle={},
-commentstyle={\ttfamily},
-numberstyle={},
+    commentstyle={\color{grey}\ttfamily},
+    xleftmargin=2ex,
     escapeinside={(ù}{ù)},
     showstringspaces=false, 
-}
+}  
+
+\lstdefinestyle{footcode}{language=C++,
+basicstyle=\ttfamily\footnotesize,framerule=0.5pt,
+keywordstyle={\ttfamily\bfseries\footnotesize},
+commentstyle={\color{grey}\ttfamily},
+xleftmargin=2ex,
+escapeinside={(ù}{ù)},
+showstringspaces=false, 
+}  
+
+\lstdefinestyle{footcodeplain}{
+basicstyle=\ttfamily\footnotesize,framerule=0.5pt,
+keywordstyle={\ttfamily},
+commentstyle={\color{grey}\ttfamily},
+xleftmargin=2ex,
+escapeinside={(ù}{ù)},
+showstringspaces=false, 
+}  
+
 
 % setting the code in small sans serif font and
 %% setting the margin for the code.  Nov 2015: setting the rules to be 0.5pt
 %%%%%%%%%%%%%%
-\newcommand{\codeincomments}{\color{skyblue}\ttfamily}
+\newcommand{\codeincomments}{\color{PANTONE661PCA}\ttfamily}
+\newcommand{\keyincomments}{\color{PANTONE661PCA}\ttfamily\bfseries}
+\newcommand{\emphincomments}{\color{PANTONE661PCA}\ttfamily\itshape}
+\newcommand{\commentcolor}{\color{PANTONE661PCA}}
 
 \lstdefinestyle{footcode}{language=C++,
 basicstyle=\ttfamily\footnotesize,framerule=0.5pt,

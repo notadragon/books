@@ -21,7 +21,7 @@ declared type as a \lstinline!friend! of that class.
 \subsection[Description]{Description}\label{description-extendedfriend}
 
 A \lstinline!friend! declaration located within a given
-\romeogloss{user-defined type} (UDT) grants a designated type (or
+\emcppsgloss[user defined type]{user-defined type} (UDT) grants a designated type (or
 \emph{free} function) access to private and protected members of that
 class. Because the extended \lstinline!friend! syntax does not affect
 \emph{function} friendships, this feature section addresses extended
@@ -201,11 +201,11 @@ class ContainerIterator
 In C++03, the only option for friendship was to specify a particular
 \lstinline!class! or \lstinline!struct! when granting private access. Let's
 begin by considering a scenario in which we have an
-\romeogloss{in-process}{\cprotect\footnote{When used to qualify a VST, the
-term \romeogloss{in-process}, also called \emph{in-core}, refers to a type
+\emcppsgloss[in process]{in-process}{\cprotect\footnote{When used to qualify a VST, the
+term \emcppsgloss[in process]{in-process}, also called \emph{in-core}, refers to a type
 that has typical value-type--like operations but does not refer to a
 value that is meaningful outside of the current process; see
-  \cite{lakos2a}, section~4.2.}} \romeogloss{value-semantic type (VST)}
+  \cite{lakos2a}, section~4.2.}} \emcppsgloss[value semantic type]{value-semantic type (VST)}
 that serves as a \emph{handle} to a platform-specific object, such as a
 \lstinline!Window! in a graphical application. Large parts of a codebase
 may seek to interact with \lstinline!Window! objects without needing or
@@ -235,8 +235,8 @@ public:
 \noindent In the example above, class \lstinline!Window! befriends class
 \lstinline!WindowManager!, granting it private access. Provided that the
 implementation of \lstinline!WindowManager! resides in the same physical
-\romeogloss{component} as that of class \lstinline!Window!, no
-\romeogloss{long-distance friendship} results. The consequence of such a
+\emcppsgloss{component} as that of class \lstinline!Window!, no
+\emcppsgloss[long distance friendship]{long-distance friendship} results. The consequence of such a
 monolithic design would be that every client that makes use of the
 otherwise lightweight \lstinline!Window! class would necessarily depend
 physically on the presumably heavier-weight \lstinline!WindowManager! class.
@@ -312,8 +312,8 @@ class named \lstinline!WindowManager!; instead, it befriends the
 correct platform-specific window manager implementation. Such extended
 use of \lstinline!friend! syntax was not available in C++03.
 
-Note that this use case involves \romeogloss{long-distance friendship}
-inducing an implicit cyclic dependency between the \romeogloss{component}
+Note that this use case involves \emcppsgloss[long distance friendship]{long-distance friendship}
+inducing an implicit cyclic dependency between the \emcppsgloss{component}
 implementing \lstinline!Window! and those implementing
 \lstinline!WindowManager!; see \intraref{potential-pitfalls-extendedfriend}{long-distance-friendship}. 
 %\textit{\titleref{potential-pitfalls-extendedfriend}: \titleref{long-distance-friendship}} on page~\pageref{long-distance-friendship}. 
@@ -321,9 +321,9 @@ Such designs, though
 undesirable, can result from an emergent need to add new platforms while
 keeping tightly related code sequestered within smaller, more manageable
 physical units. An alternative design would be to obviate the
-\romeogloss{long-distance friendship} by widening the API for the
+\emcppsgloss[long distance friendship]{long-distance friendship} by widening the API for the
 \lstinline!Window! class, the natural consequence of which would be to
-invite public client abuse vis-a-vis \romeogloss{Hyrum's law}.
+invite public client abuse vis-a-vis \emcppsgloss[hyrum's law]{Hyrum's law}.
 
 \subsubsection[Using the \lstinline!PassKey! idiom to enforce initialization]{Using the {\SubsubsecCode PassKey} idiom to enforce initialization}\label{using-the-passkey-idiom-to-enforce-initialization}
 
@@ -577,8 +577,7 @@ types is allowed to extend across physical boundaries; again, see \intraref{pote
 \subsubsection[Curiously recurring template pattern]{Curiously recurring template pattern}\label{curiously-recurring-template-pattern}
 
 Befriending a template parameter via extended \lstinline!friend!
-declarations can be helpful when implementing the \romeogloss{curiously
-recurring template pattern (CRTP)}. For use-case examples and more
+declarations can be helpful when implementing the \emcppsgloss[curiously recurring template pattern]{curiously recurring template pattern (CRTP)}. For use-case examples and more
 information on the pattern itself, see \intrarefsimple{appendix:-crtp-use-cases}. 
 %\textit{\titleref{appendix:-crtp-use-cases}} on page~\pageref{appendix:-crtp-use-cases}.
 
@@ -588,7 +587,7 @@ information on the pattern itself, see \intrarefsimple{appendix:-crtp-use-cases}
 
 Since before C++ was standardized, granting private access via a
 \lstinline!friend! declaration across physical boundaries, known as
-\romeogloss{long-distance friendship}, was
+\emcppsgloss[long distance friendship]{long-distance friendship}, was
 observed{\cprotect\footnote{\cite{lakos96}, section~3.6.1
   pp.~141--144}}{\cprotect\footnote{\cite{lakos20}, section~2.6,
   pp.~342--370, specifically p.~367 and p.~362}} to potentially lead
@@ -599,12 +598,12 @@ testing \lstinline!X! thoroughly without also testing \lstinline!Y! is no
 longer possible. The effect is a test-induced cyclic dependency between
 \lstinline!X! and \lstinline!Y!. Now imagine that \lstinline!Y! depends on a
 sequence of other types, \lstinline!C1!, \lstinline!C2!, \ldots,
-\lstinline!CN-2!, each defined in its own physical \romeogloss{component},
+\lstinline!CN-2!, each defined in its own physical \emcppsgloss{component},
 \lstinline!CI!, where \lstinline!CN-2! depends on \lstinline!X!. The result is a
 physical design cycle of size \emph{N}. As \emph{N} increases, the
 ability to manage complexity quickly becomes intractable. Accordingly,
 the two design imperatives that were most instrumental in shaping the
-C++20 \romeogloss{modules} feature were (1) to have no cyclic module
+C++20 \emcppsgloss{modules} feature were (1) to have no cyclic module
 dependencies and (2) to avoid intermodule friendships.
 
 \subsection[See Also]{See Also}\label{see-also}
@@ -621,8 +620,7 @@ metaprogramming contexts, such as using CRTP, see
 classic use (and misuse) of friendship.}
 \item{\cite{miller05}}
 \item{\cite{{lakos20}} provides extensive advice on \emph{sound}
-\romeogloss{physical design}, which generally precludes \romeogloss{long-distance
-friendship}.}
+\emcppsgloss{physical design}, which generally precludes \emcppsgloss[long distance friendship]{long-distance friendship}.}
 \end{itemize}
 
 \subsection[Appendix: Curiously Recurring Template Pattern Use Cases]{Appendix: Curiously Recurring Template Pattern Use Cases}\label{appendix:-crtp-use-cases}
@@ -631,8 +629,7 @@ friendship}.}
 
 Avoiding code duplication across disparate classes can sometimes be
 achieved using a strange template pattern first recognized in the
-mid-90s, which has since become known as the \romeogloss{curiously recurring
-template pattern (CRTP)}. The pattern is \emph{curious} because it
+mid-90s, which has since become known as the \emcppsgloss[curiously recurring template pattern]{curiously recurring template pattern (CRTP)}. The pattern is \emph{curious} because it
 involves the surprising step of declaring as a base class, such as
 \lstinline!B!, a template that \emph{expects} the derived class, such as
 \lstinline!C!, as a template argument, such as \lstinline!T!:
@@ -1071,7 +1068,7 @@ void test2()
 \end{emcppslisting}
     
 \noindent As should by now be clear, a defect in our \lstinline!Triangle!
-implementation results in \emph{hard} \romeogloss{undefined behavior} that
+implementation results in \emph{hard} \emcppsgloss{undefined behavior} that
 could have been prevented at compile time by using the extended
 \lstinline!friend! syntax. Had we defined the CRTP base-class template's
 default constructor to be \emph{private} and made its type parameter a
@@ -1207,12 +1204,11 @@ template and then, as part of its re-implementation, defers to the base-class ve
 
 Importantly, note that we have re-implemented \lstinline!traverse! in the
 derived class with a function by the same name but having a
-\emph{different} \romeogloss{signature} that has more capability (i.e., it's able
+\emph{different} \emcppsgloss{signature} that has more capability (i.e., it's able
 to modify its immediate argument) than the one in the base-class
 template. In practice, this signature modification is something we would
 do rarely, but part of the flexibility of this design pattern, as with
-templates in general, is that we can take advantage of \romeogloss{duck
-typing} to achieve useful functionality in somewhat unusual ways. For
+templates in general, is that we can take advantage of \emcppsgloss{duck typing} to achieve useful functionality in somewhat unusual ways. For
 this pattern, the designers of the base-class template and the designers
 of the derived classes are, at least initially, likely to be the same
 people, and they will arrange for these sorts of signature variants to
@@ -1376,7 +1372,7 @@ would also call many other \lstinline!visit! methods, but each of those would pe
 not rewriting the traversal code each time, the compiler is still doing
 it because every CRTP instantiation produces a new copy of the traversal
 code. If the traversal code is large and complex, the consequence might
-be increased program size, that is, \romeogloss{code bloat}.
+be increased program size, that is, \emcppsgloss{code bloat}.
 
 Finally, the CRTP can be used in a variety of situations for many
 purposes,\footnote{\cite{fluentcpp17}} hence its \emph{curiously recurring} nature. Those uses invariably

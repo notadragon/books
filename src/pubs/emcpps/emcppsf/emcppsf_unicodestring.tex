@@ -135,8 +135,8 @@ ensure that the source is UTF-8 encoded.
 \subsubsection[Embedding Unicode graphemes]{Embedding Unicode graphemes}\label{embedding-unicode-graphemes}
 
 The addition of Unicode string literals to the language did not bring
-along an extension of the \romeogloss{basic source character set}: Even in C++11, the
-default \romeogloss{basic source character set} is a subset of
+along an extension of the \emcppsgloss{basic source character set}: Even in C++11, the
+default \emcppsgloss{basic source character set} is a subset of
 ASCII.{\cprotect\footnote{Implementations are free to map characters
 outside the basic source character set to sequences of its members,
 resulting in the possibility of embedding other characters, such as emojis, in a C++ source file.}}
@@ -151,7 +151,7 @@ sequence (\lstinline!u8"\U0001F378"!).
 
 \subsubsection[Lack of library support for Unicode]{Lack of library support for Unicode}\label{lack-of-library-support-for-unicode}
 
-Essential \romeogloss{vocabulary types}, such as \lstinline!std::string!, are
+Essential \emcppsgloss[vocabulary type]{vocabulary types}, such as \lstinline!std::string!, are
 completely unaware of encoding. They treat any stored string as a
 sequence of bytes. Even when correctly using Unicode string literals,
 programmers unfamiliar with Unicode might be surprised by seemingly
@@ -177,7 +177,7 @@ especially in the context of international program localization.
 
 \subsubsection[Problematic treatment of UTF-8 in the type system]{Problematic treatment of UTF-8 in the type system}\label{utf-8-quirks}
 
-UTF-8 string literals use \lstinline!char! as their \romeogloss{underlying type}. Such a
+UTF-8 string literals use \lstinline!char! as their \emcppsgloss{underlying type}. Such a
 choice is inconsistent with UTF-16 and UTF-32 literals, which provide
 their own distinct character types (\lstinline!char16_t! and
 \lstinline!char32_t!). This precludes providing distinct behavior for UTF-8 encoded strings using function overloading or template specialization because they are indistinguishable from strings having the encoding of the execution character set. Furthermore, whether the underlying

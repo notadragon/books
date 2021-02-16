@@ -19,7 +19,7 @@ namespace.
 
 \subsection[Description]{Description}\label{description-inlinenamespace}
 
-To a first approximation, an \emcppsgloss[inline namespace]{\lstinline!inline!~\lstinline!namespace!}
+To a first approximation, an \romeogloss{\lstinline!inline!~\lstinline!namespace!}
 (e.g., \lstinline!v2! in the code snippet below) acts a lot like a
 conventional nested namespace (e.g., \lstinline!v1!) followed by a
 \lstinline!using! directive for that namespace in its enclosing namespace{\cprotect\footnote{C++17 allows developers to concisely declare nested
@@ -74,17 +74,17 @@ namespace n
 \noindent Four subtle details distinguish these approaches:
 \begin{enumerate}
 \item{Name collisions with existing names behave differently due to differing name-lookup rules.}
-\item{\emcppsgloss[argument dependent lookup]{Argument-dependent lookup} (ADL) gives special treatment to \lstinline!inline! namespaces.}
+\item{\romeogloss{Argument-dependent lookup} (ADL) gives special treatment to \lstinline!inline! namespaces.}
 \item{Template specializations can refer to the primary template in an \lstinline!inline! namespace even if written in the enclosing namespace.}
 \item{Reopening namespaces might reopen an \lstinline!inline! namespace.}
 \end{enumerate}
 
 One important aspect that all forms of namespaces share, however, is
 that (1) nested symbolic names (e.g., \lstinline!n::v1::T!) at the
-\emcppsgloss{API} level, (2) \emcppsgloss{mangled names} (e.g.,
+\romeogloss{API} level, (2) \romeogloss{mangled names} (e.g.,
 \lstinline!_ZN1n2v11dE!, \lstinline!_ZN1n2v21dE!), and (3) assigned
 relocatable addresses (e.g., \lstinline!0x01a64e90!, \lstinline!0x01a64e94!)
-at the \emcppsgloss{ABI} level remain unaffected by the use of either
+at the \romeogloss{ABI} level remain unaffected by the use of either
 \lstinline!inline! or \lstinline!using! or both.{\cprotect\footnote{Compiling
 source files containing, alternately, 
 \lstinline!namespace!~\lstinline!n!~\lstinline!{!~\lstinline!inline!~\lstinline!namespace!~\lstinline!v!~\lstinline!{!~\lstinline!int!~\lstinline!d;!~\lstinline!}!~\lstinline!}! 
@@ -94,7 +94,7 @@ namespace is superfluous; name lookup will always consider names in
 \lstinline!inline! namespaces before those imported by a \lstinline!using!
 directive. Such a directive can, however, be used to import the contents
 of an \lstinline!inline! namespace to some other namespace, albeit only in
-the conventional, \emcppsgloss[using directive]{\lstinline!using! directive} sense; see \intraref{annoyances-inlinenamespace}{only-one-namespace-can-contain-any-given-inline-namespace}. 
+the conventional, \romeogloss{\lstinline!using! directive} sense; see \intraref{annoyances-inlinenamespace}{only-one-namespace-can-contain-any-given-inline-namespace}. 
 
 %%%%%%%%%% code for FN
 %\begin{emcppslisting}[style=footcode]
@@ -225,7 +225,7 @@ and for which it was explicitly designed; see \intraref{use-cases-inlinenamespac
 \subsubsection[Argument-dependent–lookup interoperability across \lstinline!inline! \lstinline!namespace! boundaries]{Argument-dependent–lookup interoperability across\\[0.5ex] {\SubsubsecCode inline} {\SubsubsecCode namespace} boundaries}\label{argument-dependent–lookup-interoperability-across-inline-namespace-boundaries}
 
 Another important aspect of \lstinline!inline! namespaces is that they
-allow \emcppsgloss{ADL} to work seamlessly across \lstinline!inline! namespace
+allow \romeogloss{ADL} to work seamlessly across \lstinline!inline! namespace
 boundaries. Whenever unqualified function names are being resolved, a
 list of \emph{associated namespaces} is built for each argument of the
 function. This list of associated namespaces comprises the namespace of the
@@ -267,20 +267,20 @@ void client()
 object of type \lstinline!outer::U! fails to compile because
 \lstinline!f(outer::U)! is declared in the nested \lstinline!inner! namespace,
 which is not the same as declaring it in \lstinline!outer!. Because
-\emcppsgloss{ADL} does not look into namespaces added with the \lstinline!using!
-directive, \emcppsgloss{ADL} does not find the needed
+\romeogloss{ADL} does not look into namespaces added with the \lstinline!using!
+directive, \romeogloss{ADL} does not find the needed
 \lstinline!outer::inner::f! function. Similarly, the type \lstinline!V!,
 defined in namespace \lstinline!outer::inner!, is not declared in the same
 namespace as the function \lstinline!g! that operates on it. Hence, when
 \lstinline!g! is invoked from within \lstinline!client! on an object of type
-\lstinline!outer::inner::V!, \emcppsgloss{ADL} again does not find the needed
+\lstinline!outer::inner::V!, \romeogloss{ADL} again does not find the needed
 function \lstinline!outer::g(outer::V)!.
 
 Simply making the \lstinline!inner! namespace \lstinline!inline! solves both
-of these \emcppsgloss{ADL}-related problems. All transitively nested
+of these \romeogloss{ADL}-related problems. All transitively nested
 \lstinline!inline! namespaces --- up to and including the most proximate
 non-\lstinline!inline! enclosing namespace --- are treated as one with
-respect to \emcppsgloss{ADL}.
+respect to \romeogloss{ADL}.
 
 \subsubsection[The ability to specialize templates declared in a nested \lstinline!inline! namespace]{The ability to specialize templates declared in a nested {\SubsubsecCode inline} namespace}\label{the-ability-to-specialize-templates-declared-in-a-nested-inline-namespace}
 
@@ -326,7 +326,7 @@ specialization from that outermost namespace, whereas all of the
 except that --- unlike class templates, whose definitions must reside
 entirely within the namespace in which they are declared --- a function
 template can be \emph{declared} within a nested namespace and then be
-\emph{defined} from anywhere via a \emcppsgloss{qualified name}:
+\emph{defined} from anywhere via a \romeogloss{qualified name}:
 
 \begin{emcppslisting}
 namespace out                      // proximate non-(ù{\codeincomments{inline}}ù) outer namespace
@@ -523,7 +523,7 @@ void client()
 \end{emcppslisting}
     
 \noindent Note that invoking \lstinline!analyze! on objects of some instantiated type
-of the \lstinline!Parser! class template will rely on \emcppsgloss{ADL} to find
+of the \lstinline!Parser! class template will rely on \romeogloss{ADL} to find
 the corresponding overload.
 
 We anticipate that our library's API will evolve over time so we want to
@@ -559,8 +559,8 @@ namespace parselib
 \end{emcppslisting}
     
 \noindent As suggested by the name \lstinline!v1!, this namespace serves primarily as
-a mechanism to support library evolution through \emcppsgloss{API} and
-\emcppsgloss{ABI} versioning (see \intraref{use-cases-inlinenamespace}{link-safe-abi-versioning} 
+a mechanism to support library evolution through \romeogloss{API} and
+\romeogloss{ABI} versioning (see \intraref{use-cases-inlinenamespace}{link-safe-abi-versioning} 
 %\textit{\titleref{use-cases-inlinenamespace}: \titleref{link-safe-abi-versioning}} on page~\pageref{link-safe-abi-versioning} 
 and \intraref{use-cases-inlinenamespace}{build-modes-and-abi-link-safety} ). 
 %\textit{\titleref{use-cases-inlinenamespace}: \titleref{build-modes-and-abi-link-safety}} on page~\pageref{build-modes-and-abi-link-safety}). 
@@ -721,14 +721,15 @@ additional advantage in an entirely separate dimension. Though not
 demonstrated by this specific example,{\cprotect\footnote{For distinct
 nested namespaces to effectively guard against accidental link-time
 errors, the symbols involved have to (1) reside in object code (e.g.,
-a \emcppsgloss[header only library]{header-only library} would fail this requirement) and (2)
-have the same \emcppsgloss{name mangling} (i.e., linker symbol) in both
+a \romeogloss{header-only library} would fail this requirement) and (2)
+have the same \romeogloss{name mangling} (i.e., linker symbol) in both
 versions. In this particular instance, however, the signature of the
 \lstinline!parse! member function of \lstinline!parser! did change, and its
 mangled name will consequently change as well; hence the same
   \lstinline!undefined!~\lstinline!symbol! link error would result either way.}}
 cases do arise where simply changing which of the version namespaces is
-declared \lstinline!inline! might lead to an \emcppsgloss[ill formed, no diagnostic required]{ill-formed, no-diagnostic required (IFNDR)} program. This might happen when one or more of
+declared \lstinline!inline! might lead to an \romeogloss{ill-formed, no-diagnostic
+required (IFNDR)} program. This might happen when one or more of
 its translation units that use the library are not recompiled before the
 program is relinked to the new static or dynamic library containing the
 updated version of the library software; see \intraref{use-cases-inlinenamespace}{link-safe-abi-versioning}. 
@@ -738,7 +739,7 @@ updated version of the library software; see \intraref{use-cases-inlinenamespace
 
 \lstinline!inline! namespaces are not intended as a mechanism for
 source-code versioning; instead, they prevent programs from being
-\emcppsgloss[ill formed]{ill-formed} due to linking some version of a library with client
+\romeogloss{ill-formed} due to linking some version of a library with client
 code compiled using some other, typically older version of the same
 library. Below, we present two examples: a simple pedagogical example
 to illustrate the principle followed by a more real-world example.
@@ -803,7 +804,7 @@ default constructor, even after recompiling. The same, of course,
 applies to its definition in a separate translation unit.
 
 We now turn to the translation unit implementing type
-\lstinline!my::Thing!. The \lstinline!my_thing! \emcppsgloss{component} consists
+\lstinline!my::Thing!. The \lstinline!my_thing! \romeogloss{component} consists
 of a \lstinline!.h!/\lstinline!.cpp! pair: \lstinline!my_thing.h! and
 \lstinline!my_thing.cpp!. The header file \lstinline!my_thing.h! provides
 the physical interface, such as the definition of the principal type,
@@ -878,7 +879,7 @@ $ ./prog
 \lstinline!main.o! without recompiling \lstinline!main.cpp! first. None of the
 relevant linker symbols would change, and the code would recompile and link
 just fine, but the resulting binary \lstinline!prog! would be
-\emcppsgloss{IFNDR}: the client would be trying to print a 4-byte,
+\romeogloss{IFNDR}: the client would be trying to print a 4-byte,
 \lstinline!int! data member, \lstinline!i!, in \lstinline!main.o! that was loaded
 by the library component as an 8-byte, \lstinline!double! into \lstinline!d!
 in \lstinline!my_thing.o!. We can resolve this problem by changing --- or,
@@ -977,7 +978,7 @@ namespace auth      // outer namespace (used directly by clients)
     
 \noindent Attempting to link together older binary artifacts built against version
 1 with binary artifacts built against version 2 will result in a
-link-time error rather than allowing an \emcppsgloss[ill formed]{ill-formed} program to
+link-time error rather than allowing an \romeogloss{ill-formed} program to
 be created. Note, however, that this approach works only if functionality essential
 to typical use is defined out of line in a \lstinline!.cpp! file. For example, it would add absolutely no value for libraries that are
 shipped entirely as header files, since the versioning offered here
@@ -1024,14 +1025,14 @@ the \mbox{\lstinline!ManualBuffer!} class but only in debug builds. The extra
 space and run time required to maintain this Boolean flag is undesirable
 in a release build because \mbox{\lstinline!ManualBuffer!} is intended to be an
 efficient, lightweight abstraction over the direct use of
-\emcppsgloss[placement new]{placement \lstinline!new!} and explicit destruction.
+\romeogloss{placement \lstinline!new!} and explicit destruction.
 
 The linker symbol names generated for the methods of
 \lstinline!ManualBuffer! are the same irrespective of the chosen build
 mode. If the same program links together two object files where
 \lstinline!ManualBuffer! is used --- one built in debug mode and one built
-in release mode --- the \emcppsgloss{one definition rule} will be violated
-and the program will again be \emcppsgloss{IFNDR}.
+in release mode --- the \romeogloss{one definition rule} will be violated
+and the program will again be \romeogloss{IFNDR}.
 
 One way of avoiding these sorts of incompatibilities at link time is to
 introduce two \lstinline!inline! namespaces, the entire purpose of which is
@@ -1077,7 +1078,7 @@ error will occur if any attempt is made to link objects built with a
 build mode different from that of \mbox{\lstinline!manualbuffer.o!}. Tying it to
 the \lstinline!NDEBUG! flag, however, might have unintended consequences;
 we might introduce unwanted restrictions in what we call
-\emcppsgloss[mixed mode builds]{mixed-mode builds}. Most modern platforms support the notion of
+\romeogloss{mixed-mode builds}. Most modern platforms support the notion of
 linking a collection of object files irrespective of their
 optimization levels. The same is certainly true for whether or not
 C-style \lstinline!assert! is enabled. In other words, we may want to have
@@ -1180,7 +1181,7 @@ effective way of organizing shared codebases. For example,
 \lstinline!chrono_literals!, were introduced as \lstinline!inline! namespaces
 in C++14. As it turns out, clients of these nested namespaces have no
 need to specialize any templates defined in these namespaces nor do they
-define types that must be found through \emcppsgloss{ADL}, but one can at
+define types that must be found through \romeogloss{ADL}, but one can at
 least imagine special circumstances in which such tiny-named entities
 are either templates that require specialization or operator-like
 functions, such as \lstinline!swap!, defined for local types within those
@@ -1266,7 +1267,7 @@ have been exposed at compile time. The downside, however, is that no
 method would be available to recover nominal access to the
 \lstinline!abc::i()! defined in \lstinline!abc_header1.h! once
 \lstinline!abc_header2.h! is included, even though the two functions
-(e.g., including their \emcppsgloss{mangled names} at the ABI level) remain
+(e.g., including their \romeogloss{mangled names} at the ABI level) remain
 distinct.
 
 \subsection[Potential Pitfalls]{Potential Pitfalls}\label{potential-pitfalls-inlinenamespace}
@@ -1350,10 +1351,10 @@ eventual disuse --- of \lstinline!inline!-namespaces for versioning, see \intrar
 %Inline namespaces might be perceived as a complete solution for the owner of a library to evolve its API. Such, however, is not the case. As an example, consider the case of the C++ Standard Library, which does not use \lstinline!inline! namespaces for versioning. Instead, to allow for its necessary evolution, the Standard
 %Library --- the \lstinline!std! namespace, in particular --- carries
 %certain special restrictions on what one can do with it that are
-%enforced by deeming certain constructs \emcppsgloss{ill formed} or
-%engendering \emcppsgloss{undefined behavior}.
+%enforced by deeming certain constructs \romeogloss{ill formed} or
+%engendering \romeogloss{undefined behavior}.
 
-Inline namespaces might be misperceived as a complete solution for the owner of a library to evolve its API. As an especially relevant example, consider the C++ Standard Library, which itself does not use inline namespaces for versioning. Instead, to allow for its anticipated essential evolution, the Standard Library imposes certain special restrictions on what is permitted to occur within its own \lstinline!std! namespace by dint of deeming certain problematic uses as either \emcppsgloss{ill formed} or otherwise engendering \emcppsgloss{undefined behavior}.
+Inline namespaces might be misperceived as a complete solution for the owner of a library to evolve its API. As an especially relevant example, consider the C++ Standard Library, which itself does not use inline namespaces for versioning. Instead, to allow for its anticipated essential evolution, the Standard Library imposes certain special restrictions on what is permitted to occur within its own \lstinline!std! namespace by dint of deeming certain problematic uses as either \romeogloss{ill formed} or otherwise engendering \romeogloss{undefined behavior}.
 
 Since C++11, several restrictions related to the Standard Library were
 put in place:
@@ -1389,7 +1390,7 @@ surprising problems even if not diagnosed as an error immediately.}
 
 \subsubsection[Inconsistent use of \lstinline!inline! keyword is ill formed, no diagnostic required]{Inconsistent use of {\SubsubsecCode inline} keyword is ill formed, no diagnostic required}\label{inconsistent-use-of-inline-keyword-is-ifndr}
 
-It is an \emcppsgloss{ODR} violation, \emcppsgloss{IFNDR}, for a nested namespace
+It is an \romeogloss{ODR} violation, \romeogloss{IFNDR}, for a nested namespace
 to be \lstinline!inline! in one translation unit and non-\lstinline!inline! in
 another. And yet, the motivating use case of this feature relies on the
 linker to actively complain whenever different, incompatible versions
@@ -1555,7 +1556,7 @@ namespace outer
 template must have been seen before it can be used in a context
 requiring a complete type. The importance of ensuring that all
 specializations of a template have been seen before it is used
-substantively (i.e., \emcppsgloss[odr used]{ODR-used}) cannot be overstated, giving
+substantively (i.e., \romeogloss{ODR-used}) cannot be overstated, giving
 rise to the only limerick, which is actually part of the normative text,
 in the C++ Language Standard{\cprotect\footnote{See \cite{iso11},
   section~14.7.3.7, pp.~375--375, specifically p.~376.}}:
@@ -1648,8 +1649,8 @@ I advocated to Boost that a simple solution would be for Boost to wrap
 up their implementation into an internal inline namespace. That inline
 namespace ought to mean something:
 \begin{itemize}
-\item{\lstinline!lib::v1! is the \emph{stable}, version-1 ABI, which is guaranteed to be compatible with all past and future \lstinline!lib::v1! ABIs, forever, as determined by the ABI-compliance-check tool that runs on \emcppsgloss{CI}. The same goes for \lstinline!v2!, \lstinline!v3!, and so on.}
-\item{\lstinline!lib::v2_a7fe42d! is the \emph{unstable}, version-2 ABI, which may be incompatible with any other \lstinline!lib::*!~\lstinline!ABI!; hence the seven hex chars after the underscore are the git short \emcppsgloss{SHA}, permuted by every commit to the git repository but, in practice, per CMake configure, because nobody wants to rebuild everything per commit. This ensures that no symbols from any revision of \lstinline!lib! will \emph{ever} silently collide or otherwise interfere with any other revision of \lstinline!lib!, when combined into a single binary by a dumb linker.}
+\item{\lstinline!lib::v1! is the \emph{stable}, version-1 ABI, which is guaranteed to be compatible with all past and future \lstinline!lib::v1! ABIs, forever, as determined by the ABI-compliance-check tool that runs on \romeogloss{CI}. The same goes for \lstinline!v2!, \lstinline!v3!, and so on.}
+\item{\lstinline!lib::v2_a7fe42d! is the \emph{unstable}, version-2 ABI, which may be incompatible with any other \lstinline!lib::*!~\lstinline!ABI!; hence the seven hex chars after the underscore are the git short \romeogloss{SHA}, permuted by every commit to the git repository but, in practice, per CMake configure, because nobody wants to rebuild everything per commit. This ensures that no symbols from any revision of \lstinline!lib! will \emph{ever} silently collide or otherwise interfere with any other revision of \lstinline!lib!, when combined into a single binary by a dumb linker.}
 \end{itemize}
 
 I have been steadily making progress on getting Boost to avoid putting

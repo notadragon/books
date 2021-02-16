@@ -79,7 +79,7 @@ can subsequently be instantiated explicitly.
 %\noindent For examples involving immutable variable templates, see {\it\titleref{variabletemplate-use-cases}:} {\it\titleref{parametrized-constants}} on page~\pageref{parametrized-constants}.
 
 %%%%%%%%%%%%%%%% new material from Slava
-By beginning a variable declaration with the familiar \romeogloss{template-head} syntax --- e.g., \lstinline!template! \lstinline!<typename! \lstinline!T>! --- we can create a \emph{variable template}, which defines a family of variables
+By beginning a variable declaration with the familiar \emcppsgloss[template head]{template-head} syntax --- e.g., \lstinline!template! \lstinline!<typename! \lstinline!T>! --- we can create a \emph{variable template}, which defines a family of variables
 having the same name (e.g., \lstinline!exampleOf!):
 
 \begin{emcppslisting}[emcppsbatch=e1]
@@ -144,7 +144,7 @@ void testPi()
 \end{emcppslisting}
 %%%%%%%%%%%%% new material ends
 
-\noindent Variable templates, like \romeogloss{C-style functions}, may be declared at
+\noindent Variable templates, like \emcppsgloss[c style functions]{C-style functions}, may be declared at
 namespace-scope or as \lstinline!static! members of a
 \lstinline!class!, \lstinline!struct!, or \lstinline!union! but are not
 permitted as non\lstinline!static! members nor at all in function scope:
@@ -179,7 +179,7 @@ void f3()  // Variable templates cannot be defined in functions.
     
 \noindent Like other templates, variable templates may be defined with multiple
 parameters consisting of arbitrary combinations of type and non-type
-parameters (including a \romeogloss{parameter pack}):
+parameters (including a \emcppsgloss{parameter pack}):
 
 \begin{emcppslisting}
 namespace N
@@ -276,7 +276,7 @@ constexpr T toRadians(T degrees)
 
 \subsubsection[Reducing verbosity of type traits]{Reducing verbosity of type traits}\label{reducing-verbosity-of-type-traits}
 
-A \romeogloss{type trait} is an empty type carrying compile-time information
+A \emcppsgloss{type trait} is an empty type carrying compile-time information
 about one or more aspects of another type. The way in which type traits
 have been specified historically has been to define a class template
 having the trait name and a public \lstinline!static! 
@@ -288,7 +288,7 @@ initializing \lstinline!value! to \lstinline!true!. We can achieve precisely
 this same usage pattern replacing a trait \lstinline!struct! with a
 variable template whose name represents the type trait and whose type of
 variable itself is always \lstinline!bool!. Preferring variable templates
-in this use case decreases the amount of \romeogloss{boilerplate code} ---
+in this use case decreases the amount of \emcppsgloss{boilerplate code} ---
 both at the point of definition and at the call
 site.{\cprotect\footnote{As of C++17, the Standard Library provides a
 more convenient way of inspecting the result of a type trait, by
@@ -516,15 +516,14 @@ int main()
     
 \noindent Note that replacing each of the three \lstinline!const! keywords with
 \lstinline!constexpr! in the example above also achieves the
-desired goal, does not consume memory in the \romeogloss{static data
-space}, and would also be applicable to non-integral constants.
+desired goal, does not consume memory in the \emcppsgloss{static data space}, and would also be applicable to non-integral constants.
 
 \subsection[Annoyances]{Annoyances}\label{annoyances}
 
 \subsubsection[Variable templates do not support template template parameters]{Variable templates do not support template template parameters}\label{variable-templates-do-not-support-template-template-parameters}
 
 Although a class or function template can accept a
-\romeogloss{template template class parameter}, no equivalent
+\emcppsgloss{template template class parameter}, no equivalent
 construct is available for variable templates{\cprotect\footnote{Mateusz Pusz has proposed for C++23 a way to increase consistency between
 variable templates and class templates when used as template template
   parameters; see \cite{pusz20}.}}:
@@ -540,7 +539,7 @@ S<vt> s1;  // Error
     
 \noindent Providing a wrapper \lstinline!struct!
 around a variable template might therefore be necessary in case the variable template needs to be passed to an interface
-accepting a \romeogloss{template template parameter}:
+accepting a \emcppsgloss{template template parameter}:
 
 \begin{emcppslisting}[emcppsbatch=e7]
 template <typename T>
@@ -554,7 +553,7 @@ S<Vt> s2;  // OK
 
 \begin{itemize}
 \item{%Section~\ref{constexprvar}, ``\titleref{constexprvar}" — 
-\seealsoref{constexprvar}{\seealsolocationc}Conditionally safe C++11 feature providing an alternative to \lstinline!const! template variables that can reduce unnecessary consumption of the \romeogloss{static data space}.}
+\seealsoref{constexprvar}{\seealsolocationc}Conditionally safe C++11 feature providing an alternative to \lstinline!const! template variables that can reduce unnecessary consumption of the \emcppsgloss{static data space}.}
 \end{itemize}
 
 \subsection[Further Reading]{Further Reading}\label{further-reading}

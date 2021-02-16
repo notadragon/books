@@ -1,5 +1,23 @@
 % This file should contain the full glossary contents
 
+\newglossaryentry{ABI}{
+  name={ABI},
+  description={
+TODO
+}}
+
+\newglossaryentry{ADL}{
+  name={ADL},
+  description={
+TODO
+}}
+
+\newglossaryentry{API}{
+  name={API},
+  description={
+TODO
+}}
+
 \newglossaryentry{access specifier}{
   name={Access Specifier},
   description={
@@ -44,6 +62,12 @@ The alignment of an \emph{object type} is a \lstinline!std::size\_t! value (alwa
 TODO
 }}
 
+\newglossaryentry{argument dependent lookup}{
+  name={Argument Dependent Lookup},
+  description={
+TODO
+}}
+
 \newglossaryentry{as if}{
   name={As If},
   nonumberlist,
@@ -66,7 +90,6 @@ TODO
 
 \longnewglossaryentry{basic source character set}{
   name={Basic Source Character Set},
-  nonumberlist,
   description={
 TODO (SMD: the basic source character set is the abstract character set that must be available for expressing C++ source code. It's not the same as the source file encoding, which is what it is in C
 
@@ -77,7 +100,12 @@ TODO (SMD: the basic source character set is the abstract character set that mus
     @SMD this is about the ways your editor and compiler can conspire to lie to you. A octets in a u8 literal are not interpreted as unicode. They are interpreted however the compiler interprets source in phase 1 of translation. The fact that the common encoding on Windows is 8 bit complete with no shift characters means that even though your editor will display 🍸, the compiler will see 0xF0 0x9F 0x8D 0xB8, which the compiler will emit as that sequence of bytes, even though the 0xBD is not canonically mapped. 
 )
 }}
-\AtBeginDocument{\glsadd{basic source character set}}
+
+\newglossaryentry{benchmark test}{
+  name={Benchmark Test},
+  description={
+TODO
+}}
 
 \newglossaryentry{boilerplate code}{
   name={Boilerplate Code},
@@ -93,6 +121,18 @@ TODO
 
 \newglossaryentry{bytes}{
   name={Bytes},
+  description={
+TODO
+}}
+
+\newglossaryentry{c style functions}{
+  name={C Style Functions},
+  description={
+TODO
+}}
+
+\newglossaryentry{CI}{
+  name={CI},
   description={
 TODO
 }}
@@ -171,6 +211,12 @@ TODO
 TODO
 }}
 
+\newglossaryentry{concrete class}{
+  name={Concrete Class},
+  description={
+TODO
+}}
+
 \newglossaryentry{conditionally supported}{
   name={Conditionally Supported},
   description={
@@ -191,16 +237,50 @@ TODO
 
 \newglossaryentry{contextual conversion to bool}{
   name={Contextual Conversion to \lstinline!bool!},
-  nonumberlist,
   description={
 A property of certain particular language construct (e.g., an \lstinline!if! expression) that permits conversion from any expression \lstinline!E! to be treated \emcppsglossgloss{as if} a \lstinline!static\_cast! to type bool had been applied --- e.g., \lstinline!if (E)! is definitional equivalent to \lstinline!if (static\_cast<bool>(E))!. %See also [explicit conversion operators]{.xref}.
 }}
-\AtBeginDocument{\glsadd{contextual conversion to bool}}
+
+\newglossaryentry{contextual convertibility to bool}{
+  name={Contextual Convertibility To Bool},
+  description={
+TODO
+}}
 
 \newglossaryentry{contextual keyword}{
   name={Contextual Keyword},
   description={
 A \emph{``contextual keyword''} is a special identifier that acts like a \emph{keyword} when used in particular contexts. \lstinline!override! is an example as it can be used as a regular identifier outside of member-function declarators.
+}}
+
+\newglossaryentry{continuous refactoring}{
+  name={Continuous Refactoring},
+  description={
+TODO
+}}
+
+\newglossaryentry{conventional string literals}{
+  name={Conventional String Literals},
+  description={
+TODO
+}}
+
+\newglossaryentry{conversion operator}{
+  name={Conversion Operator},
+  description={
+TODO
+}}
+
+\newglossaryentry{conversion operators}{
+  name={Conversion Operators},
+  description={
+TODO
+}}
+
+\newglossaryentry{converting constructors}{
+  name={Converting Constructors},
+  description={
+TODO
 }}
 
 \newglossaryentry{cookie}{
@@ -238,6 +318,12 @@ the same, for a value semantic type that property is value...
 
 \newglossaryentry{critical section}{
   name={Critical Section},
+  description={
+TODO
+}}
+
+\newglossaryentry{curiously recurring template pattern}{
+  name={Curiously Recurring Template Pattern},
   description={
 TODO
 }}
@@ -314,14 +400,32 @@ TODO
 TODO
 }}
 
+\newglossaryentry{dependent type}{
+  name={Dependent Type},
+  description={
+TODO
+}}
+
 \newglossaryentry{design pattern}{
   name={Design Pattern},
   description={
 TODO
 }}
 
+\newglossaryentry{direct initialization}{
+  name={Direct Initialization},
+  description={
+TODO
+}}
+
 \newglossaryentry{disambiguator}{
   name={Disambiguator},
+  description={
+TODO
+}}
+
+\newglossaryentry{duck typing}{
+  name={Duck Typing},
   description={
 TODO
 }}
@@ -382,6 +486,12 @@ TODO
 
 \newglossaryentry{explicit instantiation directive}{
   name={Explicit Instantiation Directive},
+  description={
+TODO
+}}
+
+\newglossaryentry{explicit specifier}{
+  name={Explicit Specifier},
   description={
 TODO
 }}
@@ -470,18 +580,34 @@ TODO
 General-purpose machines are what Big Tech, the financial industry, and many other large companies use exclusively.
 }}
 
+\newglossaryentry{golden file}{
+  name={Golden File},
+  description={
+TODO
+}}
+
+\newglossaryentry{header only library}{
+  name={Header Only Library},
+  description={
+TODO
+}}
+
 \newglossaryentry{hide}{
   name={Hide or Hiding},
   alts={{hiding},
        },
-  nonumberlist,
   description={
 Function-name \textbf{hiding} occurs when a member function in a derived class has the same name as one in the base class, but it is not overriding it due to a difference in the function signature or because the member function in the base class is not \texttt{virtual}. The hidden member function will \textbf{not} participate in dynamic dispatch; the member function of the base class will be invoked instead when invoked via a pointer or reference to the base class . The same code would have invoked the derived class's implementation had the member function of the base class had been \textbf{overridden} rather than \textbf{hidden}.
 }}
-\AtBeginDocument{\glsadd{hide}}
 
 \newglossaryentry{higher order function}{
   name={Higher Order Function},
+  description={
+TODO
+}}
+
+\newglossaryentry{hyrum's law}{
+  name={Hyrum'S Law},
   description={
 TODO
 }}
@@ -512,6 +638,24 @@ TODO *No diagnostic required*. The compiler is not mandated by the Standard to p
 
 \newglossaryentry{implementation defined}{
   name={Implementation Defined},
+  description={
+TODO
+}}
+
+\newglossaryentry{implementation inheritance}{
+  name={Implementation Inheritance},
+  description={
+TODO
+}}
+
+\newglossaryentry{in process}{
+  name={In Process},
+  description={
+TODO
+}}
+
+\newglossaryentry{inheriting constructors}{
+  name={Inheriting Constructors},
   description={
 TODO
 }}
@@ -558,6 +702,12 @@ TODO
 TODO
 }}
 
+\newglossaryentry{interface inheritance}{
+  name={Interface Inheritance},
+  description={
+TODO
+}}
+
 \newglossaryentry{join}{
   name={Join},
   description={
@@ -588,6 +738,12 @@ TODO
 TODO
 }}
 
+\newglossaryentry{local class}{
+  name={Local Class},
+  description={
+TODO
+}}
+
 \newglossaryentry{local declaration}{
   name={Local Declaration},
   description={
@@ -602,6 +758,18 @@ TODO
 
 \newglossaryentry{logical}{
   name={Logical},
+  description={
+TODO
+}}
+
+\newglossaryentry{long distance friendship}{
+  name={Long Distance Friendship},
+  description={
+TODO
+}}
+
+\newglossaryentry{mangled names}{
+  name={Mangled Names},
   description={
 TODO
 }}
@@ -660,6 +828,24 @@ TODO
 TODO
 }}
 
+\newglossaryentry{mixed mode builds}{
+  name={Mixed Mode Builds},
+  description={
+TODO
+}}
+
+\newglossaryentry{modules}{
+  name={Modules},
+  description={
+TODO
+}}
+
+\newglossaryentry{most vexing parse}{
+  name={Most Vexing Parse},
+  description={
+TODO
+}}
+
 \newglossaryentry{move operations}{
   name={Move Operations},
   description={
@@ -683,6 +869,12 @@ Also note that any operation that has \emcppsglossgloss{copy semantics} also has
 TODO
 }}
 
+\newglossaryentry{name mangling}{
+  name={Name Mangling},
+  description={
+TODO
+}}
+
 \newglossaryentry{nibbles}{
   name={Nibbles},
   description={
@@ -701,8 +893,32 @@ TODO
 TODO
 }}
 
+\newglossaryentry{nonprimitive functionality}{
+  name={Nonprimitive Functionality},
+  description={
+TODO
+}}
+
 \newglossaryentry{null address}{
   name={Null Address},
+  description={
+TODO
+}}
+
+\newglossaryentry{ODR}{
+  name={ODR},
+  description={
+TODO
+}}
+
+\newglossaryentry{object invariants}{
+  name={Object Invariants},
+  description={
+TODO
+}}
+
+\newglossaryentry{odr used}{
+  name={Odr Used},
   description={
 TODO
 }}
@@ -731,8 +947,26 @@ TODO
 TODO
 }}
 
+\newglossaryentry{overriding}{
+  name={Overriding},
+  description={
+TODO
+}}
+
 \newglossaryentry{POD}{
   name={POD},
+  description={
+TODO
+}}
+
+\newglossaryentry{parameter pack}{
+  name={Parameter Pack},
+  description={
+TODO
+}}
+
+\newglossaryentry{partial implementation}{
+  name={Partial Implementation},
   description={
 TODO
 }}
@@ -761,6 +995,12 @@ TODO
 TODO
 }}
 
+\newglossaryentry{pointer to member}{
+  name={Pointer To Member},
+  description={
+TODO
+}}
+
 \newglossaryentry{precondition}{
   name={Precondition},
   description={
@@ -773,10 +1013,22 @@ TODO
 TODO
 }}
 
+\newglossaryentry{protocol}{
+  name={Protocol},
+  description={
+TODO
+}}
+
 \newglossaryentry{pure function}{
   name={Pure Function},
   description={
 A function that produces no side effects and always returns the same value given the same sequence of argument values.
+}}
+
+\newglossaryentry{qualified name}{
+  name={Qualified Name},
+  description={
+TODO
 }}
 
 \newglossaryentry{RAII}{
@@ -787,6 +1039,12 @@ See Resource Acquisiition is Initialization
 
 \newglossaryentry{range}{
   name={Range},
+  description={
+TODO
+}}
+
+\newglossaryentry{raw string literals}{
+  name={Raw String Literals},
   description={
 TODO
 }}
@@ -821,13 +1079,17 @@ TODO
 See Substitution Failure Is Not An Error
 }}
 
+\newglossaryentry{SHA}{
+  name={SHA},
+  description={
+TODO
+}}
+
 \newglossaryentry{safe bool idiom}{
   name={Safe bool idiom},
-  nonumberlist,
   description={
 A technique in class design that suppresses unwanted comparisons made available by the presence of a non-\lstinline!explicit! conversion function to \lstinline!bool!. %See also [explicit conversion operators]{.xref}. TODO: "Given a class \lstinline!C!, the idiom requires \lstinline!C! to provide a (implicit in C++03) conversion operator to return a type that is \emph{contextually convertible to \lstinline!bool!} (e.g., any integral or pointer type) but does not support arithmetic (e.g., a \emcppsglossgloss{pointer to member}), and the presence of non-member template comparison functions that invokes a \lstinline!private! (unimplemented) member function, purposefully causing a compile-time error, should two objects of \lstinline!C! ever be compared -- e.g., using equality or relational operations (valid on \emph{all} pointers types); see %[Karlsson04]{.ref}. An early version of a return type designed for this purpose, known as \lstinline!unspecified\_bool\_type! was implemented in Boost; see %[semashev07]{.ref}."
 }}
-\AtBeginDocument{\glsadd{safe bool idiom}}
 
 \newglossaryentry{section}{
   name={Section},
@@ -865,6 +1127,12 @@ TODO
 TODO
 }}
 
+\newglossaryentry{slicing}{
+  name={Slicing},
+  description={
+TODO
+}}
+
 \newglossaryentry{special functions}{
   name={Special Functions},
   description={
@@ -889,6 +1157,12 @@ TODO
 TODO
 }}
 
+\newglossaryentry{static data space}{
+  name={Static Data Space},
+  description={
+TODO
+}}
+
 \newglossaryentry{static duration}{
   name={Static Duration},
   description={
@@ -903,6 +1177,12 @@ TODO
 
 \newglossaryentry{strong typedef idiom}{
   name={Strong Typedef Idiom},
+  description={
+TODO
+}}
+
+\newglossaryentry{strong typedef}{
+  name={Strong \lstinline!typedef!},
   description={
 TODO
 }}
@@ -927,6 +1207,24 @@ TODO
 
 \newglossaryentry{template instantiation time}{
   name={Template Instantiation Time},
+  description={
+TODO
+}}
+
+\newglossaryentry{template template class parameter}{
+  name={Template Template Class Parameter},
+  description={
+TODO
+}}
+
+\newglossaryentry{template template parameter}{
+  name={Template Template Parameter},
+  description={
+TODO
+}}
+
+\newglossaryentry{test driver}{
+  name={Test Driver},
   description={
 TODO
 }}
@@ -984,6 +1282,12 @@ TODO
 
 \newglossaryentry{type alias}{
   name={Type Alias},
+  description={
+TODO
+}}
+
+\newglossaryentry{type trait}{
+  name={Type Trait},
   description={
 TODO
 }}
@@ -1068,6 +1372,18 @@ One of the requirement for a special member function to be considered \emcppsglo
 TODO
 }}
 
+\newglossaryentry{using declaration}{
+  name={Using Declaration},
+  description={
+TODO
+}}
+
+\newglossaryentry{using directive}{
+  name={Using Directive},
+  description={
+TODO
+}}
+
 \newglossaryentry{value}{
   name={Value},
   description={
@@ -1092,6 +1408,12 @@ TODO
 TODO
 }}
 
+\newglossaryentry{value semantic type}{
+  name={Value Semantic Type},
+  description={
+TODO
+}}
+
 \newglossaryentry{vocabulary type}{
   name={Vocabulary Type},
   description={
@@ -1100,6 +1422,12 @@ TODO
 
 \newglossaryentry{zero initialized}{
   name={Zero Initialized},
+  description={
+TODO
+}}
+
+\newglossaryentry{inline namespace}{
+  name={inline namespace},
   description={
 TODO
 }}

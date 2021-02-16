@@ -16,18 +16,18 @@
 
 
 The \lstinline![[deprecated]]! attribute discourages the use of a decorated
-\romeogloss{entity}, typically via the emission of a compiler warning.
+\emcppsgloss{entity}, typically via the emission of a compiler warning.
 
 \subsection[Description]{Description}\label{description}
 
 The standard \lstinline![[deprecated]]! attribute is used to portably
-indicate that a particular \romeogloss{entity} is no longer recommended and
+indicate that a particular \emcppsgloss{entity} is no longer recommended and
 to actively discourage its use. Such deprecation typically follows the
 introduction of alternative constructs that are
 superior to the original one, providing time for clients to migrate to
 them (\emph{asynchronously}{\cprotect\footnote{A process for ongoing
 improvement of legacy codebases, sometimes referred to as
-\romeogloss{continuous refactoring}, often allows time for clients to
+\emcppsgloss{continuous refactoring}, often allows time for clients to
 migrate --- on their own respective schedules and time frames --- from
 existing \emph{deprecated} constructs to newer ones, rather than
 having every client change in lock step. Allowing clients time to move
@@ -44,7 +44,7 @@ command-line options are typically available to disable those warnings
 locally (e.g.,
   \lstinline!#pragma!~\lstinline!GCC!~\lstinline!diagnostic!~\lstinline!ignored!~\lstinline!"-Wdeprecated"!).}}
 conforming compilers to produce a diagnostic message in case a program
-refers to any \romeogloss{entity} to which the \lstinline![[deprecated]]!
+refers to any \emcppsgloss{entity} to which the \lstinline![[deprecated]]!
 attribute appertains. For instance, most popular compilers emit a
 warning whenever a \lstinline![[deprecated]]! function or
 object{\cprotect\footnote{The \lstinline![[deprecated]]! attribute can be
@@ -71,7 +71,7 @@ void h()
 }
 \end{emcppslisting}
     
-\noindent A programmer can supply a \romeogloss{string literal} as an
+\noindent A programmer can supply a \emcppsgloss{string literal} as an
 argument to the \mbox{\lstinline![[deprecated]]!} attribute (e.g.,
 \mbox{\lstinline![[deprecated("message")]]!}) to inform human users regarding the
 reason for the deprecation:
@@ -87,7 +87,7 @@ void f()
 }
 \end{emcppslisting}
     
-\noindent An \romeogloss{entity} that is initially \emph{declared} without
+\noindent An \emcppsgloss{entity} that is initially \emph{declared} without
 \lstinline![[deprecated]]! can later be redeclared with the attribute and
 vice versa:
 
@@ -102,14 +102,14 @@ void f();
 void g2() { f(); }  // Warning: (ù{\codeincomments{f}}ù) is deprecated (still).
 \end{emcppslisting}
     
-\noindent As shown in \lstinline!g2! (above), redeclaring an \romeogloss{entity} that was
+\noindent As shown in \lstinline!g2! (above), redeclaring an \emcppsgloss{entity} that was
 previously decorated with\linebreak[4] \mbox{\lstinline![[deprecated]]!} without the attribute leaves the entity still deprecated.
 
 \subsection[Use Cases]{Use Cases}\label{use-cases}
 
-\subsubsection[Discouraging use of an obsolete or unsafe \romeogloss{entity}]{Discouraging use of an obsolete or unsafe \romeogloss{entity}}\label{discouraging-use-of-an-obsolete-or-unsafe-entity}
+\subsubsection[Discouraging use of an obsolete or unsafe \emcppsgloss{entity}]{Discouraging use of an obsolete or unsafe \emcppsgloss{entity}}\label{discouraging-use-of-an-obsolete-or-unsafe-entity}
 
-Decorating any \romeogloss{entity} with the \lstinline![[deprecated]]! attribute serves both
+Decorating any \emcppsgloss{entity} with the \lstinline![[deprecated]]! attribute serves both
 to indicate a particular feature should not be used in the future and
 to actively encourage migration of existing uses to a better
 alternative. Obsolescence, lack of safety, and poor performance are
@@ -179,7 +179,7 @@ struct RandomGenerator
 alternative, \lstinline!BetterRandomGenerator!, is available, yet they are granted time to
 migrate their code to the new solution rather than having their code broken by the
 removal of the old solution. When clients are notified of the
-deprecation (thanks to a compiler diagnostic), they can schedule time to rewrite their applications to consume the new interface.{\cprotect\footnote{\romeogloss{Continuous refactoring} is
+deprecation (thanks to a compiler diagnostic), they can schedule time to rewrite their applications to consume the new interface.{\cprotect\footnote{\emcppsgloss[continuous refactoring]{Continuous refactoring} is
 an essential responsibility of a development organization, and
 deciding when to go back and fix what's suboptimal instead of writing
 new code that will please users and contribute more immediately to the
@@ -196,7 +196,7 @@ date) is a proven real-world practical way of ameliorating this
 In some code bases, compiler warnings are promoted to errors using compiler flags, such as \lstinline!-Werror! for GCC and Clang or \lstinline!/WX! for MSVC, to ensure that their builds are warning-clean. For such code bases, use of the \lstinline![[deprecated]]! attribute by their dependencies as part of the API might introduce unexpected compilation failures. 
 
 Having the compilation process completely stopped due to use of a
-deprecated \romeogloss{entity} defeats the purpose of the attribute because users of such an \romeogloss{entity} are given no time to adapt their code
+deprecated \emcppsgloss{entity} defeats the purpose of the attribute because users of such an \emcppsgloss{entity} are given no time to adapt their code
 to use a newer alternative. On GCC and Clang, users can selectively demote deprecation errors back to warnings by using the
 \lstinline!-Wno-error=deprecated-declarations! compiler flag. On MSVC,
 however, such demotion of warnings is not possible, and the available workarounds, such as entirely disabling the effects of the \lstinline!/WX! flag or the deprecation diagnostics using the  \lstinline!-wd4996! flag, are often unsuitable.

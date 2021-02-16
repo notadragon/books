@@ -14,12 +14,12 @@
 
 
 The term \emph{inheriting constructors} refers to the use of a
-\emcppsgloss[using declaration]{\lstinline!using! declaration} to expose nearly all of the
+\romeogloss{\lstinline!using! declaration} to expose nearly all of the
 constructors of a base class in the scope of a derived class.
 
 \subsection[Description]{Description}\label{description-inheritingctor}
 
-In a class definition, a \emcppsgloss[using declaration]{\lstinline!using! declaration} naming a
+In a class definition, a \romeogloss{\lstinline!using! declaration} naming a
 base class's constructor results in the derived class ``inheriting'' all
 of the nominated base class's constructors, except for \emph{copy} and
 \emph{move} constructors. Just like \lstinline!using! declarations of member functions, the nominated base class's
@@ -81,7 +81,7 @@ D0 j(D0(5));  // OK, uses compiler-generated (ù{\codeincomments{D0::D0(D\&\&)}}
   \lstinline!D0!~\lstinline!x(B0());! would instead be interpreted as a
   declaration of a function \lstinline!x! returning \lstinline!D0! and
   accepting a pointer to a nullary function returning \lstinline!B0!, which
-  is referred to as the \emcppsgloss{most vexing parse}.}}
+  is referred to as the \romeogloss{most vexing parse}.}}
     
 \noindent The constructors inherited by the derived class have the same effect on
 whether the compiler implicitly generates special member functions as
@@ -93,7 +93,7 @@ if
 and move constructors are \emph{not} inherited, their presence in the
 base class wouldn't suppress implicit generation of copy and move
 assignment in the derived class. For instance, \lstinline!D0!'s implicitly
-generated assignment operators \emcppsgloss{hide} their
+generated assignment operators \romeogloss{hide} their
 counterparts in \lstinline!B0!:
 
 \begin{emcppslisting}[emcppsbatch=e1]
@@ -121,7 +121,7 @@ base class are accessed as private constructors of that base class and
 are subject to the same access controls; see \intraref{annoyances-inheritingctor}{access-levels-of-inherited-constructors-are-same-as-in-base-class}. 
 % \textit{\titleref{annoyances-inheritingctor}: \titleref{access-levels-of-inherited-constructors-are-same-as-in-base-class}} on page~\pageref{access-levels-of-inherited-constructors-are-same-as-in-base-class}.
 
-Inheriting constructors having the same \emcppsgloss{signature} from multiple
+Inheriting constructors having the same \romeogloss{signature} from multiple
 base classes lead to ambiguity errors:
 
 \begin{emcppslisting}
@@ -139,7 +139,7 @@ D1 d1(0);  // Error, Call of overloaded (ù{\codeincomments{D1(int)}}ù) is ambi
     
 \noindent Each inherited constructor shares the same characteristics as the
 corresponding one in the nominated base class's constructor and then
-delegates to it. This means the \emcppsgloss[access specifier]{access specifiers}, the
+delegates to it. This means the \romeogloss{access specifiers}, the
 \lstinline!explicit! specifier, the \lstinline!constexpr! specifier, the
 default arguments, and the exception specification are also preserved by
 constructor inheritance; see \featureref{\locatione}{noexcept-specifier} and \featureref{\locationc}{constexprfunc}.  
@@ -234,7 +234,8 @@ struct D3 : B1A, B1B
 D3 d3(0);  // OK, calls (ù{\codeincomments{D3(int)}}ù)
 \end{emcppslisting}
     
-\noindent Lastly, inheriting constructors from a \emcppsgloss{dependent type} affords a capability over C++03 that is more than just convenience
+\noindent Lastly, inheriting constructors from a \romeogloss{dependent
+type} affords a capability over C++03 that is more than just convenience
 and avoidance of boilerplate code.{\cprotect\footnote{A decidedly more
 complex alternative affording a different set of tradeoffs would
   involve variadic template constructors (see \featureref{\locationc}{variadictemplate}) 
@@ -252,7 +253,7 @@ complex alternative affording a different set of tradeoffs would
   \lstinline!constexpr!, and so on. The forwarding can, however, be restricted to
   inheriting just the \lstinline!public! constructors (without
   characteristics) by constraining on \lstinline!std::is_constructible!
-  using \emcppsgloss{SFINAE}; see \intraref{annoyances-inheritingctor}{access-levels-of-inherited-constructors-are-same-as-in-base-class}.}} 
+  using \romeogloss{SFINAE}; see \intraref{annoyances-inheritingctor}{access-levels-of-inherited-constructors-are-same-as-in-base-class}.}} 
 %  \textit{\titleref{annoyances-inheritingctor}: \titleref{access-levels-of-inherited-constructors-are-same-as-in-base-class}} on page~\pageref{access-levels-of-inherited-constructors-are-same-as-in-base-class}.}} 
   In all of the example code in \intrarefsimple{description-inheritingctor} 
 %  \textit{\titleref{description-inheritingctor}} 
@@ -260,7 +261,7 @@ complex alternative affording a different set of tradeoffs would
 base-class constructor; we are simply automating some drudge work. In
 the case of a \emph{dependent} base class, however, we do \emph{not}
 know how to spell the constructors, so we \emph{must} rely on
-\emcppsgloss{inheriting constructors} if that is the forwarding semantic we
+\romeogloss{inheriting constructors} if that is the forwarding semantic we
 seek:
 
 \begin{emcppslisting}
@@ -299,15 +300,15 @@ such will pertain only when the derived class adds no member data of its
 own. While additional derived-class member data could possibly
 be initialized if by a \emph{defaulted} default constructor, this state must be \emph{orthogonal} to
 any modifiable state initialized in the base class, as such state is
-subject to independent change via \emcppsgloss{slicing}, which might in turn
-invalidate \emcppsgloss{object invariants}. Derived-class data will be either default-initialized or have its value set using member
+subject to independent change via \romeogloss{slicing}, which might in turn
+invalidate \romeogloss{object invariants}. Derived-class data will be either default-initialized or have its value set using member
 initializers (see \featureref{\locationc}{Default-Member-Initializers}).  
 %``\titleref{Default-Member-Initializers}" on page~\pageref{Default-Member-Initializers}). 
 Hence, most typical use cases will involve wrapping an
 existing class by deriving from it (either publicly or privately),
 adding only defaulted data members having orthogonal values, and then
-adjusting the derived class's behavior via \emcppsgloss{overriding} its virtual
-or \emcppsgloss[hide]{hiding} its non-virtual member functions.
+adjusting the derived class's behavior via \romeogloss{overriding} its virtual
+or \romeogloss{hiding} its non-virtual member functions.
 
 \subsubsection[Avoiding boilerplate code when employing structural inheritance]{Avoiding boilerplate code when employing structural inheritance}\label{avoiding-boilerplate-code-code-when-employing-structural-inheritance}
 
@@ -349,15 +350,15 @@ functions where we chose to augment the original behavior.
 
 \subsubsection[Avoiding boilerplate code when employing implementation inheritance]{Avoiding boilerplate code when employing implementation inheritance}\label{avoiding-boilerplate-code-when-employing-implementation-inheritance}
 
-Sometimes it can be cost effective to adapt a \emcppsgloss{concrete class}
+Sometimes it can be cost effective to adapt a \romeogloss{concrete class}
 having virtual functions{\cprotect\footnote{Useful design patterns
-exist where a \emcppsgloss{partial implementation} class, derived from a
-pure abstract interface (a.k.a. a \emcppsgloss{protocol}), contains data,
+exist where a \romeogloss{partial implementation} class, derived from a
+pure abstract interface (a.k.a. a \romeogloss{protocol}), contains data,
 constructors, and pure virtual functions; see
   \cite{lakos2a}, section~4.7.}} to a specialized purpose
 using inheritance.{\cprotect\footnote{Such inheritance, known as
-\emcppsgloss{implementation inheritance}, is decidedly distinct from pure
-\emcppsgloss{interface inheritance}, which is often the preferred design
+\romeogloss{implementation inheritance}, is decidedly distinct from pure
+\romeogloss{interface inheritance}, which is often the preferred design
   pattern in practice; see \cite{lakos2b}, section~4.6.}}
 As an example, consider a base class,
 \lstinline!NetworkDataStream!, that allows overriding its virtual functions
@@ -429,14 +430,17 @@ offer absolutely no type safety. A commonly desired capability is to
 provide an alias to an existing type \lstinline!T! that is uniquely
 interoperable with itself, explicitly convertible from \lstinline!T!, but
 not implicitly convertible from \lstinline!T!. This somewhat \emph{more}
-type-safe form of alias is sometimes referred to as a \emcppsgloss[strong typedef]{strong \lstinline!typedef!}.{\cprotect\footnote{A typical implementation of a \emcppsgloss[strong typedef]{strong \lstinline!typedef!} suppresses implicit conversions both from the new type to the type it wraps and vice versa via \lstinline!explicit! converting constructors and \lstinline!explicit! conversion operators.  In this respect, the relationship of \emcppsgloss[strong typedef]{strong \lstinline!typedef!} with the type it wraps is analogous to that of a scoped enumeration (\lstinline!enum!~\lstinline!class!)  to its \emcppsgloss{underlying type}; see \featureref{\locationc}{explicit-enumeration-underlying-type}.}}
-%A so-called \emcppsgloss[strong typedef]{strong \lstinline!typedef!} is similar to a classic, C-style enumeration in
+type-safe form of alias is sometimes referred to as a \romeogloss{strong
+\lstinline!typedef!}.{\cprotect\footnote{A typical implementation of a \romeogloss{strong \lstinline!typedef!} suppresses implicit conversions both from the new type to the type it wraps and vice versa via \lstinline!explicit! converting constructors and \lstinline!explicit! conversion operators.  In this respect, the relationship of \romeogloss{strong \lstinline!typedef!} with the type it wraps is analogous to that of a scoped enumeration (\lstinline!enum!~\lstinline!class!)  to its \romeogloss{underlying type}; see \featureref{\locationc}{explicit-enumeration-underlying-type}.}}
+%A so-called \romeogloss{strong
+%  \lstinline!typedef!} is similar to a classic, C-style enumeration in
 %  that it is (1) its own type and (2) implicitly convertible to its
 %  base type (which for enumerators corresponds to its
-%  \emcppsgloss{underlying type}; see \featureref{\locationc}{explicit-enumeration-underlying-type}). 
+%  \romeogloss{underlying type}; see \featureref{\locationc}{explicit-enumeration-underlying-type}). 
 %%  ``\titleref{explicit-enumeration-underlying-type}" on page~\pageref{explicit-enumeration-underlying-type}). 
 %  Unlike a classic
-%  \lstinline!enum!, however, a typical implementation of a \emcppsgloss[strong typedef]{strong \lstinline!typedef!} allows only for explicit conversion from its base
+%  \lstinline!enum!, however, a typical implementation of a \romeogloss{strong
+%  \lstinline!typedef!} allows only for explicit conversion from its base
 %  type. An analogy to the more strongly typed
 %\lstinline!enum!~\lstinline!class! (see \featureref{\locationc}{enumclass}) 
 %% ``\titleref{enumclass}" on page~\pageref{enumclass}) 
@@ -502,9 +506,9 @@ We are not advocating use of this technique; we are merely
 
 One way is to force clients to make a conscious and explicit decision in
 their own source code as to which \lstinline!Date! is the birthday and
-which is the appointment. Employing a \emcppsgloss[strong typedef]{strong \lstinline!typedef!}
+which is the appointment. Employing a \romeogloss{strong \lstinline!typedef!}
 can help us to achieve this goal. Inheriting constructors provide a
-concise way to define a \emcppsgloss[strong typedef]{strong \lstinline!typedef!}; for
+concise way to define a \romeogloss{strong \lstinline!typedef!}; for
 the example above, they can be used to define two new types to
  uniquely represent a birthday and an appointment date:
 
@@ -596,7 +600,7 @@ int client2(PatientInfo* result, Date birthday, Date appointment)
     return 0;
 }
 \end{emcppslisting}
-Because the clients now need to explicitly convert their \lstinline!Date! objects to the appropriate \emcppsgloss[strong typedef]{strong \lstinline!typedef!s}, it is easy to spot and fix the defect in \lstinline!client2!:
+Because the clients now need to explicitly convert their \lstinline!Date! objects to the appropriate \romeogloss{strong \lstinline!typedef!s}, it is easy to spot and fix the defect in \lstinline!client2!:
 \begin{emcppslisting}[emcppsbatch=e7]
 PatientInfo client1(Date birthday, Date appointment)
 {
@@ -612,14 +616,14 @@ int client2(PatientInfo* result, Date birthday, Date appointment)
 \end{emcppslisting}
     
 \noindent 
-%This example works because the \emcppsgloss{value constructor} takes three
+%This example works because the \romeogloss{value constructor} takes three
 %arguments and cannot be invoked as part of an implicit conversion
 %sequence; see \intraref{potential-pitfalls-ctorinheriting}{beware-of-inheriting-implicit-constructors}. 
 %%\textit{\titleref{potential-pitfalls-ctorinheriting}: \titleref{beware-of-inheriting-implicit-constructors}} on page~\pageref{beware-of-inheriting-implicit-constructors}. 
 %Note that, in an ideal
 %world where thorough unit testing is ubiquitous, such machinations would
 %most likely be supererogatory.
-In this example, the client functions failed to compile after the introduction of the \emcppsgloss[strong typedef]{strong \lstinline!typedef!s} which is the intended effect. However, if \lstinline!Date! objects were \emph{implicitly} constructed when client functions created \lstinline!PatientInfo!, the defective code would continue to compile because both \emcppsgloss[strong typedef]{strong \lstinline!typedef!s} can be implicitly constructed from the same arguments; see \intraref{potential-pitfalls-ctorinheriting}{beware-of-inheriting-implicit-constructors}.
+In this example, the client functions failed to compile after the introduction of the \romeogloss{strong \lstinline!typedef!s} which is the intended effect. However, if \lstinline!Date! objects were \emph{implicitly} constructed when client functions created \lstinline!PatientInfo!, the defective code would continue to compile because both \romeogloss{strong \lstinline!typedef!s} can be implicitly constructed from the same arguments; see \intraref{potential-pitfalls-ctorinheriting}{beware-of-inheriting-implicit-constructors}.
 
 \subsubsection[Incorporating reusable functionality via a mix-in]{Incorporating reusable functionality via a mix-in}\label{incorporating-reusable-functionality-via-a-mix-in-class}
 
@@ -627,7 +631,7 @@ Some classes are designed to generically enhance the behavior of a class
 just by inheriting from it; such classes are sometimes referred to as
 \emph{mix-ins}. If we wish to adapt a class to support the additional
 behavior of the mix-in, with no other change to its behavior, we can use
-simple \emcppsgloss{structural inheritance} (e.g., to preserve reference
+simple \romeogloss{structural inheritance} (e.g., to preserve reference
 compatibility through function calls). To preserve the public interface,
 however, we will need it to inherit the constructors as well.
 
@@ -736,7 +740,7 @@ time.
 Note that this problem with implicit conversions for function parameters is not unique
 to inheriting constructors; any form of \lstinline!using! declaration or
 invocation of an overloaded function carries a similar risk. Imposing
-stronger typing --- e.g., by using \emcppsgloss[strong typedef]{strong \lstinline!typedef!s} (see \intraref{use-cases-ctorinheriting}{implementing-a-strong-typedef}) 
+stronger typing --- e.g., by using \romeogloss{strong \lstinline!typedef!s} (see \intraref{use-cases-ctorinheriting}{implementing-a-strong-typedef}) 
 %\textit{\titleref{use-cases-ctorinheriting}: \titleref{implementing-a-strong-typedef}} on page~\pageref{implementing-a-strong-typedef}) 
 --- might sometimes, however, help to prevent such
 unfortunate missteps.
@@ -745,7 +749,7 @@ unfortunate missteps.
 
 Inheriting from a class that has implicit constructors can cause
 surprises. Consider again the use of inheriting constructors to
-implement a \emcppsgloss[strong typedef]{strong \lstinline!typedef!} from \intraref{use-cases-ctorinheriting}{implementing-a-strong-typedef}. 
+implement a \romeogloss{strong \lstinline!typedef!} from \intraref{use-cases-ctorinheriting}{implementing-a-strong-typedef}. 
 %\textit{\titleref{use-cases-ctorinheriting}: \titleref{implementing-a-strong-typedef}} on page~\pageref{implementing-a-strong-typedef}. 
 This time, however, let's suppose we are
 exposing a class,
@@ -785,7 +789,7 @@ int client2(PointOfInterest*   result,
 }
 \end{emcppslisting}
     
-\noindent We might think to again use \emcppsgloss[strong typedef]{strong \lstinline!typedef!s} here as we
+\noindent We might think to again use \romeogloss{strong \lstinline!typedef!s} here as we
 did for \lstinline!PatientInfo! in \intraref{use-cases-ctorinheriting}{implementing-a-strong-typedef}: 
 %\textit{\titleref{use-cases-ctorinheriting}: \titleref{implementing-a-strong-typedef}} on page~\pageref{implementing-a-strong-typedef}:
 
@@ -820,7 +824,7 @@ Name b3(a0);            // OK, an (ù{\codeincomments{Address}}ù) (unfortunatel
 \end{emcppslisting}
     
 \noindent We can rework the \lstinline!PointOfInterest! class to use the
-\emcppsgloss[strong typedef]{strong \lstinline!typedef!} idiom:
+\romeogloss{strong \lstinline!typedef!} idiom:
 
 \begin{emcppslisting}[emcppsbatch=e11]
 class PointOfInterest
@@ -870,7 +874,8 @@ to a \lstinline!std::string! before matching the \emph{implicit} conversion
 constructor. Had the \lstinline!std::string! conversion
 constructor been declared to be \lstinline!explicit!, the code would not
 have compiled. In short, inheriting constructors from types that perform implicit
-conversions can seriously undermine the effectiveness of the \emcppsgloss[strong typedef]{strong \lstinline!typedef!} idiom.
+conversions can seriously undermine the effectiveness of the \romeogloss{strong
+\lstinline!typedef!} idiom.
 
 \subsection[Annoyances]{Annoyances}\label{annoyances-inheritingctor}
 
@@ -979,8 +984,9 @@ void client()
 \end{emcppslisting}
 {\cprotect\footnotetext{Alisdair Meredith, one of the authors of the
 Standards paper that proposed this feature (\cite{meredith08}), suggests that
-placing the \lstinline!using! declaration for \emcppsgloss{inheriting constructors} as the very first member declaration and preceding any
-\emcppsgloss[access specifier]{access specifiers} might be the least confusing location. Programmers might still be confused by
+placing the \lstinline!using! declaration for \romeogloss{inheriting
+constructors} as the very first member declaration and preceding any
+\romeogloss{access specifiers} might be the least confusing location. Programmers might still be confused by
 the disparate default access levels of \lstinline!class! versus
   \lstinline!struct!.}}
     
@@ -1144,7 +1150,7 @@ None so far
 %    
 %\subsubsection[Inheriting constructor templates would be ill formed for a local class]{Inheriting constructor templates would be ill formed for a local class}
 %
-%A class declared within a function is a \emcppsgloss{local class}. Local classes have many restrictions, one of which is that they cannot declare member templates. If we inherit constructors from a base class with constructor templates, even \lstinline!private! ones, the implicit declaration of a constructor template to forward arguments to the base-class constructor would be \emcppsgloss{ill formed}:
+%A class declared within a function is a \romeogloss{local class}. Local classes have many restrictions, one of which is that they cannot declare member templates. If we inherit constructors from a base class with constructor templates, even \lstinline!private! ones, the implicit declaration of a constructor template to forward arguments to the base-class constructor would be \romeogloss{ill formed}:
 %\begin{emcppslisting}
 %struct Base
 %{
@@ -1165,7 +1171,7 @@ None so far
 %    
 %\subsubsection[SFINAE evaluation context with default function arguments]{SFINAE evaluation context with default function arguments}
 %
-%Constructors that employ \emcppsgloss{SFINAE} tricks in default function arguments perform \mbox{\emcppsgloss{SFINAE}} checks in the wrong context and therefore inherit ill-formed constructors. No such issues occur when these \emcppsgloss{SFINAE} tricks are performed on default template arguments instead. As an example, consider a class template \lstinline!Wrap! that has a template constructor with a \emcppsgloss{SFINAE} constraint:
+%Constructors that employ \romeogloss{SFINAE} tricks in default function arguments perform \mbox{\romeogloss{SFINAE}} checks in the wrong context and therefore inherit ill-formed constructors. No such issues occur when these \romeogloss{SFINAE} tricks are performed on default template arguments instead. As an example, consider a class template \lstinline!Wrap! that has a template constructor with a \romeogloss{SFINAE} constraint:
 %\begin{emcppslisting}
 %struct S { };
 %
@@ -1186,7 +1192,7 @@ None so far
 %    }
 %};
 %\end{emcppslisting}
-%    If we derive from \lstinline!Wrap! and inherit its constructors, we would expect the \emcppsgloss{SFINAE} constraint to behave exactly as in the base class, i.e., the template constructor overload would be silently discarded if \lstinline!std::is_constructible<T,!~\lstinline!U>::value! evaluates to \lstinline!false!:
+%    If we derive from \lstinline!Wrap! and inherit its constructors, we would expect the \romeogloss{SFINAE} constraint to behave exactly as in the base class, i.e., the template constructor overload would be silently discarded if \lstinline!std::is_constructible<T,!~\lstinline!U>::value! evaluates to \lstinline!false!:
 %\begin{emcppslisting}
 %template <typename T>
 %struct Derived : Wrap<T>
@@ -1194,7 +1200,7 @@ None so far
 %    using Wrap<T>::Wrap;
 %};
 %\end{emcppslisting}
-%    However, prior to C++17â€™s retroactive fixes, \emcppsgloss{SFINAE} was triggered only for \lstinline!Wrap!, not for \lstinline!Derived!:
+%    However, prior to C++17â€™s retroactive fixes, \romeogloss{SFINAE} was triggered only for \lstinline!Wrap!, not for \lstinline!Derived!:
 %\begin{emcppslisting}
 %void f()
 %{
@@ -1234,7 +1240,7 @@ None so far
 %    A(T) { std::cout << "convert\n"; }
 %};
 %\end{emcppslisting}
-%    This simple class can convert from any type and prints those of its constructors that were called. Now consider we want to make a \emcppsgloss[strong typedef]{strong \lstinline!typedef!} for \lstinline!A!:
+%    This simple class can convert from any type and prints those of its constructors that were called. Now consider we want to make a \romeogloss{strong \lstinline!typedef!} for \lstinline!A!:
 %\begin{emcppslisting}
 %struct B : A
 %{
