@@ -1,8 +1,5 @@
 % 12 Feb 2021, revisions in; ready for Josh's code fixes
 
-
-
-
 \emcppsFeature{
     short={\lstinline!explicit! Operators},
     tocshort={{\TOCCode explicit} Operators},
@@ -14,7 +11,6 @@
 \setcounter{footnote}{0}
 \setcounter{lstlisting}{0}
 %\section[{\tt explicit} Operators]{Explicit Conversion Operators}\label{explicit-conversion-operators}
-
 
 Ensure that a user-defined type is convertible to another type only in
 contexts where the conversion is made obvious in the code.
@@ -31,7 +27,7 @@ example is for didactic purposes only. In practice, we would typically
 use a named function for this purpose; see \intraref{potential-pitfalls-explicitconv}{sometimes-a-named-function-is-better}.}}:
 %{\it\titleref{potential-pitfalls-explicitconv}: \titleref{sometimes-a-named-function-is-better}} on page~\pageref{sometimes-a-named-function-is-better}.}}:
 
-\begin{emcppslisting}[language=C++]
+\begin{emcppslisting}[emcppsbatch=e1]
 class Point  // implicitly convertible from an (ù{\codeincomments{int}}ù) or to a (ù{\codeincomments{double}}ù)
 {
     int d_x, d_y;
@@ -46,7 +42,7 @@ public:
 \noindent As ever, calling a function that takes a \lstinline!Point! but
 accidentally passing an \lstinline!int! can lead to surprises:
 
-\begin{emcppslisting}[language=C++]
+\begin{emcppslisting}[emcppsbatch=e1]
 void g0(Point p);         // arbitrary function taking a (ù{\codeincomments{Point}}ù) object by value
 void g1(const Point& p);  // arbitrary function taking a (ù{\codeincomments{Point}}ù) by (ù{\codeincomments{const}}ù) reference
 
@@ -60,17 +56,26 @@ void f1(int i)
 \noindent This problem could have been solved even in C++98 by declaring the
 constructor to be \lstinline!explicit!:
 
-\begin{emcppslisting}[language=C++]
+\begin{emcppshiddenlisting}[emcppsbatch=e2]
+class Point;
+void g0(Point p);       
+void g1(const Point& p);
+class Point {
+public:
+\end{emcppshiddenlisting}
+\begin{emcppslisting}[emcppsbatch=e2]
 explicit Point(int x = 0, int y = 0);  // explicit converting constructor
 \end{emcppslisting}
-    
+\begin{emcppshiddenlisting}[emcppsbatch=e2]
+};
+\end{emcppshiddenlisting}
 \noindent If the conversion is desired, it must now be specified explicitly:
 
-\begin{emcppslisting}[language=C++]
+\begin{emcppslisting}[emcppsbatch=e2]
 void f2(int i)
 {
-    g0(i);         // error: could not convert (ù{\codeincomments{i}}ù) from (ù{\codeincomments{int}}ù) to (ù{\codeincomments{Point}}ù)
-    g1(i);         // error: invalid initialization of reference type
+    g0(i);         // Error, could not convert (ù{\codeincomments{i}}ù) from (ù{\codeincomments{int}}ù) to (ù{\codeincomments{Point}}ù)
+    g1(i);         // Error, invalid initialization of reference type
     g0(Point(i));  // OK
     g1(Point(i));  // OK
 }
@@ -79,7 +84,7 @@ void f2(int i)
 \noindent The companion problem stemming from an \emph{implicit conversion
 operator}, albeit less severe, remained:
 
-\begin{emcppslisting}[language=C++]
+\begin{emcppslisting}[emcppsbatch=e1]
 void h(double d);
 
 double f3(const Point& p)
@@ -88,32 +93,32 @@ double f3(const Point& p)
     return p;  // OK? Or maybe this is a mistake too.
 }
 \end{emcppslisting}
-    
+
 \noindent As of C++11, we can now use the \romeogloss{\lstinline!explicit! specifier}
 when declaring \romeogloss{conversion operators} (as well as
 \romeogloss{converting constructors}), thereby forcing the client to request
 conversion explicitly --- e.g., using \romeogloss{direct initialization} or
 \lstinline!static_cast!:
 
-\begin{emcppslisting}[language=C++]
+\begin{emcppslisting}
 struct S0 { explicit operator int(); };
 
 void g()
 {
     S0 s0;
-    int i = s0;                    // error (copy initialization)
-    int k(s0);                     // OK (direct initialization)
-    double d = s0;                 // error (copy initialization)
-    int j = static_cast<int>(s0);  // OK (static cast)
-    if (s0) { }                    // error (contextual conversion to (ù{\codeincomments{bool}}ù))
-    double e(s0);                  // error (direct initialization)
+    int i = s0;                    // Error, copy initialization
+    int k(s0);                     // OK, direct initialization
+    double d = s0;                 // Error, copy initialization
+    int j = static_cast<int>(s0);  // OK, static cast
+    if (s0) { }                    // Error, contextual conversion to (ù{\codeincomments{bool}}ù)
+    double e(s0);                  // Error, direct initialization
 }
 \end{emcppslisting}
     
 \noindent In contrast, had the conversion operator above not been declared to be
 \lstinline!explicit!, all conversions shown above would compile:
 
-\begin{emcppslisting}[language=C++]
+\begin{emcppslisting}
 struct S1 { /* implicit */ operator int(); };
 
 void f()
@@ -156,19 +161,22 @@ extended in C++11 to admit \emph{explicit} (user-defined) \lstinline!bool!
 conversion operators (see \intraref{use-cases-explicitconv}{enabling-contextual-conversions-to-bool-as-a-test-for-validity}):
 %{\it\titleref{use-cases-explicitconv}: \titleref{enabling-contextual-conversions-to-bool-as-a-test-for-validity}} on page~\pageref{enabling-contextual-conversions-to-bool-as-a-test-for-validity}):
 
-\begin{emcppslisting}[language=C++]
+\begin{emcppslisting}
 struct S2 { explicit operator bool(); };
 
 void h()
 {
     S2 s2;
-    int i = s2;                    // error (copy initialization)
-    double d = s2;                 // error (copy initialization)
-    int j = static_cast<int>(s2);  // error (static cast)
-    if (s2) { }                    // OK (contextual conversion to (ù{\codeincomments{bool}}ù))
-    int k(s2);                     // error (direct initialization)
-    double fd(s2);                 // error (direct initialization)
-    bool b0 = s2; // error (copy initialization)    bool b1(s2);  // OK (direct initialization)                                         !s2;          // OK (contextual conversion to bool)                                                    s2 && s2;     // OK (contextual conversion to bool)
+    int i = s2;                    // Error, copy initialization
+    double d = s2;                 // Error, copy initialization
+    int j = static_cast<int>(s2);  // Error, static cast
+    if (s2) { }                    // OK, contextual conversion to (ù{\codeincomments{bool}}ù)
+    int k(s2);                     // Error, direct initialization
+    double fd(s2);                 // Error, direct initialization
+    bool b0 = s2;                  // Error, copy initialization
+    bool b1(s2);                   // OK, direct initialization)                                     
+    !s2;                           // OK, contextual conversion to (ù{\codeincomments{bool}}ù)                                               -
+    s2 && s2;                      // OK, contextual conversion to (ù{\codeincomments{bool}}ù)
 }
 \end{emcppslisting}
     
@@ -184,7 +192,7 @@ Having a conventional test for validity that involves testing whether the object
 origins of C++. The Standard input/output library, for example, uses this
 idiom to determine if a given stream is valid:
 
-\begin{emcppslisting}[language=C++]
+\begin{emcppslisting}
 // C++03
 #include <ostream>  // (ù{\codeincomments{std::ostream}}ù)
 
@@ -208,15 +216,17 @@ problematic as the straight\-forward approach of using a
 \romeogloss{conversion operator} could easily allow accidental misuse to go
 undetected:
 
-\begin{emcppslisting}[language=C++]
+\begin{emcppslisting}
 class ostream
 {
-    // ...  public:
+    // ...
+
+    public:
 
     /* implicit */ operator bool();  // hypothetical (bad) idea
 };
 
-int client(std::ostream& out)
+int client(ostream& out)
 {
     // ...
     return out + 1;  // likely a latent runtime bug: always returns 1 or 2
@@ -248,8 +258,9 @@ that have a similar \emph{invalid} state, representing the invalid (or null) sta
 \lstinline!bool! might be desirable:
 
 
-\begin{emcppslisting}[language=C++]
-#include <cstddef>  // (ù{\codeincomments{std::size\_t}ù)                                            #include <iostream> // (ù{\codeincomments{std::cerr}ù)
+\begin{emcppslisting}[emcppsbatch=e2]
+#include <cstddef>  // (ù{\codeincomments{std::size\_t}ù)                                            
+#include <iostream> // (ù{\codeincomments{std::cerr}ù)
 struct ConnectionHandle
 {
     std::size_t maxThroughput() const;
@@ -264,7 +275,7 @@ struct ConnectionHandle
 only where one might reasonably want them to do so, say, as the
 predicate of an \lstinline!if! statement:
 
-\begin{emcppslisting}[language=C++]
+\begin{emcppslisting}[emcppsbatch=e2]
 int ping(const ConnectionHandle& handle)
 {
     if (handle)  // OK (contextual conversion to bool)
@@ -281,11 +292,11 @@ int ping(const ConnectionHandle& handle)
 \noindent Having an \lstinline!explicit! conversion operator prevents unwanted
 conversions to \lstinline!bool! that might otherwise happen inadvertently:
 
-\begin{emcppslisting}[language=C++]
+\begin{emcppslisting}[emcppsbatch=e2]
 bool hasEnoughThroughput(const ConnectionHandle& ingress,
                          const ConnectionHandle& egress)
 {
-    return ingress.throughput() <= egress;  // Compilation error, thankfully
+    return ingress.throughput() <= egress;  // Error, thankfully
 //                                    ^~~~~~
 }
 \end{emcppslisting}
@@ -332,9 +343,41 @@ accidental misuse.
 %conversion explicit would entirely defeat the purpose of the proxy,
 %which is to achieve new functionality with minimal effect on existing
 %client code.
-However, for proxy types that are intended to be drop-in replacements for the types they represent, implicit conversions are precisely what we want. Consider, for example, a \lstinline!NibbleConstReference! proxy type that represents the 4-bit integer elements of a \lstinline!PackedNibbleVector!:
+However, for proxy types that are intended to be drop-in replacements for the types they represent, implicit conversions are precisely what we want. Consider, for example, a \lstinline!NibbleConstReference!
+ proxy type that represents the 4-bit integer elements of a \lstinline!PackedNibbleVector!:
 
-%%%%%%%%%%%%% JOSH: first line is blank. Intentional or error? \begin{emcppslisting}class NibbleConstReference{    // ...public:    operator int() const; // IMPLICIT    // ...};class PackedNibbleVector {    // ...public:    bool empty() const;    NibbleConstReference operator[](int index) const;        // ...};\end{emcppslisting}\noindent The \lstinline!NibbleConstReference! proxy is intended to interoperate well with other integral types in various expressions and making its conversion operator \lstinline!explicit! hinders its intended use as a drop-in replacement by requiring an explicit conversion (a.k.a. cast):\begin{emcppslisting}int firstOrZero(const PackedNibbleVector& values){    return values.empty()         ? 0         : values[0]; // Compiles only if conversion operator is implicit.}\end{emcppslisting}
+
+\begin{emcppslisting}[emcppsbatch=e3]
+class NibbleConstReference
+{
+    // ...
+public:
+    operator int() const; // IMPLICIT
+
+    // ...
+};
+
+class PackedNibbleVector 
+{
+    // ...
+public:
+    bool empty() const;
+    NibbleConstReference operator[](int index) const;
+    
+    // ...
+};
+\end{emcppslisting}
+
+\noindent The \lstinline!NibbleConstReference! proxy is intended to interoperate well with other integral types in various expressions and making its conversion operator \lstinline!explicit! hinders its intended use as a drop-in replacement by requiring an explicit conversion (a.k.a. cast):
+
+\begin{emcppslisting}[emcppsbatch=e3]
+int firstOrZero(const PackedNibbleVector& values)
+{
+    return values.empty() 
+        ? 0 
+        : values[0]; // Compiles only if conversion operator is implicit.
+}
+\end{emcppslisting}
 
 
 \subsection[Sometimes a named function is better]{Sometimes a named function is better}\label{sometimes-a-named-function-is-better}
@@ -364,7 +407,7 @@ writing) and clarity (in reading) for a variety of domain-specific
 functions --- now and in the future --- that might well have had
 overlapping return types:
 
-\begin{emcppslisting}[language=C++]
+\begin{emcppslisting}
 class Point  // only explicitly convertible (and from only an (ù{\codeincomments{int}}ù))
 {
     int d_x, d_y;

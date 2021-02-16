@@ -113,6 +113,8 @@ class PublicationOutline:
         for section in config.sections():
             files = []
             for f in config.options(section):
+                if f.startswith("#"):
+                    continue
                 priority = config.get(section,f)
                 if not priority:
                     priority = 0

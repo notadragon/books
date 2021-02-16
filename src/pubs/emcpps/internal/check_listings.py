@@ -77,8 +77,8 @@ class ListingData:
                 for x in m.group(1).split(","):
                     self.sourceerrorlines.add(int(x))
 
-            if "// Error," in l:
-                if l.strip().startswith("// Error,"):
+            if "// Error" in l:
+                if l.strip().startswith("// Error"):
                     self.errorlines.add(i-1)
                 else:
                     self.errorlines.add(i)
@@ -165,7 +165,7 @@ class BatchData:
                 if lststandards == None:
                     lststandards = set(lst.standards)
                 else:
-                    lststandards = lststandards.intersect(set(lst.standards))
+                    lststandards = lststandards.intersection(set(lst.standards))
 
         if lststandards != None:
             self.standards=list(lststandards)

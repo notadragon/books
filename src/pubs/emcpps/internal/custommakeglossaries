@@ -100,7 +100,7 @@ def makeGlossary(rootname):
             else:
                newlines.append(f"  \\setentrycounter[]{{page}}\\glsnumberformat{{{pr[0]}\\delimR {pr[1]}}}")
 
-            if n == len(e.pranges)-1:
+            if n == len(pranges)-1:
                newlines.append(f"}}}}\n")
             else:
                newlines.append(f"\\delimN\n")

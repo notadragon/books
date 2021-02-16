@@ -1,9 +1,5 @@
 % 14 Feb 2021, revisions in; ready for Josh's code fixes
 
-
-
-
-
 \emcppsFeature{
     short={\lstinline!inline!~\lstinline!namespace!},
     tocshort={{\TOCCode inline}~{\TOCCode namespace}},
@@ -40,13 +36,13 @@ namespace a::inline b::inline c { /* ... */ }
 // is the same as
 namespace a { inline namespace b { inline namespace c { /* ... */ } } }
 
-inline namespace a::b { }  // error: cannot start with (ù{\codeincomments{inline}}ù) for compound namespace names
-namespace inline a::b { }  // error: (ù{\codeincomments{inline}}ù) at front of sequence explicitly disallowed
+inline namespace a::b { }  // Error, cannot start with (ù{\codeincomments{inline}}ù) for compound namespace names
+namespace inline a::b { }  // Error, (ù{\codeincomments{inline}}ù) at front of sequence explicitly disallowed
 \end{emcppslisting}
       }}:
 
-\begin{emcppslisting}[language=C++]
-// example.cpp
+\begin{emcppslisting}
+// example.cpp:
 namespace n
 {
     namespace v1  // conventional nested namespace followed by (ù{\codeincomments{using}}ù) directive
@@ -141,9 +137,9 @@ nonparenthesized \emph{expression}{\cprotect\footnote{The form of
 \lstinline!sizeof! that accepts a \emph{type} as its argument
   specifically requires parentheses.}}:
 
-\begin{emcppslisting}[language=C++]
+\begin{emcppslisting}
 struct A { double d; };  static_assert(sizeof(  A) == 8, "");  // type
-                      // static_assert(sizeof   A  == 8, "");  // ERROR!
+                      // static_assert(sizeof   A  == 8, "");  // Error
 
 int A;                   static_assert(sizeof(  A) == 4, "");  // data
                          static_assert(sizeof   A  == 4, "");  // OK
@@ -153,7 +149,7 @@ int A;                   static_assert(sizeof(  A) == 4, "");  // data
 scope, no preference is given to variable names; the name of an entity
 in an inner scope hides a like-named entity in an enclosing scope:
 
-\begin{emcppslisting}[language=C++]
+\begin{emcppslisting}
 void f()
 {
     double B;                 static_assert(sizeof(B) == 8, "");  // variable
@@ -168,7 +164,7 @@ another entity having the same name hides it in a \emph{lexically}
 nested scope, then (apart from \lstinline!inline! namespaces) access to a
 hidden element can generally be recovered by using scope resolution:
 
-\begin{emcppslisting}[language=C++]
+\begin{emcppslisting}
 struct C { double d; };  static_assert(sizeof(  C) == 8, "");
 
 void g()
@@ -180,7 +176,7 @@ void g()
     
 \noindent A conventional nested namespace behaves as one might expect:
 
-\begin{emcppslisting}[language=C++]
+\begin{emcppslisting}
 namespace outer
 {
     struct D { double d; }; static_assert(sizeof(       D) == 8, ""); // type
@@ -191,7 +187,7 @@ namespace outer
     }                       static_assert(sizeof(       D) == 8, ""); // type
                             static_assert(sizeof(inner::D) == 4, ""); // var
                             static_assert(sizeof(outer::D) == 8, ""); // type
-    using namespace inner;//static_assert(sizeof(       D) == 0, ""); // ERROR
+    using namespace inner;//static_assert(sizeof(       D) == 0, ""); // Error
                             static_assert(sizeof(inner::D) == 4, ""); // var
                             static_assert(sizeof(outer::D) == 8, ""); // type
 }                           static_assert(sizeof(outer::D) == 8, ""); // type
@@ -242,7 +238,7 @@ defined in the \lstinline!inner! namespace, and a function, \lstinline!g!, is
 declared, after the close of \lstinline!inner!, in the \lstinline!outer!
 namespace:
 
-\begin{emcppslisting}[language=C++]
+\begin{emcppslisting}
 namespace outer
 {
     struct U { };
@@ -261,8 +257,8 @@ namespace outer
 
 void client()
 {
-    f(outer::U());         // Error: (ù{\codeincomments{f}}ù) is not declared in this scope.
-    g(outer::inner::V());  // Error: (ù{\codeincomments{g}}ù) is not declared in this scope.
+    f(outer::U());         // Error, (ù{\codeincomments{f}}ù) is not declared in this scope.
+    g(outer::inner::V());  // Error, (ù{\codeincomments{g}}ù) is not declared in this scope.
 }
 \end{emcppslisting}
     
@@ -294,7 +290,7 @@ the ability to specialize a class template defined within an
 holds transitively up to and including the most proximate
 non-\lstinline!inline! namespace:
 
-\begin{emcppslisting}[language=C++]
+\begin{emcppslisting}[emcppserrorlines={24}]
 namespace out                      // proximate non-(ù{\codeincomments{inline}}ù) outer namespace
 {
     inline namespace in1           // first-level nested (ù{\codeincomments{inline}}ù) namespace
@@ -319,7 +315,7 @@ namespace out                      // proximate non-(ù{\codeincomments{inline}}
 using namespace out;               // conventional using directive
 
 template <>
-struct S<int> { };                 // error: cannot specialize from this scope
+struct S<int> { };                 // Error, cannot specialize from this scope
 \end{emcppslisting}
     
 \noindent Note that the conventional nested namespace \lstinline!out! followed by a
@@ -331,7 +327,7 @@ entirely within the namespace in which they are declared --- a function
 template can be \emph{declared} within a nested namespace and then be
 \emph{defined} from anywhere via a \romeogloss{qualified name}:
 
-\begin{emcppslisting}[language=C++]
+\begin{emcppslisting}
 namespace out                      // proximate non-(ù{\codeincomments{inline}}ù) outer namespace
 {
     inline namespace in1           // first-level nested (ù{\codeincomments{inline}}ù) namespace
@@ -360,7 +356,7 @@ subsequently defining it in a containing namespace is not possible
 because, unlike a function definition, a type definition cannot be
 placed into a namespace via name qualification alone:
 
-\begin{emcppslisting}[language=C++]
+\begin{emcppslisting}[emcppserrorlines={17}]
 namespace outer
 {
     inline namespace inner
@@ -375,10 +371,10 @@ namespace outer
     template <typename T>          // inconsistent declaration (and definition)
     struct Z { };                  // (ù{\codeincomments{Z}}ù) is now ambiguous in namespace (ù{\codeincomments{outer}}ù).
 
-    const int i = sizeof(Z<int>);   // Error: Reference to (ù{\codeincomments{Z}}ù) is ambiguous.
+    const int i = sizeof(Z<int>);  // Error, Reference to (ù{\codeincomments{Z}}ù) is ambiguous.
 
     template <>                    // attempted class template full specialization
-    struct Z<double> { };          // Error: (ù{\codeincomments{outer::Z}}ù) or (ù{\codeincomments{outer::inner::Z}}ù)?
+    struct Z<double> { };          // Error, (ù{\codeincomments{outer::Z}}ù) or (ù{\codeincomments{outer::inner::Z}}ù)?
 }
 \end{emcppslisting}
     
@@ -392,7 +388,10 @@ namespace \lstinline!inner! that, in turn, declares a nested namespace
 \lstinline!outer:inner::m!. In this case, subsequent attempts to reopen
 namespace \lstinline!m! cause an ambiguity error:
 
-\begin{emcppslisting}[language=C++]
+\begin{emcppshiddenlisting}[emcppsbatch=e1]
+#include <type_traits>  // (ù{\codeincomments{std::is\_same}}ù)
+\end{emcppshiddenlisting}
+\begin{emcppslisting}[emcppsbatch=e1,emcppserrorlines={17,18,19}]
 namespace outer
 {
     namespace m { }      // opens and closes (ù{\codeincomments{::outer::m}}ù)
@@ -408,7 +407,7 @@ namespace outer
         struct S { };    // defines (ù{\codeincomments{::outer::inner::n::S}}ù)
     }
 
-    namespace m          // error: (ù{\codeincomments{namespace m}}ù) is ambiguous
+    namespace m          // Error, (ù{\codeincomments{namespace m}}ù) is ambiguous
     {
         struct T { };    // with clang defines (ù{\codeincomments{::outer::m::T}}ù)
     }
@@ -459,7 +458,7 @@ library, \lstinline!parselib!, comprising a class template, \lstinline!Parser!,
 and a function template, \lstinline!analyze!, that takes a \lstinline!Parser!
 object as its only argument:
 
-\begin{emcppslisting}[language=C++]
+\begin{emcppslisting}[emcppsbatch=e2]
 namespace parselib
 {
     template <typename T>
@@ -482,7 +481,7 @@ namespace parselib
 \noindent To use our library, clients will need to specialize our \lstinline!Parser!
 class directly within the \lstinline!parselib! namespace:
 
-\begin{emcppslisting}[language=C++]
+\begin{emcppslisting}[emcppsbatch=e2]
 struct MyClass { /*...*/ };  // end-user-defined type
 
 namespace parselib  // necessary to specialize (ù{\codeincomments{Parser}}ù)
@@ -505,7 +504,7 @@ namespace parselib  // necessary to specialize (ù{\codeincomments{Parser}}ù)
 \noindent Typical \lstinline!client! code will also look for the \lstinline!Parser!
 class directly within the \lstinline!parselib! namespace:
 
-\begin{emcppslisting}[language=C++]
+\begin{emcppslisting}[emcppsbatch=e2]
 void client()
 {
     MyClass result;
@@ -535,7 +534,7 @@ our outer \lstinline!parselib! namespace, a nested \lstinline!inline!
 namespace, \lstinline!v1!, which will hold the current implementation of
 our library software:
 
-\begin{emcppslisting}[language=C++]
+\begin{emcppslisting}[emcppsbatch=e3]
 namespace parselib
 {
     inline namespace v1             // Note our use of (ù{\codeincomments{inline}}ù) namespace here.
@@ -587,7 +586,7 @@ create a second namespace, \lstinline!v2!, containing the new
 implementation and then, at some point, make \lstinline!v2! the
 \lstinline!inline! namespace instead of \lstinline!v1!:
 
-\begin{emcppslisting}[language=C++]
+\begin{emcppslisting}
 #include <cstddef>  // (ù{\codeincomments{std::size\_t}}ù)
 
 namespace parselib
@@ -638,7 +637,7 @@ to upgrade the code immediately by passing in the size of the input
 string (e.g., \lstinline!23!) along with the address of its first
 character:
 
-\begin{emcppslisting}[language=C++]
+\begin{emcppslisting}[emcppserrorlines={4}]
 void client()
 {
     // ...
@@ -651,29 +650,32 @@ void client()
 \lstinline!parselib! to refer to the original version in \lstinline!v1!
 explicitly:
 
-\begin{emcppslisting}[language=C++]
+\begin{emcppshiddenlisting}[emcppsbatch=e3]
+struct MyClass { /*...*/ };  // end-user-defined type
+\end{emcppshiddenlisting}
+\begin{emcppslisting}[emcppsbatch=e3]
 namespace parselib
 {
     namespace v1  // specializations moved to nested namespace
     {
         template <>
-        class Parser<MyClass1>
+        class Parser<MyClass>
         {
             // ...
 
         public:
             Parser();
-            int parse(MyClass1* result, const char* input);
+            int parse(MyClass* result, const char* input);
         };
 
-        double analyze(const Parser<MyClass1>& parser);
+        double analyze(const Parser<MyClass>& parser);
     }
 };
 
 void client1()
 {
-    MyClass1 result;
-    parselib::v1::Parser<MyClass1> parser;  // reference nested namespace (ù{\codeincomments{v1}}ù)
+    MyClass result;
+    parselib::v1::Parser<MyClass> parser;  // reference nested namespace (ù{\codeincomments{v1}}ù)
 
     int status = parser.parse(&result, "...( MyClass value )...");
     if (status != 0)
@@ -745,7 +747,7 @@ an example type, \lstinline!Thing!, which wraps an \lstinline!int! and
 initializes it with some value in its default constructor defined
 out-of-line in the \lstinline!cpp! file:
 
-\begin{emcppslisting}[language=C++]
+\begin{emcppslisting}
 struct Thing  // version 1 of class (ù{\codeincomments{Thing}}ù)
 {
     int i;    // integer data member (size is 4)
@@ -755,7 +757,7 @@ struct Thing  // version 1 of class (ù{\codeincomments{Thing}}ù)
     
 \noindent Compiling a source file with this version of the header included might produce an object file that can be incompatible yet linkable with an object file resulting from compiling a different source file with an a different version of this header included:
 
-\begin{emcppslisting}[language=C++]
+\begin{emcppslisting}
 struct Thing   // version 2 of class (ù{\codeincomments{Thing}}ù)
 {
     double d;  // double-precision floating-point data member (size is 8)
@@ -767,9 +769,9 @@ struct Thing   // version 2 of class (ù{\codeincomments{Thing}}ù)
 the client as a \lstinline!main! program that does nothing but create a
 \lstinline!Thing! and print the value of its only data member, \lstinline!i!.
 
-\begin{emcppslisting}[language=C++]
-// main.cpp
-#include "my_thing.h"  // (ù{\codeincomments{my::Thing}}ù) (version 1)
+\begin{emcppslisting}[emcppsbatch=e4]
+// main.cpp:
+#include <my_thing.h>  // (ù{\codeincomments{my::Thing}}ù) (version 1)
 #include <iostream>    // (ù{\codeincomments{std::cout}}ù)
 
 int main()
@@ -790,9 +792,9 @@ intervening \lstinline!inline! namespace, \lstinline!impl_v1!, as will be
   explained shortly.}} which represents the \lstinline!my::Thing::Thing!
 constructor, will be generated in the \lstinline!main.o! file:
 
-\begin{emcppslisting}[language=C++]
+\begin{lstlisting}[language=bash,style=plain]
 $ g++ -c main.cpp
-\end{emcppslisting}
+\end{lstlisting}
     
 \noindent Without explicit intervention, the spelling of this linker symbol would
 be unaffected by any subsequent changes made to the implementation of
@@ -808,8 +810,8 @@ the physical interface, such as the definition of the principal type,
 \lstinline!Thing!, its member and associated free function declarations,
 plus definitions for inline functions and function templates, if any:
 
-\begin{emcppslisting}[language=C++]
-// my_thing.h
+\begin{emcppslisting}[emcppsbatch=e4]
+// my_thing.h:
 #ifndef INCLUDED_MY_THING
 #define INCLUDED_MY_THING
 
@@ -832,9 +834,9 @@ namespace my                  // outer namespace (used directly by clients)
 non-\lstinline!inline! function bodies that will be translated separately
 into the \lstinline!my_thing.o! file:
 
-\begin{emcppslisting}[language=C++]
-// my_thing.cpp
-#include "my_thing.h"
+\begin{emcppslisting}[emcppsbatch=e4]
+// my_thing.cpp:
+#include <my_thing.h>
 
 namespace my                   // outer namespace (used directly by clients)
 {
@@ -857,19 +859,19 @@ of the very same linker symbol, such as
 \lstinline!_ZN2my7impl_v15ThingC1Ev!, for the default constructor of
 \lstinline!my::Thing! needed by the client:
 
-\begin{emcppslisting}[language=C++]
+\begin{lstlisting}[language=bash,style=plain]
 $ g++ -c my_thing.cpp
-\end{emcppslisting}
+\end{lstlisting}
     
 \noindent We can then link \lstinline!main.o! and \lstinline!my_thing.o! into an
 executable and run it:
 
-\begin{emcppslisting}[language=C++]
+\begin{lstlisting}[language=bash,style=plain]
 $ g++ -o prog main.o my_thing.o
 $ ./prog
 
 0
-\end{emcppslisting}
+\end{lstlisting}
     
 \noindent Now, suppose we were to change the definition of \lstinline!my::Thing! to hold a \lstinline!double! instead of an \lstinline!int!, recompile
 \lstinline!my_thing.cpp!, and then relink with the original
@@ -883,9 +885,28 @@ in \lstinline!my_thing.o!. We can resolve this problem by changing --- or,
 if we didn't think of it in advance, by adding --- a new \lstinline!inline!
 namespace and making that change there:
 
-\begin{emcppslisting}[language=C++]
-// my_thing.cpp
-#include "my_thing.h"
+\begin{emcppshiddenlisting}[emcppsbatch=e5]
+// my_thing.h:
+#ifndef INCLUDED_MY_THING
+#define INCLUDED_MY_THING
+
+namespace my                  // outer namespace (used directly by clients)
+{
+    inline namespace impl_v2  // inner namespace (for implementer use only)
+    {
+        struct Thing
+        {
+            double d; // new data member, size = 8
+            Thing();  // default constructor (defined in (ù{\codeincomments{my\_thing.cpp}}ù))
+        };
+    };
+}
+
+#endif
+\end{emcppshiddenlisting}
+\begin{emcppslisting}[emcppsbatch=e5]
+// my_thing.cpp:
+#include <my_thing.h>
 
 namespace my                     // outer namespace (used directly by clients)
 {
@@ -916,7 +937,7 @@ namespace, \lstinline!auth! --- the original version in a regular nested
 namespace \lstinline!v1!, and the new current version in an \lstinline!inline!
 nested namespace \lstinline!v2!:
 
-\begin{emcppslisting}[language=C++]
+\begin{emcppslisting}
 #include <cstdint>  // (ù{\codeincomments{std::uint32\_t}}ù), (ù{\codeincomments{std::unit64\_t}}ù)
 
 namespace auth      // outer namespace (used directly by clients)
@@ -974,7 +995,7 @@ is added for debugging purposes{\cprotect\footnote{Note that we have
   here
   because it is exactly what's needed for this usage example.}}:
 
-\begin{emcppslisting}[language=C++]
+\begin{emcppslisting}
 template <typename T>
 struct ManualBuffer
 {
@@ -1036,7 +1057,7 @@ accept an additional template parameter, it also allows debug and
 release versions of the same class to coexist in the same program,
   which might prove useful, e.g., for testing.}}:
 
-\begin{emcppslisting}[language=C++]
+\begin{emcppslisting}
 #ifndef NDEBUG            // perhaps a BAD IDEA
 inline namespace release
 #else
@@ -1067,7 +1088,7 @@ switch entirely. Another consideration would be to avoid ever inlining a
 namespace into the global namespace since no method is available to
 recover a symbol when there is a collision:
 
-\begin{emcppslisting}[language=C++]
+\begin{emcppslisting}
 namespace buflib  // GOOD IDEA: enclosing namespace for nested (ù{\codeincomments{inline}}ù) namespace
 {
 #ifdef SAFE_MODE  // GOOD IDEA: separate control of non-interoperable versions
@@ -1106,8 +1127,12 @@ switches, as illustrated here using the \lstinline!my::VersionedThing! type
 (see \intraref{use-cases-inlinenamespace}{link-safe-abi-versioning}): 
 % \textit{\titleref{use-cases-inlinenamespace}: \titleref{link-safe-abi-versioning}} on page~\pageref{link-safe-abi-versioning}:
 
-\begin{emcppslisting}[language=C++]
-// my_versionedthing.h
+\begin{emcppshiddenlisting}[emcppsbatch=e7]
+// my_versionedthing.h:
+#define MY_THING_VERSION_1
+\end{emcppshiddenlisting}
+\begin{emcppslisting}[emcppsbatch=e7]
+// my_versionedthing.h:
 #ifndef INCLUDED_MY_VERSIONEDTHING
 #define INCLUDED_MY_VERSIONEDTHING
 
@@ -1176,8 +1201,8 @@ that is shared across multiple disparate headers. The first header,
 \lstinline!abc_header1.h!, represents a collection of logically related
 small functions declared directly in \lstinline!abc!:
 
-\begin{emcppslisting}[language=C++]
-// abc_header1.h
+\begin{emcppslisting}[emcppsbatch=e6]
+// abc_header1.h:
 namespace abc
 {
     int i();
@@ -1192,8 +1217,8 @@ avoid clobbering other symbols within the \lstinline!abc! namespace having
 the same name, all of these tiny functions are sequestered within a
 \lstinline!nested! namespace:
 
-\begin{emcppslisting}[language=C++]
-// abc_header2.h
+\begin{emcppslisting}[emcppsbatch=e6]
+// abc_header2.h:
 namespace abc
 {
     namespace nested  // Should this instead have been an (ù{\codeincomments{inline}}ù) namespace?
@@ -1215,16 +1240,16 @@ namespace abc
 \noindent Now suppose that a client application includes
 both of these headers to accomplish some task:
 
-\begin{emcppslisting}[language=C++]
-// client.cpp
-#include "abc_header1.h"
-#include "abc_header2.h"
+\begin{emcppslisting}[emcppsbatch=e6]
+// client.cpp:
+#include <abc_header1.h>
+#include <abc_header2.h>
 
 int function()
 {
     if (abc::smart() < 0) { return -1; }  // uses (ù{\codeincomments{smart()}}ù) from (ù{\codeincomments{abc\_header1.h}}ù)
     return abc::z() + abc::i() + abc::a() + abc::h() + abc::c();  // Oops!
-        // runtime error: silently uses the (ù{\codeincomments{abc::i()}}ù) defined in (ù{\codeincomments{abc\_header1.h}}ù)
+        // Bug, silently uses the (ù{\codeincomments{abc::i()}}ù) defined in (ù{\codeincomments{abc\_header1.h}}ù)
 }
 \end{emcppslisting}
     
@@ -1265,11 +1290,11 @@ namespace member are not resolved by the linker, such as the object
 layout when we use types from that namespace as member variables in
 other objects:
 
-\begin{emcppslisting}[language=C++]
-// my_thingaggregate.h
+\begin{emcppslisting}[emcppsbatch=e7]
+// my_thingaggregate.h:
 
 // ...
-#include "my_versionedthing.h"
+#include <my_versionedthing.h>
 // ...
 
 namespace my
@@ -1392,7 +1417,7 @@ in an \lstinline!inline! namespace, \lstinline!inner!, and specialize each of
 them, such as for \lstinline!int!, in the enclosing namespace,
 \lstinline!outer!:
 
-\begin{emcppslisting}[language=C++]
+\begin{emcppslisting}
 namespace outer                                          // enclosing namespace
 {
     inline namespace inner                               // nested namespace
@@ -1423,7 +1448,7 @@ templates within the \lstinline!outer! namespace and then specialize them
 within the \lstinline!inner! one, even though the \lstinline!inner! namespace
 is \lstinline!inline!:
 
-\begin{emcppslisting}[language=C++]
+\begin{emcppslisting}
 namespace outer                                     // enclosing namespace
 {
     template<typename T> struct S1;                 // class template
@@ -1434,10 +1459,10 @@ namespace outer                                     // enclosing namespace
 
     inline namespace inner                          // nested namespace
     {                                               // BAD IDEA
-        template<> struct S1<int> { };              // error: (ù{\codeincomments{S1}}ù) not a template
-        template<> void f1<int>() { }               // error: (ù{\codeincomments{f1}}ù) not a template
+        template<> struct S1<int> { };              // Error, (ù{\codeincomments{S1}}ù) not a template
+        template<> void f1<int>() { }               // Error, (ù{\codeincomments{f1}}ù) not a template
         void g1(int) { }                            // OK, overloaded function
-        template<> void A1::h1<int>() { }           // error: (ù{\codeincomments{h1}}ù) not a template
+        template<> void A1::h1<int>() { }           // Error, (ù{\codeincomments{h1}}ù) not a template
     }
 }
 \end{emcppslisting}
@@ -1446,26 +1471,23 @@ namespace outer                                     // enclosing namespace
 then define, effectively redeclaring, it in an \lstinline!inline! inner one
 causes the name to be inaccessible within the \lstinline!outer! namespace:
 
-\begin{emcppslisting}[language=C++]
+\begin{emcppslisting}
 namespace outer                                          // enclosing namespace
 {                                                        // BAD IDEA
     template<typename T> struct S2;                      // declarations of
-    template<typename T> void f2();                      // various class
-    template<typename T> void g2(T v);                   // and function
-    struct A2 { template <typename T> void h2(); };      // templates
+    template<typename T> void f2();                      // various class and
+    template<typename T> void g2(T v);                   // function templates
 
     inline namespace inner                               // nested namespace
     {
         template<typename T> struct S2 { };              // definitions of
-        template<typename T> void f2() { }               // unrelated class
-        template<typename T> void g2(T v) { }            // and function
-        template<typename T> void A2::h2() { };          // templates
+        template<typename T> void f2() { }               // unrelated class and
+        template<typename T> void g2(T v) { }            // function templates
     }
 
-    template<> struct S2<int> { };     // Error: (ù{\codeincomments{S2}}ù) is ambiguous in (ù{\codeincomments{outer}}ù).
-    template<> void f2<int>() { }      // Error: (ù{\codeincomments{f2}}ù) is ambiguous in (ù{\codeincomments{outer}}ù).
+    template<> struct S2<int> { };     // Error, (ù{\codeincomments{S2}}ù) is ambiguous in (ù{\codeincomments{outer}}ù).
+    template<> void f2<int>() { }      // Error, (ù{\codeincomments{f2}}ù) is ambiguous in (ù{\codeincomments{outer}}ù).
     void g2(int) { }                   // OK, (ù{\codeincomments{g2}}ù) is an overload definition.
-    template<> void A2::h2<int>() { }  // Error: (ù{\codeincomments{h2}}ù) is ambiguous in (ù{\codeincomments{outer}}ù).
 }
 \end{emcppslisting}
     
@@ -1474,7 +1496,7 @@ namespace outer                                          // enclosing namespace
 the enclosing \lstinline!outer! namespace has the same effect of making
 declared symbols ambiguous in the \lstinline!outer! namespace:
 
-\begin{emcppslisting}[language=C++]
+\begin{emcppslisting}[emcppsbatch=e8]
 namespace outer                                          // enclosing namespace
 {                                                        // BAD IDEA
     inline namespace inner                               // nested namespace
@@ -1490,10 +1512,10 @@ namespace outer                                          // enclosing namespace
     template<typename T> void g3(T v) { }                // and function
     template<typename T> void A3::h3() { };              // templates
 
-    template<> struct S3<int> { };     // Error: (ù{\codeincomments{S3}}ù) is ambiguous in (ù{\codeincomments{outer}}ù).
-    template<> void f3<int>() { }      // Error: (ù{\codeincomments{f3}}ù) is ambiguous in (ù{\codeincomments{outer}}ù).
+    template<> struct S3<int> { };     // Error, (ù{\codeincomments{S3}}ù) is ambiguous in (ù{\codeincomments{outer}}ù).
+    template<> void f3<int>() { }      // Error, (ù{\codeincomments{f3}}ù) is ambiguous in (ù{\codeincomments{outer}}ù).
     void g3(int) { }                   // OK, (ù{\codeincomments{g3}}ù) is an *overload* definition.
-    template<> void A3::h3<int>() { }  // Error: (ù{\codeincomments{h2}}ù) is ambiguous in (ù{\codeincomments{outer}}ù).
+    template<> void A3::h3<int>() { }  // Error, (ù{\codeincomments{h2}}ù) is ambiguous in (ù{\codeincomments{outer}}ù).
 }
 \end{emcppslisting}
     
@@ -1502,11 +1524,11 @@ be located directly within the namespace in which it is declared, a
 class or function template, once declared, may be defined in a different
 scope by using an appropriate name qualification:
 
-\begin{emcppslisting}[language=C++]
+\begin{emcppslisting}[emcppsbatch=e8]
 template <typename T> struct outer::S3 { };        // OK, enclosing namespace
 template <typename T> void outer::inner::f3() { }  // OK, nested namespace
 template <typename T> void outer::g3(T v) { }      // OK, enclosing namespace
-template <typename T> void outer::A3::h3<T>() { }  // syntax error: ill-formed
+template <typename T> void outer::A3::h3<T>() { }  // Error, ill-formed
 
 namespace outer
 {
@@ -1633,7 +1655,7 @@ namespace name, beginning the namespace and ending the namespace.
 Finally, in the documentation, I teach people to always use a namespace
 alias to a macro to denote the namespace:
 
-\begin{emcppslisting}[language=C++]
+\begin{emcppslisting}
 namespace output = OUTCOME_V2_NAMESPACE;
 \end{emcppslisting} 
 

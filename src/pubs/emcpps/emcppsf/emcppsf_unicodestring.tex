@@ -52,7 +52,7 @@ UTF-32  & \lstinline!U"Hello"! & \lstinline!char32_t!\\ \thickhline
 UTF-32, for \lstinline!u8!, \lstinline!u!, and \lstinline!U! literals,
 respectively:
 
-\begin{emcppslisting}[language=C++]
+\begin{emcppslisting}
 char s0[] = "Hello";
     // unspecified encoding (albeit very likely ASCII)
 
@@ -67,8 +67,12 @@ sequence followed by four hexadecimal digits or by the
 \lstinline!\U! character sequence followed by eight
 hexadecimal digits:
 
-\begin{emcppslisting}[language=C++]
-#include <cstdio>  // (ù{\codeincomments{std::puts}ù)                                               void f()                                                                        {                                                                                   std::puts(u8"\U0001F378"); // Unicode code point in a UTF8 encoded literal  }
+\begin{emcppslisting}
+#include <cstdio>  // (ù{\codeincomments{std::puts}ù)                                               
+void f()                                                                        
+{                                                                               
+    std::puts(u8"\U0001F378"); // Unicode code point in a UTF8 encoded literal  
+}
 \end{emcppslisting}
     
 \noindent This output statement is guaranteed to emit the cocktail emoji
@@ -89,10 +93,31 @@ broadcasting a message to all clients, the server code uses UTF-8
 Unicode literals to guarantee that every client will receive a sequence
 of bytes they are able to interpret and display as human-readable text:
 
-\begin{emcppshiddenlisting}
-#include <string>                                                               #include <ostream>                                                                                                                                              class Packet                                                                    {                                                                                   // ...                                                                      public:                                                                             // ...                                                                          std::ostream&  operator<<(const char *message);                             };                                                                                                                                                                                                                                              class Server                                                                    {                                                                                   void broadcastPacket(const Packet& data);                                       // ...                                                                      public:                                                                             void broadcastServerMessage(const std::string& message);                        // ...                                                                                                                                                      };                                                                                                                                                              void Server::broadcastServerMessage(const std::string& message)                 {                                                                                   Packet data;                                                                    data << u8"Message from the server: '" << message << u8"'\n";                   broadcastPacket(data);                                                      }
+\begin{emcppshiddenlisting}[emcppsbatch=e1]
+#include <string>   // (ù{\codeincomments{std::string}}ù)
+#include <ostream>  // (ù{\codeincomments{std::ostream}}ù)
+
+class Packet                                                                    
+{                                                                               
+    // ...                                                                      
+public:                                                                         
+    // ...                                                                      
+    std::ostream&  operator<<(const char *message);                             
+};                                                                              
+                                                                                
+                                                                                
+class Server                                                                    
+{                                                                               
+    void broadcastPacket(const Packet& data);                                   
+    // ...                                                                      
+public:                                                                         
+    void broadcastServerMessage(const std::string& message);                    
+    // ...                                                                      
+                                                                                
+};                                                                              
+                                                                                
 \end{emcppshiddenlisting}
-\begin{emcppslisting}[language=C++]
+\begin{emcppslisting}[emcppsbatch=e1]
 void Server::broadcastServerMessage(const std::string& utf8Message)
 {
     Packet data;
@@ -134,8 +159,15 @@ programmers unfamiliar with Unicode might be surprised by seemingly
 innocent operations, such as asking for the size of a string
 representing the cocktail emoji:
 
-\begin{emcppslisting}[language=C++]
-#include <cassert>                                                              #include <string>                                                                                                                                               void f()                                                                        {                                                                                   std::string cocktail(u8"\U0001F378"); // big character (!)                      assert(cocktail.size() == 1);         // assertion failure (!)              }
+\begin{emcppslisting}
+#include <cassert>  // standard C (ù{\codeincomments{assert}}ù) macro
+#include <string>   // (ù{\codeincomments{std::string}}ù)
+                                                                                
+void f()                                                                        
+{                                                                               
+    std::string cocktail(u8"\U0001F378"); // big character (!)                  
+    assert(cocktail.size() == 1);         // assertion failure (!)              
+}
 \end{emcppslisting}
     
 \noindent Even though the cocktail emoji is a \emph{single} code point,
@@ -171,7 +203,7 @@ backward-compatible and might cause code targeting previous versions
 of the language using \lstinline!u8! literals either to fail to compile
 or to silently change its behavior when targeting C++20:
 
-\begin{emcppslisting}[language=C++]
+\begin{emcppslisting}
 template <typename T> void print(const T*);  // (0)
 void print(const char*);                     // (1)
 

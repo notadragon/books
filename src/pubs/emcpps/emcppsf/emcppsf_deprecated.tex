@@ -55,7 +55,7 @@ function, enumeration, template specialization. Applying
 however, is guaranteed to be supported only since C++17; see
   \cite{smith15a} for more information.}} is used:
 
-\begin{emcppslisting}[language=C++]
+\begin{emcppslisting}
                void f();
 [[deprecated]] void g();
 
@@ -76,7 +76,7 @@ argument to the \mbox{\lstinline![[deprecated]]!} attribute (e.g.,
 \mbox{\lstinline![[deprecated("message")]]!}) to inform human users regarding the
 reason for the deprecation:
 
-\begin{emcppslisting}[language=C++]
+\begin{emcppslisting}
 [[deprecated("too slow, use (ù{\codeincomments{algo1}}ù) instead")]] void algo0();
                                                 void algo1();
 
@@ -91,7 +91,7 @@ void f()
 \lstinline![[deprecated]]! can later be redeclared with the attribute and
 vice versa:
 
-\begin{emcppslisting}[language=C++]
+\begin{emcppslisting}
 void f();
 void g0() { f(); }  // OK, likely no warnings
 
@@ -119,7 +119,7 @@ As an example of productive deprecation, consider the
 \lstinline!RandomGenerator! class having a static \lstinline!nextRandom!
 member function to generate random numbers:
 
-\begin{emcppslisting}[language=C++]
+\begin{emcppslisting}
 struct RandomGenerator
 {
     static int nextRandom();
@@ -145,7 +145,7 @@ flexibility for clients. The downside of such a change is that it comes
 with a functionally distinct API, requiring that users update their code
 to move away from the inferior solution:
 
-\begin{emcppslisting}[language=C++]
+\begin{emcppslisting}
 class StatefulRandomGenerator
 {
     // ... (internal state of a quality pseudorandom number generator) ...
@@ -165,7 +165,7 @@ decide to use the
 of\linebreak%%%%%%%
  \lstinline!RandomGenerator::nextRandom()! instead of removing it completely:
 
-\begin{emcppslisting}[language=C++]
+\begin{emcppslisting}
 struct RandomGenerator
 {
     [[deprecated("Use (ù{\codeincomments{StatefulRandomGenerator class}}ù) instead.")]]
