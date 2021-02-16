@@ -1,7 +1,7 @@
 #!/bin/bash
 
-ODIR=../tmp-2021_02_08_done
-TDIR=../tmp-2021_02_08
+ODIR=../tmp-2021_02_15_done
+TDIR=../tmp-2021_02_15
 
 if [ -d "${ODIR}" ] ; then
     rm -r "${ODIR}"
