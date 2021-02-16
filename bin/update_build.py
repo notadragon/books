@@ -126,7 +126,6 @@ class PublicationOutline:
             else:
                 self.sections[section] = files
         for section,fs in self.sections.items():
-            print(f"{fs}")
             fs.sort(key=lambda x : x[0])
             
     def sectionfiles(self,section):

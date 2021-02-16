@@ -1,8 +1,5 @@
 % 12 Feb 2021, revisions in; ready for Josh's code fixes
 
-
-
-
 \emcppsFeature{
     short={Raw String Literals},
     long={Syntax for Unprocessed String Contents},
@@ -23,16 +20,18 @@ program's source code, without having to modify them by escaping
 individual special characters. As an introductory example, suppose that
 we want to write a small program that outputs the following text into the standard output stream:
 
-\begin{emcppslisting}[language=C++]
+% this is intentionally left plain - this is not code, this is what we are saying
+% we  want to output
+\begin{lstlisting}[style=plain]
 printf("Hello, %s%c\n", "World", '!');
-\end{emcppslisting}
+\end{lstlisting}
     
 \noindent In C++03, capturing the line of C code above in a string literal would
 require five escape (\lstinline!\!) characters distributed
 throughout the string:
 
-\begin{emcppslisting}[language=C++]
-#include <iostream>  // (Ã¹{\codeincomments{std::cout}}Ã¹), (Ã¹{\codeincomments{std::endl}}Ã¹)
+\begin{emcppslisting}
+#include <iostream>  // (ù{\codeincomments{std::cout}}ù), (ù{\codeincomments{std::endl}}ù)
 
 int main()
 {
@@ -45,8 +44,8 @@ int main()
 \noindent If we use C++11's \emph{raw} string-literal syntax, no escaping is
 required:
 
-\begin{emcppslisting}[language=C++]
-#include <iostream>  // (Ã¹{\codeincomments{std::cout}}Ã¹), (Ã¹{\codeincomments{std::endl}}Ã¹)
+\begin{emcppslisting}
+#include <iostream>  // (ù{\codeincomments{std::cout}}ù), (ù{\codeincomments{std::endl}}ù)
 
 int main()
 {
@@ -65,9 +64,9 @@ Sequences of
 characters that would be escaped in a regular string literal are instead
 interpreted verbatim:
 
-\begin{emcppslisting}[language=C++]
+\begin{emcppslisting}
 const char s0[] = R"({ "key": "value" })";
-    // OK, equivalent to (Ã¹{\codeincomments{"\{ $\backslash$"key$\backslash$": $\backslash$"value$\backslash$" \}"}}Ã¹)
+    // OK, equivalent to (ù{\codeincomments{"\{ $\backslash$"key$\backslash$": $\backslash$"value$\backslash$" \}"}}ù)
 \end{emcppslisting}
     
 \noindent In contrast to conventional string literals, \emph{raw} string literals
@@ -80,7 +79,7 @@ this example, we assume that all trailing whitespace has been stripped
 since even trailing whitespace in a raw literal would be captured.}}:
 
 
-\begin{emcppslisting}[language=C++]
+\begin{emcppslisting}
 const char s1[] = R"(line one
 line two
     line three)";
@@ -94,11 +93,11 @@ developers have inconsistent tab settings; see \intraref{potential-pitfalls-raws
 Finally, all string literals are concatenated with
 adjacent ones in the same way the conventional ones are in C++03:
 
-\begin{emcppslisting}[language=C++]
+\begin{emcppslisting}
 const char s2[] = R"(line one)"         "\n"
                     "line two"          "\n"
                   R"(    line three)";
-    // OK, equivalent to (Ã¹{\codeincomments{"line one$\backslash$nline two$\backslash$n~~~~line three"}}Ã¹)    
+    // OK, equivalent to (ù{\codeincomments{"line one$\backslash$nline two$\backslash$n~~~~line three"}}ù)    
 \end{emcppslisting}
 
 \noindent These same rules apply to both raw \emph{wide} string literals and raw \emph{Unicode} ones (see \featureref{\locationa}{unicode-string-and-character-literals}) that are introduced by placing their corresponding prefix before the \lstinline!R! character:
@@ -107,7 +106,7 @@ const char s2[] = R"(line one)"         "\n"
 const wchar_t  ws [] =  LR"(Raw\tWide\tLiteral)";  
     // Represents "Raw\tWide\tLiteral", not "Raw    Wide    Literal".
 
-const char     u8s[] = u8R"(\U0001F378)";  // Represents "\U0001F378", *not* "(Ã¹{\martini}Ã¹)"
+const char     u8s[] = u8R"(\U0001F378)";  // Represents "\U0001F378", *not* "(ù{\martini}ù)"
 const char16_t us [] =  uR"(\U0001F378)";  //       "         "          "     " 
 const char32_t Us [] =  UR"(\U0001F378)";  //       "         "          "     " 
 \end{emcppslisting}
@@ -118,45 +117,44 @@ Although unlikely, the data to be expressed within a
 string literal might itself contain the character sequence \lstinline!)"!
 embedded within it:
 
-\begin{emcppslisting}[language=C++]
-printf("printf(\"Hello, World!\")")
-//                             ^^
-// The (Ã¹{\codeincomments{)"}}Ã¹) character sequence terminates a typical raw string literal.
+\begin{emcppslisting}
+#include <cstdio>   // (ù{\codeincomments{printf}}ù)
+
+void emitHelloWorld()
+{
+    printf("printf(\"Hello, World!\")");
+  //                                ^^
+  // The (ù{\codeincomments{)"}}ù) character sequence terminates a typical raw string literal.
+}
 \end{emcppslisting}
     
 \noindent If we use the basic syntax for a \emph{raw} string literal we will get a
 syntax error:
 
 
-%%%%%%%%%% JOSH: this code had ben set with color intentionally added. Pls make sure it now appears the way it should. 
-%\begin{lstlisting}[language=C++,]
-%const char s3[] = R"(printf("printf(\"Hello, World!\")"))";  (Ã¹{\codeincomments{\color{skyblue}\ttfamily\itshape // collision}}Ã¹)
-%(Ã¹{\codeincomments{\color{skyblue}\ttfamily\itshape //}}Ã¹)                                                    (Ã¹{\codeincomments{\color{skyblue}\ttfamily\itshape\textasciicircum\textasciicircum}}Ã¹)
-%(Ã¹{\codeincomments{\color{skyblue}\ttfamily\itshape //}}Ã¹)                       (Ã¹{\codeincomments{\color{skyblue}\ttfamily\itshape Syntax error after literal ends}}Ã¹)
-%\end{lstlisting}
-\begin{emcppslisting}[language=C++,]
-const char s3[] = R"(printf("printf(\"Hello, World!\")"))";  (Ã¹{\codeincomments{// collision}}Ã¹)
-(Ã¹{\codeincomments{//}}Ã¹)                                                    (Ã¹{\codeincomments{\textasciicircum\textasciicircum}}Ã¹)
-(Ã¹{\codeincomments{//}}Ã¹)                       (Ã¹{\codeincomments{Syntax error after literal ends}}Ã¹)
+\begin{emcppslisting}[emcppsignore={syntax error}]
+const char s3[] = R"(printf("printf(\"Hello, World!\")"))";  (ù{\codeincomments{// collision}}ù)
+(ù{\codeincomments{//}}ù)                                                   (ù{\codeincomments{\textasciicircum\textasciicircum}}ù)
+(ù{\codeincomments{//}}ù)                      (ù{\codeincomments{Syntax error after literal ends}}ù)
 \end{emcppslisting}
     
 \noindent To circumvent this problem, we could escape every special character in
 the string separately, as in C++03, but the result is difficult to read
 and error prone:
 
-\begin{emcppslisting}[language=C++]
+\begin{emcppslisting}
 const char s4[] = "printf(\"printf(\\\"Hello, World!\\\")\")";  // error prone
 \end{emcppslisting}
     
 \noindent Instead, we can use the extended disambiguation syntax of \emph{raw}
 string literals to resolve the issue:
 
-%%%%%%%%%% JOSH: this code had ben set with color intentionally added. Pls make sure it now appears the way it should. 
-%\begin{lstlisting}[language=C++]
-%const char s5[] = R"###(printf("printf(\"Hello, World!\")"))###";  (Ã¹{\codeincomments{\color{skyblue}\ttfamily\itshape // cleaner}}Ã¹)
-%\end{lstlisting}
-\begin{emcppslisting}[language=C++]
-const char s5[] = R"###(printf("printf(\"Hello, World!\")"))###";  (Ã¹{\codeincomments{// cleaner}}Ã¹)
+% LORI: The comment is colored properly.  The code is not colored properly.  If we choose to keep the code colored then we need to adjust this example significantly.
+%\begin{emcppslisting}
+%const char s5[] = R"###(printf("printf(\"Hello, World!\")"))###";  (ù{\codeincomments{\color{skyblue}\ttfamily\itshape // cleaner}}ù)
+%\end{emcppslisting}
+\begin{emcppslisting}
+const char s5[] = R"###(printf("printf(\"Hello, World!\")"))###";  (ù{\codeincomments{// cleaner}}ù)
 \end{emcppslisting}
 
     
@@ -169,14 +167,14 @@ characters between the outermost quote/parenthesis pairs that avoids the
 collision with the literal data when taken as a combined sequence (e.g.,
 \lstinline!)###"!):
 
-\begin{emcppslisting}[language=C++]
+\begin{emcppslisting}
 //                       delimiter and parenthesis
 //                  v~~~                           ~~~v
 const char s6[] = R"xyz(<-- Literal String Data -->)xyz";
 //                ^     ^~~~~~~~~~~~~~~~~~~~~~~~~~^
 //                |          string contents
 //                |
-//                | uppercase (Ã¹{\codeincomments{R}}Ã¹)
+//                | uppercase (ù{\codeincomments{R}}ù)
 \end{emcppslisting}
     
 \noindent The value of \lstinline!s6! above is equivalent to
@@ -196,44 +194,50 @@ Every raw string literal comprises these syntactical elements, in order:
 The delimiter can be --- and, in practice, very often is --- an empty character
 sequence:
 
-\begin{emcppslisting}[language=C++]
+\begin{emcppslisting}
 const char s7[] = R"("Hello, World!")";
-    // OK, equivalent to (Ã¹{\codeincomments{$\backslash$"Hello, World!$\backslash$"}}Ã¹)
+    // OK, equivalent to (ù{\codeincomments{$\backslash$"Hello, World!$\backslash$"}}ù)
 \end{emcppslisting}
     
 \noindent A nonempty delimiter (e.g.,~\lstinline|!|) can be used to disambiguate any
 appearance of the \lstinline!)"! character sequence within the literal data
 
-\begin{emcppslisting}[language=C++]
+\begin{emcppslisting}
 const char s8[] = R"!("--- R"(Raw literals are not recursive!)" ---")!";
-    // OK, equivalent to (Ã¹{\codeincomments{$\backslash$"--- R$\backslash$"(Raw literals are not recursive!)$\backslash$" ---$\backslash$"}}Ã¹)
+    // OK, equivalent to (ù{\codeincomments{$\backslash$"--- R$\backslash$"(Raw literals are not recursive!)$\backslash$" ---$\backslash$"}}ù)
 \end{emcppslisting}
     
 \noindent Had an empty delimiter been used to initialize \lstinline!s8! (above), the
 compiler would have produced a (perhaps obscure) compile-time error:
 
-%\begin{emcppslisting}[language=C++]
+%\begin{emcppslisting}
 % // error: decrement of read-only location
 %
 % const char s8[] = R"("--- R"(Raw literals are not recursive!)" ---")";
 % //                                                              ^~
 %\end{emcppslisting}
-\begin{emcppslisting}[language=C++]
+\begin{emcppslisting}[emcppserrorlines={1}]
 const char s8a[] = R"("---R"( Raw literals are not recursive!)" ---")";         
-//                                                                ^~            
-// error: decrement of read-only location
+    //                                                            ^~            
+    // Error, decrement of read-only location
 \end{emcppslisting}
     
 \noindent In fact, it could turn out that a program with an unexpectedly
 terminated \emph{raw} string literal could still be valid and compile
 quietly:
 
-\begin{emcppslisting}[language=C++]
-printf(R"("Live-Free, don't (ever)","Die!");
-    (Ã¹{\codeincomments{// Prints: "Live-Free, don't (ever}}Ã¹)
+\begin{emcppshiddenlisting}[emcppsbatch=e1]
+#include <cstdio>   // (ù{\codeincomments{printf}}ù)
+\end{emcppshiddenlisting}
+\begin{emcppslisting}[emcppsbatch=e1]
+void emitPith()
+{
+    printf(R"("Live-Free, don't (ever)","Die!");
+        (ù{\codeincomments{// Prints: "Live-Free, don't (ever}}ù)
 
-printf((R"("Live-Free, don't (ever)","Die!"));
-    (Ã¹{\codeincomments{// Prints: Die!}}Ã¹)
+    printf((R"("Live-Free, don't (ever)","Die!"));
+        (ù{\codeincomments{// Prints: Die!}}ù)
+}
 \end{emcppslisting}
     
 \noindent Fortunately, examples like the one above are invariably contrived, not
@@ -250,9 +254,9 @@ by repeated escape sequences. As an example, consider a regular
 expression for an online shopping product ID represented as a
 conventional string literal:
 
-\begin{emcppslisting}[language=C++]
+\begin{emcppslisting}
 const char* productIdRegex = "[0-9]{5}\\(\".*\"\\)";
-    // This regular expression matches strings like (Ã¹{\codeincomments{12345("Product")}}Ã¹).
+    // This regular expression matches strings like (ù{\codeincomments{12345("Product")}}ù).
 \end{emcppslisting}
     
 \noindent Not only do the backslashes obscure the meaning to human readers, a
@@ -262,14 +266,14 @@ you want to copy the contents of the string literal into an online
 and data, introducing significant opportunities for human error. Using a
 raw string literal solves these problems:
 
-\begin{emcppslisting}[language=C++]
+\begin{emcppslisting}
 const char* productIdRegex = R"([0-9]{5}\(".*"\))";
 \end{emcppslisting}
     
 \noindent Another format that benefits from raw string literals is JSON, due to
 its frequent use of double quotes:
 
-\begin{emcppslisting}[language=C++]
+\begin{emcppslisting}
 const char* testProductResponse = R"!(
 {
     "productId": "58215(\"Camera\")",
@@ -288,7 +292,7 @@ Finally, raw string literals can also be helpful for
 whitespace-sensitive languages, such as Python (but see \intraref{potential-pitfalls-rawstringliteral}{encoding-of-newlines-and-whitespace}): 
 %\textit{\titleref{potential-pitfalls-rawstringliteral}: \titleref{encoding-of-newlines-and-whitespace}} on page~\pageref{encoding-of-newlines-and-whitespace}):
 
-\begin{emcppslisting}[language=C++]
+\begin{emcppslisting}
 const char* testPythonInterpreterPrint = R"(def test():
     print("test printing from Python")
 )";
@@ -308,7 +312,10 @@ tab characters) --- especially when committed to source-code control
 purpose of source code formatting are, however, always interpreted as
 part of a raw string literal's contents:
 
-\begin{emcppslisting}[language=C++]
+\begin{emcppshiddenlisting}[emcppsbatch={e2,e3,e4}]
+#include <iostream>  // (ù{\codeincomments{std::cout}}ù)
+\end{emcppshiddenlisting}
+\begin{emcppslisting}[emcppsbatch=e2]
 void emitPythonEvaluator0(const char* expression)
 {
     std::cout << R"(
@@ -323,27 +330,27 @@ the above raw string literal consistently with the rest of the code, the
 streamed data will contain a large number of spaces (or tabulation
 characters), resulting in an invalid Python program:
 
-\begin{emcppslisting}[language=C++]
+\begin{lstlisting}[language=python]
         def evaluate():
             print("Evaluating...")
-            return (Ã¹{\emph{someExpression}}Ã¹)
+            return (ù{\emph{someExpression}}ù)
 # ^~~~~~
 # Error: excessive indentation
-\end{emcppslisting}
+\end{lstlisting}
     
 \noindent Correct Python code would start unindented and then be indented the same number
 of spaces (e.g.,~exactly four):
 
-\begin{emcppslisting}[language=C++]
+\begin{lstlisting}[language=python]
 def evaluate():
     print("Evaluating...")
-    return (Ã¹{\emph{someExpression}}Ã¹)
-\end{emcppslisting}
+    return (ù{\emph{someExpression}}ù)
+\end{lstlisting}
     
 \noindent Correct --- albeit visually jarring --- Python code can be expressed with a
 single \emph{raw} string literal, but visualizing the final output requires some effort:
 
-\begin{emcppslisting}[language=C++]
+\begin{emcppslisting}[emcppsbatch=e3]
 void emitPythonEvaluator1(const char* expression)
 {
     std::cout << R"(def evaluate():
@@ -356,7 +363,7 @@ void emitPythonEvaluator1(const char* expression)
 \romeogloss{raw string literals} and explicit new lines represented as
 \romeogloss{conventional string literals}:
 
-\begin{emcppslisting}[language=C++]
+\begin{emcppslisting}[emcppsbatch=e4]
 void emitPythonEvaluator2(const char *expression)
 {
     std::cout <<
@@ -382,14 +389,22 @@ versus spaces) used as part of a raw string literal can be significant.
 As an example, consider a unit test verifying that a string representing
 the status of the system is as expected:
 
-\begin{emcppslisting}[language=C++]
+\begin{emcppshiddenlisting}[emcppsbatch=e5]
+#include <string>   // (ù{\codeincomments{std::string}}ù)
+#include <cassert>  // standard C (ù{\codeincomments{assert}}ù) macro
+struct System
+{
+    static std::string outputStatus();
+};
+\end{emcppshiddenlisting}
+\begin{emcppslisting}[emcppsbatch=e5]
 void verifyDefaultOutput()
 {
     const std::string output = System::outputStatus();
     const std::string expected = R"(Current status:
     - No violations detected.)";
 
-    EXPECT(output == expected);
+    assert(output == expected);
 }
 \end{emcppslisting}
     

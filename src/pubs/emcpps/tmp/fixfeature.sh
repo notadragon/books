@@ -5,7 +5,7 @@
 
 # script to do initial conversion of a feature from lstlisting to emcppslisting
 
-for f in emcppsf_deprecated emcppsf_explicit_conversion emcppsf_extendedfriend emcppsf_inlinenamespace emcppsf_unicodestring emcppsf_variabletemplate ; do
+for f in emcppsf_raw_string_literal emcppsf_inheritingctor emcppsf_inlinenamespace ; do
   sed -i \
       -e  "s|\\\\begin{lstlisting}\\[language=C++\\]|\\\\begin{emcppslisting}|" \
       -e  "s|\\\\begin{emcppslisting}\\[language=C++\\]|\\\\begin{emcppslisting}|" \

@@ -1472,13 +1472,13 @@ namespace outer                                     // enclosing namespace
 then define, effectively redeclaring, it in an \lstinline!inline! inner one
 causes the name to be inaccessible within the \lstinline!outer! namespace:
 
-\begin{emcppslisting}
+\begin{emcppslisting}[emcppserrorlines=13]
 namespace outer                                          // enclosing namespace
 {                                                        // BAD IDEA
     template<typename T> struct S2;                      // declarations of
     template<typename T> void f2();                      // various class and
     template<typename T> void g2(T v);                   // function templates
-
+    
     inline namespace inner                               // nested namespace
     {
         template<typename T> struct S2 { };              // definitions of
@@ -1525,7 +1525,19 @@ be located directly within the namespace in which it is declared, a
 class or function template, once declared, may be defined in a different
 scope by using an appropriate name qualification:
 
-\begin{emcppslisting}[emcppsbatch=e8]
+\begin{emcppshiddenlisting}[emcppsbatch=e9]
+namespace outer
+{
+    inline namespace inner
+    {
+        template<typename T> struct S3;
+        template<typename T> void f3();
+        template<typename T> void g3(T v);
+        struct A3 { template <typename T> void h3(); };
+    }
+}
+\end{emcppshiddenlisting}
+\begin{emcppslisting}[emcppsbatch=e9]
 template <typename T> struct outer::S3 { };        // OK, enclosing namespace
 template <typename T> void outer::inner::f3() { }  // OK, nested namespace
 template <typename T> void outer::g3(T v) { }      // OK, enclosing namespace
@@ -1535,7 +1547,7 @@ namespace outer
 {
     inline namespace inner
     {
-        template <typename T> void A3::h3<T>() { } // OK, within same namespace
+        template <typename T> void A3::h3() { }    // OK, within same namespace
     }
 }
 \end{emcppslisting}
@@ -1656,7 +1668,12 @@ namespace name, beginning the namespace and ending the namespace.
 Finally, in the documentation, I teach people to always use a namespace
 alias to a macro to denote the namespace:
 
-\begin{emcppslisting}
+\begin{emcppshiddenlisting}[emcppsbatch=e10]
+#define OUTCOME_V2_NAMESPACE ov2ns
+namespace OUTCOME_V2_NAMESPACE {
+}
+\end{emcppshiddenlisting}
+\begin{emcppslisting}[emcppsbatch=e10]
 namespace output = OUTCOME_V2_NAMESPACE;
 \end{emcppslisting} 
 
