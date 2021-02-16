@@ -67,10 +67,9 @@
 % This is the \emcppsglossgloss command, to be used within the glossary.  This
 % takes the same arguments as \emcppsgloss, but essentially ignores the first
 % argument
-%  Optional argument #1: Glossary Id
+%  Optional argument #1: Glossary Id, but currently ignored
 %  Argumenet #2: Text to show
 \newcommand\emcppsglossgloss[2][]{%
-  \iftoggle{emcppsGlossDebug}{<GLOSS <\emcppsglossid> > }{}%
   \emcppslatergloss{#2}%
 }
 
