@@ -197,11 +197,18 @@ class EmcppsGlossEntry:
         
         for id in self.ids:
             env.words[id] = self
+        if "name" not in self.params:
+            print(f"Missing name on {self.gid}")
+            return
+        if "description" not in self.params:
+            print(f"Missing description on {self.gid}")
+            return
+        
         env.entries.append(self)
 
     def makeMarkup(self):
         out = []
-
+        
         name = self.params["name"]
         description = self.params["description"]
 

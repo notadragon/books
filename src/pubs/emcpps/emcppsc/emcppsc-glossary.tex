@@ -1,27 +1,5 @@
 % This file should contain the full glossary contents
 
-% Modification instructions:
-% * Each entry has the following format:
-%    ```
-%    \newglossaryentry{<name>}{
-%      name={<name>},
-%      description={
-%    <description>
-%    }}
-%    ```
-%     id - The id of the entry, do not alter this.  Acronyms and initialiasims
-%          should be upper case, all other words should be lower case, no markup.
-%     name - The name to be displayed in the glossary.
-%     description - The description to be displayed.
-% * Keep descriptions brief, readable.
-% * Use markdown style when adding new descriptions
-% * Only cross-reference a section if that section has a deep well of extra
-%   information on that glossary term.
-% * If there is a family of terms and not all terms are here, feel free to
-%   add them.  Order doesn't matter.
-% * Acronyms and Initialisms should include their expansion in the name field
-%   (in parenthesis).
-
 \newglossaryentry{ABI}{
   name={ABI},
   description={
@@ -171,6 +149,12 @@ TODO
 TODO
 }}
 
+\newglossaryentry{carry dependency}{
+  name={Carry Dependency},
+  description={
+TODO
+}}
+
 \newglossaryentry{class member access expression}{
   name={Class Member Access Expression},
   nonumberlist,
@@ -190,6 +174,22 @@ TODO
   description={
 TODO
 }}
+
+\newglossaryentry{collatz length}{
+  name={Collatz Length},
+  nonumberlist,
+  description={
+The Collatz length of a positive integer n is the length of the  Collatz sequence needed to reach 1.  Note that Collatz(1) is 1.
+}}
+\AtBeginDocument{\glsadd{collatz length}}
+
+\newglossaryentry{collatz sequence}{
+  name={Collatz Sequence},
+  nonumberlist,
+  description={
+Take a positive integer n. If n is even, divide by 2. If n is odd, multiply by 3 and add 1. Iterate this procedure to form the Collatz sequence.
+}}
+\AtBeginDocument{\glsadd{collatz sequence}}
 
 \newglossaryentry{compile time coupling}{
   name={Compile Time Coupling},
@@ -358,6 +358,18 @@ TODO
 
 \newglossaryentry{cyclically dependent}{
   name={Cyclically Dependent},
+  description={
+TODO
+}}
+
+\newglossaryentry{data dependency}{
+  name={Data Dependency},
+  description={
+TODO
+}}
+
+\newglossaryentry{data dependency chain}{
+  name={Data Dependency Chain},
   description={
 TODO
 }}
@@ -676,13 +688,6 @@ TODO
 TODO
 }}
 
-\newglossaryentry{inline namespace}{
-%  name={\ParaCode{inline} \ParaCode{namespace}},
-  name={inline namespace},
-  description={
-TODO
-}}
-
 \newglossaryentry{inheriting constructors}{
   name={Inheriting Constructors},
   description={
@@ -733,6 +738,12 @@ TODO
 
 \newglossaryentry{interface inheritance}{
   name={Interface Inheritance},
+  description={
+TODO
+}}
+
+\newglossaryentry{intra thread dependency}{
+  name={Intra Thread Dependency},
   description={
 TODO
 }}
@@ -829,6 +840,12 @@ TODO
 
 \newglossaryentry{member initializer list}{
   name={Member Initializer List},
+  description={
+TODO
+}}
+
+\newglossaryentry{memory fence instruction}{
+  name={Memory Fence Instruction},
   description={
 TODO
 }}
@@ -970,6 +987,12 @@ TODO
 TODO
 }}
 
+\newglossaryentry{ordered after}{
+  name={Ordered After},
+  description={
+TODO
+}}
+
 \newglossaryentry{overload resolution}{
   name={Overload Resolution},
   description={
@@ -1092,6 +1115,18 @@ TODO
 
 \newglossaryentry{reference type}{
   name={Reference Type},
+  description={
+TODO
+}}
+
+\newglossaryentry{release acquire}{
+  name={Release Acquire},
+  description={
+TODO
+}}
+
+\newglossaryentry{release consume}{
+  name={Release Consume},
   description={
 TODO
 }}
@@ -1226,6 +1261,18 @@ TODO
   name={Sum Type},
   description={
 Abstract data type allowing the representation of one of multiple possible alternative types. Each alternative has its own type (and state), and only one alternative can be ``active" at any given point in time. Sum types automatically keep track of which choice is ``active,'' and properly implement value-sematic special member functions (even for non-trivial types). They can be implemented efficiently as a C++ \texttt{class} using a C++ \texttt{union} and a separate (integral) discriminator. This sort of implementation is commonly referred to as a discriminating (or ``tagged'') union.
+}}
+
+\newglossaryentry{synchronization operation}{
+  name={Synchronization Operation},
+  description={
+TODO
+}}
+
+\newglossaryentry{synchronization paradigm}{
+  name={Synchronization Paradigm},
+  description={
+TODO
 }}
 
 \newglossaryentry{template head}{
@@ -1455,10 +1502,8 @@ TODO
 TODO
 }}
 
-
-
-
-
-**Glossary** Collatz sequence: "Take a positive integer n. If n is even, divide by 2. If n is odd, multiply by 3 and add 1. Iterate this procedure to form the Collatz sequence. 
-
-**Glossary** Collatz length: The Collatz length of a positive integer n is the length of the  Collatz sequence needed to reach `1`.  Note that Collatz(1) is 1.
+\newglossaryentry{inline namespace}{
+  name={inline namespace},
+  description={
+TODO
+}}
