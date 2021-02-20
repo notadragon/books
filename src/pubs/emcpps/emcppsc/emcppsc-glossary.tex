@@ -1,5 +1,27 @@
 % This file should contain the full glossary contents
 
+% Modification instructions:
+% * Each entry has the following format:
+%    ```
+%    \newglossaryentry{<name>}{
+%      name={<name>},
+%      description={
+%    <description>
+%    }}
+%    ```
+%     id - The id of the entry, do not alter this.  Acronyms and initialiasims
+%          should be upper case, all other words should be lower case, no markup.
+%     name - The name to be displayed in the glossary.
+%     description - The description to be displayed.
+% * Keep descriptions brief, readable.
+% * Use markdown style when adding new descriptions
+% * Only cross-reference a section if that section has a deep well of extra
+%   information on that glossary term.
+% * If there is a family of terms and not all terms are here, feel free to
+%   add them.  Order doesn't matter.
+% * Acronyms and Initialisms should include their expansion in the name field
+%   (in parenthesis).
+
 \newglossaryentry{ABI}{
   name={ABI},
   description={
@@ -654,6 +676,13 @@ TODO
 TODO
 }}
 
+\newglossaryentry{inline namespace}{
+%  name={\ParaCode{inline} \ParaCode{namespace}},
+  name={inline namespace},
+  description={
+TODO
+}}
+
 \newglossaryentry{inheriting constructors}{
   name={Inheriting Constructors},
   description={
@@ -1074,7 +1103,7 @@ TODO
 }}
 
 \newglossaryentry{SFINAE}{
-  name={SFINAE},
+  name={SFINAE (Substitution Failure Is Not An Error)},
   description={
 See Substitution Failure Is Not An Error
 }}
@@ -1426,8 +1455,10 @@ TODO
 TODO
 }}
 
-\newglossaryentry{inline namespace}{
-  name={inline namespace},
-  description={
-TODO
-}}
+
+
+
+
+**Glossary** Collatz sequence: "Take a positive integer n. If n is even, divide by 2. If n is odd, multiply by 3 and add 1. Iterate this procedure to form the Collatz sequence. 
+
+**Glossary** Collatz length: The Collatz length of a positive integer n is the length of the  Collatz sequence needed to reach `1`.  Note that Collatz(1) is 1.

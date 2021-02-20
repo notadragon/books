@@ -5,9 +5,18 @@ import sys, pathlib, re
 
 gloEntryRe = re.compile("\\\\glossaryentry\\{(.*)\\?(\\\\glsnonextpages )?\\\\glossentry\\{(.*)\\}\\|setentrycounter\\[\\]\\{page\\}\\\\glsnumberformat\\}\\{(.*)\\}")
 
+lstInlineRe = re.compile("\\\\lstinline!(.*)!")
+latexRe = re.compile("\\\\(.*)\{(.*)\}")
+
+def stripMarkup(s):
+    s = lstInlineRe.sub("\\1",s)
+    s = latexRe.sub("\\2",s)
+    return s
+
 class GloEntry:
    def __init__(self,name,id):
       self.name = name
+      self.cleanname = stripMarkup(self.name)
       self.id = id
       self.count = 0
       self.pnums = []
@@ -71,7 +80,7 @@ def makeGlossary(rootname):
    gf = GloFile(glofile)
 
    glsentries = list(gf.entries.values())
-   glsentries.sort(key=lambda x : x.name)
+   glsentries.sort(key=lambda x : x.cleanname)
 
    newlines = []
    newlines.append(f"\\glossarysection[\\glossarytoctitle]{{\\glossarytitle}}\\glossarypreamble\n")
