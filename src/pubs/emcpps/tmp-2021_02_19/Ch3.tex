@@ -1,0 +1,65 @@
+
+\addtocontents{toc}{\protect\newpage}
+\chapter[Unsafe Features]{Unsafe Features}\label{ch-unsafe}
+\emcppschapterstart{}
+
+PRODUCTION: Material copied from Ch 0; AUs will edit/replace on FPPs. 
+
+AUTHORS: Remember to add material about whether these features are easy to teach. 
+
+When an expert programmer uses any C++ feature appropriately, the feature typically does no direct harm. Yet other developers --- seeing the feature’s use in the code base but failing to appreciate the highly specialized or nuanced reasoning justifying it --- might attempt to use it in what they perceive to be a similar way, yet with profoundly less desirable results. Similarly, maintainers may change the use of a fragile feature altering its semantics in subtle but damaging ways.
+
+Features that are classified as unsafe are those that might have valid, and even very important, use cases, yet our experience indicates that routine or widespread use thereof would be counterproductive in a typical large-scale software-development enterprise.
+
+For example, we deem the final contextual keyword an unsafe feature because the situations in which it would be misused overwhelmingly outnumber those vanishingly few isolated cases in which it is appropriate, let alone valuable. Furthermore, its widespread use would inhibit fine-grained (e.g., hierarchical) reuse, which is critically important to the success of a large organization.
+
+%%%%%%%%%%%%%%% C++11
+\stepcounter{cppxx}
+\addtocontents{toc}{\protect\renewcommand*\protect\cftsecindent{1.25em}}
+\cftaddnumtitleline{toc}{section}{\thechapter.\thecppxx}{C++11}{\thepage}
+% to add to the TOC at the section level
+\renewcommand{\cppxx}{C++11}
+
+\newpage
+\addtocontents{toc}{\protect\renewcommand*\protect\cftsecindent{4.5em}}
+% \section[{\tt carries\_dependency}]{The {\SecCode [[carries\_dependency]]} Attribute}\label{carriesdependency}
+\input{carriesdependency-placeholder}
+
+\newpage
+%\section[{\tt final}]{Preventing Overriding and Derivation}\label{final}
+\input{final-placeholder}
+
+\newpage
+%\section[{\tt inline} {\tt namespace}]{Transparently Nested Namespaces}\label{inline-namespaces}%\sectionmark{{\RHCode inline} namespaces}
+\input{inlinenamespace-josh}
+
+\newpage
+%\section[{\tt noexcept} Specifier]{The {\SecCode noexcept} Function Specification}\label{noexcept-specifier}
+\input{noexcept-specifier-placeholder}
+%%%%%%% NOTE: Labels will need to be changed since this is now two different sections, not one. 
+
+\newpage
+%\section[Ref-Qualifiers]{Reference Qualified Member Functions}\label{refqualifiers}
+\input{refqualifier}
+
+
+ %%%%%%%%%%%%%%% C++14 starts
+\stepcounter{cppxx}
+\addtocontents{toc}{\protect\renewcommand*\protect\cftsecindent{1.25em}}
+\cftaddnumtitleline{toc}{section}{\thechapter.\thecppxx}{C++14}{\thepage}
+% to add to the TOC at the section level
+\renewcommand{\cppxx}{C++14}
+%%%%%%%%%%%%%%
+
+\newpage
+\addtocontents{toc}{\protect\renewcommand*\protect\cftsecindent{4.5em}}
+\renewcommand{\cppxx}{C++14}
+%\section[{\tt decltypeauto}]{Deducing Types Using {\SecCode decltype} Sematics}\label{decltypeauto}
+\input{decltypeauto}
+
+\newpage
+% \section[Deduced Return Type]{Function ({\SecCode auto}) {\SecCode return}-Type Deduction}\label{Function-Return-Type-Deduction}
+\input{autoreturn-placeholder}
+
+
+

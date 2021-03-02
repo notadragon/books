@@ -1,0 +1,1313 @@
+
+% 01 Feb, 2021 JMB - packet 4 compilation fixes
+
+\emcppsFeature{
+    short={\lstinline!extern!~\lstinline!template!},
+    tocshort={{\TOCCode extern}~{\TOCCode template}},
+    long={Explicit Instantiation Declarations},
+    rhshort={{\RHCode extern}~{\RHCode template}},
+}{explicit-template-instantiations}
+\setcounter{table}{0}
+\setcounter{footnote}{0}
+\setcounter{lstlisting}{0}
+%\section[{\tt extern} {\tt template}]{Explicit Instantiation Declarations}\label{explicit-template-instantiations}
+
+The \lstinline!extern!~\lstinline!template! prefix can be used to suppress
+\emph{implicit} generation of local object code for the definitions of
+particular specializations of class, function, or
+variable templates used within a translation unit, with the
+expectation that any suppressed object-code-level definitions will be
+provided elsewhere within the program by template definitions that are
+instantiated \emph{explicitly}.
+
+\subsection[Description]{Description}\label{description}
+
+Inherent in the current ecosystem for supporting template programming in
+C++ is the need to generate redundant definitions of fully specified
+function and variable templates within \lstinline!.o! files. For common
+instantiations of popular templates, such as \lstinline!std::vector!, the
+increased object-file size --- a.k.a. \romeogloss{code bloat} --- and
+potentially extended link times might become significant:
+
+\begin{emcppslisting}
+#include <vector>    // (ù{\codeincomments{std::vector}}ù) is a popular template.
+std::vector<int> v;  // (ù{\codeincomments{std::vector<int>}}ù) is a common instantiation.
+
+#include <string>    // (ù{\codeincomments{std::basic\_string}}ù) is a popular template.
+std::string s;       // (ù{\codeincomments{std::string}}ù), an alias for (ù{\codeincomments{std::basic\_string<char>}}ù), is
+                     // a common instantiation.
+\end{emcppslisting}
+
+\noindent The intent of the \lstinline!extern!~\lstinline!template! feature is to
+\emph{suppress} the implicit generation of duplicative object code
+within each and every translation unit in which a fully specialized
+class template, such as \lstinline!std::vector<int>! in the code snippet
+above, is used. Instead, \lstinline!extern!~\lstinline!template! allows
+developers to choose a single translation unit in which to explicitly
+\emph{generate} object code for all the definitions pertaining to that
+specific template specialization as explained in the next
+subsection, \intrarefnopage{explicit-instantiation-definition}.
+
+\subsubsection[Explicit-instantiation definition]{Explicit-instantiation definition}\label{explicit-instantiation-definition}
+
+The ability to create an \romeogloss{explicit-instantiation
+definition} has been available since C++98.{\cprotect\footnote{The
+  C++03 Standard term for the syntax used to create an
+  \romeogloss{explicit-instantiation \emph{definition}}, though rarely used,
+  was \romeogloss{explicit-instantiation \emph{directive}}. The term
+  \romeogloss{explicit-instantiation directive} was clarified in
+  C++11 and can now also refer to syntax that is used to create a
+  \emph{declaration} --- i.e., \romeogloss{explicit-instantiation
+  \emph{declaration}}.}} The requisite syntax is to place the keyword
+\lstinline!template! in front of the name of the fully specialized class
+template, function template, or --- in C++14 --- variable
+template (see \featureref{\locationb}{variable-templates}):
+
+\begin{emcppslisting}
+#include <vector>  // (ù{\codeincomments{std::vector}}ù) (general template)
+
+template class std::vector<int>;
+    // Deposit all definitions for this specialization into the (ù{\codeincomments{.o}}ù) for this
+    // translation unit.
+\end{emcppslisting}
+
+\noindent This \romeogloss{explicit-instantiation directive} compels the compiler to
+instantiate \emph{all} functions defined by the named
+\lstinline!std::vector! class template having the specified \lstinline!int!
+template argument; any collateral object code resulting from these
+instantiations will be deposited in the resulting \lstinline!.o! file for
+the current translation unit. Importantly, even functions that are never
+used are still specialized, so this might not be the correct solution
+for many classes; see \intraref{potential-pitfalls-externtemplate}{accidentally-making-matters-worse}.
+
+\subsubsection[Explicit-instantiation declaration]{Explicit-instantiation declaration}\label{explicit-instantiation-declaration}
+
+C++11 introduced the \romeogloss{explicit-instantiation \emph{declaration}},
+complement to the \romeogloss{explicit-instantiation \emph{definition}}. The
+newly provided syntax allows us to place
+\lstinline!extern!~\lstinline!template! in front of the declaration of the
+explicit specialization of a class template, a function template, or a
+variable template: %(see \featureref{\locationb}{variable-templates}):
+
+\begin{emcppslisting}
+#include <vector>  // (ù{\codeincomments{std::vector}}ù) (general template)
+
+extern template class std::vector<int>;
+    // Suppress depositing of any object code for (ù{\codeincomments{std::vector<int>}}ù) into the
+    // (ù{\codeincomments{.o}}ù) file for this translation unit.
+\end{emcppslisting}
+
+\noindent The use of the modern \lstinline!extern!~\lstinline!template! syntax above
+instructs the compiler to specifically \emph{not} deposit any object
+code for the named specialization in the current translation unit and
+instead to rely on some other translation unit to provide any missing
+object-level definitions that might be needed at link time; see
+\intraref{annoyances-externtemplate}{no-good-place-to-put-definitions-for-unrelated-classes}.
+
+Note, however, that declaring an explicit instantiation to be an
+\lstinline!extern!~\lstinline!template! \emph{in no way} affects the ability
+of the compiler to instantiate and to inline visible function-definition
+bodies for that template specialization in the translation unit:
+
+\begin{emcppslisting}
+// client.cpp:
+#include <vector>  // (ù{\codeincomments{std::vector}}ù) (general template)
+
+extern template class std::vector<int>;  // specialization for (ù{\codeincomments{int}}ù) elements
+
+void client(std::vector<int>& inOut)  // fully specialized instance of a (ù{\codeincomments{vector}}ù)
+{
+    if (inOut.size())          // This invocation of (ù{\codeincomments{size}}ù) can inline.
+    {
+        int value = inOut[0];  // This invocation of (ù{\codeincomments{operator[]}}ù) can inline.
+    }
+}
+\end{emcppslisting}
+
+\noindent In the example above, the two tiny member functions of \lstinline!vector!,
+namely \lstinline!size! and \lstinline!operator[]!, will typically be
+substituted inline --- in precisely the same way they would have been
+had the \lstinline!extern!~\lstinline!template! declaration been omitted. The
+\emph{only} purpose of an \lstinline!extern!~\lstinline!template! declaration
+is to suppress object-code generation for this particular template
+instantiation for the current translation unit.
+
+Finally, note that the use of \romeogloss{explicit-instantiation
+\emph{directives}} have absolutely no affect on the logical meaning of a
+well-formed program; in particular, when applied to specializations of
+function templates, they have no affect whatsoever on overload
+resolution:
+
+\begin{emcppslisting}
+template <typename T> bool f(T v) {/*...*/}  // general template definition
+
+extern template bool f(char c);  // specialization of (ù{\codeincomments{f}}ù) for (ù{\codeincomments{char}}ù)
+extern template bool f(int v);   // specialization of (ù{\codeincomments{f}}ù) for (ù{\codeincomments{int}}ù)
+
+char     c;
+short    s;
+int      i;
+unsigned u;
+
+bool bc = f(c);  // exact match: Object code is suppressed locally.
+bool bs = f(s);  // not exact match: Object code is generated locally.
+bool bi = f(i);  // exact match: Object code is suppressed locally.
+bool bu = f(u);  // not exact match: Object code is generated locally.
+\end{emcppslisting}
+
+\noindent As the example above illustrates, overload resolution and template
+parameter deduction occur independently of any
+\romeogloss{explicit-instantiation declarations}. Only \emph{after}
+the template to be instantiated is determined does the
+\lstinline!extern!~\lstinline!template! syntax take effect; see also \intraref{potential-pitfalls-externtemplate}{corresponding-explicit-instantiation-declarations-and-definitions}.
+
+\subsubsection[A more complete illustrative example]{A more complete illustrative example}\label{a-more-complete-illustrative-example}
+
+So far, we have seen the use of \romeogloss{explicit-instantiation declarations} and \romeogloss{explicit-instan\-tiation definitions} applied to only a
+(standard) \emph{class} template, \lstinline!std::vector!. The same syntax
+shown in the previous code snippet applies also to full specializations of individual
+function templates and variable templates. % (see \featureref{\locationb}{variable-templates}).
+
+As a more comprehensive, albeit largely pedagogical example, consider
+the overly simplistic \lstinline!my::Vector! class template along with
+other related templates defined within a header file
+\lstinline!my_vector.h!:
+
+\begin{emcppslisting}[emcppsbatch={e1,e1b}]
+// my_vector.h:
+#ifndef INCLUDED_MY_VECTOR  // internal include guard
+#define INCLUDED_MY_VECTOR
+
+#include <cstddef>  // (ù{\codeincomments{std::size\_t}}ù)
+#include <utility>  // (ù{\codeincomments{std::swap}}ù)
+
+namespace my  // namespace for all entities defined within this component
+{
+
+template <typename T>
+class Vector
+{
+    static std::size_t s_count; // track number of objects constructed
+    T* d_data_p;                // pointer to dynamically allocated memory
+    std::size_t d_length;       // current number of elements in the vector
+    std::size_t d_capacity;     // number of elements currently allocated
+
+public:
+    // ...
+
+    std::size_t length() const { return d_length; }
+        // return the number of elements
+
+    // ...
+};
+
+// ...          Any partial or full specialization definitions            ...
+// ...          of the class template (ù{\codeincomments{Vector}}ù) go here.                     ...
+
+template <typename T>
+void swap(Vector<T> &lhs, Vector<T> &rhs) { return std::swap(lhs, rhs); }
+    // free function that operates on objects of type (ù{\codeincomments{my::Vector}}ù) via ADL
+
+// ...            Any [full] specialization definitions                   ...
+// ...            of free function (ù{\codeincomments{swap}}ù) would go here.                    ...
+
+template <typename T>
+const std::size_t vectorSize = sizeof(Vector<T>);  // C++14 variable template
+    // This nonmodifiable (ù{\codeincomments{static}}ù) variable holds the size of a (ù{\codeincomments{my::Vector<T>}}ù).
+
+// ...           Any [full] specialization definitions                    ...
+// ...           of variable (ù{\codeincomments{vectorSize}}ù) would go here.                    ...
+
+template <typename T>
+std::size_t Vector<T>::s_count = 0;
+    // definition of (ù{\codeincomments{static}}ù) counter in general template
+
+// ... We may opt to add explicit-instantiation declarations here;
+//     see the next code example.
+
+}  // close (ù{\codeincomments{my}}ù) namespace
+
+#endif  // close internal include guard
+\end{emcppslisting}
+
+\noindent In the \lstinline!my_vector! component in the code snippet above, we
+have defined the following, in the \lstinline!my! namespace:
+\begin{enumerate}
+\item{a \lstinline!class! template, \lstinline!Vector!, parameterized on element type}
+\item{a free-function template, \lstinline!swap!, that operates on objects of corresponding specialized \lstinline!Vector! type}
+\item{a \lstinline!const! C++14 variable template,
+%(see \featureref{\locationb}{variable-templates}),
+\lstinline!vectorSize!, that represents the number of bytes in the \romeogloss{footprint} of an object of the corresponding specialized \lstinline!Vector! type}
+\end{enumerate}
+Any use of these templates by a client might and typically will trigger
+the depositing of equivalent definitions as object code in the client
+translation unit's resulting \lstinline!.o! file, irrespective of whether
+the definition being used winds up getting inlined.
+
+To eliminate object code for specializations of entities in the
+\lstinline!my_vector! component, we must first decide where the unique
+definitions will go; see \intraref{annoyances-externtemplate}{no-good-place-to-put-definitions-for-unrelated-classes}. In this
+specific case, however, we own the component that requires
+specialization, and the specialization is for a ubiquitous built-in type;
+hence, the natural place to generate the specialized definitions is in a
+\lstinline!.cpp! file corresponding to the component's header:
+
+\begin{emcppslisting}[emcppsbatch=e1,emcppsstandards=c++14]
+// my_vector.cpp:
+#include <my_vector.h>  // We always include the component's own header first.
+    // By including this header file, we have introduced the general template
+    // definitions for each of the explicit-instantiation declarations below.
+
+namespace my  // namespace for all entities defined within this component
+{
+
+template class Vector<int>;
+    // Generate object code for all non(ù{\codeincomments{template}}ù) member-function and (ù{\codeincomments{static}}ù)
+    // member-variable definitions of template (ù{\codeincomments{my::Vector}}ù) having (ù{\codeincomments{int}}ù) elements.
+
+template std::size_t Vector<double>::length() const;  // BAD IDEA
+    // In addition, we could generate object code for just a particular member
+    // function definition of (ù{\codeincomments{my::Vector}}ù) (e.g., (ù{\codeincomments{length}}ù)) for some other
+    // parameter type (e.g., (ù{\codeincomments{double}}ù)), which is shown here for pedagogy only.
+
+template void swap(Vector<int>& lhs, Vector<int>& rhs);
+    // Generate object code for the full specialization of the (ù{\codeincomments{swap}}ù) free-
+    // function template that operates on objects of type (ù{\codeincomments{my::Vector<int>}}ù).
+
+template const std::size_t vectorSize<int>;  // C++14 variable template
+    // Generate the object-code-level definition for the specialization of the
+    // C++14 variable template instantiated for built-in type (ù{\codeincomments{int}}ù).
+
+//template std::size_t Vector<int>::s_count = 0;
+    // Generate the object-code-level definition for the specialization of the
+    // (ù{\codeincomments{static}}ù) member variable of (ù{\codeincomments{Vector}}ù) instantiated for built-in type (ù{\codeincomments{int}}ù).
+
+}; // close (ù{\codeincomments{my}}ù) namespace
+\end{emcppslisting}
+
+\noindent Each of the constructs introduced by the keyword \lstinline!template!
+within the \lstinline!my! namespace in the code snippet above represents a
+separate \romeogloss{explicit-instantiation definition}. These
+constructs instruct the compiler to generate object-level definitions
+for general templates declared in \lstinline!my_vector.h! specialized on
+the built-in type \lstinline!int!.
+
+Having installed the necessary \romeogloss{explicit-instantiation
+definitions} in the component's \lstinline!my_vector.cpp! file, we
+must now go back to its \lstinline!my_vector.h! file and, without altering
+any of the previously existing lines of code, \emph{add} the
+corresponding \romeogloss{explicit-instantiation declarations} to
+suppress redundant local code generation:
+
+\begin{emcppshiddenlisting}[emcppsbatch=e1b]
+#undef INCLUDED_MY_VECTOR
+\end{emcppshiddenlisting}
+\begin{emcppslisting}[emcppsbatch=e1b]
+// my_vector.h:
+#ifndef INCLUDED_MY_VECTOR  // internal include guard
+#define INCLUDED_MY_VECTOR
+
+namespace my  // namespace for all entities defined within this component
+{
+
+// ...
+// ...  everything that was in the original (ù{\codeincomments{my}}ù) namespace
+// ...
+
+extern template class Vector<int>;
+    // Suppress object code for this class template specialized for (ù{\codeincomments{int}}ù).
+
+extern template std::size_t Vector<double>::size() const;  // BAD IDEA
+    // Suppress object code for this member, only specialized for (ù{\codeincomments{double}}ù).
+
+extern template void swap(Vector<int>& lhs, Vector<int>& rhs);
+    // Suppress object code for this free function specialized for (ù{\codeincomments{int}}ù).
+
+extern template std::size_t vectorSize<int>;  // C++14
+    // Suppress object code for this variable template specialized for (ù{\codeincomments{int}}ù).
+
+extern template std::size_t Vector<int>::s_count;
+    // Suppress object code for this (ù{\codeincomments{static}}ù) member definition w.r.t. (ù{\codeincomments{int}}ù).
+
+}  // close (ù{\codeincomments{my}}ù) namespace
+
+#endif  // close internal include guard
+\end{emcppslisting}
+
+\noindent Each of the constructs that begin with \lstinline!extern!~\lstinline!template!
+in the example above are \romeogloss{explicit-instantiation
+declarations}, which serve only to suppress the generation of any
+object code emitted to the \lstinline!.o! file of the current translation
+unit in which such specializations are used. These added
+\lstinline!extern!~\lstinline!template! declarations must appear in the
+\lstinline!my_header.h! source file \emph{after} the declaration of the
+corresponding general template and, importantly, before whatever
+relevant definitions are ever used.
+
+\subsubsection[The effect on various \lstinline!.o! files]{The effect on various {\SubsubsecCode .o} files}\label{the-effect-on-various-.o-files}
+
+To illustrate the effect of \romeogloss{explicit-instantiation
+declarations} and \romeogloss{explicit-instantiation
+definitions} on the contents of object and executable files,
+we'll use a simple \lstinline!lib_interval! library \romeogloss{component}
+consisting of a header file, \lstinline!lib_interval.h!, and an
+implementation file, \lstinline!lib_interval.cpp!. The latter, apart from
+including its corresponding header, is effectively empty:
+
+\begin{emcppslisting}[emcppsbatch=e2]
+// lib_interval.h:
+#ifndef INCLUDED_LIB_INTERVAL  // internal include guard
+#define INCLUDED_LIB_INTERVAL
+
+namespace lib  // namespace for all entities defined within this component
+{
+
+template <typename T>  // elided sketch of a class template
+class Interval
+{
+    T d_low;   // interval's low value
+    T d_high;  // interval's high value
+
+public:
+    explicit Interval(const T& p) : d_low(p), d_high(p) { }
+        // Construct an empty interval.
+
+    Interval(const T& low, const T& high) : d_low(low), d_high(high) { }
+        // Construct an interval having the specified boundary values.
+
+    const T& low() const { return d_low; }
+        // Return this interval's low value.
+
+    const T& high() const { return d_high; }
+        // Return this interval's high value.
+
+    int length() const { return d_high - d_low; }
+        // Return this interval's length.
+
+    // ...
+};
+
+template <typename T>                   // elided sketch of a function template
+bool intersect(const Interval<T>& i1, const Interval<T>& i2)
+    // Determine whether the specified intervals intersect ...
+{
+    bool result = false;  // nonintersecting until proven otherwise
+    // ...
+    return result;
+}
+
+}  // close (ù{\codeincomments{lib}}ù) namespace
+
+#endif  // INCLUDED_LIB_INTERVAL
+\end{emcppslisting}
+\vspace*{2ex}   %%%% extra space to highlight different snippets
+\begin{emcppslisting}[emcppsbatch=e2]
+// lib_interval.cpp:
+#include <lib_interval.h>
+\end{emcppslisting}
+
+\noindent This library component defines, in the namespace \lstinline!lib!, a heavily
+elided sketch of an implementation of (1) a class template,
+\lstinline!Interval!, and (2) a function template, \lstinline!intersect!, the
+only practical purpose of which is to provide some sample template
+source code to compile.
+
+Let's also consider a trivial application that uses this library
+\romeogloss{component}:
+
+\begin{emcppslisting}[emcppsbatch=e2]
+// app.cpp:
+#include <lib_interval.h>  // Include the library component's header file.
+
+int main(int argv, const char** argc)
+{
+    lib::Interval<double> a(0, 5);  // instantiate with (ù{\codeincomments{double}}ù) type parameter
+    lib::Interval<double> b(3, 8);  // instantiate with (ù{\codeincomments{double}}ù) type parameter
+    lib::Interval<int>    c(4, 9);  // instantiate with (ù{\codeincomments{int}}ù)    type parameter
+
+    if (lib::intersect(a, b))  // instantiate deducing (ù{\codeincomments{double}}ù) type parameter
+    {
+        return 0;  // return "success" as (0.0, 5.0) does intersect (3.0, 8.0)
+    }
+
+    return 1;  // Return "failure" status as function apparently doesn't work.
+}
+\end{emcppslisting}
+
+\noindent The purpose of this application is merely to exhibit a couple of
+instantiations of the library \emph{class} template,
+\lstinline!lib::Interval!, for type parameters \lstinline!int! and
+\lstinline!double!, and of the library \emph{function} template,
+\lstinline!lib::intersect!, for just \lstinline!double!.
+
+Next, we compile the application and library translation units,
+\lstinline!app.cpp! and\linebreak[4]
+\lstinline!lib_interval.cpp!, and inspect the symbols
+in their respective corresponding object files, \lstinline!app.o! and
+\lstinline!lib_interval.o!:
+
+\begin{lstlisting}[language=bash]
+$ gcc -I. -c app.cpp lib_interval.cpp
+$ nm -C app.o lib_interval.o
+
+app.o:
+0000000000000000 W lib::Interval<double>::Interval(double const&, double const&)
+0000000000000000 W lib::Interval<int>::Interval(int const&, int const&)
+0000000000000000 W bool lib::intersect<double>(lib::Interval<double> const&,
+                                               lib::Interval<double> const&)
+0000000000000000 T main
+
+lib_interval.o:
+\end{lstlisting}
+
+\noindent Looking at \lstinline!app.o! in the previous example, the class and
+function templates used in the \lstinline!main! function, which is
+defined in the \lstinline!app.cpp! file, were instantiated
+\emph{implicitly} and the relevant code was added to the resulting
+object file, \lstinline!app.o!, with each instantiated function definition
+in its own separate \romeogloss{section}. In the \lstinline!Interval!
+\emph{class} template, the generated symbols correspond to the two
+unique instantiations of the constructor, i.e., for \lstinline!double! and
+\lstinline!int!, respectively. The \lstinline!intersect! function
+template, however, was implicitly instantiated for only type
+\lstinline!double!. Note importantly that all of the implicitly
+instantiated functions have the \lstinline!W! symbol type, indicating that
+they are \emph{weak} symbols, which are permitted to be present in
+multiple object files. By contrast, this file defines the strong symbol
+\lstinline!main!, marked here by a \lstinline!T!. Linking this file with any
+other file containing such a symbol would cause the linker to report a
+multiply-defined-symbol error. On the other hand, the
+\lstinline!lib_interval.o! file corresponds to the
+\lstinline!lib_interval! library component, whose \lstinline!.cpp! file
+served only to include its own \lstinline!.h! file, and is again
+effectively empty.
+
+Let's now link the two object files, \lstinline!app.o! and
+\lstinline!lib_interval.o!, and inspect the symbols in the resulting
+executable, \lstinline!app!{\cprotect\footnote{We have stripped out
+extraneous unrelated information that the \lstinline!nm! tool produces;
+note that the \lstinline!-C! option invokes the symbol demangler, which
+turns encoded names like \lstinline!_ZN3lib8IntervalIdEC1ERKdS3_! into
+something more readable like
+  \lstinline!lib::Interval<double>::Interval(double!~\lstinline!const&,!~\lstinline!double!~\lstinline!const&)!.}}:
+
+\begin{lstlisting}[language=bash]
+$ gcc -o app app.o lib_interval.o
+$ nm -C app
+000000000040056e T lib::Interval<double>::Interval(double const&, double const&)
+00000000004005a2 T lib::Interval<int>::Interval(int const&, int const&)
+00000000004005ce T bool lib::intersect<double>(lib::Interval<double> const&,
+                                               lib::Interval<double> const&)
+00000000004004b7 T main
+\end{lstlisting}
+
+\noindent As the textual output above confirms, each of the needed \emph{weak}
+template symbols, previously marked with a \lstinline!W!, is bound into the
+final program as a \emph{strong} symbol, now --- like \lstinline!main! ---
+marked with a \lstinline!T!.{\cprotect\footnote{Whether the symbol is
+marked \lstinline!W! or \lstinline!T! in the final executable is
+implementation specific and of no consequence here. We present these
+  concepts in this particular way to aid cognition.}} In this tiny
+illustrative example, only one set of weak symbols appeared in the
+combined \lstinline!.o! files.
+
+More generally, if the application comprises multiple object files, each
+file will potentially contain their own set of weak symbols,
+often leading to duplicate code \romeogloss{sections} for implicitly
+instantiated class, function, and variable
+templates instantiated on the same parameters. When the linker combines
+object files, it will arbitrarily choose at most one of each of these
+respective and hopefully identical weak-symbol \romeogloss{sections} to
+include in the final executable, now marked as a strong symbol
+(\lstinline!T!).
+
+Imagine now that our program includes a large number of \lstinline!.o!
+files, many of which make use of our \lstinline!lib_interval! component,
+particularly to operate on \lstinline!double! intervals. Suppose, for now,
+we decide we would like to suppress the generation of object code for
+templates related to just \lstinline!double! types with the intent of later putting them all in one place, i.e., the currently
+empty \lstinline!lib_interval.o!. Achieving this objective is precisely what the
+\lstinline!extern!~\lstinline!template! syntax is designed to accomplish.
+
+Returning to our \lstinline!lib_interval.h! file, we need not change one
+line of code; we need only to \emph{add} two
+\romeogloss{explicit-instantiation declarations} --- one for the
+template \emph{class}, \lstinline!Interval<double>!, and one for the
+template \emph{function},
+\lstinline!intersect<double>(const!~\lstinline!double&,!~\lstinline!const!~\lstinline!double&)!
+--- to the header file anywhere \emph{after} their respective
+corresponding general template declaration and definition:
+
+\begin{emcppshiddenlisting}[emcppsbatch=e3]
+// lib_interval.h:
+
+#include <cstddef>  // (ù{\codeincomments{std::size\_t}}ù)
+
+namespace lib {
+template <typename T>
+class Interval
+{};
+
+template <typename T>
+bool intersect(const Interval<T>&, const Interval<T>&)
+{
+    return false;
+}
+
+}
+
+\end{emcppshiddenlisting}
+\begin{emcppslisting}[emcppsbatch=e3]
+// lib_interval.h:  // (no change to existing code)
+#ifndef INCLUDED_LIB_INTERVAL  // internal include guard
+#define INCLUDED_LIB_INTERVAL
+
+namespace lib  // namespace for all entities defined within this component
+{
+
+template <typename T>                    // elided sketch of a class template
+class Interval;                          // ...
+    // ...                       (same as before)
+
+template <typename T>                    // elided sketch of a function template
+bool intersect(const Interval<T>& i1, const Interval<T>& i2);
+    // ...                       (same as before)
+
+extern template class Interval<double>;  // explicit-instantiation declaration
+
+extern template                          // explicit-instantiation declaration
+bool intersect(const Interval<double>&, const Interval<double>&);
+
+}  // close (ù{\codeincomments{lib}}ù) namespace
+
+#endif  // INCLUDED_LIB_INTERVAL
+\end{emcppslisting}
+
+\noindent Let's again compile the two \lstinline!.cpp! files and inspect the
+corresponding \lstinline!.o! files:
+
+\begin{lstlisting}[language=bash]
+$ gcc -I. -c app.cpp lib_interval.cpp
+$ nm -C app.o lib_interval.o
+
+app.o:
+                 U lib::Interval<double>::Interval(double const&, double const&)
+0000000000000000 W lib::Interval<int>::Interval(int const&, int const&)
+                 U bool lib::intersect<double>(lib::Interval<double> const&,
+                                               lib::Interval<double> const&)
+0000000000000000 T main
+
+lib_interval.o:
+\end{lstlisting}
+
+\noindent Notice that this time some of the symbols --- specifically those
+relating to the \lstinline!class! and \lstinline!function! templates
+instantiated for type \lstinline!double! --- have changed from \lstinline!W!,
+indicating a \emph{weak} symbol, to \lstinline!U!, indicating an
+\emph{undefined} one. What this means is that, instead of generating a
+weak symbol for the explicit specializations for \lstinline!double!, the
+compiler left those symbols undefined, as if only the
+\emph{declarations} of the member and free-function templates had been
+available when compiling \lstinline!app.cpp!, yet inlining of the
+instantiated definitions is in no way affected. \romeogloss{Undefined
+symbols} are symbols that are expected to be made available to the
+linker from other object files. Attempting to link this application
+expectedly fails because no object files being linked contain the needed
+definitions for those instantiations:
+
+\begin{lstlisting}[language=bash]
+$ gcc -o app app.o lib_interval.o
+
+app.o: In function ('main':}
+app.cpp:(.text+0x38): undefined reference to
+  `lib::Interval<double>::Interval(double const&, double const&)'
+app.cpp:(.text+0x69): undefined reference to
+  `lib::Interval<double>::Interval(double const&, double const&)'
+app.cpp:(.text+0xa1): undefined reference to
+  `bool lib::intersect<double>(lib::Interval<double> const&,
+                               lib::Interval<double> const&)'
+
+collect2: error: ld returned 1 exit status
+\end{lstlisting}
+
+\noindent To provide the missing definitions, we will need to instantiate them
+explicitly. Since the type for which the class and function are being
+specialized is the ubiquitous built-in type, \lstinline!double!, the ideal
+place to sequester those definitions would be within the \lstinline!.o!
+file of the \lstinline!lib_interval! library component itself, but see \intraref{annoyances-externtemplate}{no-good-place-to-put-definitions-for-unrelated-classes}. To force the needed
+template definitions into the \lstinline!lib_interval.o! file, we will
+need to pull out our trusty \romeogloss{explicit-instantiation
+definition} syntax, i.e., the \lstinline!template! prefix:
+
+\begin{emcppslisting}[emcppsbatch=e3]
+// lib_interval.cpp:
+#include <lib_interval.h>
+
+template class lib::Interval<double>;
+    // example of an explicit-instantiation definition for a class
+
+template bool lib::intersect(const Interval<double>&, const Interval<double>&);
+    // example of an explicit-instantiation definition for a function
+\end{emcppslisting}
+
+\noindent We recompile once again and inspect our newly generated object files:
+
+\begin{lstlisting}[language=bash]
+$ gcc -I. -c app.cpp lib_interval.cpp
+$ nm -C app.o lib_interval.o
+
+app.o:
+                 U lib::Interval<double>::Interval(double const&, double const&)
+0000000000000000 W lib::Interval<int>::Interval(int const&, int const&)
+                 U bool lib::intersect<double>(lib::Interval<double> const&,
+                                               lib::Interval<double> const&)
+0000000000000000 T main
+
+lib_interval.o:
+0000000000000000 W lib::Interval<double>::Interval(double const&)
+0000000000000000 W lib::Interval<double>::Interval(double const&, double const&)
+0000000000000000 W lib::Interval<double>::low() const
+0000000000000000 W lib::Interval<double>::high() const
+0000000000000000 W lib::Interval<double>::length() const
+0000000000000000 W bool lib::intersect<double>(lib::Interval<double> const&,
+                                               lib::Interval<double> const&)
+\end{lstlisting}
+
+\noindent The application \lstinline!.o! file, \lstinline!app.o!, naturally remained
+unchanged. What's new here is that the functions that were missing from
+the \lstinline!app.o! file are now available in the
+\lstinline!lib_interval.o! file, again as \emph{weak} (\lstinline!W!), as
+opposed to strong (\lstinline!T!), symbols. Notice, however, that explicit
+instantiation forces the compiler to generate code for all of the member
+functions of the class template for a given specialization. These
+symbols might all be linked into the resulting executable unless we take
+explicit precautions to exclude those that aren't
+needed{\cprotect\footnote{To avoid including the explicitly generated
+definitions that are being used to resolve undefined symbols, we have
+instructed the linker to remove all unused code \romeogloss{sections} from the
+executable. The \lstinline!-Wl! option passes comma-separated options to
+the linker. The \lstinline!--gc-sections! option instructs the compiler
+to compile and assemble and instructs the linker to omit individual
+unused \romeogloss{sections}, where each section contains, for example, its own
+  instantiation of a function template.}}:
+
+\begin{lstlisting}[language=bash]
+$ gcc -o app app.o lib_interval.o -Wl,--gc-sections
+$ nm -C app
+00000000004005ca T lib::Interval<double>::Interval(double const&, double const&)
+000000000040056e T lib::Interval<int>::Interval(int const&, int const&)
+000000000040063d T bool lib::intersect<double>(lib::Interval<double> const&,
+                                               lib::Interval<double> const&)
+00000000004004b7 T main
+\end{lstlisting}
+
+\noindent tl;dr: This \lstinline!extern!~\lstinline!template! feature is provided to
+enable software architects to reduce code bloat in individual
+\lstinline!.o! files for common instantiations of class,
+function, and, as of C++14, variable templates in
+large-scale C++ software systems. The practical benefit is in reducing
+the physical size of libraries, which \emph{might} lead to improved link
+times. \romeogloss{Explicit-instantiation declarations} do \emph{not}
+(1) affect the meaning of a program, (2) suppress template
+instantiation, (3) impede the compiler's ability to \lstinline!inline!, or
+(4) meaningfully improve compile time. To be clear, the \emph{only}
+purpose of the \lstinline!extern!~\lstinline!template! syntax is to suppress
+object-code generation for the current translation unit, which is then
+selectively overridden in the translation unit(s) of choice.
+
+\subsection[Use Cases]{Use Cases}\label{use-cases}
+
+\subsubsection[Reducing template code bloat in object files]{Reducing template code bloat in object files}\label{reducing-template-code-bloat-in-object-files}
+
+The motivation for the \lstinline!extern!~\lstinline!template! syntax is as a
+purely \romeogloss{physical} (not \romeogloss{logical}) optimization, i.e., to
+reduce the amount of redundant code within individual object files
+resulting from common template instantiations in client code. As an
+example, consider a fixed-size-array class template,
+\lstinline!FixedArray!, that is used widely, i.e., by many clients from
+separate translation units, in a large-scale \lstinline!game! project for
+both integral and floating-point calculations, primarily with type
+parameters \lstinline!int! and \lstinline!double! and array sizes of either
+\lstinline!2! or \lstinline!3!:
+
+\begin{emcppslisting}[emcppsbatch=e4]
+// game_fixedarray.h:
+#ifndef INCLUDED_GAME_FIXEDARRAY  // *internal* include guard
+#define INCLUDED_GAME_FIXEDARRAY
+
+#include <cstddef>  // (ù{\codeincomments{std::size\_t}}ù)
+namespace game  // namespace for all entities defined within this component
+{
+
+template <typename T, std::size_t N>
+class FixedArray                                  // widely used class template
+{
+    // ... (elided private implementation details)
+public:
+    FixedArray()                                 { /*...*/ }
+    FixedArray(const FixedArray<T, N>& other)    { /*...*/ }
+    T& operator[](std::size_t index)             { /*...*/ }
+    const T& operator[](std::size_t index) const { /*...*/ }
+};
+
+template <typename T, std::size_t N>
+T dot(const FixedArray<T, N>& a, const FixedArray<T, N>& b) { /*...*/ }
+
+// Explicit-instantiation declarations for full template specializations
+// commonly used by the (ù{\codeincomments{game}}ù) project are provided below.
+
+extern template class FixedArray<int, 2>;              // class template
+extern template int dot(const FixedArray<int, 2>& a,   // function template
+                        const FixedArray<int, 2>& b);  // for (ù{\codeincomments{int}}ù) and (ù{\codeincomments{2}}ù)
+
+extern template class FixedArray<int, 3>;              // class template
+extern template int dot(const FixedArray<int, 3>& a,   // function template
+                        const FixedArray<int, 3>& b);  // for (ù{\codeincomments{int}}ù) and (ù{\codeincomments{3}}ù)
+
+extern template class FixedArray<double, 2>;           // for (ù{\codeincomments{double}}ù) and (ù{\codeincomments{2}}ù)
+extern template double dot(const FixedArray<double, 2>& a,
+                           const FixedArray<double, 2>& b);
+
+extern template class FixedArray<double, 3>;           // for (ù{\codeincomments{double}}ù) and (ù{\codeincomments{3}}ù)
+extern template double dot(const FixedArray<double, 3>& a,
+                           const FixedArray<double, 3>& b);
+
+}  // close (ù{\codeincomments{game}}ù) namespace
+
+#endif  // INCLUDED_GAME_FIXEDARRAY
+\end{emcppslisting}
+
+\noindent Specializations commonly used by the \lstinline!game! project are
+provided by the \lstinline!game! library. In the component header in the
+example above, we have used the \lstinline!extern!~\lstinline!template! syntax
+to suppress object-code generation for instantiations of both the class
+template \lstinline!FixedArray! and the function template \lstinline!dot! for
+element types \lstinline!int! and \lstinline!double!, each for array sizes
+\lstinline!2! and \lstinline!3!. To ensure that these specialized definitions
+are available in every program that might need them, we use the
+\lstinline!template! syntax counterpart to \emph{force} object-code
+generation within just the one \lstinline!.o! corresponding to the
+\lstinline!game_fixedarray! library component{\cprotect\footnote{Notice
+  that we have chosen \emph{not} to nest the explicit specializations
+  (or any other definitions) of entities already declared directly
+  within the \lstinline!game! namespace, preferring instead to qualify each
+  entity explicitly to be consistent with how we render free-function
+  definitions (to avoid self-declaration); see \cite{lakos20}, section~2.5, ``Component Source-Code Organization," pp.~333--342, specifically Figure 2-36b, p.~340. See also \intraref{potential-pitfalls-externtemplate}{corresponding-explicit-instantiation-declarations-and-definitions}.}}:
+
+\begin{emcppslisting}[emcppsbatch=e4]
+// game_fixedarray.cpp:
+#include <game_fixedarray.h>  // included as first substantive line of code
+
+// Explicit-instantiation definitions for full template specializations
+// commonly used by the (ù{\codeincomments{game}}ù)] project are provided below.
+
+template class game::FixedArray<int, 2>;              // class template
+template int game::dot(const FixedArray<int, 2>& a,   // function template
+                       const FixedArray<int, 2>& b);  // for (ù{\codeincomments{int}}ù) and (ù{\codeincomments{2}}ù)
+
+template class game::FixedArray<int, 3>;              // class template
+template int game::dot(const FixedArray<int, 3>& a,   // function template
+                       const FixedArray<int, 3>& b);  // for (ù{\codeincomments{int}}ù) and (ù{\codeincomments{3}}ù)
+
+template class game::FixedArray<double, 2>;           // for (ù{\codeincomments{double}}ù) and (ù{\codeincomments{2}}ù)
+template double game::dot(const FixedArray<double, 2>& a,
+                          const FixedArray<double, 2>& b);
+
+template class game::FixedArray<double, 3>;           // for (ù{\codeincomments{double}}ù) and (ù{\codeincomments{3}}ù)
+template double game::dot(const FixedArray<double, 3>& a,
+                          const FixedArray<double, 3>& b);
+\end{emcppslisting}
+
+\noindent Compiling \lstinline!game_fixedarray.cpp! and examining the resulting
+object file shows that the code for all explicitly instantiated classes
+and free functions was generated and placed into the object file,
+\lstinline!game_fixedarray.o!{\cprotect\footnote{Note that only a subset
+  of the relevant symbols have been retained.}}:
+
+\begin{lstlisting}[language=bash]
+$ gcc -I. -c game_fixedarray.cpp
+$ nm -C game_fixedarray.o
+0000000000000000 W game::FixedArray<double, 2ul>::FixedArray(
+  game::FixedArray<double, 2ul> const&)
+0000000000000000 W game::FixedArray<double, 2ul>::FixedArray()
+0000000000000000 W game::FixedArray<double, 2ul>::operator[](unsigned long)
+0000000000000000 W game::FixedArray<double, 3ul>::FixedArray(
+  game::FixedArray<double, 3ul> const&)
+0000000000000000 W game::FixedArray<int, 3ul>::FixedArray()
+                                    :
+0000000000000000 W double game::dot<double, 2ul>(
+  game::FixedArray<double, 2ul> const&, game::FixedArray<double, 2ul> const&)
+0000000000000000 W double game::dot<double, 3ul>(
+  game::FixedArray<double, 3ul> const&, game::FixedArray<double, 3ul> const&)
+0000000000000000 W int game::dot<int, 2ul>(
+  game::FixedArray<int, 2ul> const&, game::FixedArray<int, 2ul> const&)
+                                    :
+0000000000000000 W game::FixedArray<int, 2ul>::operator[](unsigned long) const
+0000000000000000 W game::FixedArray<int, 3ul>::operator[](unsigned long) const
+\end{lstlisting}
+
+\noindent This \lstinline!FixedArray! class template is used in multiple translation
+units within the \lstinline!game! project. The first one contains a set
+of geometry utilities:
+
+\begin{emcppshiddenlisting}[emcppsbatch=e5]
+// game_fixedarray.h:
+#pragma once
+
+#include <cstddef>  // (ù{\codeincomments{std::size\_t}}ù)
+
+template <typename T, std::size_t N>
+class FixedArray {};
+
+template <typename T, std::size_t N>
+T dot(const FixedArray<T, N>& a, const FixedArray<T, N>& b) { /*...*/ }
+
+// game_unit.h:
+#include <game_fixedarray.h>
+
+namespace game {
+
+struct Unit {
+      FixedArray<double,3> centerOfMass() const;      
+};
+
+}
+\end{emcppshiddenlisting}
+\begin{emcppslisting}[emcppsbatch=e5]
+// app_geometryutil.cpp:
+
+#include <game_fixedarray.h>
+#include <game_unit.h>
+
+using namespace game;
+
+void translate(game::Unit* object, const FixedArray<double, 2>& dst)
+    // Perform precise movement of the object on 2D plane.
+{
+    FixedArray<double, 2> objectProjection;
+    // ...
+}
+
+void translate(game::Unit* object, const FixedArray<double, 3>& dst)
+    // Perform precise movement of the object in 3D space.
+{
+    FixedArray<double, 3> delta;
+    // ...
+}
+
+bool isOrthogonal(const FixedArray<int, 2>& a1, const FixedArray<int, 2>& a2)
+    // Return true if 2d arrays are orthogonal.
+{
+    return 0 == dot(a1, a2);
+}
+
+bool isOrthogonal(const FixedArray<int, 3>& a1, const FixedArray<int, 3>& a2)
+    // Return true if 3d arrays are orthogonal.
+{
+    return 0 == dot(a1, a2);
+}
+\end{emcppslisting}
+
+\noindent The second one deals with physics calculations:
+
+\begin{emcppslisting}[emcppsbatch=e5]
+// app_physics.cpp:
+
+#include <game_fixedarray.h>
+#include <game_unit.h>
+
+using namespace game;
+
+void collide(game::Unit* objectA, game::Unit* objectB)
+    // Calculate the result of object collision in 3D space.
+{
+    FixedArray<double, 3> centerOfMassA = objectA->centerOfMass();
+    FixedArray<double, 3> centerOfMassB = objectB->centerOfMass();
+    // ..
+}
+
+void accelerate(game::Unit* object, const FixedArray<double, 3>& force)
+    // Calculate the position after applying a specified force for the
+    // duration of a game tick.
+{
+    // ...
+}
+\end{emcppslisting}
+
+\noindent Note that the object files for the application components throughout the
+\lstinline!game! project do not contain any of the implicitly
+instantiated definitions that we had chosen to uniquely sequester
+externally, i.e., within the \lstinline!game_fixedarray.o! file:
+
+\begin{lstlisting}[language=bash]
+$ nm -C app_geometryutil.o
+000000000000003e T isOrthogonal(game::FixedArray<int, 2ul> const&,
+  game::FixedArray<int, 2ul> const&)
+0000000000000068 T isOrthogonal(game::FixedArray<int, 3ul> const&,
+  game::FixedArray<int, 3ul> const&)
+0000000000000000 T translate(game::Unit*, game::FixedArray<double, 2ul> const&)
+000000000000001f T translate(game::Unit*, game::FixedArray<double, 3ul> const&)
+                 U game::FixedArray<double, 2ul>::FixedArray()
+                 U game::FixedArray<double, 3ul>::FixedArray()
+                 U int game::dot<int, 2ul>(game::FixedArray<int, 2ul> const&,
+  game::FixedArray<int, 2ul> const&)
+                 U int game::dot<int, 3ul>(game::FixedArray<int, 3ul> const&,
+  game::FixedArray<int, 3ul> const&)
+
+$ nm -C app_physics.o
+0000000000000039 T accelerate(game::Unit*,
+  game::FixedArray<double, 3ul> const&)
+0000000000000000 T collide(game::Unit*, game::Unit*)
+                 U game::FixedArray<double, 3ul>::FixedArray()
+0000000000000000 W game::Unit::centerOfMass()
+\end{lstlisting}
+
+\noindent Whether optimization involving \romeogloss{explicit-instantiation
+directives} reduces library sizes on disc has no noticeable effect or
+actually makes matters worse will depend on the particulars of the
+system at hand. Having this optimization applied to frequently used
+templates across a large organization has been known to decrease object
+file sizes, storage needs, link times, and overall build times, but see \intraref{potential-pitfalls-externtemplate}{accidentally-making-matters-worse}.
+
+\subsubsection[Insulating template definitions from clients]{Insulating template definitions from clients}\label{insulating-template-definitions-from-clients}
+
+Even before the introduction of \romeogloss{explicit-instantiation
+\emph{declarations}}, strategic use of \romeogloss{explicit-instantiation
+\emph{definitions}} made it possible to \romeogloss{insulate} the
+\emph{definition} of a template from client code, presenting instead
+just a limited set of instantiations against which clients may link.
+Such insulation enables the definition of the template to change without
+forcing clients to recompile. What's more, new explicit instantiations
+can be added without affecting existing clients.
+
+As an example, suppose we have a single free-function template,
+\lstinline!transform!, that operates on only floating-point values:
+
+\begin{emcppslisting}[emcppsbatch=e6]
+// transform.h:
+#ifndef INCLUDED_TRANSFORM_H
+#define INCLUDED_TRANSFORM_H
+
+template <typename T>  // declaration (only) of free-function template
+T transform(const T& value);
+    // Return the transform of the specified floating-point (ù{\codeincomments{value}}ù).
+
+#endif
+\end{emcppslisting}
+
+\noindent Initially, this function template will support just two built-in types,
+\lstinline!float! and \lstinline!double!, but it is anticipated to eventually
+support the additional built-in type \lstinline!long!~\lstinline!double! and
+perhaps even supplementary user-defined types (e.g., \lstinline!Float128!)
+to be made available via separate headers (e.g., \lstinline!float128.h!).
+By placing only the declaration of the \lstinline!transform! function
+template in its component's header, clients will be able to link against
+only two supported explicit specializations provided in the
+\lstinline!transform.cpp! file:
+
+\begin{emcppslisting}[emcppsbatch=e6]
+// transform.cpp:
+#include <transform.h>  // Ensure consistency with client-facing declaration.
+
+template <typename T>   // redeclaration/definition of free-function template
+T transform(const T& value)
+{
+    // insulated implementation of transform function template
+}
+
+// explicit-instantiation *definitions*
+template float transform(const float&);    // Instantiate for type (ù{\codeincomments{float}}ù).
+template double transform(const double&);  // Instantiate for type (ù{\codeincomments{double}}ù).
+\end{emcppslisting}
+
+\noindent Without the two \romeogloss{explicit-instantiation definitions} in
+the \lstinline!transform.cpp! file above, its corresponding object file,
+\lstinline!transform.o!, would be empty.
+
+Note that, as of C++11, we \emph{could} place the corresponding
+\romeogloss{explicit-instantiation definitions} in the header file
+for, say, documentation purposes:
+
+\begin{emcppslisting}
+// transform.h:
+#ifndef INCLUDED_TRANSFORM_H
+#define INCLUDED_TRANSFORM_H
+
+template <typename T>  // declaration (only) of free-function template
+T transform(const T& value);
+    // Return the transform of the specified floating-point (ù{\codeincomments{value}}ù).
+
+// explicit-instantiation declarations, available as of C++11
+extern template float transform(const float&);    // user documentation only;
+extern template double transform(const double&);  // has no effect whatsoever
+
+#endif
+\end{emcppslisting}
+
+\noindent But because no definition of the \lstinline!transform! free-function
+template is visible in the header, no \emph{implicit} instantiation can
+result from client use; hence, the two \romeogloss{explicit-instantiation
+declarations} above for \lstinline!float! and \lstinline!double!,
+respectively, do nothing.
+
+\subsection[Potential Pitfalls]{Potential Pitfalls}\label{potential-pitfalls-externtemplate}
+
+\subsubsection[Corresponding explicit-instantiation declarations and definitions]{Corresponding explicit-instantiation declarations and definitions}\label{corresponding-explicit-instantiation-declarations-and-definitions}
+
+To realize a reduction in object-code size for individual translation
+units and yet still be able to link all valid programs successfully into
+a well-formed program, several moving parts have to be brought together
+correctly:
+\begin{enumerate}
+\item{Each general template, \lstinline!C<T>!, whose object code bloat is to be optimized must be declared within some designated component’s header file, \lstinline!c.h!.}
+\item{The specific definition of each \lstinline!C<T>! relevant to an explicit specialization being optimized — including general, partial-specialization, and full-specialization definitions — must appear in the header file prior to its corresponding \romeogloss{explicit-instantiation declaration}.}
+\item{Each \romeogloss{explicit-instantiation declaration} for each specialization of each separate top-level — i.e., class, function, or variable — template must appear in the component’s \lstinline!.h! file \emph{after} the corresponding general template declaration and the relevant general, partial-specialization, or full-specialization definition, but, in practice, always after \emph{all} such definitions, not just the relevant one.}
+\item{Each template specialization having an \romeogloss{explicit-instantiation declaration} in the header file must have a corresponding \romeogloss{explicit-instantiation definition} in the component’s implementation file, \lstinline!c.cpp!.}
+\end{enumerate}
+Absent items (1) and (2), clients would have no way to safely separate
+out the usability and inlineability of the template definitions yet
+consolidate the otherwise redundantly generated object-level definitions
+within just a single translation unit. Moreover, failing to provide the
+relevant definition would mean that any clients using one of these
+specializations would either fail to compile or, arguably worse, pick up
+the general definitions when a more specialized definition was intended,
+likely resulting in an ill-formed program.
+
+Failing item (3), the object code for that particular specialization of
+that template will be generated locally in the client's translation unit
+as usual, negating any benefits with respect to local object-code size,
+irrespective of what is specified in the \lstinline!c.cpp! file.
+
+Finally, unless we provide a matching \romeogloss{explicit-instantiation
+definition} in the \lstinline!c.cpp! file for each and every
+corresponding \romeogloss{explicit-instantiation declaration} in the
+\lstinline!c.h! file as in item (4), our optimization attempts might well
+result in a library component that compiles, links, and even passes some
+unit tests but, when released to our clients, fails to link.
+Additionally, any \romeogloss{explicit-instantiation definition} in
+the \lstinline!c.cpp! file that is not accompanied by a corresponding
+\romeogloss{explicit-instantiation declaration} in the \lstinline!c.h!
+file will inflate the size of the \lstinline!c.o! file with no possibility
+of reducing code bloat in client code{\cprotect\footnote{Fortunately,
+these extra instantiations do not result in multiply-defined symbols
+because they still reside in their own \romeogloss{sections} and are marked
+  as \emph{weak} symbols.}}:
+
+\begin{emcppslisting}[emcppsbatch=e7]
+// c.h:
+#ifndef INCLUDED_C                            // internal include guard
+#define INCLUDED_C
+
+template <typename T> void f(T v) {/*...*/};  // general template definition
+
+extern template void f<int>(int v);           // OK, matched in (ù{\codeincomments{c.cpp}}ù)
+extern template void f<char>(char c);         // Error, unmatched in (ù{\codeincomments{.cpp}}ù) file
+
+#endif
+\end{emcppslisting}
+\vspace*{2ex}   %%%% extra space to highlight different snippets
+\begin{emcppslisting}[emcppsbatch=e7]
+// c.cpp:
+#include <c.h>                                 // incorporate own header first
+
+extern template void f<int>(int v);            // OK, matched in (ù{\codeincomments{c.h}}ù)
+extern template void f<double>(double v);      // Bug, unmatched in (ù{\codeincomments{c.h}}ù) file
+\end{emcppslisting}
+\vspace*{2ex}   %%%% extra space to highlight different snippets
+\begin{emcppslisting}[emcppsbatch=e7]
+// client.cpp:
+#include <c.h>
+
+void client()
+{
+    int    i = 1;
+    char   c = 'a';
+    double d = 2.0;
+
+    f(i);  // OK, matching explicit-instantiation directives
+    f(c);  // Link-Time Error, no matching explicit-instantiation definition
+    f(d);  // Bug, size increased due to no matching explicit-instantiation
+           // declaration
+}
+\end{emcppslisting}
+
+\noindent In the example above, \lstinline!f(i)! works as expected, with the linker
+finding the definition of \lstinline!f<int>! in \lstinline!c.o!; \lstinline!f(c)!
+fails to link, because no definition of \lstinline!f<c>! is guaranteed to
+be found anywhere; and \lstinline!f(d)! accidentally works by silently
+generating a \emph{redundant} local copy of \lstinline!f<double>! in
+\lstinline!client.o! while another, identical definition is generated
+explicitly in \lstinline!c.o!. Importantly, note that
+\lstinline!extern!~\lstinline!template! has \emph{absolutely no affect} on
+overload resolution because the call to \lstinline!f(c)! did \emph{not}
+resolve to \lstinline!f<int>!.
+
+\subsubsection[Accidentally making matters worse]{Accidentally making matters worse}\label{accidentally-making-matters-worse}
+
+When making the decision to preinstantiate common specializations of
+popular templates within some designated \lstinline!.o! file, one must
+consider that not all programs necessarily need every (or even any) such
+instantiation. Special consideration should be given to classes that
+have many methods but typically use only a few.
+
+The language feature is sufficiently flexible that one can suppress and
+preinstantiate just one or a handful of member functions of such a type. Intuition is all well and good, but measurement simply has no
+substitute.
+
+If one suspects that \romeogloss{explicit-instantiation directives}
+might profitably reduce the size of libraries resulting from object code
+that is bloated due to redundant local reinstantiations of popular
+templates on common types, measuring before and after and retaining the
+change \emph{only} if it offers a significant --- at least measurable
+--- improvement avoids complicating the codebase without a verifiable
+return on the investment. Finally, remember that one might need to
+explicitly tell the linker to strip unused \romeogloss{sections} resulting,
+for example, from forced instantiation of common template
+specializations, to avoid inadvertently bloating executables, which
+could adversely affect load times.
+
+\subsection[Annoyances]{Annoyances}\label{annoyances-externtemplate}
+
+\subsubsection[No good place to put definitions for unrelated classes]{No good place to put definitions for unrelated classes}\label{no-good-place-to-put-definitions-for-unrelated-classes}
+
+When we consider the implications of physical
+dependency,\footnote{See \cite{lakos96}}\footnote{See \cite{lakos20}} determining in which component to deposit the
+specialized definitions can be problematic. For example, consider a
+codebase implementing a core library that provides both a nontemplated
+\lstinline!String! class and a \lstinline!Vector! container class template.
+These fundamentally unrelated entities would ideally live in separate
+physical \romeogloss{components} --- i.e., \lstinline!.h!/\lstinline!.cpp! pairs
+--- neither of which depends physically on the other. That is, an
+application using just one of these components could ideally be
+compiled, linked, tested, and deployed entirely independently of the
+other. Now, consider a large codebase that makes heavy use of
+\lstinline!Vector<String>!: In what component should the object-code-level
+definitions for the \lstinline!Vector<String>! specialization
+reside?{\cprotect\footnote{Note that the problem of determining in which
+component to instantiate the object-level implementation of a template
+for a user-defined type is similar to that of specializing an
+  arbitrary user-defined trait for a user-defined type.}} There are two
+obvious alternatives:
+\begin{enumerate}
+\item{\lstinline!vector!: In this case, \lstinline!vector.h! would hold  \lstinline!extern!~\lstinline!template!~\lstinline!class!~\lstinline!Vector<String>;! --- the \romeogloss{explicit-instantiation \emph{declaration}} --- and \lstinline!vector.cpp! would hold\linebreak[4]%%%%%
+\lstinline!template!~\lstinline!class!~\lstinline!Vector<String>;! --- the \romeogloss{explicit-instantiation \emph{definition}}. With this approach, we would create a physical dependency of the \lstinline!vector! component on \lstinline!string!. Any client program wanting to use a \lstinline!Vector! would also depend on \lstinline!string! regardless of whether it was needed.}
+\item{\lstinline!string!: In this case, \lstinline!string.h! and \lstinline!string.cpp! would instead be modified so as to depend on \lstinline!vector!. Clients wanting to use a \lstinline!string! would also be forced to depend physically on \lstinline!vector! \emph{at} \emph{compile} \emph{time}.}
+\end{enumerate}
+Another possibility might be to create a third component, call it
+\lstinline!stringvector!, that itself depends on both \lstinline!vector!
+and \lstinline!string!. By
+\romeogloss{escalating}\footnote{\cite{lakos20}, section~3.5.2, ``Escalation," pp.~604--614} the mutual dependency
+to a higher level in the physical hierarchy, we avoid forcing any client
+to depend on more than what is actually needed. The practical drawback
+to this approach is that only those clients that proactively include the
+composite \lstinline!stringvector.h! header would realize any benefit;
+fortunately, in this case, there is no \romeogloss{one-definition rule (ODR)} issue if they don't.
+
+Finally, complex machinery could be added to both \lstinline!string.h! and
+\lstinline!vector.h! to conditionally include \lstinline!stringvector.h!
+whenever both of the other headers are included; such heroic efforts
+would, nonetheless, involve a \romeogloss{cyclic physical dependency} among
+all three of these components. Circular intercomponent collaborations
+are best avoided.\footnote{\cite{lakos20}, section~3.4, ``Avoiding Cyclic Link-Time Dependencies," pp.~592--601}
+
+\subsubsection[All members of an explicitly defined template class must be valid]{All members of an explicitly defined template class must be valid}\label{all-members-of-an-explicitly-defined-template-class-must-be-valid}
+
+In general, when using a template class, only those members that are
+actually used get implicitly instantiated. This hallmark allows class
+templates to provide functionality for parameter types having certain
+capabilities (e.g., default constructible) while also providing partial
+support for types lacking those same capabilities. When providing an
+\romeogloss{explicit-instantiation definition}, however, \emph{all}
+members of a template class are instantiated.
+
+Consider a simple class template having a data member that can be either
+default-initialized (via the template's default constructor) or
+initialized with an instance of the member's type (supplied at
+construction):
+
+\begin{emcppslisting}[emcppsbatch=e8]
+template <typename T>
+class W
+{
+    T d_t;  // a data member of type (ù{\codeincomments{T}}ù)
+
+public:
+    W() : d_t() {}
+        // Create an instance of (ù{\codeincomments{W}}ù) with a default-constructed (ù{\codeincomments{T}}ù) member.
+
+    W(const T& t) : d_t(t) {}
+        // Create an instance of (ù{\codeincomments{W}}ù) with a copy of the specified (ù{\codeincomments{t}}ù).
+
+    void doStuff() { /* do stuff */ }
+};
+\end{emcppslisting}
+
+\noindent This class template can be used successfully with a type, such as
+\lstinline!U! in the code snippet below, that is not default constructible:
+
+\begin{emcppslisting}[emcppsbatch=e8]
+struct U
+{
+    U(int i) { /* do something with (ù{\codeincomments{i}}ù) */ }
+    // ...
+};
+
+void useWU()
+{
+    W<U> wu1(U(17));  // OK, using copy constructor for (ù{\codeincomments{U}}ù)
+    wu1.doStuff();
+}
+\end{emcppslisting}
+
+\noindent As it stands, the code above is well formed even though
+\lstinline!W<U>::W()! would fail to compile if instantiated. Consequently,
+although providing an \romeogloss{explicit-instantiation declaration}
+for \lstinline!W<U>! is valid, a corresponding
+\romeogloss{explicit-instantiation definition} for \lstinline!W<U>!
+fails to compile, as would an implicit instantiation of
+\lstinline!W<U>::W()!:
+
+\begin{emcppslisting}[emcppsbatch=e8]
+extern template class W<U>;  // Valid: Suppress implicit instantiation of (ù{\codeincomments{W<U>}}ù).
+
+template class W<U>;         // Error, (ù{\codeincomments{U::U()}}ù) not available for (ù{\codeincomments{W<U>::W()}}ù)
+
+void useWU0()
+{
+    W<U> wu0{};       // Error, (ù{\codeincomments{U::U()}}ù) not available for (ù{\codeincomments{W<U>::W()}}ù)
+}
+\end{emcppslisting}
+
+\noindent Unfortunately, the only workaround to achieve a comparable reduction in
+code bloat is to provide member-specific \romeogloss{explicit-instantiation
+directives} for each valid member of \lstinline!W<U>!, an approach
+that would likely carry a significantly greater maintenance burden:
+
+\begin{emcppslisting}[emcppsbatch=e8]
+extern template W<U>::W(const U& u);   // suppress individual member
+extern template void W<U>::doStuff();  //    "         "        "
+// ... Repeat for all other functions in (ù{\codeincomments{W}}ù) except (ù{\codeincomments{W<U>::W()}}ù).
+
+template W<U>::W(const U& u);          // instantiate individual member
+template void W<U>::doStuff();         //       "         "        "
+// ... Repeat for all other functions in (ù{\codeincomments{W}}ù) except (ù{\codeincomments{W<U>::W()}}ù).
+\end{emcppslisting}
+
+\noindent The power and flexibility to make it all work --- albeit annoyingly ---
+are there nonetheless.
+
+\subsection[See Also]{See Also}\label{see-also}
+
+\begin{itemize}
+\item{\seealsoref{variable-templates}{\locationb}Extension of the template syntax for defining a family of like-named variables or static data members that can be instantiated explicitly}
+\end{itemize}
+
+\subsection[Further Reading]{Further Reading}\label{further-reading}
+
+\begin{itemize}
+\item{For a different perspective on this feature, see \cite{lakos20},
+section 1.3.16, ``\texttt{extern} Templates,'' pp.~183--185.}
+\item{For a more complete discussion of how compilers and linkers work with
+respect to C++, see \cite{lakos20}, Chapter 1, ``Compilers, Linkers, and
+Components,'' pp.~123--268.}
+\end{itemize}

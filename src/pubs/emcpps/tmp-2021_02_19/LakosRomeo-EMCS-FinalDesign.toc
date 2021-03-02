@@ -1,0 +1,534 @@
+\contentsline {chapter}{{Preface}}{xi}{}%
+\contentsline {chapter}{{Acknowledgments}}{xv}{}%
+\contentsline {chapter}{{About the Authors}}{xvii}{}%
+\contentsline {chapter}{\numberline {Chapter\nobreakspace {}0}{Introduction}}{1}{}%
+\contentsline {section}{What Makes This Book Different}{1}{}%
+\contentsline {section}{Scope for the First Edition}{2}{}%
+\contentsline {section}{The {\itshape EMC++S} White Paper}{3}{}%
+\contentsline {subsection}{Facts (Not Opinions)}{3}{}%
+\contentsline {subsection}{Elucidation (Not Prescription)}{3}{}%
+\contentsline {subsection}{Brevity (Not Verbosity)}{4}{}%
+\contentsline {subsection}{Real-World (Not Contrived) Examples}{4}{}%
+\contentsline {subsection}{At Scale (Not Overly Simplistic) Programs}{4}{}%
+\contentsline {section}{What Do We Mean by {\sffamily \itshape Safely}?}{5}{}%
+\contentsline {section}{A {\sffamily \itshape Safe} Feature}{5}{}%
+\contentsline {section}{A {\sffamily \itshape Conditionally Safe} Feature}{6}{}%
+\contentsline {section}{An {\sffamily \itshape Unsafe} Feature}{6}{}%
+\contentsline {section}{Modern C++ Feature Catalog}{6}{}%
+\contentsline {subsection}{Organization}{7}{}%
+\contentsline {section}{How To Use This Book}{7}{}%
+\contentsline {chapter}{\numberline {Chapter\nobreakspace {}1}{Safe Features}}{9}{}%
+\renewcommand *\cftsecindent {1.25em}
+\contentsline {section}{\numberline {1.1}C++11}{9}
+\renewcommand *\cftsecindent {4.5em}
+\contentsline {section}{\emcppsShowTitleAlt { short={Attribute Syntax}, long={Generalized Attribute Support}, }}{10}{}%
+\contentsline {subsection}{Description}{10}{}%
+\contentsline {subsubsection}{C++ attribute syntax}{10}{}%
+\contentsline {subsubsection}{C++ attribute placement}{11}{}%
+\contentsline {subsubsection}{Common compiler-dependent attributes}{11}{}%
+\contentsline {subsection}{Use Cases}{12}{}%
+\contentsline {subsubsection}{Prompting useful compiler diagnostics}{12}{}%
+\contentsline {subsubsection}{Hinting at additional optimization opportunities}{13}{}%
+\contentsline {subsubsection}{Stating explicit assumptions in code to achieve better optimizations}{14}{}%
+\contentsline {subsubsection}{Using attributes to control external static analysis}{15}{}%
+\contentsline {subsubsection}{Creating new attributes to express semantic properties}{16}{}%
+\contentsline {subsection}{Potential Pitfalls}{16}{}%
+\contentsline {subsubsection}{Unrecognized attributes have implementation-defined behavior}{16}{}%
+\contentsline {subsubsection}{Some attributes, if misused, can affect program correctness}{17}{}%
+\contentsline {subsection}{Annoyances}{17}{}%
+\contentsline {subsection}{See Also}{17}{}%
+\contentsline {subsection}{Further Reading}{18}{}%
+\contentsline {section}{\emcppsShowTitleAlt { toclong={Consecutive Right-Angle Brackets}, tocshort={Consecutive {\TOCCode >}s}, short={Consecutive \lstinline !>!s}, long={Consecutive Right-Angle Brackets}, rhshort={Consecutive {\RHCode >}s}, }}{19}{}%
+\contentsline {subsection}{Description}{19}{}%
+\contentsline {subsubsection}{Using the greater-than or right-shift operators within template-argument expressions}{19}{}%
+\contentsline {subsection}{Use Cases}{20}{}%
+\contentsline {subsubsection}{Avoiding annoying whitespace when composing template types}{20}{}%
+\contentsline {subsection}{Potential Pitfalls}{20}{}%
+\contentsline {subsubsection}{Some C++03 programs may stop compiling in C++11}{20}{}%
+\contentsline {subsubsection}{The meaning of a C++03 program can, in theory, silently change in C++11}{20}{}%
+\contentsline {subsection}{Annoyances}{22}{}%
+\contentsline {subsection}{See Also}{22}{}%
+\contentsline {subsection}{Further Reading}{22}{}%
+\contentsline {section}{\emcppsShowTitleAlt { toclong={Operator for Extracting Expression Types}, tocshort={\TOCCode decltype}, short={\lstinline !decltype!}, long={Operator for Extracting Expression Types}, rhshort={\RHCode decltype}, }}{23}{}%
+\contentsline {subsection}{Description}{23}{}%
+\contentsline {subsubsection}{Use with entities}{23}{}%
+\contentsline {subsubsection}{Use with expressions}{23}{}%
+\contentsline {subsection}{Use Cases}{24}{}%
+\contentsline {subsubsection}{Avoiding unnecessary use of explicit typenames}{24}{}%
+\contentsline {subsubsection}{Expressing type-consistency explicitly}{25}{}%
+\contentsline {subsubsection}{Creating an auxiliary variable of generic type}{26}{}%
+\contentsline {subsubsection}{Determining the validity of a generic expression}{26}{}%
+\contentsline {subsection}{Potential Pitfalls}{28}{}%
+\contentsline {subsection}{Annoyances}{29}{}%
+\contentsline {subsubsection}{Mechanical repetition of expressions might be required}{29}{}%
+\contentsline {subsection}{See Also}{29}{}%
+\contentsline {subsection}{Further Reading}{30}{}%
+\contentsline {section}{\emcppsShowTitleAlt { short={Defaulted Functions}, long={Using {\SecCode =}\,{\SecCode default} for Special Member Functions}, toclong={Using \lstinline !=!\,\lstinline !default! for Special Member Functions}, }}{31}{}%
+\contentsline {subsection}{Description}{31}{}%
+\contentsline {subsubsection}{Declaring a special member function explicitly}{31}{}%
+\contentsline {paragraph}{Example 1: Providing just the default constructor}{31}{}%
+\contentsline {paragraph}{Example 2: Providing just a copy constructor}{32}{}%
+\contentsline {paragraph}{Example 3: Providing just the destructor}{32}{}%
+\contentsline {paragraph}{Example 4: Providing more than one special member function}{32}{}%
+\contentsline {subsubsection}{Defaulting the first declaration of a special member function explicitly}{32}{}%
+\contentsline {subsubsection}{Defaulting the implementation of a user-provided special member function}{33}{}%
+\contentsline {subsection}{Use Cases}{34}{}%
+\contentsline {subsubsection}{Restoring the generation of a special member function suppressed by another}{34}{}%
+\contentsline {subsubsection}{Making class APIs explicit at no runtime cost}{36}{}%
+\contentsline {subsubsection}{Preserving type triviality}{37}{}%
+\contentsline {subsubsection}{Physically decoupling the interface from the implementation}{38}{}%
+\contentsline {subsection}{Potential Pitfalls}{39}{}%
+\contentsline {subsubsection}{Defaulted special member functions cannot restore trivial copyability}{39}{}%
+\contentsline {subsection}{Annoyances}{40}{}%
+\contentsline {subsubsection}{Generation of defaulted functions is not guaranteed}{40}{}%
+\contentsline {subsection}{See Also}{41}{}%
+\contentsline {subsection}{Further Reading}{42}{}%
+\contentsline {subsection}{Appendix: Implicit Generation of Special Member Functions}{42}{}%
+\contentsline {section}{\emcppsShowTitleAlt { short={Delegating Ctors}, long={Constructors Calling Other Constructors}, }}{44}{}%
+\contentsline {subsection}{Description}{44}{}%
+\contentsline {subsection}{Use Cases}{46}{}%
+\contentsline {subsubsection}{Avoiding code duplication among constructors}{46}{}%
+\contentsline {subsection}{Potential Pitfalls}{48}{}%
+\contentsline {subsubsection}{Delegation cycles}{48}{}%
+\contentsline {subsubsection}{Suboptimal factoring}{49}{}%
+\contentsline {subsection}{Annoyances}{50}{}%
+\contentsline {subsection}{See Also}{50}{}%
+\contentsline {subsection}{Further Reading}{50}{}%
+\contentsline {section}{\emcppsShowTitleAlt { toclong={Using \lstinline !=!\,\lstinline !delete! for Arbitrary Functions}, short={Deleted Functions}, long={Using {\SecCode =}\,{\SecCode delete} for Arbitrary Functions}, }}{51}{}%
+\contentsline {subsection}{Description}{51}{}%
+\contentsline {subsection}{Use Cases}{51}{}%
+\contentsline {subsubsection}{Suppressing special member function generation}{51}{}%
+\contentsline {subsubsection}{Preventing a particular implicit conversion}{53}{}%
+\contentsline {subsubsection}{Preventing all implicit conversions}{53}{}%
+\contentsline {subsubsection}{Hiding a structural (nonpolymorphic) base class's member function}{54}{}%
+\contentsline {subsection}{Potential Pitfalls}{55}{}%
+\contentsline {subsection}{Annoyances}{56}{}%
+\contentsline {subsubsection}{Deleting a function declares it}{56}{}%
+\contentsline {subsection}{See Also}{58}{}%
+\contentsline {subsection}{Further Reading}{58}{}%
+\contentsline {section}{\emcppsShowTitleAlt { short={\lstinline !explicit! Operators}, tocshort={{\TOCCode explicit} Operators}, long={Explicit Conversion Operators}, toclong={Explicit Conversion Operators}, rhshort={{\RHCode explicit} Operators}, }}{59}{}%
+\contentsline {subsection}{Description}{59}{}%
+\contentsline {subsection}{Use Cases}{61}{}%
+\contentsline {subsubsection}{Enabling contextual conversions to {\tt bool} as a test for validity}{61}{}%
+\contentsline {subsection}{Potential Pitfalls}{63}{}%
+\contentsline {subsubsection}{Sometimes implicit conversion \emph {is} indicated}{63}{}%
+\contentsline {subsection}{Sometimes a named function is better}{64}{}%
+\contentsline {subsection}{Annoyances}{65}{}%
+\contentsline {subsection}{See Also}{65}{}%
+\contentsline {subsection}{Further Reading}{65}{}%
+\contentsline {section}{\emcppsShowTitleAlt { short={Function \lstinline !static! '11}, tocshort={Function {\TOCCode static} '11}, long={Threadsafe Function-Scope {\SecCode static} Variables}, toclong={Threadsafe Function-Scope \lstinline !static! Variables}, rhshort={Function {\RHCode static} '11}, }}{66}{}%
+\contentsline {subsection}{Description}{66}{}%
+\contentsline {subsubsection}{Logger example}{68}{}%
+\contentsline {subsubsection}{Multithreaded contexts}{69}{}%
+\contentsline {subsection}{Use Cases}{71}{}%
+\contentsline {subsubsection}{Meyers Singleton}{71}{}%
+\contentsline {subsubsection}{Thread-safe initialization of global objects}{76}{}%
+\contentsline {subsection}{Potential Pitfalls}{77}{}%
+\contentsline {subsubsection}{Relying on initialization order of \tt {static} objects}{77}{}%
+\contentsline {subsubsection}{Depending on order-of-destruction of local objects after {\tt main} returns}{79}{}%
+\contentsline {subsection}{Annoyances}{81}{}%
+\contentsline {subsubsection}{Overhead in single-threaded applications}{81}{}%
+\contentsline {subsection}{See Also}{81}{}%
+\contentsline {subsection}{Further Reading}{82}{}%
+\contentsline {subsection}{Appendix: C++03 Double-Checked Lock Pattern}{82}{}%
+\contentsline {section}{\emcppsShowTitleAlt { short={Local Types '11}, long={Local/Unnamed Types as Template Arguments}, }}{84}{}%
+\contentsline {subsection}{Description}{84}{}%
+\contentsline {subsection}{Use Cases}{85}{}%
+\contentsline {subsubsection}{Encapsulating a type within a function}{85}{}%
+\contentsline {subsubsection}{Instantiating templates with local function objects as type arguments}{86}{}%
+\contentsline {subsubsection}{Configuring algorithms via lambda expressions}{87}{}%
+\contentsline {subsection}{Potential Pitfalls}{88}{}%
+\contentsline {subsection}{Annoyances}{88}{}%
+\contentsline {subsection}{See Also}{88}{}%
+\contentsline {subsection}{Further Reading}{89}{}%
+\contentsline {section}{\emcppsShowTitleAlt { short={\lstinline !long!\nobreakspace {}\lstinline !long!}, tocshort={{\TOCCode long}\nobreakspace {}{\TOCCode long}}, long={The {\SecCode long}\nobreakspace {}{\SecCode long} ({\large $\boldsymbol {\geq }$}64 bits) Integral Type}, toclong={The \lstinline !long!\nobreakspace {}\lstinline !long! ({\small $\boldsymbol {\geq }$}64 bits) Integral Type}, rhshort={{\RHCode long}\nobreakspace {}{\RHCode long}}, }}{90}{}%
+\contentsline {subsection}{Description}{90}{}%
+\contentsline {subsection}{Use Cases}{90}{}%
+\contentsline {subsubsection}{Storing values that won't safely fit in 32 bits}{90}{}%
+\contentsline {subsection}{Potential Pitfalls}{92}{}%
+\contentsline {subsubsection}{Relying on the relative sizes of \lstinline !int!, \lstinline !long!, and \lstinline !long!\nobreakspace {}\lstinline !long!}{92}{}%
+\contentsline {subsection}{See Also}{93}{}%
+\contentsline {subsection}{Further Reading}{93}{}%
+\contentsline {subsection}{Appendix: Historical Perspective on the Evolution of Use of Fundamental Integral Types}{94}{}%
+\contentsline {section}{\emcppsShowTitleAlt { toclong={The \lstinline ![[noreturn]]! Attribute}, tocshort={\TOCCode noreturn}, short={\lstinline !noreturn!}, long={The {\SecCode [[noreturn]]} Attribute}, rhshort={{\RHCode noreturn}}, }}{96}{}%
+\contentsline {subsection}{Description}{96}{}%
+\contentsline {subsection}{Use Cases}{96}{}%
+\contentsline {subsubsection}{Better compiler diagnostics}{96}{}%
+\contentsline {subsubsection}{Improved runtime performance}{97}{}%
+\contentsline {subsection}{Potential Pitfalls}{98}{}%
+\contentsline {subsubsection}{\tt {[[noreturn]]} can inadvertently break an otherwise working program}{98}{}%
+\contentsline {subsubsection}{Misuse of {\tt [[noreturn]]} on function pointers}{98}{}%
+\contentsline {subsection}{Annoyances}{99}{}%
+\contentsline {subsection}{See Also}{99}{}%
+\contentsline {subsection}{Further Reading}{99}{}%
+\contentsline {section}{\emcppsShowTitleAlt { short={{\lstinline !nullptr!}}, tocshort={{\TOCCode nullptr}}, long={The Null-Pointer-Literal Keyword}, rhshort={\RHCode nullptr}, }}{100}{}%
+\contentsline {subsection}{Description}{100}{}%
+\contentsline {subsection}{Use Cases}{101}{}%
+\contentsline {subsubsection}{Improvement of type safety}{101}{}%
+\contentsline {subsubsection}{Disambiguation of \lstinline !(int)0! vs. \lstinline !(T*)0! during overload resolution}{102}{}%
+\contentsline {subsubsection}{Overloading for a literal null pointer}{103}{}%
+\contentsline {subsection}{Potential Pitfalls}{103}{}%
+\contentsline {subsection}{Annoyances}{104}{}%
+\contentsline {subsection}{See Also}{104}{}%
+\contentsline {subsection}{Further Reading}{104}{}%
+\contentsline {section}{\emcppsShowTitleAlt { short={\lstinline !override!}, tocshort={\TOCCode override}, long={The {\tt override} Member-Function Specifier}, rhshort={\RHCode override}, }}{105}{}%
+\contentsline {subsection}{Description}{105}{}%
+\contentsline {subsection}{Use Cases}{106}{}%
+\contentsline {subsubsection}{Ensuring that a member function of a base class is being overridden}{106}{}%
+\contentsline {subsection}{Potential Pitfalls}{107}{}%
+\contentsline {subsubsection}{Lack of consistency across a codebase}{107}{}%
+\contentsline {subsection}{Annoyances}{107}{}%
+\contentsline {subsection}{See Also}{107}{}%
+\contentsline {subsection}{Further Reading}{107}{}%
+\newpage 
+\contentsline {section}{\emcppsShowTitleAlt { short={Raw String Literals}, long={Syntax for Unprocessed String Contents}, }}{108}{}%
+\contentsline {subsection}{Description}{108}{}%
+\contentsline {subsubsection}{Collisions}{109}{}%
+\contentsline {subsection}{Use Cases}{111}{}%
+\contentsline {subsubsection}{Embedding code in a C++ program}{111}{}%
+\contentsline {subsection}{Potential Pitfalls}{112}{}%
+\contentsline {subsubsection}{Unexpected indentation}{112}{}%
+\contentsline {subsubsection}{Encoding of new lines and whitespace}{113}{}%
+\contentsline {subsection}{Annoyances}{114}{}%
+\contentsline {subsection}{See Also}{114}{}%
+\contentsline {subsection}{Further Reading}{114}{}%
+\contentsline {section}{\emcppsShowTitleAlt { short={\lstinline !static_assert!}, tocshort={\TOCCode static\_assert}, long={Compile-Time Assertions}, rhshort={\RHCode static\_assert}, }}{115}{}%
+\contentsline {subsection}{Description}{115}{}%
+\contentsline {subsubsection}{Syntax and semantics}{115}{}%
+\contentsline {subsubsection}{Evaluation of static assertions in templates}{116}{}%
+\contentsline {subsection}{Use Cases}{118}{}%
+\contentsline {subsubsection}{Verifying assumptions about the target platform}{118}{}%
+\contentsline {subsubsection}{Preventing misuse of class and function templates}{118}{}%
+\contentsline {subsection}{Potential Pitfalls}{120}{}%
+\contentsline {subsubsection}{Static assertions in templates can trigger unintended compilation failures}{120}{}%
+\contentsline {subsubsection}{Misuse of static assertions to restrict overload sets}{121}{}%
+\contentsline {subsection}{Annoyances}{123}{}%
+\contentsline {subsubsection}{Mandatory string literal}{123}{}%
+\contentsline {subsection}{See Also}{123}{}%
+\contentsline {subsection}{Further Reading}{123}{}%
+\contentsline {section}{\emcppsShowTitleAlt { short={Trailing Return}, long={Trailing Function Return Types}, }}{124}{}%
+\contentsline {subsection}{Description}{124}{}%
+\contentsline {subsection}{Use Cases}{126}{}%
+\contentsline {subsubsection}{Function template whose return type depends on a parameter type}{126}{}%
+\contentsline {subsubsection}{Avoiding having to qualify names redundantly in return types}{127}{}%
+\contentsline {subsubsection}{Improving readability of declarations involving function pointers}{127}{}%
+\contentsline {subsection}{Potential Pitfalls}{128}{}%
+\contentsline {subsection}{Annoyances}{128}{}%
+\contentsline {subsection}{See Also}{128}{}%
+\contentsline {subsection}{Further Reading}{128}{}%
+\contentsline {section}{\emcppsShowTitleAlt { short={Unicode Literals}, long={Unicode String Literals}, }}{129}{}%
+\contentsline {subsection}{Description}{129}{}%
+\contentsline {subsection}{Use Cases}{130}{}%
+\contentsline {subsubsection}{Guaranteed-portable encodings of literals}{130}{}%
+\contentsline {subsection}{Potential Pitfalls}{130}{}%
+\contentsline {subsubsection}{Embedding Unicode graphemes}{130}{}%
+\contentsline {subsubsection}{Lack of library support for Unicode}{131}{}%
+\contentsline {subsubsection}{Problematic treatment of UTF-8 in the type system}{131}{}%
+\contentsline {subsection}{Annoyances}{132}{}%
+\contentsline {subsection}{See Also}{132}{}%
+\contentsline {subsection}{Further Reading}{132}{}%
+\contentsline {section}{\emcppsShowTitleAlt { short={\lstinline !using! Aliases}, tocshort={{\TOCCode using} Aliases}, long={Type/Template Aliases (Extended {\SecCode typedef})}, toclong={Type/Template Aliases (Extended \lstinline !typedef!)}, rhshort={{\RHCode using} Aliases}, }}{133}{}%
+\contentsline {subsection}{Description}{133}{}%
+\contentsline {subsection}{Use Cases}{134}{}%
+\contentsline {subsubsection}{Simplifying convoluted \lstinline !typedef! declarations}{134}{}%
+\contentsline {subsubsection}{Binding arguments to template parameters}{135}{}%
+\contentsline {subsubsection}{Providing a shorthand notation for type traits}{136}{}%
+\contentsline {subsection}{Potential Pitfalls}{137}{}%
+\contentsline {subsection}{Annoyances}{137}{}%
+\contentsline {subsection}{See Also}{137}{}%
+\contentsline {subsection}{Further Reading}{137}{}%
+\renewcommand *\cftsecindent {1.25em}
+\contentsline {section}{\numberline {1.2}C++14}{137}
+\renewcommand *\cftsecindent {4.5em}
+\contentsline {section}{\emcppsShowTitleAlt { short={Aggregate Init '14}, long={Aggregates Having Default Member Initializers}, }}{138}{}%
+\contentsline {subsection}{Description}{138}{}%
+\contentsline {subsection}{Use Cases}{139}{}%
+\contentsline {subsubsection}{Configuration \lstinline !struct!s}{139}{}%
+\contentsline {subsection}{Potential Pitfalls}{140}{}%
+\contentsline {subsection}{Annoyances}{140}{}%
+\contentsline {subsubsection}{Syntactical ambiguity in the presence of brace elision}{140}{}%
+\contentsline {subsection}{See Also}{141}{}%
+\contentsline {subsection}{Further Reading}{141}{}%
+\contentsline {section}{\emcppsShowTitleAlt { toclong={Binary Literals: The \lstinline !0b! Prefix}, short={Binary Literals}, long={Binary Literals: The {\SecCode 0b} Prefix}, }}{142}{}%
+\contentsline {subsection}{Description}{142}{}%
+\contentsline {subsection}{Use Cases}{144}{}%
+\contentsline {subsubsection}{Bit masking and bitwise operations}{144}{}%
+\contentsline {subsubsection}{Replicating constant binary data}{145}{}%
+\contentsline {subsection}{Potential Pitfalls}{146}{}%
+\contentsline {subsection}{Annoyances}{146}{}%
+\contentsline {subsection}{See Also}{146}{}%
+\contentsline {subsection}{Further Reading}{146}{}%
+\contentsline {section}{\emcppsShowTitleAlt { short={\lstinline !deprecated!}, tocshort={\TOCCode deprecated}, long={The {\SecCode [[deprecated]]} Attribute}, toclong={The \lstinline ![[deprecated]]! Attribute}, rhshort={\RHCode deprecated}, }}{147}{}%
+\contentsline {subsection}{Description}{147}{}%
+\contentsline {subsection}{Use Cases}{148}{}%
+\contentsline {subsubsection}{Discouraging use of an obsolete or unsafe {\romeoglossnonfirst \textbf {entity}}}{148}{}%
+\contentsline {subsection}{Potential Pitfalls}{150}{}%
+\contentsline {subsubsection}{Interaction with treating warnings as errors}{150}{}%
+\contentsline {subsection}{Annoyances}{150}{}%
+\contentsline {subsection}{See Also}{150}{}%
+\contentsline {subsection}{Further Reading}{150}{}%
+\contentsline {section}{\emcppsShowTitleAlt { toclong={The Digit Separator: \lstinline !'!}, tocshort={Digit Separators}, short={Digit Separators}, long={The Digit Separator: {\SecCode '}}, }}{151}{}%
+\contentsline {subsection}{Description}{151}{}%
+\contentsline {subsection}{Use Cases}{152}{}%
+\contentsline {subsubsection}{Grouping digits together in large constants}{152}{}%
+\contentsline {subsection}{Potential Pitfalls}{153}{}%
+\contentsline {subsection}{See Also}{153}{}%
+\contentsline {subsection}{Further Reading}{153}{}%
+\contentsline {subsection}{Appendix: Silent Loss of Precision in Floating-Point Literals}{153}{}%
+\contentsline {section}{\emcppsShowTitleAlt { short={Variable Templates}, long={Templated Variable Declarations/Definitions}, }}{156}{}%
+\contentsline {subsection}{Description}{156}{}%
+\contentsline {subsection}{Use Cases}{159}{}%
+\contentsline {subsubsection}{Parameterized constants}{159}{}%
+\contentsline {subsubsection}{Reducing verbosity of type traits}{159}{}%
+\contentsline {subsection}{Potential Pitfalls}{161}{}%
+\contentsline {subsubsection}{Recursive variable template initializations require {\tt const} or {\tt constexpr}}{161}{}%
+\contentsline {subsection}{Annoyances}{163}{}%
+\contentsline {subsubsection}{Variable templates do not support template template parameters}{163}{}%
+\contentsline {subsection}{See Also}{164}{}%
+\contentsline {subsection}{Further Reading}{164}{}%
+\contentsline {chapter}{\numberline {Chapter\nobreakspace {}2}{Conditionally Safe Features}}{165}{}%
+\renewcommand *\cftsecindent {1.25em}
+\contentsline {section}{\numberline {2.1}C++11}{165}
+\renewcommand *\cftsecindent {4.5em}
+\contentsline {section}{\emcppsShowTitleAlt { short={\lstinline !alignas!}, tocshort={\TOCCode alignas}, long={The {\SecCode alignas} Decorator}, toclong={The \lstinline !alignas! Decorator}, rhshort={\RHCode alignas}, }}{166}{}%
+\contentsline {subsection}{Description}{166}{}%
+\contentsline {subsubsection}{Restricting the alignment of a particular object}{166}{}%
+\contentsline {subsubsection}{Restricting the alignment of a user-defined type}{167}{}%
+\contentsline {subsubsection}{Restricting the alignment of individual data members}{168}{}%
+\contentsline {subsubsection}{Matching the alignment of another type}{169}{}%
+\contentsline {subsection}{Use Cases}{169}{}%
+\contentsline {subsubsection}{Creating a sufficiently aligned object buffer}{169}{}%
+\contentsline {subsubsection}{Ensuring proper alignment for architecture-specific instructions}{170}{}%
+\contentsline {subsubsection}{Avoiding \textbf {false sharing} among distinct objects in a multi-threaded program}{171}{}%
+\contentsline {subsubsection}{Avoiding \textbf {false sharing} within a single thread-aware object}{172}{}%
+\contentsline {subsection}{Potential Pitfalls}{173}{}%
+\contentsline {subsubsection}{Underspecifying alignment is not universally reported}{173}{}%
+\contentsline {subsubsection}{Incompatibly specifying alignment is \textbf {IFNDR}}{174}{}%
+\contentsline {subsubsection}{Stricter alignment might reduce cache utilization}{174}{}%
+\contentsline {subsection}{See Also}{175}{}%
+\contentsline {subsection}{Further Reading}{175}{}%
+\contentsline {subsection}{Appendix}{175}{}%
+\contentsline {subsubsection}{Natural Alignment}{175}{}%
+\contentsline {subsubsection}{Cache lines; L1, L2, and L3 cache; pages; and virtual memory}{177}{}%
+\contentsline {section}{\emcppsShowTitleAlt { short={\lstinline !alignof!}, tocshort={\TOCCode alignof}, long={The (Compile-Time) {\SecCode alignof} Operator}, toclong={The (Compile-Time) \lstinline !alignof! Operator}, rhshort={\RHCode alignof}, }}{180}{}%
+\contentsline {subsection}{Description}{180}{}%
+\contentsline {subsubsection}{\tt {alignof} Fundamental Types}{180}{}%
+\contentsline {subsubsection}{\tt {alignof} User-Defined Types}{181}{}%
+\contentsline {subsection}{Use Cases}{182}{}%
+\contentsline {subsubsection}{Probing the alignment of a type during development}{182}{}%
+\contentsline {subsubsection}{Determining if a given buffer is sufficiently aligned}{183}{}%
+\contentsline {subsubsection}{Monotonic memory allocation}{185}{}%
+\contentsline {subsection}{Annoyances}{188}{}%
+\contentsline {subsubsection}{\tt {alignof} (unlike \tt {sizeof}) is defined only on types}{188}{}%
+\contentsline {subsection}{See Also}{189}{}%
+\contentsline {subsection}{Further Reading}{189}{}%
+\contentsline {section}{\emcppsShowTitleAlt { short={\lstinline !auto! Variables}, tocshort={{\TOCCode auto} Variables}, long={Variables of Automatically Deduced Type}, rhshort={{\RHCode auto} Variables}, }}{190}{}%
+\contentsline {section}{\emcppsShowTitleAlt { short={Braced Init}, long={Brace-Initialization Syntax: {\SecCode \{\}}}, toclong={Brace-Initialization Syntax: \lstinline !\{\}!}, }}{191}{}%
+\contentsline {section}{\emcppsShowTitleAlt { short={\lstinline !constexpr! Functions}, tocshort={{\TOCCode constexpr} Functions}, long={Compile-Time Evaluatable Functions}, rhshort={{\RHCode constexpr} Functions}, }}{192}{}%
+\contentsline {section}{\emcppsShowTitleAlt { short={\lstinline !constexpr! Variables}, tocshort={{\TOCCode constexpr} Variables}, long={Compile-Time Accessible Variables}, rhshort={{\RHCode constexpr} Variables}, }}{193}{}%
+\contentsline {section}{\emcppsShowTitleAlt { short={Default Member Init}, long={Default {\SecCode class}/{\SecCode union} Member Initializers}, toclong={Default \lstinline !class!/\lstinline !union! Member Initializers}, }}{194}{}%
+\contentsline {section}{\emcppsShowTitleAlt { short={\lstinline !enum!\nobreakspace {}\lstinline !class!}, tocshort={{\TOCCode enum}\nobreakspace {}{\TOCCode class}}, long={Strongly Typed Scoped Enumerations}, rhshort={{\RHCode enum}\nobreakspace {}{\RHCode class}}, }}{195}{}%
+\contentsline {subsection}{Description}{195}{}%
+\contentsline {subsubsection}{Drawbacks and workarounds relating to unscoped C++03 enumerations}{195}{}%
+\contentsline {subsubsection}{Drawbacks relating to weakly typed, C++03 enumerators}{196}{}%
+\contentsline {subsubsection}{Introducing the C++11 \lstinline !enum! \lstinline !class!}{197}{}%
+\contentsline {subsubsection}{\lstinline !enum! \lstinline !class! and underlying type}{199}{}%
+\contentsline {subsection}{Use Cases}{200}{}%
+\contentsline {subsubsection}{Avoiding unintended implicit conversions to arithmetic types}{200}{}%
+\contentsline {subsubsection}{Avoiding namespace pollution}{201}{}%
+\contentsline {subsubsection}{Improving overloading disambiguation}{203}{}%
+\contentsline {subsubsection}{Encapsulating implementation details within the enumerators themselves}{206}{}%
+\contentsline {subsection}{Potential Pitfalls}{207}{}%
+\contentsline {subsubsection}{Strong typing of an \lstinline !enum! \lstinline !class! can be counterproductive}{207}{}%
+\contentsline {subsubsection}{Misuse of \lstinline !enum! \lstinline !class! for collections of named constants}{208}{}%
+\contentsline {subsubsection}{Misuse of \lstinline !enum! \lstinline !class! in association with bit flags}{210}{}%
+\contentsline {subsubsection}{Misuse of \lstinline !enum! \lstinline !class! in association with iteration}{211}{}%
+\contentsline {subsubsection}{External use of opaque enumerators}{213}{}%
+\contentsline {subsection}{Annoyances}{213}{}%
+\contentsline {subsubsection}{Scoped enumerations do not necessarily add value}{213}{}%
+\contentsline {subsection}{See Also}{214}{}%
+\contentsline {subsection}{Further Reading}{214}{}%
+\contentsline {section}{\emcppsShowTitleAlt { short={\lstinline !extern!\nobreakspace {}\lstinline !template!}, tocshort={{\TOCCode extern}\nobreakspace {}{\TOCCode template}}, long={Explicit Instantiation Declarations}, rhshort={{\RHCode extern}\nobreakspace {}{\RHCode template}}, }}{215}{}%
+\contentsline {subsection}{Description}{215}{}%
+\contentsline {subsubsection}{Explicit-instantiation definition}{215}{}%
+\contentsline {subsubsection}{Explicit-instantiation declaration}{216}{}%
+\contentsline {subsubsection}{A more complete illustrative example}{217}{}%
+\contentsline {subsubsection}{The effect on various \lstinline !.o! files}{221}{}%
+\contentsline {subsection}{Use Cases}{227}{}%
+\contentsline {subsubsection}{Reducing template code bloat in object files}{227}{}%
+\contentsline {subsubsection}{Insulating template definitions from clients}{231}{}%
+\contentsline {subsection}{Potential Pitfalls}{232}{}%
+\contentsline {subsubsection}{Corresponding explicit-instantiation declarations and definitions}{232}{}%
+\contentsline {subsubsection}{Accidentally making matters worse}{234}{}%
+\contentsline {subsection}{Annoyances}{235}{}%
+\contentsline {subsubsection}{No good place to put definitions for unrelated classes}{235}{}%
+\contentsline {subsubsection}{All members of an explicitly defined template class must be valid}{236}{}%
+\contentsline {subsection}{See Also}{237}{}%
+\contentsline {subsection}{Further Reading}{237}{}%
+\contentsline {section}{\emcppsShowTitleAlt { short={Forwarding References}, long={Forwarding {\SecCode \&\&} References}, toclong={Forwarding \lstinline !\&\&! References}, }}{238}{}%
+\contentsline {subsection}{Description}{238}{}%
+\contentsline {subsubsection}{A brief review of function template argument deduction}{240}{}%
+\contentsline {subsubsection}{Reference collapsing}{241}{}%
+\contentsline {subsubsection}{Identifying forwarding references}{243}{}%
+\contentsline {subsubsection}{\lstinline !auto&&! --- a forwarding reference in a non-parameter context}{243}{}%
+\contentsline {subsubsection}{Forwarding references without forwarding}{245}{}%
+\contentsline {subsubsection}{The \lstinline !std::forward! utility}{245}{}%
+\contentsline {subsection}{Use Cases}{246}{}%
+\contentsline {subsubsection}{Perfectly forwarding an expression to a downstream consumer}{246}{}%
+\contentsline {subsubsection}{Handling multiple parameters concisely}{247}{}%
+\contentsline {subsubsection}{Perfect forwarding for generic factory functions}{248}{}%
+\contentsline {subsubsection}{Wrapping initialization in a generic factory function}{249}{}%
+\contentsline {subsubsection}{Emplacement}{250}{}%
+\contentsline {subsubsection}{Decomposing complex expressions}{252}{}%
+\contentsline {subsection}{Potential Pitfalls}{254}{}%
+\contentsline {subsubsection}{Surprising number of template instantiations with string literals}{254}{}%
+\contentsline {subsubsection}{\lstinline !std::forward<T>! can enable move operations}{255}{}%
+\contentsline {subsubsection}{A perfect-forwarding constructor can hijack the copy constructor}{256}{}%
+\contentsline {subsection}{Annoyances}{258}{}%
+\contentsline {subsubsection}{Forwarding references look just like rvalue references}{258}{}%
+\contentsline {subsubsection}{Metafunctions are required in constraints}{258}{}%
+\contentsline {subsection}{See Also}{260}{}%
+\contentsline {subsection}{Further Reading}{260}{}%
+\contentsline {section}{\emcppsShowTitleAlt { short={\lstinline !friend! '11}, tocshort={{\TOCCode friend} '11}, long={Extended {\SecCode friend} Declarations}, toclong={Extended \lstinline !friend! Declarations}, rhshort={{\RHCode friend} '11}, }}{261}{}%
+\contentsline {subsection}{Description}{261}{}%
+\contentsline {subsection}{Use Cases}{263}{}%
+\contentsline {subsubsection}{Safely declaring a previously declared type to be a friend}{263}{}%
+\contentsline {subsubsection}{Befriending a type alias used as a customization point}{264}{}%
+\contentsline {subsubsection}{Using the \lstinline !PassKey! idiom to enforce initialization}{266}{}%
+\contentsline {subsubsection}{Granting a specific type access to a single \lstinline !private! function}{268}{}%
+\contentsline {subsubsection}{Curiously recurring template pattern}{270}{}%
+\contentsline {subsection}{Potential Pitfalls}{271}{}%
+\contentsline {subsubsection}{Long-distance friendship}{271}{}%
+\contentsline {subsection}{See Also}{271}{}%
+\contentsline {subsection}{Further Reading}{271}{}%
+\contentsline {subsection}{Appendix: Curiously Recurring Template Pattern Use Cases}{271}{}%
+\contentsline {subsubsection}{Refactoring using the curiously recurring template pattern}{271}{}%
+\contentsline {subsubsection}{Synthesizing equality using the curiously recurring template pattern}{274}{}%
+\contentsline {subsubsection}{Compile-time polymorphism using the curiously recurring template pattern}{276}{}%
+\contentsline {subsubsection}{Compile-time visitor using the curiously recurring template pattern}{279}{}%
+\contentsline {section}{\emcppsShowTitleAlt { short={Generalized PODs}, long={Generalized Plain Old Data Types}, }}{285}{}%
+\contentsline {section}{\emcppsShowTitleAlt { short={Inheriting Ctors}, long={Inheriting Base Class Constructors}, }}{286}{}%
+\contentsline {subsection}{Description}{286}{}%
+\contentsline {subsection}{Use Cases}{290}{}%
+\contentsline {subsubsection}{Avoiding boilerplate code when employing structural inheritance}{290}{}%
+\contentsline {subsubsection}{Avoiding boilerplate code when employing implementation inheritance}{291}{}%
+\contentsline {subsubsection}{Implementing a strong \lstinline !typedef!}{292}{}%
+\contentsline {subsubsection}{Incorporating reusable functionality via a mix-in}{295}{}%
+\contentsline {subsection}{Potential Pitfalls}{296}{}%
+\contentsline {subsubsection}{Newly introduced constructors in the base class can silently alter program behavior}{296}{}%
+\contentsline {subsubsection}{Inheriting \emph {implicit} constructors}{297}{}%
+\contentsline {subsection}{Annoyances}{299}{}%
+\contentsline {subsubsection}{Inherited constructors cannot be selected individually}{299}{}%
+\contentsline {subsubsection}{Access levels of inherited constructors are the same as in base class}{300}{}%
+\contentsline {subsubsection}{Flawed initial specification led to diverging early implementations}{302}{}%
+\contentsline {subsection}{See Also}{302}{}%
+\contentsline {subsection}{Further Reading}{303}{}%
+\contentsline {section}{\emcppsShowTitleAlt { short={\lstinline !initializer_list!}, tocshort={\TOCCode initializer\_list}, long={List Initialization: {\SecCode std::initializer\_list<T>}}, toclong={List Initialization: \lstinline !std::initializer_list<T>!}, rhshort={\RHCode initializer\_list}, }}{304}{}%
+\contentsline {section}{\emcppsShowTitleAlt { short={Lambdas}, long={Unnamed Local Function Objects (Closures)}, }}{305}{}%
+\contentsline {section}{\emcppsShowTitleAlt { short={\lstinline !noexcept! Operator}, tocshort={{\TOCCode noexcept} Operator}, long={The {\SecCode noexcept} Operator}, toclong={The \lstinline !noexcept! Operator}, rhshort={{\RHCode noexcept} Operator}, }}{306}{}%
+\contentsline {section}{\emcppsShowTitleAlt { short={Opaque \lstinline !enum!s}, tocshort={Opaque {\TOCCode enum}s}, long={Opaque Enumeration Declarations}, rhshort={Opaque {\RHCode enum}s}, }}{307}{}%
+\contentsline {subsection}{Description}{307}{}%
+\contentsline {subsection}{Use Cases}{309}{}%
+\contentsline {subsubsection}{Using opaque enumerations within a header file}{309}{}%
+\contentsline {subsubsection}{Cookie: Insulating all external clients from the enumerator list}{311}{}%
+\contentsline {subsubsection}{Dual-Access: Insulating some external clients from the enumerator list}{317}{}%
+\contentsline {subsection}{Potential Pitfalls}{321}{}%
+\contentsline {subsubsection}{Redeclaring an externally defined enumeration locally}{321}{}%
+\contentsline {subsubsection}{Inciting local enumeration declarations: an attractive nuisance}{322}{}%
+\contentsline {subsection}{Annoyances}{323}{}%
+\contentsline {subsubsection}{Opaque enumerations are not completely type safe}{323}{}%
+\contentsline {subsection}{See Also}{323}{}%
+\contentsline {subsection}{Further Reading}{324}{}%
+\contentsline {section}{\emcppsShowTitleAlt { short={Range \lstinline !for!}, tocshort={Range {\TOCCode for}}, long={Range-Based {\SecCode for} Loops}, toclong={Range-Based \lstinline !for! Loops}, rhshort={Range {\RHCode for}}, }}{325}{}%
+\contentsline {section}{\emcppsShowTitleAlt { short={{\itshape rvalue} References}, tocshort={{\sfitwelveRomeo rvalue} References}, long={Rvalue References: {\SecCode \&\&}}, toclong={Rvalue References: \lstinline !\&\&!}, rhshort={{\sfiRHRomeo rvalue} References}, }}{326}{}%
+\contentsline {section}{\emcppsShowTitleAlt { short={Underlying Type '11}, long={Explicit Enumeration Underlying Type}, }}{327}{}%
+\contentsline {subsection}{Description}{327}{}%
+\contentsline {subsubsection}{Specifying underlying type explicitly}{328}{}%
+\contentsline {subsection}{Use Cases}{328}{}%
+\contentsline {subsubsection}{Ensuring a compact representation where enumerator values are salient}{328}{}%
+\contentsline {subsection}{Potential Pitfalls}{330}{}%
+\contentsline {subsubsection}{External use of opaque enumerators}{330}{}%
+\contentsline {subsubsection}{Subtleties of integral promotion}{330}{}%
+\contentsline {subsection}{See Also}{332}{}%
+\contentsline {subsection}{Further Reading}{332}{}%
+\contentsline {section}{\emcppsShowTitleAlt { short={\lstinline !union!\nobreakspace {}'11}, tocshort={{\TOCCode union}\nobreakspace {}'11}, rhshort={{\RHCode union}\nobreakspace {}'11}, long={Unions Having Non-Trivial Members}, }}{333}{}%
+\contentsline {subsection}{Description}{333}{}%
+\contentsline {subsection}{Use Cases}{336}{}%
+\contentsline {subsubsection}{Implementing a {\romeoglossnonfirst \textbf {sum type}} as a discriminated {\tt union}}{336}{}%
+\contentsline {subsection}{Potential Pitfalls}{339}{}%
+\contentsline {subsubsection}{Inadvertent misuse can lead to latent {\romeoglossnonfirst \textbf {undefined behavior}} at runtime}{339}{}%
+\contentsline {subsection}{Annoyances}{339}{}%
+\contentsline {subsection}{See Also}{339}{}%
+\contentsline {subsection}{Further Reading}{339}{}%
+\contentsline {section}{\emcppsShowTitleAlt { short={User-Defined Literals}, long={User-Defined Literal Operators}, }}{340}{}%
+\contentsline {section}{\emcppsShowTitleAlt { short={Variadic Templates}, long={Variable-Argument-Count Templates}, }}{341}{}%
+\renewcommand *\cftsecindent {1.25em}
+\contentsline {section}{\numberline {2.2}C++14}{341}
+\renewcommand *\cftsecindent {4.5em}
+\contentsline {section}{\emcppsShowTitleAlt { short={\lstinline !constexpr! Functions '14}, tocshort={{\TOCCode constexpr} Functions '14}, long={Relaxed Restrictions on {\SecCode constexpr} Functions}, toclong={Relaxed Restrictions on \lstinline !constexpr! Functions}, rhshort={{\RHCode constexpr} Functions '14}, }}{342}{}%
+\contentsline {subsection}{Description}{342}{}%
+\contentsline {subsection}{Use Cases}{344}{}%
+\contentsline {subsubsection}{Nonrecursive {\tt constexpr} algorithms}{344}{}%
+\contentsline {subsubsection}{Optimized metaprogramming algorithms}{345}{}%
+\contentsline {subsection}{Potential Pitfalls}{349}{}%
+\contentsline {subsection}{Annoyances}{349}{}%
+\contentsline {subsection}{See Also}{349}{}%
+\contentsline {subsection}{Further Reading}{349}{}%
+\contentsline {subsection}{Appendix: Optimized C++11 Example Algorithms}{349}{}%
+\contentsline {subsubsection}{Recursive Fibonacci}{349}{}%
+\contentsline {subsubsection}{{\ttfamily constexpr} type list {\ttfamily Count} algorithm}{350}{}%
+\contentsline {section}{\emcppsShowTitleAlt { short={{\itshape Generic} Lambdas}, long={Lambdas Having a Templated Call Operator}, }}{352}{}%
+\contentsline {section}{\emcppsShowTitleAlt { short={Lambda Captures}, long={Lambda-Capture Expressions}, }}{353}{}%
+\contentsline {subsection}{Description}{353}{}%
+\contentsline {subsection}{Use Cases}{355}{}%
+\contentsline {subsubsection}{Moving (as opposed to copying) objects into a closure}{355}{}%
+\contentsline {subsubsection}{Providing mutable state for a closure}{356}{}%
+\contentsline {subsubsection}{Capturing a modifiable copy of an existing {\ttfamily const} variable}{356}{}%
+\contentsline {subsection}{Potential Pitfalls}{358}{}%
+\contentsline {subsubsection}{Forwarding an existing variable into a closure always results in an object (never a reference)}{358}{}%
+\contentsline {subsection}{Annoyances}{359}{}%
+\contentsline {subsubsection}{There’s no easy way to synthesize a {\ttfamily const} data member}{359}{}%
+\contentsline {subsubsection}{{\ttfamily std::function} supports only copyable callable objects}{360}{}%
+\contentsline {subsection}{See Also}{360}{}%
+\contentsline {subsection}{Further Reading}{361}{}%
+\newpage 
+\contentsline {chapter}{\numberline {Chapter\nobreakspace {}3}{Unsafe Features}}{363}{}%
+\renewcommand *\cftsecindent {1.25em}
+\contentsline {section}{\numberline {3.1}C++11}{363}
+\renewcommand *\cftsecindent {4.5em}
+\contentsline {section}{\emcppsShowTitleAlt { short={\lstinline !carries_dependency!}, tocshort={\TOCCode carries\_dependency}, long={The {\SecCode [[carries\_dependency]]} Attribute}, toclong={The \lstinline ![[carries\_dependency]]! Attribute}, rhshort={\RHCode carries\_dependency}, }}{364}{}%
+\contentsline {section}{\emcppsShowTitleAlt { short={\lstinline !final!}, tocshort={\TOCCode final}, long={Preventing Overriding and Derivation}, rhshort={\RHCode final}, }}{365}{}%
+\contentsline {section}{\emcppsShowTitleAlt { short={\lstinline !inline!\nobreakspace {}\lstinline !namespace!}, tocshort={{\TOCCode inline}\nobreakspace {}{\TOCCode namespace}}, long={Transparently Nested Namespaces}, rhshort={{\RHCode inline}\nobreakspace {}{\RHCode namespace}}, }}{366}{}%
+\contentsline {subsection}{Description}{366}{}%
+\contentsline {subsubsection}{Loss of access to duplicate names in enclosing namespace}{367}{}%
+\contentsline {subsubsection}{Argument-dependent–lookup interoperability across \lstinline !inline! \lstinline !namespace! boundaries}{369}{}%
+\contentsline {subsubsection}{The ability to specialize templates declared in a nested \lstinline !inline! namespace}{370}{}%
+\contentsline {subsubsection}{Reopening namespaces can reopen nested \lstinline !inline! ones}{372}{}%
+\contentsline {subsection}{Use Cases}{373}{}%
+\contentsline {subsubsection}{Facilitating API migration}{373}{}%
+\contentsline {subsubsection}{Link-safe ABI versioning}{378}{}%
+\contentsline {subsubsection}{Build modes and ABI link safety}{382}{}%
+\contentsline {subsubsection}{Enabling selective \lstinline !using! directives for short-named entities}{385}{}%
+\contentsline {subsection}{Potential Pitfalls}{387}{}%
+\contentsline {subsubsection}{\lstinline !nline!-namespace-based versioning doesn’t scale}{387}{}%
+\contentsline {subsubsection}{Relying on \lstinline !inline! namespaces to solve library evolution}{388}{}%
+\contentsline {subsubsection}{Inconsistent use of \lstinline !inline! keyword is ill formed, no diagnostic required}{389}{}%
+\contentsline {subsection}{Annoyances}{390}{}%
+\contentsline {subsubsection}{Inability to redeclare across namespaces impedes code factoring}{390}{}%
+\contentsline {subsubsection}{Only one namespace can contain any given \lstinline !inline! namespace}{392}{}%
+\contentsline {subsection}{See Also}{393}{}%
+\contentsline {subsection}{Further Reading}{393}{}%
+\contentsline {subsection}{Appendix: Case study of using \lstinline !inline! namespaces for versioning}{393}{}%
+\contentsline {section}{\emcppsShowTitleAlt { short={\lstinline !noexcept! Specifier}, tocshort={{\TOCCode noexcept} Specifier}, long={The {\SecCode noexcept} Function Specification}, toclong={The \lstinline !noexcept! Function Specification}, rhshort={{\RHCode noexcept} Specifier}, }}{396}{}%
+\contentsline {section}{\emcppsShowTitleAlt { short={Ref-Qualifiers}, long={Reference Qualified Member Functions}, }}{397}{}%
+\renewcommand *\cftsecindent {1.25em}
+\contentsline {section}{\numberline {3.2}C++14}{397}
+\renewcommand *\cftsecindent {4.5em}
+\contentsline {section}{\emcppsShowTitleAlt { short={\lstinline !decltypeauto!}, tocshort={\TOCCode decltypeauto}, long={Deducing Types Using {\SecCode decltype} Semantics}, toclong={Deducing Types Using \lstinline !decltype! Semantics}, rhshort={\RHCode decltypeauto}, }}{398}{}%
+\contentsline {section}{\emcppsShowTitleAlt { short={Deduced Return Type}, long={Function ({\SecCode auto}) {\SecCode return}-Type Deduction}, toclong={Function (\lstinline !auto!) \lstinline !return!-Type Deduction}, }}{399}{}%
+\contentsline {chapter}{\numberline {Chapter\nobreakspace {}4}{Parting Thoughts}}{401}{}%
+\renewcommand *\cftsecindent {1.25em}
+\contentsline {chapter}{{Bibliography}}{403}{}%
+\contentsline {chapter}{Glossary}{411}{}%
+\contentsline {chapter}{{Glossary}}{411}{}%
+\contentsline {chapter}{Index}{425}{}%
