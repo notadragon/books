@@ -1,0 +1,307 @@
+% 5 Feb 2021, copyedits in and proofed
+% 8 Feb 2021 JMB, compilation fixes
+
+\emcppsFeature{
+    short={Local Types '11},
+    long={Local/Unnamed Types as Template Arguments},
+}{local-types-as-template-arguments}
+\setcounter{table}{0}
+\setcounter{footnote}{0}
+\setcounter{lstlisting}{0}
+%\section[Local Types '11]{Local/Unnamed Types as Template Arguments}\label{local-types-as-template-arguments}
+
+
+
+C++11 allows function-scope and unnamed types to be used as template arguments.
+
+\subsection[Description]{Description}\label{description}
+
+Historically, types without \romeoglossf{linkage} (i.e., local and unnamed
+types) were forbidden as template arguments due to implementability
+concerns using the compiler technology available at that
+time.{\cprotect\footnote{\cite{narkive}}} Modern C++ lifts this
+restriction, making use of local or unnamed types consistent with
+nonlocal, named ones, thereby obviating the need to gratuitously name
+or enlarge the scope of a type.
+
+\begin{emcppslisting}
+template <typename T>
+void f(T) { };            // function template
+
+template <typename T>
+class C { };              // class template
+
+struct { } obj;           // object (ù{\codeincomments{obj}}ù) of unnamed C++ type
+
+void g()
+{
+    struct S { };         // local type
+
+    f(S());               // OK in C++11; was error in C++03
+    f(obj);               // OK in C++11; was error in C++03
+
+    C<S>             cs;  // OK in C++11; was error in C++03
+    C<decltype(obj)> co;  // OK in C++11; was error in C++03
+}
+\end{emcppslisting}
+
+\noindent Notice that we have used the \emph{\lstinline!decltype!
+keyword} (see \featureref{\locationa}{decltype}) to extract the unnamed type of the object \lstinline!obj!.
+
+These new relaxed rules for template arguments are essential to the
+ergonomics of \romeoglossf{lambda expressions} (see \featureref{\locationc}{lambda}), as such types are both
+unnamed and local in typical usage:
+
+\begin{emcppslisting}
+#include <algorithm>  // (ù{\codeincomments{std::sort}}ù)
+#include <string>     // (ù{\codeincomments{std::string}}ù)
+#include <vector>     // (ù{\codeincomments{std::vector}}ù)
+
+struct Person { std::string d_name; };
+
+void sortByName(std::vector<Person>& people)
+{
+    std::sort(people.begin(), people.end(),
+              [](const Person& lhs, const Person& rhs)
+              {
+                  return lhs.d_name < rhs.d_name;
+              });
+}
+\end{emcppslisting}
+
+\noindent In the example above, the lambda expression passed to the
+\lstinline!std::sort! algorithm is a local unnamed type, and the algorithm
+itself is a function template.
+
+\subsection[Use Cases]{Use Cases}\label{use-cases}
+
+\subsubsection[Encapsulating a type within a function]{Encapsulating a type within a function}\label{encapsulating-a-type-within-a-function}
+
+Limiting the scope and visibility of an \romeoglossf{entity} to the body of a
+function actively prevents its direct use, even when the function body
+is exposed widely --- say, as an \lstinline!inline! function or function
+template defined within a header file.
+
+Consider, for instance, an implementation of Dijkstra's algorithm that
+uses a local type to keep track of metadata for each vertex in the input
+graph:
+
+\begin{emcppshiddenlisting}[emcppsbatch=e1]
+// dijkstra.h:
+#include <vector>  // (ù{\codeincomments{std::vector}}ù)
+struct Vertex {};
+struct VertexMetadata {};
+struct Graph { std::size_t numNodes() const; };
+\end{emcppshiddenlisting}
+\begin{emcppslisting}[emcppsbatch=e1]
+// dijkstra.h:
+
+#include <vector>  // (ù{\codeincomments{std::vector}}ù)
+
+inline int dijkstra(std::vector<Vertex>* path, const Graph& graph)
+{
+    struct VertexMetadata         // implementation-specific helper class
+    {
+        int  d_distanceFromSource;
+        bool d_inShortestPath;
+    };
+
+    std::vector<VertexMetadata> vertexMetadata(graph.numNodes());
+        // standard vector of local (ù{\codeincomments{VertexMetadata}}ù) objects -- one per vertex
+
+    // ... (body of algorithm)
+}
+\end{emcppslisting}
+
+\noindent Defining \lstinline!VertexMetadata! outside of the body of
+\lstinline!dijkstra! --- e.g., to comply with C++03 restrictions --- would
+make that implementation-specific helper class directly accessible to
+anyone including the \lstinline!dijkstra.h! header file. As Hyrum's
+law{\cprotect\footnote{``With a sufficient number
+of users of an API, it does not matter what you promise in the
+contract: all observable behaviors of your system will be depended on
+  by somebody'': see \cite{wight}.}} suggests, if the
+imple\-men\-tation-specific \lstinline!VertexMetadata! detail is defined
+outside the function body, it is to be expected that some user somewhere
+will depend on it in its current form, making it problematic, if not
+impossible, to change.\footnote{The C++20 \emph{modules} facility enables the
+encapsulation of helper types (such as \lstinline!metadata! in the \mbox{\lstinline!dijkstra.h!} example on this page) used in
+the implementation of other locally defined types or functions, even
+when the helper types appear at namespace scope within the module.} Conversely, encapsulating
+the type within the function body avoids unintended use by clients,
+while improving human cognition by colocating the definition of the
+type with its sole purpose.{\cprotect\footnote{For a detailed
+  discussion of malleable  versus stable software, see \cite{{lakos20}},
+  section 0.5, pp.~29--43.}}
+
+\subsubsection[Instantiating templates with local function objects as type arguments]{Instantiating templates with local function objects as type arguments}\label{instantiating-templates-with-local-function-objects-as-type-arguments}
+
+Suppose that we have a program that makes wide use of an aggregate data
+type, \lstinline!City!:
+
+\begin{emcppslisting}[emcppsbatch={e2,e3}]
+#include <algorithm>  // (ù{\codeincomments{std::copy}}ù)
+#include <iostream>   // (ù{\codeincomments{std::ostream}}ù)
+#include <iterator>   // (ù{\codeincomments{std::ostream\_iterator}}ù)
+#include <set>        // (ù{\codeincomments{std::set}}ù)       
+#include <string>     // (ù{\codeincomments{std::string}}ù)
+#include <vector>     // (ù{\codeincomments{std::vector}}ù)
+
+struct City
+{
+    int         d_uniqueId;
+    std::string d_name;
+};
+std::ostream& operator<<(std::ostream& stream,
+                         const City&   object);
+\end{emcppslisting}
+
+\noindent Consider now the task of writing a function to print unique elements of
+an\linebreak[4] \lstinline!std::vector<City>!, ordered by name:
+
+\begin{emcppslisting}[emcppsbatch=e2]
+void printUniqueCitiesOrderedByName(const std::vector<City>& cities)
+{
+    struct OrderByName
+    {
+        bool operator()(const City& lhs, const City& rhs) const
+        {
+            return lhs.d_name < rhs.d_name;
+                // increasing order (subject to change)
+        }
+    };
+
+    const std::set<City, OrderByName> tmp(cities.begin(), cities.end());
+
+    std::copy(tmp.begin(), tmp.end(),
+              std::ostream_iterator<City>(std::cout, "\n"));
+}
+\end{emcppslisting}
+
+\noindent Absent reasons to make the \lstinline!OrderByName!
+function object more generally available, rendering its definition
+alongside the one place where it is used --- i.e., directly within
+function scope --- again enforces and readily communicates its tightly
+encapsulated (and therefore \emph{malleable}) status.
+
+As an aside, note that using a lambda (see \featureref{\locationc}{lambda}) in such scenario requires using \lstinline!decltype! and passing the closure to the set's constructor:
+\begin{emcppslisting}[emcppsbatch=e3]
+void printUniqueCitiesOrderedByName(const std::vector<City>& cities)
+{
+    auto compare = [](const City& lhs, const City& rhs) {
+        return lhs.d_name < rhs.d_name;
+    };
+    const std::set<City, decltype(compare)>
+        tmp(cities.begin(), cities.end(), compare);
+}
+\end{emcppslisting}
+
+\noindent We discuss the topic of lambda expressions further in the very next section; see \intrarefnopage{configuring-algorithms-via-lambda-expressions}.
+
+\subsubsection[Configuring algorithms via lambda expressions]{Configuring algorithms via lambda expressions}\label{configuring-algorithms-via-lambda-expressions}
+
+Suppose we are representing a 3D environment using a \emph{scene
+graph} and managing
+the graph's nodes via an \lstinline!std::vector! of \lstinline!SceneNode!
+objects (a \emph{scene graph} data structure, commonly
+used in computer games and 3D-modeling software, represents the
+  logical and spatial hierarchy of objects in a scene). Our \lstinline!SceneNode! class supports a variety of
+\lstinline!const! member functions used to query its status (e.g.,
+\lstinline!isDirty! and \lstinline!isNew!). Our task is to implement a
+\romeoglossf{predicate function}, \lstinline!mustRecalculateGeometry!, that
+returns \lstinline!true! if and only if at least one of the nodes is either
+``dirty'' or ``new.''
+
+These days, we might reasonably elect to implement this functionality
+using the C++11 standard algorithm
+\lstinline!std::any_of!{\cprotect\footnote{\cite{cpprefa}}}:
+
+\begin{emcppslisting}[emcppsbatch=e4]
+template <typename InputIterator, typename UnaryPredicate>
+bool any_of(InputIterator first, InputIterator last, UnaryPredicate pred);
+    // Return (ù{\codeincomments{true}}ù) if any of the elements in the range satisfies (ù{\codeincomments{pred}}ù).
+\end{emcppslisting}
+
+\noindent Prior to C++11, however, using a function template, such as
+\lstinline!any_of!, would have required a separate function or
+function object (defined \emph{outside} of the scope of the function):
+
+\begin{emcppshiddenlisting}[emcppsbatch={e4,e5}]
+#include <vector>     // (ù{\codeincomments{std::vector}}ù)
+struct SceneNode {
+    bool isDirty() const;
+    bool isNew() const;
+};
+template <typename InputIterator, typename UnaryPredicate>
+bool any_of(InputIterator first, InputIterator last, UnaryPredicate pred)
+{
+   // this needs an implementation
+   for (; first != last; ++first) {
+      if (pred(*first)) {
+          return true;
+      }
+  }
+  return false;
+}
+\end{emcppshiddenlisting}
+\begin{emcppslisting}[emcppsbatch=e4]
+// C++03 (obsolete)
+namespace {
+
+struct IsNodeDirtyOrNew
+{
+    bool operator()(const SceneNode& node) const
+    {
+        return node.isDirty() || node.isNew();
+    }
+};
+
+}  // close unnamed namespace
+
+bool mustRecalculateGeometry(const std::vector<SceneNode>& nodes)
+{
+    return any_of(nodes.begin(), nodes.end(), IsNodeDirtyOrNew());
+}
+\end{emcppslisting}
+
+\noindent Because unnamed types can serve as arguments to this function template, we can also employ a lambda expression instead of a function object that would be required in C++03:
+
+\begin{emcppslisting}[emcppsbatch=e5]
+#include <algorithm> // (ù{\codeincomments{'std::any\_of'}}ù)
+bool mustRecalculateGeometry(const std::vector<SceneNode>& nodes)
+{
+    return std::any_of(nodes.begin(),             // start of range
+                       nodes.end(),               // end of range
+                       [](const SceneNode& node)  // lambda expression
+                       {
+                           return node.isDirty() || node.isNew();
+                       }
+                      );
+}
+\end{emcppslisting}
+
+\noindent By creating a \romeoglossf{closure} of unnamed type via a lambda
+expression, unnecessary boilerplate, excessive scope, and even local
+symbol visibility are avoided.
+
+\subsection[Potential Pitfalls]{Potential Pitfalls}\label{potential-pitfalls}
+
+\hspace{\fill}
+
+\subsection[Annoyances]{Annoyances}\label{annoyances}
+
+\hspace{\fill}
+
+\subsection[See Also]{See Also}\label{see-also}
+
+\begin{itemize}
+\item{\seealsoref{decltype}{\seealsolocationa}describes how developers may query the type of any expression or entity, including objects with unnamed types.}
+\item{\seealsoref{lambda}{\seealsolocationc}provides strong practical motivation for the relaxations discussed here.}
+\end{itemize}
+
+\subsection[Further Reading]{Further Reading}\label{further-reading}
+
+\hspace{\fill}
+
+
+

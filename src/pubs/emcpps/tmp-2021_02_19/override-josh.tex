@@ -1,0 +1,199 @@
+% 13 Jan: copyedits in and proofed
+%% 27 Jan, code checked and replaced as needed by Josh
+
+
+\emcppsFeature{
+    short={\lstinline!override!},
+    tocshort={\TOCCode override},
+    long={The {\tt override} Member-Function Specifier},
+    rhshort={\RHCode override},
+}{override}
+%\section[{\tt override}]{The {\SecCode override} Member-Function Specifier\sectionmark{\RHCode override}}\label{override}\sectionmark{\RHCode override}
+\setcounter{table}{0}
+\setcounter{footnote}{0}
+\setcounter{lstlisting}{0}
+
+
+The \lstinline!override! keyword ensures that a member function overrides a corresponding \lstinline!virtual! member function in a base class.
+
+\subsection[Description]{Description}\label{description}
+
+The \romeogloss{contextual keyword} \lstinline!override! can be provided at the
+end of a member-function declaration to ensure that the decorated
+function is indeed \emph{overriding} a corresponding \lstinline!virtual!
+member function in a base class, as opposed to \emph{hiding} it or
+otherwise inadvertently introducing a distinct function declaration:
+
+% original
+%begin{emcppslisting}
+%struct Base
+%{
+%    virtual void f(int);
+%    void g(int);
+%};
+%
+%struct Derived : Base
+%{
+%    void f();              // hides (ù{\codeincomments{Base::f(int)}}ù) (likely mistake)
+%    void f() override;     // error: (ù{\codeincomments{Base::f()}}ù) not found
+%
+%    void f(int);           // implicitly overrides (ù{\codeincomments{Base::f(int)}}ù)
+%    void f(int) override;  // explicitly overrides (ù{\codeincomments{Base::f(int)}}ù)
+%
+%    void g();              // hides (ù{\codeincomments{Base::g(int)}}ù) (likely mistake)
+%    void g() override;     // error: (ù{\codeincomments{Base::g()}}ù) not found
+%
+%    void g(int);           // hides (ù{\codeincomments{Base::g(int)}}ù) (likely mistake)
+%    void g(int) override;  // Error: (ù{\codeincomments{Base::g()}}ù) is not (ù{\codeincomments{virtual}}ù).
+%};
+%\end{emcppslisting}
+% Slava's replacement
+\begin{emcppslisting}
+struct Base
+{
+    virtual void f(int);
+            void g(int);
+    virtual void h(int) const;
+    virtual void i(int) = 0;
+};
+
+struct DerivedWithoutOverride : Base
+{
+    void f();             // hides (ù{\codeincomments{Base::f(int)}}ù) (likely mistake)
+    void f(int);          // OK, implicitly overrides (ù{\codeincomments{Base::f(int) }}ù)
+
+    void g();             // hides (ù{\codeincomments{Base::g(int)}}ù) (likely mistake)
+    void g(int);          // hides (ù{\codeincomments{Base::g(int)}}ù) (likely mistake)
+
+    void h(int);          // hides (ù{\codeincomments{Base::h(int)}}ù) const (likely mistake)
+    void h(int) const;    // OK, implicitly overrides (ù{\codeincomments{Base::h(int)}}ù) const
+
+    void i(int);          // OK, implicitly overrides (ù{\codeincomments{Base::i(int)}}ù)
+};
+
+struct DerivedWithOverride : Base
+{
+    void f()          override;    // Error, (ù{\codeincomments{Base::f()}}ù) not found
+    void f(int)       override;    // OK, explicitly overrides (ù{\codeincomments{Base::f(int)}}ù)
+
+    void g()          override;    // Error, (ù{\codeincomments{Base::g()}}ù) not found
+    void g(int)       override;    // Error, (ù{\codeincomments{Base::g()}}ù) is not virtual.
+
+    void h(int)       override;    // Error, (ù{\codeincomments{Base::h(int)}}ù) not found
+    void h(int) const override;    // OK, explicitly overrides (ù{\codeincomments{Base::h(int)}}ù)
+
+    void i(int)       override;    // OK, explicitly overrides (ù{\codeincomments{Base::i(int)}}ù)
+};
+\end{emcppslisting}
+
+\noindent Using this feature expresses design intent so that (1) human readers
+are aware of it and (2) compilers can validate it.
+
+As noted, \lstinline!override! is a contextual keyword. C++11 introduces keywords that have special meaning only in certain contexts.   In this case, \lstinline!override! is a keyword in the context of a declaration, but not otherwise using it as the identifier for a variable name, for example, is perfectly fine:
+
+%%%%%%%% EXCEPTION! override here should NOT be bold
+\begin{emcppslisting}
+int override = 1;  // OK
+\end{emcppslisting}
+
+\subsection[Use Cases]{Use Cases}\label{use-cases}
+
+\subsubsection[Ensuring that a member function of a base class is being overridden]{Ensuring that a member function of a base class is being overridden}\label{ensuring-that-a-member-function-of-a-base-class-is-being-overridden}
+
+Consider the following polymorphic hierarchy of error-category classes, as we might have defined them using C++03:
+
+\begin{emcppshiddenlisting}[emcppsbatch=e1]
+struct ErrorCode;
+struct ErrorCondition;
+\end{emcppshiddenlisting}
+\begin{emcppslisting}[emcppsbatch=e1]
+struct ErrorCategory
+{
+    virtual bool equivalent(const ErrorCode& code, int condition);
+    virtual bool equivalent(int code, const ErrorCondition& condition);
+};
+
+struct AutomotiveErrorCategory : ErrorCategory
+{
+    virtual bool equivalent(const ErrorCode& code, int condition);
+    virtual bool equivolent(int code, const ErrorCondition& condition);
+};
+\end{emcppslisting}
+
+\noindent Notice that there is a defect in the last line of the example above:
+\lstinline!equivalent! has been misspelled. Moreover, the compiler did not
+catch that error. Clients calling \lstinline!equivalent! on
+\lstinline!AutomotiveErrorCategory! will incorrectly invoke the base-class
+function. If the function in the base class happens to be defined, the
+code might compile and behave unexpectedly at run time. Now, suppose
+that over time the interface is changed by marking the
+equivalence-checking function \lstinline!const! to bring the interface
+closer to that of \lstinline!std::error_category!:
+
+\begin{emcppshiddenlisting}[emcppsbatch=e2]
+struct ErrorCode;
+struct ErrorCondition;
+\end{emcppshiddenlisting}
+\begin{emcppslisting}[emcppsbatch=e2]
+struct ErrorCategory
+{
+    virtual bool equivalent(const ErrorCode& code, int condition) const;
+    virtual bool equivalent(int code, const ErrorCondition& condition) const;
+};
+\end{emcppslisting}
+
+Without applying the corresponding modification to all classes deriving
+from\linebreak[4] \lstinline!ErrorCategory!, the semantics of the program change due to
+the derived classes now hiding
+the base class's
+\lstinline!virtual! member function instead of overriding it. Both errors discussed above
+would be detected automatically if the \lstinline!virtual!
+functions in all derived classes were decorated with \lstinline!override!:
+
+\begin{emcppslisting}[emcppsbatch=e2]
+struct AutomotiveErrorCategory : ErrorCategory
+{
+    bool equivalent(const ErrorCode& code, int condition) override;
+        // Error, failed when base class changed
+
+    bool equivolent(int code, const ErrorCondition& code) override;
+        // Error, failed when first written
+};
+\end{emcppslisting}
+
+\noindent What's more, \lstinline!override! serves as a clear indication of the derived-class author's intent to customize the
+behavior of \lstinline!ErrorCategory!. For any given member function, using \lstinline!override! necessarily renders any use of \lstinline!virtual! for
+that function syntactically and semantically redundant. The only
+cosmetic reason for retaining \lstinline!virtual! in the presence of
+\lstinline!override! would be that \lstinline!virtual! appears to the left of
+the function declaration, as it always has, instead of all the way to
+the right, as \lstinline!override! does now.
+
+\subsection[Potential Pitfalls]{Potential Pitfalls}\label{potential-pitfalls}
+
+\subsubsection[Lack of consistency across a codebase]{Lack of consistency across a codebase}\label{lack-of-consistency-across-a-codebase}
+
+Relying on \lstinline!override! as a means of ensuring that changes to
+base-class interfaces are propagated across a codebase can prove
+unreliable if this feature is used inconsistently --- i.e., not applied in every circumstance where its use would be appropriate. In
+particular, altering the signature of a \lstinline!virtual! member function
+in a base class and then compiling ``the world'' will always flag as an
+error any nonmatching derived-class function where \lstinline!override!
+was used but might fail even to warn where it is not.
+
+\subsection[Annoyances]{Annoyances}\label{annoyances}
+
+\hspace*{\fill}
+
+\subsection[See Also]{See Also}\label{see-also}
+
+\hspace*{\fill}
+
+\subsection[Further Reading]{Further Reading}\label{further-reading}
+
+\begin{itemize}
+\item{\cite{meyers15b}}
+\item{\cite{fluentcpp}}
+\end{itemize}
+
+

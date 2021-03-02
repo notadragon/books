@@ -1,0 +1,306 @@
+%% 5 Feb 2021, copyedits in and proofed
+
+\emcppsFeature{
+    toclong={The Digit Separator: \lstinline!'!},
+    tocshort={Digit Separators},
+    short={Digit Separators},
+    long={The Digit Separator: {\SecCode '}},
+}{digitseparator}
+%\section[Digit Separators]{The Digit Separator: {\SecCode '}}
+%\label{digitseparator} % used with placeholder file
+\label{digit-separators} % label had changed when actual file arrived
+\setcounter{table}{0}
+\setcounter{footnote}{0}
+\setcounter{lstlisting}{0}
+
+
+
+A digit separator is a single-character token (\lstinline!'!) that can appear as part of a
+numeric literal without altering its value.
+
+\subsection[Description]{Description}\label{description}
+
+A digit separator --- i.e., an instance of the single-quote
+character (\lstinline!'!) --- may be placed anywhere within a numeric
+literal to visually separate its digits without affecting its value:
+
+%%%%%%%%%%%%%%%% ALL code snippets in this subsection
+%%%%%%%%  setting this code coloring manually 
+% Everything after // (including //) itself is a comment, and should be light blue (like -12345).
+% `int`, `unsigned int`, `long`, `long long`, `float`, `double`, `long double`, `int`, `int`, `int` should be in the reddish color like the first occurrence of `int`.
+% The variable names (e.g., i,u,j,k,f,d,e,hex,oct,bin) should be black.
+% All equal signs should be black.
+% All numeric literals (e.g., -12'345, 1'000'000u) should be black as well. 
+%%%%%%%%%%%%%%%%
+% 8 Feb 2021: Our final design does not use color in this way. Removing these color and shape commands and asking authors to review. 
+
+%\begin{emcppslisting}[language=C++]
+%int          (ù{\color{black} i = -12'345;}ù)                    (ù{\itshape\color{skyblue}// same as}ù) (ù{\codeincomments{-12345}}ù)
+%(ù{\color{maroon}unsigned int}ù) (ù{\color{black}u = 1'000'000u;}ù)                 (ù{\itshape\color{skyblue}// same as}ù) (ù{\codeincomments{1000000u}}ù)
+%(ù{\color{maroon}long}ù)         (ù{\color{black}j = 500'000L;}ù)                   // same as (ù{\codeincomments{500000L}}ù)
+%(ù{\color{maroon}long long}ù)    (ù{\color{black}k = 9'223'372'036'854'775'807;}ù)  // same as (ù{\codeincomments{9223372036854775807}}ù)
+%(ù{\color{maroon}float}ù)        (ù{\color{black}f = 3.14159'26535f}ù)              // same as (ù{\codeincomments{3.1415926535f}}ù)
+%(ù{\color{maroon}double}ù)       (ù{\color{black}d = 3.14159'26535'89793;}ù)        (ù{\itshape\color{skyblue}// same as}ù) (ù{\codeincomments{3.141592653589793}}ù)
+%(ù{\color{maroon}long double}ù)  (ù{\color{black}e = 20'812.80745'23204}ù)          (ù{\itshape\color{skyblue}// same as}ù) (ù{\codeincomments{20812.8074523204}}ù)
+%(ù{\color{maroon}int}ù)        (ù{\color{black}hex = 0x8C'25'00'F9;}ù)              // same as (ù{\codeincomments{0x8C2500F9}}ù)
+%int        (ù{\color{black}oct = 044'73'26;}ù)                  // same as (ù{\codeincomments{0447326}}ù)
+%int        (ù{\color{black}bin = 0b1001'0110'1010'0111;}ù)      (ù{\itshape\color{skyblue}// same as}ù) (ù{\codeincomments{0b1001011010100111}}ù)
+%\end{emcppslisting}
+\begin{emcppslisting}[language=C++]
+int          i = -12'345;                    (ù{\commentcolor{// same as}ù) (ù{\codeincomments{-12345}}ù)
+unsigned int u = 1'000'000u;                 (ù{\commentcolor{// same as}ù) (ù{\codeincomments{1000000u}}ù)
+long         j = 500'000L;                   // same as (ù{\codeincomments{500000L}}ù)
+long long    k = 9'223'372'036'854'775'807;  // same as (ù{\codeincomments{9223372036854775807}}ù)
+float        f = 3.14159'26535f              (ù{\commentcolor{// same as}ù) (ù{\codeincomments{3.1415926535f}}ù)
+double       d = 3.14159'26535'89793;        (ù{\commentcolor{// same as}ù) (ù{\codeincomments{3.141592653589793}}ù)
+long double  e = 20'812.80745'23204          (ù{\commentcolor{// same as}ù) (ù{\codeincomments{20812.8074523204}}ù)
+int        hex = 0x8C'25'00'F9;              // same as (ù{\codeincomments{0x8C2500F9}}ù)
+int        oct = 044'73'26;                  // same as (ù{\codeincomments{0447326}}ù)
+int        bin = 0b1001'0110'1010'0111;      (ù{\commentcolor{// same as}ù) (ù{\codeincomments{0b1001011010100111}}ù)
+\end{emcppslisting}
+    
+\noindent Multiple digit separators within a single literal are allowed, but they
+cannot be contiguous, nor can they appear either before or after the
+\emph{numeric} part (i.e., digit sequence) of the
+literal:
+
+%\begin{emcppslisting}[language=C++]
+%int (ù{\color{black}e0 = 10''00;}ù)  // Error, consecutive digit separators
+%int (ù{\color{black}e1 = -'1000;}ù)  // Error, before numeric part
+%(ù{\color{maroon}int}ù) (ù{\color{black}e2 = 1000'u;}ù)  // Error, after numeric part
+%int (ù{\color{black}e3 = 0x'abc;}ù)  // Error, before numeric part
+%(ù{\color{maroon}int}ù) (ù{\color{black}e4 = 0'xdef;}ù)  // Error, way before numeric part
+%int (ù{\color{black}e5 = 0'89;}ù)    // Error, non-octal digits
+%(ù{\color{maroon}int}ù) (ù{\color{black}e6 = 0'67;}ù)    // OK, valid octal literal
+%\end{emcppslisting}
+\begin{emcppslisting}[language=C++]
+int e0 = 10''00;  // Error, consecutive digit separators
+int e1 = -'1000;  (ù{\commentcolor{// Error, before numeric part}ù)
+int e2 = 1000'u;  // Error, after numeric part
+int e3 = 0x'abc;  (ù{\commentcolor{// Error, before numeric part}ù)
+int e4 = 0'xdef;  // Error, way before numeric part
+int e5 = 0'89;    (ù{\commentcolor{// Error, non-octal digits}ù)
+int e6 = 0'67;    // OK, valid octal literal
+\end{emcppslisting}
+    
+\noindent Although the leading \lstinline!0x! and
+\lstinline!0b! prefixes for hexadecimal and binary literals,
+respectively, are not considered part of the \emph{numeric} part of
+  the literal, a leading \lstinline!0! in an octal literal is. As a side note, remember that on some platforms an integer literal
+that is too large to fit in a \lstinline!long!~\lstinline!long!~\lstinline!int! but that does fit in an
+\lstinline!unsigned!~\lstinline!long!~\lstinline!long!~\lstinline!int! might
+generate a warning{\cprotect\footnote{Tested on GCC 7.4.0.}}:
+
+%\begin{emcppslisting}[language=C++]
+%(ù{\color{maroon}unsigned long long}ù) (ù{\color{black}big1 = 9'223'372'036'854'775'808;}ù)  // (ù{\codeincomments{2\^{}63}}ù)
+%    // warning: integer constant is so large that it is an
+%    // unsigned long long big1 = 9'223'372'036'854'775'808;
+%    //                           ^~~~~~~~~~~~~~~~~~~~~~~~~~
+%\end{emcppslisting}
+\begin{emcppslisting}[language=C++]
+unsigned long long big1 = 9'223'372'036'854'775'808;  // (ù{\codeincomments{2\^{}63}}ù)
+    // warning: integer constant is so large that it is an
+    // unsigned long long big1 = 9'223'372'036'854'775'808;
+    //                           ^~~~~~~~~~~~~~~~~~~~~~~~~~
+\end{emcppslisting}
+    
+\noindent Such warnings can typically be suppressed by adding a \lstinline!ull!
+suffix to the literal:
+
+%\begin{emcppslisting}[language=C++]
+%(ù{\color{maroon}unsigned long long}ù) (ù{\color{black}big2 = 9'223'372'036'854'775'808ull;}ù)  // OK
+%\end{emcppslisting}
+\begin{emcppslisting}[language=C++]
+unsigned long long big2 = 9'223'372'036'854'775'808ull;  // OK
+\end{emcppslisting}
+    
+\noindent Warnings like the one above, however, are not typical when the implied
+precision of a floating-point literal exceeds what can be represented:
+
+%\begin{emcppslisting}[language=C++]
+%(ù{\color{maroon}float}ù) (ù{\color{black}reallyPrecise = 3.141'592'653'589'793'238'462'643'383'279'502'884;}ù)  // OK
+%    // Everything after (ù{\codeincomments{3.141'592'6}}ù) is typically ignored silently.
+%\end{emcppslisting}
+\begin{emcppslisting}[language=C++]
+float reallyPrecise = 3.141'592'653'589'793'238'462'643'383'279'502'884;  (ù{\commentcolor{// OK}ù)
+    (ù{\commentcolor{// Everything after}ù) (ù{\codeincomments{3.141'592'6}}ù) (ù{\commentcolor{is typically ignored silently.}ù)
+\end{emcppslisting}
+    
+\noindent For more information, see \intrarefsimple{appendix:-silent-loss-of-precision-in-floating-point-literals}.
+%{\it\titleref{appendix:-silent-loss-of-precision-in-floating-point-literals}} on page~\pageref{appendix:-silent-loss-of-precision-in-floating-point-literals}.
+
+\subsection[Use Cases]{Use Cases}\label{use-cases}
+
+\subsubsection[Grouping digits together in large constants]{Grouping digits together in large constants}\label{grouping-digits-together-in-large-constants}
+
+When embedding large constants in source code, consistently placing
+digit separators (e.g., every thousand) might improve readability, as
+illustrated in Table~\ref{digitseparator-table1}.
+
+\begin{table}[h!]
+\begin{center}
+\begin{threeparttable}
+\caption{Use of digit separators to improve readability}\label{digitseparator-table1}\vspace{1.5ex}
+{\small \begin{tabular}{c|c}\thickhline
+\rowcolor[gray]{.9}{\sffamily\bfseries Without Digit Separator} & {\sffamily\bfseries With Digit Separators} \\ \hline
+\multicolumn{1}{r|}{\lstinline!10000!} & \multicolumn{1}{r}{\lstinline!10'000!} \\ \hline 
+\multicolumn{1}{r|}{\lstinline!100000!} & \multicolumn{1}{r}{\lstinline!100'000!} \\ \hline 
+\multicolumn{1}{r|}{\lstinline!1000000!} & \multicolumn{1}{r}{\lstinline!1'000'000!} \\ \hline 
+\multicolumn{1}{r|}{\lstinline!1000000000!} & \multicolumn{1}{r}{\lstinline!1'000'000'000!} \\ \hline
+\multicolumn{1}{r|}{\lstinline!18446744073709551615ULL!} & \multicolumn{1}{r}{\lstinline!18'446'744'073'709'551'615ULL!} \\ \hline 
+\multicolumn{1}{r|}{\lstinline!1000000.123456!} & \multicolumn{1}{r}{\lstinline!1'000'000.123'456!} \\ \hline 
+\multicolumn{1}{r|}{\lstinline!3.141592653589793238462L!} & \multicolumn{1}{r}{\lstinline!3.141'592'653'589'793'238'462L!} \\ \thickhline
+\end{tabular}
+} % end small
+\end{threeparttable}
+\end{center} 
+\end{table} 
+\noindent Use of digit separators is especially useful with binary
+literals to group bits in octets (\romeoglossf{bytes}) or quartets
+(\romeoglossf{nibbles}), as shown in Table~\ref{digitseparator-table2}. In addition, using a binary literal with digits grouped in triplets instead of an octal literal to represent UNIX file permissions might improve code readability --- e.g., \lstinline!0b111'101'101! instead of \lstinline!0755!.\begin{table}[h!]
+\begin{center}
+\begin{threeparttable}
+\caption{Use of digit separators in binary data}\label{digitseparator-table2}\vspace{1.5ex}
+{\small \begin{tabular}{c|c}
+\thickhline
+\rowcolor[gray]{.9} {\sffamily\bfseries Without Digit Separator} & {\sffamily\bfseries With Digit Separators} \\\hline
+\multicolumn{1}{r|}{\lstinline!0b1100110011001100!} & \multicolumn{1}{r}{\lstinline!0b1100'1100'1100'1100!} \\ \hline
+\multicolumn{1}{r|}{\lstinline!0b0110011101011011!} & \multicolumn{1}{r}{\lstinline!0b0110'0111'0101'1011!} \\ \hline
+\multicolumn{1}{r|}{\lstinline!0b1100110010101010!} & \multicolumn{1}{r}{\lstinline!0b11001100'10101010!} \\
+\thickhline
+\end{tabular}
+} % end small
+\end{threeparttable}
+\end{center}
+\end{table}
+
+\subsection[Potential Pitfalls]{Potential Pitfalls}\label{potential-pitfalls}
+
+\hspace{\fill}
+
+\subsection[See Also]{See Also}\label{see-also}
+
+\begin{itemize}
+\item{\seealsoref{binary-literals}{\seealsolocationb}represents a binary constant for which digit separators are commonly used to group bits in octets (\romeogloss{bytes}) or quartets (\romeogloss{nibbles})}
+\end{itemize}
+
+\subsection[Further Reading]{Further Reading}\label{further-reading}
+
+\begin{itemize}
+\item{William Kahan. ``Lecture Notes on the Status of
+IEEE Standard 754 for Binary Floating-Point Arithmetic,'' \cite{kahan97}}
+\item{{\textit{IEEE Standard for Floating-Point Arithmetic}}, \cite{ieee19}}
+\end{itemize} 
+
+\subsection[Appendix: Silent Loss of Precision in Floating-Point Literals]{Appendix: Silent Loss of Precision in Floating-Point Literals}\label{appendix:-silent-loss-of-precision-in-floating-point-literals}
+
+Just because we can keep track of precision in floating-point literals
+doesn't mean that the compiler can. As an aside, it is worth
+pointing out that the binary representation of floating-point types is
+not mandated by the Standard, nor are the precise minimums on the ranges
+and precisions they must support. Although the C++ Standard says little
+that is normative, the macros in \lstinline!<cfloat>! are defined by
+reference to the C Standard.\footnote{\cite{iso20b}, section~6.8.2, ``Fundamental types [basic.fundamental]," pp. 73--75; section~17.3.5.2, ``\texttt{numeric\_limits} members [numeric.limits.members]," pp. 513--516; and section~17.3.7, ``Header \texttt{<cfloat>} synopsis [cfloat.syn]," p. 519}\footnote{\cite{iso18b}, section~7.7,  
+``Characteristics of floating types \texttt{<float.h>}," p. 157}
+% 5.2.4.2.2 Characteristics of floating types \texttt{<float.h>}
+
+There are, however, normal and customary minimums that one can typically
+rely upon in practice. On conforming compilers that employ the IEEE 754
+floating-point standard representation\footnote{\cite{ieee19}} (as most do),
+a \lstinline!float! can typically represent up to 7 significant decimal
+digits accurately, while a \lstinline!double! typically has nearly 15 decimal
+digits of precision. For any given program,
+\lstinline!long!~\lstinline!double! is required to hold whatever a
+\lstinline!double! can hold, but is typically larger (e.g., 10, 12, or 16
+bytes) and typically adds at least 5 decimal digits of precision (i.e.,
+supports a total of at last 20 decimal digits). A notable exception is Microsoft Visual C++ where \lstinline!long! \lstinline!double! is a distinct type whose representation is identical to \lstinline!double!.\footnote{\cite{microsoft-types}} A table summarizing
+typical precisions for various IEEE-conforming floating-point types is
+presented for convenient reference in Table~\ref{digitseparator-table3}. The actual bounds on a
+given platform can be found using the standard
+\lstinline!std::numeric_limits! class template found in \lstinline!<limits>!.\pagebreak[4]
+\begin{table}[h!] 
+\begin{center}
+\begin{threeparttable}
+\caption{Available precisions for various IEEE-754 floating-point types}\label{digitseparator-table3}\vspace{1.5ex} 
+{\small \begin{tabular}{c|c|c|c|c|c}\thickhline 
+\rowcolor[gray]{.9}   {\sffamily\bfseries Name} & {\sffamily\bfseries Common} &
+{\sffamily\bfseries Significant } & {\sffamily\bfseries Decimal }& {\sffamily\bfseries Exponent } & {\sffamily\bfseries Dynamic}\\
+\rowcolor[gray]{.9}    & {\sffamily\bfseries Name} &
+{\sffamily\bfseries Bits\tnote{a}} & {\sffamily\bfseries Digits}& {\sffamily\bfseries Bits} & {\sffamily\bfseries Range}\\ \hline 
+binary16 & Half precision & \multicolumn{1}{r|}{11} & \multicolumn{1}{r|}{3.31} & \multicolumn{1}{r|}{5} & \multicolumn{1}{r}{$\sim6.50\text{e}5$}\\ \hline
+binary32 & Single precision & \multicolumn{1}{r|}{24} & \multicolumn{1}{r|}{7.22} & \multicolumn{1}{r|}{8} & \multicolumn{1}{r}{$\sim3.4\text{e}38$}\\ \hline
+binary64 & Double precision & \multicolumn{1}{r|}{53} & \multicolumn{1}{r|}{15.95} & \multicolumn{1}{r|}{11} & \multicolumn{1}{r}{$\sim1.\text{e}308$}\\ \hline
+\rule{0pt}{3.5mm}binary80 & Extended precision & \multicolumn{1}{r|}{69} & \multicolumn{1}{r|}{20.77} & \multicolumn{1}{r|}{11} & \multicolumn{1}{r}{$\sim10^{308}$}\\ \hline
+\rule{0pt}{3.5mm}binary128 & Quadruple precision & \multicolumn{1}{r|}{113} & \multicolumn{1}{r|}{34.02} & \multicolumn{1}{r|}{15} & \multicolumn{1}{r}{$\sim10^{4932}$}\\ \hline
+\end{tabular}
+} % end small
+\begin{tablenotes}{\footnotesize  
+\item[a]{Note that the most significant bit of the \romeoglossf{mantissa}
+is always a \lstinline!1! for normalized numbers, and 0 for denormalized ones and, hence, is not stored explicitly. This leaves 1
+additional bit to represent the sign of the overall floating-point value
+(the sign of the exponent is encoded using \romeoglossf{excess-$\mathbf{n}$}
+notation).} 
+} % end footnotesize 
+\end{tablenotes} % we end the table footnotes
+\end{threeparttable} 
+\end{center}
+\end{table}
+
+Determining the minimum number of decimal digits needed to accurately
+approximate a transcendental value, such as $\pi$, for a given type on
+a given platform can be tricky (requiring some binary-search-like
+detective work), which is likely why overshooting the precision without
+warning is the default on most platforms. One way to establish that
+\emph{all} of the decimal digits in a given floating-point literal are
+relevant for a given floating-point type is to compare that literal and
+a similar one with its least significant decimal digit
+removed{\cprotect\footnote{Note that affixing the \lstinline!f!
+(\emph{literal suffix}) to a floating-point literal is
+equivalent to applying a \lstinline!static_cast<float>! to the
+(unsuffixed) literal:
+
+\begin{emcppslisting}[language=C++, basicstyle={\ttfamily\footnotesize}]
+static_assert(3.14'159'265'358f == static_cast<float>(3.14'159'265'358));
+\end{emcppslisting}\vspace*{-1ex}
+      }}:
+
+\begin{emcppslisting}[language=C++]
+static_assert(3.141592653(ù{\bfseries 5}ù)f != 3.141592653f, "too precise for float");
+    // This assert will fire on a typical platform.
+
+static_assert(3.14159265(ù{\bfseries 3}ù)f != 3.14159265f, "too precise for float");
+    // This assert too will fire on a typical platform.
+
+static_assert(3.1415926(ù{\bfseries 5}ù)f != 3.1415926f, "too precise for float");
+    // This assert will NOT fire on a typical platform.
+
+static_assert(3.141592(ù{\bfseries 6}ù)f != 3.141592f, "too precise for float");
+    // This assert too will NOT fire on a typical platform.
+\end{emcppslisting}
+    
+\noindent If the values are \emph{not} the same, then that floating-point type
+can make use of the precision suggested by the original literal; if
+they \emph{are} the same, however, then it is likely that the available
+precision has been exceeded. Iterative use of this technique by
+developers can help them to empirically narrow down the maximal number
+of decimal digits a particular platform will support for a particular
+floating-point type and value. Note, however, that because the compiler is not required to use the floating-point arithmetic of the target platform \emph{during compilation}, this approach might not be applicable for a cross-compilation scenario.
+
+One final useful tidbit pertains to the safe (lossless) conversion
+between binary and decimal floating-point representations; note that
+``Single'' (below) corresponds to a single-precision IEEE-754-conforming
+(32-bit) \lstinline!float!{\cprotect\footnote{\cite{kahan97}, section ``Representable Numbers," p.~4}}:
+
+\begin{quote}
+If a decimal string with at most 6 sig. dec. is converted to Single and then converted back to the
+ same number of sig. dec., then the final string should match the original. Also, ...
+
+ If a Single Precision floating-point number is converted to a decimal string with at least 9 sig.
+ dec. and then converted back to Single, then the final number must match the original.
+\end{quote}
+    
+\noindent The ranges corresponding to 6--9 for a single-precision (32-bit) \lstinline!float! (described above), when applied to a double-precision (64-bit) \lstinline!double! and a quad-precision (128-bit) \linebreak[4]%%%%%
+\lstinline!long!~\lstinline!double!, are 15--17 and 33--36, respectively.
+
+
+

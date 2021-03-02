@@ -1,0 +1,73 @@
+
+% This provides the \emcppsgloss command which specifies a glossary reference.  The
+% non-optional argument is the text that will be shown.  The optional argument
+% is the id of the glossary entry (if that differs from the text that will be
+% shown).  Unlike the normal \gls commands, we want to put the full text of what
+% will be shown at the location of the glossary entry, especially to facilitate
+% putting additional markup like forced page and line breaks, or emphasizing
+% part of the ter,. in the middle of the glossary term.  
+
+% This toggle contro
+\newtoggle{emcppsGlossDebug}
+%\toggletrue{emcppsGlossDebug}
+\togglefalse{emcppsGlossDebug}
+
+% This single argument macro will be used to render a glossary term the first
+% time it is used in a section or feature
+\newcommand\emcppsfirstgloss[1]{{%
+\romeoglossfirstfont{#1}}%   %% altered to the right fonts
+}
+
+% This single argument macro will be used to render a glossary term whenever
+% it is used again in the same feature, or used within the glossary itself.
+\newcommand\emcppslatergloss[1]{{%
+\romeoglossfont{#1}}%  %% altered to the right font
+}
+
+% We pick up in tooling additional representations of a glossary term from the
+% "alts" key on the glossary entries, which we add as a key here.   We don't
+% currently use these values in the LaTeX itself.
+\glsaddstoragekey{alts}%
+                 {}%
+                 {\glsentryalts}
+
+% These force a reset of the tracking of "first use" for glossary terms at the
+% start of chapters and features.
+\appto\emcppschapterstart{\glsresetall}
+\appto\emcppsfeaturestart{\glsresetall}
+
+% This is the \emcppsgloss command.
+%  Optional argument #1: Glossary Id
+%  Argumenet #2: Text to show
+\newcommand\emcppsgloss[2][]{%
+  \ifthenelse{\equal{}{#1}}%
+  {%
+    \def\emcppsglossid{#2}%
+  }%
+  {%
+    \def\emcppsglossid{#1}%
+  }%
+  \ifglsused{\emcppsglossid}%
+  {%
+    \iftoggle{emcppsGlossDebug}{<LATER <\emcppsglossid> > }{}%
+    \emcppslatergloss{#2}%
+  }%
+  {%
+    \iftoggle{emcppsGlossDebug}{<FIRST <\emcppsglossid> > }{}%
+    \emcppsfirstgloss{#2}%
+  }%
+  \glsadd{\emcppsglossid}%
+  \glsunset{\emcppsglossid}%
+}
+
+% This is the \emcppsglossgloss command, to be used within the glossary.  This
+% takes the same arguments as \emcppsgloss, but essentially ignores the first
+% argument
+%  Optional argument #1: Glossary Id
+%  Argumenet #2: Text to show
+\newcommand\emcppsglossgloss[2][]{%
+%  \iftoggle{emcppsGlossDebug}{<GLOSS <\emcppsglossid> > }{}%
+  \emcppslatergloss{#2}%
+}
+
+
