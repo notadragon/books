@@ -126,7 +126,7 @@ occurs on the \emph{last} recursive call.
 As with all other initialization, control flow does not continue
 \emph{past} the \romeogloss{definition} of a \lstinline!static! object until
 after the initialization is complete, making recursive \lstinline!static!
-initialization from within a single thread pointless:
+initialization pointless:
 
 \begin{emcppslisting}
 int fz(int i)  // The behavior is undefined unless (ù{\codeincomments{i}}ù) is 0.
@@ -146,21 +146,11 @@ to initialize \lstinline!dz! has undefined behavior because the function is
 re-entered before it was able to complete the initialization of the
 \lstinline!static! object; hence, control flow cannot continue to the
 \lstinline!return! statement in \lstinline!fz!. Given a likely implementation
-with a nonrecursive mutex or similar lock, the program is likely to
-deadlock
-%%%%%%%%%%%%TODO {[} {]} JM: @JSL - was this example
-%tried? i find deadlock an unlikely outcome. i get an exception with
-%g++. please add a reference or platforms where it deadlocks. JSL: I
-%agree with jeff M. This need to be documented. I tried it on GCC 7.4.0
-%(C) 2017. This is a TBD during the COPY EDITING PHASE, if not now.
-%Lori: Now or during revisions would be best. VR: I talked to John, he
-%suggested Nina should try and verify this on multiple platforms AFTER
-%  copyediting. TBD. Lori: Not after copyediting; that's too late.
-since only one thread of control is allowed to
-grab the lock to enter the \romeogloss{critical section} that
-initializes a function-scope \lstinline!static!
-object.{\cprotect\footnote{Prior to standardization (see \cite{ellis90},
-NEED ELLIS90 REFERENCE, section~6.7, p.~92), C++ allowed control to flow past a
+with a nonrecursive mutex or similar lock, the program can potentially deadlock,
+though many implementations provide better diagnostics with an exception or
+assert violation when this form of error is encountered.
+{\cprotect\footnote{Prior to standardization (see \cite{ellis90}, section~6.7, p.~92),
+C++ allowed control to flow past a
 \lstinline!static! function-scope variable even during a recursive call
 made as part of the initialization of that variable. This would result
 in the rest of such a function executing with a zero-initialized and
@@ -171,9 +161,18 @@ retaining some of the pre-C++98 behavior. This optional behavior is,
 however, fraught with peril and unsupported in any standard version of
   C++.}}
 
+% For Lori: 
+%@book{ellis90,
+%  author = {Margaret A. Ellis and Bjarne Stroustrup},
+%  title = {{The Annotated C++ Reference Manual}},
+%  address = {Reading, MA},
+%  publisher = {Addison-Wesley},
+%  year = {1990},
+%}
+
 \subsubsection[Logger example]{Logger example}\label{logger-example}
 
-Let's now consider a more realistic,
+Let's now consider a 
 real-world example in which a single object --- e.g.,
 \lstinline!localLogger! in the example below --- is used widely throughout a program (see
 also \intraref{use-cases-functionstatic}{meyers-singleton}):
@@ -202,8 +201,9 @@ int main()
 }
 \end{emcppslisting}
 
-\noindent (In a large-scale production environment, we would avoid evaluating any expression whose result is intended to be logged unless the logging level for that specific logging statement is enabled.{\cprotect\footnote{An eminently useful,
-full-featured logger, known as the \texttt{ball} logger, can be found in the
+\noindent In a large-scale production environment, we would avoid evaluating any expression whose result is
+intended to be logged unless the logging level for that specific logging statement is enabled.{\cprotect\footnote{An
+eminently useful, full-featured logger, known as the \texttt{ball} logger, can be found in the
 \texttt{ball} package of the \texttt{bal} package group of Bloomberg's open-source
   BDE libraries (\cite{bde14}, subdirectory \texttt{/groups/bal/ball}).}}) All function-local \lstinline!static! objects, such as \lstinline!localLogger!
 in the example above, will be destroyed automatically only on normal
@@ -216,12 +216,6 @@ the order in which they are destroyed. Note that programs can terminate in sever
 such as a call to \lstinline!std::quick_exit!, \lstinline!_Exit!, or
 \lstinline!std::abort!, that explicitly do \emph{not} destroy
   \romeogloss{\lstinline!static! storage-duration} objects.
-
-The destruction of \romeogloss{function-scope} \lstinline!static! objects is
-and always has been guaranteed to be safe \emph{provided} (1) no threads
-are running after returning from \lstinline!main! and (2)
-\romeogloss{function-scope} \lstinline!static! objects do not depend on each
-other during destruction; see \intraref{potential-pitfalls-functionstatic}{depending-on-order-of-destruction-of-local-objects-after-main-returns}.
 
 \subsubsection[Multithreaded contexts]{Multithreaded contexts}\label{multithreaded-contexts}
 
@@ -373,7 +367,13 @@ section} that is guarded by the compiler includes evaluation of the
 initializer, which is why a recursive call to initialize a
 function-scope \lstinline!static! variable is undefined behavior and is
 likely to result in deadlock; see \intrarefsimple{description-functionstatic}.
-Such use of file-scope \lstinline!static!s, however, is not foolproof; see \intraref{potential-pitfalls-functionstatic}{depending-on-order-of-destruction-of-local-objects-after-main-returns}.
+Such use of function-scope \lstinline!static!s, however, is not foolproof; see \intraref{potential-pitfalls-functionstatic}{depending-on-order-of-destruction-of-local-objects-after-main-returns}.
+
+The destruction of \romeogloss{function-scope} \lstinline!static! objects is
+and always has been guaranteed to be safe \emph{provided} (1) no threads
+are running after returning from \lstinline!main! and (2)
+\romeogloss{function-scope} \lstinline!static! objects do not depend on each
+other during destruction; see \intraref{potential-pitfalls-functionstatic}{depending-on-order-of-destruction-of-local-objects-after-main-returns}.
 
 \subsection[Use Cases]{Use Cases}\label{use-cases-functionstatic}
 
@@ -963,7 +963,7 @@ alternatives elucidated at the end of \intraref{use-cases-functionstatic}{meyers
 the mechanism at all. It is worth noting that truly global objects ---
 such as \lstinline!cout!, \lstinline!cerr!, and \lstinline!clog! --- from the
 Standard \lstinline!iostream! Library are typically not implemented using
-conventional methods and are in fact treated specially by the run time.
+conventional methods and are in fact treated specially by the runtime system.
 
 \subsection[Annoyances]{Annoyances}\label{annoyances}
 
@@ -1055,7 +1055,7 @@ Logger& getInstance()
 
     if (!loggerPtr)  // Does the logger need to be initialized?
     {
-        std::mutex m;
+        static std::mutex m;
         std::lock_guard<std::mutex> guard(m);  // Lock the mutex.
 
         if (!loggerPtr)  // We are first, as the logger is still uninitialized.
