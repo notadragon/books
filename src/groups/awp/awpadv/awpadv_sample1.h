@@ -39,14 +39,6 @@ namespace awpadv {
 // ----Listing done: cawp-advanced.tex:11-----
 //-----------------------END GENERATED EXTRACT : cawp-internal awpadv_sample1_h
 
-//-------------------------GENERATED EXTRACT : emcpps-internal awpadv_sample1_h
-// ----Listing start: emcpps-advanced.tex:7-----
-  struct S {
-    void foo();
-  };
-// ----Listing done: emcpps-advanced.tex:11-----
-//---------------------END GENERATED EXTRACT : emcpps-internal awpadv_sample1_h
-
 }  // close package namespace
 }  // close enterprise namespace
 
