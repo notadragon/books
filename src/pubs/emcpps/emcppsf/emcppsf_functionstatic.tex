@@ -70,7 +70,7 @@ will not be destroyed until after \lstinline!main! exits.
 Historically, initialization of \romeogloss{function-scope}
 \romeogloss{\lstinline!static! storage-duration} objects was not guaranteed to be safe in a
 \romeogloss{multithreading context} because it was subject to \romeogloss{data races}
-if the function was called concurrently from multiple threads.   These \romegloss{data races}
+if the function was called concurrently from multiple threads.   These \romeogloss{data races}
 around initialization can lead to the initializer being invoked multiple times, object
 construction running concurrently on the same object, and control flow continuing past
 the variable definition before initialization had completed at all.  All of these
@@ -186,7 +186,7 @@ void f()
 two separate threads concurrently, without having been called before. Suppose that the first thread gets
 through the \lstinline!MyString! constructor, in the example above, up to
 \emph{but not including} line (4) before it is suspended by the
-operating system. After that, a second thread might begin initializing \lstline!str! again --- because
+operating system. After that, a second thread might begin initializing \lstinline!str! again --- because
 no guards existed prior to C++11 to prevent this --- and make it all the way past line (6) before it too
 is suspended. When the operating system eventually resumes execution of
 the first thread, the dynamic allocation and assignment on line (4)
