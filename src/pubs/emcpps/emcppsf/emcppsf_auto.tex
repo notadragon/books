@@ -39,7 +39,7 @@ initializers (see \intraref{potential-pitfalls-auto}{surprising-deduction-for-li
 are the same as the rules for \emcppsgloss{function template argument type
 deduction}:
 
-\begin{emcppslisting}[language=C++]
+\begin{emcppslisting}
 auto two = 2;     // Type of (ù{\codeincomments{two}}ù) is deduced to be (ù{\codeincomments{int}}ù)
 auto pi = 3.14f;  // Type of (ù{\codeincomments{pi}}ù) is deduced to be (ù{\codeincomments{float}}ù).
 \end{emcppslisting}
@@ -49,11 +49,14 @@ deduced in the same manner as they would be if the same initializer were
 passed to a function template taking a single argument of the template
 type by value:
 
-\begin{emcppslisting}[language=C++]
+\begin{emcppslisting}
 template <typename T> void deducer(T);
 
-deducer(2);      // (ù{\codeincomments{T}}ù) is deduced to be (ù{\codeincomments{int}}ù).
-deducer(3.14f);  // (ù{\codeincomments{T}}ù) is deduced to be (ù{\codeincomments{float}}ù).
+void test1()
+{
+    deducer(2);      // (ù{\codeincomments{T}}ù) is deduced to be (ù{\codeincomments{int}}ù).
+    deducer(3.14f);  // (ù{\codeincomments{T}}ù) is deduced to be (ù{\codeincomments{float}}ù).
+}
 \end{emcppslisting}
     
 \noindent If the variable declared with \lstinline!auto! does not have an
@@ -61,7 +64,7 @@ initializer, if its name appears in the expression used to initialize
 it, or if the initializers of multiple variables in the same declaration
 don't deduce the same type, the program is ill formed:
 
-\begin{emcppslisting}[language=C++]
+\begin{emcppslisting}
 auto x;                // Error, declaration of (ù{\codeincomments{auto x}}ù) has no initializer.
 auto n = sizeof(n);    // Error, use of (ù{\codeincomments{n}}ù) before deduction of (ù{\codeincomments{auto}}ù)
 auto i = 3, f = 0.3f;  // Error, inconsistent deduction for (ù{\codeincomments{auto}}ù)
@@ -71,7 +74,7 @@ auto i = 3, f = 0.3f;  // Error, inconsistent deduction for (ù{\codeincomments{
 reference type for its by-value argument, a variable declared with
 unqualified \lstinline!auto! is never deduced to have a reference type:
 
-\begin{emcppslisting}[language=C++]
+\begin{emcppslisting}
 int  val = 3;
 int& ref = val;
 auto tmp = ref;  // Type of (ù{\codeincomments{tmp}}ù) is deduced to be (ù{\codeincomments{int}}ù), not (ù{\codeincomments{int\&}}ù).
@@ -81,7 +84,7 @@ auto tmp = ref;  // Type of (ù{\codeincomments{tmp}}ù) is deduced to be (ù{\c
 allows controlling whether the deduced type is a reference and whether
 it is \lstinline!const! and/or \lstinline!volatile!:
 
-\begin{emcppslisting}[language=C++]
+\begin{emcppslisting}
 auto val = 3;
     // Type of (ù{\codeincomments{val}}ù) is deduced to be (ù{\codeincomments{int}}ù).
     // same as argument for (ù{\codeincomments{template <typename T> void deducer(T)}}ù)
@@ -111,7 +114,7 @@ reference} (see \featureref{\locationc}{forwardingref}). This means that a
 variable declared with \lstinline!auto&&! will result in an \romeovalue{lvalue} or an
 \romeovalue{rvalue} reference depending on the value category of its initializer:
 
-\begin{emcppslisting}[language=C++]
+\begin{emcppslisting}[emcppsbatch={e1,e2}]
 double doStuff();
 
       int val  = 3;
@@ -133,18 +136,18 @@ auto&& rref = doStuff();
 pointer type is to be deduced is possible. If the supplied initializer is not of a
 pointer type, the compiler will issue an error:
 
-\begin{emcppslisting}[language=C++]
+\begin{emcppslisting}[emcppsbatch=e1]
 const auto* cptr = &cval;
     // Type of (ù{\codeincomments{cptr}}ù) is deduced to be (ù{\codeincomments{const int*}}ù).
     // same as argument for (ù{\codeincomments{template <typename T> void deducer(const T*)}}ù)
 
-auto* cptr2 = cval;  // Error, cannot (ù{\codeincomments{auto*}}ù) from (ù{\codeincomments{cval}}ù)
+auto* cptr2 = cval;  // Error, cannot deduce (ù{\codeincomments{auto*}}ù) from (ù{\codeincomments{cval}}ù)
 \end{emcppslisting}
     
 \noindent The compiler can also be instructed to deduce pointers to functions,
 data members, and member functions (but see \intraref{annoyances-auto}{not-all-template-argument-deduction-constructs-are-allowed-for-auto}):
 
-\begin{emcppslisting}[language=C++]
+\begin{emcppslisting}[emcppsbatch=e2]
 float freeF(float);
 
 struct S
@@ -170,7 +173,7 @@ auto (S::* mfptr)(long) = &S::memberF;
 Therefore, different forms of \lstinline!auto! can be used to declare a
 variable of a pointer type:
 
-\begin{emcppslisting}[language=C++]
+\begin{emcppslisting}[emcppsbatch=e2]
 auto  cptr1 = &cval;  // (ù{\codeincomments{const int*}}ù)
 auto *cptr2 = &cval;  //   "     "
 
@@ -189,7 +192,7 @@ auto (S::* mfptr2)(long) = &S::memberF;  //   "    "     "
 incompatible, \lstinline!auto*! cannot be used to deduce pointers to data
 members and member functions:
 
-\begin{emcppslisting}[language=C++]
+\begin{emcppslisting}[emcppsbatch=e2]
 auto *mptr3  = &S::d_data;   // Error, cannot deduce (ù{\codeincomments{auto*}}ù) from (ù{\codeincomments{\&S::d\_data}}ù)
 auto *mfptr3 = &S::memberF;  // Error, cannot deduce (ù{\codeincomments{auto*}}ù) from (ù{\codeincomments{\&S::memberF}}ù)
 \end{emcppslisting}
@@ -198,7 +201,7 @@ auto *mfptr3 = &S::memberF;  // Error, cannot deduce (ù{\codeincomments{auto*}}
 (see \featureref{\locationc}{constexprvar}) specifier can be
 applied to variables that use \lstinline!auto! in their declaration:
 
-\begin{emcppslisting}[language=C++]
+\begin{emcppslisting}
 thread_local     const auto* logPrefix = "mylib";
 static constexpr       auto  pi        = 3.1415926535f;
 \end{emcppslisting}
@@ -207,7 +210,15 @@ static constexpr       auto  pi        = 3.1415926535f;
 allows declaring a variable supplied with an initializer with a single
 exception of nonstatic data members (see \intraref{annoyances-auto}{auto-not-allowed-for-non-static-data-members}):
 
-\begin{emcppslisting}[language=C++]
+
+\begin{emcppshiddenlisting}[emcppsbatch=e3]
+#include <vector>     // (ù{\codeincomments{std::vector}}ù)
+int sendRequest();
+int responseStatus();
+bool haveMoreWork();
+std::vector<int> vec;
+\end{emcppshiddenlisting}
+\begin{emcppslisting}[emcppsbatch=e3]
 // namespace scope
 auto globalNamespaceVar = 3.;
 
@@ -248,17 +259,29 @@ struct S
 Consider a defect introduced due to mistakenly leaving a variable
 uninitialized:
 
-\begin{emcppslisting}[language=C++]
-int recordCount;
-while (cursor.next()) { ++recordCount; }  // Bug, undefined behavior
+\begin{emcppshiddenlisting}[emcppsbatch=e4]
+struct Cursor {
+    bool next();
+};
+Cursor cursor;
+\end{emcppshiddenlisting}
+\begin{emcppslisting}[emcppsbatch=e4]
+void test2()
+{
+    int recordCount;
+    while (cursor.next()) { ++recordCount; }  // Bug, undefined behavior
+}
 \end{emcppslisting}
     
 \noindent Variables declared with \lstinline!auto! must be initialized. Use of
 \lstinline!auto! might, therefore, prevent such defects:
 
-\begin{emcppslisting}[language=C++]
-auto recordCount; // Error, declaration of (ù{\codeincomments{recordCount}}ù) has no initializer
-while (cursor.next()) { ++recordCount; }
+\begin{emcppslisting}[emcppsbatch=e4,emcppserrorlines={4}]
+void test3()
+{
+    auto recordCount; // Error, declaration of (ù{\codeincomments{recordCount}}ù) has no initializer
+    while (cursor.next()) { ++recordCount; }
+}
 \end{emcppslisting}
     
 \noindent In addition, the initialization requirement might encourage a good
@@ -273,28 +296,38 @@ the type that the function uses as its return type. For example, the
 functions are associated with \lstinline!optional! and \lstinline!variant!
 types, which were standardized in C++17:
 
-\begin{emcppslisting}[language=C++, style=footcode,]
+\begin{emcppshiddenlisting}[emcppsbatch=e5]
+#include <string>    // (ù{\codeincomments{std::string}}ù)
+#include <variant>   // (ù{\codeincomments{std::variant}}ù)
+#include <optional>  // (ù{\codeincomments{std::optional}}ù)
+\end{emcppshiddenlisting}
+\begin{emcppslisting}[emcppsbatch=e5,emcppsstandards={c++17},style=footcode]
 std::variant<std::string, int, double> valueVariant;
 
 // Without (ù{\fncodeincomments{auto}}ù):
-std::optional<std::string> greeting = std::make_optional<std::string>("Hello");
-const std::string& valueString = std::get<std::string>(valueVariant);
+std::optional<std::string> greeting1 = std::make_optional<std::string>("Hello");
+const std::string& valueString1 = std::get<std::string>(valueVariant);
 
 // With (ù{\fncodeincomments{auto}}ù):
-auto greeting = std::make_optional<std::string>("Hello");
-const auto& valueString = std::get<std::string>(valueVariant);
+auto greeting2 = std::make_optional<std::string>("Hello");
+const auto& valueString2 = std::get<std::string>(valueVariant);
 \end{emcppslisting}
       }} If a variable's type is specified explicitly, such declarations
 redundantly repeat the type. The use of \lstinline!auto! obviates this repetition:
 
-\begin{emcppslisting}[language=C++]
+\begin{emcppshiddenlisting}[emcppsbatch=e5]
+#include <memory>  // (ù{\codeincomments{std::shared\_ptr}}ù), (ù{\codeincomments{std::unique\_ptr}}ù)
+struct RequestContext{};
+struct Socket{};
+\end{emcppshiddenlisting}
+\begin{emcppslisting}[emcppsbatch=e5]
 // Without (ù{\codeincomments{auto}}ù):
-std::shared_ptr<RequestContext> context = std::make_shared<RequestContext>();
-std::unique_ptr<Socket>         socket  = std::make_unique<Socket>();
+std::shared_ptr<RequestContext> context1 = std::make_shared<RequestContext>();
+std::unique_ptr<Socket>         socket1  = std::make_unique<Socket>();
 
 // With (ù{\codeincomments{auto}}ù):
-auto context = std::make_shared<RequestContext>();
-auto socket  = std::make_unique<Socket>();
+auto context2 = std::make_shared<RequestContext>();
+auto socket2  = std::make_unique<Socket>();
 \end{emcppslisting}
     
 
@@ -306,11 +339,19 @@ convertible --- from its initializer. As an example, the code below has
 a subtle defect that can lead to performance degradation or incorrect
 semantics:
 
-\begin{emcppslisting}[language=C++]
-std::map<int, User> users{/* ... */};
-for (const std::pair<int, User>& idUserPair : users)
+\begin{emcppshiddenlisting}[emcppsbatch={e6,e7}]
+#include <map>      // (ù{\codeincomments{std::map}}ù)
+#include <utility>  // (ù{\codeincomments{std::pair}}ù)
+struct User {};
+\end{emcppshiddenlisting}
+\begin{emcppslisting}[emcppsbatch=e6]
+void test4()
 {
-    // ...
+    std::map<int, User> users{/* ... */};
+    for (const std::pair<int, User>& idUserPair : users)
+    {
+        // ...
+    }
 }
 \end{emcppslisting}
     
@@ -322,11 +363,14 @@ is implicitly convertible to \lstinline!std::pair<int,!~\lstinline!User>!.
 Using \lstinline!auto! would allow the compiler to deduce the correct type
 and avoid this unnecessary and potentially expensive copy:
 
-\begin{emcppslisting}[language=C++]
-std::map<int, User> users{/* ... */};
-for (const auto& idUserPair : users)
+\begin{emcppslisting}[emcppsbatch=e7]
+void test5()
 {
-    // (ù{\codeincomments{auto}}ù) is deduced as (ù{\codeincomments{std::pair<const int, User>}}ù).
+    std::map<int, User> users{/* ... */};
+    for (const auto& idUserPair : users)
+    {
+        // (ù{\codeincomments{auto}}ù) is deduced as (ù{\codeincomments{std::pair<const int, User>}}ù).
+    }
 }
 \end{emcppslisting}
     
@@ -341,13 +385,20 @@ comes with additional overhead. For example, storing a lambda closure in
 a \lstinline!std::function! might entail an allocation on construction and
 virtual dispatch upon every call:
 
-\begin{emcppslisting}[language=C++]
-std::function<void()> errorCallback0 = [&]{ saveCurrentWork(); };
-    // OK, implicit conversion from anonymous closure type to
-    // (ù{\codeincomments{std::function<void()>}}ù), which incurs additional overhead
+\begin{emcppshiddenlisting}[emcppsbatch=e8]
+#include <functional>      // (ù{\codeincomments{std::function}}ù)
+void saveCurrentWork();
+\end{emcppshiddenlisting}
+\begin{emcppslisting}[emcppsbatch=e8]
+void test6()
+{
+    std::function<void()> errorCallback0 = [&]{ saveCurrentWork(); };
+        // OK, implicit conversion from anonymous closure type to
+        // (ù{\codeincomments{std::function<void()>}}ù), which incurs additional overhead
 
-auto errorCallback1 = [&]{ saveCurrentWork(); };
-    // BETTER, deduces the compiler-synthesized type
+    auto errorCallback1 = [&]{ saveCurrentWork(); };
+        // Better, deduces the compiler-synthesized type
+}
 \end{emcppslisting}
     
 
@@ -357,7 +408,10 @@ auto errorCallback1 = [&]{ saveCurrentWork(); };
 or do not convey useful information. A typical example is avoiding the
 need for spelling out the iterator type of a container:
 
-\begin{emcppslisting}[language=C++]
+\begin{emcppshiddenlisting}[emcppsbatch=e9]
+#include <vector>      // (ù{\codeincomments{std::vector}}ù)
+\end{emcppshiddenlisting}
+\begin{emcppslisting}[emcppsbatch=e9]
 void doWork(const std::vector<int>& data)
 {
     // without (ù{\codeincomments{auto}}ù):
@@ -378,17 +432,48 @@ templates} whose types can
 be deeply nested and unreadable and might even differ between versions of
 the same library:
 
-\begin{emcppslisting}[language=C++]
+\begin{emcppshiddenlisting}[emcppsbatch=e10]
+struct Employee {
+  int name;
+};
+
+struct JoinedInYear {
+JoinedInYear(int i) {}
+};
+
+template <typename T, typename U>
+struct FilterRange {};
+
+template <typename T, int (Employee::*)>
+struct TransformRange {};
+
+struct Es {};;
+Es employees;
+
+int filter(const JoinedInYear&);
+struct T {};
+T transform(int (Employee::*));
+
+struct A {};
+A operator|(const Es&,int);
+
+TransformRange<
+    FilterRange<decltype(employees), JoinedInYear>,
+    &Employee::name>
+operator|(const A&, const T&);
+
+\end{emcppshiddenlisting}
+\begin{emcppslisting}[emcppsbatch=e10]
 // without (ù{\codeincomments{auto}}ù):
 TransformRange<
     FilterRange<decltype(employees), JoinedInYear>,
     &Employee::name
-> newEmployeeNames =
+> newEmployeeNames1 =
     employees | filter(JoinedInYear(2019))
               | transform(&Employee::name);
 
 // with (ù{\codeincomments{auto}}ù):
-auto newEmployeeNames =
+auto newEmployeeNames2 =
     employees | filter(JoinedInYear(2019))
               | transform(&Employee::name);
 \end{emcppslisting}
@@ -404,7 +489,11 @@ their clients' code in projects where automated large-scale refactoring
 tools are not available (but see \intraref{potential-pitfalls-auto}{lack-of-interface-restrictions}). As an example,
 consider the following library function:
 
-\begin{emcppslisting}[language=C++]
+\begin{emcppshiddenlisting}[emcppsbatch=e11]
+#include <vector>     // (ù{\codeincomments{std::vector}}ù)
+struct Node {};
+\end{emcppshiddenlisting}
+\begin{emcppslisting}[emcppsbatch=e11]
 std::vector<Node> getNetworkNodes();
     // Return a sequence of nodes in the current network.
 \end{emcppslisting}
@@ -417,17 +506,23 @@ variables storing the return value of this function, the implementers of
 for example, \lstinline!std::deque! without breaking their clients'
 code.
 
-\begin{emcppslisting}[language=C++]
+\begin{emcppslisting}[emcppsbatch=e11]
 // without (ù{\codeincomments{auto}}ù):
-const std::vector<Node> nodes = getNetworkNodes();
-for (const Node& node : nodes) { /* ... */ }
-    // prevents migration
+void test7()
+{
+    const std::vector<Node> nodes = getNetworkNodes();
+    for (const Node& node : nodes) { /* ... */ }
+        // prevents migration
+}
 
-// with (ù{\codeincomments{auto}}ù):
-const auto nodes = getNetworkNodes();
-for (const Node& node : nodes) { /* ... */ }
-    // The return type of (ù{\codeincomments{getNetworkNodes}}ù) can be silently
-    // changed while retaining correctness of the user code.
+void test8()
+{
+    // with (ù{\codeincomments{auto}}ù):
+    const auto nodes = getNetworkNodes();
+    for (const Node& node : nodes) { /* ... */ }
+        // The return type of (ù{\codeincomments{getNetworkNodes}}ù) can be silently
+        // changed while retaining correctness of the user code.
+}
 \end{emcppslisting}
     
 
@@ -440,7 +535,12 @@ variable's type, increasing cognitive load for readers. In conjunction
 with unclear variable naming, disproportionate use of \lstinline!auto! can
 make code difficult to read and maintain.
 
-\begin{emcppslisting}[language=C++]
+\begin{emcppshiddenlisting}[emcppsbatch=e12]
+#include <vector>  // (ù{\codeincomments{std::vector}}ù)
+#include <string>  // (ù{\codeincomments{std::string}}ù)
+std::vector<std::string> parseArgs(int argc, char** argv);
+\end{emcppshiddenlisting}
+\begin{emcppslisting}[emcppsbatch=e12]
 int main(int argc, char** argv)
 {
     const auto args0 = parseArgs(argc, argv);
@@ -465,7 +565,14 @@ unnecessary copies that might negatively affect both code performance
 and correctness. For example, consider a function that capitalizes a
 user's name:
 
-\begin{emcppslisting}[language=C++]
+\begin{emcppshiddenlisting}[emcppsbatch={e13,e14}]
+#include <string>  // (ù{\codeincomments{std::string}}ù)
+#include <cctype>  // (ù{\codeincomments{std::toupper}}ù)
+struct User {
+   std::string &name();
+};
+\end{emcppshiddenlisting}
+\begin{emcppslisting}[emcppsbatch=e13]
 void capitalizeName(User& user)
 {
     if (user.name().empty())
@@ -482,7 +589,7 @@ the \lstinline!user.name()! invocation. However, a missing reference
 qualification leads not only to an unnecessary copy of the string, but
 also to the function failing to perform its job:
 
-\begin{emcppslisting}[language=C++]
+\begin{emcppslisting}[emcppsbatch=e14]
 void capitalizeName(User& user)
 {
     auto name = user.name();  // Bug, unintended copy
@@ -502,9 +609,17 @@ returned-temporary value. As an example, consider refactoring the
 hypothetical \lstinline!useValue(getValue())! expression by first
 initializing an intermediate variable with \lstinline!getValue()!:
 
-\begin{emcppslisting}[language=C++]
-auto&& tempValue = getValue();
-useValue(tempValue);
+\begin{emcppshiddenlisting}[emcppsbatch={e15,e16}]
+struct V {};
+V getValue();
+void useValue(const V&v);
+\end{emcppshiddenlisting}
+\begin{emcppslisting}[emcppsbatch=e15]
+void test9()
+{
+    auto&& tempValue = getValue();
+    useValue(tempValue);
+}
 \end{emcppslisting}
     
 \noindent The above invocation of \lstinline!useValue! is not equivalent to the
@@ -514,9 +629,13 @@ close to the original semantics, \lstinline!std::forward! and
 of \lstinline!getValue()! to the invocation of \lstinline!useValue! (see
 \featureref{\locationc}{forwardingref}):
 
-\begin{emcppslisting}[language=C++]
-auto&& tempValue = getValue();
-useValue(std::forward<decltype(tempValue)>(tempValue));
+\begin{emcppslisting}[emcppsbatch=e16]
+#include <utility>  // (ù{\codeincomments{std::forward}}ù)
+void test10()
+{
+    auto&& tempValue = getValue();
+    useValue(std::forward<decltype(tempValue)>(tempValue));
+}
 \end{emcppslisting}
     
 \noindent Note that, even with the latest changes, the code above achieves the same result but in a somewhat different way because
@@ -533,7 +652,8 @@ otherwise. For an example of unintentional consequences of allowing such
 conversions, consider a function template that is intended to combine
 two \lstinline!chrono! duration values:
 
-\begin{emcppslisting}[language=C++]
+\begin{emcppslisting}
+#include <chrono>  // (ù{\codeincomments{std::chrono::seconds}}ù)
 template <typename Duration1, typename Duration2>
 std::chrono::seconds combine_durations(Duration1 d1, Duration2 d2)
 {
@@ -555,15 +675,22 @@ missed when using \lstinline!auto! instead of an explicitly specified type.
 For example, \lstinline!auto! might deduce a proxy type that might lead to
 difficult-to-diagnose defects:
 
-\begin{emcppslisting}[language=C++]
-std::vector<bool> flags = loadFlags();
-
-auto firstFlag = flags[0];  // deduces a proxy type, not (ù{\codeincomments{bool}}ù)
-flags.clear();
-
-if (firstFlag) // Bug, use-after-free: (ù{\codeincomments{flags}}ù) vector released its memory.
+\begin{emcppshiddenlisting}[emcppsbatch=e17]
+#include <vector>     // (ù{\codeincomments{std::vector}}ù)
+std::vector<bool> loadFlags();
+\end{emcppshiddenlisting}
+\begin{emcppslisting}[emcppsbatch=e17]
+void test11()
 {
-    // ...
+    std::vector<bool> flags = loadFlags();
+
+    auto firstFlag = flags[0];  // deduces a proxy type, not (ù{\codeincomments{bool}}ù)
+    flags.clear();
+
+    if (firstFlag) // Bug, use-after-free: (ù{\codeincomments{flags}}ù) vector released its memory.
+    {
+        // ...
+    }
 }
 \end{emcppslisting}
     
@@ -576,7 +703,12 @@ compile time. Consider refactoring the \lstinline!getNetworkNodes! function
 illustrated in \intraref{use-cases-auto}{improving-resilience-to-library-code-changes} to return \lstinline!std::deque<Node>! instead of
 \lstinline!std::vector<Node>!:
 
-\begin{emcppslisting}[language=C++]
+\begin{emcppshiddenlisting}[emcppsbatch=e18]
+#include <deque>     // (ù{\codeincomments{std::deque}}ù)
+struct Node {};
+void CLibraryProcessNodes(Node *, std::size_t);
+\end{emcppshiddenlisting}
+\begin{emcppslisting}[emcppsbatch=e18]
 std::deque<Node> getNetworkNodes();  // Return type changed from (ù{\codeincomments{std::vector<Node>}}ù).
     // Return a sequence of nodes in the current network.
 \end{emcppslisting}
@@ -587,10 +719,13 @@ range-based \lstinline!for! wouldn't be affected, the behavior of code that
 relied on the contiguous layout of elements in \lstinline!std::vector!
 objects \emph{silently} becomes undefined:
 
-\begin{emcppslisting}[language=C++]
-auto nodes = getNetworkNodes();
-CLibraryProcessNodes(&nodes[0], nodes.size());  
-  // exhibits UB after (ù{\codeincomments{std::vector}}ù)-to-(ù{\codeincomments{std::deque}}ù) change
+\begin{emcppslisting}[emcppsbatch=e18]
+void test12()
+{
+    auto nodes = getNetworkNodes();
+    CLibraryProcessNodes(&nodes[0], nodes.size());  
+        // exhibits UB after (ù{\codeincomments{std::vector}}ù)-to-(ù{\codeincomments{std::deque}}ù) change
+}
 \end{emcppslisting}
     
 \noindent While specifying constraints on types deduced by
@@ -600,7 +735,16 @@ named type requirements --- as well as means to constrain
 \lstinline!auto! with a specific concept, which can be used instead of
   \lstinline!static_assert! in such circumstances.}}:
 
-\begin{emcppslisting}[language=C++]
+\begin{emcppshiddenlisting}[emcppsbatch=e19]
+#include <type_traits>
+#include <vector>
+struct Packet {};
+struct PacketCache {
+    std::vector<Packet> d_packets;
+    const Packet* findFirstCorruptPacket() const;
+};
+\end{emcppshiddenlisting}
+\begin{emcppslisting}[emcppsbatch=e19]
 const Packet* PacketCache::findFirstCorruptPacket() const
 {
     auto it = std::begin(this->d_packets);
@@ -627,7 +771,15 @@ or a mix of signed and unsigned arithmetic. In the example below, the
 infinite loop depending on whether the type returned by
 \lstinline!Encoder::encodedLengthFor! is signed.
 
-\begin{emcppslisting}[language=C++]
+\begin{emcppshiddenlisting}[emcppsbatch=e20]
+#include <string>  // (ù{\codeincomments{std::string}}ù)
+#include <cctype>  // (ù{\codeincomments{std::tolower}}ù)
+struct Encoder {
+    static int encodedLengthFor(const std::string &);
+    static void encode(std::string::iterator, const std::string &);
+};
+\end{emcppshiddenlisting}
+\begin{emcppslisting}[emcppsbatch=e20]
 void lowercaseEncode(std::string* result, const std::string& input)
 {
     auto encodedLength = Encoder::encodedLengthFor(input);
@@ -637,7 +789,7 @@ void lowercaseEncode(std::string* result, const std::string& input)
 
     while (--encodedLength >= 0)  // infinite loop if (ù{\codeincomments{encodedLength}}ù) is unsigned
     {
-        (*result)[i] = std::tolower((*result)[i]);
+        (*result)[encodedLength] = std::tolower((*result)[encodedLength]);
     }
 }
 \end{emcppslisting}
@@ -650,14 +802,17 @@ templates if brace-enclosed initializer list are used. Function template
 argument deduction will always fail, whereas, according to C++11 rules,
 \lstinline!std::initializer_list! will be deduced for \lstinline!auto!.
 
-\begin{emcppslisting}[language=C++]
+\begin{emcppslisting}
 auto example0 = 0; // copy initialization, deduced as (ù{\codeincomments{int}}ù)
 auto example1(0);  // direct initialization, deduced as (ù{\codeincomments{int}}ù)
 auto example2{0};  // list initialization, deduced as (ù{\codeincomments{std::initializer\_list<int>}}ù)
 
 template <typename T> void func(T);
-func(0);   // (ù{\codeincomments{T}}ù) deduced as (ù{\codeincomments{int}}ù)
-func({0}); // compilation failure
+void test13()
+{
+    func(0);   // (ù{\codeincomments{T}}ù) deduced as (ù{\codeincomments{int}}ù)
+    func({0}); // Error
+}
 \end{emcppslisting}
     
 \noindent This surprising behavior was, however, widely regarded as a mistake and
@@ -671,12 +826,14 @@ Nonetheless, even with this retroactive fix, the effects of the
 deduction rules when applied to braced initializer lists might be
 puzzling. In particular, \lstinline!std::initializer_list! is deduced when
 \emcppsgloss{copy initialization} is used instead of
-\emcppsgloss{direct initialization}:
+\emcppsgloss{direct initialization}, and this requires including \lstinline!<initializer_list>!:
 
-\begin{emcppslisting}[language=C++]
+\begin{emcppslisting}
 auto x1 = 1;    // (ù{\codeincomments{int}}ù)
 auto x2(1);     //   "
 auto x3{1};     //   "
+
+#include <initializer_list>  // (ù{\codeincomments{std::initializer\_list}}ù)
 auto x4 = {1};  // (ù{\codeincomments{std::initializer\_list<int>}}ù)
 
 auto x5{1, 2};     // Error, direct-list-init requires exactly 1 element.
@@ -689,7 +846,7 @@ auto x6 = {1, 2};  // (ù{\codeincomments{std::initializer\_list<int>}}ù)
 Deducing built-in array types using \lstinline!auto! presents multiple
 challenges. First, declaring an array of \lstinline!auto! is ill formed:
 
-\begin{emcppslisting}[language=C++]
+\begin{emcppslisting}
 auto arr1[]  = {1, 2};  // Error, array of (ù{\codeincomments{auto}}ù) is not allowed.
 auto arr2[2] = {1, 2};  // Error, array of (ù{\codeincomments{auto}}ù) is not allowed.
 \end{emcppslisting}
@@ -699,7 +856,8 @@ compile or\linebreak[4]%%%%%%
  \lstinline!std::initializer_list! is deduced instead of a
 built-in array:
 
-\begin{emcppslisting}[language=C++]
+\begin{emcppslisting}
+#include <initializer_list>  // (ù{\codeincomments{std::initializer\_list}}ù)
 auto arr3 = {1, 2};  // (ù{\codeincomments{std::initializer\_list<int>}}ù)
 auto arr4{1, 2};     // Error, direct-list-init requires exactly 1 element.
 \end{emcppslisting}
@@ -708,12 +866,15 @@ auto arr4{1, 2};     // Error, direct-list-init requires exactly 1 element.
 template (see \featureref{\locationa}{alias-declarations-and-alias-templates}) will result in code that
 compiles but has undefined behavior:
 
-\begin{emcppslisting}[language=C++]
+\begin{emcppshiddenlisting}[emcppsbatch=e21]
+#include <cstddef>  // (ù{\codeincomments{std::size\_t}}ù)
+\end{emcppshiddenlisting}
+\begin{emcppslisting}[emcppsbatch=e21]
 template <typename TYPE, std::size_t SIZE>
 using BuiltInArray = TYPE[SIZE];
 
 auto arr5 = BuiltInArray<int, 2>{1, 2};
-    // (ù{\codeincomments{arr5}}ù) is a dangling pointer of type (ù{\codeincomments{int *}}ù).
+    // Error, taking the address of a temporary array
 \end{emcppslisting}
     
 \noindent Note that in this case such code also almost entirely defeats the
@@ -723,7 +884,7 @@ array's bound are deduced.
 With that said, using \lstinline!auto! to deduce
 references to built-in arrays is straightforward:
 
-\begin{emcppslisting}[language=C++]
+\begin{emcppslisting}[emcppsbatch=e21]
 int data[] = {1, 2};
 
       auto&  arr6 = data;                        //       (ù{\codeincomments{int (\&) [2]}}ù)
@@ -743,7 +904,7 @@ them does not have the undefined behavior that subscripting
 Despite C++11 allowing nonstatic data members to be initialized within
 class definitions, \lstinline!auto! cannot be used to declare them:
 
-\begin{emcppslisting}[language=C++]
+\begin{emcppslisting}
 class C
 {
     auto d_i = 1;  // Error, nonstatic data member is declared with (ù{\codeincomments{auto}}ù).
@@ -760,7 +921,7 @@ a pointer-to-data-member type, templates allow for deducing both the
 data member type and the class type, whereas \lstinline!auto! can 
 deduce only the former:
 
-\begin{emcppslisting}[language=C++]
+\begin{emcppslisting}
 struct Node
 {
     int   d_data;
@@ -770,41 +931,60 @@ struct Node
 template <typename TYPE>
 void deduceMemberTypeFn(TYPE Node::*);
 
-             deduceMemberTypeFn   (&Node::d_data);  // OK, (ù{\codeincomments{int Node::*}}ù)
-auto Node::* deduceMemberTypeVar = &Node::d_data;   // OK,   "     "
-
+void test14()
+{
+                 deduceMemberTypeFn   (&Node::d_data);  // OK, (ù{\codeincomments{int Node::*}}ù)
+    auto Node::* deduceMemberTypeVar = &Node::d_data;   // OK,   "     "
+}
 
 template <typename TYPE>
 void deduceClassTypeFn(int TYPE::*);
 
-            deduceClassTypeFn   (&Node::d_data);  // OK, (ù{\codeincomments{int Node::*}}ù)
-int auto::* deduceClassTypeVar = &Node::d_data;   // Error, not allowed
-
+void test15()
+{
+                deduceClassTypeFn   (&Node::d_data);  // OK, (ù{\codeincomments{int Node::*}}ù)
+    int auto::* deduceClassTypeVar = &Node::d_data;   // Error, not allowed
+}
 
 template <typename TYPE>
 void deduceBothTypesFn(TYPE* TYPE::*);
 
-              deduceBothTypesFn   (&Node::d_next);  // OK, (ù{\codeincomments{Node* Node::*}}ù)
-auto* auto::* deduceBothTypesVar = &Node::d_next;   // Error, not allowed
+void test16()
+{
+                  deduceBothTypesFn   (&Node::d_next);  // OK, (ù{\codeincomments{Node* Node::*}}ù)
+    auto* auto::* deduceBothTypesVar = &Node::d_next;   // Error, not allowed
+}
 \end{emcppslisting}
     
 \noindent Furthermore, deducing the parameter of a class template is also not
 allowed:
 
-\begin{emcppslisting}[language=C++]
+\begin{emcppshiddenlisting}[emcppsbatch=e22]
+#include <vector>     // (ù{\codeincomments{std::vector}}ù)
+\end{emcppshiddenlisting}
+\begin{emcppslisting}[emcppsbatch=e22]
 std::vector<int> vectorOfInt;
 
 template <typename TYPE>
 void deduceVectorArgFn(const std::vector<TYPE>&);
 
-                  deduceVectorArgFn   (vectorOfInt); // OK, (ù{\codeincomments{TYPE}}ù) is (ù{\codeincomments{int}}ù)
-std::vector<auto> deduceVectorArgVar = vectorOfInt;  // Error, not allowed
+void test17()
+{
+                      deduceVectorArgFn   (vectorOfInt); // OK, (ù{\codeincomments{TYPE}}ù) is (ù{\codeincomments{int}}ù)
+    std::vector<auto> deduceVectorArgVar = vectorOfInt;  // Error, not allowed
+}
 \end{emcppslisting}
     
 \noindent Instead, if \lstinline!auto! type deduction is desired in such cases,
 \lstinline!auto! alone is suitable to deduce the type from the initializer:
 
-\begin{emcppslisting}[language=C++]
+\begin{emcppshiddenlisting}[emcppsbatch=e22]
+struct Node {
+int d_data;
+Node *d_next;
+};
+\end{emcppshiddenlisting}
+\begin{emcppslisting}[emcppsbatch=e22]
 auto deduceClassTypeVar = &Node::d_data;  // OK, (ù{\codeincomments{int   Node::*}}ù)
 auto deduceBothTypesVar = &Node::d_next;  // OK, (ù{\codeincomments{Node* Node::*}}ù)
 

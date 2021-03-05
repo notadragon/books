@@ -25,7 +25,10 @@ collectively known as \emcppsgloss[literal type]{literal types}, may be be decla
 \lstinline!constexpr!, allowing them to be initialized \emph{at
 compile-time} and subsequently used in \emcppsgloss[constant expression]{constant expressions}:
 
-\begin{emcppslisting}[language=C++]
+\begin{emcppshiddenlisting}[emcppsbatch=e1]
+#include <array>  // (ù{\codeincomments{std::array}}ù)
+\end{emcppshiddenlisting}
+\begin{emcppslisting}[emcppsbatch=e1]
           int i0 = 5;
     const int i1 = 5;               // (ù{\codeincomments{i1}}ù) is a compile-time constant.
 constexpr int i2 = 5;               // (ù{\codeincomments{i2}}ù)  " "    "      "     "
@@ -42,7 +45,7 @@ can be used within constant expressions --- e.g., as the first argument
 to \lstinline!static_assert!, the size of an array, or as a non-type
 template parameter --- such is not the case for any other types:
 
-\begin{emcppslisting}[language=C++]
+\begin{emcppslisting}[emcppsbatch=e1]
 static_assert(i0 == 5, "");         // Error, (ù{\codeincomments{i0}}ù) is not a compile-time constant.
 static_assert(i1 == 5, "");         // OK, (ù{\codeincomments{const}}ù) is "magical" for integers (only).
 static_assert(i2 == 5, "");         // OK
@@ -63,7 +66,7 @@ std::array<int, s2[1]> e;           // OK, defines a (ù{\codeincomments{std::ar
 \noindent Prior to C++11, the types of variables usable in a \emcppsgloss{constant
 expression} were quite limited:
 
-\begin{emcppslisting}[language=C++]
+\begin{emcppslisting}
 const int b;         // Error, (ù{\codeincomments{const}}ù) scalar variable must be initialized.
 extern const int c;  // OK, declaration
 const int d = c;     // OK, not constant initialized ((ù{\codeincomments{c}}ù) initializer not seen)
@@ -101,7 +104,7 @@ generalization, however, was not made for mere \lstinline!const! variables
 because they are not \emph{required} to be initialized by compile-time
 constants:
 
-\begin{emcppslisting}[language=C++]
+\begin{emcppslisting}
 int f() { return 0; }  // (ù{\codeincomments{f()}}ù) is not a compile-time (ù{\emphincomments{constant expression}ù).
 
                 int x0 = f();  // OK
@@ -122,7 +125,7 @@ in a \emcppsgloss{constant expression}, certain criteria must hold:
 \begin{enumerate}
 \item{The variable must be annotated with \lstinline!constexpr!, which implicitly also declares the variable to be \lstinline!const!\footnote{C++20 added the \lstinline!constinit! keyword to identify a variable that is initialized at compile time (with a constant expression) but may then be modified at runtime.}:
 
-\begin{emcppslisting}[language=C++]
+\begin{emcppslisting}
 struct S  // simple (aggregate) literal type
 {
     int i;  // built-in integer data member
@@ -145,7 +148,7 @@ explicitly declared \lstinline!constexpr!.}
 
 \item{All \lstinline!constexpr! variables must be initialized with a \emcppsgloss{constant expression} when they are defined. Hence, every \lstinline!constexpr! variable has an initializer, and that initializer must be a valid \emcppsgloss{constant expression} (see \featureref{\locationc}{constexprfunc}):
 
-\begin{emcppslisting}[language=C++]
+\begin{emcppslisting}
           int g() { return 17; }  // a non-(ù{\codeincomments{constexpr}}ù) function
 constexpr int h() { return 34; }  // a (ù{\codeincomments{constexpr}}ù) function
 
@@ -164,19 +167,19 @@ void func(int c)
     
 \item{Any variable declared \lstinline!constexpr! must be of \emcppsgloss{literal type}; all literal types are, among other things, \emcppsgloss{trivially destructible}:
 
-\begin{emcppslisting}[language=C++]
+\begin{emcppslisting}
 struct Lt  // literal type
 {
-   constexpr  Lt()  { }        // (ù{\codeincomments{constexpr}}ù) constructor
-   constexpr ~Lt() = default;  // (ù{\codeincomments{default}}ù) trivial destructor
+    constexpr  Lt()  { }  // (ù{\codeincomments{constexpr}}ù) constructor
+    ~Lt() = default;      // (ù{\codeincomments{default}}ù) trivial destructor
 };
 
 constexpr Lt lt;  // OK, (ù{\codeincomments{Lt}}ù) is a (ù{\emphincomments{literal type}ù).
 
 struct Nlt  // (ù{\emphincomments{non}ù)literal type.
 {
-    Nlt() { }  // cannot initialize at compile-time
-    ~Lt() { }  // cannot skip non-trivial destruction
+    Nlt()  { }  // cannot initialize at compile-time
+    ~Nlt() { }  // cannot skip non-trivial destruction
 };
 
 constexpr Nlt nlt;  // Error, (ù{\codeincomments{Nlt}}ù) is not a (ù{\emphincomments{literal type}ù).
@@ -193,7 +196,7 @@ same conditions that a destructor would be invoked for a
 
 \item{Unlike integral constants, non\lstinline!static! data members cannot be \lstinline!constexpr!. Only variables at global or \lstinline!namespace! scope, automatic variables, or \lstinline!static! data members of a \lstinline!class! or \lstinline!struct! may be declared \lstinline!constexpr!. Consequently, any given \lstinline!constexpr! variable is a top-level object, never a subobject of another (possible non\lstinline!constexpr!) object:
 
-\begin{emcppslisting}[language=C++]
+\begin{emcppslisting}
                constexpr int i = 17;    // OK, file scope
 namespace ns { constexpr int j = 34; }  // OK, namespace scope
 
@@ -214,7 +217,7 @@ void g()
 \lstinline!constexpr! objects are implicitly \lstinline!constexpr! and
 therefore can be used directly in any \emcppsgloss[constant expression]{constant expressions}:
 
-\begin{emcppslisting}[language=C++]
+\begin{emcppslisting}
 constexpr struct D { int i; } x{1};  // brace-initialized aggregate (ù{\codeincomments{x}}ù)
 constexpr int k = x.i;  // Subobjects of (ù{\codeincomments{constexpr}}ù) objects are (ù{\codeincomments{constexpr}}ù).
 \end{emcppslisting}
@@ -229,7 +232,7 @@ expression}, it is not subject to the possibility of undefined behavior
 (e.g., overflow) at run time and will instead result in a compile-time
 error:
 
-\begin{emcppslisting}[language=C++]
+\begin{emcppslisting}
           const int iA = 1 << 15;  // 2^15 = 32,768 fits in 2 bytes.
           const int jA = iA * iA;  // OK
 
@@ -262,7 +265,7 @@ For example, suppose we have two similar functions, \lstinline!squareA! and
 \lstinline!int! that each return the integral product of multiplying the
 argument with itself:
 
-\begin{emcppslisting}[language=C++]
+\begin{emcppslisting}[emcppsbatch=e2]
           int squareA(int i) { return i * i; }  // non-(ù{\codeincomments{constexpr}}ù) function
 constexpr int squareB(int i) { return i * i; }  // (ù{\codeincomments{constexpr}}ù) function
 \end{emcppslisting}
@@ -270,7 +273,7 @@ constexpr int squareB(int i) { return i * i; }  // (ù{\codeincomments{constexpr
 \noindent Declaring a variable to be just \lstinline!const! does nothing to force the
 compiler to check the evaluation of either function for overflow:
 
-\begin{emcppslisting}[language=C++]
+\begin{emcppslisting}[emcppsbatch=e2]
                 int xA0 = squareA(1 << 15);  // OK
           const int xA1 = squareA(1 << 15);  // OK
 constexpr       int xA2 = squareA(1 << 15);  // Error, (ù{\codeincomments{squareA}}ù), not (ù{\codeincomments{constexpr}}ù)
@@ -300,7 +303,7 @@ algorithms, mathematical constants, configuration variables, or any
 number of other reasons. A naive, brute-force approach might be to
 hard-code the constants where they are used:
 
-\begin{emcppslisting}[language=C++]
+\begin{emcppslisting}
 int hoursToSeconds0(int hours)
     // Return the number of seconds in the specified (ù{\codeincomments{hours}}ù).  The behavior is
     // undefined unless the result can be represented as an (ù{\codeincomments{int}}ù).
@@ -316,7 +319,7 @@ integral values only, we could always represent such compile-time
 constants symbolically by using a classic \lstinline!enum! type (in
 deliberate preference to the modern, type-safe enumerator; see \featureref{\locationc}{enumclass}):
 
-\begin{emcppslisting}[language=C++]
+\begin{emcppslisting}
 struct TimeRatios1  // explicit scope for single classic anonymous (ù{\codeincomments{enum}}ù) type
 {
     enum  // anonymous enumeration comprising related symbolic constants
@@ -330,7 +333,7 @@ struct TimeRatios1  // explicit scope for single classic anonymous (ù{\codeinco
 int hoursToSeconds1(int hours)
     // ...
 {
-    return hours * TimeRatios::k_SECONDS_PER_HOUR;
+    return hours * TimeRatios1::k_SECONDS_PER_HOUR;
 }
 \end{emcppslisting}
     
@@ -349,7 +352,7 @@ its \emcppsgloss[underlying type (UT)]{UT} (because there are far more than $2^{
 altering how all of the enumerators behave when used in expressions
 with, say, values of type \lstinline!int! (e.g., to \lstinline!long!); see \featureref{\locationa}{long-long}:
 
-\begin{emcppslisting}[language=C++]
+\begin{emcppslisting}
 struct TimeRatios2  // explicit scope for single classic anonymous (ù{\codeincomments{enum}}ù) type
 {
     enum  // Anonymous enumeration --- UT is governed by all of the enumerators.
@@ -373,7 +376,7 @@ that do \emph{not} fit in an \lstinline!int! to morph into a larger
 integral type. We might achieve this effect by placing each enumerator
 in its own separate anonymous enumeration:
 
-\begin{emcppslisting}[language=C++]
+\begin{emcppslisting}
 struct TimeRatios3  // explicit scope for multiple classic anonymous (ù{\codeincomments{enum}}ù) types
 {
     enum { k_SECONDS_PER_MINUTE = 60               };  // UT: (ù{\codeincomments{int}}ù) (likely)
@@ -398,8 +401,8 @@ A modern alternative to having separate anonymous \lstinline!enum!s for
 each distinct value (or class of values) is to instead encode each ratio
 as an explicitly typed \lstinline!constexpr! variable:
 
-\begin{emcppslisting}[language=C++]
-struct TimeRatios
+\begin{emcppslisting}
+struct TimeRatios4
 {
     static constexpr int k_SECONDS_PER_MINUTE = 60;
     static constexpr int k_MINUTES_PER_HOUR   = 60;
@@ -414,14 +417,14 @@ struct TimeRatios
 int hoursToSeconds(int hours)
     // ...
 {
-    return hours * TimeRatios::k_SECONDS_PER_HOUR;
+    return hours * TimeRatios4::k_SECONDS_PER_HOUR;
 }
 
 long hoursToNanos(int hours)
     // Return the number of nanoseconds in the specified (ù{\codeincomments{hours}}ù).  The behavior
     // is undefined unless the result can be represented as a (ù{\codeincomments{long}}ù).
 {
-    return hours * TimeRatios::k_NANOS_PER_HOUR;
+    return hours * TimeRatios4::k_NANOS_PER_HOUR;
 }
 \end{emcppslisting}
     
@@ -447,7 +450,7 @@ The classical solution to avoid encoding this type of constant values as
 a \emph{magic number} is to instead use a macro, such as is done in the
 \lstinline!math.h! header on most operating systems:
 
-\begin{emcppslisting}[language=C++]
+\begin{emcppslisting}
 #define M_E   2.7182818284590452354  /* e */
 #define M_PI  3.14159265358979323846 /* pi */
 
@@ -471,7 +474,7 @@ be able to initialize variables of possibly higher-precision
 floating-point types, here we need only enough digits to uniquely
 identify the appropriate \lstinline!double! constant:
 
-\begin{emcppslisting}[language=C++]
+\begin{emcppslisting}[emcppsstandards={c++14}]
 struct NumericConstants
 {
     static constexpr double k_E  = 2.718'281'828'459'045;  /* e */
@@ -513,7 +516,10 @@ when combined with the relaxation of the rules for \lstinline!constexpr!
 evaluation in C++14 (see \featureref{\locationd}{relaxed-constexpr-restrictions}), this compile-time-friendly container provides a simple way to
   define functions that populate tables of values.}}:
 
-\begin{emcppslisting}[language=C++]
+\begin{emcppshiddenlisting}[emcppsbatch=e3,emcppsstandards={c++14}]
+#include <cstddef>  // (ù{\codeincomments{std::size\_t}}ù)
+\end{emcppshiddenlisting}
+\begin{emcppslisting}[emcppsbatch=e3]
 template <typename T, std::size_t N>
 struct ConstexprArray
 {
@@ -548,7 +554,7 @@ Given this utility class, we can then precompute at compile time any
 function that we can express as a \lstinline!constexpr! function, such as a
 simple table of the first \lstinline!N! squares:
 
-\begin{emcppslisting}[language=C++]
+\begin{emcppslisting}[emcppsbatch=e3]
 constexpr int square(int x) { return x * x; }
 
 constexpr ConstexprArray<int, 500> squares(square);
@@ -583,7 +589,7 @@ here with respect to \emcppsgloss{Collatz length}. Suppose we have a function
 \lstinline!n! returns \lstinline!n/2! and for odd \lstinline!n! returns
 \lstinline!3n+1!.
 
-\begin{emcppslisting}[language=C++]
+\begin{emcppslisting}
 int cf(int n) { return n % 2 ? 3 * n + 1 : n / 2; }  // Collatz function
 \end{emcppslisting}
     
@@ -610,7 +616,7 @@ functionality within the limitations of C++11 \lstinline!constexpr!
 functions, we will make use of the relaxed restrictions of C++14; see
 \featureref{\locationc}{constexprfunc}:
 
-\begin{emcppslisting}[language=C++]
+\begin{emcppslisting}[emcppsstandards={c++14}]
 constexpr int collatzLength(long long number)
     // Return the length of the Collatz sequence of the specified (ù{\codeincomments{number}}ù). The
     // behavior is undefined unless each intermediate sequence member can be
@@ -694,7 +700,7 @@ as planned because \lstinline!constexpr!~\lstinline!static! data members must
 have a complete type and the class being defined is not complete until
 its closing brace:
 
-\begin{emcppslisting}[language=C++]
+\begin{emcppslisting}[emcppsbatch=e4]
 class S
 {
     static const     S constVal;      // OK, initialized outside class below
@@ -710,7 +716,7 @@ pattern, where the singleton object is a static local variable in a
 function call, also fails (see \featureref{\locationa}{thread-safe-function-static-variables}) because \lstinline!constexpr! functions are not allowed to have
 static variables (see \featureref{\locationc}{constexprfunc}):
 
-\begin{emcppslisting}[language=C++]
+\begin{emcppslisting}[emcppsbatch=e4,emcppsignore={Invalid function}]
 constexpr const S& singleton()
 {
    static constexpr S object{};  // Error, even in C++14, (ù{\codeincomments{static}}ù) is not allowed.
@@ -726,7 +732,7 @@ partial solution with the \lstinline!constinit! keyword, allowing for
 compile-time initialization of static data members, but that still
 does not make such objects usable in a \emcppsgloss{constant expression}.}}:
 
-\begin{emcppslisting}[language=C++]
+\begin{emcppslisting}
 class S
 {
     friend struct T;
@@ -736,7 +742,7 @@ class S
 
 struct T
 {
-    static constexpr S constexprS;
+    static constexpr S constexprS{};
 };
 \end{emcppslisting}
     
