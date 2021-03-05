@@ -11,16 +11,17 @@ import sys
 #   newglossaryentry/longnewglossaryentry
 
 commandRe = re.compile("\\\\(romeoglossf|romeogloss|emcppsglossgloss|emcppsgloss|newglossaryentry|longnewglossaryentry)")
-wsRe = re.compile("\\s+")
+wsRe = re.compile("\\s+",re.MULTILINE)
 
 lstInlineRe = re.compile("\\\\lstinline!(.*)!")
 latexRe = re.compile("\\\\(.*)\{(.*)\}")
 parentheticalsRe = re.compile("\\(.*\\)")
 
 def cleanupText(s):
-    s = wsRe.sub(" ",s.strip())
-    while s[0] == "{" and s[-1] == "}":
-        s = s[1:-1]
+    if s:
+        s = wsRe.sub(" ",s.strip())
+        while s[0] == "{" and s[-1] == "}":
+            s = s[1:-1]
     return s
 
 def stripMarkup(s):
@@ -28,6 +29,7 @@ def stripMarkup(s):
     s = latexRe.sub("\\2",s)
     s = parentheticalsRe.sub("",s)
     s = s.replace("\\-","").replace("-"," ").replace("$","")
+
     return cleanupText(s)
 
 def makeEntryName(gid):
@@ -136,8 +138,8 @@ def doParseTexKV(args):
 
 class EmcppsGlossRef:
     def __init__(self,gid,text):
-        self.gid = gid
-        self.text = text
+        self.gid = cleanupText(gid)
+        self.text = cleanupText(text)
 
     def check(self, step, env, f, ref):
         if step != 2:

@@ -22,15 +22,15 @@ of multiple concurrent threads.
 
 \subsection[Description]{Description}\label{description-functionstatic}
 
-A variable declared at function (a.k.a. local) scope has \romeogloss{automatic storage duration}, 
-except when it is marked \lstinline!static!, in which case it has \romeogloss{static storage duration}.
-Variables having \romeogloss{automatic storage duration} are allocated on the stack
-each time the function is invoked, and initialized when that invocation's \romeogloss{flow of control}
-passes through the \romeogloss{definition} of that object.
-In contrast, variables with static \romeogloss{storage duration} (e.g., \lstinline!iLocal!)
+A variable declared at function (a.k.a. local) scope has \emcppsgloss{automatic storage duration}, 
+except when it is marked \lstinline!static!, in which case it has \emcppsgloss{static storage duration}.
+Variables having \emcppsgloss{automatic storage duration} are allocated on the stack
+each time the function is invoked, and initialized when that invocation's \emcppsgloss{flow of control}
+passes through the \emcppsgloss{definition} of that object.
+In contrast, variables with \emcppsgloss{static storage duration} (e.g., \lstinline!iLocal!)
 defined at function scope (e.g., \lstinline!f!) are instead allocated once per program, and are initialized
-only the first time the \romeogloss{flow of control} passes
-through the \romeogloss{definition} of that object:
+only the first time the \emcppsgloss{flow of control} passes
+through the \emcppsgloss{definition} of that object:
 
 \begin{emcppslisting}
 #include <cassert>  // standard C (ù{\codeincomments{assert}}ù) macro
@@ -63,10 +63,10 @@ will not be destroyed until after \lstinline!main! exits.
 
 \subsubsection[Concurrent Initialization]{Concurrent Initialization}\label{concurrent-initialization}
 
-Historically, initialization of \romeogloss{function-scope}
-\romeogloss{\lstinline!static! storage-duration} objects was not guaranteed to be safe in a
-\romeogloss{multithreading context} because it was subject to \romeogloss{data races}   
-if the function was called concurrently from multiple threads.   These \romeogloss{data races}
+Historically, initialization of \emcppsgloss[function scope]{function-scope}
+\emcppsgloss{static storage duration} objects was not guaranteed to be safe in a
+\emcppsgloss{multithreading context} because it was subject to \emcppsgloss{data races}   
+if the function was called concurrently from multiple threads.   These \emcppsgloss{data races}
 around initialization can lead to the initializer being invoked multiple times, object
 construction running concurrently on the same object, and control flow continuing past
 the variable definition before initialization had completed at all.  All of these
@@ -75,13 +75,13 @@ One common but non-portable pre-C++11 workaround was the
 \emph{double-checked lock pattern}; see \intrarefsimple{appendix:-c++03-double-checked-lock-pattern}.
 
 As of C++11, a conforming compiler is now required to ensure that
-initialization of \romeogloss{function-scope} \romeogloss{\lstinline!static! storage-duration}
+initialization of \emcppsgloss[function scope]{function-scope} \emcppsgloss{static storage duration}
 objects is performed safely, and exactly once, before execution continues past the initializer, even when the function is called
 concurrently from multiple threads. 
 
 \subsubsection[Destruction]{Destruction}\label{destruction}
 
-\romeogloss{Automatic} objects within a local scope are destroyed when control
+\emcppsgloss[automatic]{Automatic} objects within a local scope are destroyed when control
 leaves the scope in which they are declared.
 In contrast, \lstinline!static! local objects that have been initialized are
 not destroyed until normal program termination,  either after the \lstinline!main! function returns
@@ -92,7 +92,7 @@ of these objects will be the reverse of the order in which they completed constr
 Note that programs can terminate in several other ways,
 such as a call to \lstinline!std::quick_exit!, \lstinline!_Exit!, or
 \lstinline!std::abort!, that explicitly do \emph{not} destroy
-  \romeogloss{\lstinline!static! storage-duration} objects.
+  \emcppsgloss{static storage duration} objects.
 
 
 \subsubsection[Logger example]{Logger example}\label{logger-example}
@@ -145,11 +145,11 @@ The C++11 Standard Library provides copious utilities and abstractions related
 to multithreading. One part of that, \lstinline!std::thread!, is a portable
 wrapper for a platform-specific thread handle provided by the
 operating system. When constructing an \lstinline!std::thread! object
-with a \romeogloss{callable object} a new thread
-invoking that \romeogloss{callable object} will be spawned.   Prior to destroying such
+with a \emcppsgloss{callable object} a new thread
+invoking that \emcppsgloss{callable object} will be spawned.   Prior to destroying such
 \lstinline!std::thread! objects it is also neccessary to invoke the
 \lstinline!join! member function on the thread object, which will block until
-the background thread of execution completes invoking its \romeogloss{callable object}.
+the background thread of execution completes invoking its \emcppsgloss{callable object}.
 
 This threading facility from the standard library can be used
 with our earlier \lstinline!Logger! example from \intraref{description-functionstatic}{logger-example},
@@ -184,37 +184,37 @@ int main()
 \end{emcppslisting}
 
 Such use prior to the C++11 thread-safety guarantees (with pre-C++11 threading libraries) could
-have led to a \romeogloss{data race} during the initialization of
+have led to a \emcppsgloss{data race} during the initialization of
 \lstinline!localLogger!, which was defined as a local \lstinline!static!
-object in \lstinline!getLogger!.   This \romeogloss{undefined behavior} might have resulted in
+object in \lstinline!getLogger!.   This \emcppsgloss{undefined behavior} might have resulted in
 invoking the constructor of \lstinline!localLogger! multiple times, returning from
 \lstinline!localLogger! before that constructor had actually been completed, or
 any other form of misbehavior over which a developer has no control.
 
-\noindent As of C++11, the example above has no \romeogloss{data races} provided that \linebreak%%%%%%
+\noindent As of C++11, the example above has no \emcppsgloss{data races} provided that \linebreak%%%%%%
 \lstinline!Logger::operator<<(const!~\lstinline!char*)! is designed properly
 for multithreaded use, even though the
 \lstinline!Logger::Logger(const!~\lstinline!char*!~\lstinline!logFilePath)!
 constructor (i.e., the one used to configure the singleton instance of
-the logger) is not. That is to say, the implicit \romeogloss{critical section}
+the logger) is not. That is to say, the implicit \emcppsgloss{critical section}
 that is guarded by the compiler includes evaluation of the
 initializer, which is why a recursive call to initialize a
-function-scope \lstinline!static! variable is \romeogloss{undefined behavior} and is
+function-scope \lstinline!static! variable is \emcppsgloss{undefined behavior} and is
 likely to result in deadlock; see \intrarefsimple{dangerous-recursive-initialization}.
 Such use of function-scope \lstinline!static!s, however, is not foolproof;
 see \intraref{potential-pitfalls-functionstatic}{depending-on-order-of-destruction-of-local-objects-after-main-returns}.
 
-The destruction of \romeogloss{function-scope} \lstinline!static! objects is
+The destruction of \emcppsgloss[function scope]{function-scope} \lstinline!static! objects is
 and always has been guaranteed to be safe \emph{provided} (1) no threads
 are running after returning from \lstinline!main! and (2)
-\romeogloss{function-scope} \lstinline!static! objects do not depend on each
+\emcppsgloss[function scope]{function-scope} \lstinline!static! objects do not depend on each
 other during destruction; see \intraref{potential-pitfalls-functionstatic}{depending-on-order-of-destruction-of-local-objects-after-main-returns}.
 
 \subsection[Use Cases]{Use Cases}\label{use-cases-functionstatic}
 
 \subsubsection[Meyers Singleton]{Meyers Singleton}\label{meyers-singleton}
 
-The guarantees surrounding access across \romeogloss{translation units} to runtime
+The guarantees surrounding access across \emcppsgloss[translation unit]{translation units} to runtime
 initialized objects at file or namespace scope are few and dubious ---
 especially when that access might occur prior to entering \lstinline!main!.
 Consider a library component, \lstinline!libcomp!, that defines a
@@ -277,12 +277,12 @@ int main()
 \noindent Depending on the compiler or the link line, the call
 initializing \lstinline!globalInitFlag! may occur and return \emph{prior}
 to the initialization of  \lstinline!globalS!.  C++ does not guarantee that objects at
-file or namespace scope in separate \romeogloss{translation units} will be
-initialized just because a function located within that \romeogloss{translation unit}
+file or namespace scope in separate \emcppsgloss[translation unit]{translation units} will be
+initialized just because a function located within that \emcppsgloss{translation unit}
 happens to be called.
 
 An effective pattern for helping to ensure that a non-local object
-\emph{is} initialized before it is used from a separate \romeogloss{translation unit}
+\emph{is} initialized before it is used from a separate \emcppsgloss{translation unit}
 --- especially when that use might occur prior to entering \lstinline!main!
 --- is simply to move the \lstinline!static! object at file or namespace
 scope inside the scope of the function accessing it, making it a
@@ -300,31 +300,30 @@ S& getGlobalS()  // access into this translation unit
 }
 \end{emcppslisting}
 
-\noindent Commonly known as the \romeogloss{Meyers Singleton}, for the
+\noindent Commonly known as the \emcppsgloss[meyers singleton]{Meyers Singleton}, for the
 author Scott Meyers who popularized it, this pattern ensures that the
 singleton object will \emph{necessarily} be initialized on the first
 call to the accessor function that envelopes it, irrespective of when
 and where that call is made. Moreover, that singleton object will also
-live past the end of \lstinline!main!. The \romeogloss{Meyers
-Singleton} pattern also gives us a chance to catch and respond to
+live past the end of \lstinline!main!. The \emcppsgloss[meyers singleton]{Meyers Singleton} pattern also gives us a chance to catch and respond to
 exceptions thrown when constructing the \lstinline!static! object, rather
 than immediately terminating the program, as would be the case if declared as a
 \lstinline!static! global variable. Much more importantly, however, since C++11, the
-\romeogloss{Meyers Singleton} pattern automatically inherits the benefits of
+\emcppsgloss[meyers singleton]{Meyers Singleton} pattern automatically inherits the benefits of
 effortless race-free initialization of \emph{reusable} program-wide
-singleton objects.  The \romeogloss{Meyers Singleton} can be safely used 
+singleton objects.  The \emcppsgloss[meyers singleton]{Meyers Singleton} can be safely used 
 both in the programs where the singleton initialization might happen before \lstinline!main!
 and those where it might happen after additional threads have already been started.
 
 As discussed in \intrarefsimple{description-functionstatic}, the augmentation of a
 thread-safety guarantee for the runtime initialization of
-\romeogloss{function-scope} \lstinline!static! objects in C++11 minimizes the
+\emcppsgloss[function scope]{function-scope} \lstinline!static! objects in C++11 minimizes the
 effort required to create a thread-safe singleton.  Note that, prior to C++11,
 the simple function-scope \lstinline!static!
 implementation would not be safe if concurrent threads were trying to
 initialize the logger; see \intrarefsimple{appendix:-c++03-double-checked-lock-pattern}.
 
-The \romeogloss{Meyers Singleton} is also seen in a slightly different form
+The \emcppsgloss[meyers singleton]{Meyers Singleton} is also seen in a slightly different form
 where the singleton type's constructor is made \lstinline!private! to
 prevent more than just the one singleton object from being created:
 
@@ -378,7 +377,7 @@ brittle design doesn't
 admit the dual-singleton use of the same fundamental \lstinline!Camera!
 type. A more finely factored solution would be to implement the
 \lstinline!Camera! type separately and then to provide a thin wrapper,
-e.g., perhaps using the \romeogloss{strong-\lstinline!typedef! idiom} (see \featureref{\locationa}{inheriting-constructors}), corresponding to each singleton
+e.g., perhaps using the \emcppsgloss[strong typedef idiom]{strong-\lstinline!typedef! idiom} (see \featureref{\locationa}{inheriting-constructors}), corresponding to each singleton
 use:
 
 \begin{emcppshiddenlisting}[emcppsbatch=e11]
@@ -432,14 +431,14 @@ Logger& getLogger()
 \emph{never} goes away before the process ends. The disadvantage is
 that, for many classic and current profiling tools (e.g., \emph{Purify},
 \emph{Coverity}), this intentionally never-freed dynamic allocation is
-indistinguishable from a \romeogloss{memory leak}. The ultimate workaround
+indistinguishable from a \emcppsgloss{memory leak}. The ultimate workaround
 is to create the object itself in \lstinline!static! memory, in an
 appropriately sized and aligned region of memory{\cprotect\footnote{Note
 that any memory that \lstinline!Logger! itself manages would still come
 from the global heap and be recognized as memory leaks. If available,
 we could leverage a polymorphic-allocator implementation such as
 \lstinline!std::pmr! in C++17. We would first create a fixed-size array
-of memory having \romeogloss{\lstinline!static! storage duration}. Then we would
+of memory having \emcppsgloss{static storage duration}. Then we would
 create a \lstinline!static! memory-allocation mechanism (e.g.,
 \lstinline!std::pmr::monotonic_buffer_resource!). Next we would use
 placement \lstinline!new! to construct the logger within the static
@@ -472,31 +471,31 @@ for all eternity.
 
 \subsection[Potential Pitfalls]{Potential Pitfalls}\label{potential-pitfalls-functionstatic}
 
-\subsubsection[\tt{static} Storage-Duration Objects are not Guaranteed to be Initialized]{{SubsubsecCode static} Storage-Duration Objects are not Guaranteed to be Initialized}\label{static-storage-duration-objects-are-not-guaranteed-to-be-initialized}
+\subsubsection[\tt{static} Storage Duration Objects are not Guaranteed to be Initialized]{{SubsubsecCode static} Storage Duration Objects are not Guaranteed to be Initialized}\label{static-storage duration-objects-are-not-guaranteed-to-be-initialized}
 
 Despite C++11's guarantee that each individual function-scope
 \lstinline!static! initialization will occur at most once and before control can reach
 a point where the variable can be referenced, almost no similar
-guarantees are made of non-local objects of \romeogloss{\lstinline!static! storage-duration} objects.
+guarantees are made of non-local objects of \emcppsgloss{static storage duration} objects.
 This makes any interdependencies in the initialization of such objects, especially across
-\romeogloss{translation units} (TUs), an abundant source of insidious
+\emcppsgloss[translation unit]{translation units} (TUs), an abundant source of insidious
 errors.
 
-Objects that undergo \romeogloss{constant initialization} have no issue:
+Objects that undergo \emcppsgloss{constant initialization} have no issue:
 such objects will never be accessible at run time before having their
 initial values. Objects that are not constant
 initialized{\cprotect\footnote{C++20 added a new keyword,
 \lstinline!constinit!, that can be placed on a variable declaration to
 \emph{require} that the variable in question undergo constant
 initialization and thus can never be accessed at run time prior to the
-  start of its lifetime.}} will instead be \romeogloss{zero initialized}
+  start of its lifetime.}} will instead be \emcppsgloss{zero initialized}
 until their constructors run, which itself might lead to conspicuous (or
-perhaps latent) \romeogloss{undefined behavior}.
+perhaps latent) \emcppsgloss{undefined behavior}.
 
 As a demonstration of what can happen when we depend on the relative
 order of initialization of variables at file or
 namespace scope used before \lstinline!main!, consider the
-\romeogloss{cyclically dependent} pair of source files, \lstinline!a.cpp! and
+\emcppsgloss{cyclically dependent} pair of source files, \lstinline!a.cpp! and
 \lstinline!b.cpp!:
 
 \begin{emcppslisting}
@@ -526,7 +525,7 @@ int main()             // main program entry point
 }
 \end{emcppslisting}
 
-\noindent These two \romeogloss{translation units} will be initialized before \lstinline!main! is
+\noindent These two \emcppsgloss[translation unit]{translation units} will be initialized before \lstinline!main! is
 entered in some order, but --- regardless of that order --- the program
 in the example above will wind up dereferencing a null pointer
 before entering \lstinline!main!:
@@ -563,7 +562,7 @@ $ ./a.out
 $
 \end{lstlisting}
 
-\noindent In other words, even though no order exists in which the \romeogloss{translation units}
+\noindent In other words, even though no order exists in which the \emcppsgloss[translation unit]{translation units}
 as a whole could have been initialized prior to entering
 \lstinline!main! such that the \emph{file}-scope variables
 would be valid before they were used, by instead making them
@@ -571,16 +570,16 @@ would be valid before they were used, by instead making them
 each variable is itself initialized before it is used, regardless of
 translation-unit-initialization order.
 
-While on the surface it may seem as though local and non-local objects of \lstinline!static! storage
-duration are effectively interchangeable, this is clearly not the case.  Even when
+While on the surface it may seem as though local and non-local objects of \emcppsgloss{static storage duration}
+are effectively interchangeable, this is clearly not the case.  Even when
 clients cannot directly access the non-local object due to giving it
-\romeogloss{internal linkage} by marking it \lstinline!static! or putting it in an \romeogloss{unnamed namespace},
+\emcppsgloss{internal linkage} by marking it \lstinline!static! or putting it in an \emcppsgloss{unnamed namespace},
 the initialization behaviors make such objects behave very differently.
 
 \subsubsection[Dangerous Recursive Initialization]{Dangerous Recursive Initialization}\label{dangerous-recursive-initialization}
 
 As with all other initialization, control flow does not continue
-\emph{past} the \romeogloss{definition} of a \lstinline!static! local object until
+\emph{past} the \emcppsgloss{definition} of a \lstinline!static! local object until
 after the initialization is complete, making recursive \lstinline!static!
 initialization --- or any initializer that might eventually call back to the same function --- dangerous:
 
@@ -598,7 +597,7 @@ int main()  // The program is ill-formed.
 \end{emcppslisting}
 
 \noindent In the example above, the second recursive call of \lstinline!fz!
-to initialize \lstinline!dz! has \romeogloss{undefined behavior} because the control flow reached the
+to initialize \lstinline!dz! has \emcppsgloss{undefined behavior} because the control flow reached the
 same definition again before the initialization of the
 \lstinline!static! object was completed; hence, control flow cannot continue to the
 \lstinline!return! statement in \lstinline!fz!. Given a likely implementation
@@ -673,27 +672,27 @@ occurs on the \emph{last} recursive call.
 
 \subsubsection[Depending on order-of-destruction of local objects after {\tt main} returns]{Depending on order-of-destruction of local objects after {\SubsubsecCode main} returns}\label{depending-on-order-of-destruction-of-local-objects-after-main-returns}
 
-Within any given \romeogloss{translation unit}, the relative order of initialization
-of objects at file or namespace scope having \romeogloss{static storage duration} is
+Within any given \emcppsgloss{translation unit}, the relative order of initialization
+of objects at file or namespace scope having \emcppsgloss{static storage duration} is
 well defined and predictable. As soon as we have a way to reference an
-object outside of the current \romeogloss{translation unit}, before \lstinline!main! is
+object outside of the current \emcppsgloss{translation unit}, before \lstinline!main! is
 entered, we are at risk of using the object before it has been
 initialized. Provided the initialization itself is not cyclic in nature,
 we can make use of function-scope \lstinline!static! objects (see \intraref{use-cases-functionstatic}{meyers-singleton}) to
-ensure that no such uninitialized use occurs, even across \romeogloss{translation units}
+ensure that no such uninitialized use occurs, even across \emcppsgloss[translation unit]{translation units}
 before \lstinline!main! is entered. The relative order of destruction
 of such function-scope \lstinline!static! variables --- even when they
-reside within the same \romeogloss{translation unit} --- is not clearly known at compile time,
+reside within the same \emcppsgloss{translation unit} --- is not clearly known at compile time,
 as it will be the reverse of the order in which they are initialized, and
-reliance on such order can easily lead to \romeogloss{undefined behavior} in
+reliance on such order can easily lead to \emcppsgloss{undefined behavior} in
 practice.
 
 This specific problem occurs when a \lstinline!static! object at file,
 namespace, or function scope uses (or might use) in its destructor
 another \lstinline!static! object that is either (1) at file or namespace
-scope and resides in a separate \romeogloss{translation unit} or (2) any other
+scope and resides in a separate \emcppsgloss{translation unit} or (2) any other
 function-scope \lstinline!static! object (i.e., including one in the same
-\romeogloss{translation unit}). For example, suppose we have implemented a low-level
+\emcppsgloss{translation unit}). For example, suppose we have implemented a low-level
 logging facility as a Meyers Singleton:
 
 \begin{emcppslisting}[emcppsbatch=e15]
@@ -744,7 +743,7 @@ constructor. However, whether the \lstinline!Logger! or
 
 \begin{itemize}
 \item{If the \lstinline!FileManager! object is destroyed prior to the \lstinline!Logger! object, the program will have well-defined behavior.}
-\item{Otherwise, the program will have \romeogloss{undefined behavior} because the destructor of \lstinline!FileManager! will invoke \lstinline!getLogger!, which will now return a reference to a previously destroyed object.}
+\item{Otherwise, the program will have \emcppsgloss{undefined behavior} because the destructor of \lstinline!FileManager! will invoke \lstinline!getLogger!, which will now return a reference to a previously destroyed object.}
 \end{itemize}
 
 Logging in the the constructor of the \lstinline!FileManager! 
@@ -770,11 +769,11 @@ conventional methods and are in fact treated specially by the runtime system.
 \subsubsection[Overhead in single-threaded applications]{Overhead in single-threaded applications}\label{overhead-in-single-threaded-applications}
 
 A single-threaded application invoking a function containing a
-\romeogloss{function-scope} \romeogloss{\lstinline!static! storage-duration} variable might
-have unnecessary synchronization overhead, such as an \romeogloss{atomic}
+\emcppsgloss[function scope]{function-scope} \emcppsgloss{static storage duration} variable might
+have unnecessary synchronization overhead, such as an \emcppsgloss{atomic}
 load operation. For example, consider a program that accesses
-a simple  \romeogloss{Meyers singleton} for a user-defined type with a
-\romeogloss{user-provied} default constructor:
+a simple  \emcppsgloss[meyers singleton]{Meyers singleton} for a user-defined type with a
+\emcppsgloss[user provied]{user-provied} default constructor:
 
 \begin{emcppslisting}
 struct S  // user-defined type
@@ -797,18 +796,18 @@ int main()
 
 \noindent Although it is clearly visible to the compiler that \lstinline!getS()! is
 invoked by only one thread, the generated assembly instructions might
-still contain \romeogloss{atomic} operations or other forms of
+still contain \emcppsgloss{atomic} operations or other forms of
 synchronization and the call to \lstinline!getS()! might not be 
 inlined.{\cprotect\footnote{Both GCC 10.x and Clang 10.x, using the
 \lstinline!-Ofast! optimization level, generate assembly instructions for
-an \romeogloss{acquire/release memory barrier} and fail to inline the call
+an \emcppsgloss{acquire/release memory barrier} and fail to inline the call
 to \lstinline!getS!. Using \lstinline!-fno-threadsafe-statics! reduces the
 number of operations performed considerably but still does not lead to
 the compilers' inlining of the function call. Both popular compilers
 will, however, reduce the program to just two x86 assembly
-instructions if the \romeogloss{user-provided} constructor of \lstinline!S!
+instructions if the \emcppsgloss[user provided]{user-provided} constructor of \lstinline!S!
   is either removed or defaulted (see \featureref{\locationa}{defaulted-special-member-functions});
-  doing so will turn \lstinline!S! into a \romeogloss{trivially-constructible}
+  doing so will turn \lstinline!S! into a \emcppsgloss[trivially constructible]{trivially-constructible}
   type, implying that no code needs to be executed during
   initialization:
 
@@ -835,7 +834,7 @@ None so far.
 
 \subsection[Appendix: C++03 Double-Checked Lock Pattern]{Appendix: C++03 Double-Checked Lock Pattern}\label{appendix:-c++03-double-checked-lock-pattern}
 
-Prior to the introduction of the \romeogloss{function-scope} \lstinline!static!
+Prior to the introduction of the \emcppsgloss[function scope]{function-scope} \lstinline!static!
 object initialization guarantees discussed in \intrarefsimple{description-functionstatic}, preventing multiple initializations of \lstinline!static! objects
 and use before initialization of those same objects was still needed.
 Guarding access using a \lstinline!mutex! was often a significant performance cost, so
@@ -888,7 +887,7 @@ would then allow multiple threads to acquire the lock while each thinking the
 \lstinline!static! variable still needs to be initialized.
 
 To solve this subtle issue, concurrency library authors are expected to
-issue ordering hints such as \romeogloss{fences} and \romeogloss{barriers}. A
+issue ordering hints such as \emcppsgloss{fences} and \emcppsgloss{barriers}. A
 well-implemented threading library would provide atomics equivalent to
 the modern \lstinline!std::atomic! that would issue the correct
 instructions when accessed and modified. The C++11 Standard makes the

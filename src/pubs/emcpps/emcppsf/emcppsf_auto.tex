@@ -19,8 +19,7 @@
 %\subsection[\tt{auto} Variables]{{\SubsecCode auto} Variables}\label{auto-variables}
 
 The \lstinline!auto! keyword was repurposed{\cprotect\footnote{Prior to
-C++11, the \lstinline!auto! keyword could be used as a \emcppsgloss{storage
-class specifier} for objects declared at block scope and in function
+C++11, the \lstinline!auto! keyword could be used as a \emcppsgloss{storage class specifier} for objects declared at block scope and in function
 parameter lists to indicate automatic storage duration, which is the
 default for these kinds of declarations. The \lstinline!auto! keyword was
 repurposed in C++11 alongside the deprecation (and subsequent removal
@@ -33,11 +32,9 @@ deduce the variable type from its initializer.
 
 The \lstinline!auto! keyword may be used instead of an explicit type's name
 when declaring variables. In such cases, the variable's type is deduced
-from its initializer by the compiler applying the \emcppsgloss{placeholder
-type} deduction rules, which, apart from a single exception for list
+from its initializer by the compiler applying the \emcppsgloss{placeholder type} deduction rules, which, apart from a single exception for list
 initializers (see \intraref{potential-pitfalls-auto}{surprising-deduction-for-list-initialization}),
-are the same as the rules for \emcppsgloss{function template argument type
-deduction}:
+are the same as the rules for \emcppsgloss{function template argument type deduction}:
 
 \begin{emcppslisting}
 auto two = 2;     // Type of (ù{\codeincomments{two}}ù) is deduced to be (ù{\codeincomments{int}}ù)
@@ -427,8 +424,7 @@ void doWork(const std::vector<int>& data)
 \end{emcppslisting}
     
 \noindent Furthermore, the need for such types can arise, for example, when
-storing intermediate results of \emcppsgloss[expression template]{expression
-templates} whose types can
+storing intermediate results of \emcppsgloss[expression template]{expression templates} whose types can
 be deeply nested and unreadable and might even differ between versions of
 the same library:
 
