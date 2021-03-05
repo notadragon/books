@@ -25,9 +25,11 @@
 
 \makeatletter
 \lstdefinestyle{Romeo}{
-language=C++,
+language=[11]C++,
  framerule=0.5pt,
     keywordstyle={\ttfamily\bfseries},
+    morekeywords={char8\_t,co\_await,co\_return,co\_yield,
+                  concept,consteval,constinit,requires},
     commentstyle={\color{PANTONE661PCA}\ttfamily},
     xleftmargin=2ex,
     escapeinside={(ù}{ù)},
@@ -36,7 +38,19 @@ language=C++,
    \lst@ifdisplaystyle\small\fi
  }
 \makeatother
+
 \lstset{style=Romeo}
+
+\lstdefinestyle{footcode}{
+style=Romeo,
+basicstyle=\ttfamily\footnotesize,framerule=0.5pt,
+keywordstyle={\ttfamily\bfseries\footnotesize},
+commentstyle={\color{grey}\ttfamily},
+xleftmargin=2ex,
+escapeinside={(ù}{ù)},
+showstringspaces=false, 
+}  
+
 
 \lstdefinestyle{plain}{basicstyle=\ttfamily\small,framerule=0.5pt,
     keywordstyle={\ttfamily},
@@ -44,15 +58,6 @@ language=C++,
     xleftmargin=2ex,
     escapeinside={(ù}{ù)},
     showstringspaces=false, 
-}  
-
-\lstdefinestyle{footcode}{language=C++,
-basicstyle=\ttfamily\footnotesize,framerule=0.5pt,
-keywordstyle={\ttfamily\bfseries\footnotesize},
-commentstyle={\color{grey}\ttfamily},
-xleftmargin=2ex,
-escapeinside={(ù}{ù)},
-showstringspaces=false, 
 }  
 
 \lstdefinestyle{footcodeplain}{
@@ -72,16 +77,6 @@ showstringspaces=false,
 \newcommand{\keyincomments}{\color{PANTONE661PCA}\ttfamily\bfseries}
 \newcommand{\emphincomments}{\color{PANTONE661PCA}\ttfamily\itshape}
 \newcommand{\commentcolor}{\color{PANTONE661PCA}}
-
-\lstdefinestyle{footcode}{language=C++,
-basicstyle=\ttfamily\footnotesize,framerule=0.5pt,
-keywordstyle={\ttfamily\bfseries\footnotesize},
-commentstyle={\color{grey}\ttfamily},
-xleftmargin=2ex,
-escapeinside={(ù}{ù)},
-showstringspaces=false, 
-}
-
 
 % All code samples that should be tested are going to be written within the
 % following environment
@@ -130,7 +125,7 @@ showstringspaces=false,
 
 \lstnewenvironment{emcppslisting}[1][]
 {%
-  \lstset{language=C++,#1}%
+  \lstset{style=Romeo,#1}%
   \stepcounter{emcppslistings}%
   \lst@BeginAlsoWriteFile{listings/\currfilename-\theemcppslistings.lst}%
   \immediate\write\lst@WF{// ----Listing start: \currfilename:\the\inputlineno-----}%
@@ -147,7 +142,7 @@ showstringspaces=false,
 
 \lstnewenvironment{emcppshiddenlisting}[1][]
 {%
-  \lstset{language=C++,aboveskip=0pt,belowskip=0pt,#1}%
+  \lstset{style=Romeo,aboveskip=0pt,belowskip=0pt,#1}%
   \stepcounter{emcppslistings}%
   \lst@BeginWriteFile{listings/\currfilename-\theemcppslistings.lst}%
   \immediate\write\lst@WF{// ----Hidden Listing start: \currfilename:\the\inputlineno-----}%

@@ -159,7 +159,7 @@ constexpr int v4 = h();  // OK
 
 void func(int c)
 {
-    constexpr int v5 = c;         // Error, (ù{\codeincomments{c}}ù) not a compile-time constant.
+    constexpr int v5 = c;          // Error, (ù{\codeincomments{c}}ù) not a compile-time constant.
     constexpr int v6 = sizeof(c);  // OK, (ù{\codeincomments{c}}ù) is not evaluated.
 }
 \end{emcppslisting}
@@ -223,14 +223,16 @@ constexpr int k = x.i;  // Subobjects of (ù{\codeincomments{constexpr}}ù) obje
 \end{emcppslisting}
 }
 \end{enumerate}
-    
-\noindent Finally, it is important to note the significance of one of the
+
+\subsubsection[Initializer Undefined Behavior]{Initializer Undefined Behavior}
+
+It is important to note the significance of one of the
 differences between a \lstinline!constexpr! integral variable and a
 \lstinline!const! integral variable. Because the initializer of a
 \lstinline!constexpr! variable is \emph{required} to be a \emcppsgloss{constant
 expression}, it is not subject to the possibility of undefined behavior
-(e.g., overflow) at run time and will instead result in a compile-time
-error:
+(e.g., integer overflow, out-of-bounds array access) at run time and will
+instead result in a compile-time error:
 
 \begin{emcppslisting}
           const int iA = 1 << 15;  // 2^15 = 32,768 fits in 2 bytes.
@@ -292,6 +294,24 @@ constexpr       int zC2 = squareB(1 << 16);  // Error, (ù{\codeincomments{int}}
 \lstinline!constexpr!) function for those specific arguments at compile
 time, and, if there is overflow, immediately report the defect as being
 \emcppsgloss{ill formed}.
+
+\subsubsection[Internal Linkage]{Internal Linkage}
+
+When a variable at file or namespace scope is either \lstinline!const! or \lstinline!constexpr!,
+and nothing explicitly gives it external like (e.g., being marked \lstinline!extern!), it
+will have \emcppsgloss{internal linkage}.  This means each translation unit will have its own copy of the
+variable.{\cprotect\footnote{In C++17, all \lstinline!constexpr! variables are instead automatically \lstinline!inline! as well,
+guaranteeing that there is only one instance in a program.}}
+
+In general, only the values of such variables are relevant - their initializers are seen, they are utilized
+at compile time, and it has no effect if different translation units use different objects with the same
+value.  Often, after compile time evaluation is completed, the variables themselves will no longer be
+needed and no actual address will be allocated for them at runtime.   Only in cases where the address of
+the variable is used will this difference be observable.
+
+Notably, \lstinline!static! member variables do not get \emcppsgloss{internal linkage}.  Because of this, if they
+are going to be used in a way that requires they have an address allocated at runtime they need to have a
+definition outside of their class; see \intraref{annoyances-constexprvar}{static-member-variables-require-external-definitions}.
 
 \subsection[Use Cases]{Use Cases}\label{use-cases}
 
@@ -677,17 +697,70 @@ source itself.
 
 \subsection[Annoyances]{Annoyances}\label{annoyances}
 
-%%%%% JOSH: Pls address this when you do the code check. 
-\subsubsection[TODO (VR): missing annoyance, linker error with ODR-use]{TODO (VR): missing annoyance, linker error with ODR-use}\label{todo-(vr):-missing-annoyance,-linker-error-with-odr-use}
+\subsubsection[\lstinline!static! member variables require external definitions]{{\SubsubsecCode static} member variables require external definitions}
 
-TODO. We definitely need this one, it's when you have a static
-\lstinline!constexpr! variable data member and then you get an unexpected
-linker error due to ODR-use. See
-https://\linebreak[4]
-stackoverflow.com/questions/43193749/linker-error-for-constexpr-static-member-variable-in-gcc-and-clang.
-Note that it was fixed in C++17, because static constexpr variables are
-inline variables by default there.
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+In most stituations there is little behavioral difference between a variable at file or namespace scope and a
+\lstinline!static! member variable - primarily they differ only in name lookup and access control restrictions.
+When they are \lstinline!constexpr!, however, they behave very differently when they need to exist
+at runtime.  A file or namespace scope variable will have \emcppsgloss{internal linkage}, allowing free use
+of its address with the understanding that that address will be different in different translation units:
+
+\begin{emcppslisting}
+// common.h:
+
+constexpr int c = 17;
+const int *f1();
+const int *f2();
+
+// file1.cpp:
+#include <common.h>
+
+const int *f1() { return &c; }
+
+// file2.cpp:
+#include <common.h>
+
+const int *f2() { return &c; }
+
+// main.cpp:
+#include <common.h>
+#include <cassert>  // standard C (ù{\codeincomments{assert}}ù) macro
+
+int main()
+{
+    assert( f1() != f2() );    // Different addresses in memory per TU.
+    assert( *f1() == *f2() );  // Same value.
+    return 0;
+}
+\end{emcppslisting}
+
+For \lstinline!static! data members, however, things become more difficult.  While the \emcppsgloss{declaration} in the
+class \emcppsgloss{definition} needs to have an initializer, that is not itself a \emcppsgloss{definition} and will
+not result in static storage being allocated at runtime for the object, ending in a linker error when you try to
+build an application that tries to reference it:{\cprotect\footnote{The C++17 change to make \lstinline!constexpr! variables \lstinline!inline! also applies
+to \lstinline!static! member variables, removing the need to provide external definitions when they are used.}
+
+
+\begin{emcppslisting}[emcppsbatch=e4]
+struct S {
+    static constexpr int d_i = 17;
+};
+void useByReference(const int& i) { /* ... */ }
+
+int main()
+{
+    const int local = S::d_i;  // OK, value is only used at compile time.
+    useByReference(S::d_i);    // Link-Time Error, (ù{\codeincomments{S::d\_i}}ù) not defined
+    return 0;
+}
+\end{emcppslisting}
+
+This link-time error would be removed by adding a \emcppsgloss{definition} of \lstinline!S::d_i!.  Note that the
+initializer needs to be skipped, as it has already been specified in the definition of \lstinline!S!:
+
+\begin{emcppslisting}[emcppsbatch=e4]
+constexpr int S::d_i;  // Define (ù{\codeincomments{constexpr}}ù) data member.
+\end{emcppslisting}
 
 \subsubsection[No static \lstinline!constexpr! member variables defined in their own class]{No static {\SubsubsecCode constexpr} member variables defined in their own class}\label{no-static-constexpr-member-variables-defined-in-their-own-class}
 

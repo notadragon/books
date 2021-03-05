@@ -52,7 +52,7 @@ type by value:
 \begin{emcppslisting}
 template <typename T> void deducer(T);
 
-void test1()
+void testDeduction()
 {
     deducer(2);      // (ù{\codeincomments{T}}ù) is deduced to be (ù{\codeincomments{int}}ù).
     deducer(3.14f);  // (ù{\codeincomments{T}}ù) is deduced to be (ù{\codeincomments{float}}ù).
@@ -266,7 +266,7 @@ struct Cursor {
 Cursor cursor;
 \end{emcppshiddenlisting}
 \begin{emcppslisting}[emcppsbatch=e4]
-void test2()
+void testUninitializedInt()
 {
     int recordCount;
     while (cursor.next()) { ++recordCount; }  // Bug, undefined behavior
@@ -277,7 +277,7 @@ void test2()
 \lstinline!auto! might, therefore, prevent such defects:
 
 \begin{emcppslisting}[emcppsbatch=e4,emcppserrorlines={4}]
-void test3()
+void testUnitializedAuto()
 {
     auto recordCount; // Error, declaration of (ù{\codeincomments{recordCount}}ù) has no initializer
     while (cursor.next()) { ++recordCount; }
@@ -345,7 +345,7 @@ semantics:
 struct User {};
 \end{emcppshiddenlisting}
 \begin{emcppslisting}[emcppsbatch=e6]
-void test4()
+void testManualForLoop()
 {
     std::map<int, User> users{/* ... */};
     for (const std::pair<int, User>& idUserPair : users)
@@ -364,7 +364,7 @@ Using \lstinline!auto! would allow the compiler to deduce the correct type
 and avoid this unnecessary and potentially expensive copy:
 
 \begin{emcppslisting}[emcppsbatch=e7]
-void test5()
+void testAutoForLoop()
 {
     std::map<int, User> users{/* ... */};
     for (const auto& idUserPair : users)
@@ -390,7 +390,7 @@ virtual dispatch upon every call:
 void saveCurrentWork();
 \end{emcppshiddenlisting}
 \begin{emcppslisting}[emcppsbatch=e8]
-void test6()
+void testCallbacks()
 {
     std::function<void()> errorCallback0 = [&]{ saveCurrentWork(); };
         // OK, implicit conversion from anonymous closure type to
@@ -508,14 +508,14 @@ code.
 
 \begin{emcppslisting}[emcppsbatch=e11]
 // without (ù{\codeincomments{auto}}ù):
-void test7()
+void testConcreteContainer()
 {
     const std::vector<Node> nodes = getNetworkNodes();
     for (const Node& node : nodes) { /* ... */ }
         // prevents migration
 }
 
-void test8()
+void testDeducedContainer()
 {
     // with (ù{\codeincomments{auto}}ù):
     const auto nodes = getNetworkNodes();
@@ -606,16 +606,25 @@ void capitalizeName(User& user)
 \noindent Furthermore, even a fully cv-ref-qualified \lstinline!auto! might still
 prove inadequate in cases as simple as introducing a variable for a
 returned-temporary value. As an example, consider refactoring the
-hypothetical \lstinline!useValue(getValue())! expression by first
-initializing an intermediate variable with \lstinline!getValue()!:
+contents of this simple function:
 
-\begin{emcppshiddenlisting}[emcppsbatch={e15,e16}]
+\begin{emcppshiddenlisting}[emcppsbatch={e15,e15a,e16}]
 struct V {};
 V getValue();
 void useValue(const V&v);
 \end{emcppshiddenlisting}
 \begin{emcppslisting}[emcppsbatch=e15]
-void test9()
+void testExpression()
+{
+    useValue(getValue());
+}
+\end{emcppslisting}
+
+For debugging or readiablity, it can help to use an intermediate variable to
+store the results of \lstinline!getValue()!
+
+\begin{emcppslisting}[emcppsbatch=e15a]
+void testRefactoredExpression()
 {
     auto&& tempValue = getValue();
     useValue(tempValue);
@@ -631,7 +640,7 @@ of \lstinline!getValue()! to the invocation of \lstinline!useValue! (see
 
 \begin{emcppslisting}[emcppsbatch=e16]
 #include <utility>  // (ù{\codeincomments{std::forward}}ù)
-void test10()
+void testBetterRefactoredExpression()
 {
     auto&& tempValue = getValue();
     useValue(std::forward<decltype(tempValue)>(tempValue));
@@ -680,7 +689,7 @@ difficult-to-diagnose defects:
 std::vector<bool> loadFlags();
 \end{emcppshiddenlisting}
 \begin{emcppslisting}[emcppsbatch=e17]
-void test11()
+void testProxyDeduction()
 {
     std::vector<bool> flags = loadFlags();
 
@@ -720,7 +729,7 @@ relied on the contiguous layout of elements in \lstinline!std::vector!
 objects \emph{silently} becomes undefined:
 
 \begin{emcppslisting}[emcppsbatch=e18]
-void test12()
+void testUseContiguousMemory()
 {
     auto nodes = getNetworkNodes();
     CLibraryProcessNodes(&nodes[0], nodes.size());  
@@ -808,7 +817,7 @@ auto example1(0);  // direct initialization, deduced as (ù{\codeincomments{int}
 auto example2{0};  // list initialization, deduced as (ù{\codeincomments{std::initializer\_list<int>}}ù)
 
 template <typename T> void func(T);
-void test13()
+void testFunctionDeduction()
 {
     func(0);   // (ù{\codeincomments{T}}ù) deduced as (ù{\codeincomments{int}}ù)
     func({0}); // Error
@@ -931,7 +940,7 @@ struct Node
 template <typename TYPE>
 void deduceMemberTypeFn(TYPE Node::*);
 
-void test14()
+void testDeduceMemberType()
 {
                  deduceMemberTypeFn   (&Node::d_data);  // OK, (ù{\codeincomments{int Node::*}}ù)
     auto Node::* deduceMemberTypeVar = &Node::d_data;   // OK,   "     "
@@ -940,7 +949,7 @@ void test14()
 template <typename TYPE>
 void deduceClassTypeFn(int TYPE::*);
 
-void test15()
+void test1DeduceClassType()
 {
                 deduceClassTypeFn   (&Node::d_data);  // OK, (ù{\codeincomments{int Node::*}}ù)
     int auto::* deduceClassTypeVar = &Node::d_data;   // Error, not allowed
@@ -949,7 +958,7 @@ void test15()
 template <typename TYPE>
 void deduceBothTypesFn(TYPE* TYPE::*);
 
-void test16()
+void testDeduceBothTypes()
 {
                   deduceBothTypesFn   (&Node::d_next);  // OK, (ù{\codeincomments{Node* Node::*}}ù)
     auto* auto::* deduceBothTypesVar = &Node::d_next;   // Error, not allowed
@@ -968,7 +977,7 @@ std::vector<int> vectorOfInt;
 template <typename TYPE>
 void deduceVectorArgFn(const std::vector<TYPE>&);
 
-void test17()
+void testDeduceVectorArg()
 {
                       deduceVectorArgFn   (vectorOfInt); // OK, (ù{\codeincomments{TYPE}}ù) is (ù{\codeincomments{int}}ù)
     std::vector<auto> deduceVectorArgVar = vectorOfInt;  // Error, not allowed

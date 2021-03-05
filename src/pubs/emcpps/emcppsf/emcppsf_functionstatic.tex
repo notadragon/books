@@ -186,10 +186,10 @@ int main()
 Such use prior to the C++11 thread-safety guarantees (with pre-C++11 threading libraries) could
 have led to a \romeogloss{data race} during the initialization of
 \lstinline!localLogger!, which was defined as a local \lstinline!static!
-object in \lstinline!getLogger!.   This might have resulted in any combination of
-invoking the constructor of \lstinline!localLogger! multiple times and returning from
-\lstinline!localLogger! before that constructor had actually been completed, both
-of which entail \romeogloss{undefined behavior}.
+object in \lstinline!getLogger!.   This \romeogloss{undefined behavior} might have resulted in
+invoking the constructor of \lstinline!localLogger! multiple times, returning from
+\lstinline!localLogger! before that constructor had actually been completed, or
+any other form of misbehavior over which a developer has no control.
 
 \noindent As of C++11, the example above has no \romeogloss{data races} provided that \linebreak%%%%%%
 \lstinline!Logger::operator<<(const!~\lstinline!char*)! is designed properly
