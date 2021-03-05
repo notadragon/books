@@ -16,22 +16,19 @@
 %\section[Function {\tt static} '11]{Threadsafe Function-Scope {\SecCode static} Variables}\label{thread-safe-function-static-variables}
 
 
-Function-scope \lstinline!static! objects are now guaranteed to be
-initialized free of race conditions in the presence
+Initialization of function-scope \lstinline!static! objects is now guaranteed to be
+free of data races in the presence
 of multiple concurrent threads.
 
 \subsection[Description]{Description}\label{description-functionstatic}
 
-When a variable is declared within the body of a function, we say that
-the variable is declared at \romeogloss{function scope} (a.k.a.
-\romeogloss{local scope}).  A variable not marked \lstinline!static! is known as
-an \romeogloss{automatic} variable, with a distinct instance on the
-\romeogloss{program stack} for each function invocation.  \romeogloss{Automatic} objects
-are allocated on the stack and initialized whenever the \romeogloss{flow of control}
+A variable declared at function (a.k.a. local) scope has \romeogloss{automatic storage duration}, 
+except when it is marked \lstinline!static!, in which case it has \romeogloss{static storage duration}.
+Variables having \romeogloss{automatic storage duration} are allocated on the stack
+each time the function is invoked, and initialized when that invocation's \romeogloss{flow of control}
 passes through the \romeogloss{definition} of that object.
-An object (e.g., \lstinline!iLocal!) that is
-declared \lstinline!static! within the body of a function (e.g.,
-\lstinline!f!) will instead be allocated once per program, and will initialized
+In contrast, variables with static \romeogloss{storage duration} (e.g., \lstinline!iLocal!)
+defined at function scope (e.g., \lstinline!f!) are instead allocated once per program, and are initialized
 only the first time the \romeogloss{flow of control} passes
 through the \romeogloss{definition} of that object:
 
@@ -58,10 +55,9 @@ int main()
 \lstinline!static! object, \lstinline!iLocal!, with its argument, \lstinline!i!, only
 the first time it is called and then always returns the same value
 (e.g., 10). Hence, when that function is called repeatedly with distinct
-arguments while initializing, respectively, \lstinline!a!, \lstinline!b!, and
-\lstinline!c!, all three of these variables are initialized to the same
-value, 10, used the first time \lstinline!f! was invoked (i.e., to
-initialize \lstinline!a!). Although the function-scope \lstinline!static!
+arguments to initialize the \lstinline!a!, \lstinline!b!, and
+\lstinline!c! variables, all three of them are initialized to the same
+value, 10, supplied to the first invocation of \lstinline!f!. Although the function-scope \lstinline!static!
 object, \lstinline!iLocal!, was created after \lstinline!main! was entered, it
 will not be destroyed until after \lstinline!main! exits.
 
@@ -69,13 +65,13 @@ will not be destroyed until after \lstinline!main! exits.
 
 Historically, initialization of \romeogloss{function-scope}
 \romeogloss{\lstinline!static! storage-duration} objects was not guaranteed to be safe in a
-\romeogloss{multithreading context} because it was subject to \romeogloss{data races}
+\romeogloss{multithreading context} because it was subject to \romeogloss{data races}   
 if the function was called concurrently from multiple threads.   These \romeogloss{data races}
 around initialization can lead to the initializer being invoked multiple times, object
 construction running concurrently on the same object, and control flow continuing past
 the variable definition before initialization had completed at all.  All of these
 variations would result in critical software flaws.
-One common but unreliable pre-C++11 workaround was the
+One common but non-portable pre-C++11 workaround was the 
 \emph{double-checked lock pattern}; see \intrarefsimple{appendix:-c++03-double-checked-lock-pattern}.
 
 As of C++11, a conforming compiler is now required to ensure that
@@ -85,9 +81,9 @@ concurrently from multiple threads.
 
 \subsubsection[Destruction]{Destruction}\label{destruction}
 
-romeogloss{Automatic} objects within a local scope are destroyed when control
-leaves the scope in which they are declared
-On the other hand, \lstinline!static! local objects that have been initialized are
+\romeogloss{Automatic} objects within a local scope are destroyed when control
+leaves the scope in which they are declared.
+In contrast, \lstinline!static! local objects that have been initialized are
 not destroyed until normal program termination,  either after the \lstinline!main! function returns
 normally or when the \lstinline!std::exit! function is
 called. 
@@ -104,7 +100,10 @@ such as a call to \lstinline!std::quick_exit!, \lstinline!_Exit!, or
 Let's now consider a 
 real-world example in which a single object --- e.g.,
 \lstinline!localLogger! in the example below --- is used widely throughout a program (see
-also \intraref{use-cases-functionstatic}{meyers-singleton}):
+also \intraref{use-cases-functionstatic}{meyers-singleton}):{\cprotect\footnote{An
+eminently useful, full-featured logger, known as the \texttt{ball} logger, can be found in the
+\texttt{ball} package of the \texttt{bal} package group of Bloomberg's open-source
+  BDE libraries (\cite{bde14}, subdirectory \texttt{/groups/bal/ball}).}})
 
 \begin{emcppshiddenlisting}[emcppsbatch=e3]
 struct Logger {
@@ -130,76 +129,17 @@ int main()
 }
 \end{emcppslisting}
 
-Here we hae an example of the ``Singleton pattern''\footnote{\cite{gamma95}, Chapter 3, section
+Here we have an example of the ``Singleton pattern''\footnote{\cite{gamma95}, Chapter 3, section
 ``Singleton'', pp.-127--???} being used to create the shared \lstinline!Logger! instance
 and provide access to it through the \lstinline!getLogger()! function.  The \lstinline!static! local
 instance of \lstinline!Logger!, \lstinline!localLogger!, will be initialized exactly once and then
-destroyed after normal program termination.  In C++03 this accessor function would be safe to call
-before \lstinline!main!, but \emph{not} concurrently.  C++11 guarantees that the initialization
-of \lstinline!localLogger! will still happen exactly once even when multiple threads call
+destroyed after normal program termination.  In C++03, it would not be safe to call
+this function concurrently from multiple threads. 
+Conversely, C++11 \emph{guarantees} that the initialization  
+of \lstinline!localLogger! will happen exactly once even when multiple threads call
 \lstinline!getLogger! concurrently.
 
-\noindent In a large-scale production environment, we would avoid evaluating any expression whose result is
-intended to be logged unless the logging level for that specific logging statement is enabled.{\cprotect\footnote{An
-eminently useful, full-featured logger, known as the \texttt{ball} logger, can be found in the
-\texttt{ball} package of the \texttt{bal} package group of Bloomberg's open-source
-  BDE libraries (\cite{bde14}, subdirectory \texttt{/groups/bal/ball}).}}) All function-local \lstinline!static! objects, such as \lstinline!localLogger!
-in the example above, will be destroyed automatically only on normal
-program termination, 
-
 \subsubsection[Multithreaded contexts]{Multithreaded contexts}\label{multithreaded-contexts}
-
-To illustrate how defects might have been introduced by multithreading
-\emph{prior} to C++11, suppose that we have a simple type,
-\lstinline!MyString!, that always allocates dynamic memory on construction:
-
-\begin{emcppslisting}[emcppsbatch=e4]
-#include <cstring>  // (ù{\codeincomments{std::size\_t}}ù), (ù{\codeincomments{std::memcpy}}ù), (ù{\codeincomments{std::strlen}}ù)
-
-class MyString
-{
-    char* d_string_p;  // pointer holding dynamically allocated memory address
-
-public:
-    MyString(const char* s)                                     // (1)
-    {                                                           // (2)
-        const std::size_t size = std::strlen(s) + 1;            // (3)
-        d_string_p = static_cast<char*>(::operator new(size));  // (4)
-        std::memcpy(d_string_p, s, size);                       // (5)
-    }                                                           // (6)
-};
-\end{emcppslisting}
-
-\noindent Let's say that we want to create a \lstinline!static! object of this
-\lstinline!MyString! class in a function, \lstinline!f!, that might be invoked
-concurrently from multiple threads:
-
-\begin{emcppslisting}[emcppsbatch=e4]
-void f()
-{
-    static const MyString str("s");  // function-scope, (ù{\codeincomments{static}}ù) storage-duration
-    // ...
-}
-\end{emcppslisting}
-
-\noindent Let's now imagine that \lstinline!f! is called from
-two separate threads concurrently, without having been called before. Suppose that the first thread gets
-through the \lstinline!MyString! constructor, in the example above, up to
-\emph{but not including} line (4) before it is suspended by the
-operating system. After that, a second thread might begin initializing \lstinline!str! again --- because
-no guards existed prior to C++11 to prevent this --- and make it all the way past line (6) before it too
-is suspended. When the operating system eventually resumes execution of
-the first thread, the dynamic allocation and assignment on line (4)
-\romeogloss{leaks} the memory for the previously constructed
-\lstinline!MyString!. 
-
-In practice, however, \romeogloss{undefined behavior} (prior to C++11) might
-have manifested even earlier. When the second thread re-uses the storage
-claimed by the object in the first thread, it effectively ends the
-lifetime of one \lstinline!static!~\lstinline!S! object to start the lifetime
-of the other one. After that, any attempt to access the original
-\lstinline!s! object would be \romeogloss{undefined behavior}, because its
-lifetime has ended, even though its destructor did not run. 
 
 The C++11 Standard Library provides copious utilities and abstractions related
 to multithreading. One part of that, \lstinline!std::thread!, is a portable
@@ -244,11 +184,14 @@ int main()
 \end{emcppslisting}
 
 Such use prior to the C++11 thread-safety guarantees (with pre-C++11 threading libraries) could
-have led to a race condition during the initialization of
+have led to a \romeogloss{data race} during the initialization of
 \lstinline!localLogger!, which was defined as a local \lstinline!static!
-object in \lstinline!getLogger!:
+object in \lstinline!getLogger!.   This might have resulted in any combination of
+invoking the constructor of \lstinline!localLogger! multiple times and returning from
+\lstinline!localLogger! before that constructor had actually been completed, both
+of which entail \romeogloss{undefined behavior}.
 
-\noindent As of C++11, the example above has no data races provided that \linebreak%%%%%%
+\noindent As of C++11, the example above has no \romeogloss{data races} provided that \linebreak%%%%%%
 \lstinline!Logger::operator<<(const!~\lstinline!char*)! is designed properly
 for multithreaded use, even though the
 \lstinline!Logger::Logger(const!~\lstinline!char*!~\lstinline!logFilePath)!
@@ -256,7 +199,7 @@ constructor (i.e., the one used to configure the singleton instance of
 the logger) is not. That is to say, the implicit \romeogloss{critical section}
 that is guarded by the compiler includes evaluation of the
 initializer, which is why a recursive call to initialize a
-function-scope \lstinline!static! variable is undefined behavior and is
+function-scope \lstinline!static! variable is \romeogloss{undefined behavior} and is
 likely to result in deadlock; see \intrarefsimple{dangerous-recursive-initialization}.
 Such use of function-scope \lstinline!static!s, however, is not foolproof;
 see \intraref{potential-pitfalls-functionstatic}{depending-on-order-of-destruction-of-local-objects-after-main-returns}.
@@ -365,20 +308,20 @@ and where that call is made. Moreover, that singleton object will also
 live past the end of \lstinline!main!. The \romeogloss{Meyers
 Singleton} pattern also gives us a chance to catch and respond to
 exceptions thrown when constructing the \lstinline!static! object, rather
-than immediately terminating, as would be the case if declared as a
+than immediately terminating the program, as would be the case if declared as a
 \lstinline!static! global variable. Much more importantly, however, since C++11, the
 \romeogloss{Meyers Singleton} pattern automatically inherits the benefits of
 effortless race-free initialization of \emph{reusable} program-wide
-singleton objects whose first invocation might be before \lstinline!main!
-in some programs and after additional threads have already been started
-after entering \lstinline!main! in other programs.
+singleton objects.  The \romeogloss{Meyers Singleton} can be safely used 
+both in the programs where the singleton initialization might happen before \lstinline!main!
+and those where it might happen after additional threads have already been started.
 
 As discussed in \intrarefsimple{description-functionstatic}, the augmentation of a
 thread-safety guarantee for the runtime initialization of
 \romeogloss{function-scope} \lstinline!static! objects in C++11 minimizes the
 effort required to create a thread-safe singleton.  Note that, prior to C++11,
 the simple function-scope \lstinline!static!
-implementation would not be safe if concurrent threads were vying to
+implementation would not be safe if concurrent threads were trying to
 initialize the logger; see \intrarefsimple{appendix:-c++03-double-checked-lock-pattern}.
 
 The \romeogloss{Meyers Singleton} is also seen in a slightly different form
@@ -431,8 +374,7 @@ sophisticated mechanism. Initially we use the variant of the Meyers
 Singleton pattern where at most one \lstinline!Camera! object can be
 present in the entire program. The next generation of the phone, however, turns out to have more than
 one camera, say, a front \lstinline!Camera! and a back \lstinline!Camera!. Our
-brittle, \emph{ToasterToothbrush}-like\footnote{See \cite{lakos20}, section~0.3, pp.~13--20, specifically
-Figure~0-9, p.~16.} design doesn't
+brittle design doesn't
 admit the dual-singleton use of the same fundamental \lstinline!Camera!
 type. A more finely factored solution would be to implement the
 \lstinline!Camera! type separately and then to provide a thin wrapper,
@@ -486,7 +428,7 @@ Logger& getLogger()
 }
 \end{emcppslisting}
 
-\noindent A distinct advantage of this approach, once an object is created, it
+\noindent A distinct advantage of this approach is that once an object is created, it
 \emph{never} goes away before the process ends. The disadvantage is
 that, for many classic and current profiling tools (e.g., \emph{Purify},
 \emph{Coverity}), this intentionally never-freed dynamic allocation is
@@ -549,7 +491,7 @@ initialized{\cprotect\footnote{C++20 added a new keyword,
 initialization and thus can never be accessed at run time prior to the
   start of its lifetime.}} will instead be \romeogloss{zero initialized}
 until their constructors run, which itself might lead to conspicuous (or
-perhaps latent) undefined behavior.
+perhaps latent) \romeogloss{undefined behavior}.
 
 As a demonstration of what can happen when we depend on the relative
 order of initialization of variables at file or
@@ -561,7 +503,7 @@ namespace scope used before \lstinline!main!, consider the
 // a.cpp:
 extern int setB(int);  // declaration (only) of setter in other TU
 int *a = new int;      // runtime initialization of file-scope variable
-int setA(int i)        // Initialize (ù{\codeincomments{a}}ù) variable; then (ù{\codeincomments{b}}ù).
+int setA(int i)        // Initialize (ù{\codeincomments{a}}ù); then (ù{\codeincomments{b}}ù).
 {
     *a = i;            // Populate the allocated heap memory.
     setB(i);           // Invoke setter to populate the other one.
@@ -655,8 +597,8 @@ int main()  // The program is ill-formed.
 }
 \end{emcppslisting}
 
-\noindent In the ill-fated example above, the second recursive call of \lstinline!fz!
-to initialize \lstinline!dz! has undefined behavior because the control flow reached the
+\noindent In the example above, the second recursive call of \lstinline!fz!
+to initialize \lstinline!dz! has \romeogloss{undefined behavior} because the control flow reached the
 same definition again before the initialization of the
 \lstinline!static! object was completed; hence, control flow cannot continue to the
 \lstinline!return! statement in \lstinline!fz!. Given a likely implementation
@@ -691,7 +633,7 @@ initialization of \lstinline!static! objects at function
 scope becomes more subtle for self-recursive functions.
 Notably, the initialization happens based
 on when flow of control first passes the variable definition and \emph{not}
-based on the first invocation of the containing function function.  Due to this, when a recursive call
+based on the first invocation of the containing function.  Due to this, when a recursive call
 happens in relation to the definition of a \lstinline!static! local variable
 impacts which values might be used for the initialization:
 
@@ -817,7 +759,7 @@ case, we have no reason to think that the logger would be around for the
 
 In the case of low-level, widely used facilities, such as a logger, a
 conventional Meyers Singleton is counter-indicated. The two most common
-alternatives elucidated at the end of \intraref{use-cases-functionstatic}{meyers-singleton} involve never ending the lifetime of
+alternatives discussed at the end of \intraref{use-cases-functionstatic}{meyers-singleton} involve never ending the lifetime of
 the mechanism at all. It is worth noting that truly global objects ---
 such as \lstinline!cout!, \lstinline!cerr!, and \lstinline!clog! --- from the
 Standard \lstinline!iostream! Library are typically not implemented using
@@ -830,10 +772,9 @@ conventional methods and are in fact treated specially by the runtime system.
 A single-threaded application invoking a function containing a
 \romeogloss{function-scope} \romeogloss{\lstinline!static! storage-duration} variable might
 have unnecessary synchronization overhead, such as an \romeogloss{atomic}
-load operation. For example, consider a program that invokes a free
-function, \lstinline!getS!, returning a function-scope \lstinline!static!
-object, \lstinline!local!, of user-defined type, \lstinline!S!, having a
-\romeogloss{user-provided} (inline) default constructor:
+load operation. For example, consider a program that accesses
+a simple  \romeogloss{Meyers singleton} for a user-defined type with a
+\romeogloss{user-provied} default constructor:
 
 \begin{emcppslisting}
 struct S  // user-defined type
@@ -857,7 +798,7 @@ int main()
 \noindent Although it is clearly visible to the compiler that \lstinline!getS()! is
 invoked by only one thread, the generated assembly instructions might
 still contain \romeogloss{atomic} operations or other forms of
-synchronization and the call to \lstinline!getS()! might not be generated
+synchronization and the call to \lstinline!getS()! might not be 
 inlined.{\cprotect\footnote{Both GCC 10.x and Clang 10.x, using the
 \lstinline!-Ofast! optimization level, generate assembly instructions for
 an \romeogloss{acquire/release memory barrier} and fail to inline the call
@@ -925,9 +866,16 @@ Logger& getInstance()
 }
 \end{emcppslisting}
 
-\noindent In this example, we are using a \lstinline!volatile! pointer as a weak
-substitute for an atomic variable, but many implementations would
-provide nonportable extensions to support atomic types. In addition to
+\noindent In this example, we are using a \lstinline!volatile! pointer
+as a partial
+substitute for an atomic variable, a non-portable solution that is not correct
+in standard C++ but has historically been moderately effective.  The C++11 standard
+library does, however, provide the \lstinline!<atomic>! header which is a far superior alternative,
+and many implementations have historically
+provided extensions to support atomic types even prior to C++11.  Whenever possible those
+should be used instead.
+
+In addition to
 being difficult to write, this decidedly complex workaround would often
 prove unreliable. The problem is that, even though the logic appears
 sound, architectural changes in widely used CPUs allowed for the CPU
@@ -935,9 +883,9 @@ itself to optimize and reorder the sequence of instructions. Without
 additional support, the hardware would not see the dependency that the
 second test of \lstinline!loggerPtr! has on the locking behavior of the
 mutex and would do the read of \lstinline!loggedPtr! prior to acquiring the
-lock. By reordering the instructions or whatever, the hardware
-would then allow multiple threads to acquire the lock, thinking they are
-threads that need to initialize the \lstinline!static! variable.
+lock. This reordering of instructions
+would then allow multiple threads to acquire the lock while each thinking the
+\lstinline!static! variable still needs to be initialized.
 
 To solve this subtle issue, concurrency library authors are expected to
 issue ordering hints such as \romeogloss{fences} and \romeogloss{barriers}. A
@@ -950,7 +898,7 @@ correctly. The above \lstinline!getInstance! function could be corrected by
 changing the type of \lstinline!loggerPtr! to
 \lstinline!std::atomic<Logger*>!. Prior to C++11, despite being
 complicated, the same function would reliably implement the Meyers
-Singleton in C++98 on contemporary hardware.
+Singleton in C++03 on contemporary hardware.
 
 \enlargethispage*{2ex} %%%%%% just to get that final } on this page so external reviewers don't freak out
 So the final recommended solution for portable thread-safe
@@ -958,7 +906,7 @@ initialization in modern C++ is to simply let the compiler do the work
 and to use the simplest implementation that gets the job done, e.g., a
 Meyers Singleton (see \intraref{use-cases-functionstatic}{meyers-singleton}):
 
-\begin{emcppslisting}[emcppsbatch=e17]o
+\begin{emcppslisting}[emcppsbatch=e17]
 Logger& getInstance()
 {
     static Logger logger("log.txt");
