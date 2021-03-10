@@ -1013,10 +1013,9 @@ literal} are constant expressions and can be used with
 run time, even when initializing a value in a non-\lstinline!constexpr!
 context:
 
-%%% JOSH: the comment style here is questionable. Should "Error (compile time)" (x2) be simply "Error,"? 
-\begin{emcppslisting}
-constexpr auto r4 = 12.5_ohms;  // Error (compile time), (ù{\codeincomments{constexpr}}ù) context
-          auto r5 = 12.5_ohms;  // Error (   "      " ), non-(ù{\codeincomments{constexpr}}ù) context
+\begin{emcppslisting}[emcppsbatch=e12]
+constexpr auto r4 = 12.5_ohms;  // Error, (ù{\codeincomments{constexpr}}ù) context
+          auto r5 = 12.5_ohms;  // Bug, non-(ù{\codeincomments{constexpr}}ù) context
 \end{emcppslisting}
     
 \noindent Being able to select a context-specific return type and to force
