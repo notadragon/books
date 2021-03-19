@@ -1,6 +1,6 @@
 % 18 March 2021, revisions in and proofed; commands updated
 % 18 March 2021, sent to Slava for a second review and sent to Josh for code review
-% 19 March 2021 JMB - code compiles
+% 19 March 2021 JMB - code compiles take 2
 
 \emcppsFeature{
     short={\lstinline!alignas!},
@@ -43,7 +43,7 @@ Since many aspects pertaining to the alignment requirements are \emcppsgloss{imp
 In its most basic form, \lstinline!alignas! specifier allows to strengthen the alignment requirement of a particular object. The desired alignment requirement is an \emcppsgloss{integral constant expression} provided as an argument to \lstinline!alignas!:
 
 \begin{emcppslisting}
-alignas(8) int i;   // OK, i is aligned on an 8 byte address boundary.
+alignas(8) int i;    // OK, i is aligned on an 8 byte address boundary.
 int j alignas(8), k; // OK, j is 8 byte aligned; alignment of k is unchanged.
 \end{emcppslisting}
 
@@ -135,9 +135,9 @@ members is possible:
 \begin{emcppslisting}
 struct T2
 {
-    alignas(8)  char   x;  // size   1; alignment 8
-    alignas(16) int    y;  // size   4; alignment 16
-    alignas(64) double z;  // size   8; alignment 64
+    alignas(8)  char   x;  // size 1; alignment 8
+    alignas(16) int    y;  // size 4; alignment 16
+    alignas(64) double z;  // size 8; alignment 64
 };  // size 128; alignment 64
 \end{emcppslisting}
 
@@ -147,11 +147,11 @@ and then set the alignment of the structure overall:
 \begin{emcppslisting}
 struct alignas(64) T3
 {
-    char   x;      // size   1; alignment 8
+    char   x;      // size 1; alignment 8
     char   a[15];  // padding
-    int    y;      // size   4; alignment 16
+    int    y;      // size 4; alignment 16
     char   b[44];  // padding
-    double z;      // size   8; alignment 64
+    double z;      // size 8; alignment 64
     char   c[56];  // padding (optional)
 };  // size 128; alignment 64
 \end{emcppslisting}
@@ -186,10 +186,10 @@ type (e.g., \lstinline!C!):
 %enum alignas(16)  E { };  // OK, aligned on a 16-byte boundary; size = 4
 %\end{lstlisting}
 \begin{emcppslisting}
-class  alignas( 2) C { }; // OK, aligned on a  2-byte boundary; size = 2
-struct alignas( 4) S { }; // OK, aligned on a  4-byte boundary; size = 4
-union  alignas( 8) U { }; // OK, aligned on an 8-byte boundary; size = 8
-enum   alignas(16) E { }; // OK, aligned on a 16-byte boundary; size = 4
+class  alignas( 2) C { };  // OK, aligned on a  2-byte boundary; size = 2
+struct alignas( 4) S { };  // OK, aligned on a  4-byte boundary; size = 4
+union  alignas( 8) U { };  // OK, aligned on an 8-byte boundary; size = 8
+enum   alignas(16) E { };  // OK, aligned on a 16-byte boundary; size = 4
 \end{emcppslisting}
 
 \noindent Notice that, for each of \lstinline!class!, \lstinline!struct!, and
@@ -244,7 +244,7 @@ the program stack using placement \lstinline!new!:
 void f()
 {
     // ...
-    char objectBuffer[sizeof(std::complex<long double>)];  // BAD IDEA
+    char objectBuffer[sizeof(std::complex<long double>)];    // BAD IDEA
     // ...
     new (objectBuffer) std::complex<long double>(1.0, 0.0);  // Might dump core!
     // ...
@@ -269,7 +269,7 @@ void f()
 {
     // ...
 
-    union {                                              // awkward workaround
+    union {  // awkward workaround
         std::max_align_t dummy;  // (ù{\codeincomments{typedef}}ù) to maximally aligned type
         char objectBuffer[sizeof(std::complex<long double>)];
     } objectBuffer;
@@ -553,10 +553,10 @@ translation units}, no mainstream compiler is likely to diagnose the
 problem:
 
 \begin{emcppslisting}
-// file1.cpp
+// file1.cpp:
 struct Bam { char ch; } bam, *p = &bam;
 
-// file2.cpp
+// file2.cpp:
 struct alignas(int) Bam;  // Error, definition of (ù{\codeincomments{Bam}}ù) lacks alignment specifier.
 extern Bam* p;            //        (no diagnostic required)
 \end{emcppslisting}
@@ -687,30 +687,30 @@ For user-defined types, compilers compute the alignment and add appropriate padd
 \begin{emcppslisting}[emcppsbatch=e3]
 struct S0
 {
-    char a;  // size 1; alignment 1
-    char b;  // size 1; alignment 1
-    int  c;  // size 4; alignment 4
-};           // size 8; alignment 4
+    char a;     // size 1; alignment 1
+    char b;     // size 1; alignment 1
+    int  c;     // size 4; alignment 4
+};              // size 8; alignment 4
 
 struct S1
 {
-    char a;  // size  1; alignment 1
-    int  b;  // size  4; alignment 4
-    char c;  // size  1; alignment 1
-};           // size 12; alignment 4
+    char a;     // size  1; alignment 1
+    int  b;     // size  4; alignment 4
+    char c;     // size  1; alignment 1
+};              // size 12; alignment 4
 
 struct S2
 {
-    int  a;  // size 4; alignment 4
-    char b;  // size 1; alignment 1
-    char c;  // size 1; alignment 1
-};           // size 8; alignment 4
+    int  a;     // size 4; alignment 4
+    char b;     // size 1; alignment 1
+    char c;     // size 1; alignment 1
+};              // size 8; alignment 4
 
 struct S3
 {
-    char a;  // size 1; alignment 1
-    char b;  // size 1; alignment 1
-};           // size 2; alignment 1
+    char a;     // size 1; alignment 1
+    char b;     // size 1; alignment 1
+};              // size 2; alignment 1
 
 struct S4
 {
@@ -734,18 +734,18 @@ struct D1 : S1
 
 struct D2 : S2
 {
-    int d;  // size  4; alignment 4
-};          // size 12; alignment 4
+    int d;     // size  4; alignment 4
+};             // size 12; alignment 4
 
 struct D3 : S3
 {
-    int d;  // size 4; alignment 4
-};          // size 8; alignment 4
+    int d;     // size 4; alignment 4
+};             // size 8; alignment 4
 
 struct D4 : S4
 {
-    char d;  // size 1; alignment 1
-};           // size 3; alignment 1
+    char d;    // size 1; alignment 1
+};             // size 3; alignment 1
 \end{emcppslisting}
 
 \noindent Finally, virtual functions and virtual base classes invariably introduce an implicit
@@ -756,12 +756,12 @@ to that of a memory address (e.g., 4 or 8) on the target platform:
 struct S5
 {
     virtual ~S5();
-};                   // size 8; alignment 8
+};             // size 8; alignment 8
 
 struct D5 : S5
 {
-    char d;  // size  1; alignment 1
-};           // size 16; alignment 8
+    char d;    // size  1; alignment 1
+};             // size 16; alignment 8
 \end{emcppslisting}
 
 
