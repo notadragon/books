@@ -131,7 +131,27 @@ HTTPRequestHandlerConfig getRequestHandlerConfig(bool inLowMemoryEnvironment)
 
 \subsection[Potential Pitfalls]{Potential Pitfalls}\label{potential-pitfalls}
 
-None so far
+\subsubsection{Empty list initializing members does not use the default initializer}
+
+When we add default member initializers to members of an aggregate,
+those initializers are in effect \emph{only} if that member has no corresponding
+initializer in the braced initializer list.  We cannot explicitly \emph{request}
+the default value by placing empty braces into the list because that will
+value-initialize the member with an empty initializer, not
+use its default member initializer.   Any case in which we want to explicitly initialize a later member variable's value during aggregate initialization means we must manually determine the proper default for all prior members:
+
+\begin{emcppslisting}[emcppsstandards={c++14}]
+struct A 
+{
+     int i{1};
+     int j{2};
+     int k{3};
+};
+
+A a1{};            // OK,  result is i=1, j=2,         k=3
+A a2{ 4 };         // OK,  result is i=4, j=2,         k=3
+A a3{ 4, {}, 8 };  // Bug, result is i=4, j=0 (not 2), k=3
+\end{emcppslisting}
 
 \subsection[Annoyances]{Annoyances}\label{annoyances}
 
