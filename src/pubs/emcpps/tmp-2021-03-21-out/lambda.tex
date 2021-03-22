@@ -2447,7 +2447,7 @@ code:
 void f3()
 {
     int x = 0;
-    auto c1 = []{ return typeid(x); };
+    auto c1 = []() -> const std::type_info& { return typeid(x); };
         // Error, on some platforms ``(ù{\codeincomments{x}}ù) was not captured''
 }
 \end{emcppslisting}
