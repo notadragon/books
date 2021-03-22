@@ -2461,9 +2461,10 @@ the lambda, capturing the result if necessary:
 void f3()
 {
     int x = 0;
-    const std::type_info& xid = typeid(x);  // OK, (ù{\codeincomments{typeid}}ù) called outside of lambda
-    auto c1 = [&]() -> const std::type_info&
-    { return xid; };  // OK, return captured (ù{\codeincomments{typeinfo}}ù)
+    const std::type_info& xid = typeid(x);
+        // OK, (ù{\codeincomments{typeid}}ù) called outside of lambda
+    auto c1 = [&]() -> const std::type_info& { return xid; }
+        // OK, return captured (ù{\codeincomments{typeinfo}}ù)
 }
 \end{emcppslisting}
     
