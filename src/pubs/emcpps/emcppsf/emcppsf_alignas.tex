@@ -25,7 +25,7 @@ Each object type in C++ has an \emcppsgloss{alignment requirement} which restric
 
 An alignment value is an integer of type \lstinline!std::size_t! that represent the number of bytes between the addresses at which a given object may be allocated.  All alignment values in C++ are always non-negative powers of two, and are divided into two categories depending whether they are larger than the alignment requirement of the \lstinline!std::max_align_t! type.  The \lstinline!std::max_align_t! type is a type whose alignment requirement is at least as strict as that of every \emcppsgloss{scalar type}.  If the alignment value is less than or equal to the alignment requirement of \lstinline!std::max_align_t!, it is a \emcppsgloss{fundamental alignment}; otherwise it is an \emcppsgloss{extended alignment}.  \lstinline!std::max_align_t! is typically an alias to the largest scalar type, which is \lstinline!long double! on most platforms, and its alignment requirement is usually 8 or 16.
 
-\emcppsgloss[fundamental alignment]{Fundamental alignments} are required to be supported in \emph{all} contexts -- i.e., for variables with automatic, static, and dynamic storage durations, as well as for non-static data members of a class, and function arguments.  While all fundamental and pointer types have \emcppsgloss[fundamental alignment]{fundamental alignments}, their specific values are \emcppsgloss[implementation defined]{implementation defined} and may differ between platforms.  For example, the alignment requirement of type \lstinline!long! might be \lstinline!4! on MSVC and \lstinline!8! on GCC.
+\emcppsgloss[fundamental alignment]{Fundamental alignments} are required to be supported in \emph{all} contexts -- i.e., for variables with automatic, static, and dynamic storage durations, as well as for non-static data members of a class, and function arguments.  While all fundamental and pointer types have \emcppsgloss[fundamental alignment]{fundamental alignments}, their specific values are \emcppsgloss{implementation defined} and may differ between platforms.  For example, the alignment requirement of type \lstinline!long! might be \lstinline!4! on MSVC and \lstinline!8! on GCC.
 
 In contrast, whether \emph{any} \emcppsgloss{extended alignment} is supported at all, and if it is -- in which contexts -- is \emcppsgloss{implementation defined}. For example, the strictest supported \emcppsgloss{extended alignment} for a variable with static storage duration might be as large as $2^{28}$ or $2^{29}$ on or as small as $2^{13}$.\footnote{Implementations may warn when the alignment of a global object exceeds some maximal hardware threshold (such as the size of a physical memory page, e.g., 4096 or 8192).  For automatic variables (defined on the program stack), making alignment more restrictive than what would naturally be employed is seldom desired because at most one thread is able to access proximately located variables there unless explicitly passed in via address to separate threads; see \intraref{alignas-use-cases}{avoiding-false-sharing-among-distinct-objects-in-a-multi-threaded-program}. Note that, in the case of i in the first code snippet on \pageref{}
 [page 66---REVISIONS: pls tell me exactly what you're referring to and I'll add a label there, so we get an automatically updating page number], a conforming platform that did not support an extended alignment of 64 would be required to report an error at compile time.}
@@ -440,8 +440,7 @@ version with \lstinline!alignas! took 2.45333ms to complete (on average).
 
 \subsubsection[Avoiding false sharing within a single thread-aware object]{Avoiding false sharing within a single thread-aware object}\label{avoiding-false-sharing-within-a-single-thread-aware-object}
 
-A real-world scenario where the need for preventing \emcppsgloss{false
-sharing} is fundamental occurs in the implementation of high-performance
+A real-world scenario where the need for preventing \emcppsgloss{false sharing} is fundamental occurs in the implementation of high-performance
 concurrent data structures. As an example, a thread-safe ring buffer
 might make use of \lstinline!alignas! to ensure that the indices of the
 head and tail of the buffer are aligned at the start of a cache line
@@ -483,8 +482,7 @@ that would be required for the entity being declared if all
 declarations).
 \end{quote}
 The compiler is required to honor the
-specified value if it is a \emcppsgloss{fundamental
-alignment},{\cprotect\footnote{``If the constant expression evaluates to
+specified value if it is a \emcppsgloss{fundamental alignment},{\cprotect\footnote{``If the constant expression evaluates to
 a fundamental alignment, the alignment requirement of the declared
 entity shall be the specified fundamental alignment'': \cite{cpp11}, section~7.6.2, ``Alignment Specifier," paragraph~2, item~2, p. 178.}} so
 imagining how this would lead to anything other than an ill-formed
@@ -535,8 +533,7 @@ struct alignas(8) Foo;       // OK, has no effect; might warn after definition
 \end{emcppslisting}
 
 \noindent Specifying an alignment in a forward declaration without specifying an
-equivalent one in the defining declaration is \emcppsgloss{ill formed, no diagnostic
-required (IFNDR)} if the two declarations appear in distinct translation
+equivalent one in the defining declaration is \emcppsgloss[ill formed, no diagnostic required]{ill formed, no diagnostic required (IFNDR)} if the two declarations appear in distinct translation
 units:
 
 \begin{emcppslisting}
@@ -619,8 +616,7 @@ naturally occur on the host platform means that fewer of them can fit
 within any given level of physical cache within the hardware. Types
 having data members whose alignment is artificially strengthened tend to be
 larger and thus suffer the same lost cache utilization. As an
-alternative to enforcing stricter alignment to avoid \emcppsgloss{false
-sharing}, consider organizing a multithreaded program such that tight
+alternative to enforcing stricter alignment to avoid \emcppsgloss{false sharing}, consider organizing a multithreaded program such that tight
 clusters of repeatedly accessed objects are always acted upon by only a
 single thread at a time, e.g., using local (arena) memory allocators;
 see \intraref{alignas-appendix}{cache-lines,-l1,-l2,-and-l3-cache,-pages,-and-virtual-memory}.
@@ -718,8 +714,7 @@ struct S4
 };              // size 2; alignment 1
 \end{emcppslisting}
 
-\noindent Size and alignment behave similarly with respect to \emcppsgloss{structural
-inheritance}:
+\noindent Size and alignment behave similarly with respect to \emcppsgloss{structural inheritance}:
 
 \begin{emcppslisting}[emcppsbatch=e3]
 struct D0 : S0
@@ -799,13 +794,10 @@ the cache itself. When the CPU accesses main memory, it first looks to
 see if that memory is in the cache; if it is, the value is returned
 quickly (known as a \emcppsgloss{cache hit}). Otherwise, the cache line(s)
 containing that data is (are) fetched (from the next higher level of cache
-or from main memory) and placed into the cache (known as a \emcppsgloss{cache
-miss}), possibly ejecting other less recently used
+or from main memory) and placed into the cache (known as a \emcppsgloss{cache miss}), possibly ejecting other less recently used
 ones.{\cprotect\footnote{Conceptually, the cache is often thought of as
 being able to hold any arbitrary subset of the most recently accessed
-cache lines. This kind of cache is known as \emcppsgloss{fully
-associative}. Although it provides the best hit rate, a \emcppsgloss{fully
-associative} cache requires the most power along with significant
+cache lines. This kind of cache is known as \emcppsgloss{fully associative}. Although it provides the best hit rate, a \emcppsgloss{fully associative} cache requires the most power along with significant
 additional chip area to perform the fully parallel lookup. \emcppsgloss[direct mapped]{Direct-mapped} cache associativity is at the
 other extreme. In direct mapped, each memory location has exactly one location
 available to it in the cache. If another memory location mapping to

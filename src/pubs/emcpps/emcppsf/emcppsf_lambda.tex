@@ -1,5 +1,5 @@
 % 20 March 2021, received and cleaned up; updated commands; sent to CE, Steven B for revisions, and Josh for code review. 
-
+% 21 March 2021 JMB - cleaned up code compilation
 
 \emcppsFeature{
     short={Lambdas},
@@ -24,7 +24,9 @@ example, the Standard-Library algorithm, \lstinline!std::sort!, accepts a
 callback argument specifying the sort order:
 
 \begin{emcppslisting}
-#include <algorithm>
+#include <algorithm>   // (ù{\codeincomments{std::sort}}ù)
+#include <functional>  // (ù{\codeincomments{std::greater}}ù)
+#include <vector>      // (ù{\codeincomments{std::vector}}ù)
 
 template <typename T>
 void sortAscending(std::vector<T>& v)
@@ -42,7 +44,10 @@ complicated cases, the programmer must write a functor themselves. If a
 container holds a sequence of \lstinline!Employee! records, for example, we
 might want to sort the container by name or by salary:
 
-\begin{emcppslisting}
+\begin{emcppslisting}[emcppsbatch=e1]
+#include <string>  // (ù{\codeincomments{std::string}}ù)
+#include <vector>  // (ù{\codeincomments{std::vector}}ù)
+
 struct Employee
 {
     std::string name;
@@ -62,8 +67,8 @@ a callback that compares the names of two \lstinline!Employee! objects. We
 implement this callback as a pointer to a simple function that we pass
 to \lstinline!std::sort!:
 
-\begin{emcppslisting}
-#include <algorithm>
+\begin{emcppslisting}[emcppsbatch=e1]
+#include <algorithm>  // (ù{\codeincomments{std::sort}}ù)
 
 bool nameLt(const Employee& e1, const Employee& e2)
     // returns true if (ù{\codeincomments{e1.name}}ù) is less than (ù{\codeincomments{e2.name}}ù)
@@ -86,7 +91,7 @@ function pointer as the callback to compare the salaries of two
 \emcppsgloss{call operator} (i.e., \lstinline!operator()!), which, in this case,
 compares the salary fields of its arguments:
 
-\begin{emcppslisting}
+\begin{emcppslisting}[emcppsbatch=e1]
 struct SalaryLt
 {
     // Functor whose call operator compares two (ù{\codeincomments{Employee}}ù) objects and returns
@@ -130,7 +135,7 @@ supply the criterion for counting, respectively. The callback for
 running sum and an element from the sequence being summed --- and must
 return the new running sum:
 
-\begin{emcppslisting}
+\begin{emcppslisting}[emcppsbatch=e1]
 struct SalaryAccumulator
 {
     long operator()(long currSum, const Employee& e) const
@@ -151,7 +156,7 @@ salaries above the average. Our \emcppsgloss{predicate functor} must,
 therefore, carry around that average so that it can compare it to the
 salary of the employee that is presented as an argument:
 
-\begin{emcppslisting}
+\begin{emcppslisting}[emcppsbatch=e1]
 class SalaryIsGreater  // function object constructed with a reference salary
 {
     const long d_referenceSalary;
@@ -180,17 +185,17 @@ With these two \emcppsgloss[functor class]{functor classes} defined, we can fina
 implement the simple three-step algorithm for determining the number of
 employees with salaries greater than the average:
 
-\begin{emcppslisting}
+\begin{emcppslisting}[emcppsbatch=e1]
 #include <algorithm>  // (ù{\codeincomments{std::count\_if}}ù)
 #include <numeric>    // (ù{\codeincomments{std::accumulate}}ù)
 
 std::size_t numAboveAverageSalaries(const std::vector<Employee>& employees)
 {
-    const long sum = std::accumulate(employees.first(), employees.last(), 0L,
+    const long sum = std::accumulate(employees.begin(), employees.end(), 0L,
                                      SalaryAccumulator());
 
     const long average = sum / employees.size();
-    return std::count_if(employees.first(), employees.last(),
+    return std::count_if(employees.begin(), employees.end(),
                          SalaryIsGreater(average));
 }
 \end{emcppslisting}
@@ -211,7 +216,7 @@ examples much more simply and compactly. Returning to the sorting
 example, the rewrite has the name-comparison and salary-comparison
 operations expressed in-place, within the call to \lstinline!std::sort!:
 
-\begin{emcppslisting}
+\begin{emcppslisting}[emcppsbatch=e1]
 void sortByName2(std::vector<Employee>& employees)
 {
     std::sort(employees.begin(), employees.end(),
@@ -247,20 +252,17 @@ The compactness and simplicity afforded by the use of \emcppsgloss{lambda
 expressions} is even more evident when we rewrite the average-salaries
 example:
 
-\begin{emcppslisting}
-#include <algorithm>  // (ù{\codeincomments{std::count\_if}}ù)
-#include <numeric>    // (ù{\codeincomments{std::accumulate}}ù)
-
+\begin{emcppslisting}[emcppsbatch=e1]
 std::size_t numAboveAverageSalaries2(const std::vector<Employee>& employees)
 {
-    const long sum = std::accumulate(employees.first(), employees.last(), 0L,
+    const long sum = std::accumulate(employees.begin(), employees.end(), 0L,
                                      [](long currSum, const Employee& e)
                                      {
                                          return currSum + e.salary;
                                      });
 
     const long average = sum / employees.size();
-    return std::count_if(employees.first(), employees.last(),
+    return std::count_if(employees.begin(), employees.end(),
                          [average](const Employee& e)
                          {
                              return e.salary > average;
@@ -300,7 +302,7 @@ A \emcppsgloss[lambda expressions]{lambda expression} has a number of parts and 
 which are optional. For exposition purposes, let's look at a sample
 \emcppsgloss[lambda expressions]{lambda expression} that contains all of the parts:
 
-\begin{emcppslisting}
+\begin{emcppslisting}[emcppsignore={not code}]
        introducer
      ______^______
     /             \
@@ -490,6 +492,7 @@ Finally, the purpose of a \emcppsgloss{closure} is to be invoked. It can be
 invoked immediately by supplying arguments for each of its parameters:
 
 \begin{emcppslisting}
+#include <iostream>  // (ù{\codeincomments{std::cot}}ù)
 void f3()
 {
     [](const char* s) { std::cout << s; }("hello world\n");
@@ -690,8 +693,10 @@ the \emcppsgloss{closure object} (i.e., captured variables that are
 \emcppsgloss{captured by copy}); mutable (non\lstinline!const!) \emcppsgloss[call operator]{call
 operators} are discussed in \intrarefsimple{lambda-declarator}:
 
-\begin{emcppslisting}
-#include <cassert>  // (ù{\codeincomments{assert}}ù) macro
+\begin{emcppshiddenlisting}[emcppsbatch=e2]
+#include <cassert>  // standard C (ù{\codeincomments{assert}}ù) macro
+\end{emcppshiddenlisting}
+\begin{emcppslisting}[emcppsbatch=e2]
 
 void f3()
 {
@@ -735,9 +740,10 @@ is simply an alias to the primary variable; no copies are made. It is,
 therefore, possible to modify the primary variable and/or take its
 address within the \emcppsgloss{lambda body}:
 
-\begin{emcppslisting}
-#include <cassert>  // (ù{\codeincomments{assert}}ù) macro
-
+\begin{emcppshiddenlisting}[emcppsbatch=e3]
+#include <cassert>  // standard C (ù{\codeincomments{assert}}ù) macro
+\end{emcppshiddenlisting}
+\begin{emcppslisting}[emcppsbatch=e3]
 void f4()
 {
     int a = 5;
@@ -785,7 +791,10 @@ member function. The \emcppsgloss{lambda body} cannot refer to the
 the \emcppsgloss{closure} but to the \lstinline!*this! object of the function
 within which it is defined:
 
-\begin{emcppslisting}
+\begin{emcppshiddenlisting}[emcppsbatch=e4]
+#include <cassert>  // standard C (ù{\codeincomments{assert}}ù) macro
+\end{emcppshiddenlisting}
+\begin{emcppslisting}[emcppsbatch=e4]
 struct Class1
 {
     int d_value;
@@ -819,8 +828,11 @@ If \lstinline!this! is captured (implicitly or explicitly), the
 function in which the \emcppsgloss[lambda expressions]{lambda expression} appears, with direct
 access to the class's members:
 
-\begin{emcppslisting}
-#include <vector>  // (ù{\codeincomments{std::vector}}ù)
+\begin{emcppshiddenlisting}[emcppsbatch=e5]
+#include <algorithm>  // (ù{\codeincomments{std::count\_if}}ù)
+#include <vector>     // (ù{\codeincomments{std::vector}}ù)
+\end{emcppshiddenlisting}
+\begin{emcppslisting}[emcppsbatch=e5]
 
 class Class2
 {
@@ -835,7 +847,7 @@ public:
                              [this](int element){ return element < d_value; });
             // OK, uses (ù{\codeincomments{this->d\_value}}ù).
     }
-}
+};
 \end{emcppslisting}
     
 
@@ -843,7 +855,10 @@ Note that capturing \lstinline!this! does not copy the class object that it
 points to; the original \lstinline!this! and the captured \lstinline!this!
 will point to the same object:
 
-\begin{emcppslisting}
+\begin{emcppshiddenlisting}[emcppsbatch=e6]
+#include <cassert>  // standard C (ù{\codeincomments{assert}}ù) macro
+\end{emcppshiddenlisting}
+\begin{emcppslisting}[emcppsbatch=e6]
 class Class3
 {
     int d_value;
@@ -1122,7 +1137,7 @@ void f1(int a, bool bits[])
     auto c1 = [i{5}]{ /* ... */ };        // Define (ù{\codeincomments{int i = 5}}ù).
     auto c2 = [b=bits[a]]{ /* ... */ };   // Define (ù{\codeincomments{bool b}}ù) = copy of (ù{\codeincomments{bits[a]}}ù).
     auto c3 = [&r=a, b]{ /* ... */ };     // (ù{\codeincomments{int\& r}}ù) = reference to (ù{\codeincomments{a}}ù). Copy (ù{\codeincomments{b}}ù).
-    auto c4 = [&, p=bits+1]{ *p = !a };   // (ù{\codeincomments{bool* p}}ù) = pointer to (ù{\codeincomments{bits[1]}}ù).
+    auto c4 = [&, p=bits+1]{ *p = !a; };  // (ù{\codeincomments{bool* p}}ù) = pointer to (ù{\codeincomments{bits[1]}}ù).
     auto c5 = [x=g(a)]{ return x; };      // (ù{\codeincomments{double x = g(a)}}ù).
 }
 \end{emcppslisting}
@@ -1151,7 +1166,7 @@ function call.
 The variable defined in an \emcppsgloss{init capture} is defined as if by the
 declaration:
 
-\begin{emcppslisting}
+\begin{emcppslisting}[emcppsignore={pseudocode}]
 (ù{\codeincomments{auto}}ù) *init-capture* (ù{\codeincomments{;}}ù)
 \end{emcppslisting}
     
@@ -1218,7 +1233,7 @@ and is effectively the declaration of the \emcppsgloss{closure type}'s
 \emcppsgloss{call operator}'s parameter list, mutability, exception
 specification, and return type:
 
-\begin{emcppslisting}
+\begin{emcppslisting}[emcppsignore={not code}]
 [/* ... */](T1 arg1, T2 arg2) mutable   noexcept(/* ... */) -> RetType { /* ... */ }
            \________ _______/ \__ __/   \_______ _______/   \_____ ___/
                     V            V              V                 V
@@ -1288,19 +1303,20 @@ evaluated only once when the \emcppsgloss{closure} is created, whereas the
 parameter list is bound to actual arguments each time the \emcppsgloss{call
 operator} is invoked:
 
-\begin{emcppslisting}
+\begin{emcppslisting}[emcppserrorlines={22,24}]
 #include <iostream>  // (ù{\codeincomments{std::cout}}ù)
+#include <vector>    // (ù{\codeincomments{std::vector}}ù)
 
 template <typename InputIter, typename Func>
-void applyToEveryOtherElement(InputIter start, InputIter last, Func f) -->
+void applyToEveryOtherElement(InputIter start, InputIter last, Func f) 
     // For elements in the range (ù{\codeincomments{[start, last)}}ù), invoke (ù{\codeincomments{f}}ù) on the first
     // element, skip the second element, etc., alternating between calling (ù{\codeincomments{f}}ù)
     // and skipping elements.
 {
     while (start != last)
     {
-        f(*start++);                      // Process one element.
-        if (start != last) { start++; };  // Skip one element.
+        f(*start++);                     // Process one element.
+        if (start != last) { start++; }  // Skip one element.
     }
 }
 
@@ -1371,12 +1387,15 @@ were \emcppsgloss{captured by copy}, are \lstinline!const! by default and cannot
 be modified within the \emcppsgloss{lambda body} unless the \lstinline!mutable!
 keyword is present:
 
-\begin{emcppslisting}
-#include <cassert> // assert macro
-
+% Note: this was const int, which made the capture variable const even though c2 was mutable
+% We should bring this up as a pitfall/annoyance?
+\begin{emcppshiddenlisting}[emcppsbatch=e7]
+#include <cassert>  // standard C (ù{\codeincomments{assert}}ù) macro
+\end{emcppshiddenlisting}
+\begin{emcppslisting}[emcppsbatch=e7]
 void f2()
 {
-    const int a = 5;
+    int a = 5;
     auto c1 = [a]()         { return ++a; };  // Error, copy of (ù{\codeincomments{a}}ù) is (ù{\codeincomments{const}}ù)
     auto c2 = [a]() mutable { return ++a; };  // OK, increment *copy* of (ù{\codeincomments{a}}ù)
     assert(6 == c2());                        // OK, captured (ù{\codeincomments{a}}ù) incremented
@@ -1401,7 +1420,10 @@ accessed through \lstinline!this! are unaffected by the \lstinline!mutable!
 keyword, but they \emph{are} affected by the \lstinline!const!ness of the
 surrounding member function:
 
-\begin{emcppslisting}
+\begin{emcppshiddenlisting}[emcppsbatch=e8]
+#include <cassert>  // standard C (ù{\codeincomments{assert}}ù) macro
+\end{emcppshiddenlisting}
+\begin{emcppslisting}[emcppsbatch=e8]
 class Class2
 {
     int d_value;
@@ -1409,7 +1431,7 @@ public:
     // ...
     void mf()
     {
-        d_value = 1
+        d_value = 1;
         int a = 0;
         auto c1 = [&a,this]{
             a = d_value;   // OK, (ù{\codeincomments{a}}ù) is a reference to a non-(ù{\codeincomments{const}}ù) object.
@@ -1502,7 +1524,10 @@ If a \emcppsgloss{deduced return type} is impossible or undesirable (see
 needs to be used with care), a \emcppsgloss{trailing return type} can be
 specified (see \featureref{\locationa}{trailing-function-return-types}:
 
-\begin{emcppslisting}
+\begin{emcppshiddenlisting}[emcppsbatch=e9]
+#include <utility>  // (ù{\codeincomments{std::pair}}ù)
+\end{emcppshiddenlisting}
+\begin{emcppslisting}[emcppsbatch=e9]
 void f4()
 {
     auto c1 = [](bool c) -> double {
@@ -1543,8 +1568,8 @@ be inserted before the open brace of the \emcppsgloss{lambda body}.
 Unfortunately, these attributes do not apply to the \emcppsgloss{call
 operator} itself, but to its type, ruling out some common attributes:
 
-\begin{emcppslisting}
-#include <cstdlib>  // std::abort
+\begin{emcppslisting}[emcppsignore={invalid construct}]
+#include <cstdlib>  // (ù{\codeincomments{std::abort}}ù)
 auto c1 = []() noexcept [[noreturn]] {  // Error, (ù{\codeincomments{[[noreturn]]}}ù) on a type
     std::abort();
 };
@@ -1569,7 +1594,7 @@ member function --- do not need to be captured and, in fact,
 \emph{cannot} be captured in most cases. To illustrate, let's create a
 number of entities in multiple scopes:
 
-\begin{emcppslisting}
+\begin{emcppslisting}[emcppsbatch=e10]
 #include <iostream>  // (ù{\codeincomments{std::cout}}ù)
 
 namespace ns1
@@ -1628,7 +1653,7 @@ With these declarations, we first demonstrate the use of entities that
 are not variables and are accessible within the scope of a
 \emcppsgloss{lambda body}:
 
-\begin{emcppslisting}
+\begin{emcppslisting}[emcppsbatch=e10]
 void ns2::Class2::mf2()
 {
     using LocalType = const char*;
@@ -1657,7 +1682,7 @@ lookup will find entities in other namespaces.
 Variables with static storage duration can also be accessed directly,
 without being captured:
 
-\begin{emcppslisting}
+\begin{emcppslisting}[emcppsbatch=e10]
 void ns2::Class2::mf3()
 {
     static int s1 = 3;
@@ -1679,7 +1704,7 @@ and local static variables being used from the local scope.
 Next, we look at uses of variables with \emph{automatic} storage
 duration from the \emcppsgloss[lambda expressions]{lambda expression}'s surrounding block scope:
 
-\begin{emcppslisting}
+\begin{emcppslisting}[emcppsbatch=e10]
 void ns2::Class2::mf4()
 {
     int       a = 4;
@@ -1715,7 +1740,7 @@ not captured, \lstinline!print(k)! is ill formed.
 Finally, we look at access to (non-static) members of the surrounding
 class:
 
-\begin{emcppslisting}
+\begin{emcppslisting}[emcppsbatch=e10]
 void ns2::Class2::mf5()
 {
     auto c1 = []{
@@ -1803,7 +1828,10 @@ expression} whose call operator returns another \emcppsgloss[lambda expressions]
 expression}, i.e., a \emcppsgloss{closure} that returns another
 \emcppsgloss{closure}:
 
-\begin{emcppslisting}
+\begin{emcppshiddenlisting}[emcppsbatch=e11]
+#include <algorithm>  // (ù{\codeincomments{all\_of}}ù)
+\end{emcppshiddenlisting}
+\begin{emcppslisting}[emcppsbatch=e11]
 template <typename InputIter, typename T>
 bool all_greater_than2(InputIter first, InputIter last, const T& v)
     // returns (ù{\codeincomments{true}}ù) if all the values in the specified range [(ù{\codeincomments{first}}ù), (ù{\codeincomments{last}}ù))
@@ -1877,12 +1905,14 @@ new control construct in the language:
 
 \begin{emcppslisting}
 #include <mutex>  // (ù{\codeincomments{std::mutex}}ù)
+#include <vector>  // (ù{\codeincomments{std::vector}}ù)
 
 template <typename RandomIter, typename F>
-void parallel_foreach(RandomIter first, RandomIter last, const F& op);
+void parallel_foreach(RandomIter first, RandomIter last, const F& op)
     // For each element, (ù{\codeincomments{e}}ù), in [(ù{\codeincomments{first}}ù), (ù{\codeincomments{last}}ù)), create a copy (ù{\codeincomments{opx}}ù) of (ù{\codeincomments{op}}ù),
     // and invoke (ù{\codeincomments{opx(e)}}ù).  Any number of invocations of (ù{\codeincomments{opx(e)}}ù) may occur
     // concurrently, each using a separate copy of (ù{\codeincomments{op}}ù).
+{ /*...*/ }
 
 void processData(std::vector<double>& data)
 {
@@ -1929,7 +1959,7 @@ that expression to include local variables and control constructs such
 as loops:
 
 \begin{emcppslisting}
-#include <cstdint>  // SHRT_MAX
+#include <climits>  // (ù{\codeincomments{SHRT\_MAX}}ù)
 
 bool isPrime(long i);
     // Return (ù{\codeincomments{true}}ù) if (ù{\codeincomments{i}}ù) is a prime number.
@@ -1972,11 +2002,12 @@ is typically a small operation, ideally suited for being expressed as
 \emcppsgloss{lambda expressions}:
 
 \begin{emcppslisting}
-#include <functional>  // (ù{\codeincomments{std::function}}ù)
-#include <vector>      // (ù{\codeincomments{std::vector}}ù)
 #include <cstdlib>     // (ù{\codeincomments{std::strtol}}ù)
+#include <functional>  // (ù{\codeincomments{std::function}}ù)
+#include <string>      // (ù{\codeincomments{std::string}}ù)
+#include <vector>      // (ù{\codeincomments{std::vector}}ù)
 
-using Instruction = std::function<long*(long* sp)>;
+using Instruction = std::function<long*(long*& sp)>;
 
 std::vector<Instruction> instructionStream;
 
@@ -2051,7 +2082,10 @@ expression}. This flexibility makes \lstinline!std::function! and
 One specific use of \lstinline!std::function! worth noting is to return a
 \emcppsgloss[lambda expressions]{lambda expression} from a non-template function:
 
-\begin{emcppslisting}
+\begin{emcppshiddenlisting}[emcppsbatch=e12]
+#include <functional>  // (ù{\codeincomments{std::function}}ù)
+\end{emcppshiddenlisting}
+\begin{emcppslisting}[emcppsbatch=e12]
 std::function <int(int)> add_n(int n)
 {
     return [n](int i) { return n + i; };
@@ -2072,7 +2106,7 @@ context. This example illustrates a runtime-polymorphic way to achieve
 Event-driven systems tend to have interfaces that are littered with
 callbacks:
 
-\begin{emcppslisting}
+\begin{emcppslisting}[emcppsbatch=e13]
 #include <memory>  // std::unique_ptr
 
 class DialogBox { /* ... */ };
@@ -2096,7 +2130,7 @@ which of the two buttons is pressed. These callbacks are often quite
 small pieces of code that can best be expressed directly in the program
 logic using \emcppsgloss{lambda expressions}:
 
-\begin{emcppslisting}
+\begin{emcppslisting}[emcppsbatch=e13]
 void runModalDialogBox(DialogBox& db);
 
 void launchShuttle(/* ... */)
@@ -2286,8 +2320,10 @@ mutable), whereas static variables can be changed independent of the
 \emcppsgloss[lambda expressions]{lambda expression}. This difference is often useful but can
 cause confusion when reasoning about a \emcppsgloss[lambda expressions]{lambda expression}:
 
-\begin{emcppslisting}
-#include <cassert>
+\begin{emcppshiddenlisting}[emcppsbatch=e14]
+#include <cassert>  // standard C (ù{\codeincomments{assert}}ù) macro
+\end{emcppshiddenlisting}
+\begin{emcppslisting}[emcppsbatch=e14]
 
 void f1()
 {
@@ -2318,7 +2354,10 @@ operator.
 C++14 \emcppsgloss{capture init} can be used to effectively capture a
 non-local variable:
 
-\begin{emcppslisting}
+\begin{emcppshiddenlisting}[emcppsbatch=e15]
+#include <cassert>  // standard C (ù{\codeincomments{assert}}ù) macro
+\end{emcppshiddenlisting}
+\begin{emcppslisting}[emcppsbatch=e15]
 void f2()
 {
     static int a;
@@ -2355,7 +2394,7 @@ variable in a non-\lstinline!mutable! \emcppsgloss[lambda expressions]{lambda ex
 \lstinline!const!, whereas the primary variable might not be:
 
 \begin{emcppslisting}
-#include <iostream>
+#include <iostream>  // (ù{\codeincomments{std::cout}}ù)
 
 short s1(int&)       { return 0; }
 int   s1(const int&) { return 0; }
@@ -2404,11 +2443,12 @@ is an \emcppsgloss[ODR-used]{ODR-use} of \lstinline!x! and, therefore, requires 
 code:
 
 \begin{emcppslisting}
+#include <typeinfo>  // (ù{\codeincomments{typeid}}ù)
 void f3()
 {
     int x = 0;
-    auto c1 = []{ return typeid(x); };
-        // This is potentially an error: (ù{\codeincomments{x}}ù) was not captured
+    auto c1 = []() -> const std::type_info& { return typeid(x); };
+        // Error, on some platforms ``(ù{\codeincomments{x}}ù) was not captured''
 }
 \end{emcppslisting}
     
@@ -2417,11 +2457,14 @@ One can avoid this pitfall simply by calling \lstinline!typeid! outside of
 the lambda, capturing the result if necessary:
 
 \begin{emcppslisting}
+#include <typeinfo>  // (ù{\codeincomments{typeid}}ù)
 void f3()
 {
     int x = 0;
-    auto& xid = typeid(x);         // OK, (ù{\codeincomments{typeid}}ù) called outside of lambda
-    auto c1 = [&]{ return xid; };  // OK, return captured (ù{\codeincomments{typeinfo}}ù)
+    const std::type_info& xid = typeid(x);
+        // OK, (ù{\codeincomments{typeid}}ù) called outside of lambda
+    auto c1 = [&]() -> const std::type_info& { return xid; }
+        // OK, return captured (ù{\codeincomments{typeinfo}}ù)
 }
 \end{emcppslisting}
     
@@ -2509,12 +2552,13 @@ For example, let's look at a simplified excerpt from an earlier use
 case, \intraref{use-cases-lambda}{use-with-std::function}.
 
 \begin{emcppslisting}
-#include <string>  // (ù{\codeincomments{std::string}}ù)
+#include <string>      // (ù{\codeincomments{std::string}}ù)
+#include <functional>  // (ù{\codeincomments{std::function}}ù)
 
 void readInstructions()
 {
-    std::string                    token;
-    std::function<long*(long* sp)> nextInstr;
+    std::string                     token;
+    std::function<long*(long*& sp)> nextInstr;
 
     while ( /* ... */ (!token.empty()))
     {
@@ -2566,9 +2610,12 @@ The extra punctuation can also be unattractive when emulating a control
 construct using \emcppsgloss{lambda expressions} as in the
 \lstinline!parallel_foreach! example in \intraref{use-cases-lambda}{emulate-user-defined-control-constructs}:
 
-\begin{emcppslisting}
+\begin{emcppshiddenlisting}[emcppsbatch=e16]
+template <typename RandomIter, typename F>
+void parallel_foreach(RandomIter first, RandomIter last, const F& op) {}
 #include <vector>  // (ù{\codeincomments{std::vector}}ù)
-
+\end{emcppshiddenlisting}
+\begin{emcppslisting}[emcppsbatch=e16]
 void f(const std::vector<int>& data)
 {
     // ...
