@@ -110,8 +110,7 @@ void sortBySalary(std::vector<Employee>& employees)
 \end{emcppslisting}
     
 
-Although it is a bit more verbose, a call through the \emcppsgloss{function
-object} is easier for the compiler to analyze and automatically inline
+Although it is a bit more verbose, a call through the \emcppsgloss{function object} is easier for the compiler to analyze and automatically inline
 within \lstinline!std::sort! than is a call through the function pointer.
 \emcppsgloss[function object]{Function objects} are also more flexible because they can carry
 state, as we'll see shortly. The sorting example illustrates how small
@@ -248,8 +247,7 @@ predicate. Using \emcppsgloss{lambda expressions}, a developer can express a
 desired operation directly at the point of use rather than defining it
 elsewhere in the program.
 
-The compactness and simplicity afforded by the use of \emcppsgloss{lambda
-expressions} is even more evident when we rewrite the average-salaries
+The compactness and simplicity afforded by the use of \emcppsgloss{lambda expressions} is even more evident when we rewrite the average-salaries
 example:
 
 \begin{emcppslisting}[emcppsbatch=e1]
@@ -272,21 +270,18 @@ std::size_t numAboveAverageSalaries2(const std::vector<Employee>& employees)
     
 
 The first \emcppsgloss[lambda expressions]{lambda expression}, above, specifies the operation for
-adding another salary to a running sum. The second \emcppsgloss[lambda expressions]{lambda
-expression} returns true if the \lstinline!Employee! argument, \lstinline!e!,
+adding another salary to a running sum. The second \emcppsgloss[lambda expressions]{lambda expression} returns true if the \lstinline!Employee! argument, \lstinline!e!,
 has a salary that is larger than \lstinline!average!, which is a local
 variable \emph{captured} by the \emcppsgloss[lambda expressions]{lambda expression}. A
 \emcppsgloss{lambda capture} is a set of local variables that are usable
 within the body of the \emcppsgloss[lambda expressions]{lambda expression}, effectively making
 the \emcppsgloss[lambda expressions]{lambda expression} an extension of the immediate
-environment. We will look at the syntax and semantics of \emcppsgloss[lambda capture]{lambda
-captures} in more detail in {Parts of a Lambda Expression}.
+environment. We will look at the syntax and semantics of \emcppsgloss[lambda capture]{lambda captures} in more detail in {Parts of a Lambda Expression}.
 
 Note that the lambda expressions replaced a significant portion of code
 that was previously expressed as separate functions or \emcppsgloss{functor}
 classes. The fact that some of that code reduction is in the form of
-documentation (comments) increases the appeal of \emcppsgloss{lambda
-expressions} to a surprising degree. Creating a named entity such as a
+documentation (comments) increases the appeal of \emcppsgloss{lambda expressions} to a surprising degree. Creating a named entity such as a
 function or class imposes on the developer the responsibility to give
 that entity a meaningful name and sufficient documentation for a future
 human reader to understand its \emph{abstract} purpose, outside the
@@ -325,8 +320,7 @@ definition, and it is often convenient to think of it that way, but a
 lambda expression is actually more complex than that. First and
 foremost, a \emcppsgloss[lambda expressions]{lambda expression}, as the name implies, is an
 \emph{expression} rather than a \emph{definition}. The result of
-evaluating a \emcppsgloss[lambda expressions]{lambda expression} is a special \emcppsgloss{function
-object} called a \emcppsgloss{closure}{\cprotect\footnote{The terms
+evaluating a \emcppsgloss[lambda expressions]{lambda expression} is a special \emcppsgloss{function object} called a \emcppsgloss{closure}{\cprotect\footnote{The terms
 \emph{lambda} and \emph{closure} are borrowed from \emph{Lambda
 Calculus}, a computational system developed by Alonzo Church in the
 1930s. Many computer languages have features inspired by Lambda
@@ -338,11 +332,9 @@ usually occurs later (e.g., as a callback) --- that the actual body of
 the \emcppsgloss[lambda expressions]{lambda expression} gets evaluated.
 
 Evaluating a \emcppsgloss[lambda expressions]{lambda expression} creates a temporary
-\emcppsgloss{closure object} of an unnamed type called the \emcppsgloss{closure
-type}. The \emcppsgloss{closure type} encapsulates captured variables (see\linebreak[4] 
+\emcppsgloss{closure object} of an unnamed type called the \emcppsgloss{closure type}. The \emcppsgloss{closure type} encapsulates captured variables (see\linebreak[4] 
 \featureref{\locationd}{lambda-capture-expressions}) and has a \emcppsgloss{call operator} that
-executes the body of the \emcppsgloss[lambda expressions]{lambda expression}. Each \emcppsgloss[lambda expressions]{lambda
-expression} has a unique \emcppsgloss{closure type}, even if it is identical
+executes the body of the \emcppsgloss[lambda expressions]{lambda expression}. Each \emcppsgloss[lambda expressions]{lambda expression} has a unique \emcppsgloss{closure type}, even if it is identical
 to another \emcppsgloss[lambda expressions]{lambda expression} in the program. If the
 \emcppsgloss[lambda expressions]{lambda expression} appears within a template, the
 \emcppsgloss{closure type} for each instantiation of that template is unique.
@@ -411,8 +403,7 @@ There is no way to specify a \emcppsgloss{closure type} prior to creating an
 actual \emcppsgloss{closure object} of that type. Consequently, there is no
 way to declare \lstinline!callFunc! with a parameter of the actual
 \emcppsgloss{closure type} that will be passed; hence, it is declared as a
-template parameter. As a special case, however, if the \emcppsgloss{lambda
-capture} is \emph{empty} (i.e., the \emcppsgloss[lambda expressions]{lambda expression} begins
+template parameter. As a special case, however, if the \emcppsgloss{lambda capture} is \emph{empty} (i.e., the \emcppsgloss[lambda expressions]{lambda expression} begins
 with \lstinline![]!; see \featureref{\locationd}{lambda-capture-expressions}), then the
 \emcppsgloss{closure} is implicitly convertible to an ordinary function
 pointer having the same signature as its \emcppsgloss{call operator}:
@@ -474,13 +465,11 @@ one that does not require the \emcppsgloss{lambda capture} to be empty; see
 \intrarefsimple{use-cases-lambda}.
 
 The compile-time and runtime phases of defining a \emcppsgloss{closure type}
-and constructing a \emcppsgloss{closure object} from a single \emcppsgloss[lambda expressions]{lambda
-expression} resembles the phases of calling a function template; what
+and constructing a \emcppsgloss{closure object} from a single \emcppsgloss[lambda expressions]{lambda expression} resembles the phases of calling a function template; what
 looks like an ordinary function call is actually broken down into a
 compile-time instantiation and a runtime call. The \emcppsgloss{closure type}
 is deduced when a \emcppsgloss[lambda expressions]{lambda expression} is encountered during
-compilation. When the control flow passes through the \emcppsgloss[lambda expressions]{lambda
-expression} at run time, the \emcppsgloss{closure object} is
+compilation. When the control flow passes through the \emcppsgloss[lambda expressions]{lambda expression} at run time, the \emcppsgloss{closure object} is
 \emph{constructed} from the list of captured local variables. In the
 \lstinline!numAboveAverageSalaries! example in the {Description} section,
 the \lstinline!SalaryIsGreater! class can be thought of as a
@@ -543,20 +532,16 @@ FwdIt oddEvenPartition(FwdIt first, FwdIt last)
     
 
 The \lstinline!oddEvenPartition! function template moves odd values to the
-start of the sequence and even values to the back. The \emcppsgloss{closure
-object} is invoked repeatedly within the \lstinline!std::partition!
+start of the sequence and even values to the back. The \emcppsgloss{closure object} is invoked repeatedly within the \lstinline!std::partition!
 algorithm.
 
 \subsubsection[Lambda capture and lambda introducer]{Lambda capture and lambda introducer}\label{lambda-capture-and-lambda-introducer}
 
 The purpose of the \emcppsgloss{lambda capture} is to make certain local
 variables from the environment available to be used (or, more precisely,
-\emcppsgloss{ODR-used}, which means that they are used in a
+\emcppsgloss[odr used]{ODR-used}, which means that they are used in a
 potentially-evaluated context) within the \emcppsgloss{lambda body}. Each
-local variable can be \emcppsgloss{captured by copy} or \emcppsgloss{captured by
-reference}. Orthogonally, each variable can be \emcppsgloss{explicitly
-captured} or \emcppsgloss{implicitly captured}. When a \emcppsgloss[lambda expressions]{lambda
-expression} appears within a non-static member function, the
+local variable can be \emcppsgloss{captured by copy} or \emcppsgloss{captured by reference}. Orthogonally, each variable can be \emcppsgloss{explicitly captured} or \emcppsgloss{implicitly captured}. When a \emcppsgloss[lambda expressions]{lambda expression} appears within a non-static member function, the
 \lstinline!this! pointer can be captured as a special case. We'll examine
 each of these aspects of \emcppsgloss{lambda capture} in turn. An extension
 to \emcppsgloss{lambda capture} in C++14 is discussed in \intrarefsimple{c++14-init-capture}.
@@ -568,7 +553,7 @@ more identifiers (or the keyword \lstinline!this!), which are
 \lstinline!=! or \lstinline!&! for \emcppsgloss[captured by copy]{capture by copy} or
 \emcppsgloss[captured by reference]{capture by reference}, respectively. If there is a
 \emcppsgloss{capture default}, then \lstinline!this! and any local variables in
-scope that are \emcppsgloss{ODR-used} within the \emcppsgloss{lambda body} and not
+scope that are \emcppsgloss[odr used]{ODR-used} within the \emcppsgloss{lambda body} and not
 \emcppsgloss{explicitly captured} will be \emcppsgloss{implicitly captured}.
 
 \begin{emcppslisting}
@@ -606,8 +591,7 @@ preceded by an \lstinline!&! symbol in the \emcppsgloss{lambda capture} is
 \emcppsgloss{captured by reference}; without the \lstinline!&!, it is
 \emcppsgloss{captured by copy}. If the \emcppsgloss{capture default} is
 \lstinline!&!, then all \emcppsgloss{implicitly captured} variables are
-\emcppsgloss{captured by reference}. Otherwise, if the \emcppsgloss{capture
-default} is \lstinline!=!, all \emcppsgloss{implicitly captured} variables are
+\emcppsgloss{captured by reference}. Otherwise, if the \emcppsgloss{capture default} is \lstinline!=!, all \emcppsgloss{implicitly captured} variables are
 \emcppsgloss{captured by copy}:
 
 \begin{emcppslisting}
@@ -649,10 +633,8 @@ public:
 Redundant captures are not allowed; the same name (or \lstinline!this!)
 cannot appear twice in the \emcppsgloss{lambda capture}. Moreover, if the
 \emcppsgloss{capture default} is \lstinline!&!, then none of the
-\emcppsgloss{explicitly captured} variables may be \emcppsgloss{captured by
-reference}, and if the \emcppsgloss{capture default} is \lstinline!=!, then any
-\emcppsgloss{explicitly captured} entities can be neither \emcppsgloss{explicitly
-copied} variables nor \lstinline!this!{\cprotect\footnote{C++20 removed
+\emcppsgloss{explicitly captured} variables may be \emcppsgloss{captured by reference}, and if the \emcppsgloss{capture default} is \lstinline!=!, then any
+\emcppsgloss{explicitly captured} entities can be neither \emcppsgloss{explicitly copied} variables nor \lstinline!this!{\cprotect\footnote{C++20 removed
 the prohibition on explicit capture of \lstinline!this! with an
   \lstinline!=! capture default.}}:
 
@@ -687,11 +669,9 @@ destroyed when the \emcppsgloss{closure object} is destroyed. Any
 \emcppsgloss[ODR-used]{ODR-use} of that name within the \emcppsgloss{lambda body} will refer
 to the \emcppsgloss{closure}'s member variable. Thus, for an entity that is
 \emcppsgloss{captured by copy}, the primary and captured variables refer to
-distinct objects with distinct lifetimes. By default, the \emcppsgloss{call
-operator} is \lstinline!const!, providing read-only access to members of
+distinct objects with distinct lifetimes. By default, the \emcppsgloss{call operator} is \lstinline!const!, providing read-only access to members of
 the \emcppsgloss{closure object} (i.e., captured variables that are
-\emcppsgloss{captured by copy}); mutable (non\lstinline!const!) \emcppsgloss[call operator]{call
-operators} are discussed in \intrarefsimple{lambda-declarator}:
+\emcppsgloss{captured by copy}); mutable (non\lstinline!const!) \emcppsgloss[call operator]{call operators} are discussed in \intrarefsimple{lambda-declarator}:
 
 \begin{emcppshiddenlisting}[emcppsbatch=e2]
 #include <cassert>  // standard C (ù{\codeincomments{assert}}ù) macro
@@ -766,15 +746,12 @@ void f4()
 \end{emcppslisting}
     
 
-In contrast to the \lstinline!f3! example, the \lstinline!c1! \emcppsgloss{closure
-object} above does \emph{not} hold a copy of the captured variable,
+In contrast to the \lstinline!f3! example, the \lstinline!c1! \emcppsgloss{closure object} above does \emph{not} hold a copy of the captured variable,
 \lstinline!a!, though the compiler may choose to define a member of type
-\lstinline!int&! that refers to \lstinline!a!. Within the \emcppsgloss{lambda
-body}, modifying \lstinline!a! modifies the primary variable, and taking
+\lstinline!int&! that refers to \lstinline!a!. Within the \emcppsgloss{lambda body}, modifying \lstinline!a! modifies the primary variable, and taking
 its address returns the address of the primary variable, i.e., the
 captured variable is an alias for the primary variable. With respect to
-variables that are \emcppsgloss{captured by reference}, the \emcppsgloss{lambda
-body} behaves very much as though it were part of the surrounding block.
+variables that are \emcppsgloss{captured by reference}, the \emcppsgloss{lambda body} behaves very much as though it were part of the surrounding block.
 The lifetime of a variable that is \emcppsgloss{captured by reference} is the
 same as that of the primary variable (since they are the same). In
 particular, if a copy of the \emcppsgloss{closure object} outlives the
@@ -876,8 +853,7 @@ public:
     
 
 Here, we captured \lstinline!this! in \lstinline!c1! but then proceeded to
-modify the object pointed to by \lstinline!this! within the \emcppsgloss{lambda
-body}.{\cprotect\footnote{In C++17, it is possible to capture
+modify the object pointed to by \lstinline!this! within the \emcppsgloss{lambda body}.{\cprotect\footnote{In C++17, it is possible to capture
 \lstinline!*this!, which results in the entire class object being copied,
   not just the \lstinline!this! pointer.}}
 
@@ -945,8 +921,7 @@ The \emcppsgloss{reaching scope} of the \emcppsgloss{lambda expressions} for
 \lstinline!d! in the \lstinline!else! block, \lstinline!b! in the surrounding
 function block, and \lstinline!a! from \lstinline!f5!'s arguments. The local
 variable, \lstinline!c!, is not in their \emcppsgloss{reaching scope} and cannot
-be captured. Although \lstinline!e! \emph{is} in their \emcppsgloss{reaching
-scope}, it cannot be captured because it does not have automatic storage
+be captured. Although \lstinline!e! \emph{is} in their \emcppsgloss{reaching scope}, it cannot be captured because it does not have automatic storage
 duration. Finally, the \emcppsgloss[lambda expressions]{lambda expression} for \lstinline!c6! is
 within a member function of a local class. Its \emcppsgloss{reaching scope}
 ends with the innermost function, \lstinline!LocalClass::mf!, and does not
@@ -1041,7 +1016,7 @@ capture the \emph{copy}, not the primary variable, as we see in the
 
 Note that, when a variable is named in a \emcppsgloss{lambda capture}, it
 isn't automatically \emph{captured}. A variable is not captured unless
-it is \emcppsgloss{ODR-used} within the \emcppsgloss[lambda expressions]{lambda expression}:
+it is \emcppsgloss[odr used]{ODR-used} within the \emcppsgloss[lambda expressions]{lambda expression}:
 
 \begin{emcppslisting}
 void f7()
@@ -1065,7 +1040,7 @@ Conversely, \lstinline!c2! does \emph{not} capture \lstinline!a! because the
 diagnostic about the superfluous presence of \lstinline!a! in the
 \emcppsgloss{lambda capture} for \lstinline!c2!. The case of \lstinline!c3! is a
 bit more subtle. Although \lstinline!a! is \emph{used} within \lstinline!c3!,
-it is not \emcppsgloss{ODR-used} --- i.e., it is not used in a
+it is not \emcppsgloss[odr used]{ODR-used} --- i.e., it is not used in a
 potentially-evaluated context because \lstinline!sizeof! does not evaluate
 its argument --- so the warning is the same as for \lstinline!c2!; see
 \intrarefsimple{potential-pitfalls-lambda}. The last two cases are a bit more subtle: The use of the
@@ -1073,8 +1048,7 @@ its argument --- so the warning is the same as for \lstinline!c2!; see
 an \emcppsgloss[ODR-used]{ODR-use} of that variable, whereas the use its \emph{address}
 (in \lstinline!c5!) \emph{is} an \emcppsgloss[ODR-used]{ODR-use}.
 
-Finally, a \emcppsgloss{lambda capture} within a \emcppsgloss{variadic function
-template} (see \featureref{\locationc}{variadictemplate}) may contain a
+Finally, a \emcppsgloss{lambda capture} within a \emcppsgloss{variadic function template} (see \featureref{\locationc}{variadictemplate}) may contain a
 \emcppsgloss[parameter pack]{parameter pack expansion}:
 
 \begin{emcppslisting}
@@ -1099,13 +1073,10 @@ In the example above, the variadic arguments to \lstinline!f9! are
 \emcppsgloss[lambda expressions]{lambda expression}. This means that, regardless of the
 \emcppsgloss{value category} (\romeovalue{rvalue}, \romeovalue{lvalue}, and so on) of the
 original arguments, the captured variables are all \romeovalue{lvalue} members
-of the resulting \emph{closure}. Conversely, the second \emcppsgloss[lambda expressions]{lambda
-expression} captures the set of arguments using \emcppsgloss[captured by reference]{capture by
-reference}, again resulting in captured variables that are
+of the resulting \emph{closure}. Conversely, the second \emcppsgloss[lambda expressions]{lambda expression} captures the set of arguments using \emcppsgloss[captured by reference]{capture by reference}, again resulting in captured variables that are
 \romeovalue{lvalues}. The \lstinline!ArgTypes! \emcppsgloss[parameter pack]{parameter pack expansion}
 designates a list of \emph{types}, not \emph{variables}, and does not,
-therefore, need to be captured to be used within the \emcppsgloss[lambda expressions]{lambda
-expression}, nor would it be valid to attempt to capture it. Because
+therefore, need to be captured to be used within the \emcppsgloss[lambda expressions]{lambda expression}, nor would it be valid to attempt to capture it. Because
 \lstinline!ArgTypes! is specified using a forwarding reference
 (\lstinline!&&!, see \featureref{\locationc}{forwardingref}), the Standard
 Library function, \lstinline!std::forward!, can be used to cast the
@@ -1117,8 +1088,7 @@ arguments.
 \textbf{TODO VR: this subsection shouldn't be here, we have a specific C++14
 feature `lambdacapture' for this stuff.}
 
-Each item in a C++11 \emcppsgloss{lambda capture} is either a \emcppsgloss{capture
-default} or a \emcppsgloss{simple capture} consisting of the name of a local
+Each item in a C++11 \emcppsgloss{lambda capture} is either a \emcppsgloss{capture default} or a \emcppsgloss{simple capture} consisting of the name of a local
 variable, either by itself (for \emcppsgloss[captured by copy]{capture by copy}) or preceded by
 an \lstinline!&! (for \emcppsgloss[captured by reference]{capture by reference}). C++14 introduces
 another possibility, an \emcppsgloss{init capture}, consisting of a variable
@@ -1191,8 +1161,7 @@ void f2(std::string s)
 \end{emcppslisting}
     
 
-In all of the \emcppsgloss{lambda expressions} above, an \emcppsgloss{init
-capture} defines a variable whose name shadows one in the environment.
+In all of the \emcppsgloss{lambda expressions} above, an \emcppsgloss{init capture} defines a variable whose name shadows one in the environment.
 In fact, the first use, in \lstinline!c1!, defines a captured variable,
 \lstinline!s!, that is a reference to the argument variable by the same
 name, yielding a behavior within the \emcppsgloss{lambda body} that is
@@ -1208,9 +1177,7 @@ after constructing the \lstinline!c3! \emcppsgloss{closure}, the local variable,
 \lstinline!s!, is in a \emph{moved-from} state and thus has an unspecified
 value, even if \lstinline!c3! is never invoked.
 
-In C++14, an \emcppsgloss{init capture} cannot be a \emcppsgloss[parameter pack]{parameter pack
-expansion}.{\cprotect\footnote{A syntax for \emcppsgloss[parameter pack]{parameter pack
-expansion} of \emcppsgloss[init capture]{init captures} was introduced in C++20:
+In C++14, an \emcppsgloss{init capture} cannot be a \emcppsgloss[parameter pack]{parameter pack expansion}.{\cprotect\footnote{A syntax for \emcppsgloss[parameter pack]{parameter pack expansion} of \emcppsgloss[init capture]{init captures} was introduced in C++20:
 
 \begin{emcppslisting}[style=footcode]
 template <typename T> class X { /* ... */ };
@@ -1245,8 +1212,7 @@ specification, and return type:
     
 
 Although the \emcppsgloss{lambda declarator} looks very similar to a function
-declaration, we cannot forward declare any part of a \emcppsgloss[lambda expressions]{lambda
-expression}; we can only define it.
+declaration, we cannot forward declare any part of a \emcppsgloss[lambda expressions]{lambda expression}; we can only define it.
 
 The entire \emcppsgloss{lambda declarator} is optional. However, if
 \emph{any} part is present, the parameter list must be present (even if
@@ -1279,8 +1245,7 @@ In the definition of \lstinline!c1!, the \emcppsgloss[lambda expressions]{lambda
 \emcppsgloss[explicitly captured]{explicitly captures} \lstinline!a!, then improperly tries to
 declare a parameter by the same name. When \lstinline!a! is not captured,
 as in the \emcppsgloss[lambda expressions]{lambda expression} for \lstinline!c2!, having a parameter
-named \lstinline!a! does not pose a problem; within the \emcppsgloss{lambda
-body}, the declaration of \lstinline!a! in the parameter list will prevent
+named \lstinline!a! does not pose a problem; within the \emcppsgloss{lambda body}, the declaration of \lstinline!a! in the parameter list will prevent
 name lookup from finding the declaration in the enclosing scope. The
 situation with \lstinline!c3! is essentially the same as for \lstinline!c2!;
 because name lookup finds \lstinline!a! in the parameter list rather than
@@ -1300,8 +1265,7 @@ Note that, unlike the \emcppsgloss{lambda capture}, the parameter list is
 usually dictated by the \emph{client} of a \emcppsgloss[lambda expressions]{lambda expression}
 rather than by its author. Moreover, the \emcppsgloss{lambda capture} is
 evaluated only once when the \emcppsgloss{closure} is created, whereas the
-parameter list is bound to actual arguments each time the \emcppsgloss{call
-operator} is invoked:
+parameter list is bound to actual arguments each time the \emcppsgloss{call operator} is invoked:
 
 \begin{emcppslisting}[emcppserrorlines={22,24}]
 #include <iostream>  // (ù{\codeincomments{std::cout}}ù)
@@ -1360,8 +1324,7 @@ function.
 The \lstinline!mutable! keyword, if present, indicates that the
 \emcppsgloss{call operator} for the \emcppsgloss{closure type} should \emph{not}
 be \lstinline!const!. Recall that a normal class member function can modify
-the class's members if not declared \lstinline!const!. The \emcppsgloss{call
-operator} is just an ordinary member function in this regard:
+the class's members if not declared \lstinline!const!. The \emcppsgloss{call operator} is just an ordinary member function in this regard:
 
 \begin{emcppslisting}
 class Class1
@@ -1465,23 +1428,20 @@ non\lstinline!const! member function, \lstinline!mf!. Conversely, the
 the captured \lstinline!this! pointer points to a \lstinline!const! object
 within the surrounding member function, \lstinline!cmf!.
 
-The \emcppsgloss{lambda declarator} may include an \emcppsgloss{exception
-specification}, consisting of a \lstinline!throw! or \lstinline!noexcept!
+The \emcppsgloss{lambda declarator} may include an \emcppsgloss{exception specification}, consisting of a \lstinline!throw! or \lstinline!noexcept!
 clause, after the \lstinline!mutable! decoration, if any. The syntax and
 meaning of the \emcppsgloss{exception specification} is identical to that of
 a normal function; see \featureref{\locatione}{noexcept-specifier}.
 
 The return type of the \emcppsgloss{call operator} can be determined either
 by a \emcppsgloss{trailing return type} or by a \emcppsgloss{deduced return type}.
-Every example we have seen up to this point has used a \emcppsgloss{deduced
-return type} whereby the return type of the \emcppsgloss{closure}'s
+Every example we have seen up to this point has used a \emcppsgloss{deduced return type} whereby the return type of the \emcppsgloss{closure}'s
 \emcppsgloss{call operator} is deduced by the type of object returned by the
 return statement(s). If there are no return statements in the
 \emcppsgloss{lambda body} or if the return statements have no operands, then
 the return type is \lstinline!void!. If there are multiple return
 statements, they must agree with respect to the return type. The rules
-for a \emcppsgloss{deduced return type} are the same for a \emcppsgloss[lambda expressions]{lambda
-expression} as they are in C++14 for an ordinary function; see \featureref{\locationf}{Function-Return-Type-Deduction}:
+for a \emcppsgloss{deduced return type} are the same for a \emcppsgloss[lambda expressions]{lambda expression} as they are in C++14 for an ordinary function; see \featureref{\locationf}{Function-Return-Type-Deduction}:
 
 \begin{emcppslisting}
 void f3()
@@ -1502,8 +1462,7 @@ void f3()
 \end{emcppslisting}
     
 
-All four of the above \emcppsgloss{lambda expressions} have a \emcppsgloss{deduced
-return type}. The first one deduces a return type of \lstinline!void!
+All four of the above \emcppsgloss{lambda expressions} have a \emcppsgloss{deduced return type}. The first one deduces a return type of \lstinline!void!
 because the \emcppsgloss{lambda body} has no \lstinline!return! statements. The
 next one deduces a return type of \lstinline!const!~\lstinline!char*! because
 the string literal, \lstinline!"hello"!, decays to a
@@ -1549,8 +1508,7 @@ declared, the compiler converts the return values to the known return
 type (\lstinline!double!). The second \emcppsgloss[lambda expressions]{lambda expression} returns a
 value by brace initialization, which is insufficient for deducing a
 return value. Again, the ambiguity is resolved by declaring the return
-value explicitly. Note that, unlike ordinary functions, a \emcppsgloss[lambda expressions]{lambda
-expression} cannot have a return type specified before the
+value explicitly. Note that, unlike ordinary functions, a \emcppsgloss[lambda expressions]{lambda expression} cannot have a return type specified before the
 \emcppsgloss{lambda introducer} or \emcppsgloss{lambda declarator}:
 
 \begin{emcppslisting}
@@ -1562,11 +1520,9 @@ auto c7 = [](int x) -> int{ return 0; };  // OK, trailing return type
 
 Attributes (see \featureref{\locationa}{attributes}) that appertain to the
 \emph{type} of \emcppsgloss{call operator} can be inserted in the
-\emcppsgloss{lambda declarator} just before the \emcppsgloss{trailing return
-type}. If there is no \emcppsgloss{trailing return type}, the attributes can
+\emcppsgloss{lambda declarator} just before the \emcppsgloss{trailing return type}. If there is no \emcppsgloss{trailing return type}, the attributes can
 be inserted before the open brace of the \emcppsgloss{lambda body}.
-Unfortunately, these attributes do not apply to the \emcppsgloss{call
-operator} itself, but to its type, ruling out some common attributes:
+Unfortunately, these attributes do not apply to the \emcppsgloss{call operator} itself, but to its type, ruling out some common attributes:
 
 \begin{emcppslisting}[emcppsignore={invalid construct}]
 #include <cstdlib>  // (ù{\codeincomments{std::abort}}ù)
@@ -1584,8 +1540,7 @@ member function that is the \emcppsgloss{call operator} for the
 \emcppsgloss{closure type}. For the purposes of name lookup and the
 interpretation of \lstinline!this!, the \emcppsgloss{lambda body} is considered
 to be in the context where the \emcppsgloss[lambda expressions]{lambda expression} is evaluated
-(independent of the context where the \emcppsgloss{closure}'s \emcppsgloss{call
-operator} is invoked).
+(independent of the context where the \emcppsgloss{closure}'s \emcppsgloss{call operator} is invoked).
 
 Critically, the set of entity names that can be used from within the
 \emcppsgloss{lambda body} is not limited to captured local variables. Types,
@@ -1728,7 +1683,7 @@ captured. Printing \lstinline!b! is not a problem because the \lstinline!b!
 parameter in the \emcppsgloss{lambda declarator} is local to the
 \emcppsgloss{lambda body}; it hides the \lstinline!b! variable in the
 surrounding block scope. A \lstinline!const! variable of fundamental type
-is not \emcppsgloss{ODR-used} unless its \emph{identity} (i.e., address) is
+is not \emcppsgloss[odr used]{ODR-used} unless its \emph{identity} (i.e., address) is
 needed. Hence, \lstinline!k! can be used even though it is not captured.
 Conversely, the call to \lstinline!print(k)! \emph{is} an \emcppsgloss[ODR-used]{ODR-use}
 of \lstinline!k! because \lstinline!print! takes its argument by
@@ -1793,8 +1748,7 @@ needs of \lstinline!std::count_if! by converting a \lstinline!std::string!
 argument into \lstinline!const!~\lstinline!char*! and \lstinline!std::size_t!
 arguments and converting the \lstinline!int! return value to \lstinline!bool!.
 
-A particularly common kind of interface adaptation is \emcppsgloss{partial
-application}, whereby we reduce the \emph{parameter count} of a function
+A particularly common kind of interface adaptation is \emcppsgloss{partial application}, whereby we reduce the \emph{parameter count} of a function
 by holding one or more of its arguments constant for the duration of the
 algorithm:
 
@@ -1823,9 +1777,7 @@ from lambda calculus and functional programming languages. Currying is a
 flexible way to get results similar to \emcppsgloss{partial application} by
 transforming, e.g., a function taking two parameters into one taking
 just the first parameter and returning a function taking just the second
-parameter. To apply this technique, we define a \emcppsgloss[lambda expressions]{lambda
-expression} whose call operator returns another \emcppsgloss[lambda expressions]{lambda
-expression}, i.e., a \emcppsgloss{closure} that returns another
+parameter. To apply this technique, we define a \emcppsgloss[lambda expressions]{lambda expression} whose call operator returns another \emcppsgloss[lambda expressions]{lambda expression}, i.e., a \emcppsgloss{closure} that returns another
 \emcppsgloss{closure}:
 
 \begin{emcppshiddenlisting}[emcppsbatch=e11]
@@ -1858,8 +1810,7 @@ Local functions in languages other than C++ allow functions to be
 defined within other functions. They are useful when the outer function
 needs to repeat a set of steps two or more times but where the repeated
 steps are meaningless outside of the immediate context and/or require
-access to the outer function's local variables. Using a \emcppsgloss[lambda expressions]{lambda
-expression} to produce a re-usable \emcppsgloss{closure} provides this
+access to the outer function's local variables. Using a \emcppsgloss[lambda expressions]{lambda expression} to produce a re-usable \emcppsgloss{closure} provides this
 functionality in C++:
 
 \begin{emcppslisting}
@@ -1940,8 +1891,7 @@ The \lstinline!parallel_foreach! algorithm is intended to act like a
 potentially be processed in parallel. By inserting the ``body'' of this
 ``parallel for loop'' directly into the call to
 \lstinline!parallel_foreach!, the resulting loop looks and feels a lot
-like a built-in control construct. Note that the \emcppsgloss{capture
-default} is \emcppsgloss[captured by reference]{capture by reference} and will result in all of the
+like a built-in control construct. Note that the \emcppsgloss{capture default} is \emcppsgloss[captured by reference]{capture by reference} and will result in all of the
 iterations sharing the outer function's call frame, including the mutex
 variable, \lstinline!m!, used to prevent race conditions. This
 \emcppsgloss{capture default} should be used with care in parallel
@@ -1986,13 +1936,11 @@ possible only by creating a single-use \emph{named} function.
 \subsubsection[Use with \lstinline!std::function!]{Use with {\SubsubsecCode std::function}}\label{use-with-std::function}
 
 As convenient as a \emcppsgloss[lambda expressions]{lambda expression} is for passing a functor
-to an algorithm \emph{template}, the fact that each \emcppsgloss{closure
-type} is unnamed and distinct makes it difficult to use them outside of
+to an algorithm \emph{template}, the fact that each \emcppsgloss{closure type} is unnamed and distinct makes it difficult to use them outside of
 a generic context. The C++11 Standard Library class template,
 \lstinline!std::function!, bridges this gap by providing a polymorphic
 invocable type that can be constructed from any type with a compatible
-invocation prototype, including but not limited to \emcppsgloss[closure type]{closure
-types}.
+invocation prototype, including but not limited to \emcppsgloss[closure type]{closure types}.
 
 A simple interpreter for a postfix input language stores a sequence of
 instructions in a \lstinline!std::vector!. Each instruction can be of a
@@ -2061,8 +2009,7 @@ is captured in a \emcppsgloss[lambda expressions]{lambda expression}. The result
 when called, it will push \lstinline!v! onto the stack. Note that the
 \lstinline!nextInstr! variable outlives the primary \lstinline!v! variable,
 but, because \lstinline!v! was \emcppsgloss{captured by copy}, the
-\emcppsgloss{captured variable}'s lifetime is the same as the \emcppsgloss{closure
-object}'s. If the next operation is \lstinline!+!, \lstinline!nextInstr! is
+\emcppsgloss{captured variable}'s lifetime is the same as the \emcppsgloss{closure object}'s. If the next operation is \lstinline!+!, \lstinline!nextInstr! is
 set to the \emcppsgloss{closure object} of an entirely different
 \emcppsgloss[lambda expressions]{lambda expression}, one that captures nothing and whose call
 operator pops two values from the stack and pushes their sum back onto
@@ -2075,8 +2022,7 @@ in an \lstinline!Instruction! object because the prototype for their call
 operator matches the prototype specified in the instantiation of
 \lstinline!std::function!. The \lstinline!nextInstr! variable can be created
 empty, assigned from the value of a \emcppsgloss[lambda expressions]{lambda expression}, and then
-later reassigned from the value of a different \emcppsgloss[lambda expressions]{lambda
-expression}. This flexibility makes \lstinline!std::function! and
+later reassigned from the value of a different \emcppsgloss[lambda expressions]{lambda expression}. This flexibility makes \lstinline!std::function! and
 \emcppsgloss{lambda expressions} a potent combination.
 
 One specific use of \lstinline!std::function! worth noting is to return a
@@ -2155,8 +2101,7 @@ void launchShuttle(/* ... */)
 Here, the user is being prompted as to whether or not to launch a
 missile. Since the dialog box is processed entirely within the
 \lstinline!launchShuttle! function, it is convenient to express two
-callbacks in-place, within the function, using \emcppsgloss{lambda
-expressions}. The first \emcppsgloss[lambda expressions]{lambda expression} --- passed as the
+callbacks in-place, within the function, using \emcppsgloss{lambda expressions}. The first \emcppsgloss[lambda expressions]{lambda expression} --- passed as the
 callback for when the user clicks ``Yes'' --- captures the
 \lstinline!doLaunch! flag by reference and simply sets it to \lstinline!true!.
 The second \emcppsgloss[lambda expressions]{lambda expression} --- passed as the callback for
@@ -2238,8 +2183,7 @@ using \emcppsgloss[generic lambda]{generic lambdas}; see \featureref{\locationd}
 \subsubsection[Dangling references]{Dangling references}\label{dangling-references}
 
 \emcppsgloss[closure object]{Closure objects} can capture references to local variables and
-copies of the \lstinline!this! pointer. If a copy of the \emcppsgloss{closure
-object} outlives the stack frame in which it was created, these
+copies of the \lstinline!this! pointer. If a copy of the \emcppsgloss{closure object} outlives the stack frame in which it was created, these
 references can refer to objects that have been destroyed. The two ways
 in which a \emcppsgloss{closure object} can outlive its creation context are
 if (1) it is returned from the function or (2) it is stored in a data
@@ -2272,14 +2216,12 @@ class Class1
 \end{emcppslisting}
     
 
-The example above uses \lstinline!std::function! to hold \emcppsgloss[closure object]{closure
-objects}, as described in \intrarefsimple{use-with-std::function}. In member
+The example above uses \lstinline!std::function! to hold \emcppsgloss[closure object]{closure objects}, as described in \intrarefsimple{use-with-std::function}. In member
 function \lstinline!mf1!, the \emcppsgloss{lambda body} modifies both the local
 variable and the member variable currently in scope. However, as soon as
 the function returns, the local variable goes out of scope and the
 \emcppsgloss{closure} contains a dangling reference. Moreover, the object on
-which it is invoked can also go out of scope while the \emcppsgloss{closure
-object} continues to exist. Modifying either \lstinline!this->d_mem! or
+which it is invoked can also go out of scope while the \emcppsgloss{closure object} continues to exist. Modifying either \lstinline!this->d_mem! or
 \lstinline!local! through the capture is likely to corrupt the stack,
 leading to a crash, potentially much later in the program.
 
@@ -2385,8 +2327,7 @@ one.
 To use a local variable, \lstinline!x!, from the surrounding block as part
 of an unevaluated operand (e.g., \lstinline!sizeof(x)! or
 \lstinline!alignof(x)!), it is generally not necessary to capture
-\lstinline!x! because it is not \emcppsgloss{ODR-used} within the \emcppsgloss{lambda
-body}. Whether or not \lstinline!x! is captured, most expressions in
+\lstinline!x! because it is not \emcppsgloss[odr used]{ODR-used} within the \emcppsgloss{lambda body}. Whether or not \lstinline!x! is captured, most expressions in
 unevaluated contexts behave as though \lstinline!x! were \emph{not}
 captured and the expression were evaluated directly in the enclosing
 block scope. This is itself surprising because, for example, a captured
@@ -2586,8 +2527,7 @@ void readInstructions()
 
 A casual reading might lead to the assumption that operations such as
 \lstinline!*--sp! are taking place within \lstinline!case!~\lstinline!'+'!, when
-the truth is that these operations are encapsulated in a \emcppsgloss[lambda expressions]{lambda
-expression} and are not executed until the \emcppsgloss{closure object} is
+the truth is that these operations are encapsulated in a \emcppsgloss[lambda expressions]{lambda expression} and are not executed until the \emcppsgloss{closure object} is
 called (via \lstinline!nextInstr!) in a relatively distant part of the
 code.
 
