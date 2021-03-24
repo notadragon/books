@@ -1,4 +1,4 @@
-
+% 24 March 2021, no longer holding for revisions. Sending to Josh for code review. 
 
 \emcppsFeature{
     short={Lambda Captures},
@@ -25,7 +25,7 @@ int i = 0;
 auto f0 = [i]{ };   // Create a copy of (ù{\codeincomments{i}}ù) in the generated closure named (ù{\codeincomments{f0}}ù).
 auto f1 = [&i]{ };  // Store a reference to (ù{\codeincomments{i}}ù) in the generated closure named (ù{\codeincomments{f1}}ù).
 \end{lstlisting}
-
+    
 \noindent Although one could specify \emph{which} and \emph{how} existing
 variables were captured, the programmer had no control over the creation
 of new variables within a \textbf{closure}. C++14 extends the
@@ -40,7 +40,7 @@ auto f2 = [i = 10]{ /* body of closure */ };
 auto f3 = [c{'a'}]{ /* body of closure */ };
     // Synthesize a (ù{\codeincomments{char}}ù) data member, (ù{\codeincomments{c}}ù), initialized with (ù{\codeincomments{'a'}}ù) in the closure.
 \end{lstlisting}
-
+    
 \noindent Note that the identifiers \texttt{i} and \texttt{c} above do not refer
 to any existing variable; they are specified by the programmer creating
 the closure. For example, the \textbf{closure} type assigned (i.e.,
@@ -56,7 +56,7 @@ struct f2LikeInvocableStruct
     auto operator()() const { /* closure body */ }  // The (ù{\codeincomments{struct}}ù) is invocable.
 };
 \end{lstlisting}
-
+    
 \noindent The type of the data member is deduced from the initialization
 expression provided as part of the capture in the same vein as
 \texttt{auto} (see ``\titleref{auto-feature}" on page~\pageref{auto-feature}) type deduction; hence, it's not possible to
@@ -66,7 +66,7 @@ synthesize an uninitialized \textbf{closure} data member:
 auto f4 = [u]{ };    // Error: (ù{\codeincomments{u}}ù) initializer is missing for lambda capture.
 auto f5 = [v{}]{ };  // Error: (ù{\codeincomments{v}}ù)'s type cannot be deduced.
 \end{lstlisting}
-
+    
 \noindent It is possible, however, to use variables outside the scope of the
 lambda as part of a lambda-capture expression (even capturing them \textit{by
 reference} by prepending the \texttt{\&} token to the name of the
@@ -78,7 +78,7 @@ int i = 0;  // zero-initialized (ù{\codeincomments{int}}ù) variable defined in
 auto f6 = [j   = i]{ };  // OK, the local (ù{\codeincomments{j}}ù) data member is a copy of (ù{\codeincomments{i}}ù).
 auto f7 = [&ir = i]{ };  // OK, the local (ù{\codeincomments{ir}}ù) data member is an alias to (ù{\codeincomments{i}}ù).
 \end{lstlisting}
-
+    
 \noindent Though capturing \textit{by reference} is possible, enforcing \texttt{const} on a lambda-capture expression is not:
 
 \begin{lstlisting}[language=C++]
@@ -86,7 +86,7 @@ auto f8 = [const i = 10]{ };                    // error: invalid syntax
 auto f9 = [const auto i = 10]{ };               // error: invalid syntax
 auto fA = [i = static_cast<const int>(10)]{ };  // OK, (ù{\codeincomments{const}}ù) is ignored.
 \end{lstlisting}
-
+    
 \noindent The initialization expression is evaluated during the \emph{creation} of
 the closure, not its \emph{invocation}:
 
@@ -104,7 +104,7 @@ void g()
     assert(i == 1);  // OK
 }
 \end{lstlisting}
-
+    
 \noindent Finally, using the same identifier as an existing
 variable is possible for a synthesized capture, resulting in the original variable
 being \textbf{shadowed} (essentially hidden) in the lambda expression's
@@ -134,7 +134,7 @@ auto fC = [i = 'a'](decltype(i) arg)
         // (ù{\codeincomments{i}}ù) in the body refers to the (ù{\codeincomments{char}}ù) data member deduced at capture.
 };
 \end{lstlisting}
-
+    
 \noindent Notice that we have again used \texttt{decltype}, in conjunction with
 the standard \texttt{is\_same} metafunction (which is \texttt{true} if
 and only if its two arguments are the same C++ type). This time, we're using \texttt{decltype} to
@@ -188,7 +188,7 @@ void f()
         // Create a "copy" from a wrapper that is captured by value.
 }
 \end{lstlisting}
-
+    
 \noindent In the example above, we make use of the bespoke (``hacked'')
 \texttt{MoveOnCopy} class template to wrap a movable object;
 when the lambda-capture expression tries to \emph{copy} the wrapper (\textit{by value}),
@@ -210,7 +210,7 @@ ThreadPool::Handle processDatasetAsync(std::unique_ptr<Dataset> dataset)
     });
 }
 \end{lstlisting}
-
+    
 \noindent As illustrated above, the \texttt{dataset} smart pointer is moved into
 the closure passed to\linebreak[4] \mbox{\texttt{enqueueTask}} by leveraging lambda-capture
 expressions --- the \textbf{\texttt{std::unique\_ptr}} is \emph{moved}
@@ -234,7 +234,7 @@ tcpSocket.onPacketReceived([counter = 0]() mutable
     // ...
 });
 \end{lstlisting}
-
+    
 \noindent Use of \texttt{counter}~\texttt{=}~\texttt{0} as part of the
 \textbf{lambda introducer} tersely produces a \textbf{function object}
 that has an internal counter (initialized with zero), which is
@@ -271,7 +271,7 @@ void f()
     };
 }
 \end{lstlisting}
-
+    
 \noindent In some cases, however, a lambda capturing a \texttt{const} variable
 \emph{by value} might need to modify that value when invoked. As an
 example, consider the task of comparing the output of two Sudoku-solving
@@ -303,7 +303,7 @@ void performAlgorithmComparison()
     // ...
 }
 \end{lstlisting}
-
+    
 \noindent The code above will fail to compile as capturing \texttt{puzzle} will
 result in a \texttt{const}-qualified closure data member, despite the
 presence of \texttt{mutable}. A convenient workaround is to use a
@@ -322,7 +322,7 @@ auto task0 = getThreadPool().enqueueTask([p = puzzle]() mutable
 
 // ...
 \end{lstlisting}
-
+    
 \noindent Note that use of \texttt{p}~\texttt{=}~\texttt{puzzle} (above) is
 roughly equivalent to the creation of a new variable using
 \texttt{auto} (i.e.,
@@ -344,14 +344,14 @@ into a closure:
 template <typename T>
 void f(T&& x)  // (ù{\codeincomments{x}}ù) is of type forwarding reference to (ù{\codeincomments{T}}ù).
 {
-    auto lambda = [y = std::forward<T>(x)]
+    auto lambda = [y = std::forward<T>(x)]  
         // Perfectly forward (ù{\codeincomments{x}}ù) into the closure.
     {
         // ... (use (ù{\codeincomments{y}}ù) directly in this lambda body)
     };
 }
 \end{lstlisting}
-
+    
 \noindent Because \texttt{std::forward<T>} can evaluate to a reference (depending
 on the nature of \texttt{T}), programmers might incorrectly assume that
 a capture such as \texttt{y}~\texttt{=}~\texttt{std::forward<T>(x)}
@@ -369,7 +369,7 @@ auto lambda = [auto y = std::forward<T>(x)] { };
     // The capture expression above is semantically similar to an (ù{\codeincomments{auto}}ù)
     // (deduced-type) variable.
 \end{lstlisting}
-
+    
 \noindent If \texttt{x} was originally an \emph{lvalue}, then \texttt{y} will be
 equivalent to a \emph{by-copy} capture of \texttt{x}. Otherwise,
 \texttt{y} will be equivalent to a \emph{by-move} capture of
@@ -392,7 +392,7 @@ void f(T&& x)
     };
 }
 \end{lstlisting}
-
+    
 \noindent In the revised code example above, \texttt{T} will be an \textbf{lvalue
 reference} if \texttt{x} was originally an \textbf{lvalue}, resulting in
 the \textbf{synthetization} of a \texttt{std::tuple} containing an
@@ -415,7 +415,7 @@ closure data member:
     ++k;  // "OK" -- i.e., compiles anyway even though we don't want it to
 };
 \end{lstlisting}
-
+    
 
 \begin{lstlisting}[language=C++]
 [const k = k]() mutable  // error: invalid syntax
@@ -423,7 +423,7 @@ closure data member:
     ++k;  // no easy way to force this variable to be (ù{\codeincomments{const}}ù)
 };
 \end{lstlisting}
-
+    
 \noindent The language simply does not provide a convenient mechanism for
 synthesizing, from a modifiable variable, a \texttt{const} data member.
 If such a \texttt{const} data member somehow proves to be necessary, we
@@ -442,7 +442,7 @@ auto l = [kc]() mutable
     ++kc;  // error: increment of read-only variable (ù{\codeincomments{kc}}ù)
 };
 \end{lstlisting}
-
+    
 
 \subsubsection[{\ttfamily std::function} supports only copyable callable objects]{{\SubsubsecCode std::function} supports only copyable callable objects}\label{std::function-supports-only-copyable-callable-objects}
 
@@ -459,7 +459,7 @@ void f()
     static_assert( true == std::is_move_constructible_v<decltype(la)>, "");
 }
 \end{lstlisting}
-
+    
 \noindent Lambdas are sometimes used to initialize instances of
 \texttt{std::function}, which requires the stored \textbf{callable
 object} to be copyable:
@@ -467,7 +467,7 @@ object} to be copyable:
 \begin{lstlisting}[language=C++]
 std::function<void()> f = la;  // Error: (ù{\codeincomments{la}}ù) must be copyable.
 \end{lstlisting}
-
+    
 \noindent Such a limitation --- which is more likely to be encountered when using
 lambda-capture expressions --- can make \texttt{std::function}
 unsuitable for use cases where move-only closures might conceivably be

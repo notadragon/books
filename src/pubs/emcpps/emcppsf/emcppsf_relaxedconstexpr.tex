@@ -1,3 +1,5 @@
+% 24 March 2021, no longer holding for revisions. Sending to Josh for code review. 
+
 
 \emcppsFeature{
     short={\lstinline!constexpr! Functions '14},
@@ -39,10 +41,10 @@ constexpr int fact11(int x)
     return x < 2 ? 1 : x * fact11(x - 1);  // OK in C++11/14
 }
 \end{lstlisting}
-
+    
 \noindent Notice that recursive calls were supported, often leading to convoluted
 implementations of algorithms (compared to an \textbf{imperative}
-counterpart); see \textit{\titleref{use-cases-relaxedconstexpr}: \titleref{non-recursive-constexpr-algorithms}} on page~\pageref{non-recursive-constexpr-algorithms}.
+counterpart); see \textit{\titleref{use-cases-relaxedconstexpr}: \titleref{non-recursive-constexpr-algorithms}} on page~\pageref{non-recursive-constexpr-algorithms}. 
 
 The C++11 \texttt{static\_assert} feature (see ``\titleref{compile-time-assertions-(static_assert)}" on page~\pageref{compile-time-assertions-(static_assert)}) was always
 permitted in a C++11 \texttt{constexpr} function body.
@@ -54,7 +56,7 @@ never appear as part of a \texttt{static\_assert} predicate. Note that a
 \begin{lstlisting}[language=C++]
 constexpr void no_op() { };  // OK in C++11/14
 \end{lstlisting}
-
+    
 \noindent Experience gained from the release and subsequent real-world use of
 C++11 emboldened the standard committee to lift most of these (now
 seemingly arbitrary) restrictions for C++14, allowing use of (nearly)
@@ -76,7 +78,7 @@ constexpr int fact14(int x)
     return x * fact14(temp);
 }
 \end{lstlisting}
-
+    
 \noindent Some useful features remain disallowed in C++14; most notably, any form
 of dynamic allocation is not permitted, thereby preventing the use of
 common standard container types, such as \texttt{std::string} and
@@ -115,7 +117,7 @@ here: ;                // Error: labels (except (ù{\codeincomments{case}}ù)/(�
     asm("mov %r0");    // Error: (ù{\codeincomments{asm}}ù) directives are disallowed.
 } catch(...) { }       // error: (ù{\codeincomments{try}}ù) outside body disallowed (until C++20)
 \end{lstlisting}
-
+    
 
 \subsection[Use Cases]{Use Cases}\label{use-cases-relaxedconstexpr}
 
@@ -134,7 +136,7 @@ copy). We deliberately chose \emph{not} to make the value returned
 \texttt{unsigned} because the extra bit does not justify changing the
 \textbf{algebra} (from \texttt{signed} to \texttt{unsigned}). For more
 discussion on these specific topics, see ``\titleref{long-long}" on page~\pageref{long-long}.}:
-
+  
 \begin{lstlisting}[language=C++]
 constexpr long long fib11(long long x)
 {
@@ -144,7 +146,7 @@ constexpr long long fib11(long long x)
                                     : fib11(x - 1) + fib11(x - 2);
 }
 \end{lstlisting}
-
+    
 \noindent The implementation of the \texttt{fib11} function (above) has various
 undesirable properties.
 \begin{enumerate}
@@ -170,7 +172,7 @@ error: 'constexpr' evaluation operation count exceeds limit of 33554432
 
 \begin{lstlisting}[language=C++, basicstyle={\ttfamily\footnotesize}]
 note: constexpr evaluation hit maximum step limit; possible infinite loop?
-\end{lstlisting}
+\end{lstlisting} 
 }} % end footnote, end cprotect
 } % end item
 \item{\emph{Redundancy} — Even if the recursive implementation were suitable for small input values during compile-time evaluation, it would be unlikely to be suitable for any run-time evaluation, thereby requiring programmers to provide and maintain \emph{two} separate versions of the same algorithm: a compile-time \emph{recursive} one and a runtime \emph{iterative} one.}
@@ -199,7 +201,7 @@ constexpr long long fib14(long long x)
     return b;
 }
 \end{lstlisting}
-
+    
 \noindent As one would expect, the compile time required to evaluate the iterative
 implementation (above) is manageable{\cprotect\footnote{Both GCC 10.x
 and Clang 10.x evaluated \texttt{fib14(46)} 1836311903 correctly in
@@ -241,7 +243,7 @@ instantiated using a variable-length sequence of arbitrary C++ types{\cprotect\f
       // type arguments
   \end{lstlisting}
 
-\vspace*{-1ex}
+\vspace*{-1ex}      
 \noindent Another theoretically appealing approach is to implement a Lisp-like
   recursive data structure; the compile-time overhead for such
   implementations, however, often makes them impractical.}}:
@@ -250,7 +252,7 @@ instantiated using a variable-length sequence of arbitrary C++ types{\cprotect\f
 template <typename...> struct TypeList { };
     // empty variadic template instantiable with arbitrary C++ type sequence
 \end{lstlisting}
-
+    
 \noindent Explicit instantiations of this variadic template could be used to
 create objects:
 
@@ -259,7 +261,7 @@ TypeList<>                 emptyList;
 TypeList<int>              listOfOneInt;
 TypeList<int, double, Nil> listOfThreeIntDoubleNil;
 \end{lstlisting}
-
+    
 \noindent A naive C++11-compliant implementation of a \textbf{metafunction}
 \texttt{Count}, used to ascertain the (order-agnostic) number of times a
 given C++ type was used when creating an instance of the
@@ -326,8 +328,8 @@ struct Count<X, TypeList<>> : std::integral_constant<int, 0> { };
     // partial (class) template specialization of the general (ù{\codeincomments{Count}}ù) template
     // (derived from the integral-constant type representing a compile-time
     // (ù{\codeincomments{0}}ù)), used to represent the base case for the recursion --- i.e., when
-    // the supplied (ù{\codeincomments{TypeList}}ù) is empty
-    // The payload (i.e., the enumerated (ù{\codeincomments{value}}ù) member of the base class)
+    // the supplied (ù{\codeincomments{TypeList}}ù) is empty 
+    // The payload (i.e., the enumerated (ù{\codeincomments{value}}ù) member of the base class) 
     // representing the number of elements in the list is (ù{\codeincomments{0}}ù).
 
 template <typename X, typename Head, typename... Tail>
@@ -335,17 +337,17 @@ struct Count<X, TypeList<Head, Tail...>>
     : std::integral_constant<int,
         std::is_same<X, Head>::value + Count<X, TypeList<Tail...>>::value> { };
     // simple (class) template specialization of the general (ù{\codeincomments{count}}ù) template
-    // for when the supplied list is not empty
-    // In this case, the second parameter will be partitioned as the first
-    // type in the sequence and the (possibly empty) remainder of the
-    // (ù{\codeincomments{TypeList}}ù). The compile-time value of the base class will be either the
-    // same as or one greater than the value accumulated in the (ù{\codeincomments{TypeList}}ù) so
-    // far, depending on whether the first element is the same as the one
+    // for when the supplied list is not empty 
+    // In this case, the second parameter will be partitioned as the first 
+    // type in the sequence and the (possibly empty) remainder of the 
+    // (ù{\codeincomments{TypeList}}ù). The compile-time value of the base class will be either the 
+    // same as or one greater than the value accumulated in the (ù{\codeincomments{TypeList}}ù) so 
+    // far, depending on whether the first element is the same as the one 
     // supplied as the first type to (ù{\codeincomments{Count}}ù).
 
 static_assert(Count<int, TypeList<int, char, int, bool>>::value == 2, "");
 \end{lstlisting}
-
+    
 \noindent Notice that we made use of a C++11 \textbf{parameter pack},
 \texttt{Tail...} (see ``\titleref{variadictemplate}" on page~\pageref{variadictemplate}), in the
 implementation of the simple template specialization to package up and
@@ -375,7 +377,7 @@ constexpr int count()
     return result;  // Return the accumulated number of matches.
 }
 \end{lstlisting}
-
+    
 \noindent The implementation above --- though more efficient and comprehensible
 --- will require some initial learning for those unfamiliar with modern
 C++ variadics. The general idea here is to use \textbf{pack expansion}
@@ -390,7 +392,7 @@ construct, along with a \textbf{parameter pack} itself, is a
   \begin{lstlisting}[language=C++, basicstyle={\ttfamily\footnotesize}]
   template <int... Is> void e() { f(Is...); }
   \end{lstlisting}
-
+      
 \noindent \texttt{e} is a function template that can be instantiated
   with an arbitrary number of compile-time-constant integers. The
   \texttt{int...}~\texttt{Is} syntax declares a \textbf{variadic pack}
@@ -407,7 +409,7 @@ construct, along with a \textbf{parameter pack} itself, is a
   \begin{lstlisting}[language=C++, basicstyle={\ttfamily\footnotesize}]
   template <int... Is> void g() { h((Is > 0)...); }
   \end{lstlisting}
-
+      
 \noindent The \texttt{(Is}~\texttt{>}~\texttt{0)...} expansion (above) will
   resolve to \texttt{N} comma-separated Boolean values, where \texttt{N}
   is the number of elements contained in the \texttt{Is}
@@ -472,7 +474,7 @@ constexpr long long fib11Optimized(long long n)
     ).second;
 }
 \end{lstlisting}
-
+    
 
 \subsubsection[{\ttfamily constexpr} type list {\ttfamily Count} algorithm]{{\SubsubsecCode constexpr} type list {\SubsubsecCode Count} algorithm}\label{constexpr-typelist-count-algorithm}
 
@@ -498,7 +500,7 @@ constexpr int count11Optimized()
         + count11Optimized<X, Tail...>();
 }
 \end{lstlisting}
-
+    
 \noindent This algorithm can be optimized even further in C++11 by using
 a technique similar to the one shown for the iterative C++14
 implementation. By leveraging a \texttt{std::array} as compile-time
@@ -530,7 +532,7 @@ constexpr int count11VeryOptimized()
         0);
 }
 \end{lstlisting}
-
+    
 \noindent Note that, despite being recursive, \texttt{count11VeryOptimizedImpl}
 will be instantiated only once with \texttt{N} equal to the number of
 elements in the \texttt{Ts...} pack.
