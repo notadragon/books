@@ -215,7 +215,7 @@ class BatchData:
 
                     # Since we compile header files, we must pass "-x c++" explicitly to always force C++
                     # We also add "-I." to allow includes between files in the same batch.
-                    args = [ compiler, "-c", "-I.", "-x", "c++", f"-std={standard}", "-o", ofile.name, goodfile.name,]
+                    args = [ compiler, "-c", "-pedantic-errors", "-I.", "-x", "c++", f"-std={standard}", "-o", ofile.name, goodfile.name,]
 
                     #print(f"  Executing: {args}")
                     result = subprocess.call(args, stderr=outfile.open("w"), cwd=goodfile.parent)
