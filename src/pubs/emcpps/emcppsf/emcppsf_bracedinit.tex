@@ -20,8 +20,7 @@ in any initialization context.
 
 \subsection[Description]{Description}\label{description}
 
-\emcppsgloss[list initialization]{List initialization}, originally dubbed \emcppsgloss{uniform
-initialization}, was conceived to enable a uniform syntax (having the
+\emcppsgloss[list initialization]{List initialization}, originally dubbed \emcppsgloss{uniform initialization}, was conceived to enable a uniform syntax (having the
 same meaning) to be used generically to initialize objects irrespective
 of (1) the context in which the syntax is used or (2) the type of the
 object being initialized. Braced-initialization syntax is the language
@@ -40,8 +39,7 @@ something from which to initialize) and (2) \emcppsgloss[default value]{default/
 you don't).
 
 The first dual category of syntactic/semantic initialization comprises
-\emcppsgloss[copy initialization]{\emph{copy} initialization} and \emcppsgloss[direct initialization]{\emph{direct}
-initialization}. \emph{Direct} initialization is produced when
+\emcppsgloss[copy initialization]{\emph{copy} initialization} and \emcppsgloss[direct initialization]{\emph{direct} initialization}. \emph{Direct} initialization is produced when
 initializing an object with one or more arguments within parentheses,
 such as initializing a data member or base class in a constructor's
 initializer list, or in a \lstinline!new! expression. \emph{Copy}
@@ -93,8 +91,7 @@ accessible \emph{copy} (or \emph{move}{\cprotect\footnote{If the
 \emph{move} constructor for a user-defined type is declared and not
 accessible, copy initialization is ill formed; see \featureref{\locationc}{Rvalue-References} and \featureref{\locationa}{deleted-functions}.}}) constructor,
 even if the temporary would have been elided.{\cprotect\footnote{In
-C++17, direct materialization replaces \emcppsgloss[copy initialization]{\emph{copy}
-initialization} in some contexts, thereby obviating the temporary
+C++17, direct materialization replaces \emcppsgloss[copy initialization]{\emph{copy} initialization} in some contexts, thereby obviating the temporary
 object construction and also the need for an accessible \emph{copy} or
   \emph{move} constructor.}} Note that function arguments and return
 values are initialized using \emcppsgloss[copy initialization]{\emph{copy} initialization}.
@@ -120,8 +117,7 @@ void ref_inits()
     
 
 \noindent The second dual category of syntactic/semantic initialization comprises
-\emcppsgloss[default initialization]{\emph{default} initialization} and \emcppsgloss[value initialization]{\emph{value}
-initialization}. Both default and value initialization pertain to
+\emcppsgloss[default initialization]{\emph{default} initialization} and \emcppsgloss[value initialization]{\emph{value} initialization}. Both default and value initialization pertain to
 situations in which \emph{no} argument is supplied, and are
 distinguished by the presence or absence of parentheses, where the
 absence of parentheses indicates default initialization and the presence
@@ -701,8 +697,7 @@ S s3 = { 1, "two", 3.14 };  // Error, constructor is explicit
 be \lstinline!explicit!, the corresponding \emph{copy} (or
 \emph{copy}-\emph{list}) initialization above would have failed too.
 
-Another important difference between C++11 \emcppsgloss[copy list initialization]{copy \emph{list}
-initialization} and C++03 \emcppsgloss{copy initialization} is that the
+Another important difference between C++11 \emcppsgloss[copy list initialization]{copy \emph{list} initialization} and C++03 \emcppsgloss{copy initialization} is that the
 braced-list syntax considers all constructors, including those that are
 declared to be \lstinline!explicit!. Consider a \lstinline!struct!~\lstinline!X!
 having two overloaded single-argument constructors, i.e., (1) one taking
@@ -721,10 +716,8 @@ struct Q  // class containing both (ù{\codeincomments{explicit}}ù) and implici
 \noindent Employing \emcppsgloss[direct initialization]{\emph{direct} initialization} (e.g., \lstinline!x0! in
 the code snippet below) selects the most appropriate constructor,
 regardless of whether it is declared to be \lstinline!explicit!, and
-successfully uses that one; employing \emcppsgloss[copy initialization]{\emph{copy}
-initialization} (e.g., \lstinline!x1!) drops explicit constructors from the
-overload set before determining a best match; and employing \emcppsgloss[copy list initialization]{copy
-\emph{list} initialization} (e.g., \lstinline!x2!) again includes all
+successfully uses that one; employing \emcppsgloss[copy initialization]{\emph{copy} initialization} (e.g., \lstinline!x1!) drops explicit constructors from the
+overload set before determining a best match; and employing \emcppsgloss[copy list initialization]{copy \emph{list} initialization} (e.g., \lstinline!x2!) again includes all
 constructors in the overloads set but is \emcppsgloss{ill formed} if the
 selected constructor is \lstinline!explicit!:
 
@@ -741,8 +734,7 @@ notation (e.g., \lstinline!x2! in the code example above) forces the
 compiler to choose the constructor \emph{as if} it were direct
 initialization (e.g., \lstinline!x0!) but then forces a compilation failure
 if the selected constructor turns out to be \lstinline!explicit!. This
-``consider-but-fail-if-selected'' behavior of \emcppsgloss{copy list
-initialization} is analogous to that of functions declared using
+``consider-but-fail-if-selected'' behavior of \emcppsgloss{copy list initialization} is analogous to that of functions declared using
 \lstinline!=!~\lstinline!delete!; see \featureref{\locationa}{deleted-functions}. Using
 braces but omitting the \lstinline!=! (e.g., \lstinline!x3!) puts us back in
 the realm of \emph{direct} rather than \emph{copy} initialization; see
@@ -890,9 +882,7 @@ Class var2{/*...*/};  // C++11-style direct list initialization
 initialization of aggregates with parentheses.\footnote{C++20 finally allows for aggregates to be
 initialized with parentheses.}
 
-The syntax suggested in the previous example is known as \emcppsgloss{direct
-list initialization} and follows the rules of \emcppsgloss{direct
-initialization} rather than \emcppsgloss{copy initialization} in that all
+The syntax suggested in the previous example is known as \emcppsgloss{direct list initialization} and follows the rules of \emcppsgloss{direct initialization} rather than \emcppsgloss{copy initialization} in that all
 constructors of the named \lstinline!type! are both considered and
 accessible in the initial overload set:
 
@@ -927,10 +917,8 @@ Q c{a};  // Error, direct list initialization cannot use a narrowing conversion.
 
 \noindent Similarly, \lstinline!explicit! conversion operators (see
 \featureref{\locationa}{explicit-conversion-operators}) can be considered when
-\emcppsgloss[direct list initialization]{\emph{direct} list initialization} (or \emcppsgloss{direct
-initialization}) is employed on a scalar, but not so with
-\emcppsgloss[copy list initialization]{\emph{copy} list initialization} (or \emcppsgloss{copy
-initialization}). Consider, for example, a class, \lstinline!W! that can
+\emcppsgloss[direct list initialization]{\emph{direct} list initialization} (or \emcppsgloss{direct initialization}) is employed on a scalar, but not so with
+\emcppsgloss[copy list initialization]{\emph{copy} list initialization} (or \emcppsgloss{copy initialization}). Consider, for example, a class, \lstinline!W! that can
 covert to either an \lstinline!int! or a \lstinline!long! where conversion to
 \lstinline!int! is explicit and therefore must be \emph{direct}:
 
@@ -958,19 +946,16 @@ int  iCopy = {W()};  // Error, considers implicit op only, narrowing conversion
 \end{emcppslisting}
     
 
-\noindent In the example above, attempting to use \emcppsgloss[copy list initialization]{\emph{copy} list
-initialization} (e.g., \lstinline!iCopy!) forces the conversion to
+\noindent In the example above, attempting to use \emcppsgloss[copy list initialization]{\emph{copy} list initialization} (e.g., \lstinline!iCopy!) forces the conversion to
 \lstinline!long! as the only option, which results in a narrowing
 conversion and an ill-formed program.
 
-Note that, for \emcppsgloss{aggregate} types, even \emcppsgloss{direct list
-initialization} will not allow the explicit constructors of the
+Note that, for \emcppsgloss{aggregate} types, even \emcppsgloss{direct list initialization} will not allow the explicit constructors of the
 individual member types to be considered since such \emph{member-wise}
 initialization is invariably \emcppsgloss[copy initialization]{\emph{copy} initialization}; see
 \intrarefsimple{c++11-aggregate-initialization}.
 
-We may use \emcppsgloss{direct list initialization} as part of \emcppsgloss{member
-initialization lists} for base classes and member data of a class (note
+We may use \emcppsgloss{direct list initialization} as part of \emcppsgloss{member initialization lists} for base classes and member data of a class (note
 that there is no equivalent to allow \emcppsgloss{copy list initialization}
 in such a context). Consider, for example, an aggregate class,
 \lstinline!B!, a non-aggregate class, \lstinline!C!, and a derived class,
@@ -998,8 +983,7 @@ struct D : B  // class publicly derived from (ù{\codeincomments{B}}ù) containi
 and members could only be default initialized, value initialized, or
 direct initialized, and not initialized to another value.
 
-New expressions are another context in which \emcppsgloss{direct list
-initialization} (braces) or \emcppsgloss{direct initialization} (parentheses)
+New expressions are another context in which \emcppsgloss{direct list initialization} (braces) or \emcppsgloss{direct initialization} (parentheses)
 can occur and applies similarly to both \emcppsgloss{aggregate} and
 non\emcppsgloss{aggregate} types. If no initializer is provided, the
 allocated object is \emcppsgloss{default initialized}; if empty braces or
@@ -1162,8 +1146,7 @@ struct W
 
 \subsubsection[List initialization where the list itself is a single argument to a constructor]{List initialization where the list itself is a single argument to a constructor}\label{list-initialization-where-the-list-itself-is-a-single-argument-to-a-constructor}
 
-Another new form of initialization for C++11 is \emcppsgloss{list
-initialization} with a braced list of arguments to populate a container.
+Another new form of initialization for C++11 is \emcppsgloss{list initialization} with a braced list of arguments to populate a container.
 See \featureref{\locationc}{initlist} for details. If a braced list of arguments are
 all of the same type, then the compiler will look for a constructor
 taking an \lstinline!std::initializer_list<T>! argument, where \lstinline!T!
@@ -1597,8 +1580,7 @@ T factory3(ARGS&&... args)
 \end{emcppslisting}
     
 
-\noindent All three factory functions are defined using \emcppsgloss{perfect
-forwarding} (see \featureref{\locationc}{forwardingref}) but support
+\noindent All three factory functions are defined using \emcppsgloss{perfect forwarding} (see \featureref{\locationc}{forwardingref}) but support
 different subsets of C++ types and may interpret their arguments
 differently.
 
@@ -1611,8 +1593,7 @@ that C++20 will allow aggregates to be initialized with parentheses as
 well as with braces, which will result in this form being accepted for
   aggregates as well.}}
 
-\lstinline!function2! returns an object created by \emcppsgloss{direct list
-initialization}. Hence, \lstinline!function2! supports the same types as
+\lstinline!function2! returns an object created by \emcppsgloss{direct list initialization}. Hence, \lstinline!function2! supports the same types as
 \lstinline!function1!, plus aggregates. However, due to the use of braced
 initialization, \lstinline!function2! will reject any types in
 \lstinline!ARGS! that require narrowing conversion when passed to the
