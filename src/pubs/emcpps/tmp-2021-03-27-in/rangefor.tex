@@ -1,0 +1,1579 @@
+% 26 March 2021, cleaned up laTeX conversion
+% 27 March 2021, NEED info for citations; out to CE, Josh, external review
+
+
+
+\emcppsFeature{
+    short={Range \lstinline!for!},
+    tocshort={Range {\TOCCode for}},
+    long={Range-Based {\SecCode for} Loops},
+    toclong={Range-Based \lstinline!for! Loops},
+    rhshort={Range {\RHCode for}},
+}{rangefor}\label{range-based-for-loops}
+\setcounter{table}{0}
+\setcounter{footnote}{0}
+\setcounter{lstlisting}{0}
+%\section[Range {\tt for}]{Range-Based {\SecCode for} Loops}%\label{}
+%\subsection[Range-Based \tt{for} Loops]{Range-Based {\SubsecCode for} Loops}\label{range-based-for-loops}
+
+Range-Based \lstinline!for! loops provide a simplified, more compact,
+syntax for iterating through a range of elements.
+
+\subsection[Description]{Description}\label{description-rangefor}
+
+Iterating over the elements of a collection is a fundamental operation
+usually performed with a \lstinline!for! loop:
+
+\begin{emcppslisting}
+#include <vector>  // (ù{\codeincomments{std::vector}}ù)
+#include <string>  // (ù{\codeincomments{std::string}}ù)
+
+void f1(const std::vector<std::string>& vec)
+{
+    for (std::vector<std::string>::const_iterator i = vec.begin();
+         i != vec.end(); ++i)
+    {
+        // ...
+    }
+}
+\end{emcppslisting}
+    
+
+\noindent The code above iterates over the strings in a \lstinline!std::vector!. It
+is significantly more verbose than similar code in other languages
+because it uses a very general-purpose construct, the \lstinline!for! loop,
+to perform the specialized but common task of traversing a collection.
+In C++11, the definition of \lstinline!i! can be simplified somewhat by
+using \lstinline!auto!:
+
+\begin{emcppslisting}
+void f2(const std::vector<std::string>& vec)
+{
+    for (auto i = vec.begin(); i != vec.end(); ++i)
+    {
+        const std::string& s = *i;
+        // ...
+    }
+}
+\end{emcppslisting}
+    
+
+\noindent Although \lstinline!auto! does have a number of potential pitfalls, this
+use of \lstinline!auto! to deduce the return type of \lstinline!vec.begin()!
+is one of the safer idiomatic uses; see \featureref{\locationc}{auto}. While this
+version of the loop is simpler to write, it still uses the fully
+general, three-part \lstinline!for! construct. Moreover, it evaluates
+\lstinline!vec.end()! each time through the loop.
+
+The C++11 \emcppsgloss[range based for loop]{ranged-based \lstinline!for! loop} (sometimes colloquially
+referred to as the ``foreach'' loop) is a more concise loop notation
+tuned for traversing the elements of a container or other sequential
+range. A \emcppsgloss[range based for loop]{ranged-based \lstinline!for! loop} works with \emph{ranges}
+and \emph{elements} rather than \emph{iterators} or \emph{indexes}:
+
+%   (LABEL: ``iterating over \lstinline!std::vector! with a range-based \lstinline!for! loop'')
+\begin{emcppslisting}[label={iterating-over-std::vector-with-a-range-based-for-loop}]
+void f3(const std::vector<std::string>& vec)
+{
+    for (const std::string& s : vec)
+    {
+        // ...
+    }
+}
+\end{emcppslisting}
+    
+
+\noindent The loop in the above example can be read as ``for each element
+\lstinline!s! in \lstinline!vec! \ldots''. There is no need to specify the
+name or type of the iterator, the loop-termination condition, or the
+increment clause; the syntax is focused purely on yielding (in order)
+each element of the collection for processing within the body of the
+loop. {\cprotect\footnote{In C++20, the syntax has been enhanced
+slightly to permit an optional leading variable declaration clause,
+e.g.,
+  \lstinline!for!~\lstinline!(std::lock_guard!~\lstinline!g(myMutex);!~\lstinline!const!~\lstinline!std::string&!~\lstinline!s!~\lstinline!:!~\lstinline!vec)!~\lstinline!{!~\lstinline!/*!~\lstinline!...!~\lstinline!*/!~\lstinline!}!.}}
+
+\subsubsection[Specification]{Specification}\label{specification}
+
+The syntax for a \emcppsgloss[range based for loop]{ranged-based \lstinline!for! loop} declares a loop
+variable and specifies a range of elements to be traversed:
+
+%%%% LORI: please make the code below between asterisks in italics
+
+\begin{emcppslisting}
+for ( *(ù{\it{for-range-declaration}}ù)* : *(ù{\it{range-expression}}ù)* ) *(ù{\it{statement}}ù)*
+\end{emcppslisting}
+    
+
+\noindent The compiler treats this high-level construct as though it were
+transformed into a lower-level \lstinline!for! loop with the following
+pseudocode:
+
+%%%%%% LORI: please make \emph{for-range-declaration}, \emph{range-expression}
+%and \emph{statement} in the code snippet below in italics
+
+\begin{emcppslisting}
+{
+    auto&& __range = (ù{\it{range-expression}}ù);
+    for (auto __begin = begin-expr, __end = end-expr;
+        __begin != __end;
+        ++__begin)
+    {
+        (ù{\it{for-range-declaration}}ù) = *__begin;
+        (ù{\it{statement}}ù)
+    }
+}
+\end{emcppslisting}
+    
+
+\noindent The variables \lstinline!__range!, \lstinline!__begin!, and
+\lstinline!__end!, above, are for \emph{exposition only}, i.e., the
+compiler does not necessarily generate variables with those names and
+user code is not permitted to access those variables directly.
+
+The \lstinline!__range! variable is defined as a \emcppsgloss{forwarding
+reference} (see {\featureref{\locationc}{forwardingref}); it
+will bind to any type of \emcppsgloss{range expression}, regardless of its
+\emcppsgloss{value category} (\romeovalue{lvalue} or \romeovalue{rvalue}). If the
+\emcppsgloss{range expression} yields a temporary object, its lifetime is
+extended, if necessary, until \lstinline!__range! goes out of scope.
+While this \emcppsgloss{lifetime extension} of temporary objects works in
+most cases, it is insufficient when \lstinline!__range! doesn't bind
+directly to the temporary created by the \emcppsgloss{range
+expression}, potentially resulting in subtle bugs; see {Potential
+Pitfalls}{Lifetime of temporaries in the range expression}.
+
+The \emph{begin-expr} and \emph{end-expr} expressions used to initialize
+the \lstinline!__begin! and \lstinline!__end! variables, respectively,
+define a half-open range of elements starting with \lstinline!*__begin!
+and including all of the elements in the \lstinline!__range! up to but
+not including \lstinline!*__end!. The precise meaning of
+\emph{begin-expr} and \emph{end-expr} were clarified in C++14 but were
+essentially the same in C++11{\cprotect\footnote{The rules for
+interpreting \emph{begin-expr} and \emph{end-expr} were slightly
+unclear in C++11. A defect report, CWG 1442, clarified the wording
+  retroactively. C++14 clarified the wording further.}}:
+
+\begin{itemize}
+\item{If \lstinline!__range! refers to an array, then \emph{begin-expr} is the address of the first element of the array and \emph{end-expr} is the address of one past the last element of the array.}
+\item{If \lstinline!__range! refers to a class object and \lstinline!begin! and/or \lstinline!end! are members of that class, then \emph{begin-expr} is \lstinline!__range.begin()! and \emph{end-expr} is \lstinline!__range.end()!. Note that if \lstinline!begin! or \lstinline!end! are found in the class, then both of these expressions must be valid or else the program is ill formed.}
+\item{Otherwise, \emph{begin-expr} is \lstinline!begin(__range)! and \emph{end-expr} is \lstinline!end(__range)!, where \lstinline!begin! and \lstinline!end! are found using \emcppsgloss{argument-dependent lookup (ADL)}. Note that \lstinline!begin! and \lstinline!end! are looked up only in the namespaces associated with the expressions; names that are local to the context of the \emcppsgloss[range based for loop]{ranged-based \lstinline!for! loop} are not considered; see Annoyances.}
+\end{itemize}
+
+Thus, a container such as \lstinline!vector!, with conventional
+\lstinline!begin! and \lstinline!end! member functions, provides everything
+necessary for a \emcppsgloss[range based for loop]{ranged-based \lstinline!for! loop}, as we saw in the
+\lstinline!f3! example on \pageref{iterating-over-std::vector-with-a-range-based-for-loop}. Note that \emph{end-expr} ---
+\lstinline!__range.end()! in the case of the \lstinline!vector! --- is
+evaluated only once, unlike the idiomatic low-level \lstinline!for! loop,
+where it is evaluated prior to every iteration.
+
+In C++11 and C++14, \lstinline!__begin! and \lstinline!__end! are required
+to have the same type.{\cprotect\footnote{The C++17 Standard changes the
+defining code transformation of the \emcppsgloss[range based for loop]{range-based \lstinline!for!
+loop} so as to allow \lstinline!__begin! and \lstinline!__end! to have
+different types as long as they are comparable using
+  \lstinline!__begin!~\lstinline|!=|~\lstinline!__end!.}} Although the
+\lstinline!__begin! and \lstinline!__end! variables look and act like
+iterators, they need not conform to all of the iterator requirements in
+the Standard. Specifically, the type of \lstinline!__begin! and
+\lstinline!__end! must support prefix \lstinline!operator++! but not
+necessarily postfix \lstinline!operator++!, and it must support
+\lstinline|operator!=| but not necessarily \lstinline|operator==|.
+
+The \emph{for-range-declaration} declares the loop variable. Any
+declaration that can be initialized with \lstinline!*__begin! will work.
+For instance, if \lstinline!*__begin! returns a reference to a modifiable
+object of, e.g., \lstinline!int! type, then \lstinline!int!~\lstinline!j!,
+\lstinline!int&!~\lstinline!j!, \lstinline!const!~\lstinline!int&!~\lstinline!j!, and
+\lstinline!long!~\lstinline!j! would all be valid
+\emph{for-range-declaration}s declaring a loop variable \lstinline!j!.
+Alternatively, the type of the loop variable can be deduced using
+\lstinline!auto! --- i.e., \lstinline!auto!~\lstinline!j!,
+\lstinline!auto&!~\lstinline!j!, \lstinline!const!~\lstinline!auto&!~\lstinline!j!,
+or \lstinline!auto&&!~\lstinline!j! (see {\featureref{\locationc}{auto}).
+
+The sequence being traversed can be modified through the loop variable
+only if \lstinline!__begin! returns a reference to a modifiable type and
+the loop variable is similarly declared as a reference to a modifiable
+type (e.g., \lstinline!int&!, \lstinline!auto&!, or \lstinline!auto&&!). Note
+that the \emcppsgloss[for range declaration]{for-range declaration} must define a \emph{new}
+variable; unlike a traditional \lstinline!for! loop, it cannot name an
+existing variable already in scope:
+
+\begin{emcppslisting}
+#include <vector>  // (ù{\codeincomments{std::vector}}ù)
+
+void f1(std::vector<int>& vec)
+{
+    const std::vector<int>& cvec = vec;
+
+    for (auto&& i : cvec)
+    {
+        i = 0;  // Error, (ù{\codeincomments{i}}ù) is a reference to (ù{\codeincomments{const int}}ù).
+    }
+
+    for (int j : vec)
+    {
+        j = 0;  // Bug, (ù{\codeincomments{j}}ù) is a loop-local variable; (ù{\codeincomments{vec}}ù) is not modified.
+    }
+
+    for (int& k : vec)
+    {
+        k = 0;  // OK, set element of (ù{\codeincomments{vec}}ù) to 0.
+    }
+
+    int m;
+    for (     m : vec) { /* ... */ }  // Error, (ù{\codeincomments{m}}ù) does not define a variable.
+    for (int& m : vec) { /* ... */ }  // OK, loop (ù{\codeincomments{m}}ù) hides function-scope (ù{\codeincomments{m}}ù).
+}
+\end{emcppslisting}
+    
+
+\noindent Since \lstinline!cvec! is \lstinline!const!, the element type returned by
+\lstinline!*begin(cvec)! is \lstinline!const!~\lstinline!int&!. Thus, \lstinline!i!
+is deduced as \lstinline!const!~\lstinline!int&!, making invalid any attempt
+to modify an element through \lstinline!i!. The second loop is valid C++11
+code but has a subtle bug: \lstinline!j! is not a reference --- it contains
+a \emph{copy} of the current element in the \lstinline!vector! --- so
+modifying \lstinline!j! has no effect on the vector. The third loop
+correctly sets all of the elements of \lstinline!vec! to zero; the loop
+variable \lstinline!k! is a reference to the current element, so setting it
+to zero modifies the original vector. The first \lstinline!m! loop attempts
+to re-use local variable \lstinline!m! as a loop variable; while this would
+be legal in a traditional \lstinline!for! loop, it is ill formed in a
+\emcppsgloss[range based for loop]{ranged-based \lstinline!for! loop}. Finally, the last loop re-uses
+the name \lstinline!m! from the surrounding scope, hiding the old name for
+the duration of the loop, just as it would in a traditional \lstinline!for!
+loop.
+
+The \emph{statement} that makes up the loop body can contain anything
+that is valid within a traditional \lstinline!for! loop body. In
+particular, a \lstinline!break! statement will exit the loop immediately
+and a \lstinline!continue! statement will skip to the next iteration.
+
+Applying this transformation to the \lstinline!f3! example (see \pageref{iterating-over-std::vector-with-a-range-based-for-loop}) from the previous section, we can see how the
+\emcppsgloss[range based for loop]{ranged-based \lstinline!for! loop} hooks into the iterator idiom to
+traverse a \lstinline!vector! of \lstinline!string! elements:
+
+\begin{emcppslisting}
+#include <string>  // (ù{\codeincomments{std::string}}ù)
+
+void f3(const std::vector<std::string>& vec)
+{
+    // for (const std::string& s : vec) { /* ... */ }
+    {
+        auto&& __range = vec;  // reference to the (ù{\codeincomments{std::vector}}ù)
+        for (auto __begin = begin(__range), __end = end(__range);
+            __begin != __end;
+            ++__begin)
+        {
+            const std::string& s = *__begin;  // Get current (ù{\codeincomments{string}}ù) element.
+            {
+                // ...
+            }
+        }
+    }
+}
+\end{emcppslisting}
+    
+
+\noindent In this expansion, \lstinline!__range! has type
+\lstinline!const!~\lstinline!std::vector<std::string>&! while
+\lstinline!__begin! and \lstinline!__end! have type
+\lstinline!std::vector<std::string>::const_iterator!.
+
+\subsubsection[Traversing arrays and initializer lists]{Traversing arrays and initializer lists}\label{traversing-arrays-and-initializer-lists}
+
+The \lstinline!<iterator>! standard header defines array overloads for
+\lstinline!std::begin! and \lstinline!std::end! such that, when applied to a
+C-style array, \lstinline!arr!, having a known number of elements,
+\lstinline!__bound!, \lstinline!std::begin(arr)! returns the address of the
+first element of \lstinline!arr! and \lstinline!std::end(arr)! returns the
+address of one past that of the last element of \lstinline!arr!, i.e.,
+\lstinline!arr!~\lstinline!+!~\lstinline!__bound!. This functionality is built
+into the initialization of \lstinline!__begin! and \lstinline!__end! as a
+special case, in the expansion of a \emcppsgloss[range based for loop]{range-based \lstinline!for!
+loop}, so that it is possible to traverse the elements of an array
+without needing to \lstinline!#include!~\lstinline!<iterator>!:
+
+\begin{emcppslisting}
+void f1()
+{
+    double data[] = {1.9, 2.8, 4.7, 7.6, 11.5, 16.4, 22.3, 29.2, 37.1, 46.0};
+    for (double& d : data)
+    {
+        d *= 3.0;  // triple every element in the array
+    }
+}
+\end{emcppslisting}
+    
+
+\noindent In the above example, the reference \lstinline!d! is bound, in turn, to
+each element of the array. The size of the array is not encoded anywhere
+in the loop syntax, either as a literal or as a symbolic value,
+simplifying the specification of the loop and preventing errors. Note
+that only arrays whose size is known at the point where the loop occurs
+can be traversed this way:
+
+\begin{emcppslisting}
+extern double data[];  // array of unknown size
+
+void f2()
+{
+    for (double& d : data)  // Error, (ù{\codeincomments{data}}ù) is an incomplete type.
+    {
+        // ...
+    }
+}
+
+double data[10] = { /* ... */ };  // too late to make the above compile
+\end{emcppslisting}
+    
+
+\noindent The above example would compile if \lstinline!data! were declared having a
+size, e.g.,\linebreak[4] \lstinline!extern!~\lstinline!double!~\lstinline!data[10]!, as that
+would be a complete type and provide sufficient information to traverse
+the array. The second definition of \lstinline!data! in the example
+\emph{is} complete but is not visible at the point that the loop is
+compiled.
+
+An \emcppsgloss{initializer list} is typically used to initialize an array or
+container using \emcppsgloss{braced initialization}; see \featureref{\locationc}{bracedinit}. The \lstinline!initializer_list! template does,
+however, provide its own \lstinline!begin! and \lstinline!end! member
+functions and is, therefore, directly usable as the
+\emph{range-expression} in a \emcppsgloss[range based for loop]{ranged-based \lstinline!for! loop}:
+
+\begin{emcppslisting}
+void f3()
+{
+    for (double v : {1.9, 2.8, 4.7, 7.6, 11.5, 16.4, 22.3, 29.2, 37.1, 46.0})
+    {
+        // ...
+    }
+}
+\end{emcppslisting}
+    
+
+\noindent The example above shows how a series of \lstinline!double! values can be
+embedded right within the loop header.
+
+\subsection[Use Cases]{Use Cases}\label{use-cases}
+
+\subsubsection[Iterating over all elements of a container]{Iterating over all elements of a container}\label{iterating-over-all-elements-of-a-container}
+
+The motivating use case for this feature is to loop over the elements in
+a container:
+
+\begin{emcppslisting}
+#include <list>  // (ù{\codeincomments{std::list}}ù)
+
+void process(int* p);
+
+void f1()
+{
+    std::list<int> aList{ 1, 2, 4, 7, 11, 16, 22, 29, 37, 46 };
+
+    for (int& i : aList)
+    {
+        process(&i);
+    }
+}
+\end{emcppslisting}
+    
+
+\noindent This idiom takes advantage of all STL-compliant container types
+providing \lstinline!begin! and \lstinline!end! operations, which may be used
+to delimit a range encompassing the entire container. Thus, the loop
+above iterates from \lstinline!aList.begin()! to \lstinline!aList.end()!,
+calling \lstinline!process! on each element encountered.
+
+When iterating over a \lstinline!std::map<Key,!~\lstinline!Value>! or
+\lstinline!std::unordered_map<Key,!~\lstinline!Value>!, each element has type
+\lstinline!std::pair<const!~\lstinline!Key,!~\lstinline!Value>!. To save typing
+and to avoid errors related to the first member of the pair being
+\lstinline!const! we use the \lstinline!value_type! alias to refer to each
+element's type:
+
+\begin{emcppslisting}
+#include <map>  // (ù{\codeincomments{std::map}}ù)
+
+using MapType = std::map<std::string, int>;
+
+MapType studentScores
+{
+    {"Emily", 89},
+    {"Joel",  85},
+    {"Bud",   86},
+};
+
+void printScores()
+{
+    for (MapType::value_type& studentScore : studentScores)
+    {
+        const std::string& student = studentScore.first;
+        int&               score   = studentScore.second;
+        std::cout << student << "\t scored " << score << '\n';
+    }
+}
+\end{emcppslisting}
+    
+
+\noindent This example prints each key/value pair in the \lstinline!map!. We create
+two aliases, \lstinline!student! for \lstinline!studentScore.first! and
+\lstinline!score! for \lstinline!studentScore.second!, to better express the
+intent of the code.{\cprotect\footnote{In C++17, \emcppsgloss[structured binding]{structured
+bindings} allow two variables to be initialized from a single
+\lstinline!pair!, each variable being initialized by the respective
+\lstinline!first! and \lstinline!second! members of the \lstinline!pair!. A
+\emcppsgloss[range based for loop]{ranged-based \lstinline!for! loop} using a \emcppsgloss{structured
+binding} for the loop variables yields a very clean and expressive way
+to traverse containers like \lstinline!map! and \lstinline!unordered_map!,
+e.g., using
+  \lstinline!for!~\lstinline!(auto&!~\lstinline![student,!~\lstinline!score]!~\lstinline!:!~\lstinline!studentScores)!.}}
+
+\subsubsection[Subranges]{Subranges}\label{subranges}
+
+Using a classic \lstinline!for! loop to traverse a container, \lstinline!c!,
+allows a subrange of \lstinline!c! to be specified beginning at some point
+after \lstinline!c.begin()! --- e.g., \lstinline!++c.begin()! --- and/or ending at
+some point before \lstinline!c.end()! --- e.g.,
+\lstinline!std::next(c.end(),!~\lstinline!-3)!. To specify a subrange for a
+\emcppsgloss[range based for loop]{ranged-based \lstinline!for! loop}, we create a simple adapter to
+hold two iterators (or iterator-like objects) that define the desired
+subrange:
+
+\begin{emcppslisting}
+template <typename Iter>
+class Subrange
+{
+    Iter d_begin, d_end;
+
+public:
+    using iterator = Iter;
+
+    Subrange(Iter b, Iter e) : d_begin(b), d_end(e) { }
+
+    iterator begin() const { return d_begin; }
+    iterator end()   const { return d_end;   }
+};
+
+template <typename Iter>
+Subrange<Iter> makeSubrange(Iter beg, Iter end) { return {beg, end}; }
+\end{emcppslisting}
+    
+
+\noindent The \lstinline!Subrange! class above is a primitive start to a potentially
+rich library of range-based utilities.{\cprotect\footnote{The C++20
+Standard introduces a new Ranges Library that provides powerful
+  features for defining, combining, filtering, and manipulating ranges.}}
+It holds two externally-supplied iterators that it can supply to a
+\emcppsgloss[range based for loop]{ranged-based \lstinline!for! loop} via its \lstinline!begin! and
+\lstinline!end! accessor members. The \lstinline!makeSubrange! factory uses
+function template argument deduction to return a \lstinline!Subrange! of
+the correct type.{\cprotect\footnote{C++17 introduced \emcppsgloss{class
+template argument deduction}, which significantly reduces the need for
+  factory templates like \lstinline!makeSubrange!.}}
+
+Let's use \lstinline!Subrange! to traverse a vector in reverse, omitting
+its first element:
+
+\begin{emcppslisting}
+#include <vector>    // (ù{\codeincomments{std::vector}}ù)
+#include <iostream>  // (ù{\codeincomments{std::cout}}ù), (ù{\codeincomments{std::endl}}ù)
+
+template <typename Range>
+void printRange(const Range& r)
+{
+    for (const auto& elem : r)
+    {
+        std::cout << elem << ' ';
+    }
+
+    std::cout << std::endl;
+}
+
+std::vector<int> vec{16, 3, 1, 8, 99};
+
+void f1()
+{
+    printRange(makeSubrange(vec.rbegin(), vec.rend() - 1));
+        // print "99 8 1 3"
+}
+\end{emcppslisting}
+    
+
+\noindent The \lstinline!printRange! function template will print out the elements of
+any range, provided the element type supports printing to a
+\lstinline!std::ostream!. In \lstinline!f1!, we use reverse iterators to
+create a \lstinline!Subrange! starting from the last element of
+\lstinline!vec! and iterating backwards. By subtracting \lstinline!1! from
+\lstinline!vec.rend()!, we exclude the last element of the sequence, which
+is the first element of \lstinline!vec!.
+
+In fact, the iterators need not refer to a container at all. For
+example, we can use \lstinline!std::istream_iterator! to iterate over
+``elements'' in an input stream:
+
+\begin{emcppslisting}
+#include <istream>   // (ù{\codeincomments{std::istream}}ù)
+#include <iterator>  // (ù{\codeincomments{std::istream\_iterator}}ù)
+#include <sstream>   // (ù{\codeincomments{std::istringstream}}ù)
+
+void f2()
+{
+    std::istringstream inStream("1 2 4 7 11 16 22 29 37 bad 46");
+    printRange(makeSubrange(std::istream_iterator<int>(inStream),
+                            std::istream_iterator<int>()));
+}
+\end{emcppslisting}
+    
+
+\noindent In \lstinline!f2!, the range being printed uses the
+\lstinline!istream_iterator<T>! adapter template. Each time through the
+loop, the adapter reads another \lstinline!T! item from its input stream.
+At end-of-file or if a read error occurs, the iterator becomes equal to
+the sentinel iterator, \lstinline!istream_iterator<T>()!. Note that the
+\emcppsgloss[range based for loop]{ranged-based \lstinline!for! loop} feature and the \lstinline!Subrange!
+class template do not require that the size of the subrange be known in
+advance.
+
+\subsubsection[Range generators]{Range generators}\label{range-generators}
+
+Iterating over a range does not necessarily entail traversing existing
+data elements. A range expression could yield a type that
+\emph{generates} elements as it goes. A useful example is the
+\lstinline!ValueGenerator!, an iterator-like class that produces a sequence
+of sequential values{\cprotect\footnote{The \lstinline!iota_view! and
+\lstinline!iota! entities from the Ranges Library in the C++20 Standard
+provide a more sophisticated version of the \lstinline!ValueGenerator!
+  and \lstinline!valueRange! facility described here.}}:
+
+\begin{emcppslisting}
+template <typename T>
+class ValueGenerator
+{
+    T d_value;
+
+  public:
+    explicit ValueGenerator(const T& v) : d_value(v) { }
+
+    T operator*() const { return d_value; }
+    ValueGenerator& operator++() { ++d_value; return *this; }
+
+    friend bool operator!=(const ValueGenerator& a, const ValueGenerator& b)
+    {
+        return a.d_value != b.d_value;
+    }
+};
+
+template <typename T>
+Subrange<ValueGenerator<T>> valueRange(const T& b, const T& e)
+{
+    return { ValueGenerator<T>(b), ValueGenerator<T>(e) };
+}
+\end{emcppslisting}
+    
+
+\noindent Instead of referring to an element within a container,
+\lstinline!ValueGenerator! is an iterator-like type that \emph{generates}
+the value returned by \lstinline!operator*!. \lstinline!ValueGenerator! can be
+instantiated for any type that can be incremented, e.g., integral types,
+pointers, or iterators. The \lstinline!valueRange! function template is a
+simple factory to create a range comprising two \lstinline!ValueGenerator!
+objects, using the \lstinline!Subrange! class template defined in the use
+case described in {Subranges}. Thus, to print the numbers from 1 to 10,
+simply use a \emcppsgloss[range based for loop]{ranged-based \lstinline!for! loop}, employing a call to
+\lstinline!valueRange! as the \emcppsgloss{range expression}:
+
+\begin{emcppslisting}
+void f3()
+{
+    // prints "1 2 3 4 5 6 7 8 9 10 "
+    for (unsigned i : valueRange(1, 11))
+    {
+        std::cout << i << ' ';
+    }
+    std::cout << std::endl;
+}
+\end{emcppslisting}
+    
+
+\noindent Note that the second argument to \lstinline!valueRange! is one \emph{past}
+the last item we want to iterate on, i.e., \lstinline!11! instead of
+\lstinline!10!. With something like \lstinline!ValueGenerator! as part of a
+reusable utility library, this formulation expresses the intent of the
+loop more cleanly and concisely than the classic \lstinline!for! loop.
+
+The ability to generate numbers means that a range need not be finite.
+For example, we might want to generate a sequence of random numbers of
+indefinite length:
+
+\begin{emcppslisting}
+#include <random>  // (ù{\codeincomments{std::default\_random\_engine}}ù), (ù{\codeincomments{std::uniform\_int\_distribution}}ù)
+
+template <typename T = int>
+class RandomIntSequence
+{
+    std::default_random_engine       d_generator;
+    std::uniform_int_distribution<T> d_uniformDist;
+
+public:
+    class iterator
+    {
+        RandomIntSequence* d_sequence;
+
+        explicit iterator(RandomIntSequence* s) : d_sequence(s) { }
+        friend class RandomIntSequence;
+
+    public:
+        iterator& operator++() { return *this; }
+        T operator*() const { return d_sequence->next(); }
+
+        friend bool operator!=(iterator, iterator) { return true; }
+    };
+
+    RandomIntSequence(T min, T max, unsigned seed = 0)
+        : d_generator(seed ? seed : std::random_device()())
+        , d_uniformDist(min, max) { }
+
+    T next() { return d_uniformDist(d_generator); }
+
+    iterator begin() { return iterator(this); }
+    iterator end()   { return iterator(nullptr); }
+};
+
+template <typename T>
+RandomIntSequence<T> randomIntSequence(T min, T max, unsigned seed = 0)
+{
+    return {min, max, seed};
+}
+\end{emcppslisting}
+    
+
+\noindent The \lstinline!RandomIntSequence! class template uses the C++11
+random-number library to generate high-quality pseudorandom
+numbers.{\cprotect\footnote{An introduction to the C++11 random-number
+library can be found in Stephan T. Lavavej's excellent talk,
+  \lstinline!rand()! Considered Harmful.}} Each call to its \lstinline!next!
+member function produces a new random number of integral type,
+\lstinline!T!, within the inclusive range specified to the
+\lstinline!RandomIntSequence! constructor. The nested \lstinline!iterator!
+type holds a pointer to a \lstinline!RandomIntSequence! and simply calls
+\lstinline!next! each time it is dereferenced (i.e., via a call to
+\lstinline!operator*!).
+
+Of particular interest is \lstinline|operator!=|, which returns
+\lstinline!true! when comparing any two
+\lstinline!RandomIntSequence<T>::iterator! objects. Thus, any
+\emcppsgloss[range based for loop]{ranged-based \lstinline!for! loop} that iterates over a
+\lstinline!RandomIntSequence! is an infinite loop unless it terminates by
+some other means:
+
+\begin{emcppslisting}
+void f4()
+{
+    for (int rand : randomIntSequence(1, 10))
+    {
+        std::cout << rand << ' ';
+        if (rand == 10) { break; }
+    }
+
+    std::cout << std::endl;
+}
+\end{emcppslisting}
+    
+
+\noindent This example prints a list of random numbers in the range 1 through 10,
+inclusive. The loop terminates after printing \lstinline!10! for the first
+(and only) time.
+
+\subsubsection[Iterating over simple values]{Iterating over simple values}\label{iterating-over-simple-values}
+
+The ability to iterate over a \lstinline!std::initializer_list! can be
+very useful for processing a list of simple values or simple objects
+without first storing them in a container. Such a use case arises
+frequently when testing:
+
+\begin{emcppslisting}
+#include <limits>  // (ù{\codeincomments{std::numeric\_limits}}ù)
+
+#define TEST_ASSERT(expr)  // ... assert that (ù{\codeincomments{expr}}ù) is true.
+
+bool isEven(int i)
+{
+    return i % 2 == 0;
+}
+
+void testIsEven()
+{
+    // ...
+
+    const int minInt = std::numeric_limits<int>::min();
+    const int maxInt = std::numeric_limits<int>::max();
+
+    for (int testValue : {minInt, -256, -2, 0, 2, 4, maxInt - 1})
+    {
+        TEST_ASSERT(isEven(testValue));
+        TEST_ASSERT(!isEven(testValue + 1));
+    }
+}
+\end{emcppslisting}
+    
+
+\noindent The \lstinline!testIsEven! function iterates over a sample of numbers
+within the domain of \lstinline!isEven!, including boundary conditions,
+testing that each number is correctly reported as being even and that
+adding 1 to the number produces a result that is correctly reported as
+not being even.
+
+Initializer lists are not limited to primitive types, so the test data
+set can contain more complex values:
+
+\begin{emcppslisting}
+#include <initializer_list>  // (ù{\codeincomments{std::initializer\_list}}ù)
+
+#define TEST_ASSERT_EQ(expr1, expr2)  // ... assert that (ù{\codeincomments{expr1 == expr2}}ù).
+
+int half(int i)
+{
+    return i / 2;
+}
+
+struct TestCase
+{
+    int value;
+    int expected;
+};
+
+void testHalf()
+{
+    for (TestCase test : std::initializer_list<TestCase>{
+        {-2, -1}, {-1, 0}, {0, 0}, {1, 0}, {2, 1}
+    })
+    {
+        TEST_ASSERT_EQ(test.expected, half(test.value));
+    }
+}
+\end{emcppslisting}
+    
+
+\noindent In this case, the \emcppsgloss[range based for loop]{ranged-based \lstinline!for! loop} iterates over a
+\lstinline!std::initializer_list! holding \lstinline!TestCase! structures.
+This paring of input(s) with expected output(s) of a component under
+test is very common in unit tests.
+
+\subsection[Potential Pitfalls]{Potential Pitfalls}\label{potential-pitfalls}
+
+\subsubsection[Lifetime of temporary objects in the range expression]{Lifetime of temporary objects in the range expression}\label{lifetime-of-temporary-objects-in-the-range-expression}
+
+As described in \intrarefsimple{description-rangefor} section, if the \emcppsgloss{range
+expression} evaluates to a temporary object, that object remains valid,
+as a result of \emcppsgloss{lifetime extension}, for the duration of the
+\emcppsgloss[range based for loop]{ranged-based \lstinline!for! loop}. Unfortunately, there are some
+subtle ways in which \emcppsgloss{lifetime extension} is not always
+sufficient.
+
+The basic notion of \emcppsgloss{lifetime extension} is that, when bound to a
+reference, the lifetime of a \romeovalue{prvalue} --- i.e., an object
+created by a literal, constructed in place, or returned (by value) from
+a function --- is \emph{extended} to match the lifetime of the reference
+to which it is bound:
+
+\begin{emcppslisting}
+#include <string>
+
+std::string strFromInt(int);
+
+void f1()
+{
+    const std::string& s1 = std::string('a', 2);
+    std::string&&      s2 = strFromInt(9);
+    auto&&             i  = 5;
+
+    // (ù{\codeincomments{s1}}ù), (ù{\codeincomments{s2}}ù), and (ù{\codeincomments{i}}ù) are "live" here.
+
+    // ...
+
+}  // (ù{\codeincomments{s1}}ù), (ù{\codeincomments{s2}}ù), and (ù{\codeincomments{i}}ù) are destroyed at end of enclosing block.
+\end{emcppslisting}
+    
+
+\noindent The first string is constructed in place. The resulting temporary string
+would normally be destroyed as soon as the expression was complete but,
+because it is bound to a reference, its lifetime is extended; its
+destructor is not called and its memory footprint is not reused until
+\lstinline!s1! goes out of scope, i.e., at the end of the enclosing block.
+The \lstinline!strFromInt! function returns by value; the result of calling
+it in the second statement produces a temporary variable whose lifetime
+is similarly extended until \lstinline!s2! goes out of scope. Finally, the
+\emcppsgloss{forwarding reference}, \lstinline!i!, ensures that space in the
+current frame is allocated to hold the temporary copy of the (deduced)
+\lstinline!int! value, \lstinline!5!; such space cannot be reused until
+\lstinline!i! goes out of scope at the end of the enclosing block. (See
+{\featureref{\locationc}{forwardingref}).
+
+When the \emcppsgloss{range expression} for a \emcppsgloss[range based for loop]{range-based
+\lstinline!for! loop} is a \romeovalue{prvalue}, \emcppsgloss{lifetime extension} is
+vital to keeping the range object live for the duration of the loop:
+
+\begin{emcppslisting}
+void f2(int i)
+{
+    for (char c : strFromInt(i))
+    {
+        // ...
+    }
+}
+\end{emcppslisting}
+    
+
+\noindent The return value from \lstinline!strFromInt! is stored in a temporary
+variable of type \lstinline!std::string!. The temporary string is destroyed
+when the loop completes, not when the expression evaluation completes.
+If the string were to go out of scope immediately, it would not be
+possible to iterate over its characters. This code would have
+\emcppsgloss{undefined behavior} were it not for the \emcppsgloss{lifetime
+extension} harnessed by the \emcppsgloss[range based for loop]{ranged-based \lstinline!for! loop}.
+
+The limitation of \emcppsgloss{lifetime extension} is that it applies only if
+the reference is bound \emph{directly} to the temporary variable itself
+or to a subobject (e.g., a member variable) of the temporary variable,
+in which case the lifetime of the entire temporary variable is extended.
+Note that initializing a reference from a reference or a pointer to
+either the temporary or one of its subobjects does not count as binding
+\emph{directly} to the temporary variable and does not trigger
+\emcppsgloss{lifetime extension}. The danger of an object getting destroyed
+prematurely is generally seen when the \emcppsgloss{full expression} returns
+a reference, pointer, or iterator into a temporary object:
+
+\begin{emcppslisting}
+#include <vector>   // (ù{\codeincomments{std::vector}}ù)
+#include <string>   // (ù{\codeincomments{std::string}}ù)
+#include <utility>  // (ù{\codeincomments{std::pair}}ù)
+#include <tuple>    // (ù{\codeincomments{std::tuple}}ù)
+
+struct Point
+{
+    double x, y;
+    Point(double ax, double ay) : x(ax), y(ay) { }
+};
+
+struct SRef
+{
+    const std::string& str;
+    SRef(const std::string& s) : str(s) { }
+};
+
+std::vector<int> getValues();  // Return a (ù{\codeincomments{vector}}ù) by value.
+
+void f3()
+{
+    const Point& p1 = Point(1.2, 3.4);    // OK, extend (ù{\codeincomments{Point}}ù) lifetime.
+    double&&     d1 = Point(1.2, 3.4).x;  // OK, extend (ù{\codeincomments{Point}}ù) lifetime.
+    double&      d2 = Point(1.2, 3.4).y;  // Error, non-(ù{\codeincomments{const}}ù) lvalue ref, (ù{\codeincomments{d2}}ù)
+
+    using ICTuple = std::tuple<int, char>;
+    const int&  i1 = getValues()[0];               // Bug, dangling reference
+    const int&  i2 = std::get<0>(ICTuple{0,'a'});  // Bug,     "        "
+    auto&&      i3 = getValues().begin();          // Bug,     "    iterator
+    const auto& s1 = std::string("abc").c_str();   // Bug,     "    pointer
+    const auto& i4 = std::string("abc").length();  // OK, (ù{\codeincomments{std::size\_t}}ù) extended
+
+    SRef&&      sr = SRef("hello");  // Bug, (ù{\codeincomments{string}}ù) lifetime is not extended.
+    std::string s2 = sr.str;         // Bug, (ù{\codeincomments{string}}ù) has been destroyed.
+}
+\end{emcppslisting}
+    
+
+\noindent The first invocation of the \lstinline!Point! constructor creates a
+temporary object that is bound to reference \lstinline!p1!. The lifetime of
+this temporary object is extended to match the lifetime of the
+reference. Similarly, the lifetime of the second \lstinline!Point! object
+is extended because a subobject, \lstinline!x!, is bound to reference
+\lstinline!d1!. Note that it is not permitted to bind a temporary to a
+non\lstinline!const! \romeovalue{lvalue} reference, as is being attempted with
+\lstinline!d2!, above.
+
+The next four definitions do not result in useful \emcppsgloss{lifetime
+extension} at all.
+\begin{enumerate}
+\item{In the case of \lstinline!i1!, \lstinline!getValues()! returns a \romeovalue{prvalue} of type \lstinline!std::vector<int>!, resulting in the creation of a temporary variable. That temporary variable, however, is \emph{not} the value being bound to the \lstinline!i1! reference; rather, the reference is bound to the result of the array-access operator (\lstinline!operator[]!), which returns a reference into the temporary \lstinline!vector! returned by \lstinline!getValues()!. While we might consider an element of a \lstinline!vector! logically to be a subobject of the vector, \lstinline!i1! is not bound directly to that subobject but rather to the reference returned by \lstinline!operator[]!. The vector goes out of scope immediately at the end of the statement, leaving \lstinline!i1! to refer to an element of a deleted object.}
+\item{The identical situation occurs with \lstinline!i2! when accessing the member of a temporary \lstinline!std::tuple!, this time via the nonmember function \lstinline!std::get<0>!.}
+\item{Rather than a reference, \lstinline!i3! is deduced to be an \emph{iterator} as the result of the expression. The iterator’s lifetime is extended, but the lifetime of the object to which it refers is not.}
+\item{Similarly, for \lstinline!s!, the expression \lstinline!std::string("abc").c_str()! yields a pointer into a temporary C-style string. Once again, the temporary \lstinline!std::string! variable is not the object that is bound to the reference \lstinline!s1!, so it gets destroyed at the end of the statement, invalidating the pointer.}
+\end{enumerate}
+
+Conversely, \lstinline!i4! binds directly to the temporary object returned
+by \lstinline!length!, extending its life even though the string itself
+gets destroyed as before. Unlike \lstinline!i3! and \lstinline!s1!, however,
+\lstinline!i4! is not an iterator or pointer and so does not retain an
+implicit reference to the defunct string object.
+
+The last two definitions, for \lstinline!sr! and \lstinline!s2!, show how
+subtle the rules for \emcppsgloss{lifetime extension} can be. The
+\lstinline!"hello"! literal is converted into a temporary variable of type
+\lstinline!std::string! and passed to the constructor of \lstinline!SRef!,
+which \emph{also} creates a temporary object. It is only the
+\lstinline!SRef! object that is bound to the \lstinline!sr! reference, so it
+is only the \lstinline!SRef! object whose lifetime is extended. The
+\lstinline!std::string("hello")! temporary variable gets destroyed when the
+constructor finishes executing, leaving the object referenced by
+\lstinline!sr! with a member, \lstinline!str!, that refers to a destroyed
+object.
+
+There are good reasons why \emcppsgloss{lifetime extension} applies only to
+the temporary object being bound to a reference. A lot of code depends
+on temporary objects going out of scope immediately, i.e., to release a
+lock, memory, or some other resource. For \emcppsgloss[range based for loop]{range-based \lstinline!for! loops}, however, a compelling argument has been made that
+the correct behavior would be to extend the lifetime of \emph{all} of
+the temporaries constructed while evaluating the \emcppsgloss{range
+expression}.{\cprotect\footnote{At the time of writing the P2012 paper
+seeks to solve the issue when a \emcppsgloss{range expression} is a
+reference into a temporary. See \emph{Fix the range-based for loop},
+by Nicolai Josuttis, Victor Zverovich, Filipe Mulonde, and Arthur
+O'Dwyer, which references an original paper
+\emph{Embracing Modern C++ Safely} by Rostislav Khlebnikov and John
+  Lakos.}} Unless and until this behavior is changed in a future
+Standard, beware of using a \emcppsgloss{range expression} that returns a
+reference to a temporary variable:
+
+\begin{emcppslisting}
+#include <istream>  // (ù{\codeincomments{std::istream}}ù)
+
+class RecordList
+{
+    std::vector<std::string> d_names;
+    // ...
+
+public:
+    explicit RecordList(std::istream& is);
+        // Create a (ù{\codeincomments{RecordList}}ù) with data read from (ù{\codeincomments{is}}ù).
+
+    // ...
+
+    const std::vector<std::string>& names() const { return d_names; }
+};
+
+void printNames(std::istream& is)
+{
+    // Bug, (ù{\codeincomments{RecordList}}ù)'s lifetime is not extended.
+    for (const std::string& name : RecordList(is).names())
+    {
+        std::cout << name << '\n';
+    }
+}
+\end{emcppslisting}
+    
+
+\noindent The \lstinline!RecordList! constructed in the \emcppsgloss{range expression} is
+not bound to the implied \lstinline!__range! reference within the
+\emcppsgloss[range based for loop]{ranged-based \lstinline!for! loop}, so its lifetime will end before
+the loop actually begins. Thus, the
+\lstinline!const!~\lstinline!std::vector<std::string>&! returned by its
+\lstinline!names! method becomes a dangling reference, leading to
+\emcppsgloss{undefined behavior} (such as a segmentation fault).
+
+To avoid this pitfall, create a named object for each temporary that you
+need to preserve, unless that temporary is the \emcppsgloss{full expression}
+for the \emcppsgloss{range expression}:
+
+\begin{emcppslisting}
+void printNames2(std::istream& is)
+{
+    {
+        RecordList records(is);  // named variable
+        for (const std::string& name : records.names())
+        {
+            std::cout << name << '\n';
+        }
+
+        // safe for (ù{\codeincomments{records}}ù) to go out of scope now
+    }
+
+    // ...
+}
+\end{emcppslisting}
+    
+
+\noindent This minor rewrite of \lstinline!printNames! creates an extra block scope
+in which we declare \lstinline!records! as a named variable. The inner
+scope ensures that \lstinline!records! gets destroyed immediately after the
+loop terminates.
+
+\subsubsection[Inadvertent copying of elements]{Inadvertent copying of elements}\label{inadvertent-copying-of-elements}
+
+When iterating through a container with a classic \lstinline!for! loop,
+elements are typically referred to through an iterator:
+
+\begin{emcppslisting}
+void process(std::string&);
+
+void f1(std::vector<std::string>& vec)
+{
+    for (std::vector<std::string>::iterator i = vec.begin();
+         i != vec.end(); ++i)
+    {
+        process(*i);  // refer to element via iterator
+    }
+}
+\end{emcppslisting}
+    
+
+\noindent The \emcppsgloss[range based for loop]{ranged-based \lstinline!for! loop} gives the element a name and
+a type. If the type is not a reference, then each iteration of the loop
+will \emph{copy} the current element. In many cases, this copy is
+inadvertent:
+
+\begin{emcppslisting}
+void f2(std::vector<std::string>& vec)
+{
+    for (std::string s : vec)
+    {
+        process(s);  // call (ù{\codeincomments{process}}ù) on *copy* of string element, potential
+                     // bug.
+    }
+}
+\end{emcppslisting}
+    
+
+\noindent The example above illustrates two issues: (1) there is an unnecessary
+expense in copying each string, and (2) \lstinline!process! may modify or
+take the address of its argument, in which case it will modify or take
+the address of the copy, rather than the original element; the strings
+in \lstinline!vec! will remain unchanged.
+
+This error appears to be especially common when using \lstinline!auto! to
+deduce the loop variable's type:
+
+\begin{emcppslisting}
+void f3(std::vector<std::string>& vec)
+{
+    for (auto s : vec)
+    {
+        process(s);  // call (ù{\codeincomments{process}}ù) on *copy* of deduced string element,
+                     // potential bug.
+    }
+}
+\end{emcppslisting}
+    
+
+\noindent Copying an element is not always erroneous, but it may be wise to
+habitually declare the loop variable as a reference, making deliberate
+exceptions when needed:
+
+\begin{emcppslisting}
+void f4(std::vector<std::string>& vec)
+{
+    for (std::string& s : vec)
+    {
+        process(s);  // OK, call (ù{\codeincomments{process}}ù) on *reference* to string element
+    }
+}
+\end{emcppslisting}
+    
+
+\noindent If we wish to avoid copying elements but also wish to avoid modifying
+them, then a \lstinline!const! reference will provide a good balance. Note,
+however, that if the type being iterated over is not the same as the
+type of the reference, a conversion might quietly produce the
+(undesired) copy anyway:
+
+\begin{emcppslisting}
+void f5(std::vector<char*>& vec)
+{
+    for (const std::string& s : vec)
+    {
+        // (ù{\codeincomments{s}}ù) is a reference to a *copy* of an element of (ù{\codeincomments{vec}}ù).
+    }
+}
+\end{emcppslisting}
+    
+
+\noindent In this example, the elements of \lstinline!vec! have type \lstinline!char*!.
+The use of \lstinline!const!~\lstinline!std::string&! to declare the loop
+variable \lstinline!s! correctly prevents modification of any elements of
+\lstinline!vec!, but there is still a copy being made because each member
+access is converted to an object of type \lstinline!std::string!.
+
+For generic code that modifies a container, \lstinline!auto&&! is the
+most general way to declare the loop variable. For generic code that
+does not modify the container, \lstinline!const!~\lstinline!auto&! is safer:
+
+\begin{emcppslisting}
+template <typename Rng>
+void f6(Rng& r)
+{
+    for (auto&& e : Rng)
+    {
+        // ...
+    }
+
+    for (const auto& cr : Rng)
+    {
+        // ...
+    }
+}
+\end{emcppslisting}
+    
+
+\noindent Because \lstinline!e! is a \emcppsgloss{forwarding reference} and \lstinline!cr! is
+a \lstinline!const! reference, they will both correctly bind to the return
+type of \lstinline!*begin(Rng)!, even if that type is a \romeovalue{prvalue}.
+Note that the use of \lstinline!auto! can obfuscate code by hiding the
+underlying types of objects. Obfuscated code is prone to bugs so these
+uses of \lstinline!auto! are recommended chiefly for \emph{generic} code or
+where other trade-offs favor using this short-cut; see \featureref{\locationc}{auto}.
+
+\subsubsection[Simple and reference-proxy behaviors can be be different]{Simple and reference-proxy behaviors can be be different}\label{simple-and-reference-proxy-behaviors-can-be-be-different}
+
+Some containers have iterators that return proxies rather than
+references to their elements. Depending on how the loop variable is
+declared, the unwary programmer may get surprising results when the
+container's iterator type returns reference proxies.
+
+An example of such a container is \lstinline!std::vector<bool>!. The type,\linebreak[4]
+\lstinline!std::vector<bool>::iterator::reference! is a reference-proxy
+class that emulates a reference to a single bit within the
+\lstinline!vector!. The proxy class provides an
+\lstinline!operator!~\lstinline!bool()! that returns the bit when the proxy is
+converted to \lstinline!bool! and an \lstinline!operator=(bool)! that modifies
+the bit when assigned a Boolean value.
+
+Let's consider a set of loops, each of which iterates over a
+\lstinline!vector! and attempts to set each element of the vector to
+\lstinline!true!. We'll embed the loops in a function template so that we
+can compare the behavior of instantiating with a normal container
+(\lstinline!std::vector<int>!) and with one whose iterator uses a reference
+proxy (\lstinline!std::vector<bool>!):
+
+\begin{emcppslisting}
+#include <vector>
+
+template <typename T>
+void f1(std::vector<T>& vec)
+{
+    for (T      v : vec) { v = true; }  // (1)
+    for (T&     v : vec) { v = true; }  // (2)
+    for (T&&    v : vec) { v = true; }  // (3)
+    for (auto   v : vec) { v = true; }  // (4)
+    for (auto&  v : vec) { v = true; }  // (5)
+    for (auto&& v : vec) { v = true; }  // (6)
+}
+
+void f2()
+{
+    using IntVec  = std::vector<int>;   // has normal iterator
+    using BoolVec = std::vector<bool>;  // has iterator with reference proxy
+
+    IntVec  iv{ /* ... */ };
+    BoolVec bv{ /* ... */ };
+
+    f1(iv);
+    f1(bv);
+}
+\end{emcppslisting}
+    
+
+\noindent For each of the loops in \lstinline!f1!, the difference in behavior between
+the \lstinline!IntVec! and \lstinline!BoolVec! instantiations hinges on what
+happens when \lstinline!v! is initialized from \lstinline!*__begin! within
+the loop transformation. For the \lstinline!IntVec! iterator,
+\lstinline!*__begin! returns a \emph{reference} to the element within the
+container. For the \lstinline!BoolVec! iterator, it returns an
+\emph{object} of the reference-proxy type.
+\begin{itemize}
+\item{\emph{Loop (1)} produces identical behavior from both instantiations. The loop makes a local copy of each element, and then modifies the copy. The only difference is that the \lstinline!BoolVec! version performs a conversion to \lstinline!bool! to initialize \lstinline!v!, whereas the \lstinline!IntVec! version initializes \lstinline!v! directly from the element reference. For both the \lstinline!IntVec! or \lstinline!BoolVec! version, the fact that the original vector is unchanged is a potential bug (see Inadvertent copying of elements, above).}
+\item{\emph{Loop (2)} modifies the container elements in the \lstinline!IntVec! instantiation but fails to compile for the \lstinline!BoolVec! instantiation. The compilation error comes from trying to initialize the non\lstinline!const! \emcppsgloss[lvalue reference]{\romeovalue{lvalue} reference}, \lstinline!v!, from an \romeovalue{rvalue} of the proxy type. The \lstinline!bool! conversion operator does not help since the result would still be an \romeovalue{rvalue}.}
+\item{\emph{Loop (3)} fails to compile for the \lstinline!IntVec! iterator because the \emcppsgloss[rvalue reference]{\romeovalue{rvalue} reference}, \lstinline!v!, cannot be initialized from \lstinline!*__begin!, which is an \emcppsgloss[lvalue reference]{\romeovalue{lvalue} reference}. Surprisingly, the \lstinline!BoolVec! instantiation \emph{does} compile, but the loop does not modify the container. Here, \lstinline!operator!~\lstinline!bool! is invoked on the proxy object returned by \lstinline!*__begin!. The resulting temporary object is bound to \lstinline!v!, and its lifetime is extended for the duration of the iteration. Because \lstinline!v! is bound to a temporary variable, modifying \lstinline!v! modifies only the temporary, not the original, element, resulting in a likely bug as in the case of loop (1).}
+\item{\emph{Loop (4)} compiles for both the \lstinline!BoolVec! and \lstinline!IntVec! cases but produces different results for each. For \lstinline!IntVec! iterators, \lstinline!auto! deduces the type of \lstinline!v! as \lstinline!int!, so assigning to \lstinline!v! modifies a local copy of the element, as in loop (1). For \lstinline!BoolVec! iterators, the deduced type of \lstinline!v! is the proxy type rather than \lstinline!bool!. Assigning to the proxy \emph{does} change the element of the container.}
+\item{\emph{Loop (5)}, like loop (2), works as expected for \lstinline!IntVec! instantiation but fails to compile for the \lstinline!BoolVec! instantiation. As before, the problem is that the \lstinline!BoolVec! iterator yields an \romeovalue{rvalue} that cannot be used to initialize an \emcppsgloss[lvalue reference]{\romeovalue{lvalue} reference}.}
+\item{\emph{Loop (6)} produced identical behavior from both instantiations, modifying each of the \lstinline!vector! elements. The type of \lstinline!v! is deduced to be \lstinline!int&! for \lstinline!IntVec! instantiation and the proxy type for the \lstinline!BoolVec! instantiation. Assigning through either the real reference or the reference proxy modifies the element in the container.}
+\end{itemize}
+
+Let's now look at the the situation with \lstinline!const!-qualified loop
+variables:
+
+\begin{emcppslisting}
+template <typename T>
+void f3(std::vector<T>& vec)
+{
+    for (const T      v : vec) { /* ... */ }  // (7)
+    for (const T&     v : vec) { /* ... */ }  // (8)
+    for (const T&&    v : vec) { /* ... */ }  // (9)
+    for (const auto   v : vec) { /* ... */ }  // (10)
+    for (const auto&  v : vec) { /* ... */ }  // (11)
+    for (const auto&& v : vec) { /* ... */ }  // (12)
+}
+
+void f4()
+{
+    using IntVec  = std::vector<int>;   // has normal iterator
+    using BoolVec = std::vector<bool>;  // has iterator with reference proxy
+
+    IntVec  iv{ /* ... */ };
+    BoolVec bv{ /* ... */ };
+
+    f3(iv);
+    f3(bv);
+}
+\end{emcppslisting}
+    
+\begin{itemize}
+\item{\emph{Loop (7)} works identically for both instantiations, converting the proxy reference to \lstinline!bool! in the \lstinline!BoolVec! case.}
+\item{\emph{Loop (8)} works identically for both instantiations. For the \lstinline!IntVec! case, the result of \lstinline!*__begin! is bound directly to \lstinline!v!. For the \lstinline!BoolVec! case, \lstinline!*__begin! produces proxy reference that is converted to a \lstinline!bool! temporary that is then bound to \lstinline!v!. \emcppsgloss[lifetime extension]{Lifetime extension} keeps the bool value alive.}
+\item{\emph{Loop (9)} fails to compile for \lstinline!IntVec! but succeeds for \lstinline!BoolVec! exactly as for loop (3) except that the temporary \lstinline!bool! bound to \lstinline!v! is \lstinline!const! and thus does not risk giving programmers the false belief that they are modifying the container.}
+\item{\emph{Loop (10)} has the same behavior for both the \lstinline!IntVec! and \lstinline!BoolVec! instantiations. That mechanism is the same behavior as for loop (4) except that, because \lstinline!v! is \lstinline!const!, \emph{neither} instantiation can modify the container.}
+\item{\emph{Loop (11)} also works for both instantiations. For the \lstinline!IntVec! case, the result of \lstinline!*__begin! is bound directly to \lstinline!v!. For the \lstinline!BoolVec! case, \lstinline!v! is deduced to be a \lstinline!const! reference to the proxy type; \lstinline!*__begin! produces a temporary variable of the proxy type, which is then bound to \lstinline!v!. \emcppsgloss[lifetime extension]{Lifetime extension} keeps the proxy alive. In most contexts, a \lstinline!const! proxy reference is an effective stand-in for a \lstinline!const!~\lstinline!bool&!.}
+\item{\emph{Loop (12)} fails to compile for \lstinline!IntVec! but succeeds for \lstinline!BoolVec!. The error with \lstinline!IntVec! occurs because \lstinline!const!~\lstinline!auto&&! is always a \lstinline!const! \emcppsgloss[rvalue reference]{\romeovalue{rvalue} reference} (not a \emcppsgloss{forwarding reference}) and cannot be bound to the \emcppsgloss[lvalue reference]{\romeovalue{lvalue} reference}, \lstinline!*__begin!. For \lstinline!BoolVec!, the mechanism is identical to loop (11) except that loop (11) binds the temporary object to an \emcppsgloss[lvalue reference]{\romeovalue{lvalue} reference} whereas loop (12) uses an \emcppsgloss[rvalue reference]{\romeovalue{rvalue} reference}. When the references are \lstinline!const!, however, there is little practical differences between them.}
+\end{itemize}
+
+Note that loops 4, 6, 10, 11, and 12 in the \lstinline!BoolVec!
+instantiations bind a reference to a temporary proxy reference object,
+so taking the address of \lstinline!v! in these situations is likely not to
+produce useful results. Additionally, loops 3, 8, and 9 bind \lstinline!v!
+to a temporary \lstinline!bool!. Users must be mindful of the lifetime of
+these temporary objects (a single-loop iteration) and not allow the
+address of \lstinline!v! to escape the loop.
+
+\noindent Proxy objects emulating references to non-class elements within a
+container are surprisingly effective, but their limitations are exposed
+when they are bound to references. In generic code, as a rule of thumb,
+\lstinline!const!~\lstinline!auto&! is the safest way to declare a read-only
+loop variable if a reference proxy might be in use, while
+\lstinline!auto&&! will give the most consistent results for a loop that
+modifies its container. Similar issues, unrelated to \emcppsgloss[range based for loop]{range-based
+\lstinline!for! loops}, occur when passing a proxy reference to a function
+taking a reference argument.
+
+\subsection[Annoyances]{Annoyances}\label{annoyances}
+
+\subsubsection[No access to the state of the iteration]{No access to the state of the iteration}\label{no-access-to-the-state-of-the-iteration}
+
+When traversing a range with a classic \lstinline!for! loop, the loop
+variable is typically an iterator or array index. Within the loop, we
+can modify that variable to repeat or skip iterations. Similarly, the
+loop-termination condition is usually accessible so that it is possible
+to, for example, insert or remove elements and then recompute the
+condition:
+
+\begin{emcppslisting}
+#include <string>   // (ù{\codeincomments{std::string}}ù)
+#include <cctypes>  // (ù{\codeincomments{std::is\_upper}}ù)
+
+void spaceBeforeCaps(std::string& s)
+{
+    // Insert a space before each capital letter in (ù{\codeincomments{s}}ù).
+    using IdxType = std::string::size_type;
+    for (IdxType i = 0; i < s.size(); ++i)
+    {
+        if (std::is_upper(s[i])
+        {
+            s.insert(i, 1, ' ');  // Insert one space at (ù{\codeincomments{i}}ù).
+            ++i;                  // Skip the space.
+        }
+    }
+}
+\end{emcppslisting}
+    
+
+\noindent The code above depends on (1) having access to the iteration index, (2)
+being able to change the iteration index, and (3) recomputing the size
+of the collection each time through the loop. No similar function could
+be written using a \emcppsgloss[range based for loop]{ranged-based \lstinline!for! loop} since the
+\lstinline!__range!, \lstinline!__begin!, and \lstinline!__end! variables
+are for exposition only and are not accessible from within the code:
+
+\begin{emcppslisting}
+void spaceBeforeCaps2(std::string& s)
+{
+    // Insert a space before each capital letter in (ù{\codeincomments{s}}ù).
+    for (char c : s)
+    {
+        if (std::is_upper(c))
+        {
+            __begin = s.insert(__begin, ' ');  // Error, no (ù{\codeincomments{\_\_begin}}ù) variable
+            ++__begin;                         // Error, no (ù{\codeincomments{\_\_begin}}ù) variable
+            __end = s.end();                   // Error, no (ù{\codeincomments{\_\_end}}ù) variable
+        }
+    }
+}
+\end{emcppslisting}
+    
+
+\noindent A classic \lstinline!for! loop can traverse more than one container at a
+time (e.g., to add corresponding elements from two containers and store
+them into a third). It accomplishes this feat by either incrementing
+multiple iterators on each iteration or keeping a single index that is
+used to access multiple, random-access iterators concurrently. Trying to
+accomplish something similar with a \emcppsgloss[range based for loop]{range-based \lstinline!for! loop} usually involves using a hybrid approach:
+
+\begin{emcppslisting}
+#include <vector>   // (ù{\codeincomments{std::vector}}ù)
+#include <cassert>  // (ù{\codeincomments{assert}}ù) macro
+
+void addVectors(std::vector<int>&       result,
+                const std::vector<int>& a,
+                const std::vector<int>& b)
+    // For each element (ù{\codeincomments{ea}}ù) of (ù{\codeincomments{a}}ù) and corresponding element (ù{\codeincomments{eb}}ù) of (ù{\codeincomments{b}}ù), set
+    // the corresponding element of (ù{\codeincomments{result}}ù) to (ù{\codeincomments{ea + eb}}ù).  The behavior is
+    // undefined unless (ù{\codeincomments{a}}ù) and (ù{\codeincomments{b}}ù) have the same length.
+{
+    assert(a.length() == b.length());
+    result.resize(a.length());
+
+    std::vector<int>::const_iterator ia = a.begin();
+    std::vector<int>::const_iterator ib = b.begin();
+    for (int& sum : result)
+    {
+        sum = *ia++ + *ib++;
+    }
+}
+\end{emcppslisting}
+    
+
+\noindent Although \lstinline!result! is traversed using the \emcppsgloss[range based for loop]{range-based
+\lstinline!for! loop}, \lstinline!a! and \lstinline!b! are effectively traversed
+manually using iterators. It is arguable as to whether the code is any
+clearer or simpler to write than it would have been using a classic
+\lstinline!for! loop.
+
+This situation can be improved through the use of a ``zip'' iterator ---
+a type that holds multiple iterators and increments them in lock-step.
+Using a ``zip'' iterator, all three containers can be traversed using a
+single \emcppsgloss[range based for loop]{ranged-based \lstinline!for! loop}:
+
+\begin{emcppslisting}
+#include <utility>  // (ù{\codeincomments{std::declval}}ù)
+#include <tuple>    // (ù{\codeincomments{std::tuple}}ù)
+
+template <typename... Iter>
+class ZipIterator
+{
+    std::tuple<Iter...> d_iters;
+
+    // ...
+
+public:
+    using reference = std::tuple<decltype(*std::declval<Iter>())...>;
+
+    ZipIterator(const Iter&... i);
+
+    reference operator*() const;
+    ZipIterator& operator++();
+    friend bool operator!=(const ZipIterator& a, const ZipIterator& b);
+};
+
+template <typename... Range>
+class ZipRange
+{
+    using ZipIter =
+        ZipIterator<decltype(begin(std::declval<Range>()))...>;
+
+    // ...
+
+public:
+    ZipRange(const Range&... ranges);
+
+    ZipIter begin() const;
+    ZipIter end() const;
+};
+
+template <typename... Range>
+ZipRange<Range...> makeZipRange(Range&&... r);
+
+void addVectors2(std::vector<int>&       result,
+                 const std::vector<int>& a,
+                 const std::vector<int>& b)
+{
+    assert(a.size() == b.size());
+    result.resize(a.size());
+
+    for (std::tuple<int, int, int&> elems : makeZipRange(a, b, result))
+    {
+        std::get<2>(elems) = std::get<0>(elems) + std::get<1>(elems);
+    }
+}
+\end{emcppslisting}
+    
+\noindent Each iteration, instead of yielding a single element, yields a
+\lstinline!std::tuple! of elements resulting from the traversal of multiple
+ranges simultaneously. To be used, the elements must be unpacked from
+the \lstinline!std::tuple! using \lstinline!std::get!. Zip iterators become
+much more attractive in C++17 with the advent of \emcppsgloss[structured binding]{structured
+bindings}, which allow multiple loop variables to be declared at once,
+without the need to directly unpack the \lstinline!std::tuple!s. The above
+implementation and usage of \lstinline!ZipRange! is just a rough sketch;
+the full design and implementation of zip iterators and zip ranges is
+beyond the scope of this section.
+
+\subsubsection[Adapters are required for many tasks]{Adapters are required for many tasks}\label{adapters-are-required-for-many-tasks}
+
+In the usage examples above, we have seen a number of adapters (e.g., to
+traverse subranges, to traverse a container in reverse, to generate
+sequential values), and zip iterators to iterate over multiple ranges at
+once.
+
+None of these adapters would be required for a classic \lstinline!for!
+loop. On the one hand, one-off situations are expressed more simply with
+a classic \lstinline!for! loop. On the other hand, the adapters that we
+create to make \emcppsgloss[range based for loop]{range-based \lstinline!for! loops} usable in more
+situations can lead to the development of a reusable \emph{library} of
+adapters. Using the \lstinline!ValueGenerator! class from {Range
+generators}, for example, produces simpler and more expressive code than
+using a classic \lstinline!for! loop would.{\cprotect\footnote{The
+Standard's Ranges Library, introduced in C++20, provides a
+  sophisticated algebra for working with and adapting ranges.}}
+
+\subsubsection[No support for sentinel iterator types]{No support for sentinel iterator types}\label{no-support-for-sentinel-iterator-types}
+
+For a given \emcppsgloss{range expression}, \lstinline!__range!,
+\lstinline!begin(__range)!, and \lstinline!end(__range)! must return the
+same type to be usable with a \emcppsgloss[range based for loop]{ranged-based \lstinline!for! loop}.
+This limitation is problematic for ranges of indeterminate length, where
+the condition for ending a loop is not determined by comparing two
+iterators. For example, in the \lstinline!RandomIntSequence! example (see
+{Range generators}), the end iterator for the infinite random sequence
+holds a null pointer and is never used, not even within
+\lstinline|operator!=|. It would be more efficient and convenient if the
+end iterator were a special, empty \emph{sentinel} type. Comparing any
+iterator to the sentinel would determine whether the loop should
+terminate:
+
+\begin{emcppslisting}
+template <typename T = int>
+class RandomIntSequence2
+{
+    // ...
+
+public:
+    class sentinelIterator { };
+
+    class iterator {
+        // ...
+        friend bool operator!=(iterator, sentinelIterator) { return true; }
+    };
+
+    iterator         begin() { /* ... */ }
+    sentinelIterator end() const { return {}; }
+};
+\end{emcppslisting}
+    
+
+\noindent The above code shows an example of \lstinline!begin! and \lstinline!end!
+returning different types, where \lstinline!end! returns an empty sentinel
+type. Unfortunately, using this formulation of
+\lstinline!RandomIntSequence2!\linebreak[4]\newpage 
+with a C++11 \emcppsgloss[range based for loop]{range-based
+\lstinline!for! loop} will result in a compilation error complaining that
+\lstinline!begin! and \lstinline!end! return inconsistent
+types.{\cprotect\footnote{This limitation on the use of sentinel
+iterators was lifted in C++17. Sentinel iterators are supported
+directly by the C++20 Ranges Library. In C++17, the specification was
+modified to:
+
+\begin{emcppslisting}[style=footcode]
+{
+    auto&& __range = range-expression;
+    auto __begin   = begin-expr;
+    auto __end     = end-expr;
+    for (; __begin != __end; ++__begin)
+    {
+        for-range-declaration = *__begin;
+        statement
+    }
+}
+\end{emcppslisting}
+      }}
+
+Another type that could benefit from a sentinel iterator is
+\lstinline!std::istream_iterator!, since the state of the end iterator is
+never used. It is unlikely that this interface will change, however, as
+\lstinline!std::istream_iterator! has been with us since the first C++
+Standard.
+
+\subsubsection[Only ADL lookup]{Only ADL lookup}\label{only-adl-lookup}
+
+The free functions \lstinline!begin! and \lstinline!end! are found using
+\emcppsgloss{argument-dependent lookup (ADL)} only. File-scope
+(\lstinline!static!) functions are not considered. If we wish to add
+\lstinline!begin! and \lstinline!end! functions for a range-like type that we
+do not own, we need to put those functions into the same namespace as
+the range-like type, inviting a potential name collision with other
+compilation units attempting to do the same thing:
+
+\begin{emcppslisting}
+// third_party_library.h
+
+namespace third_party
+{
+
+    class IteratorLike { /* ... */ };
+
+    class RangeLike
+    {
+        // ... does not provide (ù{\codeincomments{begin}}ù) and (ù{\codeincomments{end}}ù) members
+    };
+
+    // ... does not provide (ù{\codeincomments{begin}}ù) and (ù{\codeincomments{end}}ù) free functions
+}
+\end{emcppslisting}
+%\vspace*{2ex}
+\newpage%%%%%%%%%%%%%
+\begin{emcppslisting}
+// myclient.cpp
+
+#include <third_party_library.h>
+
+static third_party::IteratorLike begin(third_party::RangeLike&);
+static third_party::IteratorLike end(third_party::RangeLike&);
+
+void f()
+{
+    third_party::RangeLike rl
+    for (auto&& e : rl)  // Error, (ù{\codeincomments{begin}}ù) not found by ADL
+    {
+        // ...
+    }
+}
+\end{emcppslisting}
+    
+
+\noindent The code above attempts to work around the absence of
+\lstinline!begin(RangeLike&)! and \lstinline!end(RangeLike&)! in the
+third-party library by defining them locally within
+\lstinline!myclient.cpp!. This attempt fails because static functions are
+not found via ADL. A better workaround that does work is to create a
+range adapter for the range-like class:
+
+\begin{emcppslisting}
+class RangeLikeAdapter
+{
+    // ...
+
+public:
+    RangeLikeAdapter(third_party::RangeLike&);
+    third_party::IteratorLike begin() { /* ... */ }
+    third_party::IteratorLike end()   { /* ... */ }
+};
+\end{emcppslisting}
+    
+
+\noindent The adapter wraps the range-like type and provides the missing features.
+Beware, however, that if the wrapper stores a pointer or reference to a
+temporary \lstinline!RangeLike! object, you don't run into the pitfall
+where the lifetime of temporary objects is not always extended; see
+{Lifetime of temporaries in the range expression}.
+
+\subsection[See Also]{See Also}\label{see-also}
+
+\begin{itemize}
+\item{\seealsoref{auto}{\seealsolocationc}explains \lstinline!auto!, often used in a \emcppsgloss[range based for loop]{ranged-based \lstinline!for! loop} to determine the type of the loop variable, and many of the pitfalls of \lstinline!auto! apply when using it for that purpose.}
+\item{\seealsoref{refqualifiers}{\seealsolocatione}show how to overload member functions to work differently on \romeovalue{rvalues} and \romeovalue{lvalues}.}
+\end{itemize}
+
+\subsection[Further Reading]{Further Reading}\label{further-reading}
+
+No further reading.
+
+
