@@ -1,20 +1,20 @@
-    i                                                            i
-        “emcpps-internal” — 2021/3/28 — 3:38 — page i — #1
+    i                                                             i
+        “emcpps-internal” — 2021/3/28 — 20:05 — page i — #1
 
 i
 
 
 
 
-                                                             i
+                                                              i
 
 i
 
 
 
-    i                                                            i
-    i                                                         i
-        “emcpps-internal” — 2021/3/28 — 3:38 — page ii — #2
+    i                                                             i
+    i                                                          i
+        “emcpps-internal” — 2021/3/28 — 20:05 — page ii — #2
 
 i
 
@@ -25,9 +25,9 @@ i
 
 
 
-    i                                                         i
+    i                                                          i
     i                                                                                       i
-                                   “emcpps-internal” — 2021/3/28 — 3:38 — page 1 — #3
+                                  “emcpps-internal” — 2021/3/28 — 20:05 — page 1 — #3
 
 i
 
@@ -50,14 +50,14 @@ i
 
 
     i                                                                                       i
-     i                                                                                    i
-                         “emcpps-internal” — 2021/3/28 — 3:38 — page 2 — #4
+     i                                                                                     i
+                         “emcpps-internal” — 2021/3/28 — 20:05 — page 2 — #4
 
 i
 
 
 
-                                                              Chapter 1   Safe Features
+                                                               Chapter 1   Safe Features
 
 
     sec­safe­cpp14
@@ -71,9 +71,9 @@ i
 
 
 
-     i                                                                                    i
+     i                                                                                     i
           i                                                                                        i
-                                          “emcpps-internal” — 2021/3/28 — 3:38 — page 3 — #5
+                                         “emcpps-internal” — 2021/3/28 — 20:05 — page 3 — #5
 
 i
 
@@ -96,65 +96,68 @@ i
 
 
           i                                                                                        i
-        i                                                                                                                 i
-                                        “emcpps-internal” — 2021/3/28 — 3:38 — page 4 — #6
+        i                                                                                                                            i
+                                          “emcpps-internal” — 2021/3/28 — 20:05 — page 4 — #6
 
 i
 
 
 
-                         Range for                                      Chapter 2     Conditionally Safe Features
+                         alignof                                              Chapter 2        Conditionally Safe Features
 
 
 
-                        Range-Based for Loops
-range­based­for­loops
-             rangefor
-                        Range-Based for loops provide a simplified, more compact, syntax for iterating through a
-                        range of elements.
+                        The (Compile-Time) alignof Operator
+              alignof
+                        The keyword alignof serves as a compile-time operator used to query the alignment
+                        requirements of a type on the current platform.
 
                         Description
- description­rangefor
-                        Iterating over the elements of a collection is a fundamental operation usually performed
-                        with a for loop:
-                            #include <vector>   // std::vector
-                            #include <string>   // std::string
+          description
+                        The alignof operator, when applied to a type, evaluates to an integral constant ex-
+                        pression that represents the alignment requirements of its argument type. Similar to
+                        sizeof, the (compile-time) value of alignof is of type std::size_t; unlike sizeof (which
+                        can accept an arbitrary expressions), alignof is defined (in the C++ Standard) on only a
+                        type identifier but often works on expressions anyway (see Annoyances on page 12). The ar-
+                        gument type, T, supplied to alignof must be either a complete type, a reference type,
+                        or an array type. If T is a complete type, the result is the alignment requirement for T.
+                        If T is a reference type, the result is the alignment requirement for the referenced type. If
+                        T is an array type, the result is the alignment requirement for every element in the array1 :
+                            static_assert(alignof(short)           ==   2,   "");     //   complete type    (sizeof   is 2)
+                            static_assert(alignof(short&)          ==   2,   "");     //   reference type   (sizeof   is 2)
+                            static_assert(alignof(short[5])        ==   2,   "");     //   array type       (sizeof   is 2)
+                            static_assert(alignof(short[])         ==   2,   "");     //   array type       (sizeof   fails)
 
-                            void f1(const std::vector<std::string>& vec)
-                            {
-                                for (std::vector<std::string>::const_iterator i = vec.begin();
-                                     i != vec.end(); ++i)
-                                {
-                                    // ...
-                                }
-                            }
 
-                        The code above iterates over the strings in a std::vector. It is significantly more verbose
-                        than similar code in other languages because it uses a very general-purpose construct, the
-                        for loop, to perform the specialized but common task of traversing a collection. In C++11,
-                        the definition of i can be simplified somewhat by using auto:
-                            void f2(const std::vector<std::string>& vec)
-                            {
-                                for (auto i = vec.begin(); i != vec.end(); ++i)
-                                {
-                                    const std::string& s = *i;
-                                    // ...
-                                }
-                            }
+                        alignof Fundamental Types
+nof­fundamental­types
+                        Like their size, the alignment requirements of a char, signed char, and unsigned char
+                        are all guaranteed to be 1 (i.e., 1-byte aligned) on every conforming platform. For any
+                        other fundamental or pointer type FPT, alignof(FPT) (like sizeof(FPT)) is platform-
+                        dependent but is typically approximated well by the type’s natural alignment — i.e.,
+                        sizeof(FPT) == alignof(FPT):
+                            static_assert(alignof(char)          ==   1,   "");     // guaranteed to be 1
+                            static_assert(alignof(short)         ==   2,   "");     // platform­dependent
+                            static_assert(alignof(int)           ==   4,   "");     //    "         "
+                            static_assert(alignof(double)        ==   8,   "");     //    "         "
+                            static_assert(alignof(void*)         >=   4,   "");     //    "         "
 
-                        Although auto does have a number of potential pitfalls, this use of auto to deduce the return
-                        type of vec.begin() is one of the safer idiomatic uses; see Section 2.1.“??” on page ??.
-                        While this version of the loop is simpler to write, it still uses the fully general, three-part
-                        for construct. Moreover, it evaluates vec.end() each time through the loop.
-                            The C++11 ranged-based for loop (sometimes colloquially referred to as the “fore-
-                        ach” loop) is a more concise loop notation tuned for traversing the elements of a container
-                        or other sequential range. A ranged-based for loop works with ranges and elements rather
-                        than iterators or indexes:
-­range­based­for­loop
-                            void f3(const std::vector<std::string>& vec)
-                            {
-                                for (const std::string& s : vec)
-                                {
+
+                        alignof User-Defined Types
+of­user­defined­types
+                        When applied to user-defined types, alignment is always at least that of the strictest align-
+                        ment of any of its arguments’ base or member objects. Empty types are defined to have
+                        a size (and alignment) of 1 to ensure that every object has a unique address.2 Compilers
+                            1 According to the C++11 Standard, “An object of array type contains a contiguously allocated non-
+
+                        empty set of N subobjects of type T” (cpp11, section 8.3.4, “Arrays,” paragraph 1, p. 188). Note that, for
+                        every type T, sizeof(T) is always a multiple of alignof(T); otherwise, storing multiple T instances in an
+                        array would be impossible without padding, and the Standard explicitly prohibits padding between array
+                        elements.
+                            2 An exception is made for an object of a type derived from an empty (base) class in that neither the
+
+                        size nor the alignment of the derived object is affected by the derivation:
+
 
                         4
 
@@ -162,133 +165,138 @@ i
 
 
 
-        i                                                                                                                 i
-    i                                                                                                                           i
-                                    “emcpps-internal” — 2021/3/28 — 3:38 — page 5 — #7
+        i                                                                                                                            i
+        i                                                                                                                                  i
+                                          “emcpps-internal” — 2021/3/28 — 20:05 — page 5 — #7
 
 i
 
 
 
-                    C++11                                                                                       Range for
+                          C++11                                                                                           alignof
 
-
-                                // ...
-                            }
-                      }
-
-                    The loop in the above example can be read as “for each element s in vec …”. There is no
-                    need to specify the name or type of the iterator, the loop-termination condition, or the
-                    increment clause; the syntax is focused purely on yielding (in order) each element of the
-                    collection for processing within the body of the loop. 1
-
-                    Specification
-    specification
-                    The syntax for a ranged-based for loop declares a loop variable and specifies a range of
-                    elements to be traversed:
-                      for ( *for-range-declaration* : *range-expression* ) *statement*
-
-                    The compiler treats this high-level construct as though it were transformed into a lower-level
-                    for loop with the following pseudocode:
-                      {
-                            auto&& __range = range-expression;
-                            for (auto __begin = begin­expr, __end = end­expr;
-                                __begin != __end;
-                                ++__begin)
-                            {
-                                for-range-declaration = *__begin;
-                                statement
-                            }
-                      }
-
-                    The variables __range, __begin, and __end, above, are for exposition only, i.e., the compiler
-                    does not necessarily generate variables with those names and user code is not permitted to
-                    access those variables directly.
-                        The __range variable is defined as a forwarding reference (see Section 2.1.“??” on
-                    page ??); it will bind to any type of range expression, regardless of its value category
-                    (lvalue or rvalue). If the range expression yields a temporary object, its lifetime is extended,
-                    if necessary, until __range goes out of scope. While this lifetime extension of temporary
-                    objects works in most cases, it is insuﬀicient when __range doesn’t bind directly to the
-                    temporary created by the range expression, potentially resulting in subtle bugs; see Potential
-                    PitfallsLifetime of temporaries in the range expression.
-                        The begin-expr and end-expr expressions used to initialize the __begin and __end vari-
-                    ables, respectively, define a half-open range of elements starting with *__begin and in-
-                    cluding all of the elements in the __range up to but not including *__end. The precise
-                    meaning of begin-expr and end-expr were clarified in C++14 but were essentially the same
-                    in C++112 :
-
-                        1 In C++20, the syntax has been enhanced slightly to permit an optional leading variable declaration
-
-                    clause, e.g., for (std::lock_guard g(myMutex); const std::string& s : vec) { /* ... */ }.
-                        2 The rules for interpreting begin-expr and end-expr were slightly unclear in C++11. A defect report,
-
-                    CWG 1442, clarified the wording retroactively. C++14 clarified the wording further.
-
-
-                                                                                                                           5
-
-i
+                          will (by default) avoid nonessential padding because any extra padding would be wasteful
+                          of (e.g., cache) memory3 :
+                            struct   S0   {   };                                   //   sizeof(S0)   is    1;   alignof(S0)   is 1
+                            struct   S1   {   char c; };                           //   sizeof(S1)   is    1;   alignof(S1)   is 1
+                            struct   S2   {   short s; };                          //   sizeof(S2)   is    2;   alignof(S2)   is 2
+                            struct   S3   {   char c; short s; };                  //   sizeof(S3)   is    4;   alignof(S3)   is 2
+                            struct   S4   {   short s1; short s2; };               //   sizeof(S4)   is    4;   alignof(S4)   is 2
+                            struct   S5   {   int i; char c; };                    //   sizeof(S5)   is    8;   alignof(S5)   is 4
+                            struct   S6   {   char c1; int i; char c2};            //   sizeof(S6)   is   12;   alignof(S6)   is 4
+                            struct   S7   {   char c; short s; int i; };           //   sizeof(S7)   is    8;   alignof(S7)   is 4
+                            struct   S8   {   double d; };                         //   sizeof(S8)   is    8;   alignof(S8)   is 8
+                            struct   S9   {   double d; char c};                   //   sizeof(S9)   is   16;   alignof(S9)   is 8
+                            struct   SA   {   long double; };                      //   sizeof(SA)   is   16;   alignof(SA)   is 16
+                            struct   SB   {   long double; char c};                //   sizeof(SB)   is   32;   alignof(SB)   is 16
 
 
 
-    i                                                                                                                           i
-    i                                                                                                            i
-                          “emcpps-internal” — 2021/3/28 — 3:38 — page 6 — #8
+              use­cases
+                          Use Cases
+                          Probing the alignment of a type during development
+type­during­development
+                          Both sizeof and alignof are often used informally during development and debugging
+                          to confirm the compiler’s understanding of those attributes for a given type on the current
+                          platform. For example:
+                            #include <iostream>         // std::cout
+
+
+                            struct S { int i; }          // size = 4; alignment = 4
+                            struct E { };                // size = 1; alignment = 1
+                            struct D : E { int i };      // size = 4; alignment = 4
+
+
+                              3 Compilers are permitted to increase alignment (e.g., in the presence of virtual functions) but have
+
+                          certain restrictions on padding. For example, they must ensure that each comprised type is itself suﬀiciently
+                          aligned and that the alignment of the parent type divides its size. This ensures that the fundamental identity
+                          for arrays holds for all types, T, and positive integers, N:
+                            T a[N]; static_assert(n == sizeof(a) / sizeof(*a));            // guaranteed
+
+                          The alignment of user-defined types can be made artificially stricter (but not weaker) using the alignas (see
+                          “??” on page ??) specifier. Also note that, for standard-layout types, the address of the first member
+                          object is guaranteed to be the same as that of the parent object:
+                              struct S { int i; }
+                              class T { public: S s; }
+                              T t;
+                              static_assert(&t.s == &t,     "");         // guaranteed
+                              static_assert(&t.s == &t.s.i, "");         // guaranteed
+
+                          This property also holds for (e.g., anonymous) unions:
+                              struct { union {    char c; float f; double d; } } u;
+                              static_assert(&u    == &u.c, ""); // guaranteed
+                              static_assert(&u    == &u.f, ""); // guaranteed
+                              static_assert(&u    == &u.d, ""); // guaranteed
+
+
+
+
+                                                                                                                                      5
 
 i
 
 
 
-         Range for                                         Chapter 2      Conditionally Safe Features
+        i                                                                                                                                  i
+    i                                                                                                    i
+                        “emcpps-internal” — 2021/3/28 — 20:05 — page 6 — #8
+
+i
 
 
-            • If __range refers to an array, then begin-expr is the address of the first element of the
-              array and end-expr is the address of one past the last element of the array.
-            • If __range refers to a class object and begin and/or end are members of that class,
-              then begin-expr is __range.begin() and end-expr is __range.end(). Note that if
-              begin or end are found in the class, then both of these expressions must be valid or
-              else the program is ill formed.
 
-            • Otherwise, begin-expr is begin(__range) and end-expr is end(__range), where begin
-              and end are found using argument-dependent lookup (ADL). Note that begin
-              and end are looked up only in the namespaces associated with the expressions; names
-              that are local to the context of the ranged-based for loop are not considered; see
-              Annoyances.
+         alignof                                               Chapter 2   Conditionally Safe Features
 
-            Thus, a container such as vector, with conventional begin and end member functions,
-        provides everything necessary for a ranged-based for loop, as we saw in the f3 example on
-        4. Note that end-expr — __range.end() in the case of the vector — is evaluated only
-        once, unlike the idiomatic low-level for loop, where it is evaluated prior to every iteration.
-            In C++11 and C++14, __begin and __end are required to have the same type.3 Al-
-        though the __begin and __end variables look and act like iterators, they need not conform
-        to all of the iterator requirements in the Standard. Specifically, the type of __begin and
-        __end must support prefix operator++ but not necessarily postfix operator++, and it must
-        support operator!= but not necessarily operator==.
-            The for-range-declaration declares the loop variable. Any declaration that can be initial-
-        ized with *__begin will work. For instance, if *__begin returns a reference to a modifiable
-        object of, e.g., int type, then int j, int& j, const int& j, and long j would all be valid
-        for-range-declarations declaring a loop variable j. Alternatively, the type of the loop vari-
-        able can be deduced using auto — i.e., auto j, auto& j, const auto& j, or auto&& j (see
-        Section 2.1.“??” on page ??).
-            The sequence being traversed can be modified through the loop variable only if __begin
-        returns a reference to a modifiable type and the loop variable is similarly declared as a
-        reference to a modifiable type (e.g., int&, auto&, or auto&&). Note that the for-range
-        declaration must define a new variable; unlike a traditional for loop, it cannot name an
-        existing variable already in scope:
-            #include <vector>    // std::vector
 
-            void f1(std::vector<int>& vec)
+            void f()
             {
-                const std::vector<int>& cvec = vec;
+                std::cout << " sizeof(double): " << sizeof(double) << '\n';             // always 8
+                std::cout << "alignof(double): " << alignof(double) << '\n';            // usually 8
+            }
 
-                for (auto&& i : cvec)
-                {
-                    i = 0; // Error, i is a reference to const int.
-                }
+        Printing the size and alignment of a struct along with those of each of its individual data
+        members can lead to the discovery of suboptimal ordering of data members (resulting in
+        wasteful extra padding). As an example, consider two structs, Wasteful and Optimal,
+        having the same three data members but in different order:
 
-            3 The C++17 Standard changes the defining code transformation of the range-based for loop so as to
+            struct Wasteful
+            {
+                char   d_c;   //   size   = 1;     alignment     =   1
+                double d_d;   //   size   = 8;     alignment     =   8
+                int    d_i;   //   size   = 4;     alignment     =   4
+            };                //   size   = 24;    alignment     =   8
 
-        allow __begin and __end to have different types as long as they are comparable using __begin != __end.
+            struct Optimal
+            {
+                double d_d;   //   size   = 8;     alignment     =   8
+                int    d_i;   //   size   = 4;     alignment     =   4
+                char   d_c;   //   size   = 1;     alignment     =   1
+            };                //   size   = 16;    alignment     =   8
+
+        Both alignof(Wasteful) and alignof(Optimal) are 8 but sizeof(Wasteful) is 24,
+        whereas sizeof(Optimal) is only 16. Even though these two structs contain the very
+        same data members, the individual alignment requirements of these members forces the
+        compiler to insert more total padding between the data members in Wasteful than is
+        necessary in Optimal:
+
+            struct Wasteful
+            {
+                char   d_c;                //   size   = 1;     alignment = 1
+                char   padding_0[7];       //   size   = 7
+                double d_d;                //   size   = 8;     alignment = 8
+                int    d_i;                //   size   = 4;     alignment = 4
+                char   padding_1[4];       //   size   = 4
+            };                             //   size   = 24;    alignment = 8
+
+            struct Optimal
+            {
+                double d_d;                //   size   = 8;     alignment = 8
+                int    d_i;                //   size   = 4;     alignment = 4
+                char   d_c;                //   size   = 1;     alignment = 1
+                char   padding_0[3];       //   size   = 3
+            };                             //   size   = 16;    alignment = 8
+
 
 
         6
@@ -297,1617 +305,477 @@ i
 
 
 
-    i                                                                                                            i
-    i                                                                                                    i
-                      “emcpps-internal” — 2021/3/28 — 3:38 — page 7 — #9
+    i                                                                                                    i
+        i                                                                                                                                i
+                                          “emcpps-internal” — 2021/3/28 — 20:05 — page 7 — #9
 
 i
 
 
 
-        C++11                                                                             Range for
+                          C++11                                                                                         alignof
+
+                          Determining if a given buffer is sufficiently aligned
+is­sufficiently­aligned
+                          The alignof operator can be used to determine if a given (e.g., char) buffer is suitably
+                          aligned for storing an object of arbitrary type. As an example, consider the task of creating
+                          a value-semantic class, MyAny, that represents an object of arbitrary type4 :
+                            void f()
+                            {
+                                MyAny obj = 10;                          // can be initialized with values of any type
+                                assert(obj.as<int>() == 10);             // inner data can be retrieved at runtime
+
+                                  obj = std::string{"hello"};   // can be reassigned from a value of any type
+                                  assert(obj.as<std::string>() == "hello");
+                            }
+
+                          A straightforward implementation of MyAny would be to allocate an appropriately sized block
+                          of dynamic memory each time a value of a new type is assigned. Such a naive implementation
+                          would force memory allocations even though the vast majority of values assigned in practice
+                          are small (e.g., fundamental types), most of which would fit within the space that would
+                          otherwise be occupied by just the pointer needed to refer to dynamic memory. As a practical
+                          optimization, we might instead consider reserving a small buffer (say, roughly5 32 bytes)
+                          within the footprint of the MyAny object to hold the value provided (1) it will fit and (2)
+                          the buffer is suﬀiciently aligned. The natural implementation of this type — the union of
+                          a char array and a struct (containing a char pointer and a size) — will naturally result
+                          in the minimal alignment requirement of the char* (i.e., 4 on a 32-bit platform and 8 on a
+                          64-bit one)6 :
+                            class MyAny      // nontemplate class
+                            {
+                                union
+                                {
+                              4 The C++17 Standard Library provides the (nontemplate) class std::any, which is a type-safe container
+
+                          for single values of any regular type. The implementation strategies surrounding alignment for std::any
+                          in both libstdc++ and libc++ closely mirror those used to implement the simplified MyAny class presented
+                          here. Note that std::any also records the current typeid (on construction or assignment) so that it can
+                          implement a const template member function, bool is<T>() const, to query, at runtime, whether a specified
+                          type is currently the active one:
+                            void f(const std::any& object)
+                            {
+                                if (object.is<int>()) { /* ... */ }
+                            }
+
+
+                             5 We would likely choose a slightly larger value, e.g., 35 or 39, if that space would otherwise be filled
+
+                          with essential padding due to overall alignment requirements.
+                             6 We could, in addition, use the alignas attribute to ensure that the minimal alignment of d_buffer
+
+                          was at least 8 (or even 16):
+                                // ...
+                                alignas(8) char d_buffer[39];     // small buffer aligned to (at least) 8
+                                // ...
 
 
 
-                for (int j : vec)
+
+                                                                                                                                    7
+
+i
+
+
+
+        i                                                                                                                                i
+    i                                                                                                                i
+                          “emcpps-internal” — 2021/3/28 — 20:05 — page 8 — #10
+
+i
+
+
+
+         alignof                                             Chapter 2       Conditionally Safe Features
+
+
+                      struct
+                      {
+                          char*       d_buf_p; // pointer to dynamic memory if needed
+                          std::size_t d_size;  // for d_buf_p; same alignment as (char*)
+                      } d_imp; // Size/alignment of d_imp is sizeof(d_buf_p) (e.g., 4 or 8).
+
+                      char d_buffer[39];         // small buffer aligned as a (char*)
+                 };   // Size of union is 39; alignment of union is alignof(char*).
+
+                 bool d_onHeapFlag;                    // boolean (discriminator) for union (above)
+
+            public:
+                template <typename T>
+                MyAny(const T& x);                        // (member template) constructor
+
+                 template <typename T>
+                 MyAny& operator=(const T& rhs);          // (member template) assignment operator
+
+                 template <typename T>
+                 const T& as() const;                     // (member template) accessor
+
+                 // ...
+
+            };   // Size of MyAny is 40; alignment of MyAny is alignof(char*) (e.g., 8).
+
+        The (templated) constructor7 of MyAny can then decide (potentially at compile time) whether
+        to store the given object x in the internal small buffer storage or on the heap, depending on
+        x’s size and alignment:
+            template <typename T>
+            MyAny::MyAny(const T& x)
+            {
+                if (sizeof(x) <= 39 && alignof(T) <= alignof(char*))
                 {
-                    j = 0; // Bug, j is a loop­local variable; vec is not modified.
+                    // Store x in place in the small buffer.
+                    new(d_buffer) T(x);
+                    d_onHeapFlag = false;
                 }
-
-                for (int& k : vec)
+                else
                 {
-                    k = 0; // OK, set element of vec to 0.
+                    // Store x on the heap and a pointer to it in the small buffer.
+                    d_imp.d_buf_p = new T(x);
+                    d_imp.d_size = sizeof(x);
+                    d_onHeapFlag = true;
                 }
+            }
 
-                int m;
-                for (     m : vec) { /* ... */ }     // Error, m does not define a variable.
-                for (int& m : vec) { /* ... */ }     // OK, loop m hides function­scope m.
+
+
+           7 In a real-world implementation, a forwarding reference would be used as the parameter type of MyAny’s
+
+        constructor to perfectly forward the argument object into the appropriate storage; see “??” on page ??.
+
+
+        8
+
+i
+
+
+
+    i                                                                                                                i
+        i                                                                                                                             i
+                                         “emcpps-internal” — 2021/3/28 — 20:05 — page 9 — #11
+
+i
+
+
+
+                          C++11                                                                                       alignof
+
+                          Using the (compile-time) alignof operator in the constructor above to check whether the
+                          alignment of T is compatible with the alignment of the small buffer is necessary to avoid
+                          attempting to store overly aligned objects in place — even if they would fit in the 39-
+                          byte buffer. As an example, consider long double, which on typical platforms has both a
+                          size and alignment of 16. Even though sizeof(long double) (16) is not greater than 39,
+                          alignof(long double) (16) is greater than that of d_buffer (8); hence, attempting to
+                          store an instance of long double in the small buffer, d_buffer, might — depending on
+                          where the MyAny object resides in memory — result in undefined behavior. User-defined
+                          types that either contain a long double or have had their alignments artificially extended
+                          beyond 8 bytes are also unsuitable candidates for the internal buffer even if they might
+                          otherwise fit:
+                            struct Unsuitable1 { long double d_value };
+                                // Size is 16 (<= 39), but alignment is 16 (> 8).
+
+                            struct alignas(32) Unsuitable2 { };
+                                // Size is 1 (<= 39), but alignment is 32 (> 8).
+
+
+                          Monotonic memory allocation
+tonic­memory­allocation
+                          A common pattern in software — e.g., request/response in client/server architectures —
+                          is to quickly build up a complex data structure, use it, and then quickly destroy it. A
+                          monotonic allocator is a special-purpose memory allocator that returns a monotonically
+                          increasing sequence of addresses into an arbitrary buffer, subject to specific size and align-
+                          ment requirements.8 Especially when the memory is allocated by a single thread, there are
+                          prodigious9 performance benefits to having unsynchronized raw memory be taken directly
+                          off the (always hot) program stack. In what follows, we will provide the building blocks of
+                          a monotonic memory allocator wherein the alignof operator plays an essential role.
+                              As a practically useful example, suppose that we want to create a lightweight
+                          MonotonicBuffer class template that will allow us to allocate raw memory directly from
+                          the footprint of the object. Just by creating an object of an (appropriately sized) instance
+                          of this type on the program stack, memory will naturally come from the stack. For didactic
+                          reasons, we will start with a first pass at this class — ignoring alignment — and then go
+                          back and fix it using alignof so that it returns properly aligned memory:
+                            template <std::size_t N>
+                            struct MonotonicBuffer // first pass at a monotonic memory buffer
+                            {
+                                char d_buffer[N]; // fixed­size buffer
+                                char* d_top_p;       // next available address
+
+                                  MonotonicBuffer() : d_top_p(d_buffer) { }
+
+                              8 C++17 introduces an alternate interface to supply memory allocators via an abstract base class. The
+
+                          C++17 Standard Library provides a complete version of standard containers using this more interopera-
+                          ble design in a sub-namespace, std::pmr, where pmr stands for polymorphic memory resource. Also
+                          adopted as part of C++17 are two concrete memory resources, std::pmr::monotonic_buffer_resource
+                          and std::pmr::unsynchronized_pool_resource.
+                              9 see lakos16
+
+
+
+                                                                                                                                 9
+
+i
+
+
+
+        i                                                                                                                             i
+    i                                                                                                    i
+                      “emcpps-internal” — 2021/3/28 — 20:05 — page 10 — #12
+
+i
+
+
+
+         alignof                                       Chapter 2     Conditionally Safe Features
+
+
+                  // Initialize the next available address to be the start of the buffer.
+
+               template <typename T>
+               void* allocate()                // BAD IDEA ­­­ doesn't address alignment
+               {
+                   void* result = d_top_p;     // Remember the current next­available address.
+                   d_top_p += sizeof(T);       // Reserve just enough space for this type.
+                   return result;              // Return the address of the reserved space.
+               }
+          };
+
+        MonotonicBuffer is a class template with one integral template parameter that controls
+        the size of the d_buffer member from which it will dispense memory. Note that, while
+        d_buffer has an alignment of 1, the d_top_p member, used to keep track of the next
+        available address, has an alignment that is typically 4 or 8 (corresponding to 32-bit and 64-
+        bit architectures, respectively). The constructor merely initializes the next-address pointer,
+        d_top_p, to the start of the local memory pool, d_buffer[N]. The interesting part is how
+        the allocate function manages to return a sequence of addresses corresponding to objects
+        allocated sequentially from the local pool:
+          MonotonicBuffer<20> mb; // On a 64­bit platform, the alignment will be 8.
+          char*   cp = static_cast<char* >(mb.allocate<char >()); // &d_buffer[ 0]
+          double* dp = static_cast<double*>(mb.allocate<double>()); // &d_buffer[ 1]
+          short* sp = static_cast<short* >(mb.allocate<short >()); // &d_buffer[ 9]
+          int*    ip = static_cast<int*   >(mb.allocate<int   >()); // &d_buffer[11]
+          float* fp = static_cast<float* >(mb.allocate<float >()); // &d_buffer[15]
+
+        The predominant problem with this first attempt at an implementation of allocate is that
+        the addresses returned do not necessarily satisfy the minimum alignment requirements of
+        the supplied type. A secondary concern is that there is no internal check to see if suﬀicient
+        room remains. To patch this faulty implementation, we will need a function that, given an
+        initial address and an alignment requirement, returns the amount by which the address must
+        be rounded up (i.e., necessary padding) for an object having that alignment requirement to
+        be properly aligned:
+          std::size_t calculatePadding(const char* address, std::size_t alignment)
+              // Requires: alignment is a (non­negative, integral) power of 2.
+          {
+              // rounding up X to N (where N is a power of 2): (x + N ­ 1) & ~(N ­ 1)
+              const std::size_t maxA = alignof(std::max_align_t);
+              const std::size_t a = reinterpret_cast<std::size_t>(address) & (maxA ­ 1);
+              const std::size_t am1 = alignment ­ 1;
+              const std::size_t alignedAddress = (a + am1) & ~am1; // round up
+              return alignedAddress ­ a;                            // return padding
           }
 
-        Since cvec is const, the element type returned by *begin(cvec) is const int&. Thus,
-        i is deduced as const int&, making invalid any attempt to modify an element through
-        i. The second loop is valid C++11 code but has a subtle bug: j is not a reference — it
-        contains a copy of the current element in the vector — so modifying j has no effect on the
-        vector. The third loop correctly sets all of the elements of vec to zero; the loop variable k
-        is a reference to the current element, so setting it to zero modifies the original vector. The
-        first m loop attempts to re-use local variable m as a loop variable; while this would be legal
-        in a traditional for loop, it is ill formed in a ranged-based for loop. Finally, the last loop
-        re-uses the name m from the surrounding scope, hiding the old name for the duration of the
-        loop, just as it would in a traditional for loop.
-            The statement that makes up the loop body can contain anything that is valid within a
-        traditional for loop body. In particular, a break statement will exit the loop immediately
-        and a continue statement will skip to the next iteration.
-            Applying this transformation to the f3 example (see 4) from the previous section, we
-        can see how the ranged-based for loop hooks into the iterator idiom to traverse a vector
-        of string elements:
-          #include <string>    // std::string
-          #include <vector>    // std::vector
+        Armed with the calculatePadding helper function (above), we are all set to write the final
+        (correct) version of the allocate method of the MonotonicBuffer class template:
+          template <typename T>
+          void* MonotonicBuffer::allocate()
 
-          void f3(const std::vector<std::string>& vec)
-          {
-              // for (const std::string& s : vec) { /* ... */ }
-              {
-                  auto&& __range = vec; // reference to the std::vector
-                  for (auto __begin = begin(__range), __end = end(__range);
-                      __begin != __end;
-                      ++__begin)
-                  {
-                      const std::string& s = *__begin; // Get current string element.
-                      {
-                          // ...
-                      }
-
-                                                                                                    7
+        10
 
 i
 
 
 
     i                                                                                                    i
-        i                                                                                                               i
-                                        “emcpps-internal” — 2021/3/28 — 3:38 — page 8 — #10
+    i                                                                                                                  i
+                      “emcpps-internal” — 2021/3/28 — 20:05 — page 11 — #13
 
 i
 
 
 
-                         Range for                                   Chapter 2     Conditionally Safe Features
+        C++11                                                                                         alignof
 
-
-                                    }
-                                }
-                            }
-
-                        In this expansion, __range has type const std::vector<std::string>& while __begin
-                        and __end have type std::vector<std::string>::const_iterator.
-
-                        Traversing arrays and initializer lists
-and­initializer­lists
-                        The <iterator> standard header defines array overloads for std::begin and std::end
-                        such that, when applied to a C-style array, arr, having a known number of elements,
-                        __bound, std::begin(arr) returns the address of the first element of arr and std::end(arr)
-                        returns the address of one past that of the last element of arr, i.e., arr + __bound. This
-                        functionality is built into the initialization of __begin and __end as a special case, in the
-                        expansion of a range-based for loop, so that it is possible to traverse the elements of an
-                        array without needing to #include <iterator>:
-                            void f1()
-                            {
-                                double data[] = {1.9, 2.8, 4.7, 7.6, 11.5, 16.4, 22.3, 29.2, 37.1, 46.0};
-                                for (double& d : data)
-                                {
-                                    d *= 3.0; // triple every element in the array
-                                }
-                            }
-
-                        In the above example, the reference d is bound, in turn, to each element of the array. The
-                        size of the array is not encoded anywhere in the loop syntax, either as a literal or as a
-                        symbolic value, simplifying the specification of the loop and preventing errors. Note that
-                        only arrays whose size is known at the point where the loop occurs can be traversed this
-                        way:
-                            extern double data[];   // array of unknown size
-
-                            void f2()
-                            {
-                                for (double& d : data)   // Error, data is an incomplete type.
-                                {
-                                    // ...
-                                }
-                            }
-
-                            double data[10] = { /* ... */ };   // too late to make the above compile
-
-                        The above example would compile if data were declared having a size, e.g.,
-                        extern double data[10], as that would be a complete type and provide suﬀicient in-
-                        formation to traverse the array. The second definition of data in the example is complete
-                        but is not visible at the point that the loop is compiled.
-                           An initializer list is typically used to initialize an array or container using braced
-                        initialization; see Section 2.1.“??” on page ??. The initializer_list template does,
-
-                        8
-
-i
-
-
-
-        i                                                                                                               i
-        i                                                                                                               i
-                                        “emcpps-internal” — 2021/3/28 — 3:38 — page 9 — #11
-
-i
-
-
-
-                          C++11                                                                            Range for
-
-
-                          however, provide its own begin and end member functions and is, therefore, directly usable
-                          as the range-expression in a ranged-based for loop:
-                           #include <initializer_list>      // std::initializer_list
-
-                           void f3()
-                           {
-                               for (double v : {1.9, 2.8, 4.7, 7.6, 11.5, 16.4, 22.3, 29.2, 37.1, 46.0})
-                               {
-                                   // ...
-                               }
-                           }
-
-                          The example above shows how a series of double values can be embedded right within the
-                          loop header.
-
-
-              use­cases
-                          Use Cases
-                          Iterating over all elements of a container
-elements­of­a­container
-                          The motivating use case for this feature is to loop over the elements in a container:
-                           #include <list>     // std::list
-
-                           void process(int* p);
-
-                           void f1()
-                           {
-                               std::list<int> aList{ 1, 2, 4, 7, 11, 16, 22, 29, 37, 46 };
-
-                                  for (int& i : aList)
-                                  {
-                                      process(&i);
-                                  }
-                           }
-
-                          This idiom takes advantage of all STL-compliant container types providing begin and end
-                          operations, which may be used to delimit a range encompassing the entire container. Thus,
-                          the loop above iterates from aList.begin() to aList.end(), calling process on each
-                          element encountered.
-                              When iterating over a std::map<Key, Value> or std::unordered_map<Key, Value>,
-                          each element has type std::pair<const Key, Value>. To save typing and to avoid errors
-                          related to the first member of the pair being const we use the value_type alias to refer to
-                          each element’s type:
-                           #include <iostream>     // std::cout
-                           #include <map>          // std::map
-                           #include <string>       // std::string
-
-                           using MapType = std::map<std::string, int>;
-
-
-
-                                                                                                                   9
-
-i
-
-
-
-        i                                                                                                               i
-    i                                                                                                                                i
-                                      “emcpps-internal” — 2021/3/28 — 3:38 — page 10 — #12
-
-i
-
-
-
-                     Range for                                             Chapter 2        Conditionally Safe Features
-
-
-                      MapType studentScores
-                      {
-                          {"Emily", 89},
-                          {"Joel", 85},
-                          {"Bud",   86},
-                      };
-
-                      void printScores()
-                      {
-                          for (MapType::value_type& studentScore : studentScores)
-                          {
-                              const std::string& student = studentScore.first;
-                              int&               score   = studentScore.second;
-                              std::cout << student << "\t scored " << score << '\n';
-                          }
-                      }
-
-                    This example prints each key/value pair in the map. We create two aliases, student for
-                    studentScore.first and score for studentScore.second, to better express the intent
-                    of the code.4
-
-                    Subranges
-        subranges
-                    Using a classic for loop to traverse a container, c, allows a subrange of c to be specified
-                    beginning at some point after c.begin() — e.g., ++c.begin() — and/or ending at some
-                    point before c.end() — e.g., std::next(c.end(), ­3). To specify a subrange for a ranged-
-                    based for loop, we create a simple adapter to hold two iterators (or iterator-like objects)
-                    that define the desired subrange:
-                      template <typename Iter>
-                      class Subrange
-                      {
-                          Iter d_begin, d_end;
-
-                      public:
-                          using iterator = Iter;
-
-                           Subrange(Iter b, Iter e) : d_begin(b), d_end(e) { }
-
-                           iterator begin() const { return d_begin; }
-                           iterator end()   const { return d_end;   }
-                      };
-
-                      template <typename Iter>
-                      Subrange<Iter> makeSubrange(Iter beg, Iter end) { return {beg, end}; }
-
-
-                        4 In C++17, structured bindings allow two variables to be initialized from a single pair, each variable
-
-                    being initialized by the respective first and second members of the pair. A ranged-based for loop using
-                    a structured binding for the loop variables yields a very clean and expressive way to traverse containers like
-                    map and unordered_map, e.g., using for (auto& [student, score] : studentScores).
-
-
-                    10
-
-i
-
-
-
-    i                                                                                                                                i
-    i                                                                                                            i
-                      “emcpps-internal” — 2021/3/28 — 3:38 — page 11 — #13
-
-i
-
-
-
-        C++11                                                                                    Range for
-
-
-        The Subrange class above is a primitive start to a potentially rich library of range-based
-        utilities.5 It holds two externally-supplied iterators that it can supply to a ranged-based
-        for loop via its begin and end accessor members. The makeSubrange factory uses function
-        template argument deduction to return a Subrange of the correct type.6
-            Let’s use Subrange to traverse a vector in reverse, omitting its first element:
-          #include <vector>         // std::vector
-          #include <iostream>       // std::cout, std::endl
-
-          template <typename Range>
-          void printRange(const Range& r)
           {
-              for (const auto& elem : r)
-              {
-                  std::cout << elem << ' ';
-              }
+                // Calculate just the padding space needed for alignment.
+                const std::size_t padding = calculatePadding(d_top_p, alignof(T));
 
-                std::cout << std::endl;
-          }
+                // Calculate the total amount of space needed.
+                const std::size_t delta = padding + sizeof(T);
 
-          std::vector<int> vec{16, 3, 1, 8, 99};
-
-          void f1()
-          {
-              printRange(makeSubrange(vec.rbegin(), vec.rend() ­ 1));
-                  // print "99 8 1 3"
-          }
-
-        The printRange function template will print out the elements of any range, provided the
-        element type supports printing to a std::ostream. In f1, we use reverse iterators to create
-        a Subrange starting from the last element of vec and iterating backwards. By subtracting
-        1 from vec.rend(), we exclude the last element of the sequence, which is the first element
-        of vec.
-            In fact, the iterators need not refer to a container at all. For example, we can use
-        std::istream_iterator to iterate over “elements” in an input stream:
-          #include <istream>        // std::istream
-          #include <iterator>       // std::istream_iterator
-          #include <sstream>        // std::istringstream
-
-          void f2()
-          {
-              std::istringstream inStream("1 2 4 7 11 16 22 29 37 bad 46");
-              printRange(makeSubrange(std::istream_iterator<int>(inStream),
-                                      std::istream_iterator<int>()));
-          }
-            5 The C++20 Standard introduces a new Ranges Library that provides powerful features for defining,
-
-        combining, filtering, and manipulating ranges.
-            6 C++17 introduced class template argument deduction, which significantly reduces the need for
-
-        factory templates like makeSubrange.
-
-
-                                                                                                           11
-
-i
-
-
-
-    i                                                                                                            i
-       i                                                                                                                   i
-                                       “emcpps-internal” — 2021/3/28 — 3:38 — page 12 — #14
-
-i
-
-
-
-                        Range for                                       Chapter 2     Conditionally Safe Features
-
-
-                       In f2, the range being printed uses the istream_iterator<T> adapter template. Each time
-                       through the loop, the adapter reads another T item from its input stream. At end-of-file or if a
-                       read error occurs, the iterator becomes equal to the sentinel iterator, istream_iterator<T>().
-                       Note that the ranged-based for loop feature and the Subrange class template do not require
-                       that the size of the subrange be known in advance.
-
-                       Range generators
-    range­generators
-                       Iterating over a range does not necessarily entail traversing existing data elements. A range
-                       expression could yield a type that generates elements as it goes. A useful example is the
-                       ValueGenerator, an iterator-like class that produces a sequence of sequential values7 :
-                         template <typename T>
-                         class ValueGenerator
-                         {
-                             T d_value;
-
-                              public:
-                                explicit ValueGenerator(const T& v) : d_value(v) { }
-
-                               T operator*() const { return d_value; }
-                               ValueGenerator& operator++() { ++d_value; return *this; }
-
-                                friend bool operator!=(const ValueGenerator& a, const ValueGenerator& b)
-                                {
-                                    return a.d_value != b.d_value;
-                                }
-                         };
-
-                         template <typename T>
-                         Subrange<ValueGenerator<T>> valueRange(const T& b, const T& e)
-                         {
-                             return { ValueGenerator<T>(b), ValueGenerator<T>(e) };
-                         }
-
-                       Instead of referring to an element within a container, ValueGenerator is an iterator-like
-                       type that generates the value returned by operator*. ValueGenerator can be instan-
-                       tiated for any type that can be incremented, e.g., integral types, pointers, or iterators.
-                       The valueRange function template is a simple factory to create a range comprising two
-                       ValueGenerator objects, using the Subrange class template defined in the use case de-
-                       scribed in Subranges. Thus, to print the numbers from 1 to 10, simply use a ranged-based
-                       for loop, employing a call to valueRange as the range expression:
-                         void f3()
-                         {
-                             // prints "1 2 3 4 5 6 7 8 9 10 "
-                             for (unsigned i : valueRange(1, 11))
-
-                          7 The iota_view and iota entities from the Ranges Library in the C++20 Standard provide a more
-
-                       sophisticated version of the ValueGenerator and valueRange facility described here.
-
-
-                       12
-
-i
-
-
-
-       i                                                                                                                   i
-    i                                                                                                  i
-                      “emcpps-internal” — 2021/3/28 — 3:38 — page 13 — #15
-
-i
-
-
-
-        C++11                                                                           Range for
-
-
+                // Check to make sure the properly aligned object will fit.
+                if (delta > d_buffer + N ­ d_top_p) // if (Needed > Total ­ Used)
                 {
-                    std::cout << i << ' ';
-                }
-                std::cout << std::endl;
-         }
-
-        Note that the second argument to valueRange is one past the last item we want to iterate
-        on, i.e., 11 instead of 10. With something like ValueGenerator as part of a reusable utility
-        library, this formulation expresses the intent of the loop more cleanly and concisely than
-        the classic for loop.
-            The ability to generate numbers means that a range need not be finite. For example, we
-        might want to generate a sequence of random numbers of indefinite length:
-         #include <random>      // std::default_random_engine, std::uniform_int_distribution
-
-         template <typename T = int>
-         class RandomIntSequence
-         {
-             std::default_random_engine       d_generator;
-             std::uniform_int_distribution<T> d_uniformDist;
-
-         public:
-             class iterator
-             {
-                 RandomIntSequence* d_sequence;
-
-                     explicit iterator(RandomIntSequence* s) : d_sequence(s) { }
-                     friend class RandomIntSequence;
-
-                public:
-                    iterator& operator++() { return *this; }
-                    T operator*() const { return d_sequence­>next(); }
-
-                     friend bool operator!=(iterator, iterator) { return true; }
-                };
-
-                RandomIntSequence(T min, T max, unsigned seed = 0)
-                    : d_generator(seed ? seed : std::random_device()())
-                    , d_uniformDist(min, max) { }
-
-                T next() { return d_uniformDist(d_generator); }
-
-                iterator begin() { return iterator(this); }
-                iterator end()   { return iterator(nullptr); }
-         };
-
-         template <typename T>
-         RandomIntSequence<T> randomIntSequence(T min, T max, unsigned seed = 0)
-         {
-             return {min, max, seed};
-
-                                                                                                 13
-
-i
-
-
-
-    i                                                                                                  i
-        i                                                                                                                         i
-                                         “emcpps-internal” — 2021/3/28 — 3:38 — page 14 — #16
-
-i
-
-
-
-                         Range for                                          Chapter 2      Conditionally Safe Features
-
-
-                          }
-
-                        The RandomIntSequence class template uses the C++11 random-number library to gen-
-                        erate high-quality pseudorandom numbers.8 Each call to its next member function pro-
-                        duces a new random number of integral type, T, within the inclusive range specified to
-                        the RandomIntSequence constructor. The nested iterator type holds a pointer to a
-                        RandomIntSequence and simply calls next each time it is dereferenced (i.e., via a call
-                        to operator*).
-                            Of particular interest is operator!=, which returns true when comparing any two
-                        RandomIntSequence<T>::iterator objects. Thus, any ranged-based for loop that iter-
-                        ates over a RandomIntSequence is an infinite loop unless it terminates by some other means:
-                          void f4()
-                          {
-                              for (int rand : randomIntSequence(1, 10))
-                              {
-                                  std::cout << rand << ' ';
-                                  if (rand == 10) { break; }
-                              }
-
-                               std::cout << std::endl;
-                          }
-
-                        This example prints a list of random numbers in the range 1 through 10, inclusive. The loop
-                        terminates after printing 10 for the first (and only) time.
-
-                        Iterating over simple values
-ng­over­simple­values
-                        The ability to iterate over a std::initializer_list can be very useful for processing a
-                        list of simple values or simple objects without first storing them in a container. Such a use
-                        case arises frequently when testing:
-                          #include <limits>                   // std::numeric_limits
-                          #include <initializer_list>         // std::initializer_list
-
-                          #define TEST_ASSERT(expr)         // ... assert that expr is true.
-
-                          bool isEven(int i)
-                          {
-                              return i % 2 == 0;
-                          }
-
-                          void testIsEven()
-                          {
-                              // ...
-
-                               const int minInt = std::numeric_limits<int>::min();
-                               const int maxInt = std::numeric_limits<int>::max();
-                            8 An introduction to the C++11 random-number library can be found in Stephan T. Lavavej’s excellent
-
-                        talk, rand() Considered Harmful.
-
-
-                        14
-
-i
-
-
-
-        i                                                                                                                         i
-        i                                                                                                                   i
-                                       “emcpps-internal” — 2021/3/28 — 3:38 — page 15 — #17
-
-i
-
-
-
-                          C++11                                                                              Range for
-
-
-
-                                  for (int testValue : {minInt, ­256, ­2, 0, 2, 4, maxInt ­ 1})
-                                  {
-                                      TEST_ASSERT(isEven(testValue));
-                                      TEST_ASSERT(!isEven(testValue + 1));
-                                  }
-                            }
-
-                          The testIsEven function iterates over a sample of numbers within the domain of isEven,
-                          including boundary conditions, testing that each number is correctly reported as being even
-                          and that adding 1 to the number produces a result that is correctly reported as not being
-                          even.
-                              Initializer lists are not limited to primitive types, so the test data set can contain more
-                          complex values:
-                            #include <initializer_list>      // std::initializer_list
-
-                            #define TEST_ASSERT_EQ(expr1, expr2)        // ... assert that expr1 == expr2.
-
-                            int half(int i)
-                            {
-                                return i / 2;
-                            }
-
-                            struct TestCase
-                            {
-                                int value;
-                                int expected;
-                            };
-
-                            void testHalf()
-                            {
-                                for (TestCase test : std::initializer_list<TestCase>{
-                                    {­2, ­1}, {­1, 0}, {0, 0}, {1, 0}, {2, 1}
-                                })
-                                {
-                                    TEST_ASSERT_EQ(test.expected, half(test.value));
-                                }
-                            }
-
-                          In this case, the ranged-based for loop iterates over a std::initializer_list holding
-                          TestCase structures. This paring of input(s) with expected output(s) of a component under
-                          test is very common in unit tests.
-
-
-     potential­pitfalls
-                          Potential Pitfalls
-                          Lifetime of temporary objects in the range expression
-in­the­range­expression
-                          As described in Description on page 4 section, if the range expression evaluates to a tem-
-                          porary object, that object remains valid, as a result of lifetime extension, for the duration
-
-                                                                                                                      15
-
-i
-
-
-
-        i                                                                                                                   i
-    i                                                                                                         i
-                        “emcpps-internal” — 2021/3/28 — 3:38 — page 16 — #18
-
-i
-
-
-
-         Range for                                        Chapter 2     Conditionally Safe Features
-
-
-        of the ranged-based for loop. Unfortunately, there are some subtle ways in which lifetime
-        extension is not always suﬀicient.
-            The basic notion of lifetime extension is that, when bound to a reference, the lifetime of
-        a prvalue — i.e., an object created by a literal, constructed in place, or returned (by value)
-        from a function — is extended to match the lifetime of the reference to which it is bound:
-          #include <string>
-
-          std::string strFromInt(int);
-
-          void f1()
-          {
-              const std::string& s1 = std::string('a', 2);
-              std::string&&      s2 = strFromInt(9);
-              auto&&             i = 5;
-
-               // s1, s2, and i are "live" here.
-
-               // ...
-
-          }   // s1, s2, and i are destroyed at end of enclosing block.
-
-        The first string is constructed in place. The resulting temporary string would normally be
-        destroyed as soon as the expression was complete but, because it is bound to a reference, its
-        lifetime is extended; its destructor is not called and its memory footprint is not reused until
-        s1 goes out of scope, i.e., at the end of the enclosing block. The strFromInt function returns
-        by value; the result of calling it in the second statement produces a temporary variable whose
-        lifetime is similarly extended until s2 goes out of scope. Finally, the forwarding reference,
-        i, ensures that space in the current frame is allocated to hold the temporary copy of the
-        (deduced) int value, 5; such space cannot be reused until i goes out of scope at the end of
-        the enclosing block. (See Section 2.1.“??” on page ??).
-            When the range expression for a range-based for loop is a prvalue, lifetime extension is
-        vital to keeping the range object live for the duration of the loop:
-          void f2(int i)
-          {
-              for (char c : strFromInt(i))
-              {
-                  // ...
-              }
-          }
-
-        The return value from strFromInt is stored in a temporary variable of type std::string.
-        The temporary string is destroyed when the loop completes, not when the expression evalu-
-        ation completes. If the string were to go out of scope immediately, it would not be possible
-        to iterate over its characters. This code would have undefined behavior were it not for
-        the lifetime extension harnessed by the ranged-based for loop.
-            The limitation of lifetime extension is that it applies only if the reference is bound directly
-        to the temporary variable itself or to a subobject (e.g., a member variable) of the temporary
-
-        16
-
-i
-
-
-
-    i                                                                                                         i
-    i                                                                                                    i
-                     “emcpps-internal” — 2021/3/28 — 3:38 — page 17 — #19
-
-i
-
-
-
-        C++11                                                                             Range for
-
-
-        variable, in which case the lifetime of the entire temporary variable is extended. Note that
-        initializing a reference from a reference or a pointer to either the temporary or one of its
-        subobjects does not count as binding directly to the temporary variable and does not trigger
-        lifetime extension. The danger of an object getting destroyed prematurely is generally seen
-        when the full expression returns a reference, pointer, or iterator into a temporary object:
-          #include   <vector>    //   std::vector
-          #include   <string>    //   std::string
-          #include   <utility>   //   std::pair
-          #include   <tuple>     //   std::tuple
-
-          struct Point
-          {
-              double x, y;
-              Point(double ax, double ay) : x(ax), y(ay) { }
-          };
-
-          struct SRef
-          {
-              const std::string& str;
-              SRef(const std::string& s) : str(s) { }
-          };
-
-          std::vector<int> getValues();      // Return a vector by value.
-
-          void f3()
-          {
-              const Point& p1 = Point(1.2, 3.4);          // OK, extend Point lifetime.
-              double&&     d1 = Point(1.2, 3.4).x;        // OK, extend Point lifetime.
-              double&      d2 = Point(1.2, 3.4).y;        // Error, non­const lvalue ref, d2
-
-                using ICTuple = std::tuple<int, char>;
-                const int& i1 = getValues()[0];                     //   Bug, dangling reference
-                const int& i2 = std::get<0>(ICTuple{0,'a'});        //   Bug,     "        "
-                auto&&      i3 = getValues().begin();               //   Bug,     "    iterator
-                const auto& s1 = std::string("abc").c_str();        //   Bug,     "    pointer
-                const auto& i4 = std::string("abc").length();       //   OK, std::size_t extended
-
-                SRef&&      sr = SRef("hello");     // Bug, string lifetime is not extended.
-                std::string s2 = sr.str;            // Bug, string has been destroyed.
-          }
-
-        The first invocation of the Point constructor creates a temporary object that is bound to
-        reference p1. The lifetime of this temporary object is extended to match the lifetime of the
-        reference. Similarly, the lifetime of the second Point object is extended because a subobject,
-        x, is bound to reference d1. Note that it is not permitted to bind a temporary to a nonconst
-        lvalue reference, as is being attempted with d2, above.
-            The next four definitions do not result in useful lifetime extension at all.
-          1. In the case of i1, getValues() returns a prvalue of type std::vector<int>, resulting
-
-                                                                                                   17
-
-i
-
-
-
-    i                                                                                                    i
-    i                                                                                                                    i
-                          “emcpps-internal” — 2021/3/28 — 3:38 — page 18 — #20
-
-i
-
-
-
-         Range for                                             Chapter 2        Conditionally Safe Features
-
-
-                in the creation of a temporary variable. That temporary variable, however, is not the
-                value being bound to the i1 reference; rather, the reference is bound to the result of
-                the array-access operator (operator[]), which returns a reference into the temporary
-                vector returned by getValues(). While we might consider an element of a vector
-                logically to be a subobject of the vector, i1 is not bound directly to that subobject
-                but rather to the reference returned by operator[]. The vector goes out of scope
-                immediately at the end of the statement, leaving i1 to refer to an element of a deleted
-                object.
-             2. The identical situation occurs with i2 when accessing the member of a temporary
-                std::tuple, this time via the nonmember function std::get<0>.
-
-             3. Rather than a reference, i3 is deduced to be an iterator as the result of the expression.
-                The iterator’s lifetime is extended, but the lifetime of the object to which it refers is
-                not.
-             4. Similarly, for s, the expression std::string("abc").c_str() yields a pointer into
-                a temporary C-style string. Once again, the temporary std::string variable is not
-                the object that is bound to the reference s1, so it gets destroyed at the end of the
-                statement, invalidating the pointer.
-             Conversely, i4 binds directly to the temporary object returned by length, extending its
-        life even though the string itself gets destroyed as before. Unlike i3 and s1, however, i4 is
-        not an iterator or pointer and so does not retain an implicit reference to the defunct string
-        object.
-             The last two definitions, for sr and s2, show how subtle the rules for lifetime extension
-        can be. The "hello" literal is converted into a temporary variable of type std::string
-        and passed to the constructor of SRef, which also creates a temporary object. It is only
-        the SRef object that is bound to the sr reference, so it is only the SRef object whose
-        lifetime is extended. The std::string("hello") temporary variable gets destroyed when
-        the constructor finishes executing, leaving the object referenced by sr with a member, str,
-        that refers to a destroyed object.
-             There are good reasons why lifetime extension applies only to the temporary object
-        being bound to a reference. A lot of code depends on temporary objects going out of scope
-        immediately, i.e., to release a lock, memory, or some other resource. For range-based for
-        loops, however, a compelling argument has been made that the correct behavior would
-        be to extend the lifetime of all of the temporaries constructed while evaluating the range
-        expression.9 Unless and until this behavior is changed in a future Standard, beware of using
-        a range expression that returns a reference to a temporary variable:
-          #include <iostream>         // std::istream, std::cout
-
-          class RecordList
-          {
-            9 At the time of writing the P2012 paper seeks to solve the issue when a range expression is a reference
-
-        into a temporary. See Fix the range-based for loop, by Nicolai Josuttis, Victor Zverovich, Filipe Mulonde, and
-        Arthur O’Dwyer, which references an original paper Embracing Modern C++ Safely by Rostislav Khlebnikov
-        and John Lakos.
-
-
-        18
-
-i
-
-
-
-    i                                                                                                                    i
-    i                                                                                                    i
-                     “emcpps-internal” — 2021/3/28 — 3:38 — page 19 — #21
-
-i
-
-
-
-        C++11                                                                             Range for
-
-
-                std::vector<std::string> d_names;
-                // ...
-
-          public:
-              explicit RecordList(std::istream& is);
-                  // Create a RecordList with data read from is.
-
-                // ...
-
-                const std::vector<std::string>& names() const { return d_names; }
-          };
-
-          void printNames(std::istream& is)
-          {
-              // Bug, RecordList's lifetime is not extended.
-              for (const std::string& name : RecordList(is).names())
-              {
-                  std::cout << name << '\n';
-              }
-          }
-
-
-
-        The RecordList constructed in the range expression is not bound to the implied __range
-        reference within the ranged-based for loop, so its lifetime will end before the loop actu-
-        ally begins. Thus, the const std::vector<std::string>& returned by its names method
-        becomes a dangling reference, leading to undefined behavior (such as a segmentation fault).
-            To avoid this pitfall, create a named object for each temporary that you need to preserve,
-        unless that temporary is the full expression for the range expression:
-
-
-          void printNames2(std::istream& is)
-          {
-              {
-                  RecordList records(is); // named variable
-                  for (const std::string& name : records.names())
-                  {
-                      std::cout << name << '\n';
-                  }
-
-                    // safe for records to go out of scope now
+                    return 0; // not enough properly aligned unused space remaining
                 }
 
-                // ...
+                // Reserve needed space; return the address for a properly aligned object.
+                void* alignedAddress = d_top_p + padding; // Align properly for T object.
+                d_top_p += delta;                          // Reserve memory for T object.
+                return alignedAddress;                     // Return memory for T object.
           }
 
+        Using this corrected implementation that uses alignof to pass the alignment of the supplied
+        type T to the calculatePadding function, the addresses returned from the benchmark
+        example (above) would be different10 :
+          MonotonicBuffer<20> mb; // Assume 64­bit platform (8­byte                     aligned).
+          char*   cp = static_cast<char* >(mb.allocate<char >());                       // &d_buffer[ 0]
+          double* dp = static_cast<double*>(mb.allocate<double>());                     // &d_buffer[ 8]
+          short* sp = static_cast<short* >(mb.allocate<short >());                      // &d_buffer[16]
+          int*    ip = static_cast<int*   >(mb.allocate<int   >());                     // 0 (out of space)
+          bool*   bp = static_cast<bool* >(mb.allocate<bool >());                       // &d_buffer[18]
+
+        In practice, an object that allocates memory, such as a vector or a list, will be constructed
+        with an object that allocates and deallocates memory that is guaranteed to be either maxi-
+        mally aligned, naturally aligned, or suﬀiciently aligned to satisfy an optionally specified
+        alignment requirement.
+            Finally, instead of returning a null pointer when the buffer was exhausted, we would
+        typically have the concrete allocator fall back to a geometrically growing sequence of dy-
+        namically allocated blocks; the allocate method would then fail (i.e., a std::bad_alloc
+        exception would somehow be thrown) only if all available memory were exhausted and the
+        new handler were unable to acquire more memory yet still opted to return control to its
+        caller.
 
 
-        This minor rewrite of printNames creates an extra block scope in which we declare records
-        as a named variable. The inner scope ensures that records gets destroyed immediately after
-        the loop terminates.
-
-                                                                                                   19
-
-i
 
 
+           10 Note that on a 32-bit architecture, the d_top_p character pointer would be only four-byte aligned,
 
-    i                                                                                                    i
-        i                                                                                                               i
-                                       “emcpps-internal” — 2021/3/28 — 3:38 — page 20 — #22
-
-i
-
-
-
-                         Range for                                     Chapter 2    Conditionally Safe Features
+        which means that the entire buffer might be only four-byte aligned. In that case, the respective offsets for
+        cp, dp, sp, ip, and bp in the example for the aligned use case might sometimes instead be 0, 4, 12, 16,
+        and nullptr, respectively. If desired, we can use the alignas attribute/keyword to artificially constrain
+        the d_buffer data member always to reside on a maximally aligned address boundary, thereby improving
+        consistency of behavior, especially on 32-bit platforms.
 
 
-                        Inadvertent copying of elements
-t­copying­of­elements
-                        When iterating through a container with a classic for loop, elements are typically referred
-                        to through an iterator:
-                             std::vectorstd::string
-
-                          void process(std::string&);
-
-                          void f1(std::vector<std::string>& vec)
-                          {
-                              for (std::vector<std::string>::iterator i = vec.begin();
-                                   i != vec.end(); ++i)
-                              {
-                                  process(*i); // refer to element via iterator
-                              }
-                          }
-
-                        The ranged-based for loop gives the element a name and a type. If the type is not a
-                        reference, then each iteration of the loop will copy the current element. In many cases, this
-                        copy is inadvertent:
-                          void f2(std::vector<std::string>& vec)
-                          {
-                              for (std::string s : vec)
-                              {
-                                  process(s); // call process on *copy* of string element, potential
-                                               // bug.
-                              }
-                          }
-
-                        The example above illustrates two issues: (1) there is an unnecessary expense in copying
-                        each string, and (2) process may modify or take the address of its argument, in which case
-                        it will modify or take the address of the copy, rather than the original element; the strings
-                        in vec will remain unchanged.
-                            This error appears to be especially common when using auto to deduce the loop vari-
-                        able’s type:
-                          void f3(std::vector<std::string>& vec)
-                          {
-                              for (auto s : vec)
-                              {
-                                  process(s); // call process on *copy* of deduced string element,
-                                               // potential bug.
-                              }
-                          }
-
-                        Copying an element is not always erroneous, but it may be wise to habitually declare the
-                        loop variable as a reference, making deliberate exceptions when needed:
-                          void f4(std::vector<std::string>& vec)
-                          {
-                              for (std::string& s : vec)
-
-                        20
+                                                                                                                 11
 
 i
 
 
 
-        i                                                                                                               i
-        i                                                                                                                 i
-                                       “emcpps-internal” — 2021/3/28 — 3:38 — page 21 — #23
+    i                                                                                                                  i
+         i                                                                                                                                 i
+                                          “emcpps-internal” — 2021/3/28 — 20:05 — page 12 — #14
 
 i
 
 
 
-                          C++11                                                                            Range for
+                          alignof                                                Chapter 2       Conditionally Safe Features
 
-
-                                  {
-                                      process(s);   // OK, call process on *reference* to string element
-                                  }
-                            }
-
-                          If we wish to avoid copying elements but also wish to avoid modifying them, then a const
-                          reference will provide a good balance. Note, however, that if the type being iterated over is
-                          not the same as the type of the reference, a conversion might quietly produce the (undesired)
-                          copy anyway:
-                            void f5(std::vector<char*>& vec)
-                            {
-                                for (const std::string& s : vec)
-                                {
-                                    // s is a reference to a *copy* of an element of vec.
-                                }
-                            }
-
-                          In this example, the elements of vec have type char*. The use of const std::string& to
-                          declare the loop variable s correctly prevents modification of any elements of vec, but there
-                          is still a copy being made because each member access is converted to an object of type
-                          std::string.
-                              For generic code that modifies a container, auto&& is the most general way to declare
-                          the loop variable. For generic code that does not modify the container, const auto& is safer:
-                            template <typename Rng>
-                            void f6(Rng& r)
-                            {
-                                for (auto&& e : r)
-                                {
-                                    // ...
-                                }
-
-                                  for (const auto& cr : r)
-                                  {
-                                      // ...
-                                  }
-                            }
-
-                          Because e is a forwarding reference and cr is a const reference, they will both correctly
-                          bind to the return type of *begin(Rng), even if that type is a prvalue. Note that the use
-                          of auto can obfuscate code by hiding the underlying types of objects. Obfuscated code is
-                          prone to bugs so these uses of auto are recommended chiefly for generic code or where other
-                          trade-offs favor using this short-cut; see Section 2.1.“??” on page ??.
-
-                          Simple and reference-proxy behaviors can be be different
-ors­can­be­be­different
-                          Some containers have iterators that return proxies rather than references to their elements.
-                          Depending on how the loop variable is declared, the unwary programmer may get surprising
-                          results when the container’s iterator type returns reference proxies.
-
-                                                                                                                    21
-
-i
-
-
-
-        i                                                                                                                 i
-    i                                                                                                     i
-                          “emcpps-internal” — 2021/3/28 — 3:38 — page 22 — #24
-
-i
-
-
-
-         Range for                                           Chapter 2   Conditionally Safe Features
-
-
-            An example of such a container is std::vector<bool>. The type,
-        std::vector<bool>::iterator::reference is a reference-proxy class that emulates a
-        reference to a single bit within the vector. The proxy class provides an operator bool()
-        that returns the bit when the proxy is converted to bool and an operator=(bool) that
-        modifies the bit when assigned a Boolean value.
-           Let’s consider a set of loops, each of which iterates over a vector and attempts to set
-        each element of the vector to true. We’ll embed the loops in a function template so that we
-        can compare the behavior of instantiating with a normal container (std::vector<int>)
-        and with one whose iterator uses a reference proxy (std::vector<bool>):
-         #include <vector>
-
-         template <typename T>
-         void f1(std::vector<T>& vec)
-         {
-             for (T      v : vec) { v        =   true;   }   //   (1)
-             for (T&     v : vec) { v        =   true;   }   //   (2)
-             for (T&&    v : vec) { v        =   true;   }   //   (3)
-             for (auto   v : vec) { v        =   true;   }   //   (4)
-             for (auto& v : vec) { v         =   true;   }   //   (5)
-             for (auto&& v : vec) { v        =   true;   }   //   (6)
-         }
-
-         void f2()
-         {
-             using IntVec = std::vector<int>;                // has normal iterator
-             using BoolVec = std::vector<bool>;              // has iterator with reference proxy
-
-                IntVec iv{ /* ... */ };
-                BoolVec bv{ /* ... */ };
-
-                f1(iv);
-                f1(bv);
-         }
-
-        For each of the loops in f1, the difference in behavior between the IntVec and BoolVec
-        instantiations hinges on what happens when v is initialized from *__begin within the loop
-        transformation. For the IntVec iterator, *__begin returns a reference to the element within
-        the container. For the BoolVec iterator, it returns an object of the reference-proxy type.
-
-             • Loop (1) produces identical behavior from both instantiations. The loop makes a lo-
-               cal copy of each element, and then modifies the copy. The only difference is that the
-               BoolVec version performs a conversion to bool to initialize v, whereas the IntVec ver-
-               sion initializes v directly from the element reference. For both the IntVec or BoolVec
-               version, the fact that the original vector is unchanged is a potential bug (see Inadver-
-               tent copying of elements, above).
-
-             • Loop (2) modifies the container elements in the IntVec instantiation but fails to
-               compile for the BoolVec instantiation. The compilation error comes from trying to
-
-        22
-
-i
-
-
-
-    i                                                                                                     i
-    i                                                                                                     i
-                     “emcpps-internal” — 2021/3/28 — 3:38 — page 23 — #25
-
-i
-
-
-
-        C++11                                                                               Range for
-
-
-            initialize the nonconst lvalue reference, v, from an rvalue of the proxy type. The
-            bool conversion operator does not help since the result would still be an rvalue.
-
-          • Loop (3) fails to compile for the IntVec iterator because the rvalue reference, v,
-            cannot be initialized from *__begin, which is an lvalue reference. Surprisingly, the
-            BoolVec instantiation does compile, but the loop does not modify the container. Here,
-            operator bool is invoked on the proxy object returned by *__begin. The resulting
-            temporary object is bound to v, and its lifetime is extended for the duration of the
-            iteration. Because v is bound to a temporary variable, modifying v modifies only the
-            temporary, not the original, element, resulting in a likely bug as in the case of loop
-            (1).
-
-          • Loop (4) compiles for both the BoolVec and IntVec cases but produces different
-            results for each. For IntVec iterators, auto deduces the type of v as int, so assigning
-            to v modifies a local copy of the element, as in loop (1). For BoolVec iterators, the
-            deduced type of v is the proxy type rather than bool. Assigning to the proxy does
-            change the element of the container.
-
-          • Loop (5), like loop (2), works as expected for IntVec instantiation but fails to compile
-            for the BoolVec instantiation. As before, the problem is that the BoolVec iterator
-            yields an rvalue that cannot be used to initialize an lvalue reference.
-
-          • Loop (6) produced identical behavior from both instantiations, modifying each of the
-            vector elements. The type of v is deduced to be int& for IntVec instantiation and the
-            proxy type for the BoolVec instantiation. Assigning through either the real reference
-            or the reference proxy modifies the element in the container.
-
-          Let’s now look at the the situation with const-qualified loop variables:
-         template <typename T>
-         void f3(std::vector<T>&    vec)
-         {
-             for (const T      v    :   vec)   {   /*   ...   */   }   //   (7)
-             for (const T&     v    :   vec)   {   /*   ...   */   }   //   (8)
-             for (const T&&    v    :   vec)   {   /*   ...   */   }   //   (9)
-             for (const auto   v    :   vec)   {   /*   ...   */   }   //   (10)
-             for (const auto& v     :   vec)   {   /*   ...   */   }   //   (11)
-             for (const auto&& v    :   vec)   {   /*   ...   */   }   //   (12)
-         }
-
-         void f4()
-         {
-             using IntVec = std::vector<int>;                 // has normal iterator
-             using BoolVec = std::vector<bool>;               // has iterator with reference proxy
-
-                IntVec iv{ /* ... */ };
-                BoolVec bv{ /* ... */ };
-
-                f3(iv);
-
-                                                                                                     23
-
-i
-
-
-
-    i                                                                                                     i
-        i                                                                                                                 i
-                                           “emcpps-internal” — 2021/3/28 — 3:38 — page 24 — #26
-
-i
-
-
-
-                          Range for                                      Chapter 2    Conditionally Safe Features
-
-
-                                 f3(bv);
-                           }
-
-                              • Loop (7) works identically for both instantiations, converting the proxy reference to
-                                bool in the BoolVec case.
-
-                              • Loop (8) works identically for both instantiations. For the IntVec case, the result of
-                                *__begin is bound directly to v. For the BoolVec case, *__begin produces proxy
-                                reference that is converted to a bool temporary that is then bound to v. Lifetime
-                                extension keeps the bool value alive.
-                              • Loop (9) fails to compile for IntVec but succeeds for BoolVec exactly as for loop (3)
-                                except that the temporary bool bound to v is const and thus does not risk giving
-                                programmers the false belief that they are modifying the container.
-                              • Loop (10) has the same behavior for both the IntVec and BoolVec instantiations.
-                                That mechanism is the same behavior as for loop (4) except that, because v is const,
-                                neither instantiation can modify the container.
-                              • Loop (11) also works for both instantiations. For the IntVec case, the result of
-                                *__begin is bound directly to v. For the BoolVec case, v is deduced to be a const
-                                reference to the proxy type; *__begin produces a temporary variable of the proxy
-                                type, which is then bound to v. Lifetime extension keeps the proxy alive. In most
-                                contexts, a const proxy reference is an effective stand-in for a const bool&.
-                              • Loop (12) fails to compile for IntVec but succeeds for BoolVec. The error with IntVec
-                                occurs because const auto&& is always a const rvalue reference (not a forwarding
-                                reference) and cannot be bound to the lvalue reference, *__begin. For BoolVec, the
-                                mechanism is identical to loop (11) except that loop (11) binds the temporary object
-                                to an lvalue reference whereas loop (12) uses an rvalue reference. When the references
-                                are const, however, there is little practical differences between them.
-                             Note that loops 4, 6, 10, 11, and 12 in the BoolVec instantiations bind a reference to a
-                         temporary proxy reference object, so taking the address of v in these situations is likely not
-                         to produce useful results. Additionally, loops 3, 8, and 9 bind v to a temporary bool. Users
-                         must be mindful of the lifetime of these temporary objects (a single-loop iteration) and not
-                         allow the address of v to escape the loop.
-                         Proxy objects emulating references to non-class elements within a container are surprisingly
-                         effective, but their limitations are exposed when they are bound to references. In generic
-                         code, as a rule of thumb, const auto& is the safest way to declare a read-only loop variable
-                         if a reference proxy might be in use, while auto&& will give the most consistent results for
-                         a loop that modifies its container. Similar issues, unrelated to range-based for loops, occur
-                         when passing a proxy reference to a function taking a reference argument.
 
                          Annoyances
-            annoyances
-tate­of­the­iteration
-                         No access to the state of the iteration
-                         When traversing a range with a classic for loop, the loop variable is typically an iterator
-                         or array index. Within the loop, we can modify that variable to repeat or skip iterations.
-
-                         24
-
-i
-
-
-
-        i                                                                                                                 i
-    i                                                                                                    i
-                     “emcpps-internal” — 2021/3/28 — 3:38 — page 25 — #27
-
-i
-
-
-
-        C++11                                                                             Range for
-
-
-        Similarly, the loop-termination condition is usually accessible so that it is possible to, for
-        example, insert or remove elements and then recompute the condition:
-          #include <string>    // std::string
-          #include <cctype>    // std::isupper
-
-          void spaceBeforeCaps(std::string& s)
-          {
-              // Insert a space before each capital letter in s.
-              using IdxType = std::string::size_type;
-              for (IdxType i = 0; i < s.size(); ++i)
-              {
-                  if (std::isupper(s[i]))
-                  {
-                      s.insert(i, 1, ' '); // Insert one space at i.
-                      ++i;                  // Skip the space.
-                  }
-              }
-          }
-
-        The code above depends on (1) having access to the iteration index, (2) being able to change
-        the iteration index, and (3) recomputing the size of the collection each time through the
-        loop. No similar function could be written using a ranged-based for loop since the __range,
-        __begin, and __end variables are for exposition only and are not accessible from within the
-        code:
-          void spaceBeforeCaps2(std::string& s)
-          {
-              // Insert a space before each capital letter in s.
-              for (char c : s)
-              {
-                  if (std::isupper(c))
-                  {
-                      __begin = s.insert(__begin, ' '); // Error, no __begin variable
-                      ++__begin;                         // Error, no __begin variable
-                      __end = s.end();                   // Error, no __end variable
-                  }
-              }
-          }
-
-        A classic for loop can traverse more than one container at a time (e.g., to add corresponding
-        elements from two containers and store them into a third). It accomplishes this feat by either
-        incrementing multiple iterators on each iteration or keeping a single index that is used
-        to access multiple, random-access iterators concurrently. Trying to accomplish something
-        similar with a range-based for loop usually involves using a hybrid approach:
-          #include <vector>      // std::vector
-          #include <cassert>     // standard C assert macro
-
-          void addVectors(std::vector<int>&       result,
-                          const std::vector<int>& a,
-
-                                                                                                   25
-
-i
-
-
-
-    i                                                                                                    i
-    i                                                                                                 i
-                       “emcpps-internal” — 2021/3/28 — 3:38 — page 26 — #28
-
-i
-
-
-
-         Range for                                    Chapter 2    Conditionally Safe Features
-
-
-                          const std::vector<int>& b)
-              // For each element ea of a and corresponding element eb of b, set
-              // the corresponding element of result to ea + eb. The behavior is
-              // undefined unless a and b have the same length.
-         {
-              assert(a.size() == b.size());
-              result.resize(a.size());
-
-              std::vector<int>::const_iterator ia = a.begin();
-              std::vector<int>::const_iterator ib = b.begin();
-              for (int& sum : result)
-              {
-                  sum = *ia++ + *ib++;
-              }
-         }
-
-        Although result is traversed using the range-based for loop, a and b are effectively tra-
-        versed manually using iterators. It is arguable as to whether the code is any clearer or
-        simpler to write than it would have been using a classic for loop.
-            This situation can be improved through the use of a “zip” iterator — a type that holds
-        multiple iterators and increments them in lock-step. Using a “zip” iterator, all three con-
-        tainers can be traversed using a single ranged-based for loop:
-         #include   <cassert>   //   standard C assert macro
-         #include   <tuple>     //   std::tuple
-         #include   <utility>   //   std::declval
-         #include   <vector>    //   std::vector
-
-         template <typename... Iter>
-         class ZipIterator
-         {
-             std::tuple<Iter...> d_iters;
-
-              // ...
-
-         public:
-             using reference = std::tuple<decltype(*std::declval<Iter>())...>;
-
-              ZipIterator(const Iter&... i);
-
-              reference operator*() const;
-              ZipIterator& operator++();
-              friend bool operator!=(const ZipIterator& a, const ZipIterator& b);
-         };
-
-         template <typename... Range>
-         class ZipRange
-         {
-             using ZipIter =
-                 ZipIterator<decltype(begin(std::declval<Range>()))...>;
-
-        26
-
-i
-
-
-
-    i                                                                                                 i
-        i                                                                                                                          i
-                                        “emcpps-internal” — 2021/3/28 — 3:38 — page 27 — #29
-
-i
-
-
-
-                          C++11                                                                                    Range for
-
-
-
-                                  // ...
-
-                            public:
-                                ZipRange(const Range&... ranges);
-
-                                  ZipIter begin() const;
-                                  ZipIter end() const;
-                            };
-
-                            template <typename... Range>
-                            ZipRange<Range...> makeZipRange(Range&&... r);
-
-                            void addVectors2(std::vector<int>&       result,
-                                             const std::vector<int>& a,
-                                             const std::vector<int>& b)
-                            {
-                                assert(a.size() == b.size());
-                                result.resize(a.size());
-
-                                  for (std::tuple<int, int, int&> elems : makeZipRange(a, b, result))
-                                  {
-                                      std::get<2>(elems) = std::get<0>(elems) + std::get<1>(elems);
-                                  }
-                            }
-
-                          Each iteration, instead of yielding a single element, yields a std::tuple of elements result-
-                          ing from the traversal of multiple ranges simultaneously. To be used, the elements must be
-                          unpacked from the std::tuple using std::get. Zip iterators become much more attractive
-                          in C++17 with the advent of structured bindings, which allow multiple loop variables to be
-                          declared at once, without the need to directly unpack the std::tuples. The above imple-
-                          mentation and usage of ZipRange is just a rough sketch; the full design and implementation
-                          of zip iterators and zip ranges is beyond the scope of this section.
-
-                          Adapters are required for many tasks
-required­for­many­tasks
-                          In the usage examples above, we have seen a number of adapters (e.g., to traverse subranges,
-                          to traverse a container in reverse, to generate sequential values), and zip iterators to iterate
-                          over multiple ranges at once.
-                              None of these adapters would be required for a classic for loop. On the one hand, one-
-                          off situations are expressed more simply with a classic for loop. On the other hand, the
-                          adapters that we create to make range-based for loops usable in more situations can lead
-                          to the development of a reusable library of adapters. Using the ValueGenerator class from
-                          Range generators, for example, produces simpler and more expressive code than using a
-                          classic for loop would.10
-
-
-                             10 The Standard’s Ranges Library, introduced in C++20, provides a sophisticated algebra for working
-
-                          with and adapting ranges.
-
-
-                                                                                                                             27
-
-i
-
-
-
-        i                                                                                                                          i
-        i                                                                                                             i
-                                       “emcpps-internal” — 2021/3/28 — 3:38 — page 28 — #30
-
-i
-
-
-
-                         Range for                                    Chapter 2    Conditionally Safe Features
-
-
-                        No support for sentinel iterator types
-ntinel­iterator­types
-                        For a given range expression, __range, begin(__range), and end(__range) must return
-                        the same type to be usable with a ranged-based for loop. This limitation is problematic
-                        for ranges of indeterminate length, where the condition for ending a loop is not determined
-                        by comparing two iterators. For example, in the RandomIntSequence example (see Range
-                        generators), the end iterator for the infinite random sequence holds a null pointer and is
-                        never used, not even within operator!=. It would be more eﬀicient and convenient if the
-                        end iterator were a special, empty sentinel type. Comparing any iterator to the sentinel
-                        would determine whether the loop should terminate:
-                         template <typename T = int>
-                         class RandomIntSequence2
-                         {
-                             // ...
-
-                         public:
-                             class sentinelIterator { };
-
-                              class iterator {
-                                  // ...
-                                  friend bool operator!=(iterator, sentinelIterator) { return true; }
-                              };
-
-                              iterator         begin() { /* ... */ }
-                              sentinelIterator end() const { return {}; }
-                         };
-
-                        The above code shows an example of begin and end returning different types, where end re-
-                        turns an empty sentinel type. Unfortunately, using this formulation of RandomIntSequence2
-
-
-
-
-                        28
-
-i
-
-
-
-        i                                                                                                             i
-    i                                                                                                                                i
-                                     “emcpps-internal” — 2021/3/28 — 3:38 — page 29 — #31
-
-i
-
-
-
-                      C++11                                                                                         Range for
-
-
-                         with a C++11 range-based for loop will result in a compilation error complaining that
-                      begin and end return inconsistent types.11
-                         Another type that could benefit from a sentinel iterator is std::istream_iterator,
-                      since the state of the end iterator is never used. It is unlikely that this interface will change,
-                      however, as std::istream_iterator has been with us since the first C++ Standard.
-
-                      Only ADL lookup
-    only­adl­lookup
-                      The free functions begin and end are found using argument-dependent lookup (ADL) only.
-                      File-scope (static) functions are not considered. If we wish to add begin and end functions
-                      for a range-like type that we do not own, we need to put those functions into the same
-                      namespace as the range-like type, inviting a potential name collision with other compilation
-                      units attempting to do the same thing:
-                        // third_party_library.h:
-
-                        namespace third_party
-                        {
-
-                              class IteratorLike { /* ... */ };
-
-                              class RangeLike
-                              {
-                                  // ... does not provide begin and end members
-                              };
-
-                              // ... does not provide begin and end free functions
-                        }
-
-
-
-
-                         11 This limitation on the use of sentinel iterators was lifted in C++17. Sentinel iterators are supported
-
-                      directly by the C++20 Ranges Library. In C++17, the specification was modified to:
-                        {
-                            auto&& __range = range­expression;
-                            auto __begin   = begin­expr;
-                            auto __end     = end­expr;
-                            for (; __begin != __end; ++__begin)
-                            {
-                                for­range­declaration = *__begin;
-                                statement
-                            }
-                        }
-
-
-
-
-                                                                                                                               29
-
-i
-
-
-
-    i                                                                                                                                i
-      i                                                                                                                i
-                                       “emcpps-internal” — 2021/3/28 — 3:38 — page 30 — #32
-
-i
-
-
-
-                       Range for                                      Chapter 2     Conditionally Safe Features
-
-
-                       // myclient.cpp:
-
-                       #include <third_party_library.h>
-
-                       static third_party::IteratorLike begin(third_party::RangeLike&);
-                       static third_party::IteratorLike end(third_party::RangeLike&);
-
-                       void f()
-                       {
-                           third_party::RangeLike rl;
-                           for (auto&& e : rl) // Error, begin not found by ADL
+    annoyances­alignof
+                         alignof (unlike sizeof) is defined only on types
+defined­only­on­types
+                         The (compile-time) sizeof operator comes in two different forms: one accepting a type
+                         and the other accepting an expression. The C++ Standard currently requires that alignof
+                         support only the former11 :
+                           static_assert(sizeof(int) ==             4,   "");       //   OK, int is a     type.
+                           static_assert(alignof(int) ==            4,   "");       //   OK, int is a     type.
+                           static_assert(sizeof(3 + 2))             ==   4, "");    //   OK, 3 + 2 is     an expression.
+                           static_assert(alignof(3 + 2))            ==   4, "");    //   Error, 3 + 2     is not a type.
+
+                         This asymmetry can result in a need to leverage decltype (see “??” on page ??) when
+                         inspecting an expression instead of a type:
+                           int f()
                            {
-                               // ...
+                               enum { e_SUCCESS, e_FAILURES } result;
+                               std::cout << "size: " << sizeof(result) << '\n';
+                               std::cout << "alignment:" << alignof(decltype(result)) << '\n';
                            }
-                       }
 
-                      The code above attempts to work around the absence of begin(RangeLike&) and end(RangeLike&)
-                      in the third-party library by defining them locally within myclient.cpp. This attempt fails
-                      because static functions are not found via ADL. A better workaround that does work is to
-                      create a range adapter for the range-like class:
-                       class RangeLikeAdapter
-                       {
-                           // ...
+                         The same sort of issue occurs in conjunction with modern type inference features such
+                         as auto (see “??” on page ??) and generic lambdas (see “??” on page ??). As a real-world
+                         example, consider the generic lambda (C++14) being used to introduce a small local function
+                         that prints out information regarding the size and alignment of a given object, likely for
+                         debugging purposes:
+                           auto printTypeInformation = [](auto object)
+                           {
+                               std::cout << "     size: " << sizeof(object) << '\n'
+                                         << "alignment: " << alignof(decltype(object)) << '\n';
+                           };
 
-                       public:
-                           RangeLikeAdapter(third_party::RangeLike&);
-                           third_party::IteratorLike begin() { /* ... */ }
-                           third_party::IteratorLike end()   { /* ... */ }
-                       };
+                         Because there is no explicit type available within the body of the printTypeInformation
+                         lambda,12 a programmer wishing to remain entirely within the C++ Standard13 is forced
+                         to use the decltype construct explicitly to first obtain the type of object before passing
+                         it on to alignof.
 
-                      The adapter wraps the range-like type and provides the missing features. Beware, however,
-                      that if the wrapper stores a pointer or reference to a temporary RangeLike object, you
-                      don’t run into the pitfall where the lifetime of temporary objects is not always extended;
-                      see Lifetime of temporaries in the range expression.
+                            11 Although the Standard does not require alignof to work on arbitrary expressions, alignof is a common
+
+                         GNU extension and most compilers support it. Both Clang and GCC will warn only if ­Wpedantic is set.
+                            12 In C++20, referring to the type of a generic lambda parameter explicitly is possible (due to the addition
+
+                         to lambdas of some familiar template syntax):
+                           auto printTypeInformation = []<typename T>(T object)
+                           {
+                               std::cout << "     size: " << sizeof(T) << '\n'
+                                         << "alignment: " << alignof(T) << '\n';
+                           };
+
+
+                            13 Note that alignof(object) will work on every major compiler (GCC 10.x, Clang 10.x, and MSVC 19.x)
+
+                         as a nonstandard extension.
+
+
+                         12
+
+i
+
+
+
+         i                                                                                                                                 i
+    i                                                                                                             i
+                                    “emcpps-internal” — 2021/3/28 — 20:05 — page 13 — #15
+
+i
+
+
+
+                      C++11                                                                        alignof
+
 
            see­also
                       See Also
-                           • “??” (§2.1, p. ??) ♦ explains auto, often used in a ranged-based for loop to determine
-                             the type of the loop variable, and many of the pitfalls of auto apply when using it for
-                             that purpose.
-                           • “??” (§3.1, p. ??) ♦ show how to overload member functions to work differently on
-                             rvalues and lvalues.
+                        • “??” — Safe C++11 feature that can be used to provide an artificially stricter align-
+                          ment (e.g., more than natural alignment).
+
+                        • “??” — Safe C++11 feature that helps work around alignof’s limitation of accepting
+                          only a type, not an expression (see Annoyances on page 12).
 
                       Further Reading
     further­reading
-                      No further reading.
+                      None so far
 
 
 
 
-                      30
-
-i
-
-
-
-      i                                                                                                                i
-          i                                                                                            i
-                                    “emcpps-internal” — 2021/3/28 — 3:38 — page 31 — #33
+                                                                                                            13
 
 i
 
 
 
-                            C++14                                                          Range for
+    i                                                                                                             i
+          i                                                                                           i
+                                    “emcpps-internal” — 2021/3/28 — 20:05 — page 31 — #16
 
+i
+
+
+
+                            C++14                                                           alignof
 
     sec­conditional­cpp14
 
 
 
 
-                                                                                                  31
+                                                                                                 31
 
 i
 
 
 
-          i                                                                                            i
-    i                                                          i
-        “emcpps-internal” — 2021/3/28 — 3:38 — page 32 — #34
+          i                                                                                           i
+    i                                                           i
+        “emcpps-internal” — 2021/3/28 — 20:05 — page 32 — #17
 
 i
 
@@ -1918,9 +786,9 @@ i
 
 
 
-    i                                                          i
+    i                                                           i
      i                                                                                          i
-                                    “emcpps-internal” — 2021/3/28 — 3:38 — page 33 — #35
+                                   “emcpps-internal” — 2021/3/28 — 20:05 — page 33 — #18
 
 i
 
@@ -1944,7 +812,7 @@ i
 
      i                                                                                          i
        i                                                                                      i
-                            “emcpps-internal” — 2021/3/28 — 3:38 — page 34 — #36
+                            “emcpps-internal” — 2021/3/28 — 20:05 — page 34 — #19
 
 i
 
