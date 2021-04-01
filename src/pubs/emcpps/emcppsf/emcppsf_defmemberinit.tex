@@ -1,0 +1,808 @@
+% 31 March 2021, cleaned up and commands updated; off to Josh for code check. 
+
+
+
+\emcppsFeature{
+    short={Default Member Init},
+    long={Default {\SecCode class}/{\SecCode union} Member Initializers},
+    toclong={Default \lstinline!class!/\lstinline!union! Member Initializers},
+}{Default-Member-Initializers}
+\label{default-member-initializers}
+\setcounter{table}{0}
+\setcounter{footnote}{0}
+\setcounter{lstlisting}{0}
+%\section[Default Member Init]{Default {\SecCode class}/{\SecCode union} Member Initializers}\label{Default-Member-Initializers}
+%\subsection[Default Member Initializers]{Default Member Initializers}\label{default-member-initializers}
+
+Non\lstinline!static! class data members may specify a default initializer,
+which is used for constructors that don't initialize the member
+explicitly.
+
+\subsection[Description]{Description}\label{description}
+
+The traditional means for initializing non\lstinline!static! data members
+and base class objects within a class is a constructor's \emcppsgloss{member
+initializer list}:
+
+\begin{emcppslisting}
+struct B
+{
+    int d_i;
+
+    B(int i) : d_i(i) { }     // Initialize (ù{\codeincomments{d\_i}}ù) with (ù{\codeincomments{i}}ù).
+};
+
+struct D : B
+{
+    char d_c;
+
+    D() : B(2), d_c('3') { }  // Initialize base (ù{\codeincomments{B}}ù) with (ù{\codeincomments{2}}ù) and(ù{\codeincomments{d\_c}}ù) with (ù{\codeincomments{'3'}}ù).
+};
+\end{emcppslisting}
+    
+
+Starting with C++11, non\lstinline!static! data members --- except for bit
+fields --- can also be initialized using a \emcppsgloss{default member
+initializer}, either by using \emcppsgloss{copy initialization} or
+\emcppsgloss{direct list initialization}; see
+\featureref{\locationc}{bracedinit}:
+
+\begin{emcppslisting}
+struct S0
+{
+    int   d_i = 10;     // OK, uses copy initialization
+    char  d_c = {'a'};  // OK, uses copy list initialization
+    float d_f{2.f};     // OK, uses direct list initialization
+};
+\end{emcppslisting}
+    
+
+Note that although braced initialization is supported, \emcppsgloss{direct
+initialization} with a parenthesized list is not:
+
+\begin{emcppslisting}
+struct S1
+{
+    char d_c('a');  // Error, invalid syntax
+};
+\end{emcppslisting}
+    
+
+For any member, \lstinline!m!, that has a default member initializer,
+constructors that don't initialize \lstinline!m! in their \emcppsgloss{member
+initializer list} will implicitly initialize \lstinline!m! by using the
+default member initializer value:
+
+\begin{emcppslisting}
+struct S2
+{
+    int d_i = 1;
+    int d_j = 1;
+
+    S2() { }                           // Initialize (ù{\codeincomments{d\_i}}ù) with (ù{\codeincomments{1}}ù), (ù{\codeincomments{d\_j}}ù) with (ù{\codeincomments{1}}ù).
+    S2(int) : d_i(2) { }               // Initialize (ù{\codeincomments{d\_i}}ù) with (ù{\codeincomments{2}}ù), (ù{\codeincomments{d\_j}}ù) with (ù{\codeincomments{1}}ù).
+    S2(int, int) : d_i(2), d_j(3) { }  // Initialize (ù{\codeincomments{d\_i}}ù) with (ù{\codeincomments{2}}ù), (ù{\codeincomments{d\_j}}ù) with (ù{\codeincomments{3}}ù).
+};
+
+void f()
+{
+    S2 s2;
+    assert(s2.d_i == 1);
+    assert(s2.d_j == 1);
+}
+\end{emcppslisting}
+    
+
+Previously initialized non\lstinline!static! data members can be used in
+subsequent initializer expressions:
+
+\begin{emcppslisting}
+struct S4
+{
+    const char* d_s{"hello"};
+    int         d_i{2};
+    char        d_c{d_s[1]};  // OK, (ù{\codeincomments{d\_c}}ù) initialized to (ù{\codeincomments{'e'}}ù).
+};
+
+S4 s4{"goodbye", 0};          // OK, (ù{\codeincomments{s4.d\_c}}ù) initialized to (ù{\codeincomments{'g'}}ù).
+\end{emcppslisting}
+    
+
+The default member initializer, just like member function bodies,
+executes in a \emcppsgloss[complete class context]{complete-class context}. This means it sees its
+enclosing class as a \emcppsgloss{complete type}; therefore, the initializer
+can reference the size of the enclosing type and invoke member functions
+that have not yet been seen:
+
+\begin{emcppslisting}
+struct S5
+{
+    int d_a[4];
+    int d_i = sizeof(S5) + seenBelow();  // OK
+    int seenBelow();
+};
+\end{emcppslisting}
+    
+
+Name lookup in default member initializers will find members of the
+enclosing class and its bases before looking up at namespace level:
+
+\begin{emcppslisting}
+int i = 4;
+
+struct S6
+{
+    int i = 5;
+    int j = i;  // refers to (ù{\codeincomments{S6::i}}ù), not (ù{\codeincomments{::i}}ù)
+};
+
+S6 s6;  // OK, (ù{\codeincomments{s6.j}}ù) initialized to (ù{\codeincomments{5}}ù).
+\end{emcppslisting}
+    
+
+The \lstinline!this! pointer can also be safely used as part of a default
+member initializer. As with any other uses of \lstinline!this! inside a
+constructor, care must be exercised because the object referred to by
+\lstinline!this! will be in a partially constructed state:
+
+\begin{emcppslisting}
+int getSomeRuntimeValue();
+
+struct S7
+{
+    S7* d_selfPtr = this;                   // OK
+    int d_bad = this->d_later;              // Bug, (ù{\codeincomments{d\_later}}ù) not yet initialized
+    int d_later = getInitialDLaterValue();  // OK
+    static int getInitialDLaterValue();
+};
+\end{emcppslisting}
+    
+
+Unlike variables at function or global scope and unlike static data
+members, a default member initializer for a member that is an array of
+unknown bound will not determine the array bound:
+
+\begin{emcppslisting}
+struct S8
+{
+    static int d_s[];        // OK, (ù{\codeincomments{d\_s}}ù) has unknown bounds.
+    int d_a[] = {1, 2, 3};   // Error, (ù{\codeincomments{d\_a}}ù) is an array of unknown bound.
+    int d_b[3] = {1, 2, 3};  // OK, bound explicitly specified
+};
+
+int a[] = {1, 2, 3};         // OK, the length of (ù{\codeincomments{a}}ù) is deduced to (ù{\codeincomments{3}}ù).
+int S8::d_s[] = {4, 5, 6};   // OK, the length of (ù{\codeincomments{S8::d\_s}}ù) is deduced to (ù{\codeincomments{3}}ù).
+\end{emcppslisting}
+    
+
+Non\lstinline!volatile! \lstinline!const! static data members of integral or
+enumeration type and also \lstinline!constexpr! static data members may
+have an in-class default member initializer that must be a constant
+expression (see \featureref{\locationc}{constexprvar}):
+
+\begin{emcppslisting}
+struct MyLiteralType { int d_i; };
+
+int nonConstexprFunction() { return 4; }
+
+struct S9
+{
+    static int error = 1;
+        // Error, non(ù{\codeincomments{const}}ù) static member cannot be initialized here
+
+    static constexpr MyLiteralType mlt = {4};
+        // OK, (ù{\codeincomments{constexpr}}ù) literal type initialized with a constant expression
+
+    static const int i = 3;
+        // OK, (ù{\codeincomments{const}}ù) integral type initialized with a constant expression
+
+    static const int j = nonConstexprFunction();
+        // Error, initializer is not a constant expression
+};
+\end{emcppslisting}
+    
+
+Static member variable declarations that use a placeholder type (such as
+\lstinline!auto!) must declare the member as \lstinline!const! and have a
+default member initializer:
+
+\begin{emcppslisting}
+struct S10
+{
+    static const auto x;     // Error, no initializer provided
+    static const auto y = 6; // OK
+};
+\end{emcppslisting}
+    
+
+\subsubsection[Interactions with unions]{Interactions with unions}\label{interactions-with-unions}
+
+Default member initializer can also be used with union members. However,
+only one variant member of a union can have a default member
+initializer, since that will determine the default initialization of the
+entire union:
+
+\begin{emcppslisting}
+union U0
+{
+    char d_c = 'a';
+    int  d_d = 1;
+        // Error, only one member of (ù{\codeincomments{U0}}ù) can have a default initializer.
+};
+\end{emcppslisting}
+    
+
+Note that members of an anonymous union are considered to be variant
+members of the parent union:
+
+\begin{emcppslisting}
+union U1
+{
+    union { int d_x = 1; };
+
+    union
+    {
+        int d_y;
+        int d_z = 1;
+            // Error, only one member of (ù{\codeincomments{U1}}ù) can have a default initializer.
+    };
+
+    char d_c = 'a';
+        // Error, only one member of (ù{\codeincomments{U1}}ù) can have a default initializer.
+};
+\end{emcppslisting}
+    
+
+As with classes, the default member initializer of a variant member will
+be used if there is no explicit initializer for a variant member in the
+parent union; in that case, the designated variant member is the active
+member of the union. If a union is initialized with a constructor that
+has a member initializer list, the default member initializer is
+ignored. Similarly, if a union is initialized with a nonempty braced
+initializer list, the default member initializer is ignored:
+
+\begin{emcppslisting}
+union U2
+{
+    char d_c;
+    int  d_i = 10;
+};
+
+U2 x;       // initializes (ù{\codeincomments{d\_i}}ù) with (ù{\codeincomments{10}}ù)
+U2 y{};     // initializes (ù{\codeincomments{d\_i}}ù) with (ù{\codeincomments{10}}ù)
+
+U2 z{'a'};  // initializes (ù{\codeincomments{d\_c}}ù) with (ù{\codeincomments{'a'}}ù), default initializer ignored
+
+union U3
+{
+   char d_c;
+   int  d_i = 10;
+
+   U3() { }                 // default member initializer used for (ù{\codeincomments{d\_i}}ù)
+
+   U3(char c) : d_c{c} { }  // default member initializer ignored
+};
+\end{emcppslisting}
+    
+
+\subsection[Use Cases]{Use Cases}\label{use-cases}
+
+\subsubsection[Concise initialization of simple \lstinline!struct!s]{Concise initialization of simple {\SubsubsecCode struct}s}\label{concise-initialization-of-simple-structs}
+
+Default member initializers provide a concise and effective way of
+initializing all the members of a simple \lstinline!struct!. Consider, for
+instance, a \lstinline!struct! used to configure a thread pool:
+
+\begin{emcppslisting}
+struct ThreadPoolConfiguration
+{
+    int  d_numThreads         = 8;     // number of worker threads
+    bool d_enableWorkStealing = true;  // enable work stealing
+    int  d_taskSize           = 64;    // buffer size for an enqueued task
+};
+\end{emcppslisting}
+    
+\newpage  % to keep fn  and its code on its page so reviewers don't freak out.     
+Compared to the use of a constructor, the above definition of
+\lstinline!ThreadPoolConfiguration! provides sensible default values with
+minimal \emcppsgloss[boilerplate code]{boilerplate}.{\cprotect\footnote{In C++20, designated
+initializers can be used to tweak one or more default settings in a
+configuration struct like \lstinline!ThreadPoolConfiguration! in a clear
+and concise manner:
+
+\begin{emcppslisting}[style=footcode]
+ThreadPoolConfiguration tpc = {.d_taskSize = 128};
+assert(tpc.d_numThreads == 8);
+assert(tpc.d_enableWorkStealing);
+assert(tpc.d_taskSize == 128);
+\end{emcppslisting}
+      }}
+
+\subsubsection[Ensuring initialization of a non\lstinline!static! data member]{Ensuring initialization of a non{\SubsubsecCode static} data member}\label{ensuring-initialization-of-a-nonstatic-data-member}
+
+Non\lstinline!static! data members that do not have a default member
+initializer nor appear in any constructor member initialization list are
+\emcppsgloss[default initialized]{default-initialized}. For \emcppsgloss[user defined type (UDT)]{user-defined types}, default
+initialization is equivalent to the default constructor being invoked.
+For built-in types, default initialization results in an indeterminate
+value.
+
+As an example, consider a \lstinline!struct! tracking the number of times
+an user accesses a website:
+
+\begin{emcppslisting}
+#include <string>  // (ù{\codeincomments{std::string}}ù)
+
+struct UsageTracker
+{
+    std::string d_token;
+    std::string d_websiteURL;
+    int         d_clicks;
+};
+\end{emcppslisting}
+    
+
+The programmer intended \lstinline!UsageTracker! to be used as a simple
+aggregate. Forgetting to explicitly initialize \lstinline!d_clicks! can
+result in a defect:
+
+\begin{emcppslisting}
+#include <map>  // (ù{\codeincomments{std::map}}ù)
+
+std::map<std::string, std::vector<UsageTracker>> usageTrackers;
+// ...
+
+void onVisitWebsite(const std::string& username, const std::string& token)
+{
+    UsageTracker ut = {token, "https://emcpps.com"};
+    usageTrackers[username].push_back(ut);
+        // Bug, (ù{\codeincomments{ut.d\_clicks}}ù) has indeterminate value.
+}
+\end{emcppslisting}
+    
+
+Consistent use of default member initializers for built-in types can
+avoid such defects:
+
+\begin{emcppslisting}
+struct UsageTracker
+{
+    std::string d_token;
+    std::string d_websiteURL;
+    int         d_clicks = 0;  // OK, will not have an indeterminate value
+};
+\end{emcppslisting}
+    
+
+\subsubsection[Avoiding boilerplate repetition across multiple constructors]{Avoiding boilerplate repetition across multiple constructors}\label{avoiding-boilerplate-repetition-across-multiple-constructors}
+
+Certain member variables of a type may be used to track the state of the
+object during its lifetime, independently of the initial state of the
+object. This means all constructors must set such variables to the same
+value, regardless of constructor arguments. Consider a state machine
+that controls execution of a background process:
+
+\begin{emcppslisting}
+class StateMachine
+{
+private:
+    enum State { e_INIT = 1, e_RUNNING, e_DONE, e_FAIL };
+    State          d_state;
+    MachineProgram d_program;  // instructions to execute
+
+public:
+    StateMachine()  // Create a machine to run the default program.
+    : d_state(e_INIT),
+    , d_program(getDefaultProgram())
+    { }
+
+    StateMachine(const StateProgram &program)  // Run the specified (ù{\codeincomments{program}}ù).
+    : d_state(e_INIT),
+    , d_program(program)
+    { }
+
+    StateMachine(StateProgram &&program)  // Run the specified (ù{\codeincomments{program}}ù).
+    : d_state(e_INIT),
+    , d_program(std::move(program))
+    { }
+
+    StateMachine(const char *filename)  // read program to run from (ù{\codeincomments{filename}}ù)
+    : d_state(e_INIT)
+    , d_program(loadProgram(filename))
+    { }
+};
+\end{emcppslisting}
+    
+
+For member variables such as \lstinline!d_state!, which always start at
+the same value and then are updated as the object is used, using a
+default initializer reduces boilerplate and reduces the risk of
+accidentally initializing the value wrongly:
+
+\begin{emcppslisting}
+class StateMachine
+{
+    enum State { e_INIT = 1, e_RUNNING, e_DONE, e_FAIL };
+    State          d_state = e_INIT;  // default member initializer
+    MachineProgram d_program;         // instructions to execute
+
+public:
+    StateMachine() : d_program(getDefaultProgram()) { }
+    StateMachine(const StateProgram &program) : d_program(program) { }
+    StateMachine(StateProgram &&program) : d_program(std::move(program)) { }
+    StateMachine(const char *filename) : d_program(loadProgram(filename)) { }
+};
+\end{emcppslisting}
+    
+
+Other members that are updated during an object's lifetime, such as
+mutable members for caching expensive calculations, can also benefit
+from being initialized once as opposed to providing individual
+initializers in each constructor. Suppose we define a class,
+\lstinline!NetSession!, that caches a resolved IP address (v4 and v6), so
+it doesn't need to perform a DNS lookup every time the IP is needed. In
+all constructors, the IP is not resolved yet, meaning the cached IP is
+invalid. A simple convention is to set both IPs to \lstinline!0! because no
+valid IP has that value:
+
+\begin{emcppslisting}
+#include <string>   // (ù{\codeincomments{std::string}}ù)
+#include <cstdint>  // (ù{\codeincomments{std::uint32\_t}}ù), (ù{\codeincomments{std::uint64\_t}}ù)
+
+class NetSession
+{
+    std::string d_address;                     // such as "example.com"
+    mutable std::uint32_t d_ip      = 0;       // cache of resolved IP address
+    mutable std::uint64_t d_ipv6[2] = {0, 0};  // cache of resolved IPv6 address
+
+public:
+    NetSession() { }
+    NetSession(const std::string& address) : d_address(address) { }
+
+    // ...
+};
+\end{emcppslisting}
+    
+
+\subsubsection[Making default values obvious for documentation purposes]{Making default values obvious for documentation purposes}\label{making-default-values-obvious-for-documentation-purposes}
+
+Configuration objects that bundle together a large number of different
+properties are a popular artifact in large systems. Though the values
+may be loaded from, e.g., an appropriate configuration file, they often
+have meaningful default values. In C++03, the default values for these
+properties would typically be documented in the header file
+(\lstinline!.h!) but actually effected in the implementation file
+(\lstinline!.cpp!), which opens the opportunity for the documentation to go
+out of sync with the implementation:
+
+\begin{emcppslisting}
+// my_config.h:
+
+#include <string>  // (ù{\codeincomments{std::string}}ù)
+
+struct Config
+{
+   std::string d_organization;  // default value "ACME"
+   long long   d_maxTries;      // default value (ù{\codeincomments{1}}ù)
+   double      d_costRatio;     // default value (ù{\codeincomments{13.2}}ù)
+
+   Config();
+};
+
+// my_config.cpp:
+
+#include "my_config.h"
+
+Config::Config()
+    : d_organization("Acme")    // Bug, doesn't match documentation
+    , d_maxTries(3)             // Bug, went out of sync in maintenance
+{ }                             // Bug, (ù{\codeincomments{d\_costRatio}}ù) not initialized
+\end{emcppslisting}
+    
+
+Default initializers can be used in such cases to work as active
+documentation:
+
+\begin{emcppslisting}
+#include <string>  // (ù{\codeincomments{std::string}}ù)
+
+struct Config
+{
+   std::string d_organization = "Acme";
+   long long   d_maxTries     = 3;
+   double      d_costRatio    = 13.2;
+
+   Config() = default;  // no user-provided definition needed any longer
+};
+\end{emcppslisting}
+    
+
+\subsection[Potential Pitfalls]{Potential Pitfalls}\label{potential-pitfalls}
+
+\subsubsection[Loss of insulation]{Loss of insulation}\label{loss-of-insulation}
+
+Although convenient, placing default values in a header file --- and
+thus potentially also using a \lstinline!default! default constructor ---
+can result in a loss of insulation that can, especially at scale, have
+severe consequences. For instance, consider a hash table with a
+non\lstinline!static! data member representing the growth factor:
+
+\begin{emcppslisting}
+// hashtable.h:
+
+class HashTable
+{
+private:
+    float d_growthFactor;
+    // ...
+
+public:
+    HashTable();
+    // ...
+};
+\end{emcppslisting}
+    
+
+Without using default member initializers, the default growth factor is
+provided as part of the member initialization list of the default
+constructor:
+
+\begin{emcppslisting}
+// hashtable.cpp:
+HashTable::HashTable() : d_growthFactor(2.0f) { }
+\end{emcppslisting}
+    
+
+In the eventuality that the default growth factor is too large and
+results in uncontrolled memory consumption in production, it suffices to
+relink the affected applications with a new version of the
+library-provided \lstinline!HashTable!, rather than recompiling them.
+Depending on the compilation and deployment infrastructure of a company,
+relinking can be significantly less expensive than recompiling.
+
+If default member initializers had been used, the otherwise trivial
+default constructor might be defined in the header with \lstinline!=!
+\lstinline!default!, effectively removing any insulation of these values
+that might allow speedy relinking in lieu of expensive recompilation
+should these values need to change in a crisis.{\cprotect\footnote{For a
+complete description of this real-world example, see \cite{lakos20},
+  section~3.10.5, pp.~783--789.}}
+
+\subsubsection[Inconsistent subobject initialization]{Inconsistent subobject initialization}\label{inconsistent-subobject-initialization}
+
+An approach occasionally taken to avoid keeping shared state in global
+locations is to have objects keep a handle to a \lstinline!Context! object
+holding data that would otherwise be application global:
+
+\begin{emcppslisting}
+struct Context
+{
+    bool d_isProduction;
+    long d_userId;
+    int  d_datacenterId;
+    // ... other information about the context being run in
+
+    static Context* defaultContext();
+};
+\end{emcppslisting}
+    
+
+Each type that needs \lstinline!Context! information would take an optional
+argument to specify a local context; otherwise, it would use the default
+context:
+
+\begin{emcppslisting}
+#include <string>  // (ù{\codeincomments{std::string}}ù)
+
+struct ContextualObject
+{
+// ...
+     ContextualObject(const std::string &name,
+                      Context *context = Context::defaultContext());
+// ...
+};
+\end{emcppslisting}
+    
+
+When combining many objects, all of which might need to access the same
+context for configuration, it becomes important to pass the context
+specified at construction to each subobject:
+
+\begin{emcppslisting}
+struct CompoundObject
+{
+// ...
+    ContextualObject d_o1;
+    ContextualObject d_o2;
+// ...
+    CompoundObject(Context *context = Context::defaultContext())
+    : d_o1("First", context)
+    , d_o2("Second", context)
+    { }
+// ...
+};
+\end{emcppslisting}
+    
+
+This might seem like a situation well suited for using default member
+initializers, but the naive approach would have a serious flaw:
+
+\begin{emcppslisting}
+struct CompoundObject
+{
+// ...
+    ContextualObject d_o1{"first"};   // Bug, does not use (ù{\codeincomments{context}}ù) passed to
+    ContextualObject d_o2{"second"};  // (ù{\codeincomments{CompoundObject}}ù) constructor
+// ...
+    CompoundObject(Context *context = Context::defaultContext());
+// ...
+};
+\end{emcppslisting}
+    
+
+This bug, frustratingly, will impact only those applications that use
+multiple contexts, which might be a small subset of applications and
+libraries that use contextual objects. The only nonintrusive approach
+that avoids this bug is to forgo default member initializers for
+subobjects that can take a \lstinline!context! parameter. The other, still
+error-prone alternative is to store a context pointer as the
+\emph{first} member, initialize it in all constructors, and use that in
+the default member initializer of the subobjects:
+
+\begin{emcppslisting}
+struct CompoundObject
+{
+// ...
+    Context          *d_context;
+    ContextualObject  d_o1{"first", d_context};   // OK
+    ContextualObject  d_o2{"second", d_context};  // OK
+// ...
+    CompoundObject(Context *context = Context::defaultContext())
+    : d_context(context)
+    { }
+// ...
+};
+\end{emcppslisting}
+    
+
+This has the downside of requiring an extra copy of the
+\lstinline!Context*! member to transmit the passed-in value from the
+constructor to the subobject initializers. Additionally, now the
+subobjects of \lstinline!CompoundObject! strongly depend on being
+initialized after the \lstinline!d_context! member variable, so the order
+of members is subtly constrained. Consequently, innocuous changes in
+member order during maintenance are liable to introduce
+bugs.{\cprotect\footnote{C++17 introduces the \emcppsgloss{polymorphic memory
+resource} allocator model, which is a \emcppsgloss{scoped allocator model}
+  with issues similar to \lstinline!ContextualObject!.}}
+
+\subsection[Annoyances]{Annoyances}\label{annoyances}
+
+\subsubsection[Parenthesized direct-initialization syntax cannot be used]{Parenthesized direct-initialization syntax cannot be used}\label{parenthesized-direct-initialization-syntax-cannot-be-used}
+
+Default member initializers make member variables tantalizingly close to
+allowing all of the same syntax usable for local and global variables.
+However, the direct initialization syntax is not allowed in default
+member initialization, which makes it tedious to copy code from
+automatic variables into class members. For example, suppose we set out
+to transform a function into an equivalent \emcppsgloss{function object}
+(useful for applications needing callbacks). This transformation entails
+migrating a function's automatic variables to member variables of the
+corresponding function object:
+
+\begin{emcppslisting}
+void function()  // before
+{
+    int i1 = 17;
+    int i2(18);
+    int i3{42};
+
+    // ... do stuff
+    // ... do more stuff
+}
+
+class Functor  // after
+{
+    int i1 = 17;  // OK
+    int i2(18);   // Error, invalid syntax
+    int i3{42};   // OK
+
+    void operator()(int step)
+    {
+       switch (step)
+       {
+       case 0:  // ... do stuff
+           break;
+       case 1:  // ... do more stuff
+           break;
+           // ...
+       }
+    }
+};
+\end{emcppslisting}
+    
+
+Cutting and pasting the definitions of the locals \lstinline!i1!,
+\lstinline!i2!, and \lstinline!i3! will result in compile-time errors. The
+code initializing \lstinline!i2! needs to be fixed to use either copy
+initialization (like \lstinline!i1!) or braced initialization (like
+\lstinline!i3!).
+
+\subsubsection[Limitations of applicability]{Limitations of applicability}\label{limitations-of-applicability}
+
+Default member initializers can be used to replace the initialization of
+almost all members that can be placed in a constructor's \emcppsgloss{member
+initializer list}, except for two cases:
+
+\begin{itemize}
+\item{Bit-field data members\cprotect\footnote{In C++20, bit fields can now be initialized through a default member initializer:
+\begin{emcppslisting}[style=footcode]
+struct S
+{
+    int d_i : 4 = 8;  // Error, before C++20; OK, in C++20
+    int d_j : 4 {8};  // Error, before C++20; OK, in C++20
+};
+\end{emcppslisting}
+    }}
+\item{Base classes and \lstinline!virtual! base classes}
+\end{itemize}
+
+Both of these situations continue to require initialization in member
+initializer lists, which translates to boilerplate that may be
+inconsistent with the rest of the codebase.
+
+\subsubsection[Loss of triviality]{Loss of triviality}\label{loss-of-triviality}
+
+Having member initializers makes the default constructor nontrivial,
+which in turn makes the class not a \emcppsgloss[POD]{POD (plain old data)} type.
+The presence of a nontrivial constructor can prevent some optimizations
+that might otherwise be possible; see \featureref{\locationc}{gpods}:
+
+\begin{emcppslisting}
+#include <type_traits>  // (ù{\codeincomments{std::is\_trivial}}ù)
+
+struct S0 { int d_i;     };
+struct S1 { int d_i = 0; };
+struct S2 { int d_i; S2() : d_i(0) { } };
+
+static_assert(std::is_trivial<S0>::value, "");
+static_assert(!std::is_trivial<S1>::value, "");
+static_assert(!std::is_trivial<S2>::value, "");
+\end{emcppslisting}
+    
+
+\subsubsection[Loss of aggregate status]{Loss of aggregate status}\label{loss-of-aggregate-status}
+
+In C++11, classes using default member initializers are not considered
+\emcppsgloss[aggregate]{aggregates}, and that \emcppsgloss{aggregate initialization} can't be
+used is probably the biggest annoyance. Fortunately, the restriction has
+been lifted in C++14; see \featureref{\locationb}{aggregate-member-initialization-relaxation}:
+
+\begin{emcppslisting}
+struct ThreadPoolConfiguration
+{
+    int  d_numThreads         = 8;     // number of worker threads
+    bool d_enableWorkStealing = true;  // enable work stealing
+    int  d_taskSize           = 64;    // buffer size for an enqueued task
+};
+
+void f()
+{
+    ThreadPoolConfiguration tpc0;               // OK in C++11
+    ThreadPoolConfiguration tpc2{16, true, 64}; // Error, in C++11; OK in C++14
+}
+\end{emcppslisting}
+    
+
+\subsection[See Also]{See Also}\label{see-also}
+
+\begin{itemize}
+\item{\seealsoref{delegating-constructors}{\seealsolocationa}can reduce code repetition in initialization of non\lstinline!static! data members by chaining constructors together.}
+\item{\seealsoref{aggregate-member-initialization-relaxation}{\seealsolocationb}can be applied to classes with and will use the initializers from default member initializers.}
+\item{\seealsoref{bracedinit}{\seealsolocationc}default member initializers support \emcppsgloss{list initialization}, which is part of the uniform initialization effort.}
+\item{\seealsoref{enumopaque}{\seealsolocationc}provides another means of insulating clients from unnecessary implementation details.}
+\end{itemize}
+
+\subsection[Further Reading]{Further Reading}
+
+TBD
