@@ -1,0 +1,1427 @@
+
+% 01 Feb, 2021 JMB - packet 4 compilation fixes
+% 10 Feb 2021, cleanup before sending for revisions
+% 9 March 2021, revisions in and proofed
+% 17 March 2021, copyedits in and proofed
+
+\emcppsFeature{
+    short={Forwarding References},
+    long={Forwarding References ({\SecCode T\&\&})},
+    toclong={Forwarding References (\lstinline!T\&\&!)},
+}{forwardingref}
+\setcounter{table}{0}
+\setcounter{footnote}{0}
+\setcounter{lstlisting}{0}
+%\section[Forwarding References]{Forwarding {\SecCode \&\&} References}\label{forwardingref}
+
+A forwarding reference (\lstinline!T&&!) --- distinguishable from an
+\romeovalue{rvalue} reference (\lstinline!&&!) (see \featureref{\locationc}{Rvalue-References}) 
+%``\titleref{Rvalue-References}" on page~\pageref{Rvalue-References}) 
+based only on context
+--- is a distinct, special kind of reference that (1) binds
+universally to the result of an expression of \emph{any} \emcppsgloss{value
+category} and (2) preserves aspects of that \emcppsgloss{value category} so
+that the bound object can be \emph{moved from}, if appropriate.
+
+\subsection[Description]{Description}\label{description-forwardingref}
+
+Sometimes we want the same reference to bind to either an
+\romeovalue{lvalue} or an \romeovalue{rvalue} and then later be able to discern,
+from the reference itself, whether the result of the original expression
+was eligible to be \emph{moved from}. A \emph{forwarding reference}
+(e.g., \lstinline!forRef! in the example below) used in the interface of a function
+\emph{template} (e.g., \lstinline!myFunc! below) affords precisely this
+capability and will prove invaluable for the purpose of conditionally
+moving, or else copying, an object from within the function template's
+body:
+
+\begin{emcppslisting}
+template <typename T>
+void myFunc(T&& forRef)
+{
+    // It is possible to check if (ù{\codeincomments{forRef}}ù) is eligible to be moved from or not
+    // from within the body of (ù{\codeincomments{myFunc}}ù).
+}
+\end{emcppslisting}
+
+\noindent In the definition of the \lstinline!myFunc! function template in the example above, the
+parameter \lstinline!forRef! appears syntactically to be a
+non\lstinline!const! reference to an \romeovalue{rvalue} of type \lstinline!T!; in
+this very precise context, however, the same \lstinline!T&&! syntax
+designates a \emcppsgloss{forwarding reference}, with the effect of retaining
+the original value category of the object bound to \lstinline!forRef!; see \intraref{description-forwardingref}{identifying-forwarding-references}. 
+%\textit{\titleref{description-forwardingref}: \titleref{identifying-forwarding-references}} on page~\pageref{identifying-forwarding-references}. 
+The \lstinline!T&&! syntax
+represents a \emph{forwarding} reference --- as opposed to an
+\romeovalue{rvalue} reference --- whenever an \emph{individual} function template has a type parameter (e.g., \lstinline!T!) and
+an unqualified function parameter of type that is exactly
+\lstinline!T&&! (e.g., \lstinline!const!~\lstinline!T&&! would be an
+\romeovalue{rvalue} reference, not a forwarding reference).
+
+Consider, for example, a function template \lstinline!f! that takes a single
+argument by reference and then attempts to use it to invoke one of two
+overloads of a function \lstinline!g!, depending on whether the original
+argument was an \romeovalue{lvalue} or \romeovalue{rvalue}:
+
+\begin{emcppslisting}[emcppsbatch=e1]
+struct S { /* some type that might benefit from being able to be moved */ };
+
+void g(const S&);   // target function - overload for (ù{\codeincomments{const}}ù) (ù{\codeincomments{S}}ù) lvalues
+void g(S&&);        // target function - overload for (ù{\codeincomments{S}}ù) rvalues only
+
+template <typename T>
+void f(T&& forRef); // forwards to target overload (ù{\codeincomments{g}}ù) based on value category
+\end{emcppslisting}
+
+\noindent Note that a function may be overloaded on the reference type alone (see \featureref{\locationc}{Rvalue-References}); however, overloading on a \lstinline!const! \romeovalue{lvalue} reference and an \romeovalue{rvalue} reference occur most often in practice.
+%In theory, we could have chosen a non-\lstinline!const! \romeovalue{lvalue}
+%reference along with a modifiable \romeovalue{rvalue} reference here for
+%\emph{pedagogical} symmetry; such an inherently unharmonious overload
+%set would, however, not typically occur in practice; see \featureref{\locationc}{Rvalue-References}.
+%``\titleref{Rvalue-References}" on page~\pageref{Rvalue-References}. 
+In this specific case --- where \lstinline!f! is a function template,
+\lstinline!T! is a template type parameter, and the type of the parameter
+itself is exactly \lstinline!T&&! --- the \lstinline!forRef! function
+parameter (in the code snippet above) denotes a \emph{forwarding reference}. If \lstinline!f!\label{f-invoked-example}
+is invoked with an \romeovalue{lvalue}, \lstinline!forRef! is an \romeovalue{lvalue}
+reference; otherwise, \lstinline!forRef! is an \romeovalue{rvalue} reference.
+
+Given the dual nature of \lstinline!forRef!, one rather verbose way of
+determining the original value category of the passed argument would be
+to use the \lstinline!std::is_lvalue_reference! \emcppsgloss{type trait} on
+\lstinline!forRef! itself:
+
+\begin{emcppslisting}[emcppsbatch=e1]
+#include <type_traits>  // (ù{\codeincomments{std::is\_lvalue\_reference}}ù)
+#include <utility>  // (ù{\codeincomments{std::move}}ù)
+
+template <typename T>
+void f(T&& forRef)      // (ù{\codeincomments{forRef}}ù) is a forwarding reference.
+{
+    if (std::is_lvalue_reference<T>::value)  // using a C++11 type trait
+    {
+        g(forRef);             // propagates (ù{\codeincomments{forRef}}ù) as an *lvalue*
+    }                          // invokes (ù{\codeincomments{g(const S\&)}}ù)
+    else
+    {
+        g(std::move(forRef));  // propagates (ù{\codeincomments{forRef}}ù) as an *rvalue*
+    }                          // invokes (ù{\codeincomments{g(S\&\&)}}ù)
+}
+\end{emcppslisting}
+
+\noindent The \lstinline!std::is_lvalue_reference<T>::value! predicate above asks
+the question, ``Did the object bound to \lstinline!forRef! originate
+from an \romeovalue{lvalue} expression?'' and allows the developer to branch on the
+answer. A better solution that captures this logic at compile time is generally preferred; see \intraref{description-forwardingref}{the-std::forward-utility}:
+%\textit{\titleref{description-forwardingref}: \titleref{the-std::forward-utility}} on page~\pageref{the-std::forward-utility}:
+
+\begin{emcppshiddenlisting}[emcppsbatch=e2]
+struct S {};
+void g(const S&);
+void g(S&&);
+\end{emcppshiddenlisting}
+\begin{emcppslisting}[emcppsbatch=e2]
+#include <utility>  // (ù{\codeincomments{std::forward}}ù)
+
+template <typename T>
+void f(T&& forRef)
+{
+    g(std::forward<T>(forRef));
+        // same as (ù{\codeincomments{g(std::move(forRef))}}ù) if and only if (ù{\codeincomments{forRef}}ù) is an *rvalue*
+        // reference; otherwise, equivalent to (ù{\codeincomments{g(forRef)}}ù)
+}
+\end{emcppslisting}
+
+\noindent A \lstinline!client! function invoking \lstinline!f! will enjoy the same
+behavior with either of the two implementation alternatives offered
+above:
+
+\begin{emcppslisting}[emcppsbatch=e2]
+void client()
+{
+    S s;
+    f(s);    // Instantiates (ù{\codeincomments{f<S\&>}}ù) -- (ù{\codeincomments{forRef}}ù) is an lvalue reference ((ù{\codeincomments{S\&}}ù)).
+             // The function (ù{\codeincomments{f<S\&>}}ù) will end up invoking (ù{\codeincomments{g(S\&)}}ù).
+
+    f(S());  // Instantiates (ù{\codeincomments{f<S>}}ù) -- (ù{\codeincomments{forRef}}ù) is an rvalue reference ((ù{\codeincomments{S\&\&}}ù)).
+             // The function (ù{\codeincomments{f<S>}}ù) will end up invoking (ù{\codeincomments{g(S\&\&)}}ù).
+}
+\end{emcppslisting}
+
+\noindent Use of \lstinline!std::forward! in combination with forwarding references
+is typical in the implementation of industrial-strength generic
+libraries; see \intrarefsimple{use-cases-forwardingref}.
+%\textit{\titleref{use-cases-forwardingref}} on page~\pageref{use-cases-forwardingref}.
+
+\subsubsection[A brief review of function template argument deduction]{A brief review of function template argument deduction}\label{a-brief-review-of-function-template-argument-deduction}
+
+Invoking a function template without explicitly providing template
+arguments at the call site will compel the compiler to attempt, if
+possible, to \emph{deduce} those template \emph{type} arguments from the
+function arguments:
+
+\begin{emcppslisting}
+template <typename T> void f();
+template <typename T> void g(T x);
+template <typename T> void h(T y, T z);
+
+void example0()
+{
+    f();        // Error, couldn't infer template argument (ù{\codeincomments{T}}ù)
+    f<short>(); // OK, (ù{\codeincomments{T}}ù) specified explicitly
+    g(0);       // OK, (ù{\codeincomments{T}}ù) deduced as (ù{\codeincomments{int}}ù) from literal (ù{\codeincomments{0}}ù) -- (ù{\codeincomments{x}}ù) is an (ù{\codeincomments{int}}ù).
+    h(0, 'a');  // Error, deduced conflicting types for (ù{\codeincomments{T}}ù) ((ù{\codeincomments{int}}ù) vs. (ù{\codeincomments{char}}ù))
+    h('A', 'B'); // OK, both arguments have same type.
+}
+\end{emcppslisting}
+
+\noindent Any \emcppsgloss[cv qualifiers]{cv-qualifiers} (\lstinline!const!, \lstinline!volatile!, or both)
+on a \emph{deduced} function parameter will be applied \emph{after} type
+deduction is performed:
+
+\begin{emcppslisting}
+template <typename T> void cf(const T x);
+template <typename T> void vf(volatile T y);
+template <typename T> void wf(const volatile T z);
+
+void example1()
+{
+    cf(0);  // OK, (ù{\codeincomments{T}}ù) deduced as (ù{\codeincomments{int}}ù) -- (ù{\codeincomments{x}}ù) is a (ù{\codeincomments{const int}}ù).
+    vf(0);  // OK, (ù{\codeincomments{T}}ù) deduced as (ù{\codeincomments{int}}ù) -- (ù{\codeincomments{y}}ù) is a (ù{\codeincomments{volatile int}}ù).
+    wf(0);  // OK, (ù{\codeincomments{T}}ù) deduced as (ù{\codeincomments{int}}ù) -- (ù{\codeincomments{z}}ù) is a (ù{\codeincomments{const}}ù) (ù{\codeincomments{volatile}}ù) (ù{\codeincomments{int}}ù).
+}
+\end{emcppslisting}
+
+\noindent Similarly, \emcppsgloss{ref-qualifiers} other than \lstinline!&&!
+(i.e., \lstinline!&! or \lstinline!&&! along with any cv-qualifiers) do not
+alter the deduction process, and they too are applied after deduction:
+
+\begin{emcppslisting}
+template <typename T> void rf(T& x);
+template <typename T> void crf(const T& x);
+
+void example2(int i)
+{
+    rf(i);   // OK, (ù{\codeincomments{T}}ù) is deduced as (ù{\codeincomments{int}}ù) -- (ù{\codeincomments{x}}ù) is an (ù{\codeincomments{int\&}}ù).
+    crf(i);  // OK, (ù{\codeincomments{T}}ù) is deduced as (ù{\codeincomments{int}}ù) -- (ù{\codeincomments{x}}ù) is a (ù{\codeincomments{const int\&}}ù).
+
+    rf(0);   // Error, expects an lvalue for 1st argument
+    crf(0);  // OK, (ù{\codeincomments{T}}ù) is deduced as (ù{\codeincomments{int}}ù) -- (ù{\codeincomments{x}}ù) is a (ù{\codeincomments{const int\&}}ù).
+}
+\end{emcppslisting}
+
+\noindent Type deduction works differently for \emph{forwarding} references
+where the only qualifier on the template parameter is \lstinline!&&!. For
+the sake of exposition, consider a function template declaration,
+\lstinline!f!, accepting a forwarding reference, \lstinline!forRef!:
+
+\begin{emcppslisting}[emcppsbatch=e3]
+template <typename T> void f(T&& forRef);
+\end{emcppslisting}
+
+ %%%%%%%% PRODUCTION: make sure we are as precise as we can be with this xref on FPPs.
+\noindent We have seen in the example on page~\pageref{f-invoked-example} that,
+when \lstinline!f! is invoked with an
+\romeovalue{lvalue} of type \lstinline!S!, then \lstinline!T! is deduced as
+\lstinline!S&! and \lstinline!forRef! becomes an \romeovalue{lvalue} reference.
+When \lstinline!f! is instead invoked with an \romeovalue{xvalue} of type
+\lstinline!S! (see \featureref{\locationc}{Rvalue-References}), then \lstinline!T! is deduced as \lstinline!S! and
+\lstinline!forRef! becomes an \romeovalue{rvalue} reference. 
+%The underlying
+%process that results in this ``duality'' relies on a special rule (known
+%as \romeogloss{reference collapsing}; see the next section) introduced as part of
+%\romeogloss{type deduction}.
+The underlying process that results in this duality relies on \emcppsgloss{reference collapsing} (see the next section) and special \emcppsgloss{type deduction} rules introduced for this particular case.  
+When the type \lstinline!T! of a
+\emph{forwarding} reference is being deduced from an expression
+\lstinline!E!, \lstinline!T! itself will be deduced as an \romeovalue{lvalue}
+reference if \lstinline!E! is an \romeovalue{lvalue}; otherwise, normal
+type-deduction rules will apply, and \lstinline!T! will be deduced as a nonreference type:
+
+\begin{emcppslisting}[emcppsbatch=e3]
+void g()
+{
+    int i;
+    f(i);  // (ù{\codeincomments{i}}ù) is an *lvalue* expression.
+           // (ù{\codeincomments{T}}ù) is therefore deduced as (ù{\codeincomments{int\&}}ù) -- special rule!
+           // (ù{\codeincomments{T\&\&}}ù) becomes (ù{\codeincomments{int\& \&\&}}ù), which collapses to (ù{\codeincomments{int\&}}ù).
+
+    f(0);  // (ù{\codeincomments{0}}ù) is an *rvalue* expression.
+           // (ù{\codeincomments{T}}ù) is therefore deduced as (ù{\codeincomments{int}}ù).
+           // (ù{\codeincomments{T\&\&}}ù) becomes (ù{\codeincomments{int\&\&}}ù), which is an *rvalue* reference.
+}
+\end{emcppslisting}
+
+\noindent For more on general type deduction, see \featureref{\locationc}{auto-feature}.
+%``\titleref{auto-feature}" on page~\pageref{auto-feature}.
+
+\subsubsection[Reference collapsing]{Reference collapsing}\label{reference-collapsing}
+
+As we saw in the previous section, when a function having a
+\emph{forwarding} reference parameter, \lstinline!forRef!, is invoked with
+a corresponding \romeovalue{lvalue} argument (e.g., a named variable), an interesting phenomenon
+occurs: After type deduction, we temporarily get what appears
+syntactically to be an \romeovalue{rvalue} reference to an \romeovalue{lvalue}
+reference. As references to references are \emph{not} allowed in C++,
+the compiler uses \emcppsgloss{reference collapsing} to resolve the
+\emph{forwarding}-reference parameter, \lstinline!forRef!, into a single
+reference, thus providing a way to infer, from \lstinline!T! itself, the
+original \emcppsgloss{value category} of the argument passed to \lstinline!f!.
+
+The process of \emcppsgloss{reference collapsing} is performed by the compiler 
+in any situation where a reference to a reference would be formed. Table~\ref{forwardingref-table1}
+illustrates the simple rules for collapsing ``unstable" references
+into ``stable" ones. Notice, in particular, that an \romeovalue{lvalue}
+reference always overpowers an \romeovalue{rvalue} reference. The only
+situation in which two references collapse into an \romeovalue{rvalue}
+reference is when they are both \romeovalue{rvalue} references.
+\begin{table}[h!]
+\begin{center}
+\begin{threeparttable}
+\caption{Collapsing ``unstable'' reference pairs into a single
+``stable'' one}\label{forwardingref-table1}\vspace{1.5ex}
+{\small \begin{tabular}{c|c|c}\thickhline
+\rowcolor[gray]{.9}   {\sffamily\bfseries 1st Reference Type} & {\sffamily\bfseries 2nd Reference Type} &
+{\sffamily\bfseries Result of Reference Collapsing} \\ \hline
+\lstinline!&! &\lstinline!&! & \lstinline!&! \\ \hline
+\lstinline!&! & \lstinline!&&! &\lstinline!&! \\ \hline
+\lstinline!&&! & \lstinline!&! & \lstinline!&! \\ \hline
+\lstinline!&&! & \lstinline!&&! & \lstinline!&&! \\ \thickhline
+\end{tabular}
+}
+\end{threeparttable}
+\end{center}
+\end{table}
+
+It is not possible to write a reference-to-reference
+type in C++\linebreak[3]%%%%%
+ \mbox{explicitly}:
+
+\begin{emcppslisting}
+int    i   = 0;   // OK
+int&   ir  = i;   // OK
+int& & irr = ir;  // Error, (ù{\codeincomments{irr}}ù) declared as a reference to a reference
+\end{emcppslisting}
+
+\noindent It is, however, easy to do so with type aliases and template parameters,
+and that is where reference collapsing comes into play:
+
+\begin{emcppslisting}[emcppsbatch=e4]
+#include <type_traits>  // (ù{\codeincomments{std::is\_same}}ù)
+using T1 = int&;  // OK
+using T2 = i&;    // OK, (ù{\codeincomments{int\& \&}}ù) becomes (ù{\codeincomments{int\&}}ù).
+static_assert(std::is_same<T2,int&>::value);
+\end{emcppslisting}
+
+\noindent Furthermore, references to references can occur during computations involving \emcppsgloss[metafunction]{metafunctions} or as part of
+language rules (such as type deduction):
+
+\begin{emcppslisting}
+template <typename T>
+struct AddLvalueRef { typedef T& type; };
+    // metafunction that transforms to an *lvalue* reference to (ù{\codeincomments{T}}ù)
+
+template <typename T>
+void f(T input)
+{
+    typename AddLvalueRef<T>::type ir1 = input;    // OK, adds (ù{\codeincomments{\&}}ù) to make (ù{\codeincomments{T\&}}ù)
+    typename AddLvalueRef<T&>::type ir2 = input;   // OK, collapses to (ù{\codeincomments{T\&}}ù)
+    typename AddLvalueRef<T&&>::type ir3 = input;  // OK, collapses to (ù{\codeincomments{T\&}}ù)
+}
+\end{emcppslisting}
+
+\noindent Notice that we are using the \lstinline!typename! keyword in the example above as a
+generalized way of indicating, during \emcppsgloss{template instantiation},
+that a dependent name is a type (as opposed to a value).\footnote{In C++20, the \lstinline!typename! disambiguator is no longer required in some of the contexts where a dependent qualified name must be a type. For example, when a dependent name is used as a function return type --- \lstinline!template<class T> T::R f();! --- then \lstinline!typename! is not required.}
+
+\subsubsection[Identifying forwarding references]{Identifying forwarding references}\label{identifying-forwarding-references}
+
+The syntax for a \emph{forwarding} reference (\lstinline!&&!) is the same
+as that for \romeovalue{rvalue} references; the only way to discern one from
+the other is by observing the surrounding context. When used in a manner
+where \emcppsgloss{type deduction} can take place, the \lstinline!T&&! syntax
+does \emph{not} designate an \romeovalue{rvalue} reference; instead, it
+represents a \emph{forwarding} reference. For type deduction to be in
+effect, a function \emph{template}
+must have a type parameter (e.g., \lstinline!T!) and a function parameter of
+type that exactly matches that parameter followed by \lstinline!&&!
+(e.g., \lstinline!T&&!):
+
+\begin{emcppslisting}
+struct S0
+{
+    template <typename T>
+    void f(T&& forRef);
+        // Fully eligible for template-argument type deduction: (ù{\codeincomments{forRef}}ù)
+        // is a forwarding reference.
+};
+\end{emcppslisting}
+
+\noindent Note that if the function parameter is qualified, the syntax reverts to
+the usual meaning of \romeovalue{rvalue} reference:
+
+\begin{emcppslisting}
+struct S1
+{
+    template <typename T>
+    void f(const T&& crRef);
+        // Eligible for type deduction but is not a forwarding reference: due
+        // to the (ù{\codeincomments{const}}ù) qualifier, (ù{\codeincomments{crRef}}ù) is an *rvalue* reference.
+};
+\end{emcppslisting}
+
+\noindent If a member function of a class template is not itself also a template,
+then its template type parameter will not be deduced:
+
+\begin{emcppslisting}
+template <typename T>
+struct S2
+{
+    void f(T&& rRef);
+       // Not eligible for type deduction because (ù{\codeincomments{T}}ù) is fixed and known as part
+       // of the instantiation of (ù{\codeincomments{S2}}ù): (ù{\codeincomments{rRef}}ù) is an *rvalue* reference.
+};
+\end{emcppslisting}
+
+\noindent More generally, note that the \lstinline!&&! syntax can \emph{never}
+imply a \emph{forwarding} reference for a function that is not itself a
+template; see \intraref{annoyances-forwardingref}{forwarding-references-look-just-like-rvalue-references}.
+%\textit{\titleref{annoyances-forwardingref}:
+%\titleref{forwarding-references-look-just-like-rvalue-references}} on page~\pageref{forwarding-references-look-just-like-rvalue-references}.
+
+\subsubsection[\lstinline!auto&&! --- a forwarding reference in a nonparameter context]{{\SubsubsecCode auto\&\&}~{\subsubemdash}~a forwarding reference in a nonparameter context}\label{auto-a-forwarding-reference-in-a-non-parameter-context}
+
+Outside of template function parameters, \emph{forwarding} references
+can also appear in the context of variable definitions using the
+\lstinline!auto! keyword (see \featureref{\locationc}{auto-feature}) 
+%``\titleref{auto-feature}" on page~\pageref{auto-feature}) 
+because they too are subject to type
+deduction:
+
+\begin{emcppslisting}
+void f()
+{
+    auto&& i = 0;  // (ù{\codeincomments{i}}ù) is a forwarding reference because the type of (ù{\codeincomments{i}}ù) must
+                   // be deduced from the initialization expression (ù{\codeincomments{0}}ù).
+}
+\end{emcppslisting}
+
+\noindent Just like function parameters, \lstinline!auto&&! resolves to either an
+\romeovalue{lvalue} reference or \romeovalue{rvalue} reference depending on the
+\emcppsgloss{value category} of the initialization expression:
+
+\begin{emcppslisting}
+void g()
+{
+    int i = 0;
+    auto&& lv = i;  // (ù{\codeincomments{lv}}ù) is an (ù{\codeincomments{int\&}}ù).
+
+    auto&& rv = 0;  // (ù{\codeincomments{rv}}ù) is an (ù{\codeincomments{int\&\&}}ù).
+}
+\end{emcppslisting}
+
+\noindent Similarly to \lstinline!const!~\lstinline!auto&!, the \lstinline!auto&&!
+syntax binds to anything. In the case of \lstinline!auto&&!, however, the reference will be \lstinline!const! \emph{only} if it is initialized with a \lstinline!const! object:
+
+\begin{emcppslisting}
+void h()
+{
+    int        i = 0;
+    const int ci = 0;
+
+    auto&& lv  = i;   // (ù{\codeincomments{lv}}ù) is an (ù{\codeincomments{int\&}}ù).
+    auto&& clv = ci;  // (ù{\codeincomments{clv}}ù) is a (ù{\codeincomments{const int\&}}ù).
+}
+\end{emcppslisting}
+
+\noindent Just as with function parameters, the original \emcppsgloss{value category}
+of the expression used to initialize a \emph{forwarding} reference
+variable can be propagated during subsequent function invocation ---
+e.g., using \lstinline!std::forward! (see \intraref{description-forwardingref}{the-std::forward-utility}):
+%\textit{\titleref{description-forwardingref}: \titleref{the-std::forward-utility}} on page~\pageref{the-std::forward-utility}):
+
+\begin{emcppshiddenlisting}[emcppsbatch=e5]
+#include <utility>  // (ù{\codeincomments{std::forward}}ù)
+template <typename T>
+T get();
+\end{emcppshiddenlisting}
+\begin{emcppslisting}[emcppsbatch=e5]
+#include <tuple>   // (ù{\codeincomments{std::get}}ù)#include <utility> // (ù{\codeincomments{std::forward}}ù)
+template <typename T>
+void use(T&& t); // Here (ù{\codeincomments{use}}ù) also takes a forwarding reference parameter
+                 // to do with as it pleases.
+
+template <typename T>
+void l()
+{
+    auto&& fr = std::get<T>();
+        // (ù{\codeincomments{get<T>()}}ù) might be either an *lvalue* or *rvalue* depending on (ù{\codeincomments{T}}ù).
+
+    use(std::forward<decltype(fr)>(fr));  // (ù{\codeincomments{decltype}}ù) is a C++11 feature.
+        // Propagate the original value category of (ù{\codeincomments{get<T>()}}ù) into (ù{\codeincomments{use}}ù).
+}
+\end{emcppslisting}
+
+\noindent Notice that because (1) \lstinline!std::forward! (see the next section) requires the
+type of the object that's going to be forwarded as a user-provided
+template argument and (2) it is not possible to name the type of
+\lstinline!fr!, \lstinline!decltype! (see \featureref{\locationa}{decltype}) 
+%``\titleref{decltype}" on page~\pageref{decltype}) 
+was used in the example above
+to retrieve the type of \lstinline!fr!.
+
+\subsubsection[Forwarding references without forwarding]{Forwarding references without forwarding}\label{forwarding-references-without-forwarding}
+
+Sometimes deliberately \emph{not} forwarding (see \intraref{description-forwardingref}{the-std::forward-utility}) 
+%\textit{\titleref{description-forwardingref}: \titleref{the-std::forward-utility}} on page~\pageref{the-std::forward-utility}) 
+an \lstinline!auto&&! variable or
+a forwarding reference function parameter at all can be useful. In such cases, \emph{forwarding} references are employed solely for their \lstinline!const!-preserving
+and universal binding semantics. As an example, consider the task of
+obtaining iterators over a range of an unknown \emcppsgloss{value category}:
+
+\begin{emcppshiddenlisting}[emcppsbatch=e6]
+template <typename T>
+T getRange();
+\end{emcppshiddenlisting}
+\begin{emcppslisting}[emcppsbatch=e6]
+#include <iterator>  // (ù{\codeincomments{std::begin}}ù), (ù{\codeincomments{std::end}}ù)
+
+template <typename T>
+void m()
+{
+    auto&& r = getRange<T>();
+        // (ù{\codeincomments{getRange<T>()}}ù) might be either an lvalue or rvalue depending on (ù{\codeincomments{T}}ù).
+
+    auto b = std::begin(r);
+    auto e = std::end(r);
+
+    traverseRange(b, e);
+}
+\end{emcppslisting}
+
+\noindent Using \lstinline!std::forward! in the initialization of both \lstinline!b! and
+\lstinline!e! (above) might result in moving from \lstinline!r! twice, which is
+potentially unsafe (see \featureref{\locationc}{Rvalue-References}):
+
+\begin{emcppslisting}auto b = std::begin(std::forward<decltype(r)>(r));  auto e = std::end  (std::forward<decltype(r)>(r));  // BAD IDEA:                                                     // (ù{\codeincomments{r}}ù) might be (ù{\emphincomments{moved from}}ù).\end{emcppslisting}
+%``\titleref{Rvalue-References}" on page~\pageref{Rvalue-References}). 
+
+\noindent Forwarding
+\lstinline!r! only in the initialization of \lstinline!e! might avoid issues
+caused by moving an object twice but might result in inconsistent
+behavior with \lstinline!b!:
+
+\begin{emcppslisting}auto b = std::begin(r);  auto e = std::end(std::forward<decltype(r)>(r));  // BAD IDEA: (ù{\codeincomments{e}}ù) might have                                                   // a different type than (ù{\codeincomments{b}}ù).\end{emcppslisting}
+
+\subsubsection[The \lstinline!std::forward! utility]{The {\SubsubsecCode std::forward} utility}\label{the-std::forward-utility}
+
+The final piece of the forwarding reference infrastructure is the
+\lstinline!std::forward! utility function. Since the expression naming a
+forwarding reference \lstinline!x! is always an \romeovalue{lvalue} --- due to its
+reachability by either name or address --- and since our
+intention is to move \lstinline!x! in case it was an \romeovalue{rvalue} to begin
+with, we need a conditional \emph{move} operation that will move
+\lstinline!x! only in that case and otherwise let \lstinline!x! pass through as
+an \romeovalue{lvalue}.
+
+The declaration for \lstinline!std::forward<T>! is as follows (in
+\lstinline!<utility>!):
+
+\begin{emcppshiddenlisting}[emcppsbatch=e7]
+#include <type_traits>  // (ù{\codeincomments{std::remove\_reference}}ù)
+using namespace std; // to avoid qualifying remove_reference
+\end{emcppshiddenlisting}
+\begin{emcppslisting}[emcppsbatch=e7]
+namespace std {template <class T> T&& forward(typename remove_reference<T>::type&  t) noexcept; 
+template <class T> T&& forward(typename remove_reference<T>::type&& t) noexcept; 
+}
+\end{emcppslisting}
+
+\noindent Note that the second overload will be deliberately removed from the overload set if \lstinline!T! is an \romeovalue{lvalue} reference type to avoid ambiguity.
+%The second overload is ill-formed if invoked when \lstinline!T! is an
+%\romeovalue{lvalue} reference type.
+
+
+Recall that the type \lstinline!T! associated with a forwarding reference
+is deduced as a reference type if given an \romeovalue{lvalue} reference and
+as a nonreference type otherwise. So for a forwarding reference
+\lstinline!forRef! of type \lstinline!T&&!, we have two cases:
+\begin{itemize}
+\item{An \romeovalue{lvalue} of type \lstinline!U! was used for initializing \lstinline!forRef!, so \lstinline!T! is \lstinline!U&!; thus, the first overload of \lstinline!forward! will be selected and will be of the form \lstinline!U&!~\lstinline!forward(U&!~\lstinline!u)!~\lstinline!noexcept!, thus just returning the original \romeovalue{lvalue} reference. Notice the effect of reference collapsing in the return type: \lstinline!(U&)&&! becomes simply \lstinline!U&!.}
+\item{An \romeovalue{rvalue} of type \lstinline!U! was used for initializing \lstinline!forRef!, so \lstinline!T! is \lstinline!U!, so the second overload of \lstinline!forward! will be selected and will be of the form \lstinline!U&&!~\lstinline!forward(U&&!~\lstinline!u)!~\lstinline!noexcept!, essentially equivalent to \lstinline!std::move!.}
+\end{itemize}
+Note that, in the body of a function template accepting a forwarding
+reference \lstinline!T&&! named \lstinline!x!, \lstinline!std::forward<T>(x)!
+could be replaced with \lstinline!static_cast<T&&>(x)! to achieve the
+same effect. Due to \emcppsgloss{reference collapsing} rules, \lstinline!T&&!
+will resolve to \lstinline!T&! whenever the original \emcppsgloss{value
+category} of \lstinline!x! was an \romeovalue{lvalue} and to \lstinline!T&&!
+otherwise, thus achieving the \emph{conditional move} behavior
+elucidated in \intrarefsimple{description-forwardingref}.
+%\textit{\titleref{description-forwardingref}} on page~\pageref{description-forwardingref}. 
+Using \lstinline!std::forward! over \lstinline!static_cast!, however, expresses the programmer's intent explicitly.
+
+\subsection[Use Cases]{Use Cases}\label{use-cases-forwardingref}
+
+\subsubsection[Perfectly forwarding an expression to a downstream consumer]{Perfectly forwarding an expression to a downstream consumer}\label{perfectly-forwarding-an-expression-to-a-downstream-consumer}
+
+A frequent use of forwarding references and \lstinline!std::forward! is to
+propagate an object, whose \emcppsgloss{value category} is
+invocation-dependent, down to one or more service providers that will
+behave differently depending on the \emcppsgloss{value category} of the
+original argument.
+
+As an example, consider an overload set for a function, \lstinline!sink!,
+that accepts an \lstinline!std::string! either by \lstinline!const!
+\romeovalue{lvalue} reference (e.g., with the intention of \textit{copying} from it) or by 
+\romeovalue{rvalue} reference (e.g., with the intention of \textit{moving} from it):
+
+\begin{emcppshiddenlisting}[emcppsbatch=e8]
+#include <string>   // (ù{\codeincomments{std::string}}ù)
+#include <utility>  // (ù{\codeincomments{std::move}}ù)
+std::string target;
+\end{emcppshiddenlisting}
+\begin{emcppslisting}[emcppsbatch=e8]
+void sink(const std::string& s) { target = s; }
+void sink(std::string&& s)      { target = std::move(s); }
+\end{emcppslisting}
+
+\noindent Now, let's assume that we want to create an intermediary function
+template, \lstinline!pipe!, that will accept an \lstinline!std::string! of any
+\emcppsgloss{value category} and will dispatch its argument to the
+corresponding overload of \lstinline!sink!. By accepting a
+\emph{forwarding} reference as a function parameter and invoking
+\lstinline!std::forward! as part of \lstinline!pipe!'s body, we can achieve
+our original goal without any code duplication:
+
+\begin{emcppslisting}[emcppsbatch=e8]
+template <typename T>
+void pipe(T&& x)
+{
+    sink(std::forward<T>(x));
+}
+\end{emcppslisting}
+
+\noindent Invoking \lstinline!pipe! with an \romeovalue{lvalue} will result in \lstinline!x!
+being an \romeovalue{lvalue} reference and thus\linebreak[4]%%%%%%%%
+\mbox{\lstinline!sink(const!~\lstinline!std::string&)!'s} being called. Otherwise,
+\lstinline!x! will be an \romeovalue{rvalue} reference and
+\lstinline!sink(std::string&&)! will be called. This idea of enabling
+\emph{move} operations without code duplication (as \lstinline!pipe! does)
+is commonly referred to as \intraref{use-cases-forwardingref}{perfect-forwarding-for-generic-factory-functions}.
+%\textit{\titleref{use-cases-forwardingref}: \titleref{perfect-forwarding-for-generic-factory-functions}} on page~\pageref{perfect-forwarding-for-generic-factory-functions}.
+
+\subsubsection[Handling multiple parameters concisely]{Handling multiple parameters concisely}\label{handling-multiple-parameters-concisely}
+
+Suppose we have a \emcppsgloss[value semantic type (VST)]{value-semantic type (VST)} that holds a
+collection of attributes where some (not necessarily proper) subset of
+them need to be changed together to preserve some class invariant{\cprotect\footnote{This type of
+value-semantic type can be classified more specifically as a
+\emph{complex}-\emph{constrained} attribute class; see \cite{lakos2a}, section~4.2.}}:
+
+\begin{emcppslisting}
+#include <type_traits>  // (ù{\codeincomments{std::decay}}ù), (ù{\codeincomments{std::enable\_if}}ù), (ù{\codeincomments{std::is\_same}}ù)
+#include <utility>      // (ù{\codeincomments{std::forward}}ù)
+
+struct Person { /* UDT that benefits from move semantics */ };
+
+class StudyGroup
+{
+    Person d_a;
+    Person d_b;
+    Person d_c;
+    Person d_d;
+    // ...
+
+public: 
+    static bool isValid(const Person& a, const Person& b,                        const Person& c, const Person& d);        // Return true if these specific people form a valid study group under        // the guidelines of the study-group commission, and false otherwise.
+    // ...
+
+    template <typename PA, typename PB, typename PC, typename PD,
+        typename = typename std::enable_if<
+            std::is_same<typename std::decay<PA>::type, Person>::value &&
+            std::is_same<typename std::decay<PB>::type, Person>::value &&
+            std::is_same<typename std::decay<PC>::type, Person>::value &&
+            std::is_same<typename std::decay<PD>::type, Person>::value>::type>
+    int setPersonsIfValid(PA&& a, PB&& b, PC&& c, PD&& d)
+    {
+        enum { e_SUCCESS = 0, e_FAIL };
+
+        if (!isValid(a, b, c, d))
+        {
+            return e_FAIL;  // bad choice; no change
+        }
+
+        // Move or copy each person into this object's (ù{\codeincomments{Person}}ù) data members.
+        
+        d_a = std::forward<PA>(a);
+        d_b = std::forward<PB>(b);
+        d_c = std::forward<PC>(c);
+        d_d = std::forward<PD>(d);
+
+        return e_SUCCESS;  // Study group was updated successfully.
+    }
+};
+\end{emcppslisting}
+
+\noindent Because the template arguments used in each successive function parameter are deduced\linebreak[4] interdependently from the types of their corresponding function arguments, the\linebreak[4] \lstinline!setPersonsIfValid! function template can be instantiated for a full cross product of variations of qualifiers that can be
+on a \lstinline!Person! object. Any combination of \romeovalue{lvalue} and
+\romeovalue{rvalue} \lstinline!Person!s can be passed, and a template will be
+instantiated that will copy the \romeovalue{lvalues} and move from the
+\romeovalue{rvalues}. To make sure the \lstinline!Person! objects are
+created externally, the function is restricted, using
+\lstinline!std::enable_if!, to instantiate only for types that decay to
+\lstinline!Person! (i.e., types that are cv-qualified or ref-qualified
+\lstinline!Person!). Because each parameter is a forwarding reference, they
+can all implicitly convert to \lstinline!const!~\lstinline!Person&! to pass
+to \lstinline!isValid!, creating no additional temporaries. Finally,
+\lstinline!std::forward! is then used to do the actual moving or copying as
+appropriate to data members.
+
+\subsubsection[Perfect forwarding for generic factory functions]{Perfect forwarding for generic factory functions}\label{perfect-forwarding-for-generic-factory-functions}
+
+Consider the prototypical standard-library generic factory function,
+\lstinline!std::make_shared<T>!. On the surface, the requirements for this
+function are fairly simple --- allocate a place for a \lstinline!T! and
+then construct it with the same arguments that were passed to
+\lstinline!make_shared!. Correctly passing arguments to the constructor, however, gets reasonably complex to
+implement efficiently when \lstinline!T! can have a wide variety of ways in
+which it might be initialized.
+
+For simplicity, we will show how a two-argument \lstinline!my::make_shared!
+might be defined, knowing that a full implementation would employ
+variadic template arguments for this purpose --- see \featureref{\locationc}{variadictemplate}. 
+%``\titleref{variable-templates}" on page~\pageref{variable-templates}. 
+Furthermore, our simplified \lstinline!make_shared! creates the object on the
+heap with \lstinline!new! and constructs an \lstinline!std::shared_ptr! to
+manage the lifetime of that object. 
+
+Let's now consider how we would structure the declaration of this form of \lstinline!make_shared!:
+
+\begin{emcppshiddenlisting}[emcppsbatch=e9]
+#include <memory>  // (ù{\codeincomments{std::shared\_ptr}}ù)
+\end{emcppshiddenlisting}
+\begin{emcppslisting}[emcppsbatch=e9]
+namespace my {
+template <typename OBJECT_TYPE, typename ARG1, typename ARG2>
+std::shared_ptr<OBJECT_TYPE> make_shared(ARG1&& arg1, ARG2&& arg2);
+}
+\end{emcppslisting}
+
+\noindent Notice that we have two forwarding reference arguments ---
+\lstinline!arg1! and \lstinline!arg2! --- with deduced types \lstinline!ARG1! and
+\lstinline!ARG2!. Now, the body of our function needs to carefully
+construct our \lstinline!OBJECT_TYPE! object on the heap and then create
+our output \lstinline!shared_ptr!:
+
+\begin{emcppslisting}[emcppsbatch=e9]
+template <typename OBJECT_TYPE, typename ARG1, typename ARG2>
+std::shared_ptr<OBJECT_TYPE> my::make_shared(ARG1&& arg1, ARG2&& arg2)
+{
+    OBJECT_TYPE *object_p = new OBJECT_TYPE(std::forward<ARG1>(arg1),
+                                               std::forward<ARG2>(arg2));
+    try
+    {
+        return std::shared_ptr<OBJECT_TYPE>(object_p);
+    }
+    catch (...)
+    {
+        delete object_p;
+        throw;
+    }
+}
+\end{emcppslisting}
+
+\noindent Notice that this simplified implementation needs to clean up the allocated object if the
+constructor for the return value throws; normally a \emcppsgloss{RAII}
+proctor to manage this ownership would be a more robust solution to this
+problem.
+
+Importantly, using \lstinline!std::forward! to construct the object
+means that the arguments passed to \lstinline!make_shared! will be used to
+find the appropriate matching two-parameter constructor of
+\lstinline!OBJECT_TYPE!. When those arguments are \romeovalue{rvalues}, the
+constructor found will again search for one that takes an \romeovalue{rvalue}
+and the arguments will be moved from. What's more, because this function
+wants to forward exactly the \lstinline!const!-ness and reference type of
+the input arguments, we would have to write 12 distinct overloads, one for
+each argument, if we were not using perfect forwarding --- the full cross
+product of \lstinline!const! (or not), \lstinline!volatile! (or not), and
+\lstinline!&! or \lstinline!&&! (or neither). A full
+implementation of just this two-parameter variation would require 144
+distinct overloads, all almost identical and most never 
+used. Using forwarding references reduces that to just one 
+overload for each number of arguments.
+
+\subsubsection[Wrapping initialization in a generic factory function]{Wrapping initialization in a generic factory function}\label{wrapping-initialization-in-a-generic-factory-function}
+
+Occasionally we might want to initialize an object with an intervening
+function call wrapping the actual construction of that object. Suppose
+we have a tracking system that we want to use to monitor how many times
+certain initializers have been invoked:
+
+\begin{emcppshiddenlisting}[emcppsbatch=e10]
+#include <utility>      // (ù{\codeincomments{std::forward}}ù)
+struct BigObject {
+    BigObject(const char *, const char *);
+};
+\end{emcppshiddenlisting}
+\begin{emcppslisting}[emcppsbatch=e10]
+struct TrackingSystem
+{
+    template <typename T>
+    static void trackInitialization(int numArgs);
+        // Track the creation of a (ù{\codeincomments{T}}ù) with a constructor taking (ù{\codeincomments{numArgs}}ù)
+        // arguments.
+};
+\end{emcppslisting}
+
+\noindent Now we want to write a general utility function that can be used to
+construct an arbitrary object and notify the tracking system of the
+construction for us. Here we will use a variadic pack (see \featureref{\locationc}{variadictemplate}) 
+%``\titleref{variable-templates}" on page~\pageref{variable-templates}) 
+of forwarding references to handle
+calling the constructor for us:
+
+\begin{emcppslisting}[emcppsbatch=e10]
+template <typename OBJECT_TYPE, typename... ARGS>
+OBJECT_TYPE trackConstruction(ARGS&&... args)
+{
+    TrackingSystem::trackInitialization<OBJECT_TYPE>(sizeof...(args));
+    return OBJECT_TYPE(std::forward<ARGS>(args)...);
+}
+\end{emcppslisting}
+
+\noindent This use of a variadic pack of forwarding references lets us add tracking easily to convert any initialization to a
+tracked one by inserting a call to this function around the constructor
+arguments:
+
+\begin{emcppslisting}[emcppsbatch=e10]
+void myFunction()
+{
+    BigObject untracked("Hello", "World");
+    BigObject tracked = trackConstruction<BigObject>("Hello","World");
+}
+\end{emcppslisting}
+
+\noindent On the surface there does seem to be a difference between how
+objects \lstinline!untracked! and \lstinline!tracked! are constructed. The first
+variable is having its constructor directly invoked, while the second is
+being constructed from an object being returned by-value from
+\lstinline!trackConstruction!. This construction, however, has long been
+something that has been optimized away to avoid any additional objects
+and construct the object in question just once. In this case, because
+the object being returned is initialized by the \lstinline!return!
+statement of \lstinline!trackConstruction!, the optimization is called
+\emcppsgloss{return value optimization (RVO)}. C++ has always
+allowed this optimization by enabling \emcppsgloss{copy elision}. It is possible to ensure that this elision actually happens (on all current compilers of which the authors are aware) by publicly \emcppsgloss{declaring} but not \emcppsgloss[define]{defining} the copy
+constructor for \lstinline!BigObject!.\footnote{In C++17,
+this \emcppsgloss{copy elision} can be guaranteed and is allowed to be done for
+objects that have no copy or move constructors.} We find that this code will
+still compile and link with such an object, providing observable proof
+that the copy constructor is never actually invoked with this pattern.
+
+\subsubsection[Emplacement]{Emplacement}\label{emplacement}
+
+Prior to C++11, inserting an object into a Standard Library container
+always required the programmer to first create such an object and then
+copy it inside the container's storage. As an example, consider
+inserting a temporary \lstinline!std::string! object in a\linebreak[4]
+\mbox{\lstinline!std::vector<std::string>!}:
+
+\begin{emcppshiddenlisting}[emcppsbatch=e11]
+#include <vector>  // (ù{\codeincomments{std::vector}}ù)
+#include <string>  // (ù{\codeincomments{std::string}}ù)
+\end{emcppshiddenlisting}
+\begin{emcppslisting}[emcppsbatch=e11]
+void f(std::vector<std::string>& v)
+{
+    v.push_back(std::string("hello world"));
+        // invokes (ù{\codeincomments{std::string::string(const char*)}}ù) and the copy-constructor
+}
+\end{emcppslisting}
+
+\noindent In the function above, a temporary \lstinline!std::string! object is
+created on the stack frame of \lstinline!f! and is then copied to the
+dynamically allocated buffer managed by \lstinline!v!. Additionally, the
+buffer might have insufficient capacity and hence might require
+reallocation, which would in turn require every element of \lstinline!v! to
+be copied from the old buffer to the new, larger one.
+
+In C++11, the situation is significantly better thanks to
+\romeovalue{rvalue} references. The temporary will be moved into
+\lstinline!v!, and any subsequent buffer reallocation will \emph{move} the elements
+between buffers rather than copy them, assuming that the element's
+move constructor has a \lstinline!noexcept! specifier (see \featureref{\locatione}{noexcept-specifier}). 
+%``\titleref{noexcept-specifier}" on page~\pageref{noexcept-specifier}). 
+The amount of work
+can, however, be further reduced: What if, instead of first creating
+an object externally, we constructed the new \lstinline!std::string! object
+directly in \lstinline!v!'s buffer?
+
+This is where \emcppsgloss{emplacement} comes into play. All standard library
+containers, including \lstinline!std::vector!, now provide an
+\emcppsgloss{emplacement} API powered by variadic templates (see \featureref{\locationc}{variadictemplate}) 
+%``\titleref{variadictemplate}" on page~\pageref{variadictemplate})
+and perfect forwarding (see \intraref{use-cases-forwardingref}{perfect-forwarding-for-generic-factory-functions}). 
+%\textit{\titleref{use-cases-forwardingref}: \titleref{perfect-forwarding-for-generic-factory-functions}} on page~\pageref{perfect-forwarding-for-generic-factory-functions}). 
+Rather than accepting a
+fully-constructed element, \emcppsgloss{emplacement} operations accept an
+arbitrary number of arguments, which will in turn be used to construct a
+new element directly in the container's storage, thereby avoiding
+unnecessary copies or even moves:
+
+\begin{emcppslisting}[emcppsbatch=e11]
+void g(std::vector<std::string>& v)
+{
+    v.emplace_back("hello world");
+        // invokes only the (ù{\codeincomments{std::string::string(const char*)}}ù) constructor
+}
+\end{emcppslisting}
+
+\noindent Calling \lstinline!std::vector<std::string>::emplace_back! with a
+\lstinline!const!~\lstinline!char*! argument results in a new
+\lstinline!std::string! object being created in-place in the next empty
+spot of the vector's storage. Internally,
+\lstinline!std::allocator_traits::construct! is invoked, which typically
+employs \emcppsgloss[placement new]{placement \lstinline!new!} to construct the object in raw
+dynamically allocated memory. As previously mentioned,
+\lstinline!emplace_back! makes use of both variadic
+templates and forwarding references; it accepts any
+number of forwarding references and internally \textit{perfectly forwards} them
+to the constructor of \lstinline!T! via \lstinline!std::forward!:
+
+\begin{emcppshiddenlisting}[emcppsbatch=e12]
+#include <utility>  // (ù{\codeincomments{std::forward}}ù)                                           #include <cstddef>  // (ù{\codeincomments{std::size_t}}ù)                                                                                                                            namespace std {                                                                                                                                                 template <typename T>                                                           class vector                                                                    {                                                                                   T      *d_data_p;                                                               size_t  d_size;                                                             public:                                                                             template <typename ...Args>                                                     void emplace_back(Args&&... args);                                          };                                                                                                                                                              } // close 'std' namespace\end{emcppshiddenlisting}
+\begin{emcppslisting}[emcppsbatch=e12]
+template <typename T>
+template <typename... Args>
+void std::vector<T>::emplace_back(Args&&... args)
+{
+    // ...
+    (void) new (d_data_p[d_size]) T(std::forward<Args>(args)...);  // pseudocode
+    // ...
+}
+\end{emcppslisting}
+
+\noindent \emcppsgloss[emplacement]{Emplacement} operations remove the need for copy or move
+operations when inserting elements into containers, potentially
+increasing the performance of a program and sometimes --- depending on the
+container --- even allowing even noncopyable or nonmovable objects to be stored
+in a container.
+
+As previously mentioned,
+declaring without defining the \emph{copy} or \emph{move} constructor of a
+noncopyable or nonmovable type to be private is often a way to guarantee that
+a C++11/14 compiler constructs an object in place.
+Containers that might need to move elements around for other operations
+(such as \lstinline!std::vector! or \lstinline!std::deque!) will still need
+movable elements, while node-based containers that never move the
+elements themselves after initial construction (such as
+\lstinline!std::list! or \lstinline!std::map!) can use emplace along with
+noncopyable or nonmovable objects.
+
+\subsubsection[Decomposing complex expressions]{Decomposing complex expressions}\label{decomposing-complex-expressions}
+
+Many modern C++ libraries have adopted a more ``functional'' style of
+programming, chaining the output of one function as the arguments of
+another function to produce very complex expressions that accomplish a
+great deal in relatively concise fashion. 
+%Consider the way in which the
+%C++20 ranges library encapsulates containers and arbitrary pairs of
+%iterators into objects that can be adapted and manipulated through long
+%chains of functions. 
+Consider a function that reads a file,
+does some spell-checking for every unique word in the file, and gives us a
+list of incorrect words and corresponding suggested proper spellings,
+implemented using a range-like{\cprotect\footnote{The C++20 \lstinline!ranges! library that provides a variety of range utilities and adaptors allows for composition using the pipe (\lstinline!|!) operators instead of nested function calls, resulting in code that might be easier to read:\begin{emcppslisting}[style=footcode]#include <algorithm>  // (ù{\fncodeincomments{std::ranges::equal}}ù)
+#include <cassert>    // standard C (ù{\fncodeincomments{assert}}ù) macro
+#include <ranges>     // (ù{\fncodeincomments{std::ranges::views::transform}}ù), (ù{\fncodeincomments{std::ranges::views::filter}}ù)
+
+void f() 
+{
+    int data[] = {1, 2, 3, 4, 5};
+    int expected[] = {1, 9, 25};
+
+    auto isOdd  = [](int i) { return i % 2 == 1; };
+    auto square = [](int i) { return i * i; };
+
+    using namespace std::ranges;
+
+    // function-call composition
+    assert(equal(views::transform(views::filter(data, isOdd), square), expected));
+
+    // pipe operator composition
+    assert(equal(data | views::filter(isOdd) | views::transform(square), expected));
+}
+\end{emcppslisting}
+}} library having common utilities similar to
+standard UNIX processing utilities:
+
+\begin{emcppshiddenlisting}[emcppsbatch={e13,e14},emcppsstandards=c++14]
+#include <map>     // (ù{\codeincomments{std::map}}ù)
+#include <string>  // (ù{\codeincomments{std::string}}ù)
+#include <tuple>   // (ù{\codeincomments{std::tuple}}ù)
+
+class SpellingSuggestion {
+    bool isCorrect() const;
+};
+class LineSeq {};
+LineSeq openFile(const std::string&);
+LineSeq splitRegex(LineSeq seq, const std::string &);
+LineSeq filterRegex(LineSeq seq, const std::string &);
+LineSeq sort(LineSeq seq);
+LineSeq uniq(LineSeq seq);
+template <typename F>
+LineSeq transform(LineSeq seq, F&& func) { return {}; }
+template <typename F>
+LineSeq filter(LineSeq seq, F&& pred) { return {}; }
+std::map<std::string,SpellingSuggestion> makeMap(LineSeq seq);
+SpellingSuggestion checkSpelling(const std::string& word);
+\end{emcppshiddenlisting}
+\begin{emcppslisting}[emcppsbatch=e13]
+SpellingSuggestion checkSpelling(const std::string& word);
+
+std::map<std::string, SpellingSuggestion> checkFileSpelling(
+                                                   const std::string& filename)
+{
+    return makeMap(
+        filter(transform(
+           uniq(sort(filterRegex(splitRegex(openFile(filename),"\\s+"),"\\w+"))),
+        [](const std::string& x)
+        {
+            return std::tuple<std::string, SpellingSuggestion>(x,
+                                                             checkSpelling(x));
+        }
+   ), [](auto&& x) { return !std::get<1>(x).isCorrect(); }));
+}
+\end{emcppslisting}
+
+%\noindent Upon doing code review for this amazing use of a modern library produced
+%by the smart, new programmer on your team, you discover that you actually
+%have a very hard time understanding what is going on. On top of that,
+%the usual tools you have to poke and prod at the code by adding
+%\lstinline!printf! statements or even breakpoints in your debugger are very
+%hard to apply to the complex set of nested templates involved.
+
+\noindent Each of the functions in this range library --- \lstinline!makeMap!,
+\lstinline!transform!, \lstinline!uniq!, \lstinline!sort!, \lstinline!filterRegex!,
+\lstinline!splitRegex!, and \lstinline!openFile! --- is a set of complex
+templated overloads and deeply subtle metaprogramming that becomes hard
+to unravel for a nonexpert C++ programmer. 
+%On the other hand, you have
+%also looked at the code generated for this function and the abstractions
+%amazingly get compiled away to a very robust implementation.
+
+To better understand, document, and debug what is happening
+here, we decide to decompose this expression into many, capturing the
+implicit temporaries returned by all of these functions and ideally not
+changing the actual semantics of what is being done. To do that
+properly, we need to capture the type and value category of each
+subexpression appropriately, without necessarily being able to easily
+decode it manually from the expression. Here is where \lstinline!auto&&!
+forwarding references can be used effectively to decompose and document
+this expression while achieving the same result:
+
+\begin{emcppslisting}[emcppsbatch=e14]
+std::map<std::string, SpellingSuggestion> checkFileSpelling(
+                                                   const std::string& filename)
+{
+    // Create a range over the contents of (ù{\codeincomments{filename}}ù).
+    auto&& openedFile = openFile(filename);
+
+    // Split the file by whitespace.
+    auto&& potentialWords = splitRegex(
+        std::forward<decltype(openedFile)>(openedFile), "\\s+");
+
+    // Filter out only words made from word-characters.
+    auto&& words = filterRegex(
+        std::forward<decltype(potentialWords)>(potentialWords), "\\w+");
+
+    // Sort all words.
+    auto&& sortedWords = sort(std::forward<decltype(words)>(words));
+
+    // Skip adjacent duplicate words so as to create a sequence of unique words.
+    auto&& uniqueWords = uniq(std::forward<decltype(sortedWords)>(sortedWords));
+
+    // Get a (ù{\codeincomments{SpellingSuggestion}}ù) for every word.
+    auto&& suggestions = transform(
+        std::forward<decltype(uniqueWords)>(uniqueWords),
+        [](const std::string&x) {
+            return std::tuple<std::string,SpellingSuggestion>(
+                x,checkSpelling(x));
+        });
+
+    // Filter out correctly spelled words, keeping only elements where the
+    // second element of the tuple, which is a (ù{\codeincomments{SpellingSuggestion}}ù), is not
+    // (ù{\codeincomments{correct}}ù).
+    auto&& corrections = filter(
+        std::forward<decltype(suggestions)>(suggestions),
+        [](auto&& suggestion){ return !std::get<1>(suggestion).isCorrect(); });
+
+    // Return a map made from these two-element tuples:
+    return makeMap(std::forward<decltype(corrections)>(corrections));
+}
+\end{emcppslisting}
+
+\noindent Now each step of this complex expression is documented, each temporary
+has a name, but the net result of the lifetimes of each object is
+functionally the same. No new conversions have been introduced, and
+every object that was used as an \romeovalue{rvalue} in the original
+expression will still be used as an \romeovalue{rvalue} in this much longer
+and more descriptive implementation of the same functionality.
+
+\subsection[Potential Pitfalls]{Potential Pitfalls}\label{potential-pitfalls}
+
+\subsubsection[Surprising number of template instantiations with string literals]{Surprising number of template instantiations with string literals}\label{surprising-number-of-template-instantiations-with-string-literals}
+
+When forwarding references are used as a means to avoid code repetition
+between exactly two overloads of the same function (one accepting a
+\lstinline!const!~\lstinline!T&! and the other a \lstinline!T&&!), it can be
+surprising to see more than two template instantiations for that
+particular template function, in particular when the function is invoked
+using string literals.
+
+Consider, as an example, a \lstinline!Dictionary! class containing two
+overloads of an \lstinline!addWord! member function:
+\begin{emcppshiddenlisting}[emcppsbatch={e15,e16}]
+#include <string>  // (ù{\codeincomments{std::string}}ù)
+\end{emcppshiddenlisting}
+\begin{emcppslisting}[emcppsbatch=e15]
+class Dictionary
+{
+    // ...
+
+public:
+    void addWord(const std::string& word);  // (0) copy (ù{\codeincomments{word}}ù) in the dictionary
+    void addWord(std::string&& word);       // (1) move (ù{\codeincomments{word}}ù) in the dictionary
+};
+
+void f()
+{
+    Dictionary d;
+
+    std::string s = "car";
+    d.addWord(s);                    // invokes (0)
+
+    const std::string cs = "toy";
+    d.addWord(cs);                   // invokes (0)
+
+    d.addWord("house");              // invokes (1)
+    d.addWord("garage");             // invokes (1)
+    d.addWord(std::string{"ball"});  // invokes (1)
+}
+\end{emcppslisting}
+
+\noindent Now, imagine replacing the two overloads of \lstinline!addWord! with a
+single \textit{perfectly forwarding} template member function, with the intention
+of avoiding code repetition between the two overloads:
+
+\begin{emcppslisting}[emcppsbatch=e16]
+class Dictionary
+{
+    // ...
+
+public:
+    template <typename T>
+    void addWord(T&& word);
+};
+\end{emcppslisting}
+
+\noindent Perhaps surprisingly, the number of template instantiations skyrockets:
+
+\begin{emcppslisting}[emcppsbatch=e16]
+void f()
+{
+    Dictionary d;
+
+    std::string s = "car";
+    d.addWord(s);   // instantiates (ù{\codeincomments{addWord<std::string\&>}}ù)
+
+    const std::string cs = "toy";
+    d.addWord(cs);  // instantiates (ù{\codeincomments{addWord<const std::string\&>}}ù)
+
+    d.addWord("house");              // instantiates (ù{\codeincomments{addWord<char const(\&)[6]>}}ù)
+    d.addWord("garage");             // instantiates (ù{\codeincomments{addWord<char const(\&)[7]>}}ù)
+    d.addWord(std::string{"ball"});  // instantiates (ù{\codeincomments{addWord<std::string\&\&>}}ù)
+}
+\end{emcppslisting}
+
+\noindent Depending on the variety of argument types supplied to \lstinline!addWord!,
+having many call sites could result in an undesirably large number of
+distinct template instantiations, perhaps significantly increasing
+object code size, compilation time, or both.
+
+\subsubsection[\lstinline!std::forward<T>! can enable move operations]{{\SubsubsecCode std::forward<T>} can enable move operations}\label{std::forward<t>-can-enable-move-operations}
+
+Invoking \lstinline!std::forward<T>(x)! is equivalent to conditionally
+invoking \lstinline!std::move! (if \lstinline!T! is an
+\romeovalue{lvalue} reference). Hence, any subsequent use of \lstinline!x! is
+subject to the same caveats that would apply to an \romeovalue{lvalue} cast to
+an unnamed \romeovalue{rvalue} reference; see \featureref{\locationc}{Rvalue-References}: 
+%``\titleref{Rvalue-References}" on page~\pageref{Rvalue-References}:
+
+\begin{emcppshiddenlisting}[emcppsbatch=e17]
+#include <utility>      // (ù{\codeincomments{std::forward}}ù)
+template <typename T>
+void g(T&& x);
+\end{emcppshiddenlisting}
+\begin{emcppslisting}[emcppsbatch=e17]
+template <typename T>
+void f(T&& x)
+{
+    g(std::forward<T>(x));  // OK
+    g(x);                   // Oops! (ù{\codeincomments{x}}ù) could have already been moved from.
+}
+\end{emcppslisting}
+
+\noindent Once an object has been passed as an argument using
+\lstinline!std::forward!, it should typically not be accessed again
+because it could now be in a
+moved-from state.
+
+\subsubsection[A perfect-forwarding constructor can hijack the copy constructor]{A perfect-forwarding constructor can hijack the copy constructor}\label{a-perfect-forwarding-constructor-can-hijack-the-copy-constructor}
+
+A single-parameter constructor of a class \lstinline!S! accepting a
+forwarding reference can unexpectedly be a better match during overload
+resolution compared to \lstinline!S!'s copy constructor:
+
+\begin{emcppslisting}
+struct S
+{
+    S();                           // default constructor
+    template <typename T> S(T&&);  // forwarding constructor
+    S(const S&);                   // copy constructor
+};
+
+void f()
+{
+    S a;
+    const S b;
+
+    S x(a);  // invokes forwarding constructor
+    S y(b);  // invokes copy constructor
+}
+\end{emcppslisting}
+
+\noindent Despite the programmer's intention to copy from \lstinline!a! into
+\lstinline!x!, the forwarding constructor of \lstinline!S! was invoked
+instead, because \lstinline!a! is a non\lstinline!const! \romeovalue{lvalue}
+expression, and instantiating the forwarding constructor with
+\lstinline!T!~\lstinline!=!~\lstinline!S&! results in a better match than even
+the copy constructor.
+
+This potential pitfall can arise in practice, for example, when writing
+a value-semantic wrapper template (e.g., \lstinline!Wrapper!) that can be
+initialized by \textit{perfectly forwarding} the object to be wrapped into it:
+
+\begin{emcppshiddenlisting}[emcppsbatch=e18]
+#include <string>   // (ù{\codeincomments{std::string}}ù)
+#include <utility>  // (ù{\codeincomments{std::forward}}ù)
+\end{emcppshiddenlisting}
+\begin{emcppslisting}[emcppsbatch=e18]
+#include <string>   // (ù{\codeincomments{std::string}}ù)#include <utility>  // (ù{\codeincomments{std::forward}}ù)
+template <typename T>
+class Wrapper  // wrapper for an object of arbitrary type 'T'
+{
+private:
+    T d_datum;
+
+public:
+    template <typename U>
+    Wrapper(U&& datum) : d_datum(std::forward<U>(datum)) { }
+        // perfect-forwarding constructor (to optimize runtime performance)
+
+    // ...
+};
+
+void f()
+{
+    std::string s("hello world");
+    Wrapper<std::string> w0(s);  // OK, (ù{\codeincomments{s}}ù) is copied into (ù{\codeincomments{d\_datum}}ù).
+
+    Wrapper<std::string> w1(std::string("hello world"));
+        // OK, the temporary string is moved into (ù{\codeincomments{d\_datum}}ù).
+}
+\end{emcppslisting}
+
+\noindent Similarly to the example involving class \lstinline!S! in the example above, attempting
+to copy-construct a non\lstinline!const! instance of \lstinline!Wrapper!
+(e.g., \lstinline!wr!, above) results in an error:
+
+\begin{emcppslisting}[emcppsbatch=e18]
+void g(Wrapper<int>& wr)  // The same would happen if (ù{\codeincomments{wr}}ù) were passed by value.
+{
+    Wrapper<int> w2(10);  // OK, invokes perfect-forwarding constructor
+    Wrapper<int> w3(wr);  // Error, no conversion from (ù{\codeincomments{Wrapper<int>}}ù) to (ù{\codeincomments{int}}ù)
+}
+\end{emcppslisting}
+
+\noindent The compilation failure above occurs because the perfect-forwarding
+constructor template, instantiated with \lstinline!Wrapper<int>&!, is a
+better match than the implicitly generated copy constructor, which
+accepts a \lstinline!const!~\lstinline!Wrapper<int>&!. Constraining the
+perfect forwarding constructor via \emcppsgloss{SFINAE} (e.g., with
+\lstinline!std::enable_if!) to explicitly \emph{not} accept objects whose
+type is \lstinline!Wrapper! fixes this problem:
+
+\begin{emcppshiddenlisting}[emcppsbatch=e19]
+#include <type_traits>  // (ù{\codeincomments{std::enable\_if}}ù), (ù{\codeincomments{std::decay}}ù)
+#include <utility>  // (ù{\codeincomments{std::forward}}ù)
+\end{emcppshiddenlisting}
+\begin{emcppslisting}[emcppsbatch=e19]
+#include <type_traits> // (ù{\codeincomments{std::enable\_if}}ù),  (ù{\codeincomments{std::is\_same}}ù)#include <utility>     // (ù{\codeincomments{std::forward}}ù)
+template <typename T>
+class Wrapper
+{
+private:
+    T d_datum;
+
+public:
+    template <typename U,
+        typename = typename std::enable_if<
+            !std::is_same<typename std::decay<U>::type, Wrapper>::value
+        >::type
+    >
+    Wrapper(U&& datum) : d_datum(std::forward<U>(datum)) { }
+        // This constructor participates in overload resolution only if (ù{\codeincomments{U}}ù),
+        // after being decayed, is not the same as (ù{\codeincomments{Wrapper<T>}}ù).
+};
+
+void h(Wrapper<int>& wr)  // The same would happen if (ù{\codeincomments{wr}}ù) were passed by value.
+{
+    Wrapper<int> w4(10);  // OK, invokes the perfect-forwarding constructor
+    Wrapper<int> w5(wr);  // OK, invokes the copy constructor
+}
+\end{emcppslisting}
+
+\noindent Notice that function \lstinline!h! replicates what had been a problematic scenario in the earlier function \lstinline!g!. Also notice that the \lstinline!std::decay! \emcppsgloss{metafunction} was used as
+part of the constraint; for more information on the using
+\lstinline!std::decay!, see \intraref{annoyances-forwardingref}{metafunctions-are-required-in-constraints}. 
+%\textit{\titleref{annoyances-forwardingref}: \titleref{metafunctions-are-required-in-constraints}} on page~\pageref{metafunctions-are-required-in-constraints}.
+
+\subsection[Annoyances]{Annoyances}\label{annoyances-forwardingref}
+
+\subsubsection[Forwarding references look just like rvalue references]{Forwarding references look just like rvalue references}\label{forwarding-references-look-just-like-rvalue-references}
+
+Despite \emph{forwarding} references and \romeovalue{rvalue} 
+references having significantly different semantics, as discussed in \intraref{description-forwardingref}{identifying-forwarding-references}, 
+%\textit{\titleref{description-forwardingref}: \titleref{identifying-forwarding-references}} on page~\pageref{identifying-forwarding-references}, 
+they share the same syntax. For any given type \lstinline!T!,
+whether the \lstinline!T&&! syntax designates an \romeovalue{rvalue} 
+reference or a \emph{forwarding} reference depends entirely on the
+surrounding context.{\cprotect\footnote{In C++20, developers might be
+subject to additional confusion due to the new terse concept notation
+syntax, which allows function templates to be defined without any
+explicit appearance of the \lstinline!template! keyword. As an example, a
+constrained function parameter, like
+\lstinline!Addable!~\lstinline!auto&&!~\lstinline!a! in the example below, is a forwarding
+reference; looking for the presence of the mandatory \lstinline!auto!
+keyword is helpful in identifying whether a type is a forwarding
+reference or \romeovalue{rvalue} reference:
+
+\begin{emcppslisting}[emcppsstandards=c++20,style=footcode]
+template <typename T>
+concept Addable = requires(T a, T b) { a + b; };
+
+void f(Addable auto&& a);  // C++20 terse concept notation
+
+void example()
+{
+    int i;
+
+    f(i);  // OK, (ù{\fncodeincomments{decltype(a)}}ù) is (ù{\fncodeincomments{int\&}}ù) in (ù{\fncodeincomments{f}}ù).
+    f(0);  // OK, (ù{\fncodeincomments{decltype(a)}}ù) is (ù{\fncodeincomments{int\&\&}}ù) in (ù{\fncodeincomments{f}}ù).
+}
+\end{emcppslisting}
+      }}
+
+\begin{emcppslisting}
+template <typename T> struct S0 { void f(T&&); };  // rvalue reference
+struct S1 { template <typename T> void f(T&&); };  // forwarding reference
+\end{emcppslisting}
+
+\noindent Furthermore, even if \lstinline!T! is subject to template argument
+deduction, the presence of \emph{any} qualifier will suppress the
+special \emph{forwarding}-reference deduction rules:
+
+\begin{emcppslisting}
+template <typename T> void f(T&&);           // forwarding reference
+template <typename T> void g(const T&&);     // (ù{\codeincomments{const}}ù) rvalue reference
+template <typename T> void h(volatile T&&);  // (ù{\codeincomments{volatile}}ù) rvalue reference
+\end{emcppslisting}
+
+\noindent It is remarkable that we still do not have some unique syntax
+(hypothetically, \lstinline!&&&!) that we could use, at least optionally, to imply
+unequivocally a \emph{forwarding} reference that is independent of its
+context.
+
+\subsubsection[Metafunctions are required in constraints]{Metafunctions are required in constraints}\label{metafunctions-are-required-in-constraints}
+
+As we showed in \intrarefsimple{use-cases-forwardingref},
+%\textit{\titleref{use-cases-forwardingref}} on page~\pageref{use-cases-forwardingref}, 
+being able to
+perfectly forward arguments of the same general type and effectively
+leave only the value category of the argument up to type deduction is a frequent need. 
+%This
+%is necessary if you do not want to delay construction of the arguments
+%until they are forwarded, possibly because doing so would produce many
+%unnecessary temporaries.
+
+The challenge of correctly forwarding only the value category, however, is significant. The template
+must be constrained using \emcppsgloss{SFINAE} and the appropriate
+\emcppsgloss[type trait]{type traits} to disallow types that aren't some form of
+cv-qualified or ref-qualified version of the type that we want to
+accept. As an example, let's consider a function intended to \emph{copy}
+or \emph{move} a \lstinline!Person! object into a data structure:
+
+\begin{emcppshiddenlisting}[emcppsbatch=e20]
+#include <type_traits>  // (ù{\codeincomments{std::enable\_if}}ù), (ù{\codeincomments{std::decay}}ù), (ù{\codeincomments{std::is\_same}}ù)
+class Person {};
+\end{emcppshiddenlisting}
+\begin{emcppslisting}[emcppsbatch=e20]
+#include <type_traits> // (ù{\codeincomments{std::decay}}ù), (ù{\codeincomments{std::enable\_if}}ù), (ù{\codeincomments{std::is\_same}}ù)                                                                                       class Person;
+class PersonManager {
+    // ...
+public:
+    template <typename T, typename = typename std::enable_if<
+           std::is_same<typename std::decay<T>::type, Person>::value>::type>
+    void addPerson(T&& person) { /* ... */ }
+        // This function participates in overload resolution only if (ù{\codeincomments{T}}ù) is
+        // (possibly cv- or ref-qualified) (ù{\codeincomments{Person}}ù).
+    // ...
+};
+\end{emcppslisting}
+
+\noindent This pattern that constrains \lstinline!T! has several layers to it,
+so let's unpack them one at a time.
+\begin{itemize}
+\item{\lstinline!T! is the template argument we are trying to deduce. We’d like to limit it to being a \lstinline!Person! that is \lstinline!const!, \lstinline!volatile!, \lstinline!&!, \lstinline!&&!, or some possibly empty combination of those.}
+\item{\lstinline!std::decay<T>::type! is then the application of the standard metafunction (defined in \lstinline!<type_traits>!) \lstinline!std::decay! to \lstinline!T!. This metafunction removes all cv-qualifiers and ref-qualifiers from \lstinline!T!, and so, for the types to which we want to limit \lstinline!T!, this will \emph{always} be \lstinline!Person!. Note that \lstinline!decay! will also allow some other implicitly convertible transformations, such as converting an array type to the corresponding pointer type. For types we are concerned with --- those that decay to a \lstinline!Person! --- this metafunction is equivalent to \lstinline!std::remove_cv<std::remove_reference<T>::type>::type!.\footnote{C++20 provides the  \lstinline!std::remove_cvref<T>! metafunction that can be used to remove cv and reference qualifiers in a terse manner.} Due to historical availability and readability, we will continue with our use of \lstinline!decay! for this purpose.}
+\item{\lstinline!std::is_same<std::decay<T>::type,!~\lstinline!Person>::value! is then the application of another metafunction, \lstinline!std::is_same!, to two arguments --- our decay expression and \lstinline!Person!, which results in a \lstinline!value! that is either \lstinline!std::true_type! or \lstinline!std::false_type! --- special types that can convert, at compile time, expressions to \lstinline!true! or \lstinline!false!. For the types \lstinline!T! that we care about, this expression will be \lstinline!true!, and for all other types this expression will be \lstinline!false!.}
+\item{\lstinline!std::enable_if<X>::type! is yet another metafunction that evaluates to a valid type if and only if \lstinline!X! is true. Unlike the \lstinline!value! in \lstinline!std::is_same!, this expression is simply not valid if \lstinline!X! is false.}
+\item{Finally, by using this \lstinline!enable_if! expression as a default argument for the final template parameter (unused so left unnamed), the expression is going to be instantiated for any deduced \lstinline!T! considered during overload resolution for \lstinline!addPerson!. For any \lstinline!T! that is not a (possibly) cv-ref-qualified \lstinline!Person!, \lstinline!enable_if! will not define the \lstinline!type! member \lstinline!typedef!, leading to a failure during the substitution process.  Rather than being a compile-time error, such substitution failure will just remove \lstinline!addPerson! from the overload set being considered, hence the term “substitution failure is not an error,” or \emcppsgloss{SFINAE}.  If a client attempts to pass a non\lstinline!Person! as an argument to the \lstinline!addPerson! function, the compiler will issue an error that there is no matching function for call to \lstinline!addPerson!, which is exactly the result we want.}
+\end{itemize}
+Putting this all together means we get to call \lstinline!addPerson! with
+\romeovalue{lvalues} and \romeovalue{rvalues} of type \lstinline!Person!, and the value
+category will be appropriately usable within \lstinline!addPerson!
+(generally with use of \lstinline!std::forward! within that function's
+definition).
+
+\subsection[See Also]{See Also}\label{see-also}
+
+\begin{itemize}
+\item{\seealsoref{Rvalue-References}{\seealsolocationc}details a feature that can be confused with forwarding references due to similar syntax.}
+\item{`\seealsoref{auto-feature}{\seealsolocationc}covers a feature that can introduce a forwarding reference with the \lstinline!auto&&! syntax.}
+\item{\seealsoref{variadictemplate}{\seealsolocationc}explores a feature commonly used in conjunction with forwarding references to provide highly generic interfaces.}
+\end{itemize}
+
+\subsection[Further Reading]{Further Reading}\label{further-reading}
+
+\begin{itemize}
+\item{``Item 24: Distinguish universal references from rvalue references," \cite{meyers15}}
+\item{\cite{sutter14}}
+\item{\cite{niebler13}}
+\end{itemize}
+
+

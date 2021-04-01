@@ -1,0 +1,1389 @@
+% 12 Feb 2021, revisions in; ready for Josh's code fixes
+% 16 Feb 2021 JMB; code compiles
+% 24 Feb 2021, copyedits in and proofed
+
+\emcppsFeature{
+    short={\lstinline!friend! '11},
+    tocshort={{\TOCCode friend} '11},
+    long={Extended {\SecCode friend} Declarations},
+    toclong={Extended \lstinline!friend! Declarations},
+    rhshort={{\RHCode friend} '11},
+}{extended-friend-declarations}
+\setcounter{table}{0}
+\setcounter{footnote}{0}
+\setcounter{lstlisting}{0}
+%\section[{\tt friend} '11]{Extended {\SecCode friend} Declarations}\label{extended-friend-declarations}
+
+
+Extended \lstinline!friend! declarations enable a class's author to
+designate a type alias, a template parameter, or any other previously
+declared type as a \lstinline!friend! of that class.
+
+\subsection[Description]{Description}\label{description-extendedfriend}
+
+A \lstinline!friend! declaration located within a given
+\emcppsgloss[user defined type (UDT)]{user-defined type (UDT)} grants a designated type (or
+\emph{free} function) access to private and protected members of that
+class. Because the extended \lstinline!friend! syntax does not affect
+\emph{function} friendships, this feature section addresses extended
+friendship only between \emph{types}.
+
+Prior to C++11, the Standard required an \emph{elaborated type
+specifier} to be provided after the \lstinline!friend! keyword to designate
+some other \emph{class} as being a \lstinline!friend! of a given type. An
+elaborated type specifier for a class is a syntactical element having the form\linebreak[4]
+\mbox{\lstinline!<class|struct|union>!~\lstinline!<identifier>!}. Elaborated
+type specifiers can be used to refer to a previously declared entity or
+to declare a new one, with the restriction that such an entity is
+one of \lstinline!class!, \lstinline!struct!, or \lstinline!union!:
+
+\begin{emcppslisting}
+// C++03
+
+struct S;
+class C;
+enum E { };
+
+struct X0
+{
+    friend S;         // Error, not legal C++98/03
+    friend struct S;  // OK, refers to (ù{\codeincomments{S}}ù) above
+    friend class S;   // OK, refers to (ù{\codeincomments{S}}ù) above (might warn)
+    friend class C;   // OK, refers to (ù{\codeincomments{C}}ù) above
+    friend class C0;  // OK, declares (ù{\codeincomments{C0}}ù) in (ù{\codeincomments{X0}}ù)'s namespace
+    friend union U0;  // OK, declares (ù{\codeincomments{U0}}ù) in (ù{\codeincomments{X0}}ù)'s namespace
+    friend enum E;    // Error, (ù{\codeincomments{enum}}ù) cannot be a friend.
+    friend enum E2;   // Error, (ù{\codeincomments{enum}}ù) cannot be forward-declared.
+};
+\end{emcppslisting}
+    
+\noindent This restriction prevents other potentially useful entities, e.g., type
+aliases and template parameters, from being designated as friends:
+
+\begin{emcppslisting}
+// C++03
+
+struct S;
+typedef S SAlias;
+
+struct X1
+{
+    friend struct SAlias;  // Error, using typedef-name after (ù{\codeincomments{struct}}ù)
+};
+
+template <typename T>
+struct X2
+{
+    friend class T;        // Error, using template type parameter after (ù{\codeincomments{class}}ù)
+};
+\end{emcppslisting}
+    
+\noindent Furthermore, even though an entity belonging to a namespace other than
+the class containing a \lstinline!friend! declaration might be visible,
+explicit qualification is required to avoid unintentionally declaring a new type:
+
+\begin{emcppslisting}
+// C++03
+
+struct S;  // This (ù{\codeincomments{S}}ù) resides in the global namespace.
+
+namespace ns
+{
+    class X3
+    {
+        friend struct S;
+            // OK, but declares a new (ù{\codeincomments{ns::S}}ù) instead of referring to (ù{\codeincomments{::S}}ù)
+    };
+}
+\end{emcppslisting}
+    
+\noindent C++11 relaxes the aforementioned \emph{elaborated type specifier}
+requirement and extends the classic \lstinline!friend! syntax by instead
+allowing either a \emph{simple type specifier}, which is any unqualified
+type or type alias, or a \emph{typename specifier}, e.g., the name of a
+template \emph{type} parameter or dependent type thereof:
+
+\begin{emcppslisting}
+struct S;
+typedef S SAlias;
+
+namespace ns
+{
+    template <typename T>
+    struct X4
+    {
+        friend T;           // OK
+        friend S;           // OK, refers to (ù{\codeincomments{::S}}ù)
+        friend SAlias;      // OK, refers to (ù{\codeincomments{::S}}ù)
+        friend decltype(0); // OK, equivalent to (ù{\codeincomments{friend int;}}ù)
+        friend C;           // Error, (ù{\codeincomments{C}}ù) does not name a type.
+    };
+}
+\end{emcppslisting}
+    
+\noindent Notice that now it is again possible to declare as a \lstinline!friend! a
+type that is expected to have already been declared, e.g., \lstinline!S!,
+without having to worry that a typo in the spelling of the type would
+silently introduce a new type declaration, e.g., \lstinline!C!, in the
+enclosing scope.
+
+Finally, consider the hypothetical case in which a class template,
+\lstinline!C!, befriends a \emph{dependent} (e.g., nested) type, \lstinline!N!,
+of its type parameter, \lstinline!T!:
+
+\begin{emcppslisting}[emcppsbatch=e6]
+template <typename T>
+class C
+{
+    friend typename T::N;       // (ù{\codeincomments{N}}ù) is a *dependent* *type* of parameter (ù{\codeincomments{T}}ù).
+    enum { e_SECRET = 10022 };  // This information is (ù{\codeincomments{private}}ù) to class (ù{\codeincomments{C}}ù).
+};
+
+struct S
+{
+    struct N
+    {
+        static constexpr int f()  // (ù{\codeincomments{f}}ù) is eligible for compile-time computation.
+        {
+            return C<S>::e_SECRET;  // Type (ù{\codeincomments{S::N}}ù) is a (ù{\codeincomments{friend}}ù) of (ù{\codeincomments{C<S>}}ù).
+        }
+    };
+};
+
+static_assert(S::N::f() == 10022, "");  // (ù{\codeincomments{N}}ù) has (ù{\codeincomments{private}}ù) access to (ù{\codeincomments{C<S>}}ù).
+\end{emcppslisting}
+    
+\noindent In the example above, the nested type \lstinline!S::N! --- but not
+\lstinline!S! itself --- has private access to \lstinline!C<S>::e_SECRET!.{\cprotect\footnote{Note that the need for \lstinline!typename! in the \lstinline!friend!
+declaration in the example above to introduce the dependent type \lstinline!N! is relaxed
+in C++20. For information on other contexts in which
+\lstinline!typename! will eventually no longer be required, see~\cite{meredith20}.}}
+
+\subsection[Use Cases]{Use Cases}\label{use-cases}
+
+\subsubsection[Safely declaring a previously declared type to be a friend]{Safely declaring a previously declared type to be a friend}\label{safely-declaring-a-previously-declared-type-to-be-a-friend}
+
+In C++98/03, to befriend a type that was already declared required
+\emph{redeclaring} it. If the type were misspelled in the friend
+declaration, a new type would be declared:
+
+\begin{emcppslisting}
+class Container { /* ... */ };
+
+class ContainerIterator
+{
+    friend class Contianer;  // Compiles but wrong: (ù{\codeincomments{ia}}ù) should have been (ù{\codeincomments{ai}}ù).
+    // ...
+};
+\end{emcppslisting}
+    
+\noindent The code above will compile and appear to be correct until
+\lstinline!ContainerIterator! attempts to access a \lstinline!private! or
+\lstinline!protected! member of \lstinline!Container!. At that point, the
+compiler will surprisingly produce an error. As of C++11, we have the
+option of preventing this mistake by using extended \lstinline!friend!
+declarations:
+
+\begin{emcppslisting}
+class Container { /* ... */ };
+
+class ContainerIterator
+{
+    friend Contianer;  // Error, (ù{\codeincomments{Contianer}}ù) not found
+    // ...
+};
+\end{emcppslisting}
+    
+
+\subsubsection[Befriending a type alias used as a customization point]{Befriending a type alias used as a customization point}\label{befriending-a-type-alias-used-as-a-customization-point}
+
+In C++03, the only option for friendship was to specify a particular
+\lstinline!class! or \lstinline!struct! when granting private access. Let's
+begin by considering a scenario in which we have an
+\emcppsgloss{in-process} \emcppsgloss[value semantic type (VST)]{value-semantic type (VST)}
+that serves as a \emph{handle} to a platform-specific object, such as a
+\lstinline!Window! in a graphical application. (When used to qualify a VST, the
+term \emcppsgloss{in-process}, also called \emph{in-core}, refers to a type
+that has typical value-type--like operations but does not refer to a
+value that is meaningful outside of the current process.\footnote{See
+  \cite{lakos2a}, section~4.2.}) Large parts of a codebase
+may seek to interact with \lstinline!Window! objects without needing or
+obtaining access to the internal representation.
+
+A very small part of the codebase that handles platform-specific window
+management, however, needs privileged access to the internal
+representation of \lstinline!Window!. One way to achieve this goal is to
+make the platform-specific \lstinline!WindowManager! a \lstinline!friend! of
+the \lstinline!Window! class; however, see \intraref{potential-pitfalls-extendedfriend}{long-distance-friendship}. 
+%\textit{\titleref{potential-pitfalls-extendedfriend}: \titleref{long-distance-friendship}} on page~\pageref{long-distance-friendship}.
+
+\begin{emcppslisting}
+class WindowManager;  // forward declaration enabling extended (ù{\codeincomments{friend}}ù) syntax
+
+class Window
+{
+private:
+    friend class WindowManager;  // could instead use (ù{\codeincomments{friend WindowManager;}}ù)
+    int d_nativeHandle;          // in-process (only) value of this object
+
+public:
+    // ... all the typical (e.g., special) functions we expect of a value type
+};
+\end{emcppslisting}
+    
+\noindent In the example above, class \lstinline!Window! befriends class
+\lstinline!WindowManager!, granting it private access. Provided that the
+implementation of \lstinline!WindowManager! resides in the same physical
+\emcppsgloss[components]{component} as that of class \lstinline!Window!, no
+\emcppsgloss{long-distance friendship} results. The consequence of such a
+monolithic design would be that every client that makes use of the
+otherwise lightweight \lstinline!Window! class would necessarily depend
+physically on the presumably heavier-weight \lstinline!WindowManager! class.
+
+Now consider that the \lstinline!WindowManager! implementations on
+different platforms might begin to diverge significantly. To keep the
+respective implementations maintainable, one might choose to factor them
+into distinct C++ types, perhaps even defined in separate files, and to
+use a \emph{type alias} determined using platform-detection preprocessor
+macros to configure that alias:
+
+%%%%%%%%%%%%%%%%%%%%% all separate. intended? 
+%%% yes, and VR requests some separation
+
+\begin{emcppslisting}[emcppsbatch=e1]
+// windowmanager_win32.h:
+
+#ifdef WIN32
+class Win32WindowManager { /* ... */ };
+#endif
+\end{emcppslisting}
+
+\vspace*{2ex}    
+
+\begin{emcppshiddenlisting}[emcppsbatch=e1]
+// windowmanager_unix.h:
+#define UNIX
+\end{emcppshiddenlisting}
+\begin{emcppslisting}[emcppsbatch=e1]
+// windowmanager_unix.h:
+
+#ifdef UNIX
+class UnixWindowManager { /* ... */ };
+#endif
+\end{emcppslisting}
+    
+\vspace*{2ex}
+
+\begin{emcppslisting}[emcppsbatch=e1]
+// windowmanager.h:
+
+#ifdef WIN32
+#include <windowmanager_win32.h>
+typedef Win32WindowManager WindowManager;
+#else
+#include <windowmanager_unix.h>
+typedef UnixWindowManager WindowManager;
+#endif
+\end{emcppslisting}
+    
+\vspace*{2ex}
+
+\begin{emcppslisting}[emcppsbatch=e1]
+// window.h:
+#include <windowmanager.h>
+
+class Window
+{
+private:
+    friend WindowManager;  // C++11 extended friend declaration
+    int d_nativeHandle;
+
+public:
+    // ...
+};
+\end{emcppslisting}
+   
+%%%%%%%%%%%%%%%%%%%%%%%      
+
+In this example, class \lstinline!Window! no longer befriends a specific
+class named \lstinline!WindowManager!; instead, it befriends the
+\lstinline!WindowManager! type alias, which in turn has been set to the
+correct platform-specific window manager implementation. Such extended
+use of \lstinline!friend! syntax was not available in C++03.
+
+Note that this use case involves \emcppsgloss{long-distance friendship}
+inducing an implicit cyclic dependency between the \emcppsgloss[components]{component}
+implementing \lstinline!Window! and those implementing
+\lstinline!WindowManager!; see \intraref{potential-pitfalls-extendedfriend}{long-distance-friendship}. 
+%\textit{\titleref{potential-pitfalls-extendedfriend}: \titleref{long-distance-friendship}} on page~\pageref{long-distance-friendship}. 
+Such designs, though
+undesirable, can result from an emergent need to add new platforms while
+keeping tightly related code sequestered within smaller, more manageable
+physical units. An alternative design would be to obviate the
+\emcppsgloss{long-distance friendship} by widening the API for the
+\lstinline!Window! class, the natural consequence of which would be to
+invite public client abuse vis-a-vis \emcppsgloss{Hyrum's law}.
+
+\subsubsection[Using the \lstinline!PassKey! idiom to enforce initialization]{Using the {\SubsubsecCode PassKey} idiom to enforce initialization}\label{using-the-passkey-idiom-to-enforce-initialization}
+
+Prior to C++11,
+efforts to grant private access to a class defined in a separate
+physical unit required declaring the higher-level type itself to be a
+\lstinline!friend!, resulting in this highly undesirable form of
+friendship; see \intraref{potential-pitfalls-extendedfriend}{long-distance-friendship}.  
+%\textit{\titleref{potential-pitfalls-extendedfriend}: \titleref{long-distance-friendship}} on page~\pageref{long-distance-friendship}. 
+The ability in C++11 to
+declare a template \emph{type} parameter or any other type specifier to
+be a friend affords new opportunities to enforce selective
+private access (e.g., to one or more individual functions) without
+explicitly declaring another type to be a \lstinline!friend!; see also \intrarefsimple{granting-a-specific-type-access-to-a-single-private-function}. 
+%\textit{\titleref{description-extendedfriend}: \titleref{granting-a-specific-type-access-to-a-single-private-function}} on page~\pageref{granting-a-specific-type-access-to-a-single-private-function}. 
+In this use case, however, our use of extended
+\lstinline!friend! syntax to befriend a template parameter is unlikely to run
+afoul of sound physical design.
+
+Let's say we have a commercial library, and we want it to verify a
+software-license key in the form of a C-style string, prior to allowing use of 
+other parts of the API:
+
+
+\begin{emcppshiddenlisting}[emcppsbatch=e2]
+class LibPassKey;
+\end{emcppshiddenlisting}
+\begin{emcppslisting}[emcppsbatch=e2]
+// simplified pseudocode
+LibPassKey initializeLibrary(const char* licenseKey);
+int utilityFunction1(LibPassKey object /*, ... (other parameters) */);
+int utilityFunction2(LibPassKey object /*, ... (other parameters) */);
+\end{emcppslisting}
+    
+\noindent Knowing full well that this is not a \emph{secure} approach and that
+innumerable deliberate, malicious ways exist to get around the C++ type
+system, we nonetheless want to create a plausible regime where no
+\emph{well-formed} code can \emph{accidentally} gain access
+to library functionality other than by legitimately initializing the
+system using a valid license key. We could easily cause a
+function to \lstinline!throw!, \lstinline!abort!, and so on, at run time when
+the function is called prior to the client's license key being
+authenticated. However, part of our goal, as a friendly library vendor, is to
+ensure that clients do not \emph{inadvertently} call other library
+functions prior to initialization. To that end, we propose the following protocol:
+\begin{enumerate}
+\item{use an instantiation of the \lstinline!PassKey! class template\cprotect\footnote{\cite{mayrand15}} that only our API \emph{utility}\linebreak[4] \emph{\lstinline!struct!}\cprotect\footnote{\cite{lakos20}, section~2.4.9, pp.~312--321, specifically Figure~2-23, p.~316} can create}
+\item{return a constructed object of this type only upon successful validation of the license key}
+\item{require that clients present this (constructed) passkey \emph{object} every time they invoke any other function in the API}
+\end{enumerate}
+Here's an example that encompasses all three aforementioned points:
+
+\begin{emcppslisting}
+template <typename T>
+class PassKey  // reusable standard utility type
+{
+    PassKey() { }  // private default constructor (no aggregate initialization)
+    friend T;      // Only (ù{\codeincomments{T}}ù) is allowed to create this object.
+};
+
+struct BestExpensiveLibraryUtil
+{
+    class LicenseError { /*...*/ };  // thrown if license string is invalid
+
+    using LibPassKey = PassKey<BestExpensiveLibraryUtil>;
+        // This is the type of the (ù{\codeincomments{PassKey}}ù) that will be returned when this
+        // utility is initialized successfully, but only this utility is able 
+        // to construct an object of this type. Without a valid license string,
+        // the client will have no way to create such an object and thus no way
+        // to call functions within this library.
+
+    static LibPassKey initializeLibrary(const char* licenseKey)
+        // This function must be called with a valid (ù{\codeincomments{licenseKey}}ù) string prior
+        // to using this library; if the supplied license is valid, a
+        // (ù{\codeincomments{LibPassKey}}ù) *object* will be returned for mandatory use in *all*
+        // subsequent calls to useful functions of this library. This function
+        // throws (ù{\codeincomments{LicenseError}}ù) if the supplied (ù{\codeincomments{licenseKey}}ù) string is invalid.
+    {
+        if (isValid(licenseKey))
+        {
+            // Initialize library properly.
+
+            return LibPassKey();
+                // Return a default-constructed (ù{\codeincomments{LibPassKey}}ù). Note that only
+                // this utility is able to construct such a key.
+        }
+
+        throw LicenseError();  // supplied license string was invalid
+    }
+
+    static int doUsefulStuff(LibPassKey key /*,...*/);
+        // The function requires a (ù{\codeincomments{LibPassKey}}ù) object, which can be constructed
+        // only by invoking the (ù{\codeincomments{static initializeLibrary}}ù) function, to be
+        // supplied as its first argument. ...
+
+private:
+    static bool isValid(const char* key);
+        // externally defined function that returns true if (ù{\codeincomments{key}}ù) is valid
+};
+\end{emcppslisting}
+    
+\noindent Other than going outside the language with invalid constructs or circumventing the
+type system with esoteric tricks, this approach, among other things,
+prevents invoking the\linebreak[4]%%%%%%%%  
+\lstinline!doUsefulStuff! function without a proper
+license. What's more, the C++ type system \emph{at compile time} forces
+a prospective client to have initialized the library before any attempt
+is made to use any of its other functionality.
+
+\subsubsection[Granting a specific type access to a single \lstinline!private! function]{Granting a specific type access to a single {\SubsubsecCode private} function}\label{granting-a-specific-type-access-to-a-single-private-function}
+
+When designing in purely logical terms, wanting to grant some other
+logical entity special access to a type that no other entity enjoys is a
+common situation. Doing so does not necessarily become problematic until
+that friendship spans physical boundaries; see \intraref{potential-pitfalls-extendedfriend}{long-distance-friendship}. 
+%\textit{\titleref{potential-pitfalls-extendedfriend}: \titleref{long-distance-friendship}} on page~\pageref{long-distance-friendship}.
+
+As a simple approximation to a real-world use
+case,\footnote{For an example of a real-world database
+implementation that requires managed objects to befriend that database
+manager, see \cite{csb15}, section~2.1.} suppose we have a lightweight object-database class, \lstinline!Odb!, that is designed to operate
+collaboratively with objects, such as \lstinline!MyWidget!, that are
+themselves designed to work collaboratively with \lstinline!Odb!. Every compliant UDT
+suitable for management by \lstinline!Odb! will need to maintain an integer
+object ID that is read/write accessible by an \lstinline!Odb! object. Under
+no circumstances is any other object permitted to access, let alone
+modify, that ID independently of the \lstinline!Odb! API.
+
+Prior to C++11, the design of such a feature might require every
+participating class to define a data member named \lstinline!d_objectId!
+and to declare the \lstinline!Odb! class a \lstinline!friend! (using old-style
+\lstinline!friend! syntax):
+
+\begin{emcppslisting}
+class MyWidget  // grants just (ù{\codeincomments{Odb}}ù) access to *all* of its private data
+{
+    int d_objectId;    // required by our collaborative-design strategy
+    friend class Odb;  //    "     "   "        "        "       "
+    // ...
+
+public:
+    // ...
+};
+
+class Odb
+{
+    // ...
+
+public:
+    template <typename T>
+    void processObject(T& object)
+        // This function template is generally callable by clients.
+    {
+        int& objId = object.d_objectId;
+        // ... (process as needed)
+    }
+
+    // ...
+};
+\end{emcppslisting}
+    
+\noindent In this example, the \lstinline!Odb! class implements the public member
+function template,\linebreak[4] \lstinline!processObject!, which then extracts the
+\lstinline!objectId! field for access. The collateral damage is that we
+have exposed all of our private details to \lstinline!Odb!, which is at
+best a gratuitous widening of our sphere of encapsulation.
+
+Using the \lstinline!PassKey! pattern allows us to be more selective with
+what we share:
+
+\begin{emcppslisting}[emcppsbatch=e3]
+template <typename T>
+class Passkey
+    // Implement this eminently reusable (ù{\codeincomments{Passkey}}ù) class template again here.
+{
+    Passkey() { }  // prevent aggregate initialization
+    friend T;      // Only the (ù{\codeincomments{T}}ù) in (ù{\codeincomments{PassKey<T>}}ù) can create a (ù{\codeincomments{PassKey}}ù) object.
+    Passkey(const Passkey&) = delete;             // no copy/move construction
+    Passkey& operator=(const Passkey&) = delete;  // no copy/move assignment
+};
+\end{emcppslisting}
+    
+\noindent We are now able to adjust the design of our systems such that only the
+minimum private functionality is exposed to \lstinline!Odb!:
+
+\begin{emcppslisting}[emcppsbatch=e3]
+class Odb;      // Objects of this class have special access to other objects.
+
+class MyWidget  // grants just (ù{\codeincomments{Odb}}ù) access to only its (ù{\codeincomments{objectId}}ù) member function
+{
+    int d_objectId;  // must have an (ù{\codeincomments{int}}ù) data member of any name we choose
+    // ...
+
+public:
+    int& objectId(const Passkey<Odb>&) { return d_objectId; }
+        // Return a non-(ù{\codeincomments{const}}ù) reference to the mandated (ù{\codeincomments{int}}ù) data member.
+        // (ù{\codeincomments{objectId}}ù) is callable only within the scope of (ù{\codeincomments{Odb}}ù).
+
+    // ...
+};
+
+class Odb
+{
+    // ...
+
+public:
+    template <typename T>
+    void processObject(T& object)
+        // This function template is generally callable by clients.
+    {
+        int& objId = object.objectId(Passkey<Odb>());
+        // ...
+    }
+
+    // ...
+};
+\end{emcppslisting}
+    
+\noindent Instead of granting \lstinline!Odb! private access to \emph{all}
+encapsulated implementation details of\linebreak[4] \mbox{\lstinline!MyWidget!}, this example
+uses the \lstinline!PassKey! idiom to enable just \lstinline!Odb! to call the
+(syntactically \lstinline!public!) \lstinline!objectId! member function of
+\lstinline!MyWidget! with no private access whatsoever. As a further
+demonstration of the efficacy of this approach, consider that we are
+able to create and invoke the \lstinline!processObject! method of an
+\lstinline!Odb! object from a function, \lstinline!f!, but we are blocked from
+calling the \lstinline!objectId! method of a \lstinline!MyWidget! object
+directly:
+
+\begin{emcppslisting}[emcppsbatch=e3]
+void f()
+{
+    Odb mgr;          // object receiving fine-grained privileged access
+    MyWidget widget;  // object granting selective private access to just (ù{\codeincomments{Odb}}ù)
+    mgr.processObject(widget);
+
+    int& objId = widget.objectId(PassKey<Odb>());  // cannot call out of (ù{\codeincomments{Odb}}ù)
+       // Error, (ù{\codeincomments{Passkey<T>::Passkey()}}ù) [with(ù{\codeincomments{T}}ù) = (ù{\codeincomments{Odb}}ù)] is private within
+       // this context.
+}
+\end{emcppslisting}
+    
+\noindent Notice that use of the extended \lstinline!friend! syntax to befriend a
+template parameter and thereby enable the \lstinline!PassKey! idiom here
+improved the granularity with which we effectively grant privileged
+access to an individually named type but didn't fundamentally alter the
+testability issues that result when private access to specific C++
+types is allowed to extend across physical boundaries; again, see \intraref{potential-pitfalls-extendedfriend}{long-distance-friendship}. 
+%\textit{\titleref{potential-pitfalls-extendedfriend}: \titleref{long-distance-friendship}} on page~\pageref{long-distance-friendship}.
+
+\subsubsection[Curiously recurring template pattern]{Curiously recurring template pattern}\label{curiously-recurring-template-pattern}
+
+Befriending a template parameter via extended \lstinline!friend!
+declarations can be helpful when implementing the \emcppsgloss[curiously recurring template pattern (CRTP)]{curiously
+recurring template pattern (CRTP)}. For use-case examples and more
+information on the pattern itself, see \intrarefsimple{appendix:-crtp-use-cases}. 
+%\textit{\titleref{appendix:-crtp-use-cases}} on page~\pageref{appendix:-crtp-use-cases}.
+
+\subsection[Potential Pitfalls]{Potential Pitfalls}\label{potential-pitfalls-extendedfriend}
+
+\subsubsection[Long-distance friendship]{Long-distance friendship}\label{long-distance-friendship}
+
+Since before C++ was standardized, granting private access via a
+\lstinline!friend! declaration across physical boundaries, known as
+\emcppsgloss{long-distance friendship}, was
+observed\footnote{\cite{lakos96}, section~3.6.1, pp.~141--144}\footnote{\cite{lakos20}, section~2.6, pp.~342--370, specifically p.~367 and p.~362} to potentially lead
+to designs that are qualitatively more difficult to understand, test,
+and maintain. When a user-defined type, \lstinline!X!, befriends some other
+specific type, \lstinline!Y!, in a separate, higher-level translation unit,
+testing \lstinline!X! thoroughly without also testing \lstinline!Y! is no
+longer possible. The effect is a test-induced cyclic dependency between
+\lstinline!X! and \lstinline!Y!. Now imagine that \lstinline!Y! depends on a
+sequence of other types, \lstinline!C1!, \lstinline!C2!, \ldots,
+\lstinline!CN-2!, each defined in its own physical \emcppsgloss[components]{component},
+\lstinline!CI!, where \lstinline!CN-2! depends on \lstinline!X!. The result is a
+physical design cycle of size \emph{N}. As \emph{N} increases, the
+ability to manage complexity quickly becomes intractable. Accordingly,
+the two design imperatives that were most instrumental in shaping the
+C++20 \emcppsgloss{modules} feature were (1) to have no cyclic module
+dependencies and (2) to avoid intermodule friendships.
+
+\subsection[See Also]{See Also}\label{see-also}
+
+\begin{itemize}
+\item{\seealsoref{alias-declarations-and-alias-templates}{\seealsolocationa}are among the beneficiaries of extended friend declarations.}
+\end{itemize}
+
+\subsection[Further Reading]{Further Reading}\label{further-reading}
+
+\begin{itemize}
+\item{For yet more potential uses of the extended friend pattern in
+metaprogramming contexts, such as using CRTP, see
+\cite{alexandrescu01}.}
+\item{\cite{lakos96}, section~3.6, pp.~136--146, is dedicated to the
+classic use (and misuse) of friendship.}
+\item{\cite{miller05}}
+\item{\cite{{lakos20}} provides extensive advice on \emph{sound}
+\emcppsgloss{physical design}, which generally precludes \emcppsgloss{long-distance
+friendship}.}
+\end{itemize}
+
+\subsection[Appendix: Curiously Recurring Template Pattern Use Cases]{Appendix: Curiously Recurring Template Pattern Use Cases}\label{appendix:-crtp-use-cases}
+
+\subsubsection[Refactoring using the curiously recurring template pattern]{Refactoring using the curiously recurring template pattern}\label{refactoring-using-the-curiously-recurring-template-pattern}
+
+Avoiding code duplication across disparate classes can sometimes be
+achieved using a strange template pattern first recognized in the
+mid-90s, which has since become known as the \emcppsgloss{curiously recurring
+template pattern (CRTP)}. The pattern is \emph{curious} because it
+involves the surprising step of declaring as a base class, such as
+\lstinline!B!, a template that \emph{expects} the derived class, such as
+\lstinline!C!, as a template argument, such as \lstinline!T!:
+
+\begin{emcppslisting}
+template <typename T>
+class B
+{
+    // ...
+};
+
+class C : public B<C>
+{
+   // ...
+};
+\end{emcppslisting}
+    
+\noindent As a trivial illustration of how the CRTP can be used as a refactoring tool,
+suppose that we have several classes for which we would like to track,
+say, just the number of active instances:
+
+\begin{emcppslisting}
+class A
+{
+    static int s_count;  // declaration
+    // ...
+
+public:
+    static int count() { return s_count; }
+
+    A()          { ++s_count; }
+    A(const A&)  { ++s_count; }
+    A(const A&&) { ++s_count; }
+    ~A()         { --s_count; }
+
+    A& operator=(A&)  = default;  // see special members
+    A& operator=(A&&) = default;  //  "     "       "
+    // ...
+};
+
+int A::s_count;  // definition (in (ù{\codeincomments{.cpp}}ù) file)
+
+class B { /* similar to A (above) */ };
+// ...
+
+void test()
+{          // (ù{\codeincomments{A::s\_count}}ù) = (ù{\codeincomments{0}}ù), (ù{\codeincomments{B::s\_count}}ù) = (ù{\codeincomments{0}}ù)
+    A a1;  // (ù{\codeincomments{A::s\_count}}ù) = (ù{\codeincomments{1}}ù), (ù{\codeincomments{B::s\_count}}ù) = (ù{\codeincomments{0}}ù)
+    B b1;  // (ù{\codeincomments{A::s\_count}}ù) = (ù{\codeincomments{1}}ù), (ù{\codeincomments{B::s\_count}}ù) = (ù{\codeincomments{1}}ù)
+    A a2;  // (ù{\codeincomments{A::s\_count}}ù) = (ù{\codeincomments{2}}ù), (ù{\codeincomments{B::s\_count}}ù) = (ù{\codeincomments{1}}ù)
+}          // (ù{\codeincomments{A::s\_count}}ù) = (ù{\codeincomments{0}}ù), (ù{\codeincomments{B::s\_count}}ù) = (ù{\codeincomments{0}}ù)
+\end{emcppslisting}
+    
+\noindent In this example, we have multiple classes, each repeating the same
+common machinery. Let's now explore how we might refactor this example
+using the CRTP:
+
+\begin{emcppslisting}[emcppsbatch=e4]
+template <typename T>
+class InstanceCounter
+{
+protected:
+    static int s_count;  // declaration
+
+public:
+    static int count() { return s_count; }
+};
+
+template <typename T>
+int InstanceCounter<T>::s_count;  // definition (in same file as declaration)
+
+struct A : InstanceCounter<A>
+{
+    A()          { ++s_count; }
+    A(const A&)  { ++s_count; }
+    A(const A&&) { ++s_count; }
+    ~A()         { --s_count; }
+
+    A& operator=(const A&)  = default;
+    A& operator=(A&&)       = default;
+    // ...
+};
+\end{emcppslisting}
+    
+\noindent Notice that we have factored out a common counting mechanism into an
+\lstinline!InstanceCounter! class template and then derived our
+representative class \lstinline!A! from \lstinline!InstanceCounter<A>!, and we
+would do similarly for classes \lstinline!B!, \lstinline!C!, and so on. This
+approach works because the compiler does not need to see the derived
+type until the point at which the template is instantiated, which will
+be \emph{after} it has seen the derived type.
+
+Prior to C++11, however, there was plenty of room for user error.
+Consider, for example, forgetting to change the base-type parameter when
+copying and pasting a new type:
+
+\begin{emcppslisting}[emcppsbatch=e4]
+struct B : InstanceCounter<A>  // Oops! We forgot to change (ù{\codeincomments{A}}ù) to (ù{\codeincomments{B}}ù) in
+                               // (ù{\codeincomments{InstanceCounter}}ù): The wrong count will be
+                               // updated!
+{
+    B() { ++s_count; }
+};
+\end{emcppslisting}
+    
+\noindent Another problem is that a client deriving from our class can mess with
+our protected \lstinline!s_count!:
+
+\begin{emcppslisting}[emcppsbatch=e4]
+struct AA : A
+{
+    AA() { s_count = -1; }  // Oops! *Hyrum's Law* is at work again!
+};
+\end{emcppslisting}
+    
+\noindent We could inherit from the \lstinline!InstanceCounter! class privately, but
+then \lstinline!InstanceCounter! would have no way to add to the derived
+class's public interface, for example, the public \lstinline!count! static
+member function.
+
+As it turns out, however, both of these missteps can be erased simply by
+making the internal mechanism of the \lstinline!InstanceCounter! template
+private and then having \mbox{\lstinline!InstanceCounter!} befriend its template
+parameter, \lstinline!T!:
+
+\begin{emcppslisting}
+template <typename T>
+class InstanceCounter
+{
+    static int s_count;  // Make this static data member private.
+    friend T;            // Allow access only from the derived (ù{\codeincomments{T}}ù).
+
+public:
+    static int count() { return s_count; }
+};
+
+template <typename T>
+int InstanceCounter<T>::s_count;
+\end{emcppslisting}
+    
+\noindent Now if some other class does try to derive from this type, it cannot
+access this type's counting mechanism. If we want to suppress even that
+possibility, we can declare and default (see \featureref{\locationa}{defaulted-special-member-functions}) 
+% ``\titleref{defaulted-special-member-functions}" on page~\pageref{defaulted-special-member-functions}) 
+the \lstinline!InstanceCounter!
+class constructors to be private as well.
+
+\subsubsection[Synthesizing equality using the curiously recurring template pattern]{Synthesizing equality using the curiously recurring template pattern}\label{synthesizing-equality-using-crtp}
+
+As a second example of code factoring using the CRTP, suppose that we want
+to create a factored way of synthesizing \lstinline!operator==! for types
+that implement just an \lstinline!operator<!.{\cprotect\footnote{This
+example is based on a similar one found on stackoverflow.com:\linebreak[3]
+  https://\linebreak[3]stackoverflow.\linebreak[3]com/\linebreak[3]questions/\linebreak[3]4173254/what-is-the-curiously-recurring-template-pattern-crtp}}
+In this example, the CRTP base-class template, \lstinline!E!, will
+synthesize the homogeneous \lstinline!operator==! for its parameter type,
+\lstinline!D!, by returning \lstinline!false! if either argument is \emph{less
+than} the other:
+
+\begin{emcppslisting}[emcppsbatch=e5]
+template <typename D>
+class E { }; // CRTP base class used to synthesize (ù{\codeincomments{operator==}}ù) for (ù{\codeincomments{D}}ù)
+
+template <typename D>
+bool operator==(const E<D>& lhs, const E<D>& rhs)
+{
+    const D& d1 = static_cast<const D&>(lhs);  // derived type better be (ù{\codeincomments{D}}ù)
+    const D& d2 = static_cast<const D&>(rhs);  //    "     "     "    "  "
+    return !(d1 < d2) && !(d2 < d1);           // assuming (ù{\codeincomments{D}}ù) has an (ù{\codeincomments{operator<}}ù)
+}
+\end{emcppslisting}
+    
+\noindent A client that implements an \lstinline!operator<! can now reuse this CRTP
+base case to synthesize an \lstinline!operator==!:
+
+\begin{emcppshiddenlisting}[emcppsbatch={e5,e6}]
+#include <cassert>  // standard C (ù{\codeincomments{assert}}ù) macro
+\end{emcppshiddenlisting}
+
+\begin{emcppslisting}[emcppsbatch=e5]
+struct S : E<S>
+{
+    int d_size;
+};
+
+bool operator<(const S& lhs, const S& rhs)
+{
+    return lhs.d_size < rhs.d_size;
+}
+
+void test1()
+{
+    S s1; s1.d_size = 10;
+    S s2; s2.d_size = 10;
+
+    assert(s1 == s2);  // compiles and passes
+}
+\end{emcppslisting}
+    
+\noindent As this code snippet suggests, the base-class template, \lstinline!E!, is
+able to use the template parameter, \lstinline!D! (representing the derived
+class, \lstinline!S!), to synthesize the homogeneous free
+\lstinline!operator==! function for \lstinline!S!.
+
+Prior to C++11, no means existed to guard against accidents, such as
+inheriting from the wrong base and then perhaps even forgetting to
+define the \lstinline!operator<!:
+
+\begin{emcppslisting}[emcppsbatch=e5]
+struct P : E<S>  // Oops! should have been (ù{\codeincomments{E(P)}}ù) -- a serious latent defect
+{
+    int d_x;
+    int d_y;
+};
+
+void test2()
+{
+    P p1; p1.d_x = 10; p1.d_y = 15;
+    P p2; p2.d_x = 10; p2.d_y = 20;
+
+    assert( !(p1 == p2) );  // Oops! This fails because of (ù{\codeincomments{E(S)}}ù) above.
+}
+\end{emcppslisting}
+    
+\noindent Again, thanks to C++11's extended \lstinline!friend! syntax, we can defend
+against these defects at compile time simply by making the CRTP base
+class's default constructor \emph{private} and befriending its template
+parameter:
+
+\begin{emcppslisting}
+template <typename D>
+class E
+{
+     E() = default;
+     friend D;
+};
+\end{emcppslisting}
+    
+\noindent Note that the goal here is not security but simply guarding against
+accidental typos, copy-paste errors, and other occasional  human errors. By making this change, we will soon realize that there
+is no \lstinline!operator<! defined for \lstinline!P!.
+
+\subsubsection[Compile-time polymorphism using the curiously recurring template pattern]{Compile-time polymorphism using the curiously recurring template pattern}\label{compile-time-polymorphism-using-crtp}
+
+Object-oriented programming provides certain flexibility that at times
+might be supererogatory. Here we will exploit the familiar domain of
+abstract/concrete shapes to demonstrate a mapping between runtime
+polymorphism using virtual functions and compile-time polymorphism using
+the CRTP. We begin with a simple abstract \lstinline!Shape! class that
+implements a single, pure, virtual \lstinline!draw! function:
+
+\begin{emcppslisting}[emcppsbatch=e6]
+class Shape
+{
+public:
+    virtual void draw() const = 0;  // abstract (ù{\codeincomments{draw}}ù) function (interface)
+};
+\end{emcppslisting}
+    
+\noindent From this abstract \lstinline!Shape! class, we now derive two concrete
+shape types, \lstinline!Circle! and \mbox{\lstinline!Rectangle!}, each implementing
+the \emph{abstract} \lstinline!draw! function:
+
+\begin{emcppslisting}[emcppsbatch=e6]
+#include <iostream>  // (ù{\codeincomments{std::cout}}ù)
+
+class Circle : public Shape
+{
+    int d_radius;
+
+public:
+    Circle(int radius) : d_radius(radius) { }
+
+    void draw() const  // concrete implementation of abstract (ù{\codeincomments{draw}}ù) function
+    {
+        std::cout << "Circle(radius = " << d_radius << ")\n";
+    }
+};
+
+class Rectangle : public Shape
+{
+    int d_length;
+    int d_width;
+
+public:
+    Rectangle(int length, int width) : d_length(length), d_width(width) { }
+
+    void draw() const  // concrete implementation of abstract (ù{\codeincomments{draw}}ù) function
+    {
+        std::cout << "Rectangle(length = " << d_length << ", "
+                                "width = " << d_width  << ")\n";
+    }
+};
+\end{emcppslisting}
+    
+\noindent Notice that a \lstinline!Circle! is constructed with a single integer
+argument, i.e., \lstinline!radius!, and a \lstinline!Rectangle! is constructed
+with two integers, i.e., \lstinline!length! and \lstinline!width!.
+
+We now implement a function that takes an arbitrary shape, via a
+\lstinline!const! \romeovalue{lvalue} reference to its abstract base class, and
+prints it:
+
+\begin{emcppslisting}[emcppsbatch=e6]
+void print(const Shape& shape)
+{
+    shape.draw();
+}
+
+void testShape()
+{
+    print(Circle(1));        // OK, prints: (ù{\codeincomments{Circle(radius = 1)}}ù)
+    print(Rectangle(2, 3));  // OK, prints: (ù{\codeincomments{Rectangle(length = 2, width = 3)}}ù)
+    print(Shape());          // Error, (ù{\codeincomments{Shape}}ù) is an abstract class.
+}
+\end{emcppslisting}
+    
+\noindent Now suppose that we didn't need all the runtime flexibility offered by
+this system and wanted to map just what we have in the previous code
+snippet onto templates that avoid the spatial and runtime overhead of
+virtual-function tables and dynamic dispatch. Such transformation again
+involves creating a CRTP base class, this time in lieu of our abstract
+interface:
+
+\begin{emcppslisting}[emcppsbatch=e7]
+template <typename T>
+struct Shape
+{
+    void draw() const
+    {
+        static_cast<const T*>(this)->draw();  // assumes (ù{\codeincomments{T}}ù) derives from (ù{\codeincomments{Shape}}ù)
+    }
+};
+\end{emcppslisting}
+    
+\noindent Notice that we are using a \lstinline!static_cast! to the address of an
+object of the \lstinline!const! template parameter type, \lstinline!T!,
+assuming that the template argument is of the same type as some derived
+class of this object's type. We now define our types as before, the only
+difference being the form of the base type:
+
+\begin{emcppshiddenlisting}[emcppsbatch=e7]
+#include <iostream>  // (ù{\codeincomments{std::cout}}ù)
+
+class Circle : public Shape<Circle>
+{
+    int d_radius;
+
+public:
+    Circle(int radius) : d_radius(radius) { }
+
+    void draw() const  // concrete implementation of abstract (ù{\codeincomments{draw}}ù) function
+    {
+        std::cout << "Circle(radius = " << d_radius << ")\n";
+    }
+};
+
+class Rectangle : public Shape<Rectangle>
+{
+    int d_length;
+    int d_width;
+
+public:
+    Rectangle(int length, int width) : d_length(length), d_width(width) { }
+
+    void draw() const  // concrete implementation of abstract (ù{\codeincomments{draw}}ù) function
+    {
+        std::cout << "Rectangle(length = " << d_length << ", "
+                                "width = " << d_width  << ")\n";
+    }
+};
+\end{emcppshiddenlisting}
+\begin{emcppslisting}[emcppsbatch=e7,emcppsignore={expanded as hidden listing}]
+class Circle : public Shape<Circle>
+{
+    // same as above
+};
+
+class Rectangle : public Shape<Rectangle>
+{
+    // same as above
+};
+\end{emcppslisting}
+    
+\noindent We now define our \lstinline!print! function, this time as a function
+template taking a \lstinline!Shape! of arbitrary type \lstinline!T!:
+
+\begin{emcppslisting}[emcppsbatch=e7]
+template <typename T>
+void print(const Shape<T>& shape)
+{
+    shape.draw();
+}
+\end{emcppslisting}
+    
+\noindent The result of compiling and running \lstinline!testShape! above is the
+same, including that \lstinline!Shape()! doesn't compile.
+
+However, opportunities for undetected failure remain. Suppose we decide
+to add a third shape, \lstinline!Triangle!, constructed with three sides:
+
+\begin{emcppslisting}[emcppsbatch=e7]
+class Triangle : public Shape<Rectangle>  // Oops!
+{
+    int d_side1;
+    int d_side2;
+    int d_side3;
+
+public:
+    Triangle(int side1, int side2, int side3)
+        : d_side1(side1), d_side2(side2), d_side3(side3) { }
+
+    void draw() const
+    {
+        std::cout << "Triangle(side1 = " << d_side1 << ", "
+                              "side2 = " << d_side2 << ", "
+                              "side3 = " << d_side3 << ")\n";
+    }
+};
+\end{emcppslisting}
+    
+\noindent Unfortunately, we forgot to change the base-class type parameter when we
+copy-pasted from \lstinline!Rectangle!.
+
+Let's now create a new test that exercises all three and see what
+happens on our platform:
+
+\begin{emcppslisting}[emcppsbatch=e7]
+void test2()
+{
+    print(Circle(1));          // prints: (ù{\codeincomments{Circle(radius = 1)}}ù)
+    print(Rectangle(2, 3));    // prints: (ù{\codeincomments{Rectangle(length = 2, width = 3)}}ù)
+    print(Triangle(4, 5, 6));  // prints: (ù{\codeincomments{Rectangle(length = 4, width = 5)}}ù) ?!
+    Shape<int> bug;            // Compiles?!
+}
+\end{emcppslisting}
+    
+\noindent As should by now be clear, a defect in our \lstinline!Triangle!
+implementation results in \emph{hard} \emcppsgloss{undefined behavior} that
+could have been prevented at compile time by using the extended
+\lstinline!friend! syntax. Had we defined the CRTP base-class template's
+default constructor to be \emph{private} and made its type parameter a
+\lstinline!friend!, we could have prevented the copy-paste error with
+\lstinline!Triangle! and suppressed the ability to create a \lstinline!Shape!
+object without deriving from it (e.g., see \lstinline!bug! in the previous
+code snippet):
+
+\begin{emcppslisting}[emcppsbatch=e8]
+template <typename T>
+class Shape
+{
+    Shape() = default;  // Default the (ù{\codeincomments{default}}ù) constructor to be (ù{\codeincomments{private}}ù).
+    friend T;           // Ensure only a type derived from (ù{\codeincomments{T}}ù) has access.
+};
+\end{emcppslisting}
+    
+\noindent Generally, whenever we are using the CRTP, making just the
+default constructor of the base-class template \lstinline!private! and
+having it befriend its type parameter is typically a trivial local
+change, is helpful in avoiding various forms of accidental misuse and
+is unlikely to induce long-distance friendships where none previously
+existed: Applying extended \lstinline!friend! syntax to an existing CRTP
+is typically \emph{safe}.
+
+\subsubsection[Compile-time visitor using the curiously recurring template pattern]{Compile-time visitor using the curiously recurring template pattern}\label{compile-time-visitor-using-crtp}
+
+As more real-world applications of compile-time polymorphism using the CRTP,
+consider implementing traversal and visitation of complex data
+structures. In particular, we want to facilitate employing
+\emph{default-action} functions, which allow for simpler code from the
+point of view of the programmer who needs the results of the traversal.
+We illustrate our compile-time visitation approach using binary trees as
+our data structure.
+
+We begin with the traditional node structure of a binary tree, where
+each node has a left and right subtree plus a label:
+
+\begin{emcppslisting}[emcppsbatch=e9]
+struct Node
+{
+    Node* d_left;
+    Node* d_right;
+    char  d_label;  // (ù{\codeincomments{label}}ù) will be used in the pre-order example.
+
+    Node() : d_left(0), d_right(0), d_label(0) { }
+};
+\end{emcppslisting}
+    
+\noindent Now we wish to have code that traverses the tree in one of the three
+traditional ways: \emph{pre-order}, \emph{in-order}, \emph{post-order}.
+Such traversal code is often intertwined with the actions to be taken.
+In our implementation, however, we will write a CRTP-like base-class
+template, \lstinline!Traverser!, that implements empty stub functions for
+each of the three traversal types, relying on the CRTP-derived
+type to supply the desired functionality:
+
+\begin{emcppslisting}[emcppsbatch=e9]
+template <typename T>
+class Traverser
+{
+private:
+    Traverser() = default;  // Make the default constructor (ù{\codeincomments{private}}ù).
+    friend T;               // Grant access only to the derived class.
+
+public:
+    void visitPreOrder(Node*)  { }  // stub-functions & placeholders
+    void visitInOrder(Node*)   { }  // (Each of these three functions
+    void visitPostOrder(Node*) { }  // defaults to an inline "no-op.")
+
+    void traverse(Node* n)  // factored subfunctionality
+    {
+        T *t = static_cast<T*>(this);  // Cast (ù{\codeincomments{this}}ù) to the derived type.
+
+        if (n) { t->visitPreOrder(n);     }  // optionally defined in derived
+        if (n) { t->traverse(n->d_left);  }  //     "         "    "     "
+        if (n) { t->visitInOrder(n);      }  //     "         "    "     "
+        if (n) { t->traverse(n->d_right); }  //     "         "    "     "
+        if (n) { t->visitPostOrder(n);    }  //     "         "    "     "
+    }
+};
+\end{emcppslisting}
+    
+\noindent The factored traversal mechanism is implemented in the
+\lstinline!Traverser! base-class template. A proper subset of the four
+customization points, that is, the four member functions invoked from
+the \emph{public} \lstinline!traverse! function of the \lstinline!Traverser!
+base class, is implemented as appropriate in the derived class,
+identified by \lstinline!T!. Each of these customization functions is
+invoked in order. Notice that the \lstinline!traverse! function is safe to call on a
+\lstinline!nullptr! as each individual customization-function invocation
+will be independently bypassed if its supplied \lstinline!Node! pointer is
+null. If a customization function is defined in the derived class, that
+version of it is invoked; otherwise, the corresponding empty
+\lstinline!inline! base-class version of that function is invoked instead.
+This approach allows for any of the three traversal orders to be
+implemented simply by supplying an appropriately configured derived type
+where clients are obliged to implement only the portions they need. Even
+the traversal itself can be modified, as we will soon see, where we
+create the very data structure we're traversing.
+
+Let's now look at how derived-class authors might use this pattern.
+First, we'll write a traversal class that fully populates a tree to a
+specified depth:
+
+\begin{emcppslisting}[emcppsbatch=e9]
+struct FillToDepth : Traverser<FillToDepth>
+{
+    using Base = Traverser<FillToDepth>;  // similar to a local (ù{\codeincomments{typedef}}ù)
+
+    int d_depth;            //  final "height" of the tree
+    int d_currentDepth;     //  current distance from the root
+
+    FillToDepth(int depth) : d_depth(depth), d_currentDepth(0) { }
+
+    void traverse(Node*& n)
+    {
+        if (d_currentDepth++ < d_depth && !n)  // descend; if not balanced...
+        {
+            n = new Node;     // Add (ù{\codeincomments{node}}ù) since it's not already there.
+        }
+
+        Base::traverse(n);    // Recurse by invoking the *base* version.
+
+        --d_currentDepth;     // Ascend.
+    }
+};
+\end{emcppslisting}
+    
+\noindent The derived class's version of the \lstinline!traverse! member function
+acts as if it overrides the \lstinline!traverse! function in the base-class
+template and then, as part of its re-implementation, defers to the base-class version to perform the actual traversal.
+
+Importantly, note that we have re-implemented \lstinline!traverse! in the
+derived class with a function by the same name but having a
+\emph{different} \emcppsgloss{signature} that has more capability (i.e., it's able
+to modify its immediate argument) than the one in the base-class
+template. In practice, this signature modification is something we would
+do rarely, but part of the flexibility of this design pattern, as with
+templates in general, is that we can take advantage of \emcppsgloss{duck
+typing} to achieve useful functionality in somewhat unusual ways. For
+this pattern, the designers of the base-class template and the designers
+of the derived classes are, at least initially, likely to be the same
+people, and they will arrange for these sorts of signature variants to
+work correctly if they need such functionality. Or they may decide that
+overridden methods should follow a proper contract and signature that
+they determine is appropriate, and they may declare improper overrides
+to be undefined behavior. In this example, we aim for illustrative
+flexibility over rigor.
+
+\begin{emcppslisting}[emcppsbatch=e9]
+void traverse(Node* n);   // as declared in the (ù{\codeincomments{Traverser}}ù) base-class template
+void traverse(Node*& n);  // as declared in the (ù{\codeincomments{FillToDepth}}ù) derived class
+\end{emcppslisting}
+    
+\noindent Unlike virtual functions, the signatures of corresponding functions in
+the base and derived classes need not match exactly \emph{provided} the
+derived-class function can be called in the same way as the
+corresponding one in the base class. In this case, the compiler has all
+the information it needs to make the call properly:
+
+\begin{emcppslisting}[emcppsignore={illustrative only}]
+static_cast<FillToDepth *>(this)->traverse(n);  // what the compiler sees
+\end{emcppslisting}
+    
+\noindent Suppose that we now want to create a type that labels a \emph{small}
+tree, balanced or not, according to its pre-order traversal:
+
+\begin{emcppslisting}[emcppsbatch=e9]
+struct PreOrderLabel : Traverser<PreOrderLabel>
+{
+    char d_label;
+
+    PreOrderLabel() : d_label('a') { }
+
+    void visitPreOrder(Node* n)  // This choice controls traversal order.
+    {
+        n->d_label = d_label++;   
+            // Each successive label is sequential alphabetically.
+    }
+};
+\end{emcppslisting}
+    
+\noindent The simple pre-order traversal class, \lstinline!PreOrderLabel!, labels the
+nodes such that it visits each parent \emph{before} it visits either of
+its two children.
+
+Alternatively, we might want to create a read-only derived class,
+\lstinline!InOrderPrint!, that simply prints out the sequence of labels
+resulting from an \emph{in-order} traversal of the, e.g., previously
+pre-ordered, labels:
+
+\begin{emcppslisting}[emcppsbatch=e9]
+#include <cstdio>  // (ù{\codeincomments{std::putchar}}ù)
+
+struct InOrderPrint : Traverser<InOrderPrint>
+{
+    ~InOrderPrint()
+    {
+        std::putchar('\n');  // Print single newline at the end of the string.
+    }
+
+    void visitInOrder(const Node* n) const
+    {
+        std::putchar(n->d_label);  // Print the label character exactly as is.
+    }
+};
+\end{emcppslisting}
+    
+\noindent The simple \lstinline!InOrderPrint!-derived class, shown in the example above, prints out the
+labels of a tree \emph{in order}: left subtree, then node, then right
+subtree. Notice that since we are only examining the tree here --- not
+modifying it --- we can declare the overriding method to take a
+\lstinline!const!~\lstinline!Node*! rather than a \lstinline!Node*! and make the
+method itself \lstinline!const!. Once again, compatibility of signatures,
+not identity, is the key.
+
+Finally, we might want to clean up the tree. We do so in
+\emph{post-order} since we do not want to delete a node before we have
+cleaned up its children!
+
+\begin{emcppslisting}[emcppsbatch=e9]
+struct CleanUp : Traverser<CleanUp>
+{
+    void visitPostOrder(Node*& n)
+    {
+        delete n;  // always necessary
+        n = 0;     // might be omitted in a "raw" version of the type
+    }
+};
+\end{emcppslisting}
+    
+\noindent Putting it all together, we can create a \lstinline!main! program that
+creates a balanced tree to a depth of four and then labels it in
+\emph{pre-order}, prints those labels in \emph{in-order}, and destroys
+it in \emph{post-order}:
+
+\begin{emcppslisting}[emcppsbatch=e9]
+int main()
+{
+    Node* n = 0;                  // tree handle
+
+    FillToDepth(4).traverse(n);   // (1) Create balanced tree.
+    PreOrderLabel().traverse(n);  // (2) Label tree in pre-order.
+    InOrderPrint().traverse(n);   // (3) Print labels in order.
+    CleanUp().traverse(n);        // (4) Destroy tree in post-order.
+    return 0;
+}
+\end{emcppslisting}
+    
+\noindent Running this program results in a binary tree of height 4, as
+illustrated in the code snippet below, and has reliably consistent output:
+
+\begin{lstlisting}[style=plain]
+dcebgfhakjlinmo
+\end{lstlisting}
+    
+\begin{lstlisting}[style=plain]
+Level 0:                                a
+                              .    '         '    .
+Level 1:                b '                           ' i
+                   .  '    '  .                   .  '    '  .
+Level 2:        c                f              j              m
+              /   \            /   \          /   \          /   \
+Level 3:    d       e        g       h      k       l      n       o
+\end{lstlisting}
+    
+\noindent This use of the CRTP for traversal truly shines when the data structure to
+be traversed is especially complex, such as an abstract-syntax-tree
+(AST) representation of a computer program, where tree nodes have many
+different types, with each type having custom ways of representing the
+subtrees it contains. For example, a translation unit is a sequence of
+declarations; a declaration can be a type, a variable, or a function;
+functions have return types, parameters, and a compound statement; the
+statement has substatements, expressions, and so on. We would not want
+to rewrite the traversal code for each new application. Given a reusable
+CRTP-based traverser for our AST, we don't have to.
+
+For example, consider writing a type that visits each integer literal
+node in a given AST:
+
+\begin{emcppshiddenlisting}[emcppsbatch=e10]
+template <typename T>
+class AstTraverser {};
+class IntegerLiteral {};
+\end{emcppshiddenlisting}
+\begin{emcppslisting}[emcppsbatch=e10]
+struct IntegerLiteralHandler : AstTraverser<IntegerLiteralHandler>
+{
+    void visit(IntegerLiteral* iLit)
+    {
+        // ... (do something with this integer literal)
+    }
+};
+\end{emcppslisting}
+    
+\noindent The AST traverser, which would implement a separate empty \lstinline!visit!
+overload for each syntactic node type in the grammar, would invoke our
+derived \lstinline!visit! member function with every integer literal in the
+program, regardless of where it appeared. This CRTP-based traverser
+would also call many other \lstinline!visit! methods, but each of those would perform no action at all by default and would likely be elided at even modest compiler-optimization levels. Be aware, however, that although we ourselves are
+not rewriting the traversal code each time, the compiler is still doing
+it because every CRTP instantiation produces a new copy of the traversal
+code. If the traversal code is large and complex, the consequence might
+be increased program size, that is, \emcppsgloss{code bloat}.
+
+Finally, the CRTP can be used in a variety of situations for many
+purposes,\footnote{\cite{fluentcpp17}} which explains both its \emph{curiously recurring} nature and nomenclature. Those uses invariably
+benefit from (1) declaring the base-class template's default constructor
+\emph{private} and (2) having that template befriend its type parameter,
+which is possible only by means of the extended \lstinline!friend! syntax.
+Thus, the CRTP base-class template can ensure, at compile time, that its
+type argument is actually derived from the base class as required by the
+pattern.
+
+

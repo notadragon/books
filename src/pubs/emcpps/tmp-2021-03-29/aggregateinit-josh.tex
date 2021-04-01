@@ -1,0 +1,232 @@
+% 2 Feb 2021, copyedits entered and proofed
+% 8 Feb 2021 JMB, compilation fixes
+% 22 March 2021, in FPPs
+
+\emcppsFeature{
+    short={Aggregate Init '14},
+    long={Aggregates Having Default Member Initializers},
+}{aggregate-member-initialization-relaxation}
+\setcounter{table}{0}
+\setcounter{footnote}{0}
+\setcounter{lstlisting}{0}
+%\section[Aggregate Init '14]{Aggregates Having Default Member Initializers}\label{aggregate-member-initialization-relaxation}
+
+
+C++14 enables the use of \emcppsgloss{aggregate initialization} with classes
+employing default member initializers (see \featureref{\locationa}{Default-Member-Initializers}).
+
+\subsection[Description]{Description}\label{description}
+
+Prior to C++14, classes that used default member initializers (see \featureref{\locationa}{Default-Member-Initializers}) --- i.e., initializers that appear directly within the
+scope of the class --- were not considered \emcppsgloss{aggregate} types:
+
+\begin{emcppslisting}[emcppsbatch={e1,e2,e3}]
+struct S                // aggregate type in C++14 but not C++11
+{
+    int i;
+    bool b = false;     // uses default member initializer
+};
+
+struct A                // aggregate type in C++11 and C++14
+{
+    int  i;
+    bool b;             // does not use default member initializer
+};
+\end{emcppslisting}
+
+\noindent Because \lstinline!A! (but not \lstinline!S!) is considered an \emcppsgloss{aggregate} in
+C++11, instances of \lstinline!A! can be created via \emcppsgloss{aggregate
+initialization} (whereas instances of \lstinline!S! cannot):
+
+\begin{emcppslisting}[emcppsbatch=e1]
+A a={100, true};  // OK, in both C++11 and C++14
+S s={100, true};  // Error, in C++11; OK, in C++14
+\end{emcppslisting}
+
+\noindent Note that since C++11, direct-list-initialization may be used to perform aggregate initialization (see \featureref{\locationc}{bracedinit}):
+
+\begin{emcppslisting}[emcppsbatch=e2]
+A a{100, true};  // OK in both C++11 and C++14 but not in C++03
+\end{emcppslisting}
+
+\enlargethispage*{2ex}
+\noindent As of C++14, the requirements for a type to be categorized as an
+\emcppsgloss{aggregate} are relaxed, allowing classes employing default
+member initializers to be considered as such; hence, both \lstinline!A! and
+\lstinline!S! are considered \emcppsgloss[aggregate]{aggregates} in C++14 and eligible for
+\emcppsgloss{aggregate initialization}:
+
+\begin{emcppshiddenlisting}[emcppsbatch=e3]
+#include <cassert>  // standard C (ù{\codeincomments{assert}}ù) macro
+\end{emcppshiddenlisting}
+\begin{emcppslisting}[emcppsbatch=e3,emcppsstandards={c++14}]
+void f()
+{
+    S s0{100, true};        // OK in C++14 but not in C++11
+    assert(s0.i == 100);    // set via explicit aggregate initialization (above)
+    assert(s0.b == true);   // set via explicit aggregate initialization (above)
+
+    S s1{456};              // OK in C++14 but not in C++11
+    assert(s1.i == 456);    // set via explicit aggregate initialization (above)
+    assert(s1.b == false);  // set via default member initializer
+}
+\end{emcppslisting}
+
+\noindent In the code snippet above, the C++14 aggregate \lstinline!S! is initialized
+in two ways: \lstinline!s0! is created using aggregate initialization for
+both data members, and \lstinline!s1! is created using aggregate
+initialization for only the first data member (and the second is set via its
+default member \nobreak{initializer}).
+
+\subsection[Use Cases]{Use Cases}\label{use-cases}
+
+\subsubsection[Configuration \lstinline!struct!s]{Configuration {\SubsubsecCode struct}s}\label{configuration-structs}
+
+\emcppsgloss[aggregate]{Aggregates} in conjunction with default member initializers (see \featureref{\locationa}{Default-Member-Initializers}) can be used to provide concise customizable
+configuration \lstinline!struct!s, packaged with typical default values. As
+an example, consider a configuration \lstinline!struct! for an HTTP request
+handler:
+
+\begin{emcppslisting}[emcppsbatch=e4,emcppsstandards={c++14}]
+struct HTTPRequestHandlerConfig
+{
+    int maxQueuedRequests = 1024;
+    int timeout           = 60;
+    int minThreads        = 4;
+    int maxThreads        = 8;
+};
+\end{emcppslisting}
+
+\enlargethispage*{2ex}
+\noindent \emcppsgloss[aggregate initialization]{Aggregate initialization} can be used when creating objects of
+type\linebreak[4]
+\lstinline!HTTPRequestHandlerConfig! (above) to override one or more
+of the defaults in definition order{\cprotect\footnote{In C++20, the
+designated initializers feature adds flexibility (e.g., for
+configuration \lstinline!struct!s, such as
+\lstinline!HTTPRequestHandlerConfig!) by enabling explicit specification
+of the names of the data members:
+
+\begin{emcppslisting}[emcppsbatch=e4,style=footcode]
+HTTPRequestHandlerConfig lowTimeout{.timeout = 15};
+    // (ù{\fncodeincomments{maxQueuedRequests}}ù), (ù{\fncodeincomments{minThreads}}ù), and (ù{\fncodeincomments{maxThreads}}ù) have their default value.
+
+HTTPRequestHandlerConfig highPerformance{.timeout = 120, .maxThreads = 16};
+    // (ù{\fncodeincomments{maxQueuedRequests}}ù) and (ù{\fncodeincomments{minThreads}}ù) have their default value.
+\end{emcppslisting} 
+\vspace*{-3ex} }}:
+
+\begin{emcppslisting}[emcppsbatch=e4]
+HTTPRequestHandlerConfig getRequestHandlerConfig(bool inLowMemoryEnvironment)
+{
+    if (inLowMemoryEnvironment)
+    {
+        return HTTPRequestHandlerConfig{128};
+            // (ù{\codeincomments{timeout}}ù), (ù{\codeincomments{minThreads}}ù), and (ù{\codeincomments{maxThreads}}ù) have their default value.
+    }
+    else
+    {
+        return HTTPRequestHandlerConfig{2048, 120};
+            // (ù{\codeincomments{minThreads}}ù), and (ù{\codeincomments{maxThreads}}ù) have their default value.
+    }
+}
+
+// ...
+\end{emcppslisting}
+
+
+\subsection[Potential Pitfalls]{Potential Pitfalls}\label{potential-pitfalls}
+
+%%%%%%%% New section added 19 March 2021
+\subsubsection{Empty list initializing members does not use the default initializer}
+
+When we add default member initializers to members of an aggregate,
+those initializers are in effect \emph{only} if that member has no corresponding
+initializer in the braced initializer list. We cannot explicitly \emph{request}
+the default value by placing empty braces into the list because that will
+value-initialize the member with an empty initializer, not
+use its default member initializer.  Any case where we want to explicitly initialize a later member variables value during aggregate initialization means we must manually determine the proper default for all prior members:
+
+\begin{emcppslisting}[emcppsstandards={c++14}]
+struct A 
+{
+     int i{1};
+     int j{2};
+     int k{3};
+};
+
+A a1{};            // OK, result is i=1, j=2,         k=3
+A a2{ 4 };         // OK, result is i=4, j=2,         k=3
+A a3{ 4, {}, 8 };  // Bug, result is i=4, j=0 (not 2), k=3
+\end{emcppslisting}
+%%%%%%%%%%%%%%%%%%%%%%
+
+\subsection[Annoyances]{Annoyances}\label{annoyances}
+
+\subsubsection[Syntactical ambiguity in the presence of brace elision]{Syntactical ambiguity in the presence of brace elision}\label{syntactical-ambiguity-in-the-presence-of-brace-elision}
+
+During the initialization of multilevel \emcppsgloss[aggregate]{aggregates}, braces
+around the initialization of a nested aggregate can be omitted
+(\emcppsgloss{brace elision}):
+
+\begin{emcppslisting}
+struct S
+{
+    int arr[3];
+};
+
+S s0{{0, 1, 2}};  // OK, nested (ù{\codeincomments{arr}}ù) initialized explicitly
+S s1{0, 1, 2};    // OK, brace elision for nested (ù{\codeincomments{arr}}ù)
+\end{emcppslisting}
+
+\noindent The possibility of \emcppsgloss{brace elision} creates an interesting
+syntactical ambiguity when used alongside \emcppsgloss[aggregate]{aggregates} with
+default member initializers (see \featureref{\locationa}{Default-Member-Initializers}). Consider a
+\lstinline!struct!~\lstinline!X! containing three data members, one of which
+has a default value:
+
+\newpage%%%%%
+\begin{emcppslisting}[emcppsbatch=e5]
+struct X
+{
+    int a;
+    int b;
+    int c = 0;
+};
+\end{emcppslisting}
+
+\noindent Now, consider various ways in which an array of elements of type
+\lstinline!X! can be initialized:
+
+\begin{emcppslisting}[emcppsbatch=e5,emcppsstandards={c++14},emcppserrorlines={9}]
+X xs0[] = {{0, 1}, {2, 3}, {4, 5}};
+    // OK, clearly 3 elements having the respective values:
+    // (ù{\codeincomments{\{0, 1, 0\}}}ù), (ù{\codeincomments{\{2, 3, 0\}}}ù), (ù{\codeincomments{\{4, 5, 0\}}}ù)
+
+X xs1[] = {{0, 1, 2}, {3, 4, 5}};
+    // OK, clearly 2 elements with values:
+    // (ù{\codeincomments{\{0, 1, 2\}}}ù), (ù{\codeincomments{\{3, 4, 5\}}}ù)
+
+X xs2[] = {0, 1, 2, 3, 4, 5};
+    // ...?
+\end{emcppslisting}
+
+\noindent Upon seeing the definition of \lstinline!xs2!, a programmer not versed in
+the details of the C++ Language Standard might be unsure as to whether the
+initializer of \lstinline!xs2! is three elements (like \lstinline!xs0!) or two
+elements (like \lstinline!xs1!). The Standard is, however, clear that the
+compiler will interpret \lstinline!xs2! the same as \lstinline!xs1!, and,
+thus, the default values of \lstinline!X::c! for the two array elements
+will be replaced with \lstinline!2! and \lstinline!5!, respectively.
+
+\subsection[See Also]{See Also}\label{see-also}
+
+\begin{itemize}
+\item{\seealsoref{Default-Member-Initializers}{\seealsolocationa}allows developers to provide a default initializer for a data member directly in the definition of a class.}
+\item{\seealsoref{bracedinit}{\seealsolocationc}introduces a syntactically similar feature for initializing objects in a uniform manner.}
+\end{itemize}
+
+\subsection[Further Reading]{Further Reading}\label{further-reading}
+
+
+

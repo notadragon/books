@@ -1,0 +1,646 @@
+% 6 Feb 2021, copyedits in and proofed
+% 8 Feb 2021 JMB, compilation fixes
+% 9 Feb 2021, FPPs set
+% 17 Feb 2021, glossary commands updated 
+% 3 March 2021, proofreading correx in and proofed 
+
+\emcppsFeature{
+    short={Attribute Syntax},
+    long={Generalized Attribute Support},
+}{attributes}
+\setcounter{table}{0}
+\setcounter{footnote}{0}
+\setcounter{lstlisting}{0}
+%\section[Attribute Syntax]{Generalized Attribute Support}\label{attributes}
+
+An \emph{attribute} is an annotation (e.g., of a statement or named
+\emcppsgloss{entity}) used to provide supplementary information.
+
+\subsection[Description]{Description}\label{description}
+
+Developers are often aware of information that cannot be easily deduced directly
+from the source code within a given translation unit. Some of this
+information might be useful to certain compilers, say, to inform
+diagnostics or optimizations; typical attributes, however, are designed
+to avoid affecting the semantics of a
+well-written program. By \emph{semantics}, here
+we typically mean any observable behavior apart from runtime
+performance. Generally, ignoring an attribute is a valid (and safe)
+choice for a compiler to make. Sometimes, however, an
+attribute will not affect the behavior of a \emph{correct} program but might affect the behavior of a well-formed yet incorrect one (see \intraref{attribute-use-cases}{delineating-explicit-assumptions-in-code-to-achieve-better-optimizations}).
+%  {\it\titleref{attribute-use-cases}:} {\it\titleref{delineating-explicit-assumptions-in-code-to-achieve-better-optimizations}} on page~\pageref{delineating-explicit-assumptions-in-code-to-achieve-better-optimizations}).
+  Customized annotations targeted at external tools
+%{\cprotect\footnote{Such tools include static analyzers such as Clang sanitizers.}}
+might be beneficial as well.
+
+\subsubsection[C++ attribute syntax]{C++ attribute syntax}\label{c++-attribute-syntax}
+
+C++ supports a standard syntax for attributes, introduced via a matching
+pair of \lstinline![[! and \lstinline!]]!, the simplest of which is a single
+attribute represented using a simple identifier, e.g.,
+\lstinline!attribute_name!:
+
+\begin{emcppslisting}[emcppsbatch=e1]
+[[attribute_name]]
+\end{emcppslisting}
+
+\noindent A single annotation can consist of zero or more attributes:
+
+\begin{emcppslisting}[emcppsbatch=e2]
+[[]]           // permitted in every position where any attribute is allowed
+[[foo, bar]]   // equivalent to (ù{\codeincomments{[[foo]] [[bar]]}}ù)
+\end{emcppslisting}
+
+\noindent An attribute may have an argument list consisting of an
+arbitrary sequence of tokens:
+
+\begin{emcppslisting}[emcppsbatch=e3]
+[[attribute_name()]]            // same as (ù{\codeincomments{attribute\_name}}ù)
+[[deprecated("bad API")]]       // single-argument attribute
+[[theoretical(1, "two", 3.0)]]  // multiple-argument attribute
+[[complicated({1, 2, 3} + 5)]]  // arbitrary tokens(ù{\footnotemark}ù)
+\end{emcppslisting}
+\footnotetext{GCC offered no support for certain tokens in the attributes until GCC~v9.3 (c. 2020).}
+
+\noindent Note that having an incorrect number of arguments or an incompatible
+argument type is a compile-time error for all  attributes defined by the Standard; %\pagebreak%%%%%%%
+the behavior for all other attributes,
+ however, is
+\emcppsgloss[implementation defined]{implementation-defined} (see \intraref{attribute-potential-pitfalls}{unrecognized-attributes-have-implementation-defined-behavior}).
+%{\it\titleref{attribute-potential-pitfalls}:} {\it\titleref{unrecognized-attributes-have-implementation-defined-behavior}} on page~\pageref{unrecognized-attributes-have-implementation-defined-behavior}).
+
+Any attribute may be qualified with an attribute namespace{\cprotect\footnote{Attributes
+having a namespace-qualified name (e.g., \lstinline![[gnu::const]]!) were
+only \emcppsgloss{conditionally supported} in C++11 and C++14, but
+historically they were supported by all major compilers, including both
+Clang and GCC; all C++17-conforming compilers \emph{must} support attribute namespaces.}} (a single arbitrary\linebreak[4] \mbox{identifier}):
+
+\begin{emcppslisting}[emcppsbatch=e4]
+[[gnu::const]]  // (GCC-specific) namespace-(ù{\codeincomments{gnu}}ù)-qualified (ù{\codeincomments{const}}ù) attribute
+[[my::own]]     // (user-specified) namespace-(ù{\codeincomments{my}}ù)-qualified (ù{\codeincomments{own}}ù) attribute
+\end{emcppslisting}
+
+\begin{emcppshiddenlisting}[emcppsbatch={e1,e2,e3,e4}]
+// the above listings with just atttributes need to be on something, like a function
+void foo();
+\end{emcppshiddenlisting}
+
+
+\subsubsection[C++ attribute placement]{C++ attribute placement}\label{c++-attribute-placement}
+
+%%%%% old section
+%Attributes can, in principle, be introduced almost anywhere within the
+%C++ syntax to annotate almost anything, including an entity,
+%statement, code block, and even entire translation
+%unit; however, most contemporary compilers do not support arbitrary
+%placement of attributes (see {\it\titleref{attribute-use-cases}:} {\it\titleref{probing-where-attributes-are-permitted-in-the-compiler’s-c++-grammar}} on page~\pageref{probing-where-attributes-are-permitted-in-the-compiler’s-c++-grammar}) outside of a
+%declaration statement. Furthermore, in some cases, the entity to
+%which an unrecognized attribute pertains might not be clear from its
+%syntactic placement alone.
+%
+%In the case of a declaration statement, however, the intended entity is
+%well specified; an attribute placed in front of the statement applies to
+%every entity being declared, whereas an attribute placed immediately
+%after the named entity applies to just that one entity:
+%
+%\begin{emcppslisting}
+%[[noreturn]] void f(), g();  // Both (ù{\codeincomments{f()}}ù) and (ù{\codeincomments{g()}}ù) are (ù{\codeincomments{noreturn}}ù).
+%void u(), v() [[noreturn]];  // Only (ù{\codeincomments{v()}}ù) is (ù{\codeincomments{noreturn}}ù).
+%\end{emcppslisting}
+%
+%\noindent Attributes placed in front of a declaration statement and immediately
+%behind the name{\cprotect\footnote{There are rare edge cases in which an
+%entity (e.g., an anonymous \texttt{union} or \texttt{enum}) is
+%declared without a name:
+%
+%%\begin{emcppslisting}[basicstyle={\ttfamily\footnotesize}]
+%\begin{lstlisting}[style=footcode]
+%struct S { union [[attribute_name]] { int a; float b }; };
+%enum [[attribute_name]] { SUCCESS, FAIL } result;
+%\end{emcppslisting} \vspace*{-1ex}
+%      }} of an individual entity in the same statement are additive (for
+%that entity). The behavior of attributes associated with an entity
+%across multiple declaration statements, however, depends on the
+%attributes themselves. As an example, \texttt{[[noreturn]]} is required
+%to be present on the \emph{first} declaration of a function. Other
+%attributes might be additive, such as the hypothetical \texttt{foo} and
+%\texttt{bar} shown here:
+%
+%\begin{emcppslisting}
+%[[foo]] void f(), g();  // declares both (ù{\codeincomments{f()}}ù) and (ù{\codeincomments{g()}}ù) to be (ù{\codeincomments{foo}}ù)
+%void f [[bar]](), g();  // Now (ù{\codeincomments{f()}}ù) is both (ù{\codeincomments{foo}}ù) and (ù{\codeincomments{bar}}ù) while
+%                        //     (ù{\codeincomments{g()}}ù) is still just (ù{\codeincomments{foo}}ù).
+%\end{emcppslisting}
+%\pagebreak%%%%%%%
+
+%\noindent Redundant attributes are not themselves necessarily considered an error;
+%however, most standard attributes do consider redundancy an
+%error{\cprotect\footnote{Redundancy of standard
+%attributes might no longer be an error in future revisions of the
+%  C++ Standard; see \textbf{{iso20a}}.}}:
+%
+%\begin{emcppslisting}
+%[[attr1]] void f [[attr2]](), f [[attr3]](int);
+%                                      // (ù{\codeincomments{f()}}ù)    is (ù{\codeincomments{attr1}}ù) and (ù{\codeincomments{attr2}}ù).
+%                                      // (ù{\codeincomments{f(int)}}ù) is (ù{\codeincomments{attr1}}ù) and (ù{\codeincomments{attr3}}ù).
+%
+%[[a1]][[a1]] int [[a1]][[a1]] & x;    // (ù{\codeincomments{x}}ù) (the reference itself) is (ù{\codeincomments{a1}}ù).
+%
+%void g [[noreturn]] [[noreturn]]();   // (ù{\codeincomments{g()}}ù) is (ù{\codeincomments{noreturn}}ù).
+%
+%void h [[noreturn, noreturn]]();      // error: repeated (standard) attribute
+%\end{emcppslisting}
+%
+%\noindent In most other cases, an attribute will typically apply to the statement
+%(including a block statement) that immediately (apart from other
+%attributes) follows it:
+%
+%\begin{emcppslisting}
+%[[attr1]];                                // null statement
+%[[attr2]] return 0;                       // return statement
+%[[attr3]] for (int i = 0; i < 10; ++i);   // for statement
+%[[attr4]] [[attr5]] { /* ... */ }         // block statement
+%\end{emcppslisting}
+%
+%\noindent The valid positions of any particular attribute, however, will be
+%constrained by whatever entities to which it applies. That is, an
+%attribute such as \texttt{noreturn}, which pertains only to functions,
+%would be valid syntactically but not semantically were it placed so as
+%to annotate any other kind of entity or syntactic element. Misplacement of
+%standard attributes results in an ill-formed
+%program{\cprotect\footnote{As of this writing, GCC is lax and merely
+%warns when it sees the standard \texttt{noreturn} attribute in an
+%unauthorized syntactic position, whereas Clang (correctly) fails to
+%compile. Hence creative use of even a standard attribute might
+%  lead to different behavior on different compilers.}}:
+%
+%\begin{emcppslisting}
+%void [[noreturn]] g() { throw; }  // error: appertains to type specifier
+%void i() [[noreturn]] { throw; }  // error: appertains to type specifier
+%\end{emcppslisting}
+
+
+%%%%%% new section
+Attributes can be placed in a variety of locations within the C++ grammar.  For each such location, the Standard defines the entity or statement to which the attribute is said to \emph{appertain}. For example, an attribute in front of a simple declaration statement appertains to each of the entities declared by the statement, whereas an attribute placed immediately after the declared name appertains only to that entity:
+
+\begin{emcppslisting}[language=C]
+[[foo]] void f(), g();   // foo appertains to both f() and g().
+void u(), v [[foo]] ();  // foo appertains only to v().
+\end{emcppslisting}
+
+\noindent Attributes can apply to an entity without a name (e.g., anonymous \lstinline!union! or \lstinline!enum!):
+
+\begin{emcppslisting}
+struct S { union [[attribute_name]] { int a; float b; }; };
+enum [[attribute_name]] { SUCCESS, FAIL } result;
+\end{emcppslisting}
+
+\noindent The valid positions for any particular attribute are constrained to only those locations
+where the attribute appertains to the entity to which it applies. That is, an attribute such as \lstinline!noreturn!,
+which applies only to functions, would be valid syntactically but not semantically valid if it were used to annotate
+any other kind of entity or syntactic element.  Misplacement of a standard attribute results
+in an ill-formed program\footnote{As of this writing, GCC is lax and merely
+warns when it sees the standard \lstinline!noreturn! attribute in an
+unauthorized syntactic position, whereas Clang (correctly) fails to
+compile. Hence, using even a standard attribute might
+  lead to a different behavior on different compilers.}:
+
+\begin{emcppslisting}[emcppserrorlines={4}]
+void [[noreturn]] x() {       // Error, cannot be applied to a type
+     [[noreturn]] int i;      // Error, cannot be applied to a variable
+     [[noreturn]] { throw; }  // Error, cannot be applied to a statement
+}
+\end{emcppslisting}
+
+\noindent The empty attribute specifier sequence \lstinline![[]]! is allowed to appear anywhere the C++ grammar allows attributes.
+
+%%%%%%%%%%%%%%%%%%%%%%
+
+
+\subsubsection[Common compiler-dependent attributes]{Common compiler-dependent attributes}\label{common-compiler-dependent-attributes}
+
+Prior to C++11, no standardized syntax for attributes was available and nonportable compiler intrinsics
+(such as \mbox{\lstinline!__attribute__((fallthrough))!}, which is
+GCC-specific syntax) had to be used instead. Given the new standard
+syntax, vendors are now able to express these extensions in a syntactically consistent manner. If an unknown attribute is
+encountered during compilation, it is ignored, emitting a likely{\cprotect\footnote{Prior to C++17, a conforming implementation was
+permitted to treat an unknown attribute as ill-formed and terminate
+  translation; to the authors' knowledge, however, none of them did.}} nonfatal
+diagnostic.
+
+Table \ref{attribute-table1} provides several examples of popular compiler-specific attributes
+that have been standardized or have migrated to the standard syntax. (For
+additional compiler-specific attributes, see \intrarefsimple{attribute-further-reading}).
+%{\it\titleref{attribute-further-reading}} on page~\pageref{attribute-further-reading}.)
+%\pagebreak%%%%%%%%
+
+\begin{table}[h!]
+\begin{center}
+%\vspace{-3ex}
+\begin{threeparttable}
+\caption{Some standardized compiler-specific attributes}\label{attribute-table1}\vspace{1.5ex}
+{\small \begin{tabular}{c|c|c}\thickhline
+\rowcolor[gray]{.9}   {\sffamily\bfseries Compiler} & {\sffamily\bfseries Compiler-Specific} &
+{\sffamily\bfseries Standard-Conforming} \\ \hline
+GCC &\lstinline!__attribute__((pure))! & \lstinline![[gnu::pure]]! \\ \hline
+Clang & \lstinline!__attribute__((no_sanitize))! &\lstinline![[clang::no_sanitize]]! \\ \hline
+MSVC & \lstinline!declspec(deprecated)! & \lstinline![[deprecated]]! \\ \thickhline
+\end{tabular}
+}
+\end{threeparttable}
+\end{center}
+\end{table}
+
+Portability is the biggest advantage of preferring standard syntax when it is available for compiler- and external-tool-specific attributes. Because most compilers will simply ignore unknown attributes that use standard attribute syntax (and, as of C++17, they are required to do so), conditional compilation is no longer required.
+
+\subsection[Use Cases]{Use Cases}\label{attribute-use-cases}
+
+\subsubsection[Prompting useful compiler diagnostics]{Prompting useful compiler diagnostics}\label{eliciting-useful-compiler-diagnostics}
+
+Decorating entities with certain attributes can give compilers enough
+additional con-\linebreak %%%%%%%% to reduce the wacky linespacing caused by long code term next line
+text to provide more detailed diagnostics. For example,
+the GCC-specific\linebreak[4] \lstinline![[gnu::warn_unused_result]]!
+attribute{\cprotect\footnote{For compatibility with GCC,
+Clang supports \lstinline![[gnu::warn_unused_result]]! as
+  well.}} can be used to inform the compiler (and developers) that a
+function's return value should not be ignored{\cprotect\footnote{The
+C++17 Standard \lstinline![[nodiscard]]! attribute serves the same
+  purpose and is portable.}}:
+
+\begin{emcppslisting}[emcppsbatch=e5]
+struct UDPListener
+{
+    [[gnu::warn_unused_result]] int start();
+        // Start the UDP listener's background thread (which can fail for a
+        // variety of reasons). Return 0 on success and a nonzero value
+        // otherwise.
+
+    void bind(int port);
+        // The behavior is undefined unless (ù{\codeincomments{start}}ù) was called successfully.
+};
+\end{emcppslisting}
+\pagebreak%%%%%%
+
+\noindent Such annotation of the client-facing declaration can prevent defects
+caused by a client forgetting to inspect the result of a
+function{\cprotect\footnote{Because the
+\lstinline![[gnu::warn_unused_result]]! attribute does not affect code
+generation, it is explicitly \emph{not} ill formed for a client to
+make use of an unannotated declaration and yet compile its
+corresponding definition in the context of an annotated one (or vice
+versa); such is not always the case for other attributes, however, and
+  best practice might argue in favor of consistency regardless.}}:
+
+\begin{emcppslisting}[emcppsbatch=e5]
+void init()
+{
+    UDPListener listener;
+    listener.start();      // Might fail; return value must be checked!
+    listener.bind(27015);  // Possible undefined behavior (BAD IDEA)
+}
+\end{emcppslisting}
+
+\noindent For the code above, GCC produces a useful warning:
+
+\begin{lstlisting}[style=plain]
+warning: ignoring return value of 'int UDPListener::start()' declared
+         with attribute 'warn_unused_result' [-Wunused-result]
+\end{lstlisting}
+
+
+\subsubsection[Hinting at additional optimization opportunities]{Hinting at additional optimization opportunities}\label{hinting-at-additional-optimization-opportunities}
+
+Some annotations can affect compiler optimizations leading to more
+efficient or smaller binaries. For example, decorating the function
+\lstinline!reportError! below with the GCC-specific
+\lstinline![[gnu::cold]]! attribute (also available on Clang) tells the
+compiler that the developer believes the function is unlikely to be
+called often:
+
+\begin{emcppslisting}[emcppsbatch=e6]
+[[gnu::cold]] void reportError(const char* message) { /* ... */ }
+\end{emcppslisting}
+
+\noindent Not only might the definition of \lstinline!reportError! itself be
+optimized differently (e.g., for space over speed), any use of this
+function will likely be given lower priority during branch \mbox{prediction}:
+
+\begin{emcppslisting}[emcppsbatch=e6]
+void checkBalance(int balance)
+{
+    if (balance >= 0)  // likely branch
+    {
+        // ...
+    }
+    else  // unlikely branch
+    {
+        reportError("Negative balance.");
+    }
+}
+\end{emcppslisting}
+% \pagebreak%%%%
+
+\noindent Because the (annotated) \lstinline!reportError(const!~\lstinline!char*)!
+appears on the \lstinline!else! branch of the \lstinline!if! statement (above), the compiler
+knows to expect that \lstinline!balance! is likely \pagebreak%%%%%%%  
+\emph{not} to be negative  
+and therefore optimizes its predictive branching accordingly.
+Note that even if our hint to the compiler turns out to be misleading at
+run time, the semantics of every well-formed program remain the same.
+
+\subsubsection[Stating explicit assumptions in code to achieve better optimizations]{Stating explicit assumptions in code to achieve better optimizations}\label{delineating-explicit-assumptions-in-code-to-achieve-better-optimizations}
+
+Although the presence of an attribute usually has no effect
+on the behavior of any well-formed program besides its runtime performance,
+an attribute sometimes imparts knowledge to the compiler,
+which, if incorrect, could alter the intended behavior of the program. As an
+example of this more forceful form of attribute, consider the
+GCC-specific \lstinline![[gnu::const]]! attribute (also available in
+Clang). When applied to a function, this attribute instructs the compiler to \emph{assume}
+that the function is a \emcppsgloss{pure function}, which has no
+\emcppsgloss{side effects}. In other words, the function always returns the same value for a given set of arguments, and the globally reachable state of the program is not altered by the function. For example, a function performing a linear interpolation between two values may be annotated with \lstinline![[gnu::const]]!:
+
+\begin{emcppslisting}[emcppsbatch={e7,e8}]
+[[gnu::const]]
+double linearInterpolation(double start, double end, double factor)
+{
+    return (start * (1.0 - factor)) + (end * factor);
+}
+\end{emcppslisting}
+
+\noindent More generally, the return value of a function annotated with \lstinline![[gnu::const]]! is not permitted to depend on any state that might change between its successive invocations. For example, it is not allowed to examine contents of memory supplied to it by address. In contrast, functions annotated with a similar but more lenient \lstinline![[gnu::pure]]! attribute are allowed to return values that depend on any nonvolatile state.  Therefore, functions such as \lstinline!strlen! or \lstinline!memcmp!, which read but do not modify the observable state, may be annotated with \lstinline![[gnu::pure]]! but not \lstinline![[gnu::const]]!.
+
+The \lstinline!vectorLerp! function below performs linear
+interpolation (referred to as LERP) between two bidimen\-sional vectors. The body
+of this function comprises two invocations to the
+\mbox{\lstinline!linearInterpolation!} function (above) --- one per vector
+component:
+
+\begin{emcppshiddenlisting}[emcppsbatch={e7,e8}]
+struct Vector2D {
+    double x, y;
+    Vector2D(double, double);
+};
+\end{emcppshiddenlisting}
+\begin{emcppslisting}[emcppsbatch=e7]
+Vector2D vectorLerp(const Vector2D& start, const Vector2D& end, double factor)
+{
+    return Vector2D(linearInterpolation(start.x, end.x, factor),
+                    linearInterpolation(start.y, end.y, factor));
+}
+\end{emcppslisting}
+%\pagebreak%%%%%%
+
+\noindent In the case where the values of the two components
+are the same, the compiler is allowed to invoke
+\lstinline!linearInterpolation! only once --- even if its body is not
+visible in \lstinline!vectorLerp!'s translation unit:\newpage%%%%%%
+
+\begin{emcppslisting}[emcppsbatch=e8]
+// pseudocode (hypothetical compiler transformation)
+Vector2D vectorLerp(const Vector2D& start, const Vector2D& end, double factor)
+{
+    if (start.x == start.y && end.x == end.y)
+    {
+        const double cache = linearInterpolation(start.x, end.x, factor);
+        return Vector2D(cache, cache);
+    }
+
+    return Vector2D(linearInterpolation(start.x, end.x, factor),
+                    linearInterpolation(start.y, end.y, factor));
+}
+\end{emcppslisting}
+
+\noindent If the implementation of a function tagged with the
+\lstinline![[gnu::const]]! attribute does not satisfy limitations imposed by
+the attribute, however, the compiler will not be able to detect this, and a runtime
+defect will be the likely result;
+%{\cprotect\footnote{The briefly adopted
+%--- and then \emph{unadopted} --- contract-checking facility proposed
+%for C++20 contemplated incorporating a feature similar in spirit to
+%\texttt{[[gnu::const]]} in which preconditions (in addition to being
+%runtime checked or ignored) could be \emph{assumed} to be true by the
+%compiler for the purposes of optimization; this unique use of
+%attribute-like syntax also required that a conforming implementation
+%could not unilaterally ignore these precondition-checking attributes
+%since that would make attempting to test them result in hard
+%  (\emph{language}) \textbf{undefined behavior}.}};
+  see \intraref{attribute-potential-pitfalls}{some-attributes,-if-misused,-can-affect-program-correctness}.
+%{\it\titleref{attribute-potential-pitfalls}:} {\it\titleref{some-attributes,-if-misused,-can-affect-program-correctness}} on page~\pageref{some-attributes,-if-misused,-can-affect-program-correctness}.
+
+\subsubsection[Using attributes to control external static analysis]{Using attributes to control external static analysis}\label{using-attributes-to-control-external-static-analysis}
+
+Since unknown attributes are ignored by the compiler, external
+static-analysis tools can define their own custom attributes that can be
+used to embed detailed information to influence or control those tools
+without affecting program semantics. For example, the Microsoft-specific
+\lstinline![[gsl::suppress(/*!~\lstinline!rules!~\lstinline!*/)]]! attribute can
+be used to suppress unwanted warnings from static-analysis tools that
+verify \emph{Guidelines Support Library}{\cprotect\footnote{\emph{Guidelines
+Support Library} (see \cite{microsoft}) is an open-source library, developed by Microsoft,
+that implements functions and types suggested for use by the ``C++
+  Core Guidelines'' (see \cite{stroustrup20}).}}
+rules. In particular, consider GSL C26481 (Bounds rule \#1),\footnote{\cite{microsoftC26481}} which forbids any pointer arithmetic, instead
+suggesting that users rely on the \lstinline!gsl::span!
+type{\cprotect\footnote{\lstinline!gsl::span! is a lightweight reference
+type that observes a contiguous sequence (or subsequence) of objects
+of homogeneous type. \lstinline!gsl::span! can be used in interfaces as
+an alternative to both pointer/size or iterator-pair arguments and in
+implementations as an alternative to (raw) pointer arithmetic. Since
+  C++20, the standard \lstinline!std::span! template can be used instead.}}:
+
+\begin{emcppshiddenlisting}[emcppsbatch={e9,e10}]
+void printElements(int*,int*);
+\end{emcppshiddenlisting}
+\begin{emcppslisting}[emcppsbatch=e9]
+void hereticalFunction()
+{
+    int array[] = {0, 1, 2, 3, 4, 5};
+
+    printElements(array, array + 6);  // elicits warning C26481
+}
+\end{emcppslisting}
+%\pagebreak%%%%%%%%%
+
+\noindent Any block of code for which validating rule C26481 is considered
+undesirable can be decorated with the
+\lstinline![[gsl::suppress(bounds.1)]]! attribute:\pagebreak%%%%%%%%%
+
+% gsl::suppress is ignored by gcc, requires a string on clang, and an identifier
+% on MSVC.  sigh.
+\begin{emcppslisting}[emcppsbatch=e10,emcppserrorlines=5]
+void hereticalFunction()
+{
+    int array[] = {0, 1, 2, 3, 4, 5};
+
+    [[gsl::suppress(bounds.1)]]           // Suppress GSL C26481.
+    {
+        printElements(array, array + 6);  // Silence!
+    }
+}
+\end{emcppslisting}
+
+
+\subsubsection[Creating new attributes to express semantic properties]{Creating new attributes to express semantic properties}\label{creating-new-attributes-to-express-semantic-properties}
+
+Other uses of attributes for static analysis include statements of
+properties that cannot otherwise be deduced. Consider a function, \lstinline!f!, that takes two pointers,
+\lstinline!p1! and \lstinline!p2!, and has a \emcppsgloss{precondition} that both
+pointers must refer to the same contiguous block of memory. Using the standard attribute to inform the analyzer of such a precondition has a distinct advantage of requiring nothing other than the agreement between the developer and the static analyzer regarding the namespace and the name of the attribute. For example, we could choose to designate \lstinline!home_grown::in_same_block(p1, p2)! for this purpose:
+
+\begin{emcppslisting}[emcppsbatch=e11]
+// lib.h:
+
+[[home_grown::in_same_block(p1, p2)]]
+int f(double* p1, double* p2);
+\end{emcppslisting}
+%\pagebreak%%%%%%%%%
+
+\noindent The compiler will simply ignore this unknown attribute. However, because our static-analysis tool knows the meaning of the \lstinline!home_grown::in_same_block! attribute, it will report, at analysis time, defects that might otherwise have resulted in \emcppsgloss{undefined behavior} at run time:
+
+\begin{emcppslisting}[emcppsbatch=e11]
+// client.cpp:
+#include <lib.h>
+
+void client()
+{
+    double a[10], b[10];
+    f(a, b);  // Unrelated pointers --- Our static analyzer reports an error.
+}
+\end{emcppslisting}
+
+%\noindent Because our static-analysis tool knows from the
+%\texttt{home\_grown::in\_same\_block} attribute that \texttt{a} and
+%\texttt{b} must point into the same contiguous block, however, it has
+%enough information to report, at compile time, what might otherwise have
+%resulted in \textbf{undefined behavior} at run~time.
+
+%\subsubsection[Probing where attributes are permitted in the compiler’s C++ grammar]{Probing where attributes are permitted in the compiler’s C++ grammar}\label{probing-where-attributes-are-permitted-in-the-compiler’s-c++-grammar}
+%
+%An attribute can generally appear syntactically at the beginning of any
+%statement --- e.g.,
+%\texttt{[[attr]]}~\texttt{x}~\texttt{=}~\texttt{5;} --- or in almost any
+%position relative to a type or expression (e.g.,
+%\texttt{const}~\texttt{int\&}) but typically cannot be associated
+%within named objects outside of a declaration statement:
+%
+%\begin{emcppslisting}
+%[[]] static [[]] int [[]] a [[]], /*[[]]*/ b [[]];  // declaration statement
+%\end{emcppslisting}
+%
+%\noindent Notice how we have used the empty attribute syntax \texttt{[[]]} above
+%to probe for positions allowed for arbitrary attributes by the compiler
+%(in this case, GCC) --- the only invalid one being immediately following
+%the comma, shown above as \texttt{/*[[]]*/}. Outside of a declaration
+%statement, however, viable attribute locations are typically far more
+%limited:
+%
+%\begin{emcppslisting}[label=attribute-gcc-example]
+%[[]] void [[]] f [[]] ( [[]] int [[]] n [[]] )
+%[[]] {
+%    [[]] n /**/ *= /**/ sizeof /**/ ( [[]] const [[]] int [[]] & [[]] ) /**/;
+%    [[]] for ([[]] int [[]] i [[]] = /**/ 0 /**/ ;
+%                       /**/ i  /**/ < /**/ n /**/ ;
+%               /**/ ++ /**/ i /**/ )
+%    [[]] {
+%        [[]] ;             // (ù{\codeincomments{[[]]}}ù) denotes viable attribute location (on GCC)
+%    /**/ }
+%/**/ }                     // (ù{\codeincomments{/**/}}ù) denotes no attribute allowed (on GCC)
+%\end{emcppslisting}
+%
+%\noindent Type expressions --- e.g., the argument to \texttt{sizeof} (above) ---
+%are a notable exception; see {\it\titleref{attribute-potential-pitfalls}:} {\it\titleref{not-every-syntactic-location-is-viable-for-an-attribute}} on page~\pageref{not-every-syntactic-location-is-viable-for-an-attribute}.
+%%\newpage%%%%%%%%%%%%
+
+\subsection[Potential Pitfalls]{Potential Pitfalls}\label{attribute-potential-pitfalls}
+
+\subsubsection[Unrecognized attributes have implementation-defined behavior]{Unrecognized attributes have implementation-defined behavior}\label{unrecognized-attributes-have-implementation-defined-behavior}
+
+Although standard attributes work well and are portable across all
+platforms, the behavior of compiler-specific and user-specified
+attributes is entirely implementation defined, with unrecognized
+attributes typically resulting in compiler warnings. Such warnings can typically be disabled (e.g., on GCC using
+\lstinline!-Wno-attributes!), but, if they are, misspellings in even standard
+attributes will go unreported.{\cprotect\footnote{Ideally, every relevant platform would offer a way to silently ignore a specific
+  attribute on a case-by-case basis.}}
+
+\subsubsection[Some attributes, if misused, can affect program correctness]{Some attributes, if misused, can affect program correctness}\label{some-attributes,-if-misused,-can-affect-program-correctness}
+
+Many attributes are benign in that they might improve diagnostics or
+performance but cannot themselves cause a program to behave incorrectly.
+However, misuse of some attributes can lead to incorrect
+results and/or \emcppsgloss{undefined behavior}.
+
+For example, consider the \lstinline!myRandom! function that is intended to
+return a new random number between $[0.0$ and $0.1]$ on each successive
+call:
+\begin{emcppshiddenlisting}[emcppsbatch=e12]
+#include <random>  // (ù{\codeincomments{std::random\_device}}ù), (ù{\codeincomments{std::mt19937}}ù), (ù{\codeincomments{std::uniform\_real\_distribution}}ù)
+\end{emcppshiddenlisting}
+\begin{emcppslisting}[emcppsbatch=e12]
+double myRandom()
+{
+    static std::random_device randomDevice;
+    static std::mt19937 generator(randomDevice());
+
+    std::uniform_real_distribution<double> distribution(0, 1);
+    return distribution(generator);
+}
+\end{emcppslisting}
+
+\noindent Suppose that we somehow observed that decorating \lstinline!myRandom! with
+the \lstinline![[gnu::const]]! attribute occasionally improved runtime
+performance and innocently but naively decided to use it in production. This
+is clearly a misuse of the \lstinline![[gnu::const]]! attribute because the
+function doesn't inherently satisfy the requirement of producing the
+same result when invoked with the same arguments (in this case, none).
+Adding this attribute tells the compiler that it need not call this
+function repeatedly and is free to treat the first value returned as a
+constant for all time.
+
+%\subsubsection[Not every syntactic location is viable for an attribute]{Not every syntactic location is viable for an attribute}\label{not-every-syntactic-location-is-viable-for-an-attribute}
+%
+%For a fairly limited subset of syntactic locations, most
+%conforming implementations are likely to tolerate the double-bracketed
+%attribute-list syntax. The ubiquitously available locations include the
+%beginning of any statement, immediately following a named entity in a
+%declaration statement, and (typically) arbitrary positions relative to a
+%\textbf{type expression} but, beyond that, caveat emptor. For example, GCC
+%allowed all of the positions indicated in the example shown in
+%{\it\titleref{attribute-use-cases}:} {\it\titleref{probing-where-attributes-are-permitted-in-the-compiler’s-c++-grammar}} on page~\pageref{attribute-gcc-example}, yet Clang had
+%issues with the third line in two places:
+%
+%\begin{emcppslisting}
+%<source>:3:39: error: expected variable name or 'this' in lambda capture list
+%    [[]] n /**/ *= /**/ sizeof /**/ ([[]] const [[]] int [[]] & [[]] ) /**/;
+%                                      ^
+%
+%<source>:3:48: error: an attribute list cannot appear here
+%    [[]] n /**/ *= /**/ sizeof /**/ (/**/ const [[]] int [[]] & [[]] ) /**/;
+%                                                ^~~~
+%\end{emcppslisting}
+%
+%\noindent Hence, just because an arbitrary syntactic location is valid for an
+%attribute on one compiler doesn't mean that it is necessarily valid on
+%another.a
+
+\subsection[Annoyances]{Annoyances}\label{annoyances}
+
+\hspace{\fill}
+
+\subsection[See Also]{See Also}\label{see-also}
+
+\begin{itemize}
+\item{\seealsoref{the-noreturn-attribute}{\seealsolocationa}presents a standard attribute used to indicate that a particular function never returns control flow to its caller.}
+\item{\seealsoref{deprecated}{\seealsolocationb}presents a standard attribute that discourages the use of an entity via compiler diagnostics.}
+\item{\seealsoref{carriesdependency}{\seealsolocatione}presents a standard attribute used to communicate release-consume dependency-chain information to the compiler to avoid unnecessary memory-fence instructions.}
+%\item{\locationa, ``\titleref{alignas}" on page~\pageref{alignas} --- Safe C++11 attribute (with a keyword-like syntax) used to widen the alignment of a type or an object}
+\end{itemize}
+
+\subsection[Further Reading]{Further Reading}\label{attribute-further-reading}
+\begin{itemize}
+\item{For more information on commonly supported function attributes, see
+section~6.33.1, ``Common Function Attributes," \cite{freesoftwarefdn20}.}
+\end{itemize}
+
