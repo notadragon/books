@@ -31,7 +31,7 @@ enum { e_SIZE = 5 };             // (ù{\codeincomments{e\_SIZE}}ù) is a consta
 int a[e_SIZE];                   // (ù{\codeincomments{e\_SIZE}}ù) must be a constant expression.
 static_assert(e_SIZE == 5, "");  //    "     "   " "     "          "
 \end{emcppslisting}
-    
+
 \noindent Prior to C++11, evaluating a conventional function at compile time as
 part of a \emcppsgloss{constant expression} was not possible:
 
@@ -41,7 +41,7 @@ int a[z()];                         // Error, (ù{\codeincomments{z()}}ù) is no
 static_assert(z() == 5, "");        // Error,  "     "  "  "      "         "
 int a[0 ? z() : 9];                 // Error,  "     "  "  "      "         "
 \end{emcppslisting}
-    
+
 \noindent Developers, in need of such functionality, would use other means, such
 as template metaprogramming, external code generators, preprocessor
 macros, or hardcoded constants (as shown above), to work around this
@@ -57,7 +57,7 @@ struct Factorial { enum { value = N * Factorial<N-1>::value }; };  // recursive
 template <>
 struct Factorial<0> { enum { value = 1 }; };                       // base case
 \end{emcppslisting}
-    
+
 
 \noindent Evaluating the \lstinline!Factorial! metafunction above on a
 \emcppsgloss{constant expression} results in a \emcppsgloss{constant expression}:
@@ -66,7 +66,7 @@ struct Factorial<0> { enum { value = 1 }; };                       // base case
 static_assert(Factorial<5>::value == 120, "");  // OK, it's a constant expr.
 int a[Factorial<5>::value];                     // OK, array of 120 (ù{\codeincomments{int}}ù)s
 \end{emcppslisting}
-    
+
 
 \noindent Note, however, that the metafunction can be used only with arguments
 that are themselves \emcppsgloss[constant expression]{constant expressions}:
@@ -78,7 +78,7 @@ const int factorial(const int n)  // returning (ù{\codeincomments{const int}}ù
     return Factorial<n>::value;   // Error,  "   "  "  "     "         "
 }
 \end{emcppslisting}
-    
+
 
 \noindent Employing this cumbersome work-around leads to code that is difficult
 both to write and to read and is also non-trivial to compile, often
@@ -108,7 +108,7 @@ constexpr int factorial(int n)  // can be evaluated in a constant expression
     return n == 0 ? 1 : n * factorial(n - 1);  // single (ù{\codeincomments{return}}ù) statement
 }
 \end{emcppslisting}
-    
+
 
 \noindent In C++11, the body of a \lstinline!constexpr! function is restricted to a
 single \lstinline!return! statement, and any other language construct, such
@@ -164,7 +164,7 @@ void f(int n)
         // Error, (ù{\codeincomments{n}}ù) is not a constant expression.
 }
 \end{emcppslisting}
-    
+
 
 \noindent As illustrated above, simply invoking a \lstinline!constexpr! function with
 arguments that are \emcppsgloss[constant expression]{constant expressions} does \emph{not}
@@ -188,7 +188,7 @@ constexpr int h(int x) { return x < 5 ? x : throw x; }  // OK, (ù{\codeincommen
 int a4[h(4)];  // OK, creates an array of four integers
 int a6[h(6)];  // Error, unable to evaluate (ù{\codeincomments{h}}ù) on (ù{\codeincomments{6}}ù) at compile time
 \end{emcppslisting}
-    
+
 
 \noindent In the code snippet above, although we are able to size the
 \emph{file-scope}{\cprotect\footnote{A common extension of popular
@@ -205,7 +205,7 @@ void g()
                    // run time and throw.
 }
 \end{emcppslisting}
-    
+
 \noindent It is only by compiling with \lstinline!-Wpedantic! that we get even so
   much as a warning!}} \lstinline!a4! array because the path of execution
 within the valid \lstinline!constexpr! function \lstinline!h! does not involve
@@ -242,7 +242,7 @@ constexpr int f(){ return Int(5).d_val; }  // OK, (ù{\codeincomments{constexpr}
 constexpr int g(Int i){ return i.val(); }  // OK, (ù{\codeincomments{constexpr}}ù) value accessor
 constexpr int h(Int i){ return i.dat(); }  // Error, non(ù{\codeincomments{constexpr}}ù) accessor
 \end{emcppslisting}
-    
+
 
 \noindent The basic, intuitive idea of what makes the user-defined \lstinline!Int!
 type above a \emcppsgloss{literal type} is that it is possible to initialize
@@ -268,7 +268,7 @@ public:
     int value() const { return d_value; }                 // not (ù{\codeincomments{constexpr}}ù)
 };
 \end{emcppslisting}
-    
+
 
 \noindent Contrived though it might seem, the example code above is representative
 of an application of \lstinline!constexpr! where the construction of an
@@ -296,7 +296,7 @@ static_assert(W(1,2).d_j == 2, "");
 static_assert(StoreForRt(5).value() == 5, "");  // Error, (ù{\codeincomments{value}}ù) not (ù{\codeincomments{constexpr}}ù)
     // There is no way we can access (ù{\codeincomments{d\_value}}ù) at compile time.
 \end{emcppslisting}
-    
+
 
 \noindent As the example code above demonstrates, \lstinline!StoreForRt! is a
 \emcppsgloss{literal type} because it is used to declare a data member of a
@@ -324,7 +324,7 @@ constexpr StoreForRt x(5);  // OK, object (ù{\codeincomments{x}}ù) constructed
 
 int main() { return x.value(); }  // OK, (ù{\codeincomments{x.value()}}ù) used (only) at run time
 \end{emcppslisting}
-    
+
 
 \noindent Only \emcppsgloss[literal type]{literal types} are permitted as \emph{parameters} and
 return types for \lstinline!constexpr! functions:
@@ -333,7 +333,7 @@ return types for \lstinline!constexpr! functions:
 constexpr int  f11(StoreForRt x) { return 0; }  // OK, (ù{\codeincomments{x}}ù) is a literal type
 constexpr void f14(StoreForRt x) { }            // OK, in C++14
 \end{emcppslisting}
-    
+
 
 \noindent See \intrarefsimple{constexpr-function-parameter-and-return-types}.
 
@@ -364,7 +364,7 @@ static_assert(g(1),  "");  // OK, (ù{\codeincomments{j}}ù) (ù{\emphincomments
 int xf = f(mb);  // OK, runtime evaluation of (ù{\codeincomments{f}}ù)
 int xg = g(mb);  // OK, runtime evaluation of (ù{\codeincomments{g}}ù)
 \end{emcppslisting}
-    
+
 
 \noindent In the example above, \lstinline!f! can sometimes be used as part of
 \emcppsgloss{constant expression} but only if its argument is itself a
@@ -383,7 +383,7 @@ constexpr int h2() { return f(1); }
     // There's no way to invoke (ù{\codeincomments{h2}}ù) so that it can be evaluated at compile time.
     // (This function is ill formed, no diagnostic required.)
 \end{emcppslisting}
-    
+
 
 \noindent Here \lstinline!h1! is well formed since it can be evaluated at compile
 time when the value of \lstinline!b! is \lstinline!true!; \lstinline!h2!, on the
@@ -417,7 +417,7 @@ that is already declared \lstinline!constexpr! has no effect:
        constexpr int f1() { return 0; } // automatically (ù{\codeincomments{inline}}ù)
 inline constexpr int f1();              // redeclares the same (ù{\codeincomments{f1()}}ù) above
 \end{emcppslisting}
-    
+
 
 \noindent As with all \lstinline!inline! functions, it is an \emcppsgloss{one-definition
 rule (ODR)} violation if definitions in different translation units
@@ -434,7 +434,7 @@ diagnostic required (IFNDR)}:
           inline int f2() { return 1; }  // Error, no diagnostic required
        constexpr int f3() { return 1; }  // Error, no diagnostic required
 \end{emcppslisting}
-    
+
 
 \noindent When a function is declared \lstinline!constexpr!, \emph{every} declaration
 of that function, including its definition, must also be explicitly
@@ -450,7 +450,7 @@ constexpr int f5() { return 0; }
           int f6();
 constexpr int f6() { return 0; }  // Error, (ù{\codeincomments{constexpr}}ù) added
 \end{emcppslisting}
-    
+
 
 \noindent An explicit specialization of a function template declaration may,
 however, differ with respect to its \lstinline!constexpr! specifier. For
@@ -474,7 +474,7 @@ bool func1<int>(int)     // The explicit specialization is not (ù{\codeincommen
 static_assert(func1('a'), "");  // OK, general function template is (ù{\codeincomments{constexpr}}ù).
 static_assert(func1(123), "");  // Error, (ù{\codeincomments{int}}ù) specialization is not (ù{\codeincomments{constexpr}}ù).
 \end{emcppslisting}
-    
+
 
 \noindent Similarly, the roles can be reversed where only an explicit
 specialization (e.g., \lstinline!func2<int>! in the example below) is
@@ -487,7 +487,7 @@ template <> constexpr bool func2<int>(int) { return true; }  // specialization
 static_assert(func2('a'), "");  // Error, general template is not (ù{\codeincomments{constexpr}}ù).
 static_assert(func2(123), "");  // Ok, (ù{\codeincomments{int}}ù) specialization is (ù{\codeincomments{constexpr}}ù).
 \end{emcppslisting}
-    
+
 
 \noindent Just as with any other function, a \lstinline!constexpr! function may
 appear in an expression before its body has been seen. A
@@ -516,7 +516,7 @@ static_assert(0 == f9(), "");  // Error, body of (ù{\codeincomments{f9}}ù) has
 
 // Oops, failed to define (ù{\codeincomments{f9}}ù) in this translation unit; compiler might warn
 \end{emcppslisting}
-    
+
 
 \noindent In the example code above, we have declared three \lstinline!constexpr!
 functions: \lstinline!f7!, \lstinline!f8!, and \lstinline!f9!. Of the three, only
@@ -565,7 +565,7 @@ static_assert((x, true), "");      // Error,  "   "      "
 static_assert(true || x,    "");   // OK
 static_assert(x    || true, "");   // Error, (ù{\codeincomments{x}}ù) not (ù{\codeincomments{constexpr}}ù)
 \end{emcppslisting}
-    
+
 
 \noindent Note that the \emph{comma} (\lstinline!,!) \emcppsgloss{sequencing operator}
 incurs evaluation of both of its arguments whereas the \emph{logical-or}
@@ -604,7 +604,7 @@ constexpr int gg(int n)        // redeclaration and definition
 static_assert(ff(7), "");      // OK: bodies of (ù{\codeincomments{ff}}ù) and (ù{\codeincomments{gg}}ù) have now been seen
 static_assert(gg(8), "");      // OK:    "   "   "    "   "    "    "   "    "
 \end{emcppslisting}
-    
+
 
 \noindent In the example code above, we have two recursive functions, \lstinline!ff!
 and \lstinline!gg!, with \lstinline!gg! being forward declared. When used
@@ -641,7 +641,7 @@ typedef constexpr int(*MyFnPtr)(int);
 void g(constexpr int(*MyFnPtr)(int));
     // Error, a parameter cannot be declared (ù{\codeincomments{constexpr}}ù).
 \end{emcppslisting}
-    
+
 
 \noindent If a function pointer is not itself declared \lstinline!constexpr!, its
 value cannot be read as part of evaluating a \emcppsgloss{constant
@@ -671,7 +671,7 @@ static_assert(p(), "");      // Error, can't invoke a non(ù{\codeincomments{con
 static_assert(q(), "");      // Error, (ù{\codeincomments{q}}ù) is not a (ù{\codeincomments{constexpr}}ù) pointer.
 static_assert(r(), "");      // Error, (ù{\codeincomments{0}}ù) doesn't designate a function.
 \end{emcppslisting}
-    
+
 
 \subsubsection[\lstinline!constexpr! member functions]{{\SubsubsecCode constexpr} member functions}\label{constexpr-member-functions}
 
@@ -691,7 +691,7 @@ public:
               int y() const { return d_y; }  // OK, is (ù{\emphincomments{not}}ù) (ù{\codeincomments{constexpr}}ù)
 };
 \end{emcppslisting}
-    
+
 
 \noindent Simple classes, such as \lstinline!Point1! (in the code snippet above),
 having at least one \lstinline!constexpr! constructor that is not a
@@ -703,7 +703,7 @@ of being a \emcppsgloss{literal type} --- see \intrarefsimple{literal-types-(def
 int ax[Point1(5, 6).x()];  // Ok, array of 5 (ù{\codeincomments{int}}ù)s
 int ay[Point1(5, 6).y()];  // Error, accessor (ù{\codeincomments{y}}ù) is not declared (ù{\codeincomments{constexpr}}ù).
 \end{emcppslisting}
-    
+
 
 \noindent Member functions decorated with \lstinline!constexpr! are implicitly
 \lstinline!const!-qualified in C++11 (but not in C++14 --- see
@@ -725,7 +725,7 @@ struct Point2
         // Error, redefinition of (ù{\codeincomments{constexpr const int\& Point::y() const}}ù)
 };
 \end{emcppslisting}
-    
+
 
 \noindent In the \lstinline!Point2!~\lstinline!struct! example above, accessor \#1 is
 implicitly declared \lstinline!const! in C++11 (but not C++14); hence, the
@@ -762,7 +762,7 @@ struct Point3
 
 };
 \end{emcppslisting}
-    
+
 
 \noindent Notice that declaring the ``setter'' member function \lstinline!setY! (in
 the code example above) to be \lstinline!constexpr! implicitly qualifies
@@ -791,7 +791,7 @@ constexpr int g2()     { return 0; }                // Ok, no (ù{\codeincomment
           int g3() try { return 0; } catch(...) {}  // OK, not (ù{\codeincomments{constexpr}}ù)
 constexpr int g4() try { return 0; } catch(...) {}  // Error, not allowed
 \end{emcppslisting}
-    
+
 
 \noindent C++11 \lstinline!constexpr! functions that are not \emph{deleted} or
 \emph{defaulted} (see \featureref{\locationa}{deleted-functions} and
@@ -816,7 +816,7 @@ constexpr int f(int x)
     ;; ;   ; { ; { ; ; } }                 // OK, null statements/nested blocks
 }
 \end{emcppslisting}
-    
+
 
 \noindent Many familiar programming constructs such as runtime assertions, local
 variables, \lstinline!if! statements, modifications of function parameters,
@@ -833,7 +833,7 @@ constexpr int g(int x)
     return x += 3;            // Error, no compound assignment
 }
 \end{emcppslisting}
-    
+
 
 \noindent The good news is that the aforementioned restrictions on the kinds of
 constructs that are permitted in \lstinline!constexpr! function bodies are
@@ -866,7 +866,7 @@ constexpr int f2b() { return S1b(), 5; }  // Ok, (ù{\codeincomments{S1b}}ù) ct
 constexpr int f3a() { return S2a(); } // Error, (ù{\codeincomments{S2a}}ù) conversion is not (ù{\codeincomments{constexpr}}ù).
 constexpr int f3b() { return S2b(); } // Ok, (ù{\codeincomments{S1b}}ù) conversion is (ù{\codeincomments{constexpr}}ù).
 \end{emcppslisting}
-    
+
 
 \noindent Note that non\lstinline!constexpr! implicit conversions, as illustrated by
 \lstinline!f3a! above, can also result from a non\lstinline!constexpr!,
@@ -882,7 +882,8 @@ constructors.
 \begin{enumerate}
 \item{The body of a \lstinline!constexpr! constructor is restricted in the same way as any other \lstinline!constexpr! function, with the obvious lack of a \lstinline!return! statement being allowed. Hence, the body of \lstinline!constexpr! constructor, in addition to not being permitted within a function \lstinline!try! block (like any other \lstinline!constexpr! function) must be essentially empty with just a very few exceptions — e.g., null statements, \lstinline!static_assert! declarations, \lstinline!typedef! declarations (see also \featureref{\locationa}{alias-declarations-and-alias-templates}) that do not define classes or enumerations, \lstinline!using! declarations, and \lstinline!using! directives:
 
-\begin{emcppslisting} % LIMIT 75
+% LIMIT 75
+\begin{emcppslisting}
 namespace n           // enclosing namespace
 {
 
@@ -909,10 +910,11 @@ struct S
 }  // close namespace
 \end{emcppslisting}
 }
-    
+
 \item{All non\lstinline!static! data members and base-class subobjects of a class must be initialized by a \lstinline!constexpr! constructor,\cprotect\footnote{The requirement that all members and base classes be initialized by a constructor that is explicitly declared \lstinline!constexpr! is relaxed in C++20 provided that uninitialized entities are not accessed at compile time.} and the initializers themselves must be usable in a \emph{constant expression}. Members with a trivial default constructor must be explicitly initialized in the member-initializer list or via a \emcppsgloss{default member initializer} (i.e., they cannot be left in an uninitialized state):
 
-\begin{emcppslisting} % LIMIT 75
+% LIMIT 75
+\begin{emcppslisting}
 struct B  // (ù{\codeincomments{constexpr}}ù) constructible only from argument convertible to (ù{\codeincomments{int}}ù)
 {
     B() { }
@@ -948,7 +950,7 @@ struct D3 : C  // public derivation
     constexpr D3(int i) : d_i(i) { }  // OK, (ù{\codeincomments{d\_i}}ù) set from init list
 };
 \end{emcppslisting}
-    
+
 
 \noindent The example code above illustrates various ways in which a base class or
 non\lstinline!static! data member might fail to be initialized by a
@@ -967,7 +969,8 @@ evaluation.}
 
 \item{Defining a constructor to be \lstinline!constexpr! requires that the class have no \lstinline!virtual! base classes\cprotect\footnote{C++20 removes the restriction that a constructor cannot be \lstinline!constexpr! if the class has any virtual base classes.}:
 
-\begin{emcppslisting} % LIMIT 75
+% LIMIT 75
+\begin{emcppslisting}
 struct B { constexpr B();  /*...*/ };  // some arbitrary base class
 
 struct D : virtual B
@@ -975,11 +978,12 @@ struct D : virtual B
     constexpr D(int) { }   // Error, class (ù{\codeincomments{D}}ù) has virtual base class (ù{\codeincomments{B}}ù).
 };
 \end{emcppslisting}
-}    
+}
 
 \item{Like any \emcppsgloss{special member function}, a constructor that is \emph{explicitly} declared to be \lstinline!constexpr! can always be suppressed using \lstinline!=!\,\lstinline!delete! (see \featureref{\locationa}{deleted-functions}).\cprotect\footnote{Deleting a function explicitly declares it, makes that declaration \emph{inaccessible}, and suppresses generation of an implementation; see \intrarefsimple{}\textbf{[ AUs: There is no subsection called ``Detecting literal types"]}}. If a constructor is implemented using \lstinline!=!\,\lstinline!default!, however, an error will result \emph{unless} the defaulted definition would have been implicitly \lstinline!constexpr! (see \featureref{\locationa}{Defaulted-Special-Member-Functions}):
 
-\begin{emcppslisting} % LIMIT 75
+% LIMIT 75
+\begin{emcppslisting}
 struct S1
 {
     S1() { };           // non(ù{\codeincomments{constexpr}}ù) default constructor
@@ -1000,7 +1004,7 @@ struct S2
        // OK, this constructor is (ù{\emphincomments{not}}ù) declared to be (ù{\codeincomments{constexpr}}ù).
 };
 \end{emcppslisting}
-    
+
 
 \noindent In the example above, explicitly declaring the \emph{default}
 constructor of \lstinline!S2! to be \lstinline!constexpr! is an error because
@@ -1016,7 +1020,8 @@ counterpart.}
 
 \item{An implicitly defined \emph{default} constructor (generated by the compiler) performs the set of initializations of the class that would be performed by a user-written default constructor for that class having no member-initializer list and an empty function body. If such a user-defined \emph{default} constructor would satisfy the requirements of a \lstinline!constexpr! constructor, the implicitly defined \emph{default} constructor is a \lstinline!constexpr! constructor (and similarly for the implicitly defined \emph{copy} and \emph{move} constructors) irrespective of whether it is explicitly declared \lstinline!constexpr!. Explicitly declaring a defaulted constructor \lstinline!constexpr! that is \emph{not} inherently \lstinline!constexpr! is, however, a compile-time error (see \featureref{\locationa}{Defaulted-Special-Member-Functions}):
 
-\begin{emcppslisting} % LIMIT 75
+% LIMIT 75
+\begin{emcppslisting}
 struct I0  { int i; /* implicit default ctor */ };  // OK, literal type.
 
 struct I1a { int i;            I1a()        { } };  // OK, (ù{\codeincomments{i}}ù) is not init.
@@ -1036,7 +1041,7 @@ struct S1b { I3b i;  constexpr S1b()        { } };  // OK, literal type.
 struct S2a { I3b i;            S2a() = default; };  // OK, literal type.
 struct S2b { I3b i;  constexpr S2b() = default; };  // OK, literal type.
 \end{emcppslisting}
-    
+
 
 \noindent The example code above attempts to illustrate the subtle differences
 between a data member of \emph{scalar} \emcppsgloss{literal type} (e.g.,
@@ -1061,7 +1066,8 @@ non\lstinline!constexpr! constructor seems like it should be invoked but is
 instead skipped during braced or value initialization because it is
 trivial:
 
-\begin{emcppslisting} % LIMIT 75
+% LIMIT 75
+\begin{emcppslisting}
 struct S1  // example with a non(ù{\codeincomments{constexpr}}ù) trivial default constructor
 {
     int d_i;        // not initialized by (ù{\codeincomments{S1()}}ù)
@@ -1072,13 +1078,14 @@ static_assert( S1().d_i  == 0, "");  // OK, value initialization
 static_assert( S1{}.d_i  == 0, "");  // OK, braced initialization
 static_assert( S1{7}.d_i == 7, "");  // OK, braced (list) initialization
 \end{emcppslisting}
-    
+
 
 \noindent Braced initialization can even skip a deleted constructor (see
 \featureref{\locationa}{deleted-functions}) where regular initialization would
 not:
 
-\begin{emcppslisting} % LIMIT 75
+% LIMIT 75
+\begin{emcppslisting}
 struct S2  // example with a deleted default constructor
 {
     int d_i;       // not initialized
@@ -1089,7 +1096,7 @@ static_assert( S2().d_i  == 0, "");  // Error, invokes deleted constructor
 static_assert( S2{}.d_i  == 0, "");  // OK, braced initialization
 static_assert( S2{7}.d_i == 7, "");  // OK, braced (list) initialization
 \end{emcppslisting}
-    
+
 
 \noindent Finally, it is important to note that this form of braced initialization
 is not restricted to just aggregates and requires only that the default
@@ -1108,7 +1115,8 @@ current compiler implementations have consistently adopted support for
 this interpretation and we are simply waiting for the Standard to
   catch up to existing practice.}}:
 
-\begin{emcppslisting} % LIMIT 75
+% LIMIT 75
+\begin{emcppslisting}
 struct S3 {  // example of a non(ù{\emphincomments{aggregate}}ù) type
     int d_i;              // not initialized
     S3() = default;       // trivial
@@ -1120,11 +1128,12 @@ static_assert( S3{}.d_i  == 0, "");  // OK, braced initialization
 static_assert( S3{7}.d_i == 7, "");  // Error, non(ù{\codeincomments{constexpr}}ù) constructor
 \end{emcppslisting}
 }
-    
+
 
 \item{For a \lstinline!union!, exactly one of its data members must be initialized with (1) a default initializer that is a \emph{constant expression} (see \featureref{\locationc}{Default-Member-Initializers}), (2) a \lstinline!constexpr! constructor, or (3) braced initialization that picks a member that can be initialized in a \emcppsgloss[constexpr context]{\lstinline!constexpr! context}:
 
-\begin{emcppslisting} % LIMIT 75
+% LIMIT 75
+\begin{emcppslisting}
 // unions having no explicit constructors
 union U0 { bool b;      char c;       };  // OK, neither member initialized
 union U1 { bool b = 0;  char c;       };  // OK, first      "       "
@@ -1147,7 +1156,7 @@ struct S                         // (ù{\codeincomments{S}}ù) is a literal type
 
 constexpr int test(S t) { return 0; }  // OK, confirms (ù{\codeincomments{S}}ù) is a literal type
 \end{emcppslisting}
-    
+
 
 \noindent The example code above illustrates various ways in which unions (e.g.,
 \lstinline!U0!--\lstinline!U2! and \lstinline!U5!--\lstinline!U7!) can be used that
@@ -1161,7 +1170,8 @@ see \intrarefsimple{Parameters and return types}.\textbf{[ AUs: There is no sect
 
 \item{If the constructor \emph{delegates} to another constructor in the same class (see \featureref{\locationa}{delegating-constructors}), that target constructor must be \lstinline!constexpr!:
 
-\begin{emcppslisting} % LIMIT 75
+% LIMIT 75
+\begin{emcppslisting}
 struct C0  // BAD IDEA: Only the default constructor is (ù{\codeincomments{constexpr}}ù).
 {
               C0(int)      { }  // Ok, but not declared (ù{\codeincomments{constexpr}}ù)
@@ -1175,11 +1185,12 @@ struct C1  // GOOD IDEA: Both default and value constructor are (ù{\codeincomme
 };
 \end{emcppslisting}
 }
-    
+
 
 \item{When initializing data members of a class (e.g., \lstinline!S! below), any nonconstructor functions needed for implicitly converting the type of the initializing expression (e.g., \lstinline!V! in the code snippet below) to that of data member (e.g., \lstinline!int! or \lstinline!double!) must also be \lstinline!constexpr!:
 
-\begin{emcppslisting} % LIMIT 75
+% LIMIT 75
+\begin{emcppslisting}
 struct V
 {
     int v;
@@ -1200,7 +1211,7 @@ struct S
 \end{emcppslisting}
 }
 \end{enumerate}
-    
+
 
 \subsubsection[\lstinline!constexpr! function templates]{{\SubsubsecCode constexpr} function templates}\label{constexpr-function-templates}
 
@@ -1230,7 +1241,7 @@ int a[sizeOf(int())];  // OK,    (ù{\codeincomments{int}}ù) (ù{\emphincomment
 int b[sizeOf( S0())];  // Error,  (ù{\codeincomments{S0}}ù) is (ù{\emphincomments{not}}ù) a literal type.
 int c[sizeOf( S1())];  // OK,     (ù{\codeincomments{S1}}ù) (ù{\emphincomments{is}}ù)     a literal type.
 \end{emcppslisting}
-    
+
 
 \noindent If no specialization of such a function template would yield a
 \lstinline!constexpr! function, then the program is \emcppsgloss[ill formed, no diagnostic required (IFNDR)]{IFNDR}. For
@@ -1243,7 +1254,7 @@ template <typename T>
 constexpr int badSizeOf(T t) { const int s = sizeof(t); return s; }
     // This (ù{\codeincomments{constexpr}}ù) function template is IFNDR.
 \end{emcppslisting}
-    
+
 
 \noindent Most compilers, when compiling such a specialization for runtime use,
 will not attempt to determine if the \lstinline!constexpr! would ever be
@@ -1257,7 +1268,7 @@ int e[badSizeOf(S0())];  // Error, (ù{\codeincomments{badSizeOf<S0>(S0)}}ù) bo
 int f = badSizeOf(S1()); // Oops, same issue but (ù{\emphincomments{might}}ù) work on some compilers
 int g = badSizeOf(S0()); // Oops, same issue but (ù{\emphincomments{often}}ù) works without warnings
 \end{emcppslisting}
-    
+
 
 \noindent It is important to understand that each of the four statements in the
 code snippet above are ill formed because the \lstinline!badSizeOf!
@@ -1294,7 +1305,7 @@ constexpr int g2(Lt  x) { return x.v; }  // OK, parameter is a literal type
           int g3(Nlt x) { return x.v; }  // OK, function is non(ù{\codeincomments{constexpr}}ù)
 constexpr int g4(Nlt x) { return x.v; }  // Error, (ù{\codeincomments{constexpr}}ù) taking nonliteral
 \end{emcppslisting}
-    
+
 
 \noindent Consider that all \emph{pointer} and \emph{reference} types --- being
 \emph{built-in types} --- are \emcppsgloss[literal type]{literal types} and therefore can
@@ -1307,7 +1318,7 @@ constexpr int h2(Nlt* p) { return p->v; }  // OK,    "      "  "    "      "
 constexpr int h3(Lt&  r) { return r.v; }   // OK,    "      "  "    "      "
 constexpr int h4(Nlt& r) { return r.v; }   // OK,    "      "  "    "      "
 \end{emcppslisting}
-    
+
 
 \noindent However, note that, because it is not possible to construct an object of
 nonliteral type at compile time, there is no way to invoke \lstinline!h2!
@@ -1326,7 +1337,7 @@ static_assert(&arr[17] - &arr[4] == 13,"");   // OK, pointer arithmetic
 constexpr int arr_0_v = arr_0.v;              // Error, (ù{\codeincomments{arr[0]}}ù) is not usable.
 constexpr int arr_0_ptr_v = arr_0_ptr->v;     // Error,    "     "   "    "
 \end{emcppslisting}
-    
+
 
 \subsubsection[Literal types (defined)]{Literal types (defined)}\label{literal-types-(defined)}
 
@@ -1399,8 +1410,10 @@ type}.}
 \item{Each non\lstinline!static! data member is a non\lstinline!volatile! \emcppsgloss{literal type}.\cprotect\footnote{In C++17, this restriction is relaxed: For a \lstinline!union! to be a \emcppsgloss{literal type}, only one, rather than all, of its non\lstinline!static! data members needs to be of a non\lstinline!volatile! \emcppsgloss{literal type}.}}
 \item{Each base class is a \emcppsgloss{literal type}.}
 \item{There is some way to initialize an object of the type during constant evaluation; either (a) it is an \emcppsgloss{aggregate type}, (b) it can be \emcppsgloss[braced initialization]{braced initialized} in a \emcppsgloss[constexpr context]{\lstinline!constexpr! context}, or (c) it has at least one \lstinline!constexpr! constructor (possibly a template) that is not a \emph{copy} or \emph{move} constructor:
-\begin{emcppslisting} % LIMIT 75
-#include <string>  // (ù{\codeincomments{std::string}}ù) 
+
+% LIMIT 75
+\begin{emcppslisting}
+#include <string>  // (ù{\codeincomments{std::string}}ù)
 struct LiteralUDT
 {
     static std::string s_cache;
@@ -1472,15 +1485,15 @@ char a[5];  // An array of scalar type (e.g., (ù{\codeincomments{char}}ù)) is 
 struct { int i; bool b; } b[7];
     // An array of aggregate type is a literal type.
 \end{emcppslisting}
-}    
+}
 
 \item{In C++14 and thereafter, \lstinline!void! (and thus cv-qualified \lstinline!void!) is also a \emcppsgloss{literal type}, thereby enabling functions that return \lstinline!void!:
 
 \begin{emcppslisting}[emcppsstandards={c++14}]
 constexpr const volatile void f() { }  // OK, in C++14
 \end{emcppslisting}
-} 
-\end{enumerate}   
+}
+\end{enumerate}
 
 The overarching goal of this six-part definition of what constitutes a
 \emcppsgloss{literal type} is to capture those types that might be
@@ -1498,7 +1511,7 @@ class C { };  // (ù{\codeincomments{C}}ù) is a valueless literal type.
 
 int a[(C(), 5)];  // OK, create an array of five (ù{\codeincomments{int}}ù) objects.
 \end{emcppslisting}
-    
+
 
 Such ``barely literal'' types --- though severely limited in their
 usefulness in \emcppsgloss[constant expression]{constant expressions} --- do allow for useful
@@ -1514,7 +1527,7 @@ struct UselessLiteralType
 };
 \end{emcppslisting}
 }
-    
+
 
 \item{Many uses of \emcppsgloss[literal type]{literal types} in \lstinline!constexpr! functions will require additional \lstinline!constexpr! functions to be defined (i.e., not \emph{deleted}), such as a \emph{move} or \emph{copy} constructor:
 
@@ -1534,7 +1547,7 @@ constexpr Lt s{7};  // braced-initialized aggregate
 
 static_assert(processByValue(s) == 0, "");  // Error, non(ù{\codeincomments{constexpr}}ù) copy ctor
 \end{emcppslisting}
-    
+
 
 \noindent In the code example above, we have an \emph{aggregate} \emcppsgloss{literal type},
 \lstinline!Lt!, for which we have explicitly declared a
@@ -1567,7 +1580,8 @@ more importantly for a user, identifying if a type is a
 \begin{enumerate}
 \item{Only \emcppsgloss[literal type]{literal types} can be used in the interface of a \lstinline!constexpr! function (i.e., either as the return type or as a parameter type), and any \emcppsgloss{literal type} can be used in the interface of such a function. The first approach one might take to determine if a given type is a \emcppsgloss{literal type} would be to define a function that returns the given type \emph{by value}. This has the downside of requiring that the type in question also be \emph{copyable} (or at least \emph{movable}, see \featureref{\locationc}{Rvalue-References})\cprotect\footnote{As of C++17, the requirement that the type in question be \emph{copyable} or \emph{movable} to return it as a \romeovalue{prvalue} is removed; see \featureref{\locationc}{Rvalue-References}.}:
 
-\begin{emcppslisting}[emcppsbatch=e9] % LIMIT 75
+% LIMIT 75
+\begin{emcppslisting}[emcppsbatch=e9]
 struct LiteralType    { constexpr LiteralType(int i)    {}         };
 struct NonLiteralType {           NonLiteralType(int i) {}         };
 struct NonMovableType { NonMovableType(NonMovableType&&) = delete; };
@@ -1576,7 +1590,7 @@ constexpr LiteralType    f(int i) { return LiteralType(i);    }  // OK
 constexpr NonLiteralType g(int i) { return NonLiteralType(i); }  // Error
 constexpr NonMovableType h()      { return NonMovableType{};  }  // Error
 \end{emcppslisting}
-    
+
 
 \noindent In the above example, \lstinline!NonMovableType! is a \emcppsgloss{literal type}
 but is not movable (or copyable), so it cannot be the return type of a
@@ -1584,12 +1598,13 @@ function. Passing the type as a \emph{by-value} parameter works more
 reliably --- and even reliably identifies non\emph{copyable},
 non\emph{movable} \emcppsgloss[literal type]{literal types}:
 
-\begin{emcppslisting}[emcppsbatch=e9] % LIMIT 75
+% LIMIT 75
+\begin{emcppslisting}[emcppsbatch=e9]
 constexpr int test(LiteralType t)    { return 0; } // OK
 constexpr int test(NonLiteralType t) { return 0; } // Error
 constexpr int test(NonMovableType t) { return 0; } // OK
 \end{emcppslisting}
-    
+
 \noindent This approach is appealing in that it provides a general way for a
 programmer to query the compiler whether it considers a given type,
 \lstinline!S!, \emph{as a whole} to be a \emcppsgloss{literal type} and can be
@@ -1599,13 +1614,14 @@ written as
   returning \lstinline!void! and omitting the \lstinline!return! statement
   entirely.}}:
 
-\begin{emcppshiddenlisting}[emcppsbatch=t1] % LIMIT 75
+% LIMIT 75
+\begin{emcppshiddenlisting}[emcppsbatch=t1]
 struct S {};
 \end{emcppshiddenlisting}
 \begin{emcppslisting}[emcppsbatch=t1]
 constexpr int test(S) { return 0; }  // compiles only if (ù{\codeincomments{S}}ù) is a literal type
 \end{emcppslisting}
-    
+
 
 \noindent Note that all of these tests require providing a function body, since
 compilers will validate that the declaration of the function is valid
@@ -1614,11 +1630,12 @@ for a \lstinline!constexpr! function only when they are processing the
 produce the expected error for \emph{non-literal-type} parameters and
 return types:
 
-\begin{emcppslisting}[emcppsbatch=e9] % LIMIT 75
+% LIMIT 75
+\begin{emcppslisting}[emcppsbatch=e9]
 constexpr NonLiteralType quietly(NonLiteralType t);  // OK, declaration only
 constexpr NonLiteralType quietly(NonLiteralType t) { return t; }  // Error
 \end{emcppslisting}
-    
+
 
 \noindent Finally, the C++11 Standard Library also provides a type trait ---
 \lstinline!std::is_literal_type! --- that attempts to serve a similar
@@ -1634,12 +1651,13 @@ trait is deprecated in C++17 and removed in C++20. The rationale is
   constructor is too weak to be used meaningfully.
   \end{quote}}}:
 
-\begin{emcppslisting}[emcppsbatch=e9] % LIMIT 75
+% LIMIT 75
+\begin{emcppslisting}[emcppsbatch=e9]
 #include <type_traits>  // (ù{\codeincomments{std::is\_literal\_type}}ù)
 static_assert( std::is_literal_type<LiteralType>::value, "");     // OK
 static_assert(!std::is_literal_type<NonLiteralType>::value, "");  // OK
 \end{emcppslisting}
-    
+
 
 \noindent Given the effectiveness of the simple \lstinline!constexpr!
 \emcppsgloss{interface test} idiom illustrated in the code snippet above, any
@@ -1653,7 +1671,8 @@ only through extensive use of this \emcppsgloss{interface test} idiom.}
 
 \item{Often, simply \emph{being} a \emcppsgloss{literal type} is not the only criterion that a developer is interested in. In order to ensure that a type under development is meaningful in a compile-time facility, it becomes imperative that we can confirm that objects of a given type can actually be constructed at compile-time. This confirmation requires identifying a particular form of initialization and corresponding \emcppsgloss[witness argument]{witness arguments} that should allow a user-defined type to assume a valid compile-time value. For this example, we can use the \emcppsgloss{interface test} to help prove that our class (e.g., \lstinline!Lt!) is a \emcppsgloss{literal type}:
 
-\begin{emcppslisting}[emcppsbatch=e10] % LIMIT 75
+% LIMIT 75
+\begin{emcppslisting}[emcppsbatch=e10]
 class Lt  // An object of this type be used in a constant expression.
 {
     int d_value;
@@ -1663,8 +1682,8 @@ public:
 };
 
 constexpr int checkLiteral(Lt) { return 0; }  // OK, literal type
-\end{emcppslisting} 
-    
+\end{emcppslisting}
+
 
 \noindent Proving that \lstinline!Lt! (in the code example above) is a
 \emcppsgloss[usable literal type]{\emph{usable} literal type} next involves choosing a
@@ -1674,11 +1693,12 @@ using the result in a \emcppsgloss{constant expression}. The compiler will
 indicate (by producing an error) if our type cannot be constructed at
 compile time:
 
-\begin{emcppslisting}[emcppsbatch=e10] % LIMIT 75
+% LIMIT 75
+\begin{emcppslisting}[emcppsbatch=e10]
 char a[(Lt(75033), 1)];               // OK, usable in constant expr
 static_assert((Lt(75033), true), ""); // OK,   "    "     "       "
 \end{emcppslisting}
-    
+
 
 \noindent For types that are not \emcppsgloss[usable literal type]{\emph{usable} literal types}, there will
 be no such proof. When a particular constructor that is
@@ -1692,7 +1712,8 @@ constructor and instead simply produce an error on each attempt to
 provide a set of \emcppsgloss[witness]{witnesses} for a \emcppsgloss{literal type} that
 fails to be usable at compile time:
 
-\begin{emcppslisting} % LIMIT 75
+% LIMIT 75
+\begin{emcppslisting}
 int a = 1, b = 2;  // (ù{\codeincomments{a}}ù) and (ù{\codeincomments{b}}ù) are not (ù{\codeincomments{constexpr}}ù).
 
 class PathologicalType  // ill formed, no diagnostic required
@@ -1706,7 +1727,7 @@ public:
                  : (i * 2) ) { }
 };
 \end{emcppslisting}
-    
+
 
 \noindent The compiler is unlikely to have logic to discover that there is no way
 to invoke the above \lstinline!constexpr! constructor as part of the
@@ -1716,14 +1737,15 @@ Supplying any \emcppsgloss[witness argument]{witness arguments}, however, will f
 compiler to evaluate the constructor and discover that no
 \emph{particular} invocation is valid:
 
-\begin{emcppslisting} % LIMIT 75
+% LIMIT 75
+\begin{emcppslisting}
 static_assert((PathologicalType(1),true), "");  // Error, (ù{\codeincomments{a}}ù) is not (ù{\codeincomments{constexpr}}ù).
 static_assert((PathologicalType(2),true), "");  // Error, (ù{\codeincomments{b}}ù) is not (ù{\codeincomments{constexpr}}ù).
 static_assert((PathologicalType(3),true), "");  // Error, (ù{\codeincomments{b}}ù) is not (ù{\codeincomments{constexpr}}ù).
 \end{emcppslisting}
 }
 \end{enumerate}
-    
+
 
 \subsubsection[Compile-time evaluation]{Compile-time evaluation}\label{compile-time-evaluation}
 
@@ -1761,7 +1783,7 @@ static_assert(f(true), "");    // OK, (ù{\codeincomments{throw x}}ù) is never 
 static_assert(!g(false), "");  // OK,     "     "    "      "
 static_assert(h(true), "");    // OK,     "     "    "      "
 \end{emcppslisting}
-    
+
 
 \noindent Note that the \emcppsgloss{controlling constant expression} for the
 preprocessor directives \lstinline!#if! and \lstinline!#elif!, while similar
@@ -1820,7 +1842,7 @@ mebibytes to bytes:
 \begin{emcppslisting}[emcppsbatch=e11]
 #define MEBIBYTES_TO_BYTES(mebibytes) (mebibytes) * 1024 * 1024
 \end{emcppslisting}
-    
+
 
 \noindent The macro above can be used in contexts where both a \emcppsgloss{constant
 expression} is required and the input is known only during program
@@ -1836,7 +1858,7 @@ void example0(std::size_t input)
     dynamicBuffer.resize(MEBIBYTES_TO_BYTES(input));  // usable at run time
 }
 \end{emcppslisting}
-    
+
 
 \noindent While a single-line macro with a reasonably unique (and long) name like
 \lstinline!MEBIBYTES_TO_BYTES! is unlikely to cause any problems in
@@ -1880,7 +1902,7 @@ void example1(std::size_t input)
         // OK, can also be invoked at run time
 }
 \end{emcppslisting}
-    
+
 
 \subsubsection[Compile-time string traversal]{Compile-time string traversal}\label{compile-time-string-traversal}
 
@@ -1905,7 +1927,7 @@ constexpr std::size_t constStrlenLit(const char (&lit)[N])
 }
 static_assert(constStrlenLit("hello") == 5, "");  // OK
 \end{emcppslisting}
-    
+
 
 \noindent This approach, however, fails when attempting to apply it to any number
 of other ways in which a variable might contain a compile-time or
@@ -1921,7 +1943,7 @@ static_assert(constStrlenLit(hw1) == 5, "");  // Error, (ù{\codeincomments{hw1}
 std::size_t len2 = constStrlenLit(hw2);  // Bug, returns 19
 std::size_t len3 = constStrlenLit(hw3);  // Error, (ù{\codeincomments{hw3}}ù) not a (ù{\codeincomments{char[N]}}ù)
 \end{emcppslisting}
-    
+
 
 \noindent The type-based approach is clearly deficient. A better approach is
 simply to loop over the characters in the string, counting them until we
@@ -1949,7 +1971,7 @@ static_assert(constStrlen(hw1)     == 5, "");  // OK
 std::size_t len2b = constStrlen(hw2);  // OK, returns 5
 std::size_t len3b = constStrlen(hw3);  // OK, returns 5
 \end{emcppslisting}
-    
+
 
 \noindent With this most basic function implemented, let's move on to the more
 interesting problem of counting the number of lowercase letters in a
@@ -1964,7 +1986,7 @@ constexpr bool isLowercase(char c)
     return 'a' <= c && c <= 'z';  // (ù{\codeincomments{true}}ù) if (ù{\codeincomments{c}}ù) is in ASCII range (ù{\codeincomments{a}}ù) to 'z'
 }
 \end{emcppslisting}
-    
+
 
 \noindent Note that we are using a simplistic definition here that is designed to
 handle only the \emph{ASCII} letters \lstinline!a! through \lstinline!z!;
@@ -1982,7 +2004,7 @@ constexpr std::size_t countLowercase(const char* str)
     return (str[0] == '\0') ? 0 : isLowercase(str[0]) + countLowercase(str + 1);
 }
 \end{emcppslisting}
-    
+
 
 \noindent Now we have a function that will count the lowercase letters in a string
 at either compile time or run time for \emph{any} null-terminated
@@ -2001,7 +2023,7 @@ void test1()
      const char *p3 = "Hello, World";  assert(countLowercase(p3) == 8);
 }
 \end{emcppslisting}
-    
+
 
 \noindent The first three invocations of \lstinline!countLowercase!, in the code
 snippet above, illustrate that, when given a \lstinline!constexpr!
@@ -2023,7 +2045,7 @@ constexpr std::size_t countIf(T* arr, std::size_t len, const F& func)
     return (len==0) ? 0 : (func(arr[0]) ? 1 : 0) + countIf(arr+1,len-1,func);
 }
 \end{emcppslisting}
-    
+
 
 \noindent In just one dense line, \lstinline!countIf! recursively determines if the
 current length, \lstinline!len!, is 0 and, if not, whether the first
@@ -2047,7 +2069,7 @@ constexpr std::size_t countLowercase(const char* str)
     return countIf(str, constStrlen(str), isLowercase);
 }
 \end{emcppslisting}
-    
+
 
 \noindent Rather than a null-terminated array of \lstinline!char!, we might want a
 more flexible string representation consisting of a \lstinline!class!
@@ -2086,7 +2108,7 @@ public:
     constexpr const char* end()  const { return d_string_p + d_length; }
 };
 \end{emcppslisting}
-    
+
 
 \noindent The \lstinline!ConstStringView! class shown above provides some basic
 functionality to inspect and pass around the contents of a string
@@ -2107,7 +2129,7 @@ constexpr std::size_t countLowercase(ConstStringView sv)
     return countIf(sv, isLowercase);
 }
 \end{emcppslisting}
-    
+
 
 \noindent Thanks to the implicit-conversion constructors, all of the earlier
 \lstinline!static_assert! statements that were used with previous
@@ -2144,7 +2166,7 @@ int yearOfTimestamp(std::time_t timestamp);
     // Return the year of the specified (ù{\codeincomments{timestamp}}ù). The behavior is undefined
     // if (ù{\codeincomments{timestamp < 0}}ù).
 \end{emcppslisting}
-    
+
 
 \noindent Among other features, this library would provide a number of constants,
 both for its internal use as well as for direct client use. These could
@@ -2166,7 +2188,7 @@ constexpr std::time_t k_SECONDS_PER_DAY    = 24  * k_SECONDS_PER_HOUR;
 constexpr std::time_t k_SECONDS_PER_YEAR   = 365 * k_SECONDS_PER_DAY;
 static_assert( 31536000L == k_SECONDS_PER_YEAR, "");
 \end{emcppslisting}
-    
+
 
 \noindent For practical reasons related to the limits that compilers put on
 template expansion and \lstinline!constexpr! expression evaluation, this
@@ -2176,7 +2198,7 @@ library will support only a moderate number of future years:
 // constant defining the largest year supported by our library
 constexpr int k_MAX_YEAR = 2200;
 \end{emcppslisting}
-    
+
 
 \noindent To begin implementing \lstinline!yearOfTimestamp!, it helps to start with
 an implementation of a solution to the reverse problem --- calculating
@@ -2199,7 +2221,7 @@ constexpr std::time_t startOfYear(int year)
          + numLeapYearsSinceEpoch(year - 1) * k_SECONDS_PER_DAY;
 }
 \end{emcppslisting}
-    
+
 
 \noindent Given these tools, we could implement \lstinline!yearOfTimestamp! naively
 with a simple loop:
@@ -2217,7 +2239,7 @@ int yearOfTimestamp(std::time_t timestamp)
 \end{emcppslisting}
 \begin{emcppshiddenlisting}[emcppsbatch=e14]
 }  // close namespace firsttry
-\end{emcppshiddenlisting}    
+\end{emcppshiddenlisting}
 
 \noindent This implementation, however, has algorithmically poor performance.
 While a closed-form solution to this problem is certainly possible, for
@@ -2244,7 +2266,7 @@ constexpr std::array<T, N> generateArray(const F& func);
     // Return an array (ù{\codeincomments{arr}}ù) of size (ù{\codeincomments{N}}ù) such that (ù{\codeincomments{arr[i] == func(i)}}ù) for
     // each (ù{\codeincomments{i}}ù) in the half-open range (ù{\codeincomments{[0, N)}}ù).
 \end{emcppslisting}
-    
+
 
 \noindent The common idiom to do this initialization is to exploit a type that
 encodes indices as a variadic parameter pack (see \featureref{\locationc}{variadictemplate}), along with the help of some using aliases (see
@@ -2290,7 +2312,7 @@ template <std::size_t N>
 using MakeIndexSequence = typename MakeSequenceHelper<N>::type;
     // alias for an (ù{\codeincomments{IndexSequence<0 .. N-1>}}ù) (or (ù{\codeincomments{IndexSequence<>}}ù) if (ù{\codeincomments{N}}ù) is 0)
 \end{emcppslisting}
-    
+
 
 \noindent To implement our array initializer, we will need another helper function
 that has, as a template argument, a variadic parameter pack of indices.
@@ -2310,7 +2332,7 @@ constexpr std::array<T, sizeof...(I)> generateArrayImpl(const F& func,
     return { func(I)... };
 }
 \end{emcppslisting}
-    
+
 
 \noindent The return statement in \lstinline!generateArrayImpl! calls
 \lstinline!func(I)! for each \lstinline!I! in the range from 0 to the length
@@ -2330,7 +2352,7 @@ constexpr std::array<T, N> generateArray(const F& func)
     return generateArrayImpl<T>(func, MakeIndexSequence<N>());
 }
 \end{emcppslisting}
-    
+
 
 \noindent With these tools in hand and a support function to offset the array
 index with the year, it is now simple to define an array that is
@@ -2349,7 +2371,7 @@ constexpr std::array<std::time_t, k_MAX_YEAR - k_EPOCH_YEAR> k_YEAR_STARTS =
 static_assert(k_YEAR_STARTS[0]  == startOfYear(1970),"");
 static_assert(k_YEAR_STARTS[50] == startOfYear(2020),"");
 \end{emcppslisting}
-    
+
 
 \noindent With this table available for our use, the implementation of
 \lstinline!yearOfTimestamp! becomes a simple application of
@@ -2432,7 +2454,7 @@ constexpr bool isPrime(T input)
     return true;                               // no divisors, (ù{\codeincomments{input}}ù) is prime
 }
 \end{emcppslisting}
-    
+
 
 \noindent This implementation is iterative and fails to meet the requirements for
 being a C++11 \lstinline!constexpr! function. While meeting the relaxed
@@ -2462,7 +2484,7 @@ constexpr bool isPrime(T input)
          : isPrimeHelper(input, 3);            // Call recursive helper.
 }
 \end{emcppslisting}
-    
+
 
 \noindent The recursive implementation above works correctly, albeit slowly, up to
 an input value of around $2^{19}$, hitting recursion limits on
@@ -2510,7 +2532,7 @@ constexpr bool isPrime(T input)
          : !hasFactor(input, static_cast<T>(3), input - 1);
 }
 \end{emcppslisting}
-    
+
 
 \noindent This C++11 implementation will generally work up to the same limits as
 the iterative C++14 implementation in the example above.
@@ -2549,7 +2571,7 @@ non\lstinline!constexpr! implementation (e.g., for \lstinline!isPrime! in
 Difficulty implementing \lstinline!constexpr! functions) that
 might already exist in an organization's libraries and (2) increased
 compile time wherever algorithmically complex \lstinline!constexpr!
-functions are invoked. 
+functions are invoked.
 
 Compilation limits on compile-time evaluation are typically per
 \emph{constant expression} and can easily be compounded unreasonably

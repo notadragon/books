@@ -1,5 +1,5 @@
     i                                                           i
-        “emcpps-internal” — 2021/4/2 — 2:42 — page i — #1
+        “emcpps-internal” — 2021/4/2 — 3:33 — page i — #1
 
 i
 
@@ -14,7 +14,7 @@ i
 
     i                                                           i
     i                                                        i
-        “emcpps-internal” — 2021/4/2 — 2:42 — page ii — #2
+        “emcpps-internal” — 2021/4/2 — 3:33 — page ii — #2
 
 i
 
@@ -27,7 +27,7 @@ i
 
     i                                                        i
     i                                                                                      i
-                                   “emcpps-internal” — 2021/4/2 — 2:42 — page 1 — #3
+                                   “emcpps-internal” — 2021/4/2 — 3:33 — page 1 — #3
 
 i
 
@@ -51,7 +51,7 @@ i
 
     i                                                                                      i
      i                                                                                    i
-                         “emcpps-internal” — 2021/4/2 — 2:42 — page 2 — #4
+                         “emcpps-internal” — 2021/4/2 — 3:33 — page 2 — #4
 
 i
 
@@ -73,7 +73,7 @@ i
 
      i                                                                                    i
           i                                                                                       i
-                                          “emcpps-internal” — 2021/4/2 — 2:42 — page 3 — #5
+                                          “emcpps-internal” — 2021/4/2 — 3:33 — page 3 — #5
 
 i
 
@@ -97,7 +97,7 @@ i
 
           i                                                                                       i
         i                                                                                                                i
-                                         “emcpps-internal” — 2021/4/2 — 2:42 — page 4 — #6
+                                         “emcpps-internal” — 2021/4/2 — 3:33 — page 4 — #6
 
 i
 
@@ -164,7 +164,7 @@ i
 
         i                                                                                                                i
     i                                                                                                                   i
-                         “emcpps-internal” — 2021/4/2 — 2:42 — page 5 — #7
+                         “emcpps-internal” — 2021/4/2 — 3:33 — page 5 — #7
 
 i
 
@@ -232,7 +232,7 @@ i
 
     i                                                                                                                   i
     i                                                                                                               i
-                            “emcpps-internal” — 2021/4/2 — 2:42 — page 6 — #8
+                            “emcpps-internal” — 2021/4/2 — 3:33 — page 6 — #8
 
 i
 
@@ -302,7 +302,7 @@ i
 
     i                                                                                                               i
     i                                                                                                                  i
-                         “emcpps-internal” — 2021/4/2 — 2:42 — page 7 — #9
+                         “emcpps-internal” — 2021/4/2 — 3:33 — page 7 — #9
 
 i
 
@@ -369,7 +369,7 @@ i
 
     i                                                                                                                  i
         i                                                                                                               i
-                                        “emcpps-internal” — 2021/4/2 — 2:42 — page 8 — #10
+                                        “emcpps-internal” — 2021/4/2 — 3:33 — page 8 — #10
 
 i
 
@@ -423,7 +423,7 @@ i
 
                             static_assert(f(mb), "");    // Error, mb is not usable in a constant expression.
                             static_assert(f(0), "");     // OK
-                            static_assert(f(1), "");     // Error, i is *not* usable in a constant expression.
+                            static_assert(f(1), "");     // Error, i is not usable in a constant expression.
 
                             static_assert(g(mb), "");    // Error, mb is not usable in a constant expression.
 
@@ -435,7 +435,7 @@ i
 
         i                                                                                                               i
         i                                                                                                                   i
-                                         “emcpps-internal” — 2021/4/2 — 2:42 — page 9 — #11
+                                         “emcpps-internal” — 2021/4/2 — 3:33 — page 9 — #11
 
 i
 
@@ -444,7 +444,7 @@ i
                           C++11                                                                constexpr Functions
 
                             static_assert(g(0),     "");   // OK
-                            static_assert(g(1),     "");   // OK, j *is* usable in a constant expression.
+                            static_assert(g(1),     "");   // OK, j is usable in a constant expression.
 
                             int xf = f(mb);     // OK, runtime evaluation of f
                             int xg = g(mb);     // OK, runtime evaluation of g
@@ -499,7 +499,7 @@ i
 
         i                                                                                                                   i
     i                                                                                                     i
-                        “emcpps-internal” — 2021/4/2 — 2:42 — page 10 — #12
+                        “emcpps-internal” — 2021/4/2 — 3:33 — page 10 — #12
 
 i
 
@@ -565,7 +565,7 @@ i
 
     i                                                                                                     i
     i                                                                                                       i
-                      “emcpps-internal” — 2021/4/2 — 2:42 — page 11 — #13
+                      “emcpps-internal” — 2021/4/2 — 3:33 — page 11 — #13
 
 i
 
@@ -578,19 +578,19 @@ i
 
           int main()
           {
-              return f8() + f9();      // OK, presumes f7 and f9 *are* defined and linked
+              return f8() + f9();      // OK, presumes f7 and f9 are defined and linked
                                        // with this TU
           }
 
           static_assert(0 == f8(), "");       // Error, body of f7 has not yet been seen.
           static_assert(0 == f9(), "");       // Error,   " " f9 "      "   "   "     "
 
-          constexpr int f7() { return 0; }        // definition matching *forward declaration*
+          constexpr int f7() { return 0; }        // definition matching forward declaration
 
           static_assert(0 == f8(), "");       // OK, body of f7 is visible from here
           static_assert(0 == f9(), "");       // Error, body of f9 has not yet been seen
 
-          // Oops, failed to define f9 in this translation unit; compiler *might* warn
+          // Oops, failed to define f9 in this translation unit; compiler might warn
 
         In the example code above, we have declared three constexpr functions: f7, f8, and f9.
         Of the three, only f8 is defined ahead of its first use. Any attempt to evaluate a constexpr
@@ -609,7 +609,7 @@ i
         notice that we didn’t say “appears as part of a constant expression” but instead said “is
         evaluated to determine the value of a constant expression.”
             We can have something that is not itself a (compile-time) constant expression (or even
-        one that is convertible to bool) appear as a part of a constant expression provided* that it
+        one that is convertible to bool) appear as a part of a constant expression provided that it
         never actually gets evaluated at compile time:
           static_assert(false    ? throw : true, "");        //   OK
           static_assert(true     ? throw : true, "");        //   Error, throw not constexpr
@@ -630,7 +630,7 @@ i
 
     i                                                                                                       i
        i                                                                                                              i
-                                      “emcpps-internal” — 2021/4/2 — 2:42 — page 12 — #14
+                                      “emcpps-internal” — 2021/4/2 — 3:33 — page 12 — #14
 
 i
 
@@ -664,7 +664,7 @@ i
 
                         int hh()
                         {
-                            return ff(1) + gg(2);      // OK, not a *constexpr context*
+                            return ff(1) + gg(2);      // OK, not a constexpr context
                         }
 
                         static_assert(ff(3), "");          // Error: body of gg has not yet been seen
@@ -698,7 +698,7 @@ i
 
        i                                                                                                              i
         i                                                                                                                    i
-                                        “emcpps-internal” — 2021/4/2 — 2:42 — page 13 — #15
+                                        “emcpps-internal” — 2021/4/2 — 3:33 — page 13 — #15
 
 i
 
@@ -754,7 +754,7 @@ stexpr­member­functions
                             {
                                 int d_x, d_y; // two ordinary int data members
                             public:
-                                constexpr Point1(int x, int y) : d_x(x), d_y(y) { }              // OK, *is* constexpr
+                                constexpr Point1(int x, int y) : d_x(x), d_y(y) { }              // OK, is constexpr
 
                                                                                                                         13
 
@@ -764,7 +764,7 @@ i
 
         i                                                                                                                    i
     i                                                                                                   i
-                       “emcpps-internal” — 2021/4/2 — 2:42 — page 14 — #16
+                       “emcpps-internal” — 2021/4/2 — 3:33 — page 14 — #16
 
 i
 
@@ -774,8 +774,8 @@ i
 
 
 
-               constexpr int x()       { return d_x; }       // OK, *is* constexpr
-                         int y() const { return d_y; }       // OK, is *not* constexpr
+               constexpr int x()       { return d_x; }       // OK, is constexpr
+                         int y() const { return d_y; }       // OK, is not constexpr
           };
 
         Simple classes, such as Point1 (in the code snippet above), having at least one constexpr
@@ -831,7 +831,7 @@ i
 
     i                                                                                                   i
         i                                                                                                                     i
-                                         “emcpps-internal” — 2021/4/2 — 2:42 — page 15 — #17
+                                         “emcpps-internal” — 2021/4/2 — 3:33 — page 15 — #17
 
 i
 
@@ -897,7 +897,7 @@ i
 
         i                                                                                                                     i
         i                                                                                                                i
-                                         “emcpps-internal” — 2021/4/2 — 2:42 — page 16 — #18
+                                         “emcpps-internal” — 2021/4/2 — 3:33 — page 16 — #18
 
 i
 
@@ -964,7 +964,7 @@ i
 
         i                                                                                                                i
     i                                                                                                               i
-                          “emcpps-internal” — 2021/4/2 — 2:42 — page 17 — #19
+                          “emcpps-internal” — 2021/4/2 — 3:33 — page 17 — #19
 
 i
 
@@ -1031,7 +1031,7 @@ i
 
     i                                                                                                               i
     i                                                                                                                  i
-                          “emcpps-internal” — 2021/4/2 — 2:42 — page 18 — #20
+                          “emcpps-internal” — 2021/4/2 — 3:33 — page 18 — #20
 
 i
 
@@ -1041,7 +1041,7 @@ i
 
 
                  {
-                      constexpr D1() { }        // Error, B has nonconstexpr *default* constructor
+                      constexpr D1() { }        // Error, B has nonconstexpr default constructor
                  };
 
                  struct D2 : B // public derivation
@@ -1058,9 +1058,9 @@ i
                      int d_i = f1(); // initialization using nonconstexpr function
                      int d_j = f2(); // initialization using    constexpr function
 
-                      constexpr D3() { }        // Error, d_i initialized using nonconstexpr function
+                      constexpr D3() { }        // Error, d_i not constant initialized
 
-                      constexpr D3(int i) : d_i(i) { }             // OK, d_i set from initializer list
+                      constexpr D3(int i) : d_i(i) { }             // OK, d_i set from init list
                  };
 
                The example code above illustrates various ways in which a base class or nonstatic
@@ -1076,9 +1076,9 @@ i
                 classes9 :
                  struct B { constexpr B();          /*...*/ };      // some arbitrary base class
 
-                 struct D : virtual B // Virtual base classes preclude constexpr constructors.
+                 struct D : virtual B
                  {
-                     constexpr D(int) { }  // Error, class D has virtual base class B.
+                     constexpr D(int) { }           // Error, class D has virtual base class B.
                  };
 
 
@@ -1099,7 +1099,7 @@ i
 
     i                                                                                                                  i
     i                                                                                                                   i
-                         “emcpps-internal” — 2021/4/2 — 2:42 — page 19 — #21
+                         “emcpps-internal” — 2021/4/2 — 3:33 — page 19 — #21
 
 i
 
@@ -1112,22 +1112,22 @@ i
               tion 1.1.“??” on page ??):
                  struct S1
                  {
-                     S1() { };                   // nonconstexpr *default* constructor
-                     S1(const S1&) { };          // "       "      *copy*         "
-                     S1(char) { };               // "       "      *value*        "
+                     S1() { };                   // nonconstexpr default constructor
+                     S1(const S1&) { };          // "       "      copy         "
+                     S1(char) { };               // "       "      value        "
                  };
 
                  struct S2
                  {
                      S1 d_s1;
                      constexpr S2() = default;          // default constructor
-                         // Error, S1's *default* constructor isn't constexpr.
+                         // Error, S1's default constructor isn't constexpr.
 
                         constexpr S2(const S2&) = delete; // copy constructor
-                            // OK, make declaration *inaccessible* and suppress implementation
+                            // OK, make declaration inaccessible and suppress implementation
 
                         S2(char c) : d_s1(c) { }           // value constructor
-                           // OK, this constructor is *not* declared to be constexpr.
+                           // OK, this constructor is not declared to be constexpr.
                  };
 
               In the example above, explicitly declaring the default constructor of S2 to be constexpr
@@ -1146,10 +1146,10 @@ i
               whether it is explicitly declared constexpr. Explicitly declaring a defaulted construc-
               tor constexpr that is not inherently constexpr is, however, a compile-time error (see
               Section 1.1.“??” on page ??):
-                 struct I0     { int i; /* implicit default ctor */ };                // OK, I0 is a literal type.
+                 struct I0     { int i; /* implicit default ctor */ };                // OK, literal type.
 
-                 struct I1a { int i;                   I1a()               { } };     // OK, i is not initialized.
-                 struct I1b { int i;         constexpr I1b()               { } };     // Error, i not initialized.
+                 struct I1a { int i;                   I1a()               { } };     // OK, i is not init.
+                 struct I1b { int i;         constexpr I1b()               { } };     // Error, i not init.
           10 Deleting
                     a function explicitly declares it, makes that declaration inaccessible, and suppresses generation
         of an implementation; see ?? on page ??[ AUs: There is no subsection called “Detecting literal
@@ -1164,7 +1164,7 @@ i
 
     i                                                                                                                   i
     i                                                                                                                        i
-                           “emcpps-internal” — 2021/4/2 — 2:42 — page 20 — #22
+                           “emcpps-internal” — 2021/4/2 — 3:33 — page 20 — #22
 
 i
 
@@ -1175,25 +1175,25 @@ i
 
 
                    struct I2a { int i;                  I2a() = default; };               // OK, but not constexpr
-                   struct I2b { int i;        constexpr I2b() = default; };               // Error, i is not initialized.
+                   struct I2b { int i;        constexpr I2b() = default; };               // Error, i is not init.
 
-                   struct I3a { int i;                  I3a() : i(0) { } };               // OK, i is initialized.
-                   struct I3b { int i;        constexpr I3b() : i(0) { } };               // OK, I3b's a literal type.
+                   struct I3a { int i;                  I3a() : i(0) { } };               // OK, i is init.
+                   struct I3b { int i;        constexpr I3b() : i(0) { } };               // OK, literal type.
 
-                   struct S0    { I3b i; /* implicit default ctor */ };                   // OK, S0 is a literal type.
+                   struct S0    { I3b i; /* implicit default ctor */ };                   // OK, literal type.
 
-                   struct S1a { I3b i;                  S1a()                 { } };      // OK, i is initialized.
-                   struct S1b { I3b i;        constexpr S1b()                 { } };      // OK, S1b's a literal type.
+                   struct S1a { I3b i;                  S1a()                 { } };      // OK, i is init.
+                   struct S1b { I3b i;        constexpr S1b()                 { } };      // OK, literal type.
 
-                   struct S2a { I3b i;                  S2a() = default; };               // OK, S2a's a literal type.
-                   struct S2b { I3b i;        constexpr S2b() = default; };               // OK, S2b's a literal type.
+                   struct S2a { I3b i;                  S2a() = default; };               // OK, literal type.
+                   struct S2b { I3b i;        constexpr S2b() = default; };               // OK, literal type.
 
                  The example code above attempts to illustrate the subtle differences between a data
-                 member of scalar literal type** (e.g., int) and one of user-defined literal type** (e.g.,
-                 I3b). The first difference, illustrated by I1a versus S1a, is that the former always
-                 leaves its own data member, i, uninitialized, while the latter invariably zero-initializes
-                 its i. The second difference, seen in I1b versus S1b, is that the former is explicitly not
-                 initialized whereas it is always implicitly initialized in the latter.
+                 member of scalar literal type (e.g., int) and one of user-defined literal type (e.g., I3b).
+                 The first difference, illustrated by I1a versus S1a, is that the former always leaves its
+                 own data member, i, uninitialized, while the latter invariably zero-initializes its i. The
+                 second difference, seen in I1b versus S1b, is that the former is explicitly not initialized
+                 whereas it is always implicitly initialized in the latter.
                  Note that, although every literal type needs to have a way to construct it in a
                  constexpr context, not every constructor of a literal type needs to be constexpr;
                  see Literal types (defined) on page 25.
@@ -1231,7 +1231,7 @@ i
 
     i                                                                                                                        i
     i                                                                                                                    i
-                        “emcpps-internal” — 2021/4/2 — 2:42 — page 21 — #23
+                        “emcpps-internal” — 2021/4/2 — 3:33 — page 21 — #23
 
 i
 
@@ -1253,7 +1253,7 @@ i
 
               Finally, it is important to note that this form of braced initialization is not restricted
               to just aggregates and requires only that the default constructor be trivial12 :
-                 struct S3 { // example of a            non*aggregate* type
+                 struct S3 { // example of a            nonaggregate type
                      int d_i;              //           not initialized
                      S3() = default;       //           trivial
                      S3(int i) : d_i(i) {} //           not an aggregate
@@ -1272,10 +1272,10 @@ i
                  union U0 { bool b;      char c;       };                //   OK, neither member initialized
                  union U1 { bool b = 0; char c;        };                //   OK, first      "       "
                  union U2 { bool b;      char c = 'A'; };                //   OK, second     "       "
-                 union U3 { bool b = 0; char c = 'A'; };                 //   Error, multiple members initialized
+                 union U3 { bool b = 0; char c = 'A'; };                 //   Error, multiple initialized
 
                  // unions having constexpr constructors
-                 union U4 { bool b; char c;        constexpr                  U4() { } }; // Error, uninitialized
+                 union U4 { bool b; char c;        constexpr                  U4() { } }; // Error, uninit
                  union U5 { bool b; char c = 'A'; constexpr                   U5() { } };              // OK
                  union U6 { bool b; char c;        constexpr                  U6() : c('A') { } };     // OK
                  union U7 { bool b; char c;        constexpr                  U7(bool v) : b(v) { } }; // OK
@@ -1299,7 +1299,7 @@ i
 
     i                                                                                                                    i
     i                                                                                                         i
-                          “emcpps-internal” — 2021/4/2 — 2:42 — page 22 — #24
+                          “emcpps-internal” — 2021/4/2 — 3:33 — page 22 — #24
 
 i
 
@@ -1309,15 +1309,15 @@ i
 
 
 
-                  struct S                              // S is a *literal type*.
+                  struct S                              // S is a literal type.
                   {
-                      U0 u0{};                          //   *braced* initialized
-                      U1 u1; U2 u2; U5 u5; U6 u6;       //   *default* initialized
-                      U7 u7;                            //   *value*   initialized
-                      constexpr S() : u7(0) { }         //   OK, all members are initialized.
+                      U0 u0{};                          //   braced    initialized
+                      U1 u1; U2 u2; U5 u5; U6 u6;       //   default   initialized
+                      U7 u7;                            //   value     initialized
+                      constexpr S() : u7(0) { }         //   OK, all   members are initialized.
                   };
 
-                  constexpr int test(S t) { return 0; }         // OK, confirms S is a *literal type*
+                  constexpr int test(S t) { return 0; }         // OK, confirms S is a literal type
 
                 The example code above illustrates various ways in which unions (e.g., U0–U2 and
                 U5–U7) can be used that allow them to be initialized by a constexpr constructor
@@ -1365,7 +1365,7 @@ i
 
     i                                                                                                         i
         i                                                                                                                                 i
-                                          “emcpps-internal” — 2021/4/2 — 2:42 — page 23 — #25
+                                          “emcpps-internal” — 2021/4/2 — 3:33 — page 23 — #25
 
 i
 
@@ -1375,10 +1375,10 @@ i
 
 
                                         constexpr S(const V& x, double y) : i(x), d(y) { } // Error, the needed
-                                            // int implicit conversion is *not* declared constexpr.
+                                            // int implicit conversion is not declared constexpr.
 
                                         constexpr S(int x, const V& y) : i(x), d(y) { }    // OK, the needed
-                                            // double implicit conversion *is* declared constexpr.
+                                            // double implicit conversion is declared constexpr.
                                    };
 
 
@@ -1391,21 +1391,21 @@ expr­function­templates
                           example, consider a function template, sizeOf, that is constexpr only if its argument type,
                           T, is a literal type:
                             template <typename T> constexpr int sizeOf(T t) { return sizeof(t); }
-                                // This function is constexpr *only* if T is a *literal type*.
+                                // This function is constexpr only if T is a literal type.
 
-                            struct S0 { int i;           S0() : i(0) { } };                  // S0 is *not* a *literal type*.
-                            struct S1 { int i; constexpr S1() : i(0) { } };                  // S1 *is* a *literal type*.
+                            struct S0 { int i;           S0() : i(0) { } };                  // not a literal type.
+                            struct S1 { int i; constexpr S1() : i(0) { } };                  // a literal type.
 
-                            int a[sizeOf(int())];          // OK,    int *is*    a *literal type*.
-                            int b[sizeOf( S0())];          // Error, S0 is *not* a *literal type*.
-                            int c[sizeOf( S1())];          // OK,     S1 *is*    a *literal type*.
+                            int a[sizeOf(int())];          // OK,    int is    a literal type.
+                            int b[sizeOf( S0())];          // Error, S0 is not a literal type.
+                            int c[sizeOf( S1())];          // OK,     S1 is    a literal type.
 
                           If no specialization of such a function template would yield a constexpr function, then the
                           program is IFNDR. For example, if this same function template were implemented with a
                           function body consisting of more than just a single return statement, it would be ill formed:
                             template <typename T>
                             constexpr int badSizeOf(T t) { const int s = sizeof(t); return s; }
-                                // This constexpr function template is *IFNDR*.
+                                // This constexpr function template is IFNDR.
 
                           Most compilers, when compiling such a specialization for runtime use, will not attempt to
                           determine if the constexpr would ever be valid. When invoked with arguments that are
@@ -1413,8 +1413,8 @@ expr­function­templates
                           often detect this ill formed nature and report the error:
                             int   d[badSizeOf(S1())];        //   Error, badSizeOf<S1>(S1) body not return statement
                             int   e[badSizeOf(S0())];        //   Error, badSizeOf<S0>(S0) body not return statement
-                            int   f = badSizeOf(S1());       //   Oops, same issue but *might* work on some compilers
-                            int   g = badSizeOf(S0());       //   Oops, same issue but *often* works without warnings
+                            int   f = badSizeOf(S1());       //   Oops, same issue but might work on some compilers
+                            int   g = badSizeOf(S0());       //   Oops, same issue but often works without warnings
 
                           It is important to understand that each of the four statements in the code snippet above
                           are ill formed because the badSizeOf function template is itself ill formed. Although the
@@ -1433,7 +1433,7 @@ i
 
         i                                                                                                                                 i
         i                                                                                                                                 i
-                                        “emcpps-internal” — 2021/4/2 — 2:42 — page 24 — #26
+                                        “emcpps-internal” — 2021/4/2 — 3:33 — page 24 — #26
 
 i
 
@@ -1500,7 +1500,7 @@ i
 
         i                                                                                                                                 i
         i                                                                                                                                 i
-                                          “emcpps-internal” — 2021/4/2 — 2:42 — page 25 — #27
+                                          “emcpps-internal” — 2021/4/2 — 3:33 — page 25 — #27
 
 i
 
@@ -1561,7 +1561,7 @@ i
 
         i                                                                                                                                 i
     i                                                                                                                  i
-                          “emcpps-internal” — 2021/4/2 — 2:42 — page 26 — #28
+                          “emcpps-internal” — 2021/4/2 — 3:33 — page 26 — #28
 
 i
 
@@ -1577,7 +1577,7 @@ i
                              // OK, static data member can have a nonliteral type.
 
                           int d_datum;
-                              // OK, nonstatic data member of nonvolatile *literal type*
+                              // OK, nonstatic data member of nonvolatile literal type
 
                           constexpr LiteralUDT(int datum) : d_datum(datum) { }
                               // OK, constructor is constexpr.
@@ -1603,8 +1603,8 @@ i
 
                      union LiteralUnion
                      {
-                         int   d_x; // OK, int is a *literal type*.
-                         float d_y; // OK, float is a *literal type*.
+                         int   d_x; // OK, int is a literal type.
+                         float d_y; // OK, float is a literal type.
                      };
 
 
@@ -1631,7 +1631,7 @@ i
 
     i                                                                                                                  i
     i                                                                                                   i
-                     “emcpps-internal” — 2021/4/2 — 2:42 — page 27 — #29
+                     “emcpps-internal” — 2021/4/2 — 3:33 — page 27 — #29
 
 i
 
@@ -1639,10 +1639,10 @@ i
 
         C++11                                                               constexpr Functions
 
-                char a[5];     // An array of **scalar type** (e.g., char) is a **literal type**.
+                char a[5];     // An array of scalar type (e.g., char) is a literal type.
 
                 struct { int i; bool b; } b[7];
-                    // An array of **aggregate type** is a **literal type**.
+                    // An array of aggregate type is a literal type.
 
 
           6. In C++14 and thereafter, void (and thus cv-qualified void) is also a literal type,
@@ -1660,7 +1660,7 @@ i
             or publicly accessible members. It is quite possible that the only thing one might be
             able to do with a user-defined literal type as part of a constant expression is to create
             it:
-                class C { };     // C is a *valueless literal type*.
+                class C { };     // C is a valueless literal type.
 
                 int a[(C(), 5)];    // OK, create an array of five int objects.
 
@@ -1696,7 +1696,7 @@ i
 
     i                                                                                                   i
         i                                                                                                                               i
-                                          “emcpps-internal” — 2021/4/2 — 2:42 — page 28 — #30
+                                          “emcpps-internal” — 2021/4/2 — 3:33 — page 28 — #30
 
 i
 
@@ -1714,16 +1714,15 @@ i
 
                                   static_assert(processByValue(s) == 0, "");               // Error, nonconstexpr copy ctor
 
-                                In the code example above, we have an aggregate literal type**, Lt, for which we
-                                have explicitly declared a nonconstexpr copy constructor. We then defined a valid
-                                constexpr function, processByValue, taking an Lt (by value) as its only argument.
-                                Invoking the function by constructing a object of Lt from a literal int value enables
-                                the compiler to elide the copy. Platforms where the copy is elided might allow this
-                                evaluation at compile time, while on others there will be an error. When we consider
-                                using an independently constructed constexpr variable, s, the copy can no longer
-                                be elided, and, since the copy constructor is declared explicitly to be nonconstexpr,
-                                the compile-time assertion fails to compile on all platforms; see Section 2.1.“??” on
-                                page ??.
+                                In the code example above, we have an aggregate literal type, Lt, for which we have ex-
+                                plicitly declared a nonconstexpr copy constructor. We then defined a valid constexpr
+                                function, processByValue, taking an Lt (by value) as its only argument. Invoking the
+                                function by constructing a object of Lt from a literal int value enables the compiler
+                                to elide the copy. Platforms where the copy is elided might allow this evaluation at
+                                compile time, while on others there will be an error. When we consider using an inde-
+                                pendently constructed constexpr variable, s, the copy can no longer be elided, and,
+                                since the copy constructor is declared explicitly to be nonconstexpr, the compile-time
+                                assertion fails to compile on all platforms; see Section 2.1.“??” on page ??.
                              • Although a pointer or reference is always (by definition) a literal type, if the type being
                                pointed to is not itself a literal type, then the referenced object cannot be used.
 
@@ -1736,6 +1735,7 @@ tifying­literal­types
                         usable at compile time. In this subsection, we identify means for ensuring that a type is a
                         literal type and, often more importantly for a user, identifying if a type is a usable literal
                         type.
+
                              1. Only literal types can be used in the interface of a constexpr function (i.e., either
                                 as the return type or as a parameter type), and any literal type can be used in the
                                 interface of such a function. The first approach one might take to determine if a given
@@ -1749,6 +1749,7 @@ tifying­literal­types
                                   constexpr LiteralType    f(int i) { return LiteralType(i);    }                      // OK
                                   constexpr NonLiteralType g(int i) { return NonLiteralType(i); }                      // Error
                                   constexpr NonMovableType h()      { return NonMovableType{}; }                       // Error
+
                            17 As of C++17, the requirement that the type in question be copyable or movable to return it as a prvalue
 
                         is removed; see Section 2.1.“??” on page ??.
@@ -1762,7 +1763,7 @@ i
 
         i                                                                                                                               i
     i                                                                                                                   i
-                       “emcpps-internal” — 2021/4/2 — 2:42 — page 29 — #31
+                       “emcpps-internal” — 2021/4/2 — 3:33 — page 29 — #31
 
 i
 
@@ -1773,7 +1774,7 @@ i
               In the above example, NonMovableType is a literal type but is not movable (or copy-
               able), so it cannot be the return type of a function. Passing the type as a by-value
               parameter works more reliably — and even reliably identifies noncopyable, nonmovable
-              literal types**:
+              literal types:
                 constexpr int test(LiteralType t)    { return 0; } // OK
                 constexpr int test(NonLiteralType t) { return 0; } // Error
                 constexpr int test(NonMovableType t) { return 0; } // OK
@@ -1781,7 +1782,7 @@ i
               This approach is appealing in that it provides a general way for a programmer to
               query the compiler whether it considers a given type, S, as a whole to be a literal type
               and can be succinctly written18 :
-                constexpr int test(S) { return 0; }             // compiles only if S is a *literal type*
+                constexpr int test(S) { return 0; }             // compiles only if S is a literal type
 
               Note that all of these tests require providing a function body, since compilers will
               validate that the declaration of the function is valid for a constexpr function only
@@ -1826,7 +1827,7 @@ i
 
     i                                                                                                                   i
     i                                                                                                    i
-                       “emcpps-internal” — 2021/4/2 — 2:42 — page 30 — #32
+                       “emcpps-internal” — 2021/4/2 — 3:33 — page 30 — #32
 
 i
 
@@ -1838,7 +1839,7 @@ i
              particular form of initialization and corresponding witness arguments that should
              allow a user-defined type to assume a valid compile-time value. For this example, we
              can use the interface test to help prove that our class (e.g., Lt) is a literal type:
-               class Lt // An object of this type can appear as part of a **constant expression**.
+               class Lt // An object of this type be used in a constant expression.
                {
                    int d_value;
 
@@ -1846,7 +1847,7 @@ i
                    constexpr Lt(int i) : d_value(i != 75033 ? throw 0 : i) { }            // OK
                };
 
-               constexpr int checkLiteral(Lt) { return 0; }         // OK, *literal type*
+               constexpr int checkLiteral(Lt) { return 0; }         // OK, literal type
 
              Proving that Lt (in the code example above) is a usable literal type next involves choos-
              ing a constexpr constructor (e.g., Lt(int)), selecting appropriate witness arguments
@@ -1890,7 +1891,7 @@ i
 
     i                                                                                                    i
         i                                                                                                                    i
-                                        “emcpps-internal” — 2021/4/2 — 2:42 — page 31 — #33
+                                        “emcpps-internal” — 2021/4/2 — 3:33 — page 31 — #33
 
 i
 
@@ -1956,7 +1957,7 @@ i
 
         i                                                                                                                    i
         i                                                                                                                  i
-                                          “emcpps-internal” — 2021/4/2 — 2:42 — page 32 — #34
+                                          “emcpps-internal” — 2021/4/2 — 3:33 — page 32 — #34
 
 i
 
@@ -2019,7 +2020,7 @@ i
 
         i                                                                                                                  i
         i                                                                                                                                i
-                                          “emcpps-internal” — 2021/4/2 — 2:42 — page 33 — #35
+                                          “emcpps-internal” — 2021/4/2 — 3:33 — page 33 — #35
 
 i
 
@@ -2087,7 +2088,7 @@ i
 
         i                                                                                                                                i
     i                                                                                                    i
-                        “emcpps-internal” — 2021/4/2 — 2:42 — page 34 — #36
+                        “emcpps-internal” — 2021/4/2 — 3:33 — page 34 — #36
 
 i
 
@@ -2142,7 +2143,7 @@ i
         at compile time if the string is a constant expression. We’ll need a simple helper function
         that determines if a given char is a lowercase letter:
           constexpr bool isLowercase(char c)
-              // Return true if c is a lowercase *ASCII* letter, and false otherwise.
+              // Return true if c is a lowercase ASCII letter, and false otherwise.
           {
 
         34
@@ -2153,7 +2154,7 @@ i
 
     i                                                                                                    i
     i                                                                                                      i
-                      “emcpps-internal” — 2021/4/2 — 2:42 — page 35 — #37
+                      “emcpps-internal” — 2021/4/2 — 3:33 — page 35 — #37
 
 i
 
@@ -2161,7 +2162,7 @@ i
 
         C++11                                                                 constexpr Functions
 
-                return 'a' <= c && c <= 'z';     // true if c is in *ASCII* range a to 'z'
+                return 'a' <= c && c <= 'z';     // true if c is in ASCII range a to 'z'
           }
 
         Note that we are using a simplistic definition here that is designed to handle only the ASCII
@@ -2217,7 +2218,7 @@ i
 
     i                                                                                                      i
     i                                                                                                      i
-                       “emcpps-internal” — 2021/4/2 — 2:42 — page 36 — #38
+                       “emcpps-internal” — 2021/4/2 — 3:33 — page 36 — #38
 
 i
 
@@ -2284,7 +2285,7 @@ i
 
     i                                                                                                      i
         i                                                                                                                 i
-                                        “emcpps-internal” — 2021/4/2 — 2:42 — page 37 — #39
+                                        “emcpps-internal” — 2021/4/2 — 3:33 — page 37 — #39
 
 i
 
@@ -2349,7 +2350,7 @@ i
 
         i                                                                                                                 i
     i                                                                                                       i
-                        “emcpps-internal” — 2021/4/2 — 2:42 — page 38 — #40
+                        “emcpps-internal” — 2021/4/2 — 3:33 — page 38 — #40
 
 i
 
@@ -2414,7 +2415,7 @@ i
 
     i                                                                                                       i
     i                                                                                                               i
-                       “emcpps-internal” — 2021/4/2 — 2:42 — page 39 — #41
+                       “emcpps-internal” — 2021/4/2 — 3:33 — page 39 — #41
 
 i
 
@@ -2481,7 +2482,7 @@ i
 
     i                                                                                                               i
     i                                                                                                              i
-                         “emcpps-internal” — 2021/4/2 — 2:42 — page 40 — #42
+                         “emcpps-internal” — 2021/4/2 — 3:33 — page 40 — #42
 
 i
 
@@ -2550,7 +2551,7 @@ i
 
     i                                                                                                              i
         i                                                                                                                  i
-                                       “emcpps-internal” — 2021/4/2 — 2:42 — page 41 — #43
+                                       “emcpps-internal” — 2021/4/2 — 3:33 — page 41 — #43
 
 i
 
@@ -2614,7 +2615,7 @@ i
 
         i                                                                                                                  i
     i                                                                                                                 i
-                          “emcpps-internal” — 2021/4/2 — 2:42 — page 42 — #44
+                          “emcpps-internal” — 2021/4/2 — 3:33 — page 42 — #44
 
 i
 
@@ -2681,7 +2682,7 @@ i
 
     i                                                                                                                 i
           i                                                                                                                   i
-                                          “emcpps-internal” — 2021/4/2 — 2:42 — page 43 — #45
+                                          “emcpps-internal” — 2021/4/2 — 3:33 — page 43 — #45
 
 i
 
@@ -2747,7 +2748,7 @@ i
 
           i                                                                                                                   i
         i                                                                                                                    i
-                                          “emcpps-internal” — 2021/4/2 — 2:42 — page 44 — #46
+                                          “emcpps-internal” — 2021/4/2 — 3:33 — page 44 — #46
 
 i
 
@@ -2812,7 +2813,7 @@ i
 
         i                                                                                                                    i
         i                                                                                                                     i
-                                        “emcpps-internal” — 2021/4/2 — 2:42 — page 45 — #47
+                                        “emcpps-internal” — 2021/4/2 — 3:33 — page 45 — #47
 
 i
 
@@ -2876,7 +2877,7 @@ i
 
         i                                                                                                                     i
         i                                                                                                               i
-                                         “emcpps-internal” — 2021/4/2 — 2:42 — page 46 — #48
+                                         “emcpps-internal” — 2021/4/2 — 3:33 — page 46 — #48
 
 i
 
@@ -2928,7 +2929,7 @@ i
 
         i                                                                                                               i
           i                                                                                           i
-                                    “emcpps-internal” — 2021/4/2 — 2:42 — page 47 — #49
+                                    “emcpps-internal” — 2021/4/2 — 3:33 — page 47 — #49
 
 i
 
@@ -2949,7 +2950,7 @@ i
 
           i                                                                                           i
     i                                                         i
-        “emcpps-internal” — 2021/4/2 — 2:42 — page 48 — #50
+        “emcpps-internal” — 2021/4/2 — 3:33 — page 48 — #50
 
 i
 
@@ -2962,7 +2963,7 @@ i
 
     i                                                         i
      i                                                                                         i
-                                    “emcpps-internal” — 2021/4/2 — 2:42 — page 49 — #51
+                                    “emcpps-internal” — 2021/4/2 — 3:33 — page 49 — #51
 
 i
 
@@ -2986,7 +2987,7 @@ i
 
      i                                                                                         i
        i                                                                                     i
-                            “emcpps-internal” — 2021/4/2 — 2:42 — page 50 — #52
+                            “emcpps-internal” — 2021/4/2 — 3:33 — page 50 — #52
 
 i
 
