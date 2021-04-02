@@ -131,16 +131,14 @@ pseudocode:
 compiler does not necessarily generate variables with those names and
 user code is not permitted to access those variables directly.
 
-The \lstinline!__range! variable is defined as a \emcppsgloss{forwarding
-reference} (see {\featureref{\locationc}{forwardingref}); it
+The \lstinline!__range! variable is defined as a \emcppsgloss{forwarding reference} (see {\featureref{\locationc}{forwardingref}); it
 will bind to any type of \emcppsgloss{range expression}, regardless of its
 \emcppsgloss{value category} (\romeovalue{lvalue} or \romeovalue{rvalue}). If the
 \emcppsgloss{range expression} yields a temporary object, its lifetime is
 extended, if necessary, until \lstinline!__range! goes out of scope.
 While this \emcppsgloss{lifetime extension} of temporary objects works in
 most cases, it is insufficient when \lstinline!__range! doesn't bind
-directly to the temporary created by the \emcppsgloss{range
-expression}, potentially resulting in subtle bugs; see {Potential
+directly to the temporary created by the \emcppsgloss{range expression}, potentially resulting in subtle bugs; see {Potential
 Pitfalls}{Lifetime of temporaries in the range expression}.
 
 The \emph{begin-expr} and \emph{end-expr} expressions used to initialize
@@ -157,7 +155,7 @@ unclear in C++11. A defect report, CWG 1442, clarified the wording
 \begin{itemize}
 \item{If \lstinline!__range! refers to an array, then \emph{begin-expr} is the address of the first element of the array and \emph{end-expr} is the address of one past the last element of the array.}
 \item{If \lstinline!__range! refers to a class object and \lstinline!begin! and/or \lstinline!end! are members of that class, then \emph{begin-expr} is \lstinline!__range.begin()! and \emph{end-expr} is \lstinline!__range.end()!. Note that if \lstinline!begin! or \lstinline!end! are found in the class, then both of these expressions must be valid or else the program is ill formed.}
-\item{Otherwise, \emph{begin-expr} is \lstinline!begin(__range)! and \emph{end-expr} is \lstinline!end(__range)!, where \lstinline!begin! and \lstinline!end! are found using \emcppsgloss{argument-dependent lookup (ADL)}. Note that \lstinline!begin! and \lstinline!end! are looked up only in the namespaces associated with the expressions; names that are local to the context of the \emcppsgloss[range based for loop]{ranged-based \lstinline!for! loop} are not considered; see Annoyances.}
+\item{Otherwise, \emph{begin-expr} is \lstinline!begin(__range)! and \emph{end-expr} is \lstinline!end(__range)!, where \lstinline!begin! and \lstinline!end! are found using \emcppsgloss[argument dependent lookup]{argument-dependent lookup (ADL)}. Note that \lstinline!begin! and \lstinline!end! are looked up only in the namespaces associated with the expressions; names that are local to the context of the \emcppsgloss[range based for loop]{ranged-based \lstinline!for! loop} are not considered; see Annoyances.}
 \end{itemize}
 
 Thus, a container such as \lstinline!vector!, with conventional
@@ -170,8 +168,7 @@ where it is evaluated prior to every iteration.
 
 In C++11 and C++14, \lstinline!__begin! and \lstinline!__end! are required
 to have the same type.{\cprotect\footnote{The C++17 Standard changes the
-defining code transformation of the \emcppsgloss[range based for loop]{range-based \lstinline!for!
-loop} so as to allow \lstinline!__begin! and \lstinline!__end! to have
+defining code transformation of the \emcppsgloss[range based for loop]{range-based \lstinline!for! loop} so as to allow \lstinline!__begin! and \lstinline!__end! to have
 different types as long as they are comparable using
   \lstinline!__begin!~\lstinline|!=|~\lstinline!__end!.}} Although the
 \lstinline!__begin! and \lstinline!__end! variables look and act like
@@ -294,8 +291,7 @@ first element of \lstinline!arr! and \lstinline!std::end(arr)! returns the
 address of one past that of the last element of \lstinline!arr!, i.e.,
 \lstinline!arr!~\lstinline!+!~\lstinline!__bound!. This functionality is built
 into the initialization of \lstinline!__begin! and \lstinline!__end! as a
-special case, in the expansion of a \emcppsgloss[range based for loop]{range-based \lstinline!for!
-loop}, so that it is possible to traverse the elements of an array
+special case, in the expansion of a \emcppsgloss[range based for loop]{range-based \lstinline!for! loop}, so that it is possible to traverse the elements of an array
 without needing to \lstinline!#include!~\lstinline!<iterator>!:
 
 \begin{emcppslisting}
@@ -427,12 +423,10 @@ void printScores()
 \noindent This example prints each key/value pair in the \lstinline!map!. We create
 two aliases, \lstinline!student! for \lstinline!studentScore.first! and
 \lstinline!score! for \lstinline!studentScore.second!, to better express the
-intent of the code.{\cprotect\footnote{In C++17, \emcppsgloss[structured binding]{structured
-bindings} allow two variables to be initialized from a single
+intent of the code.{\cprotect\footnote{In C++17, \emcppsgloss[structured binding]{structured bindings} allow two variables to be initialized from a single
 \lstinline!pair!, each variable being initialized by the respective
 \lstinline!first! and \lstinline!second! members of the \lstinline!pair!. A
-\emcppsgloss[range based for loop]{ranged-based \lstinline!for! loop} using a \emcppsgloss{structured
-binding} for the loop variables yields a very clean and expressive way
+\emcppsgloss[range based for loop]{ranged-based \lstinline!for! loop} using a \emcppsgloss{structured binding} for the loop variables yields a very clean and expressive way
 to traverse containers like \lstinline!map! and \lstinline!unordered_map!,
 e.g., using
   \lstinline!for!~\lstinline!(auto&!~\lstinline![student,!~\lstinline!score]!~\lstinline!:!~\lstinline!studentScores)!.}}
@@ -476,8 +470,7 @@ It holds two externally-supplied iterators that it can supply to a
 \emcppsgloss[range based for loop]{ranged-based \lstinline!for! loop} via its \lstinline!begin! and
 \lstinline!end! accessor members. The \lstinline!makeSubrange! factory uses
 function template argument deduction to return a \lstinline!Subrange! of
-the correct type.{\cprotect\footnote{C++17 introduced \emcppsgloss{class
-template argument deduction}, which significantly reduces the need for
+the correct type.{\cprotect\footnote{C++17 introduced \emcppsgloss{class template argument deduction}, which significantly reduces the need for
   factory templates like \lstinline!makeSubrange!.}}
 
 Let's use \lstinline!Subrange! to traverse a vector in reverse, omitting
@@ -773,8 +766,7 @@ test is very common in unit tests.
 
 \subsubsection[Lifetime of temporary objects in the range expression]{Lifetime of temporary objects in the range expression}\label{lifetime-of-temporary-objects-in-the-range-expression}
 
-As described in \intrarefsimple{description-rangefor} section, if the \emcppsgloss{range
-expression} evaluates to a temporary object, that object remains valid,
+As described in \intrarefsimple{description-rangefor} section, if the \emcppsgloss{range expression} evaluates to a temporary object, that object remains valid,
 as a result of \emcppsgloss{lifetime extension}, for the duration of the
 \emcppsgloss[range based for loop]{ranged-based \lstinline!for! loop}. Unfortunately, there are some
 subtle ways in which \emcppsgloss{lifetime extension} is not always
@@ -819,8 +811,7 @@ current frame is allocated to hold the temporary copy of the (deduced)
 \lstinline!i! goes out of scope at the end of the enclosing block. (See
 {\featureref{\locationc}{forwardingref}).
 
-When the \emcppsgloss{range expression} for a \emcppsgloss[range based for loop]{range-based
-\lstinline!for! loop} is a \romeovalue{prvalue}, \emcppsgloss{lifetime extension} is
+When the \emcppsgloss{range expression} for a \emcppsgloss[range based for loop]{range-based \lstinline!for! loop} is a \romeovalue{prvalue}, \emcppsgloss{lifetime extension} is
 vital to keeping the range object live for the duration of the loop:
 
 \begin{emcppslisting}[emcppsbatch=e3]
@@ -839,8 +830,7 @@ variable of type \lstinline!std::string!. The temporary string is destroyed
 when the loop completes, not when the expression evaluation completes.
 If the string were to go out of scope immediately, it would not be
 possible to iterate over its characters. This code would have
-\emcppsgloss{undefined behavior} were it not for the \emcppsgloss{lifetime
-extension} harnessed by the \emcppsgloss[range based for loop]{ranged-based \lstinline!for! loop}.
+\emcppsgloss{undefined behavior} were it not for the \emcppsgloss{lifetime extension} harnessed by the \emcppsgloss[range based for loop]{ranged-based \lstinline!for! loop}.
 
 The limitation of \emcppsgloss{lifetime extension} is that it applies only if
 the reference is bound \emph{directly} to the temporary variable itself
@@ -901,8 +891,7 @@ is extended because a subobject, \lstinline!x!, is bound to reference
 non\lstinline!const! \romeovalue{lvalue} reference, as is being attempted with
 \lstinline!d2!, above.
 
-The next four definitions do not result in useful \emcppsgloss{lifetime
-extension} at all.
+The next four definitions do not result in useful \emcppsgloss{lifetime extension} at all.
 \begin{enumerate}
 \item{In the case of \lstinline!i1!, \lstinline!getValues()! returns a \romeovalue{prvalue} of type \lstinline!std::vector<int>!, resulting in the creation of a temporary variable. That temporary variable, however, is \emph{not} the value being bound to the \lstinline!i1! reference; rather, the reference is bound to the result of the array-access operator (\lstinline!operator[]!), which returns a reference into the temporary \lstinline!vector! returned by \lstinline!getValues()!. While we might consider an element of a \lstinline!vector! logically to be a subobject of the vector, \lstinline!i1! is not bound directly to that subobject but rather to the reference returned by \lstinline!operator[]!. The vector goes out of scope immediately at the end of the statement, leaving \lstinline!i1! to refer to an element of a deleted object.}
 \item{The identical situation occurs with \lstinline!i2! when accessing the member of a temporary \lstinline!std::tuple!, this time via the nonmember function \lstinline!std::get<0>!.}
@@ -933,8 +922,7 @@ the temporary object being bound to a reference. A lot of code depends
 on temporary objects going out of scope immediately, i.e., to release a
 lock, memory, or some other resource. For \emcppsgloss[range based for loop]{range-based \lstinline!for! loops}, however, a compelling argument has been made that
 the correct behavior would be to extend the lifetime of \emph{all} of
-the temporaries constructed while evaluating the \emcppsgloss{range
-expression}.{\cprotect\footnote{At the time of writing the P2012 paper
+the temporaries constructed while evaluating the \emcppsgloss{range expression}.{\cprotect\footnote{At the time of writing the P2012 paper
 seeks to solve the issue when a \emcppsgloss{range expression} is a
 reference into a temporary. See \emph{Fix the range-based for loop},
 by Nicolai Josuttis, Victor Zverovich, Filipe Mulonde, and Arthur
@@ -1252,8 +1240,7 @@ when they are bound to references. In generic code, as a rule of thumb,
 \lstinline!const!~\lstinline!auto&! is the safest way to declare a read-only
 loop variable if a reference proxy might be in use, while
 \lstinline!auto&&! will give the most consistent results for a loop that
-modifies its container. Similar issues, unrelated to \emcppsgloss[range based for loop]{range-based
-\lstinline!for! loops}, occur when passing a proxy reference to a function
+modifies its container. Similar issues, unrelated to \emcppsgloss[range based for loop]{range-based \lstinline!for! loops}, occur when passing a proxy reference to a function
 taking a reference argument.
 
 \subsection[Annoyances]{Annoyances}\label{annoyances}
@@ -1342,8 +1329,7 @@ void addVectors(std::vector<int>&       result,
 \end{emcppslisting}
     
 
-\noindent Although \lstinline!result! is traversed using the \emcppsgloss[range based for loop]{range-based
-\lstinline!for! loop}, \lstinline!a! and \lstinline!b! are effectively traversed
+\noindent Although \lstinline!result! is traversed using the \emcppsgloss[range based for loop]{range-based \lstinline!for! loop}, \lstinline!a! and \lstinline!b! are effectively traversed
 manually using iterators. It is arguable as to whether the code is any
 clearer or simpler to write than it would have been using a classic
 \lstinline!for! loop.
@@ -1412,8 +1398,7 @@ void addVectors2(std::vector<int>&       result,
 \lstinline!std::tuple! of elements resulting from the traversal of multiple
 ranges simultaneously. To be used, the elements must be unpacked from
 the \lstinline!std::tuple! using \lstinline!std::get!. Zip iterators become
-much more attractive in C++17 with the advent of \emcppsgloss[structured binding]{structured
-bindings}, which allow multiple loop variables to be declared at once,
+much more attractive in C++17 with the advent of \emcppsgloss[structured binding]{structured bindings}, which allow multiple loop variables to be declared at once,
 without the need to directly unpack the \lstinline!std::tuple!s. The above
 implementation and usage of \lstinline!ZipRange! is just a rough sketch;
 the full design and implementation of zip iterators and zip ranges is
@@ -1476,8 +1461,7 @@ public:
 returning different types, where \lstinline!end! returns an empty sentinel
 type. Unfortunately, using this formulation of
 \lstinline!RandomIntSequence2!\linebreak[4]\newpage 
-with a C++11 \emcppsgloss[range based for loop]{range-based
-\lstinline!for! loop} will result in a compilation error complaining that
+with a C++11 \emcppsgloss[range based for loop]{range-based \lstinline!for! loop} will result in a compilation error complaining that
 \lstinline!begin! and \lstinline!end! return inconsistent
 types.{\cprotect\footnote{This limitation on the use of sentinel
 iterators was lifted in C++17. Sentinel iterators are supported
@@ -1507,7 +1491,7 @@ Standard.
 \subsubsection[Only ADL lookup]{Only ADL lookup}\label{only-adl-lookup}
 
 The free functions \lstinline!begin! and \lstinline!end! are found using
-\emcppsgloss{argument-dependent lookup (ADL)} only. File-scope
+\emcppsgloss[argument dependent lookup]{argument-dependent lookup (ADL)} only. File-scope
 (\lstinline!static!) functions are not considered. If we wish to add
 \lstinline!begin! and \lstinline!end! functions for a range-like type that we
 do not own, we need to put those functions into the same namespace as

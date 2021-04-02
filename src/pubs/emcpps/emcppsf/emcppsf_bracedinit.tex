@@ -1201,8 +1201,8 @@ S foo(bool b)
 {
     if (b)
     {
-        return S{ "hello", "world" };  // OK, direct list initialization of temporary
-        return { "hello", "world" };   // Error, copy list initialization cannot call explicit ctor.
+        return S{ "hello", "world" };  // OK, direct list init of temporary
+        // return { "hello", "world" };// Error, copy list init calls expl ctor.
     }
     else
     {
@@ -1426,11 +1426,11 @@ struct V { V(const S&) { } };
 
 void foo()
 {
-    V v1(S());    // most vexing parse, declares function (ù{\codeincomments{v1}}ù) taking a function pointer
-    V v2((S()));  // workaround, object of type (ù{\codeincomments{V}}ù) due to non-redundant parentheses on argument
+    V v1(S());    // most vexing parse, function v1 taking a function pointer
+    V v2((S()));  // workaround, object of type V due to parentheses on argument
 
-    S x = S();    // declare a variable of type (ù{\codeincomments{S}}ù)
-    V v3(x);      // workaround, object of type (ù{\codeincomments{V}}ù) but argument is now named, with longer lifetime
+    S x = S();    // declare a variable of type S
+    V v3(x);      // workaround, named object of type V, with longer lifetime
 }
 \end{emcppslisting}
     
@@ -1730,9 +1730,9 @@ empty, a default constructor (if available) would have priority:
 #include <initializer_list>  // (ù{\codeincomments{std::initializer\_list}}ù)
 
 struct S {
-  explicit S() {}
-  explicit S(int) {}
-  S(std::initializer_list<int> iL) { if (0 == iL.size()) {throw 13;} }
+    explicit S() {}
+    explicit S(int) {}
+    S(std::initializer_list<int> iL) { if (0 == iL.size()) { throw 13; } }
 };
 
 S a{};            // OK, value initialization
@@ -1790,8 +1790,8 @@ struct S
     S(int i, double d);            // #2
 };
 
-S s2{1, 3.2}; // Error, narrowing conversion when attempting to call #1, 
-              // even though invoking #2 would be well formed
+S s2{1, 3.2}; // Error, call to #1 with narrowing conversion, even though call
+              // to #2 would be well formed.
 \end{emcppslisting}
     
 
