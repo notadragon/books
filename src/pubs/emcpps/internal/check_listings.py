@@ -16,6 +16,7 @@ outputFileRe = re.compile("// ----OutputFile: (.*)------")
 
 headerRe = re.compile("// ----(Batch|Ignore|Standards|ErrorLines|OutputFile): (.*)------")
 
+errorRe = re.compile(".*// (?:\\([0-9]+\\) )?Error.*")
 
 sourceRe = re.compile("// ----(?:Hidden )?Listing start: (.*):(\d+)-----")
 replaceStartRe = re.compile("// --- Replace")
@@ -77,8 +78,9 @@ class ListingData:
                 for x in m.group(1).split(","):
                     self.sourceerrorlines.add(int(x))
 
-            if "// Error" in l:
-                if l.strip().startswith("// Error"):
+            m = errorRe.match(l)
+            if m:
+                if l.strip().startswith("//"):
                     self.errorlines.add(i-1)
                 else:
                     self.errorlines.add(i)
