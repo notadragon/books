@@ -1,5 +1,5 @@
     i                                                           i
-        “emcpps-internal” — 2021/4/6 — 2:56 — page i — #1
+        “emcpps-internal” — 2021/4/6 — 3:38 — page i — #1
 
 i
 
@@ -14,7 +14,7 @@ i
 
     i                                                           i
     i                                                        i
-        “emcpps-internal” — 2021/4/6 — 2:56 — page ii — #2
+        “emcpps-internal” — 2021/4/6 — 3:38 — page ii — #2
 
 i
 
@@ -27,7 +27,7 @@ i
 
     i                                                        i
     i                                                                                      i
-                                   “emcpps-internal” — 2021/4/6 — 2:56 — page 1 — #3
+                                   “emcpps-internal” — 2021/4/6 — 3:38 — page 1 — #3
 
 i
 
@@ -51,7 +51,7 @@ i
 
     i                                                                                      i
      i                                                                                    i
-                         “emcpps-internal” — 2021/4/6 — 2:56 — page 2 — #4
+                         “emcpps-internal” — 2021/4/6 — 3:38 — page 2 — #4
 
 i
 
@@ -73,7 +73,7 @@ i
 
      i                                                                                    i
           i                                                                                       i
-                                          “emcpps-internal” — 2021/4/6 — 2:56 — page 3 — #5
+                                          “emcpps-internal” — 2021/4/6 — 3:38 — page 3 — #5
 
 i
 
@@ -97,7 +97,7 @@ i
 
           i                                                                                       i
          i                                                                                                                 i
-                                              “emcpps-internal” — 2021/4/6 — 2:56 — page 4 — #6
+                                              “emcpps-internal” — 2021/4/6 — 3:38 — page 4 — #6
 
 i
 
@@ -164,7 +164,7 @@ i
 
          i                                                                                                                 i
     i                                                                                                               i
-                        “emcpps-internal” — 2021/4/6 — 2:56 — page 5 — #7
+                        “emcpps-internal” — 2021/4/6 — 3:38 — page 5 — #7
 
 i
 
@@ -231,7 +231,7 @@ i
 
     i                                                                                                               i
     i                                                                                                     i
-                         “emcpps-internal” — 2021/4/6 — 2:56 — page 6 — #8
+                         “emcpps-internal” — 2021/4/6 — 3:38 — page 6 — #8
 
 i
 
@@ -242,7 +242,7 @@ i
 
                std::string
 
-            template <class... Ts>
+            template <typename... Ts>
             std::string concat(const Ts&...);
                  // Return a string that is the concatenation of a sequence of zero or
                  // more character or string arguments ­­­ each of potentially distinct
@@ -297,7 +297,7 @@ i
 
     i                                                                                                     i
     i                                                                                                            i
-                       “emcpps-internal” — 2021/4/6 — 2:56 — page 7 — #9
+                       “emcpps-internal” — 2021/4/6 — 3:38 — page 7 — #9
 
 i
 
@@ -364,7 +364,7 @@ i
 
     i                                                                                                            i
     i                                                                                                 i
-                          “emcpps-internal” — 2021/4/6 — 2:56 — page 8 — #10
+                          “emcpps-internal” — 2021/4/6 — 3:38 — page 8 — #10
 
 i
 
@@ -431,7 +431,7 @@ i
 
     i                                                                                                 i
         i                                                                                                                      i
-                                         “emcpps-internal” — 2021/4/6 — 2:56 — page 9 — #11
+                                         “emcpps-internal” — 2021/4/6 — 3:38 — page 9 — #11
 
 i
 
@@ -440,8 +440,9 @@ i
                           C++11                                                                          Variadic Templates
 
 
-                          function of std::vector (see Use Cases — ?? on page ?? [AUs: There is no subsection
-                          called “Factory functions.” Did you mean the Object factories section?] ).
+                          function of std::vector (see Use Cases — Object factories on page 53 [AUs: There
+                          is no subsection called “Factory functions.” Did you mean the Object factories
+                          section? Response: Yes, it should be object factories] ).
                               There is a lot to unpack here. We will begin our journey by understanding variadic
                           class templates as generic types that provide a solid basis for understanding variadic
                           function templates. In practice, however, variadic function templates are arguably more
@@ -482,11 +483,10 @@ ariadic­class­templates
 
                           We call entities such as Ts template parameter packs (as opposed to parameter packs) to
                           distinguish them from function parameter packs (see Variadic function templates on
-                          page 18), non-type parameter packs (see ?? on page ?? [AUs: There is no section
-                          called “Non-type parameter packs”]), and template template parameter packs
-                          (see ?? on page ?? [AUs: There is no section called “Template template parameter
-                          packs”]). The phrase parameter pack is a conflation of the four and also a casual reference
-                          to either of them whenever there is no ambiguity.
+                          page 18), non-type parameter packs (see Non-type template parameter packs on page 31
+                          [AUs: There is no section called “Non-type parameter packs” Response: non-
+                          type template parameter packs is the correct intraref]), and template template
+                          parameter packs (see Template parameter packs on page 32 The phrase parameter pack
 
                                                                                                                           9
 
@@ -495,17 +495,19 @@ i
 
 
         i                                                                                                                      i
-    i                                                                                                   i
-                        “emcpps-internal” — 2021/4/6 — 2:56 — page 10 — #12
+    i                                                                                                    i
+                        “emcpps-internal” — 2021/4/6 — 3:38 — page 10 — #12
 
 i
 
 
 
-         Variadic Templates                            Chapter 2    Conditionally Safe Features
+         Variadic Templates                            Chapter 2     Conditionally Safe Features
 
 
-           This syntactic form of ... is used primarily in declarations (including those associated
+        is a conflation of the four and also a casual reference to either of them whenever there is no
+        ambiguity.
+            This syntactic form of ... is used primarily in declarations (including those associated
         with definitions):
           template <typename... Ts>
           class C { /*...*/ }; // definition of class C
@@ -550,18 +552,15 @@ i
           D<char, double>   d5;     //   Note that d5 is a distinct type from d4.
           D<D<>, D<int>>   d6;      //   instantiation of D with two UDT arguments
 
-        The number and order of arguments are part of the instantiated type, so each of the objects
-        d0 through d6 above has a distinct C++ type:
-
         10
 
 i
 
 
 
-    i                                                                                                   i
+    i                                                                                                    i
         i                                                                                                                 i
-                                       “emcpps-internal” — 2021/4/6 — 2:56 — page 11 — #13
+                                       “emcpps-internal” — 2021/4/6 — 3:38 — page 11 — #13
 
 i
 
@@ -570,6 +569,8 @@ i
                           C++11                                                                      Variadic Templates
 
 
+                          The number and order of arguments are part of the instantiated type, so each of the objects
+                          d0 through d6 above has a distinct C++ type:
                             void f(const D<double, char>&);      // (1) overload of function f
                             void f(const D<char, double>&);      // (2) overload of function f
 
@@ -614,9 +615,6 @@ emplate­parameter­packs
                             template <typename T, typename... Ts>
                             class C1 { }; // OK
 
-                            template <typename T, typename U, typename... Ts>
-                            class C2 { }; // OK
-
 
 
                                                                                                                     11
@@ -627,7 +625,7 @@ i
 
         i                                                                                                                 i
     i                                                                                                i
-                        “emcpps-internal” — 2021/4/6 — 2:56 — page 12 — #14
+                        “emcpps-internal” — 2021/4/6 — 3:38 — page 12 — #14
 
 i
 
@@ -635,6 +633,9 @@ i
 
          Variadic Templates                          Chapter 2       Conditionally Safe Features
 
+
+         template <typename T, typename U, typename... Ts>
+         class C2 { }; // OK
 
          template <typename... Ts, typename... Us>
          class Cx0 { }; // Error, more than one parameter pack
@@ -681,9 +682,6 @@ i
              C<Ts...> f0();              //   OK, instantiate C in member function signature
              void f1(C<Ts...>&);         //   OK, instantiate C in member function signature
              Ts... d_memberVariable;     //   Error, expansion as a member type
-             typedef Ts... Ts1;          //   Error, expansion as a typedef type
-             using Ts2 = Ts...;          //   Error, expansion as a using declaration argument
-         };
 
         12
 
@@ -693,7 +691,7 @@ i
 
     i                                                                                                i
     i                                                                                                     i
-                     “emcpps-internal” — 2021/4/6 — 2:56 — page 13 — #15
+                      “emcpps-internal” — 2021/4/6 — 3:38 — page 13 — #15
 
 i
 
@@ -701,6 +699,10 @@ i
 
         C++11                                                                        Variadic Templates
 
+
+                typedef Ts... Ts1;        // Error, expansion as a typedef type
+                using Ts2 = Ts...;        // Error, expansion as a using declaration argument
+          };
 
         Note that the code above remains invalid even if Ts contains a single type, e.g., in the
         instantiation C<int>. Pack expansion is not textual and not allowed everywhere; it is allowed
@@ -746,10 +748,6 @@ i
                   D<D<Ts...>> v1;                //    OK,   expand to   D<D<T0, T1>, ...>
                   D<D<Ts>...> v2;                //    OK,   expand to   D<D<T0>, D<T1>, ...>
                   D<std::vector<Ts>...> v3;      //    OK,   expand to   C1<std::vector<T0>, ...>
-              }
-          };
-
-
 
                                                                                                     13
 
@@ -759,7 +757,7 @@ i
 
     i                                                                                                     i
     i                                                                                                 i
-                        “emcpps-internal” — 2021/4/6 — 2:56 — page 14 — #16
+                        “emcpps-internal” — 2021/4/6 — 3:38 — page 14 — #16
 
 i
 
@@ -768,9 +766,11 @@ i
          Variadic Templates                           Chapter 2    Conditionally Safe Features
 
 
+              }
+         };
+
         The second important parameter pack expansion context for type parameter packs is
         in a base specifier list. All patterns that form a valid base specifier are allowed:
-
          template <typename... Ts>       // zero or more arguments
          class D1 : public Ts...         // publicly inherit T0, T1, ...
          { /*...*/ };
@@ -786,7 +786,6 @@ i
         The access control specifiers — public, protected, and private — can be applied as
         usual, though, within a single expansion pattern, the access specifier must be the same for
         all expanded elements:
-
          template <typename... Ts>
          class D4 : private Ts...       // privately inherit T0, T1, ...
          { /*...*/ };
@@ -798,7 +797,6 @@ i
          { /*...*/ };
 
         Pack expansions can be freely mixed with simple base specifiers:
-
          class AClass1 { /*...*/ };      // arbitrary class definition
          class AClass2 { /*...*/ };      // arbitrary class definition
 
@@ -826,7 +824,7 @@ i
 
     i                                                                                                 i
         i                                                                                                                     i
-                                        “emcpps-internal” — 2021/4/6 — 2:56 — page 15 — #17
+                                        “emcpps-internal” — 2021/4/6 — 3:38 — page 15 — #17
 
 i
 
@@ -892,7 +890,7 @@ i
 
         i                                                                                                                     i
     i                                                                                                                          i
-                               “emcpps-internal” — 2021/4/6 — 2:56 — page 16 — #18
+                               “emcpps-internal” — 2021/4/6 — 3:38 — page 16 — #18
 
 i
 
@@ -958,7 +956,7 @@ i
 
     i                                                                                                                          i
         i                                                                                                                  i
-                                        “emcpps-internal” — 2021/4/6 — 2:56 — page 17 — #19
+                                        “emcpps-internal” — 2021/4/6 — 3:38 — page 17 — #19
 
 i
 
@@ -967,7 +965,7 @@ i
                           C++11                                                                      Variadic Templates
 
 
-                            template <class Key, class Value> class Map;         // similar to std::map
+                            template <typename Key, typename Value> class Map;         // similar to std::map
 
                           We would then want to partially specialize another non-variadic class template, C3, for all
                           maps, regardless of keys and values:
@@ -1022,7 +1020,7 @@ i
 
         i                                                                                                                  i
         i                                                                                                                  i
-                                            “emcpps-internal” — 2021/4/6 — 2:56 — page 18 — #20
+                                            “emcpps-internal” — 2021/4/6 — 3:38 — page 18 — #20
 
 i
 
@@ -1036,13 +1034,13 @@ ic­function­templates
                         The simplest example of a variadic function template accepts a template parameter pack
                         in its template parameters list but does not use any of its template parameters in its
                         parameter declaration:
-                          template <class... Ts>
+                          template <typename... Ts>
                           int f0a();     // does not use Ts in parameter list
 
-                          template <class... Ts>
+                          template <typename... Ts>
                           int f0b(int); // uses int but not Ts in parameter list
 
-                          template <class T, class... Ts>
+                          template <typename T, class... Ts>
                           int f0c();     // does not use T or Ts in parameter list
 
                         The only way to call the functions shown in the code snippet above is by passing them
@@ -1087,7 +1085,7 @@ i
 
         i                                                                                                                  i
     i                                                                                                   i
-                     “emcpps-internal” — 2021/4/6 — 2:56 — page 19 — #21
+                     “emcpps-internal” — 2021/4/6 — 3:38 — page 19 — #21
 
 i
 
@@ -1151,7 +1149,7 @@ i
 
     i                                                                                                   i
     i                                                                                                  i
-                        “emcpps-internal” — 2021/4/6 — 2:56 — page 20 — #22
+                        “emcpps-internal” — 2021/4/6 — 3:38 — page 20 — #22
 
 i
 
@@ -1186,7 +1184,9 @@ i
         rvalue reference &&, and array []) are the same.
             The name of the pack may be missing from the declaration, which, combined with
         the parameter declaration syntax coming all the way from C, does allow for some obscure
-        constructs:
+        constructs: [AUs: The below example is not valid C++, though clang will accept
+        it with a warning when not being pedantic. I suggest finding an alternative
+        example that actually works or excising these two paragraphs as fluff. ]
          template<typename... Ts> void fpf(Ts (*...)(int));
              // mystery declaration
 
@@ -1206,9 +1206,6 @@ i
              // first by value, zero or more by const &
 
          template <typename T, typename U, typename... Ts> void f2c(T, const U&, Ts...);
-             // first by value, second by const &, zero or more by value
-
-
 
         20
 
@@ -1218,7 +1215,7 @@ i
 
     i                                                                                                  i
     i                                                                                                   i
-                     “emcpps-internal” — 2021/4/6 — 2:56 — page 21 — #23
+                      “emcpps-internal” — 2021/4/6 — 3:38 — page 21 — #23
 
 i
 
@@ -1227,8 +1224,10 @@ i
         C++11                                                                      Variadic Templates
 
 
+                // first by value, second by const &, zero or more by value
+
         There are restrictions on such declarations; see The Rule of Greedy Matching on page 25
-        and The Rule of Fair Matching on page 27.
+        and The Rule of Fair Matching on page 28.
             Note that inside the function parameters declaration, ... can be used only in conjunction
         with a template parameter pack. Attempting to use ... where there’s no parameter pack
         to expand could lead to inadvertent use of the old C-style variadics:
@@ -1273,7 +1272,6 @@ i
           template <typename... Ts>   // parameter pack named Ts
           int fs2(S2<Ts, Ts>...);
               // The function fs2 takes by value any number of explicit instantiations
-              // of S2 as long as they use the same type in both positions.
 
                                                                                                   21
 
@@ -1283,7 +1281,7 @@ i
 
     i                                                                                                   i
         i                                                                                                            i
-                                           “emcpps-internal” — 2021/4/6 — 2:56 — page 22 — #24
+                                           “emcpps-internal” — 2021/4/6 — 3:38 — page 22 — #24
 
 i
 
@@ -1291,6 +1289,8 @@ i
 
                          Variadic Templates                           Chapter 2    Conditionally Safe Features
 
+
+                               // of S2 as long as they use the same type in both positions.
 
                         Calls to fs2 work only if we supply instantiations of S2 having the same type for both
                         template parameters:
@@ -1307,24 +1307,25 @@ i
                         S2 are identical, so there is no way to provide or deduce some Ts in a way that would make
                         the call work.
 
+
 adic­member­functions
                         Variadic member functions
                         Member functions may be variadic in two orthogonal ways: The class they are part of may
                         be variadic, and they may be variadic themselves. The simplest case features a variadic
                         member function of a non-template class:
-                         struct S3                                       // non­variadic non­template class
+                         struct S3                                 // non­variadic non­template class
                          {
-                             template <class... Ts> int f(Ts...);        // OK
+                             template <typename... Ts> int f(Ts...); // OK
                          };
 
                          int s3 = S3().f(1, "abc");                      // Ts=<int, const char*>
 
                         Expectedly, a non-variadic class template may declare variadic member functions as well:
-                         template <class T>
-                         struct S4                                                  // class template
+                         template <typename T>
+                         struct S4                                            // class template
                          {
-                             template <class... Ts> int f1(Ts...);                  // OK
-                             template <class... Ts> int f2(T, const Ts&...);        // OK
+                             template <typename... Ts> int f1(Ts...);            // OK
+                             template <typename... Ts> int f2(T, const Ts&...); // OK
                          };
 
                          int s3b = S4<int>().f1(1, false, true);                    // Ts=<int, bool, bool>
@@ -1332,15 +1333,12 @@ adic­member­functions
 
                         A variadic class template may define regular member functions, member functions
                         that take their own template parameters, and variadic member function templates:
-                         template <class... Ts>
+                         template <typename... Ts>
                          struct S5
                          {
                              int f1();       // non­template member function of variadic class
 
-                               template <class T>
-                               int f2(T);      // template member function of variadic class
-
-
+                               template <typename T>
 
                         22
 
@@ -1349,143 +1347,143 @@ i
 
 
         i                                                                                                            i
-        i                                                                                                                  i
-                                        “emcpps-internal” — 2021/4/6 — 2:56 — page 23 — #25
+    i                                                                                                    i
+                      “emcpps-internal” — 2021/4/6 — 3:38 — page 23 — #25
 
 i
 
 
 
-                          C++11                                                                      Variadic Templates
+        C++11                                                                      Variadic Templates
 
 
-                                  template <class... Us>
-                                  int f3(Us...); // variadic template member function of variadic class
-                            };
+                int f2(T);       // template member function of variadic class
 
-                            int s5a = S5<int, char>().f1();
-                                // Ts=<int, char>
+                template <typename... Us>
+                int f3(Us...); // variadic template member function of variadic class
+          };
 
-                            int s5b = S5<char, int>().f2(2.2);
-                                // Ts=<int, char>, T=double
+          int s5a = S5<int, char>().f1();
+              // Ts=<int, char>
 
-                            int s5c = S5<int, char>().f3(1, 2.2);
-                                // Ts=<int, char>, Us=<int, double>
+          int s5b = S5<char, int>().f2(2.2);
+              // Ts=<int, char>, T=double
 
-                          Although in a sense all member functions of a variadic class template (e.g., S5, above) are
-                          variadic, the class’s template parameter pack (e.g., Ts, above) is fixed at the time the class
-                          is instantiated. The only truly variadic function is f3 because it takes its own template
-                          parameter pack, Us.
-                              A member function of a variadic class may use the template parameter pack of the class
-                          in which it is defined:
-                            template <class... Ts>
-                            struct S6                      // variadic class template
-                            {
-                                int f1(const Ts&...);      // OK, not truly variadic; Ts is fixed
-
-                                  template <class T>
-                                  int f2(T, Ts...);        // OK, also not truly variadic; Ts is fixed
-
-                                  template <class... Us>
-                                  int f3(Ts..., Us...); // OK, variadic template member function
-                            };
-
-                            int s6a = S6<int, char>().f1(1, 'a');
-                                // Ts=<int, char>
-
-                            int s6b = S6<char, int>().f2(true, 'b', 2);
-                                // Ts=<int, char>, T=bool
-
-                            int s6c = S6<int, char>().f3(1, 2.2, "asd", 123.456);
-                                // Ts=<int, char>, Us=<const char*, int, double>
-
-                          Notice how, in the initialization of s6c, the type arguments Ts of class template S6 must be
-                          chosen explicitly, whereas the variadic template f3 need not have Us specified because they
-                          are deduced from the argument types. This takes us to the important topic of template
-                          argument deduction.
-
-                          Template argument deduction
-late­argument­deduction
-                          A popular feature of C++ ever since templates were incorporated into the language pre-
-                          standardization has been the ability of function templates to determine their template argu-
-
-                                                                                                                     23
-
-i
+          int s5c = S5<int, char>().f3(1, 2.2);
+              // Ts=<int, char>, Us=<int, double>
 
 
+        Although in a sense all member functions of a variadic class template (e.g., S5, above) are
+        variadic, the class’s template parameter pack (e.g., Ts, above) is fixed at the time the class
+        is instantiated. The only truly variadic function is f3 because it takes its own template
+        parameter pack, Us.
+            A member function of a variadic class may use the template parameter pack of the class
+        in which it is defined:
 
-        i                                                                                                                  i
-    i                                                                                                                 i
-                          “emcpps-internal” — 2021/4/6 — 2:56 — page 24 — #26
-
-i
-
-
-
-         Variadic Templates                                   Chapter 2       Conditionally Safe Features
-
-
-        ments from the types of arguments provided. Consider, for example, designing and using a
-        function, print, that outputs its argument to the console. In most cases, just letting print
-        deduce its template argument from the function argument’s type has brevity, correctness,
-        and eﬀiciency advantages:
-          #include <string>        // std::string
-
-          template <class T> void print(const T& value);                 // prints x to stdout
-
-          void testPrint0(const std::string& s)
+          template <typename... Ts>
+          struct S6                      // variadic class template
           {
-              print<const char*>("Hi");
-                  // verbose:   specifies template argument *and* function argument
-                  // redundant: function argument's type *is* the template argument
+              int f1(const Ts&...);      // OK, not truly variadic; Ts is fixed
 
-                  print<int>(3.14);
-                      // Error­prone: Mismatch may cause incorrect results (prints 3).
+                template <typename T>
+                int f2(T, Ts...);        // OK, also not truly variadic; Ts is fixed
 
-                  print<std::string>("Oops");
-                      // inefficient: may incur additional expensive implicit conversions
+                template <typename... Us>
+                int f3(Ts..., Us...); // OK, variadic template member function
+          };
 
-                  print("Hi");
-                  print(3.14);
-                  print(s);
-                      // all good: let print deduce template argument from function argument
-          }
+          int s6a = S6<int, char>().f1(1, 'a');
+              // Ts=<int, char>
 
-        What makes the shorter form of the call work is the magic of C++ template argument
-        deduction, which, unsurprisingly, works with variadic template parameters as well. A de-
-        tailed description of all rules for template argument deduction, including those inherited
-        from C++03, is outside the scope of this book.4 Here, we focus on the additions to the rules
-        brought about by variadic function templates.
-            With that in mind, imagine we set out to redesign the API of print (in the code example
-        above) to output any number of arguments to the console:
-          #include <string>        // std::string
+          int s6b = S6<char, int>().f2(true, 'b', 2);
+              // Ts=<int, char>, T=bool
 
-          template <typename... Ts>                            // template parameter pack Ts
-          void print(const Ts&... values);                     // prints each of values to stdout
-
-          void testPrint1(const std::string& s) // arbitrary function
-          {
-              print<const char*, int, std::string>("Hi", 3.14, "Oops");
-                  // verbose:     specifies template arguments *and* function arguments
-                  // Redundant:   Function arguments' types *are* the template arguments.
-                  // Error­prone: Mismatch may cause incorrect results (prints 3).
-                  // inefficient: may incur additional expensive implicit conversions
-              4 Please
-                    insert a cite to Scott Meyers’ “Effective Modern C++” (which is already in your bib file), with
-        the addition: Chapter 1: “Deducing Types”, pages 9–35. [AUs: We have several editions of the Meyers
-        book in our bib; which one did you intend?]
+          int s6c = S6<int, char>().f3(1, 2.2, "asd", 123.456);
+              // Ts=<int, char>, Us=<const char*, int, double>
 
 
-        24
+        Notice how, in the initialization of s6c, the type arguments Ts of class template S6 must be
+        chosen explicitly, whereas the variadic template f3 need not have Us specified because they
+        are deduced from the argument types. This takes us to the important topic of template
+        argument deduction.
+
+                                                                                                   23
 
 i
 
 
 
-    i                                                                                                                 i
+    i                                                                                                    i
+        i                                                                                                                              i
+                                          “emcpps-internal” — 2021/4/6 — 3:38 — page 24 — #26
+
+i
+
+
+
+                         Variadic Templates                                   Chapter 2       Conditionally Safe Features
+
+
+                        Template argument deduction
+te­argument­deduction
+                        A popular feature of C++ ever since templates were incorporated into the language pre-
+                        standardization has been the ability of function templates to determine their template argu-
+                        ments from the types of arguments provided. Consider, for example, designing and using a
+                        function, print, that outputs its argument to the console. In most cases, just letting print
+                        deduce its template argument from the function argument’s type has brevity, correctness,
+                        and eﬀiciency advantages:
+                          #include <string>        // std::string
+
+                          template <typename T> void print(const T& value);                  // prints x to stdout
+
+                          void testPrint0(const std::string& s)
+                          {
+                              print<const char*>("Hi");
+                                  // verbose:   specifies template argument *and* function argument
+                                  // redundant: function argument's type *is* the template argument
+
+                               print<int>(3.14);
+                                   // Error­prone: Mismatch may cause incorrect results (prints 3).
+
+                               print<std::string>("Oops");
+                                   // inefficient: may incur additional expensive implicit conversions
+
+                               print("Hi");
+                               print(3.14);
+                               print(s);
+                                   // all good: let print deduce template argument from function argument
+                          }
+
+                        What makes the shorter form of the call work is the magic of C++ template argument
+                        deduction, which, unsurprisingly, works with variadic template parameters as well. A de-
+                        tailed description of all rules for template argument deduction, including those inherited
+                        from C++03, is outside the scope of this book.4 Here, we focus on the additions to the rules
+                        brought about by variadic function templates.
+                            With that in mind, imagine we set out to redesign the API of print (in the code example
+                        above) to output any number of arguments to the console:
+                          #include <string>        // std::string
+
+                          template <typename... Ts>                             // template parameter pack Ts
+                          void print(const Ts&... values);                      // prints each of values to stdout
+
+                          void testPrint1(const std::string& s)              // arbitrary function
+                          {
+                            4 Please insert a cite to Scott Meyers’ “Effective Modern C++” (which is already in your bib file), with
+
+                        the addition: Chapter 1: “Deducing Types”, pages 9–35. [AUs: We have several editions of the Meyers
+                        book in our bib; which one did you intend? Response: meyers15b and meyers15 are the same
+                        book, which this should be referring to. ]
+
+
+                        24
+
+i
+
+
+
+        i                                                                                                                              i
         i                                                                                                                 i
-                                        “emcpps-internal” — 2021/4/6 — 2:56 — page 25 — #27
+                                        “emcpps-internal” — 2021/4/6 — 3:38 — page 25 — #27
 
 i
 
@@ -1494,6 +1492,11 @@ i
                           C++11                                                                      Variadic Templates
 
 
+                                  print<const char*, int, std::string>("Hi", 3.14, "Oops");
+                                      // verbose:     specifies template arguments *and* function arguments
+                                      // Redundant:   Function arguments' types *are* the template arguments.
+                                      // Error­prone: Mismatch may cause incorrect results (prints 3).
+                                      // inefficient: may incur additional expensive implicit conversions
 
                                   print("Hi", 3.14, s);
                                       // All good: Deduce template arguments from function arguments.
@@ -1538,10 +1541,6 @@ i
 rule­of­greedy­matching
                           The Rule of Greedy Matching for template parameter packs (but not function parameter
                           packs) states that once a template parameter pack starts matching one explicitly specified
-                          template argument, it also matches all template arguments following it. There’s no way to
-                          tell a template parameter pack it matched enough. Template parameter packs are greedy.
-                              Consequently, there is no syntactic way to explicitly specify any template argument
-                          following one that matches a template parameter pack; the first pack gobbles all remaining
 
                                                                                                                     25
 
@@ -1551,7 +1550,7 @@ i
 
         i                                                                                                                 i
     i                                                                                                  i
-                        “emcpps-internal” — 2021/4/6 — 2:56 — page 26 — #28
+                        “emcpps-internal” — 2021/4/6 — 3:38 — page 26 — #28
 
 i
 
@@ -1560,6 +1559,10 @@ i
          Variadic Templates                           Chapter 2     Conditionally Safe Features
 
 
+        template argument, it also matches all template arguments following it. There’s no way to
+        tell a template parameter pack it matched enough. Template parameter packs are greedy.
+            Consequently, there is no syntactic way to explicitly specify any template argument
+        following one that matches a template parameter pack; the first pack gobbles all remaining
         arguments up. Put succinctly: all template parameters following a template parameter
         pack can never be explicitly specified as template arguments.
             Notice that the rule applies only once a pack starts matching, i.e., it has matched at
@@ -1603,11 +1606,6 @@ i
              // T1=const char* (explicitly), T2=char (explicitly),
              // Ts=<bool, int, char, int> (first two explicit, others deduced)
 
-        Let us now look at a function having a template parameter pack not in the last position.
-        However, in the argument list, the function parameter pack is still in the last position:
-         template <typename T, typename... Ts, typename U>         // ... not last
-         int f2(T, U, const Ts&...);
-
         26
 
 i
@@ -1615,156 +1613,162 @@ i
 
 
     i                                                                                                  i
-        i                                                                                                                   i
-                                        “emcpps-internal” — 2021/4/6 — 2:56 — page 27 — #29
+    i                                                                                                     i
+                      “emcpps-internal” — 2021/4/6 — 3:38 — page 27 — #29
 
 i
 
 
 
-                          C++11                                                                       Variadic Templates
+        C++11                                                                       Variadic Templates
 
 
-                          In such cases, by the Rule of Greedy Matching, there is no way to specify U explicitly, so
-                          the only way to call f1 is to let U be deduced:
-                            int x2a = f2(1, 2);
-                                // T=int (deduced), U=int (deduced), Ts=<> (by arity)
+        Let us now look at a function having a template parameter pack not in the last position.
+        However, in the argument list, the function parameter pack is still in the last position:
+          template <typename T, typename... Ts, typename U>          // ... not last
+          int f2(T, U, const Ts&...);
 
-                            int x2b = f2<long>(1, 2, 3);
-                                // T=long (explicit), U=int (deduced), Ts=<int> (deduced)
+        In such cases, by the Rule of Greedy Matching, there is no way to specify U explicitly, so
+        the only way to call f1 is to let U be deduced:
+          int x2a = f2(1, 2);
+              // T=int (deduced), U=int (deduced), Ts=<> (by arity)
 
-                          The first template argument passed to f2, if any, is matched by T. Note that inferring the
-                          empty template parameter pack in the initialization of x2a does not involve deduction; the
-                          empty length is inferred by the arity of the call. In contrast, in the initialization of x2b, a
-                          pack of length 1 is deduced.
-                             Any subsequent template arguments will be matched en masse by Ts in concordance
-                          with the Rule of Greedy Matching:
-                            int x2c = f2<long, double, char>(1, 2, 3, 4);
-                                // T1=long (explicit), T2=int (deduced), Ts=<double, char> (explicit)
+          int x2b = f2<long>(1, 2, 3);
+              // T=long (explicit), U=int (deduced), Ts=<int> (deduced)
 
-                            int x2d = f2<int, double>(1, 2, 3.0, "four");
-                                // T1=int (explicit), T2=int (deduced), Ts=<double, const char*> (partially specified)
+        The first template argument passed to f2, if any, is matched by T. Note that inferring the
+        empty template parameter pack in the initialization of x2a does not involve deduction; the
+        empty length is inferred by the arity of the call. In contrast, in the initialization of x2b, a
+        pack of length 1 is deduced.
+           Any subsequent template arguments will be matched en masse by Ts in concordance
+        with the Rule of Greedy Matching:
+          int x2c = f2<long, double, char>(1, 2, 3, 4);
+              // T1=long (explicit), T2=int (deduced), Ts=<double, char> (explicit)
 
-                            int x2e = f2<int, char, double>(1, 3.0, 'a');
-                                // Error, no viable function for T1=int and Ts=<char, double>
+          int x2d = f2<int, double>(1, 2, 3.0, "four");
+              // T1=int (explicit), T2=int (deduced), Ts=<double, const char*> (partially specified)
 
-                          In all cases, T2 must be deduced for the call to f2 to go through.
-                              Another way to make a template parameter work even if it’s positioned after a parameter
-                          pack is by assigning it a default argument:
-                            template <typename... Ts, typename T = int>
-                            T f3(Ts... values);
+          int x2e = f2<int, char, double>(1, 3.0, 'a');
+              // Error, no viable function for T1=int and Ts=<char, double>
 
-                          Due to the way f3 is defined, there is no way to either deduce or specify T, so it will always
-                          be int:
-                            int x3a = f3("one", 2);
-                                // Ts=<const char*, int> (deduced), T=int (default)
+        In all cases, T2 must be deduced for the call to f2 to go through.
+            Another way to make a template parameter work even if it’s positioned after a parameter
+        pack is by assigning it a default argument:
+          template <typename... Ts, typename T = int>
+          T f3(Ts... values);
 
-                            int x3b = f3<const char*>("one", 2);
-                                // Ts=<const char*, int> (partially deduced), T=int (default)
+        Due to the way f3 is defined, there is no way to either deduce or specify T, so it will always
+        be int:
+          int x3a = f3("one", 2);
+              // Ts=<const char*, int> (deduced), T=int (default)
 
-                            int x3c = f3<const char*, int>("one", 2);
-                                // Ts=<const char*, int> (explicit), T=int (default)
+          int x3b = f3<const char*>("one", 2);
+              // Ts=<const char*, int> (partially deduced), T=int (default)
+
+          int x3c = f3<const char*, int>("one", 2);
+              // Ts=<const char*, int> (explicit), T=int (default)
 
 
-                          The Rule of Fair Matching
-e­rule­of­fair­matching
-                          To further explore the varied ways in which parameter packs may interact with the rest of
-                          C++, let’s take a look at a function that has a type following a template parameter pack
-                          and also a value following a function parameter pack:
-                            template <typename... Ts, typename T>
-                            int f4(Ts... values, T value);
 
-                                                                                                                      27
+                                                                                                    27
 
 i
 
 
 
-        i                                                                                                                   i
-    i                                                                                                   i
-                        “emcpps-internal” — 2021/4/6 — 2:56 — page 28 — #30
+    i                                                                                                     i
+        i                                                                                                              i
+                                        “emcpps-internal” — 2021/4/6 — 3:38 — page 28 — #30
 
 i
 
 
 
-         Variadic Templates                            Chapter 2    Conditionally Safe Features
+                         Variadic Templates                           Chapter 2     Conditionally Safe Features
 
 
-        Here, a new rule applies, the Rule of Fair Matching, which is to a good extent the converse
-        of the Rule of Greedy Matching. When a function parameter pack (e.g., values in the
-        code snippet above) is not at the end of a function’s parameter list, its corresponding type
-        parameter pack (e.g., Ts above) cannot be deduced ever.
-            This rule makes the function parameter pack values fair because function parameters
-        following a function parameter pack have a chance to match function arguments.
-            Let’s take a look at how the rule applies to f4. In calls with one argument, Ts is not
-        deduced, so it forcibly matches the empty list, and T matches the type of the argument:
-          int x4a = f4(123);        // Ts=<> (forced non­deduced), T=int
-          int x4b = f4('a');        // Ts=<> (forced non­deduced), T=char
-          int x4c = f4('a', 2);     // Error, cannot deduce Ts
+                        The Rule of Fair Matching
+rule­of­fair­matching
+                        To further explore the varied ways in which parameter packs may interact with the rest of
+                        C++, let’s take a look at a function that has a type following a template parameter pack
+                        and also a value following a function parameter pack:
+                         template <typename... Ts, typename T>
+                         int f4(Ts... values, T value);
 
-        Calls with more than one argument can be made if and only if we provide Ts to the compiler
-        explicitly:
-          int x4d = f4<int, char>(1, '2', "three");
-              // Ts=<int, char> (explicit), T=const char*
+                        Here, a new rule applies, the Rule of Fair Matching, which is to a good extent the converse
+                        of the Rule of Greedy Matching. When a function parameter pack (e.g., values in the
+                        code snippet above) is not at the end of a function’s parameter list, its corresponding type
+                        parameter pack (e.g., Ts above) cannot be deduced ever.
+                            This rule makes the function parameter pack values fair because function parameters
+                        following a function parameter pack have a chance to match function arguments.
+                            Let’s take a look at how the rule applies to f4. In calls with one argument, Ts is not
+                        deduced, so it forcibly matches the empty list, and T matches the type of the argument:
+                         int x4a = f4(123);        // Ts=<> (forced non­deduced), T=int
+                         int x4b = f4('a');        // Ts=<> (forced non­deduced), T=char
+                         int x4c = f4('a', 2);     // Error, cannot deduce Ts
 
-        Incidentally, for f4 there is no way to specify T explicitly because of the Rule of Greedy
-        Matching:
-          int x4e = f4<int, char, const char*>(1, '2', "three");
-              // Error, Ts=<int, char, const char*> (explicit), no argument for T value
+                        Calls with more than one argument can be made if and only if we provide Ts to the compiler
+                        explicitly:
+                         int x4d = f4<int, char>(1, '2', "three");
+                             // Ts=<int, char> (explicit), T=const char*
 
-        Note that the two rules may work simultaneously on the same function call; they do not
-        compete because they apply in different places; the Rule of Greedy Matching applies to
-        template parameter packs, and the Rule of Fair Matching applies to function parameter
-        packs.
-           Let’s now consider declaring a function with two consecutive parameter packs and see
-        how the rules work together in calls:
-          template <typename... Ts, typename... Us>       // two template parameter packs
-          int f5(Ts... ts, Us... us);                     // two function parameter packs
+                        Incidentally, for f4 there is no way to specify T explicitly because of the Rule of Greedy
+                        Matching:
+                         int x4e = f4<int, char, const char*>(1, '2', "three");
+                             // Error, Ts=<int, char, const char*> (explicit), no argument for T value
 
-        By the Rule of Greedy Matching, we cannot specify Us explicitly so us will rely on deduction
-        exclusively. By the Rule of Fair Matching, Ts cannot be deduced. First, let’s analyze a call
-        with no template arguments:
-          int x5a = f5(1);
-              // Ts=<> (forcibly), Us=<int>
+                        Note that the two rules may work simultaneously on the same function call; they do not
+                        compete because they apply in different places; the Rule of Greedy Matching applies to
+                        template parameter packs, and the Rule of Fair Matching applies to function parameter
+                        packs.
+                           Let’s now consider declaring a function with two consecutive parameter packs and see
+                        how the rules work together in calls:
+                         template <typename... Ts, typename... Us>        // two template parameter packs
+                         int f5(Ts... ts, Us... us);                      // two function parameter packs
 
-          int x5b = f5(1, '2');
-              // Ts=<> (forcibly), Us=<int, char>
+                        By the Rule of Greedy Matching, we cannot specify Us explicitly so us will rely on deduction
+                        exclusively. By the Rule of Fair Matching, Ts cannot be deduced. First, let’s analyze a call
+                        with no template arguments:
+                         int x5a = f5(1);
+                             // Ts=<> (forcibly), Us=<int>
 
-          int x5c = f5(1, '2', "three");
-              // Ts=<> (forcibly), Us=<int, char, const char*>
+                         int x5b = f5(1, '2');
+                             // Ts=<> (forcibly), Us=<int, char>
 
-        Whenever a call specifies no template arguments, Ts cannot be deduced so it can at best
-        match the empty list. That leaves all of the arguments to us, and deduction will work as
-        expected for Us. This right-to-left matching may surprise at first and requires close reading
-        of different parts of the C++ Standard but is easy to explain by using the two rules.
-            Let’s now issue a call that does specify template arguments:
-
-        28
-
-i
-
-
-
-    i                                                                                                   i
-        i                                                                                                                i
-                                       “emcpps-internal” — 2021/4/6 — 2:56 — page 29 — #31
+                        28
 
 i
 
 
 
-                          C++11                                                                     Variadic Templates
+        i                                                                                                              i
+        i                                                                                                                 i
+                                       “emcpps-internal” — 2021/4/6 — 3:38 — page 29 — #31
+
+i
 
 
-                           int x5d = f5<int, char>(1, '2');
-                               // Ts=<int, char> (explicitly), Us=<const char*>
 
-                           int x5e = f5<int, char>(1, '2', "three");
-                               // Ts=<int, char> (explicitly), Us=<const char*>
+                          C++11                                                                      Variadic Templates
 
-                           int x5f = f5<int, char>(1, '2', "three", 4.0);
-                               // Ts=<int, char> (explicitly), Us=<const char*, double>
+
+
+                            int x5c = f5(1, '2', "three");
+                                // Ts=<> (forcibly), Us=<int, char, const char*>
+
+                          Whenever a call specifies no template arguments, Ts cannot be deduced so it can at best
+                          match the empty list. That leaves all of the arguments to us, and deduction will work as
+                          expected for Us. This right-to-left matching may surprise at first and requires close reading
+                          of different parts of the C++ Standard but is easy to explain by using the two rules.
+                              Let’s now issue a call that does specify template arguments:
+                            int x5d = f5<int, char>(1, '2');
+                                // Ts=<int, char> (explicitly), Us=<const char*>
+
+                            int x5e = f5<int, char>(1, '2', "three");
+                                // Ts=<int, char> (explicitly), Us=<const char*>
+
+                            int x5f = f5<int, char>(1, '2', "three", 4.0);
+                                // Ts=<int, char> (explicitly), Us=<const char*, double>
 
                           By the Rule of Greedy Matching, all explicit template arguments go to Ts, and, by the
                           Rule of Fair Matching, there’s no deduction for Ts, so, even before looking at the function
@@ -1775,8 +1779,8 @@ i
 plate­argument­matching
                           There are cases in which a template function could be written that can never be called,
                           whether with explicit template parameters or by relying on template argument deduction:
-                           template <typename... Ts, typename T>
-                           void odd1(Ts... values);
+                            template <typename... Ts, typename T>
+                            void odd1(Ts... values);
 
                           By the Rule of Greedy Matching applied to Ts, T can never be specified explicitly. Moreover,
                           T cannot be deduced either because it’s not part of the function’s parameter list. Hence,
@@ -1786,36 +1790,27 @@ plate­argument­matching
                           to call such an ill-fated function.
                               Another scenario is one whereby a variadic function can be instantiated, but one or more
                           of its parameter packs must always have length zero:
-                           template <typename... Ts, typename... Us, class T>
-                           int odd2(Ts..., Us..., T); // specious
+                            template <typename... Ts, typename... Us, class T>
+                            int odd2(Ts..., Us..., T); // specious
 
                           Any attempt to call odd2 by relying on only template argument deduction will force both
                           Ts and Us to the empty list because, by the Rule of Fair Matching, neither Ts nor Us can
                           benefit from template argument deduction. So calls with two, three, or more arguments fail:
-                           int x2a = odd2(1, 2.5);                // Error, Ts=<>, Us=<>, too many arguments
-                           int x2a = odd2(1, 2.5, "three");       // Error, Ts=<>, Us=<>, too many arguments
+                            int x2a = odd2(1, 2.5);               // Error, Ts=<>, Us=<>, too many arguments
+                            int x2a = odd2(1, 2.5, "three");      // Error, Ts=<>, Us=<>, too many arguments
 
                           However, there seem to be ways to invoke odd2, at least on contemporary compilers. First,
                           calls using deduction with exactly one argument will merrily go:
-                           int x2c = odd2(42);     // Ts=<>, Us=<>, T=42
 
-                          Better yet, functions that pass an explicit argument list for Ts also seem to work:
-                           int x2d = odd2<int, double>(1, 2.0, "three");
-                               // Ts=<int, double>, Us=<>, T=const char*
-
-                          The call above passes Ts explicitly as <int, double>. Then, as always, Us is forced to the
-                          empty list, and T is deduced as const char* for the last argument. That way, the call goes
-                          through!
-
-                                                                                                                   29
+                                                                                                                    29
 
 i
 
 
 
-        i                                                                                                                i
+        i                                                                                                                 i
     i                                                                                                   i
-                        “emcpps-internal” — 2021/4/6 — 2:56 — page 30 — #32
+                        “emcpps-internal” — 2021/4/6 — 3:38 — page 30 — #32
 
 i
 
@@ -1824,6 +1819,15 @@ i
          Variadic Templates                            Chapter 2    Conditionally Safe Features
 
 
+          int x2c = odd2(42);    // Ts=<>, Us=<>, T=42
+
+        Better yet, functions that pass an explicit argument list for Ts also seem to work:
+          int x2d = odd2<int, double>(1, 2.0, "three");
+              // Ts=<int, double>, Us=<>, T=const char*
+
+        The call above passes Ts explicitly as <int, double>. Then, as always, Us is forced to the
+        empty list, and T is deduced as const char* for the last argument. That way, the call goes
+        through!
              Or does it? Alas, the declaration of odd2 is IFNDR. By the C++ Standard, if all valid
         instantiations of a variadic function template require a specific template parameter pack
         argument to be empty, the declaration is IFNDR. Although such a rule sounds arbitrary,
@@ -1833,7 +1837,7 @@ i
         no diagnostic is required. As it turns out, today’s compilers do not issue such a diagnostic,
         so the onus is on the template writer to make sure the code does what it’s supposed to do.
              A simple fix for odd2 is to just eliminate the Us template parameter, in which case odd2
-        has the same signature as f4 discussed in The Rule of Fair Matching on page 27. Another
+        has the same signature as f4 discussed in The Rule of Fair Matching on page 28. Another
         possibility to “legalize” odd2 is to drop the nonpack parameter, in which case it has the
         same signature as f5 in the same section.
              A function that has three parameter packs in a row would also be IFNDR:
@@ -1850,7 +1854,7 @@ i
         possible provided the parameter packs are themselves part of other template instantiations:
           template <typename...> class Vct { };       // variadic class template definition
 
-          template <class T, typename... Ts, typename... Us, typename... Vs>
+          template <typename T, typename... Ts, typename... Us, typename... Vs>
           int fvct(const T&, Vct<Ts...>, Vct<Us...>, Vct<Vs...>);
               // The first parameter matches any type by const&, followed by three
               // not necessarily related instantiations of Vct.
@@ -1863,16 +1867,6 @@ i
           int x = fvct(5, Vct<>(), Vct<char, int, long>(), Vct<bool>());
               // OK, T=int, Ts=<>, Us=<char, int, long>, Vs=<bool>
 
-        For each argument in the call above, the compiler matches the type of the argument with the
-        pattern required by the template parameter; the matching process deduces the types that
-        would make the match work. The general algorithm for matching a concrete type against a
-        type pattern is called unification.5
-
-
-             5?
-
-
-
         30
 
 i
@@ -1881,7 +1875,7 @@ i
 
     i                                                                                                   i
         i                                                                                                               i
-                                         “emcpps-internal” — 2021/4/6 — 2:56 — page 31 — #33
+                                         “emcpps-internal” — 2021/4/6 — 3:38 — page 31 — #33
 
 i
 
@@ -1889,6 +1883,11 @@ i
 
                           C++11                                                                    Variadic Templates
 
+
+                          For each argument in the call above, the compiler matches the type of the argument with the
+                          pattern required by the template parameter; the matching process deduces the types that
+                          would make the match work. The general algorithm for matching a concrete type against a
+                          type pattern is called unification.5
 
                           Non-type template parameter packs
 emplate­parameter­packs
@@ -1914,31 +1913,22 @@ emplate­parameter­packs
 
                           The type specifier of the template non-type parameter pack need not only be int; the same
                           rules as for non-type parameters apply, restricting the types of non-type parameters to
-
                             • integral
-
                             • enumerated
-
                             • pointer to function or object
 
                             • lvalue reference to function or object
-
                             • pointer to member
-
                             • std::nullptr_t
-
                           These types are the value types allowed for C++03 non-type template parameters. In short,
                           value parameter packs obey the same restrictions as the C++03 non-type template param-
                           eters:
                            #include <cstddef> // std::nullptr_t
                            #include <string> // std::string
 
-                           enum Enum { /*...*/ };                          // arbitrary enumerated type
-                           class AClass { /*...*/ };                       // arbitrary class type
+                             5?
 
-                           template <long... ls>               class Cl;     // OK, integral
-                           template <bool... bs>               class Cb;     // OK, integral
-                           template <char... cs>               class Cc;     // OK, integral
+
 
                                                                                                                   31
 
@@ -1948,7 +1938,7 @@ i
 
         i                                                                                                               i
         i                                                                                                                            i
-                                          “emcpps-internal” — 2021/4/6 — 2:56 — page 32 — #34
+                                          “emcpps-internal” — 2021/4/6 — 3:38 — page 32 — #34
 
 i
 
@@ -1957,6 +1947,13 @@ i
                          Variadic Templates                                  Chapter 2       Conditionally Safe Features
 
 
+
+                          enum Enum { /*...*/ };                              // arbitrary enumerated type
+                          class AClass { /*...*/ };                           // arbitrary class type
+
+                          template     <long... ls>          class Cl;  // OK, integral
+                          template     <bool... bs>          class Cb;  // OK, integral
+                          template     <char... cs>          class Cc;  // OK, integral
                           template     <Enum... es>          class Ce;  // OK, enumerated
                           template     <int&... is>          class Cri; // OK, reference
                           template     <std::string*... ss> class Csp; // OK, pointer
@@ -1996,12 +1993,6 @@ plate­parameter­packs
                         In the code snippet above, X is a template template parameter that takes one type parameter.
                         The template classes A1 and A2 match X because each of these templates, in turn, takes one
                         type parameter as well.
-                            If an instantiation is attempted with a class template that does not take the same number
-                        of template parameters, the instantiation fails, even when there is no doubt as to what the
-                        intent might be:
-                          template <typename, typename = char>
-                          class A3 { /*...*/ }; // OK, two­parameter template, with second one defaulted
-
                              6 C++20does allow floating point non-type template parameters, which enable the definition and use of
                         non-type parameter packs using float, double, or long double (making, e.g., the final entry — Ci<4.0> ci4;
                         — in the previous example above valid as well).
@@ -2015,7 +2006,7 @@ i
 
         i                                                                                                                            i
     i                                                                                                            i
-                       “emcpps-internal” — 2021/4/6 — 2:56 — page 33 — #35
+                       “emcpps-internal” — 2021/4/6 — 3:38 — page 33 — #35
 
 i
 
@@ -2024,6 +2015,11 @@ i
         C++11                                                                             Variadic Templates
 
 
+            If an instantiation is attempted with a class template that does not take the same number
+        of template parameters, the instantiation fails, even when there is no doubt as to what the
+        intent might be:
+          template <typename, typename = char>
+          class A3 { /*...*/ }; // OK, two­parameter template, with second one defaulted
 
           C1<A3> c1c;     // Error, parameters of A3 are different from parameters of X.
 
@@ -2064,11 +2060,6 @@ i
         with the type parameter pack <double>.
             In contrast with template template parameters that require exact matching with their
         arguments, variadic template template parameters specifying typename... work in a more
-        “do what I mean” manner by matching templates with default arguments and variadic
-        templates. Applications may need either style of matching depending on context.
-            There is an orthogonal other direction in which we can generalize C2: We can define a
-        template, C3, that accepts zero or more template template arguments:
-
             7 Since C++17, code may use either typename or class for template template parameters and for tem-
 
         plate parameter packs.
@@ -2082,7 +2073,7 @@ i
 
     i                                                                                                            i
     i                                                                                                  i
-                        “emcpps-internal” — 2021/4/6 — 2:56 — page 34 — #36
+                        “emcpps-internal” — 2021/4/6 — 3:38 — page 34 — #36
 
 i
 
@@ -2091,6 +2082,10 @@ i
          Variadic Templates                           Chapter 2     Conditionally Safe Features
 
 
+        “do what I mean” manner by matching templates with default arguments and variadic
+        templates. Applications may need either style of matching depending on context.
+           There is an orthogonal other direction in which we can generalize C2: We can define a
+        template, C3, that accepts zero or more template template arguments:
          template <template<typename> class... Xs> // Xs is a template parameter pack.
          struct C3
               : Xs<int>...    // inherit X0<int>, X1<int>, ...
@@ -2135,10 +2130,7 @@ i
          C4<>              c4a;
                 // no base classes at all; Xs=<>, all base specifiers vanish
 
-         C4<A1>         c4b;
-             // inherits A1<int> and A1<double> in that order
 
-         C4<A1, A2>           c4c;
 
         34
 
@@ -2148,7 +2140,7 @@ i
 
     i                                                                                                  i
     i                                                                                                i
-                      “emcpps-internal” — 2021/4/6 — 2:56 — page 35 — #37
+                     “emcpps-internal” — 2021/4/6 — 3:38 — page 35 — #37
 
 i
 
@@ -2157,7 +2149,11 @@ i
         C++11                                                                   Variadic Templates
 
 
-                // inherits A1<int>, A2<int>, A1<double>, and A2<double> in that order
+         C4<A1>         c4b;
+             // inherits A1<int> and A1<double> in that order
+
+         C4<A1, A2>     c4c;
+             // inherits A1<int>, A2<int>, A1<double>, and A2<double> in that order
 
          C4<A3, A1>     c4d;
              // inherits A3<int>, A1<int>, A3<double>, and A1<double> in that order
@@ -2196,15 +2192,12 @@ i
         least two parameters and possibly more:
          template <template<typename, typename, typename...> class X>
          class C5
-             // *class* template definition having one *template* template parameter
-             // for which the *template* template accepts two or more type
+             // class template definition having one template template parameter
+             // for which the template template accepts two or more type
              // arguments
          { /*...*/ };
 
-         // A few templates that match C5.
 
-         template <typename, typename> class B1;
-         template <typename, typename, typename = int> class B2;
 
                                                                                                35
 
@@ -2214,7 +2207,7 @@ i
 
     i                                                                                                i
      i                                                                                                               i
-                                       “emcpps-internal” — 2021/4/6 — 2:56 — page 36 — #38
+                                       “emcpps-internal” — 2021/4/6 — 3:38 — page 36 — #38
 
 i
 
@@ -2223,8 +2216,12 @@ i
                       Variadic Templates                               Chapter 2   Conditionally Safe Features
 
 
-                       template <typename, typename = int, typename = int> class B3;
-                       template <typename, typename, typename...> class B4;
+                       // A few templates that match C5.
+
+                       template   <typename,   typename> class B1;
+                       template   <typename,   typename, typename = int> class B2;
+                       template   <typename,   typename = int, typename = int> class B3;
+                       template   <typename,   typename, typename...> class B4;
 
                        C5<B1> c5a;     // OK
                        C5<B2> c5b;     // OK
@@ -2267,10 +2264,6 @@ i
                      kind distinct from any other C++ entity; they are not types, values, template names, and
                      so on. As far as learning parameter packs goes, they cannot be related to existing entities,
                      so they may as well come from another language with its own syntax and semantics.
-                         Literally the only way to use a parameter pack is to make it part of a so-called pack
-                     expansion. A pack expansion consists of a fragment of code (a “pattern”) followed by ....
-                     The code fragment must contain at least a pack name; otherwise, it does not qualify as an
-                     expansion. Exactly what patterns are allowed depends on the place where the expansion
 
                      36
 
@@ -2279,16 +2272,20 @@ i
 
 
      i                                                                                                               i
-    i                                                                                                              i
-                       “emcpps-internal” — 2021/4/6 — 2:56 — page 37 — #39
+    i                                                                                                    i
+                      “emcpps-internal” — 2021/4/6 — 3:38 — page 37 — #39
 
 i
 
 
 
-        C++11                                                                               Variadic Templates
+        C++11                                                                      Variadic Templates
 
 
+            Literally the only way to use a parameter pack is to make it part of a so-called pack
+        expansion. A pack expansion consists of a fragment of code (a “pattern”) followed by ....
+        The code fragment must contain at least a pack name; otherwise, it does not qualify as an
+        expansion. Exactly what patterns are allowed depends on the place where the expansion
         occurs. Depending on context, the pattern is syntactically a simple identifier, a parameter
         declaration, an expression, or a type.
             The dual use of ... — to both introduce a pack and expand it — may seem confusing at
@@ -2302,15 +2299,15 @@ i
         example in Description on page 4, in which a variadic function adds together an arbitrary
         number of integers. The full implementation shown below uses double instead of int for
         better usability. The important part is the expansion that keeps the computation going:
-          double add()                                             // base case, no arguments
+          double add()                                       // base case, no arguments
           {
-              return 0;                                            // neutral element for addition
+              return 0;                                      // neutral element for addition
           }
 
-          template <typename T, typename... Ts>                    // recursive case
-          double add(const T& lhs, const Ts&... rest)              // accepts 1 or more arguments
+          template <typename T, typename... Ts>              // recursive case
+          double add(const T& lhs, const Ts&... rest)        // accepts 1 or more arguments
           {
-              return lhs + add(rest...);                           // recurse expanding rest
+              return lhs + add(rest...);                     // recurse expanding rest
           }
 
         The key to understanding how add works is to model the expansion rest... as a comma-
@@ -2321,38 +2318,37 @@ i
           int x1 = add(1.5, 2.5, 3.5);
 
         Computation proceeds in a typical recursive manner.
-           1. The top-level call goes to the variadic function template add.
-           2. add binds T to double and Ts to <double, double>.
 
-           3. The expression add(rest...) expands into the recursive call add(2.5, 3.5).
-           4. That call binds T to double and Ts to <double>.
-           5. The second expansion of add(rest...) leads to the recursive call add(3.5).
-           6. Finally, the last expansion will recurse to add(), which returns 0.
+          1. The top-level call goes to the variadic function template add.
+
+          2. add binds T to double and Ts to <double, double>.
+
+          3. The expression add(rest...) expands into the recursive call add(2.5, 3.5).
+
+          4. That call binds T to double and Ts to <double>.
+
+          5. The second expansion of add(rest...) leads to the recursive call add(3.5).
+
+          6. Finally, the last expansion will recurse to add(), which returns 0.
+
+                                                                                                   37
+
+i
+
+
+
+    i                                                                                                    i
+    i                                                                                                              i
+                         “emcpps-internal” — 2021/4/6 — 3:38 — page 38 — #40
+
+i
+
+
+
+         Variadic Templates                                 Chapter 2       Conditionally Safe Features
+
 
         The result is constructed as the recursion unwinds.8
-
-            8 C++17 adds fold expressions — return lhs + ... + rest; — that allow a more succinct implementation
-
-        of add.
-
-
-                                                                                                             37
-
-i
-
-
-
-    i                                                                                                              i
-    i                                                                                                       i
-                        “emcpps-internal” — 2021/4/6 — 2:56 — page 38 — #40
-
-i
-
-
-
-         Variadic Templates                              Chapter 2     Conditionally Safe Features
-
-
              From an eﬀiciency perspective, it should be noted that add is not recursive in a traditional
         Computer Science sense. It does not call itself. Each seemingly recursive call is a call to an
         entirely new function with a different arity generated from the same template. After inlining
@@ -2370,9 +2366,9 @@ i
         a slightly modified add, and note how, instead of expanding just rest, we expand a slightly
         more complex pattern in which rest appears twice:
           template <typename... Ts>
-          double add2(const Ts&... xs)        // accepts 0 or more arguments
+          double add2(const Ts&... xs)           // accepts 0 or more arguments
           {
-              return add((xs * xs)...);       // expand xs * xs in call to add
+              return add((xs * xs)...);          // expand xs * xs in call to add
           }
 
         This time add2 calls add with the expansion (xs * xs)..., not just xs..., so we’re
@@ -2396,9 +2392,9 @@ i
               // OK, Ts=<double, double> (explicit), Us=<int, int> (deduced)
 
           double x1b = f1<double, double>(1, 2, 3, 4, 5);
-              // Error, parameter packs ts and us have different lengths.
-              // Ts=<double, double> (explicit), Us=<int, int, int> (deduced)
+            8 C++17 adds fold expressions — return lhs + ... + rest; — that allow a more succinct implementation
 
+        of add.
 
 
         38
@@ -2407,16 +2403,19 @@ i
 
 
 
-    i                                                                                                       i
-    i                                                                                                     i
-                      “emcpps-internal” — 2021/4/6 — 2:56 — page 39 — #41
+    i                                                                                                              i
+    i                                                                                                    i
+                      “emcpps-internal” — 2021/4/6 — 3:38 — page 39 — #41
 
 i
 
 
 
-        C++11                                                                       Variadic Templates
+        C++11                                                                      Variadic Templates
 
+
+                // Error, parameter packs ts and us have different lengths.
+                // Ts=<double, double> (explicit), Us=<int, int, int> (deduced)
 
         Every form of pack expansion produces a comma-separated list consisting of copies of the
         pattern with the parameter packs suitably expanded. Expansion is semantic, not textual
@@ -2439,40 +2438,32 @@ i
         expression add2(add2(2, 3) + 2, add2(2, 3) + 3). Nested expansions grow in a combina-
         torial manner, so care is to be exercised.
             What forms of pattern... are allowed, and where in the source code is the construct
-        allowed? Parameter pack expansions are defined for a variety of well-defined contexts, each of
-        which is separately described in the following subsections. Not all potentially useful contexts
-        are supported, however; see ?? — ?? on page ??[ AUs: There is no section called
-        “Expansion at the statement level is not permitted.” ] Expansion is allowed in:
-
+        allowed? Parameter pack expansions are defined for a variety of well-defined contexts, each
+        of which is separately described in the following subsections. Not all potentially useful con-
+        texts are supported, however; see ?? — Limitations on expansion contexts on page 75[ AUs:
+        There is no section called “Expansion at the statement level is not permitted.”
+        Response: limitations on expansions contexts is the appropriate reference] Ex-
+        pansion is allowed in:
           • a function parameter pack
-
           • a function call argument list or a braced initializer list
-
           • a template argument list
-
           • a base specifier list
-
           • a member initializer list
-
           • a lambda capture list
-
           • an alignment specifier
-
           • an attribute list
-
           • a sizeof... expression
-
           • a template parameter pack that is a pack expansion
 
-                                                                                                    39
+                                                                                                   39
 
 i
 
 
 
-    i                                                                                                     i
+    i                                                                                                    i
         i                                                                                                                i
-                                        “emcpps-internal” — 2021/4/6 — 2:56 — page 40 — #42
+                                        “emcpps-internal” — 2021/4/6 — 3:38 — page 40 — #42
 
 i
 
@@ -2539,7 +2530,7 @@ i
 
         i                                                                                                                i
     i                                                                                                          i
-                      “emcpps-internal” — 2021/4/6 — 2:56 — page 41 — #43
+                      “emcpps-internal” — 2021/4/6 — 3:38 — page 41 — #43
 
 i
 
@@ -2603,7 +2594,7 @@ i
 
     i                                                                                                          i
         i                                                                                                                  i
-                                        “emcpps-internal” — 2021/4/6 — 2:56 — page 42 — #44
+                                        “emcpps-internal” — 2021/4/6 — 3:38 — page 42 — #44
 
 i
 
@@ -2670,7 +2661,7 @@ i
 
         i                                                                                                                  i
         i                                                                                                                   i
-                                            “emcpps-internal” — 2021/4/6 — 2:56 — page 43 — #45
+                                            “emcpps-internal” — 2021/4/6 — 3:38 — page 43 — #45
 
 i
 
@@ -2737,7 +2728,7 @@ i
 
         i                                                                                                                   i
     i                                                                                                     i
-                         “emcpps-internal” — 2021/4/6 — 2:56 — page 44 — #46
+                         “emcpps-internal” — 2021/4/6 — 3:38 — page 44 — #46
 
 i
 
@@ -2804,7 +2795,7 @@ i
 
     i                                                                                                     i
         i                                                                                                                      i
-                                        “emcpps-internal” — 2021/4/6 — 2:56 — page 45 — #47
+                                        “emcpps-internal” — 2021/4/6 — 3:38 — page 45 — #47
 
 i
 
@@ -2870,7 +2861,7 @@ i
 
         i                                                                                                                      i
         i                                                                                                                i
-                                        “emcpps-internal” — 2021/4/6 — 2:56 — page 46 — #48
+                                        “emcpps-internal” — 2021/4/6 — 3:38 — page 46 — #48
 
 i
 
@@ -2905,12 +2896,11 @@ i
 
                         Expansion in a lambda capture list
 a­lambda­capture­list
-                        A C++ lambda expression, introduced with C++11 (see .“??” on page ??[AUs: you have
-                        here “Lambda Expressions”; do you mean lambdas, generic lambda, or lambda
-                        capture feature?]), is an unnamed function object. A lambda can store internally some
-                        of the local variables present at the point of creation by a mechanism known as lambda
-                        capture. This important capability distinguishes lambdas from simple functions. Let’s put
-                        it to use in defining a tracer lambda that is able to print a given variable to the console:
+                        A C++ lambda expression, introduced with C++11 (see Section 2.1.“??” on page ??, is an
+                        unnamed function object. A lambda can store internally some of the local variables present at
+                        the point of creation by a mechanism known as lambda capture. This important capability
+                        distinguishes lambdas from simple functions. Let’s put it to use in defining a tracer lambda
+                        that is able to print a given variable to the console:
                           #include <iostream>     // std::cout, std::endl
 
                           template <typename T> // single­parameter template
@@ -2927,6 +2917,7 @@ a­lambda­capture­list
                            This may seem like a lot if you’re new to lambdas, in which case reading locationc.“??”
                         on page ?? along with Section 3.2.“??” on page ?? before continuing may be in order. The
                         underlying idea is simple: A call such as tracer(x) saves a reference to x in a function
+                        object, which it then returns. Subsequent calls to that function object output the current
 
                         46
 
@@ -2936,7 +2927,7 @@ i
 
         i                                                                                                                i
     i                                                                                                     i
-                      “emcpps-internal” — 2021/4/6 — 2:56 — page 47 — #49
+                      “emcpps-internal” — 2021/4/6 — 3:38 — page 47 — #49
 
 i
 
@@ -2945,7 +2936,6 @@ i
         C++11                                                                       Variadic Templates
 
 
-        object, which it then returns. Subsequent calls to that function object output the current
         value of x. It’s important to save x by reference (hence the & in the capture), lest the lambda
         store x by value and uninterestingly print the same thing on each call.
             Let’s see tracer at work, tracing some variable in a function:
@@ -2992,7 +2982,7 @@ i
               auto f1 = [&a, xs...]() { /*...*/ };
                   // Capture a by reference and all of xs by value.
 
-
+                auto f2 = [xs..., &a]() { /*...*/ };
 
                                                                                                     47
 
@@ -3002,7 +2992,7 @@ i
 
     i                                                                                                     i
         i                                                                                                                             i
-                                          “emcpps-internal” — 2021/4/6 — 2:56 — page 48 — #50
+                                          “emcpps-internal” — 2021/4/6 — 3:38 — page 48 — #50
 
 i
 
@@ -3011,8 +3001,7 @@ i
                          Variadic Templates                                   Chapter 2       Conditionally Safe Features
 
 
-                               auto f2 = [xs..., &a]() { /*...*/ };
-                                   // same capture as f1
+                                    // same capture as f1
 
                                auto f3 = [a, &xs..., &b]() { /*...*/ };
                                    // Capture a by value, all of xs by reference, and b by reference.
@@ -3058,6 +3047,7 @@ n­alignment­specifier
 
                         As always with alignas, requesting an alignment smaller than the minimum alignment
                         required by the declaration is an error:
+
                            11 C++20 introduces pack expansion in lambda initialization captures (see ?) that allows capturing vari-
 
                         adics with a syntax such as [...us = vs] or [...us = std::move(vs)].
@@ -3071,7 +3061,7 @@ i
 
         i                                                                                                                             i
         i                                                                                                                i
-                                        “emcpps-internal” — 2021/4/6 — 2:56 — page 49 — #51
+                                        “emcpps-internal” — 2021/4/6 — 3:38 — page 49 — #51
 
 i
 
@@ -3121,7 +3111,7 @@ on­in­an­attribute­list
                           For completeness and future extensibility, pack expansion is allowed inside an attribute
                           specifier as in [[attribute...]]. However, this feature is not currently usable with any
                           current attribute, standard or user-defined:
-                           template <class... Ts>
+                           template <typename... Ts>
                            [[Ts()...]] void functionFromTheFuture();
                                // NONWORKING CODE
                                // Receive a number of types; instantiate them as attributes.
@@ -3137,7 +3127,7 @@ i
 
         i                                                                                                                i
         i                                                                                                              i
-                                        “emcpps-internal” — 2021/4/6 — 2:56 — page 50 — #52
+                                        “emcpps-internal” — 2021/4/6 — 3:38 — page 50 — #52
 
 i
 
@@ -3205,7 +3195,7 @@ i
 
         i                                                                                                              i
         i                                                                                                               i
-                                       “emcpps-internal” — 2021/4/6 — 2:56 — page 51 — #53
+                                       “emcpps-internal” — 2021/4/6 — 3:38 — page 51 — #53
 
 i
 
@@ -3221,7 +3211,6 @@ i
                                struct C2 { };             // expansion in C2's parameter list
                            };
 
-
                           Once C1 is instantiated with some types, the inner class C2 will accept values of the types
                           used in the instantiation of C1. For example, if C1 is instantiated with int and char, its
                           inner class template C2 will accept an int value and a char value:
@@ -3229,7 +3218,6 @@ i
                            C1<int, char>::C2<1, 'a'> x1;            // OK, C2 takes an int and a char.
                            C1<int, char>::C2<1> x2;                 // Error, too few arguments for C2
                            C1<int, char>::C2<1, 'a', 'b'> x3;       // Error, too many arguments for C2
-
 
                           Only instantiations of C1 that lead to valid declarations of C2 are allowed. For example,
                           user-defined types are not allowed as non-type template parameters, and consequently C1
@@ -3255,11 +3243,12 @@ ther­expansion­contexts
                                ++xs...; // Error, cannot expand xs in an expression­statement context
                            }
 
-
-                          Annoyances — ?? on page ??[AUs: There is no subsection called “Expansion at the
-                          statement level is not permitted”] discusses this context further. Also recall that it is
-                          illegal to use pack names anywhere without expanding them, so they don’t enjoy first-class
-                          status; see Annoyances — Parameter packs cannot be used unexpanded on page 76.
+                          Annoyances — Limitations on expansion contexts on page 75[AUs: There is no sub-
+                          section called “Expansion at the statement level is not permitted” Response:
+                          limitations on expansion contexts is the correct reference] discusses this context
+                          further. Also recall that it is illegal to use pack names anywhere without expanding them,
+                          so they don’t enjoy first-class status; see Annoyances — Parameter packs cannot be used
+                          unexpanded on page 76.
 
 
                           Summary of expansion contexts and patterns
@@ -3274,7 +3263,7 @@ i
 
         i                                                                                                               i
          i                                                                                                                   i
-                                           “emcpps-internal” — 2021/4/6 — 2:56 — page 52 — #54
+                                           “emcpps-internal” — 2021/4/6 — 3:38 — page 52 — #54
 
 i
 
@@ -3292,7 +3281,7 @@ i
                                                     lambda capture list                                 capture
                                                      alignment specifier                          alignment specifier
                                                         attribute list                                 attribute
-                                                    ‘sizeof...‘ expression                             identifier
+                                                   sizeof... expression                                identifier
                                    template parameter pack that is a pack expansion              parameter declaration
 
 
@@ -3310,7 +3299,7 @@ ic­variadic­functions
                                return std::cout << std::endl;               // only advances to next line
                            }
 
-                           template <class T, typename... Ts>                                // one or more types
+                           template <typename T, typename... Ts>                             // one or more types
                            std::ostream& print(const T& x, const Ts&... xs)                  // one or more args
                            {
                                std::cout << x;                                               // output first argument
@@ -3342,7 +3331,7 @@ i
 
          i                                                                                                                   i
      i                                                                                                                    i
-                                         “emcpps-internal” — 2021/4/6 — 2:56 — page 53 — #55
+                                         “emcpps-internal” — 2021/4/6 — 3:38 — page 53 — #55
 
 i
 
@@ -3353,13 +3342,13 @@ i
 
                        equal to one of the subsequent arguments. Calls to such a function are sensible for two or
                        more arguments:
-                         template <class T1, class T2>                       // normal template function
+                         template <typename T1, typename T2>                 // normal template function
                          bool isOneOf(const T1& a, const T2& b)              // two­parameter version
                          {
                            return a == b;
                          }
 
-                         template <class T1, class T2, typename... Ts>                       // two or more
+                         template <typename T1, typename T2, typename... Ts>                 // two or more
                          bool isOneOf(const T1& a, const T2& b, const Ts&... xs)             // all by const&
                          {
                            return a == b || isOneOf(a, xs...);                               // compare, recurse
@@ -3409,7 +3398,7 @@ i
 
      i                                                                                                                    i
         i                                                                                                               i
-                                        “emcpps-internal” — 2021/4/6 — 2:56 — page 54 — #56
+                                        “emcpps-internal” — 2021/4/6 — 3:38 — page 54 — #56
 
 i
 
@@ -3475,7 +3464,7 @@ i
 
         i                                                                                                               i
     i                                                                                                     i
-                     “emcpps-internal” — 2021/4/6 — 2:56 — page 55 — #57
+                     “emcpps-internal” — 2021/4/6 — 3:38 — page 55 — #57
 
 i
 
@@ -3541,7 +3530,7 @@ i
 
     i                                                                                                     i
     i                                                                                                          i
-                                 “emcpps-internal” — 2021/4/6 — 2:56 — page 56 — #58
+                                 “emcpps-internal” — 2021/4/6 — 3:38 — page 56 — #58
 
 i
 
@@ -3609,7 +3598,7 @@ i
 
     i                                                                                                          i
     i                                                                                                       i
-                         “emcpps-internal” — 2021/4/6 — 2:56 — page 57 — #59
+                         “emcpps-internal” — 2021/4/6 — 3:38 — page 57 — #59
 
 i
 
@@ -3675,7 +3664,7 @@ i
 
     i                                                                                                       i
     i                                                                                                  i
-                        “emcpps-internal” — 2021/4/6 — 2:56 — page 58 — #60
+                        “emcpps-internal” — 2021/4/6 — 3:38 — page 58 — #60
 
 i
 
@@ -3741,7 +3730,7 @@ i
 
     i                                                                                                  i
     i                                                                                                                i
-                       “emcpps-internal” — 2021/4/6 — 2:56 — page 59 — #61
+                       “emcpps-internal” — 2021/4/6 — 3:38 — page 59 — #61
 
 i
 
@@ -3809,7 +3798,7 @@ i
 
     i                                                                                                                i
     i                                                                                                                 i
-                                    “emcpps-internal” — 2021/4/6 — 2:56 — page 60 — #62
+                                    “emcpps-internal” — 2021/4/6 — 3:38 — page 60 — #62
 
 i
 
@@ -3874,7 +3863,7 @@ i
 
     i                                                                                                                 i
     i                                                                                                         i
-                      “emcpps-internal” — 2021/4/6 — 2:56 — page 61 — #63
+                      “emcpps-internal” — 2021/4/6 — 3:38 — page 61 — #63
 
 i
 
@@ -3893,13 +3882,13 @@ i
         by convention 0 for int, 1 for float, and 2 for std::string.
             We saw in the previous sections how to define data structures recursively for parameter
         packs, so let’s try our hand at a variant layout in the Variant1 design:
-          template <class... Ts>                               // parameter pack
+          template <typename... Ts>                            // parameter pack
           class Variant1                                       // can hold any in parameter pack
           {
               template <typename...>                           // union of all types in Ts
               union Store {};
 
-                template <class U, typename... Us>             // Specialize for >=1 types.
+                template <typename U, typename... Us>          // Specialize for >=1 types.
                 union Store<U, Us...>
                 {
                     U head;                                    // Lay out a U object.
@@ -3941,7 +3930,7 @@ i
 
     i                                                                                                         i
     i                                                                                                    i
-                        “emcpps-internal” — 2021/4/6 — 2:56 — page 62 — #64
+                        “emcpps-internal” — 2021/4/6 — 3:38 — page 62 — #64
 
 i
 
@@ -3951,12 +3940,12 @@ i
 
 
 
-          template <class... Ts> class Variant2;        // introducing declaration
+          template <typename... Ts> class Variant2;        // introducing declaration
 
           template <> class Variant2<>           // specialization for empty Ts
           { /*...*/ };
 
-          template <class T, class... Ts>
+          template <typename T, typename... Ts>
           class Variant2<T,Ts...>          // specialization for one or more types
           {
               enum : std::size_t { size = std::max({sizeof(T), sizeof(Ts)...}) };
@@ -4007,7 +3996,7 @@ i
 
     i                                                                                                    i
     i                                                                                                 i
-                         “emcpps-internal” — 2021/4/6 — 2:56 — page 63 — #65
+                         “emcpps-internal” — 2021/4/6 — 3:38 — page 63 — #65
 
 i
 
@@ -4028,8 +4017,8 @@ i
                 char d_data[size];                   // approach in Variant1 fine too
                 unsigned int d_active;               // index of active type in Ts
 
-                template <class U, class... Us>
-                friend U& get(Variant<Us...>& v);    // `friend` accessor
+                template <typename U, typename... Us>
+                friend U& get(Variant<Us...>& v); // friend accessor
 
          public:
              Variant();                              // default constructor
@@ -4073,7 +4062,7 @@ i
 
     i                                                                                                 i
     i                                                                                                             i
-                         “emcpps-internal” — 2021/4/6 — 2:56 — page 64 — #66
+                         “emcpps-internal” — 2021/4/6 — 3:38 — page 64 — #66
 
 i
 
@@ -4119,11 +4108,11 @@ i
           struct IndexOf2
               : std::integral_constant<std::size_t, IndexOf<X, Ts...>::value + 1> {};
 
-          template <class X, class... Ts>
+          template <typename X, typename... Ts>
           struct IndexOf2<X, X, Ts...>
               : std::integral_constant<std::size_t, 0u> {};               // partial specialization 1
 
-          template <class X, class... Ts>
+          template <typename X, typename... Ts>
           struct IndexOf2<const X, X, Ts...>
               : std::integral_constant<std::size_t, 0u> {};               // partial specialization 2
 
@@ -4139,7 +4128,7 @@ i
 
     i                                                                                                             i
     i                                                                                                     i
-                      “emcpps-internal” — 2021/4/6 — 2:56 — page 65 — #67
+                      “emcpps-internal” — 2021/4/6 — 3:38 — page 65 — #67
 
 i
 
@@ -4179,7 +4168,7 @@ i
         example, given a Variant<short, int, long> object named v, int& get<int>(v) should
         return a reference to the stored int if and only if the current value in v has indeed type
         int; otherwise, it throws an exception:
-          template <class T, class... Ts>                         // T is the assumed type.
+          template <typename T, typename... Ts>                   // T is the assumed type.
           T& get(Variant<Ts...>& v)                               // Variant<Ts...> by ref
           {
               if (v.d_active != IndexOf<T, Ts...>::value)         //   Is the index correct?
@@ -4205,7 +4194,7 @@ i
 
     i                                                                                                     i
     i                                                                                                      i
-                        “emcpps-internal” — 2021/4/6 — 2:56 — page 66 — #68
+                        “emcpps-internal” — 2021/4/6 — 3:38 — page 66 — #68
 
 i
 
@@ -4259,8 +4248,8 @@ i
             Variant’s destructor ensures that the variant object is not corrupt and then calls
         destroyLinear, passing the entire pack Ts... as template argument and the current index
         and pointer to state as runtime arguments:
-          template <class T, class... Ts>       // definition for partial specialization
-          Variant<T, Ts...>::~Variant()         // linear lookup destructor
+          template <typename T, typename... Ts>        // definition for partial specialization
+          Variant<T, Ts...>::~Variant()                // linear lookup destructor
 
         66
 
@@ -4270,7 +4259,7 @@ i
 
     i                                                                                                      i
     i                                                                                                      i
-                      “emcpps-internal” — 2021/4/6 — 2:56 — page 67 — #69
+                      “emcpps-internal” — 2021/4/6 — 3:38 — page 67 — #69
 
 i
 
@@ -4336,7 +4325,7 @@ i
 
     i                                                                                                      i
     i                                                                                                             i
-                           “emcpps-internal” — 2021/4/6 — 2:56 — page 68 — #70
+                           “emcpps-internal” — 2021/4/6 — 3:38 — page 68 — #70
 
 i
 
@@ -4379,7 +4368,7 @@ i
         then write a function template taking a non-deduced type parameter to carry the necessary
         type information for the function implementation to cast the void* pointer to the necessary
         type:
-          template <class T>
+          template <typename T>
           static void destroyElement(void *p)
           {
               static_cast<T*>(p)­>~T();
@@ -4401,7 +4390,7 @@ i
 
     i                                                                                                             i
     i                                                                                                                i
-                       “emcpps-internal” — 2021/4/6 — 2:56 — page 69 — #71
+                       “emcpps-internal” — 2021/4/6 — 3:38 — page 69 — #71
 
 i
 
@@ -4413,12 +4402,12 @@ i
         structor functions, matching the expected order of the runtime index d_active, we can
         simply invoke the function pointer at the current index to invoke the correct destructor for
         the currently active element.
-          template <class... Ts>
+          template <typename... Ts>
           void destroyCtTime(unsigned int n, void *p)               // same signature
           {
               typedef void(*destructor)(void *);                    //   simplify definition
               static const destructor dt[] =                        //   array of function pointers
-                  { &destroyElement<Ts>... };                       //   initialize with **pack expansion**
+                  { &destroyElement<Ts>... };                       //   initialize with pack expansion
               dt[n](p);                                             //   call appropriate destructor
           }
 
@@ -4444,11 +4433,11 @@ i
         moderately large parameter pack sizes, destroyLog will be the algorithm of choice; finally,
         for very large parameter pack sizes, destroyCtTime is best.
             For a simple example, we can use the parameter pack size as a simple heuristic:
-          template <class T, class... Ts> // definition for partial specialization
-          Variant<T, Ts...>::~Variant()    // improved destructor implementation
+          template <typename T, typename... Ts> // definition for partial specialization
+          Variant<T, Ts...>::~Variant()          // improved destructor implementation
           {
               assert((d_active < Variant<T,Ts...>::size));   // check invariant of variant
-              void* p = &d_data;                             // `d_data` as `void*`
+              void* p = &d_data;                             // d_data as void*
               if (Variant<T,Ts...>::size <= 4)
                   destroyLinear<0u, T, Ts...>(d_active, p); // choose linear algorithm
               else if (Variant<T,Ts...>::size <= 64)
@@ -4469,7 +4458,7 @@ i
 
     i                                                                                                                i
       i                                                                                                                i
-                                      “emcpps-internal” — 2021/4/6 — 2:56 — page 70 — #72
+                                      “emcpps-internal” — 2021/4/6 — 3:38 — page 70 — #72
 
 i
 
@@ -4512,7 +4501,7 @@ i
 
                       A more sophisticated smart pointer might take one or more additional template parameters,
                       such as a deletion policy:
-                        template <class T, class Deleter>
+                        template <typename T, typename Deleter>
                         struct SmartPtr2
                         {
                             T& operator*() const;
@@ -4536,7 +4525,7 @@ i
 
       i                                                                                                                i
     i                                                                                                     i
-                      “emcpps-internal” — 2021/4/6 — 2:56 — page 71 — #73
+                      “emcpps-internal” — 2021/4/6 — 3:38 — page 71 — #73
 
 i
 
@@ -4590,7 +4579,7 @@ i
           template <typename Ptr>
           struct PointerTraits;           // incomplete declaration
 
-          template <class T>
+          template <typename T>
           struct PointerTraits<T*>       // partial specialization for all raw pointers
 
                                                                                                     71
@@ -4601,7 +4590,7 @@ i
 
     i                                                                                                     i
     i                                                                                                     i
-                        “emcpps-internal” — 2021/4/6 — 2:56 — page 72 — #74
+                        “emcpps-internal” — 2021/4/6 — 3:38 — page 72 — #74
 
 i
 
@@ -4612,7 +4601,7 @@ i
 
           {
                typedef T value_type;     // normalized alias for T
-               template <class U>
+               template <typename U>
                using rebind = U*;        // rebind<U> is an alias for U*
           };
 
@@ -4644,7 +4633,7 @@ i
           struct PointerTraits<PtrLike<T, X...>> //        partial specialization for template
           {
               using value_type = T;               //       extract pointee type
-              template <class U>
+              template <typename U>
               using rebind = PtrLike<U, X...>;    //       rebind to some other type U
           };
 
@@ -4666,7 +4655,7 @@ i
 
     i                                                                                                     i
         i                                                                                                                  i
-                                        “emcpps-internal” — 2021/4/6 — 2:56 — page 73 — #75
+                                        “emcpps-internal” — 2021/4/6 — 3:38 — page 73 — #75
 
 i
 
@@ -4733,7 +4722,7 @@ i
 
         i                                                                                                                  i
          i                                                                                                               i
-                                         “emcpps-internal” — 2021/4/6 — 2:56 — page 74 — #76
+                                         “emcpps-internal” — 2021/4/6 — 3:38 — page 74 — #76
 
 i
 
@@ -4759,7 +4748,7 @@ i
                          yet pass compilation on contemporary compilers — that is, IFNDR. In certain cases, they
                          can even be called. Such situations are most assuredly latent bugs:
 
-                           template <typename... Ts, typename... Us, class T>
+                           template <typename... Ts, typename... Us, typename T>
                            int process(Ts..., Us..., T);
                                // ill­formed declaration ­ Us must be empty in every possible call
                            int x = process<int, double>(1, 2.5, 3);
@@ -4800,7 +4789,7 @@ i
 
          i                                                                                                               i
         i                                                                                                                   i
-                                            “emcpps-internal” — 2021/4/6 — 2:56 — page 75 — #77
+                                            “emcpps-internal” — 2021/4/6 — 3:38 — page 75 — #77
 
 i
 
@@ -4868,7 +4857,7 @@ i
 
         i                                                                                                                   i
         i                                                                                                                        i
-                                         “emcpps-internal” — 2021/4/6 — 2:56 — page 76 — #78
+                                         “emcpps-internal” — 2021/4/6 — 3:38 — page 76 — #78
 
 i
 
@@ -4911,13 +4900,12 @@ i
                           template <typename... Ts>
                           void bump3(Ts&... vs)                 // some variadic function template
                           {
-                               ([](Ts&...){})(++vs...);         // OK, **pack expansion** allowed in lambda call
+                               ([](Ts&...){})(++vs...);         // OK, pack expansion allowed in lambda call
                           }
 
                         The function above works, albeit awkwardly, by making use of another feature of C++11
                         that essentially allows us to define an anonymous function in situ and then invoke it; see
-                        .“??” on page ?? [AUs: You have “lambda expressions” here. Do you mean the
-                        lamba, lambda capture, or generic lambda feature? ]22
+                        Section 2.1.“??” on page ?? 22
 
                         Parameter packs cannot be used unexpanded
 ot­be­used­unexpanded
@@ -4936,7 +4924,7 @@ i
 
         i                                                                                                                        i
         i                                                                                                                                       i
-                                           “emcpps-internal” — 2021/4/6 — 2:56 — page 77 — #79
+                                           “emcpps-internal” — 2021/4/6 — 3:38 — page 77 — #79
 
 i
 
@@ -4963,6 +4951,13 @@ i
                             typedef Typelist<short, int, long, float, double, long double> Numbers;
                                 // can be used to give a pack an alternate name
 
+                            template <typename L>
+                            struct SortBySize
+                            {
+                                using type = Typelist< /*...*/ >;                  // computed sorted by size version of
+                                                                                   // the Typelist L
+                            };
+
                             typedef SortBySize<Numbers>::type SortedNumbers;
                                 // can be used to "return" a pack from a metafunction
 
@@ -4979,20 +4974,14 @@ es­verbose­support­code
                           involved recursion-based pattern.
                              There is no expansion in an expression context, so it is not possible to write functions
                           such as print in a concise, single-definition manner; see Use Cases — Generic variadic
-                          functions on page 52. In particular, expressions are not expansion contexts so the following
-                          code would not work:
-                            template <class T, typename... Ts>
-                            std::ostream& print(const T& v, const Ts&... vs)
-                            {
-                                std::cout << vs...;
-                                return std::cout << std::endl;
+
                             23 ?
                               24 GNU defines the nonstandard primitives std::tr2::__direct_bases and std::tr2::__bases. The
 
                           first yields a list of all direct bases of a given class, and the second yields the transitive closure of all bases
                           of a class, including the indirect ones. To make these artifacts possible, GNU defines and uses a helper
                           __reflection_typelist class template similar to Typelist above.
-                              25 [AUs: url please, so I can cite this.
+                              25 [AUs: url please, so I can cite this. Response: http://wg21.link/N2965
 
 
 
@@ -5004,7 +4993,7 @@ i
 
         i                                                                                                                                       i
         i                                                                                                               i
-                                         “emcpps-internal” — 2021/4/6 — 2:56 — page 78 — #80
+                                         “emcpps-internal” — 2021/4/6 — 3:38 — page 78 — #80
 
 i
 
@@ -5013,6 +5002,15 @@ i
                          Variadic Templates                             Chapter 2    Conditionally Safe Features
 
 
+                        functions on page 52. In particular, expressions are not expansion contexts so the following
+                        code would not work:
+                          #include <iostream>      // std::cout, std::ostream
+
+                          template <typename T, typename... Ts>
+                          std::ostream& print(const T& v, const Ts&... vs)
+                          {
+                              std::cout << vs...;             // Error, invalid expansion
+                              return std::cout << std::endl;
                           }
 
 
@@ -5029,14 +5027,12 @@ search­for­everything
                                packs.
                              • “??” (§2.1, p. ??) ♦ describes a feature used in conjunction with variadics to achieve
                                perfect forwarding.
-                             • “??” (, p. ??) ♦ [AUs: By “Lambda Expressions,” do you mean lambda,
-                               generic lambda, or lambda capture? ]describes a feature that allows expansion
-                               both in capture list and in the arguments list.
+                             • “??” (§2.1, p. ??) ♦ describes a feature that allows expansion both in capture list
+                               and in the arguments list.
 
                         Further Reading
       further­reading
                              • “F.21: To return multiple”out” values, prefer returning a struct or tuple,” ?
-
                              • ?
 
 
@@ -5050,7 +5046,7 @@ i
 
         i                                                                                                               i
           i                                                                                               i
-                                    “emcpps-internal” — 2021/4/6 — 2:56 — page 79 — #81
+                                    “emcpps-internal” — 2021/4/6 — 3:38 — page 79 — #81
 
 i
 
@@ -5072,7 +5068,7 @@ i
 
           i                                                                                               i
     i                                                         i
-        “emcpps-internal” — 2021/4/6 — 2:56 — page 80 — #82
+        “emcpps-internal” — 2021/4/6 — 3:38 — page 80 — #82
 
 i
 
@@ -5085,7 +5081,7 @@ i
 
     i                                                         i
      i                                                                                         i
-                                    “emcpps-internal” — 2021/4/6 — 2:56 — page 81 — #83
+                                    “emcpps-internal” — 2021/4/6 — 3:38 — page 81 — #83
 
 i
 
@@ -5109,7 +5105,7 @@ i
 
      i                                                                                         i
        i                                                                                     i
-                            “emcpps-internal” — 2021/4/6 — 2:56 — page 82 — #84
+                            “emcpps-internal” — 2021/4/6 — 3:38 — page 82 — #84
 
 i
 

@@ -4569,7 +4569,7 @@ template <typename T, typename... Ts>  // definition for partial specialization
 Variant<T, Ts...>::~Variant()          // improved destructor implementation
 {
     assert((d_active < Variant<T,Ts...>::size));   // check invariant of variant
-    void* p = &d_data;                             // (ù{\codeincomments{d_data}}ù) as (ù{\codeincomments{void*}}ù)
+    void* p = &d_data;                             // (ù{\codeincomments{d\_data}}ù) as (ù{\codeincomments{void*}}ù)
     if (Variant<T,Ts...>::size <= 4)
         destroyLinear<0u, T, Ts...>(d_active, p);  // choose linear algorithm
     else if (Variant<T,Ts...>::size <= 64)
@@ -5040,7 +5040,7 @@ void bump3(Ts&... vs)          // some variadic function template
 \noindent The function above works, albeit awkwardly, by making use of another
 feature of C++11 that essentially allows us to define an anonymous
 function \emph{in} \emph{situ} and then invoke it; see
-\featureref{\locationc}{\lambda}
+\featureref{\locationc}{lambda}
 {\cprotect\footnote{C++17 adds \emph{fold expressions} that allow easy \emcppsgloss{pack expansion}
   at expression and statement level. The semantics desired for the
   example shown would be achieved with the syntax \lstinline!(...++vs);!.}}
@@ -5121,10 +5121,12 @@ manner; see \intraref{use-cases-variadic}{generic-variadic-functions}. In partic
 the following code would not work:
 
 \begin{emcppslisting}
+#include <iostream>  // (ù{\codeincomments{std::cout}}ù), (ù{\codeincomments{std::ostream}}ù)
+
 template <typename T, typename... Ts>
 std::ostream& print(const T& v, const Ts&... vs)
 {
-    std::cout << vs...;
+    std::cout << vs...;             // Error, invalid expansion
     return std::cout << std::endl;
 }
 \end{emcppslisting}
