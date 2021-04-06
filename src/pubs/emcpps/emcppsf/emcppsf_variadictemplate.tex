@@ -5121,7 +5121,7 @@ manner; see \intraref{use-cases-variadic}{generic-variadic-functions}. In partic
 the following code would not work:
 
 \begin{emcppslisting}
-#include <iostream>  // (ù{\codeincomments{std::cout}}ù), (ù{\codeincomments{std::ostream}}ù)
+#include <iostream>  // (ù{\codeincomments{std::cout}}ù), (ù{\codeincomments{std::ostream}}ù), (ù{\codeincomments{std::endl}}ù)
 
 template <typename T, typename... Ts>
 std::ostream& print(const T& v, const Ts&... vs)
