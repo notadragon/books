@@ -1,5 +1,7 @@
 % 5 Feb 2021, copyedits in and proofed
 % 8 Feb 2021 JMB, compilation fixes
+% 9 Feb 2021, FPPs set
+% 17 Feb 2021, glossary tags updated
 
 \emcppsFeature{
     short={Delegating Ctors},
@@ -16,9 +18,9 @@ constructor of the same class.
 \subsection[Description]{Description}\label{description}
 
 A \emcppsgloss{delegating constructor} is a constructor of a
-\emcppsgloss[user defined type]{user-defined type (UDT)} --- i.e., \lstinline!class!, \lstinline!struct!, or
+\emcppsgloss[user defined type (UDT)]{user-defined type (UDT)} --- i.e., \lstinline!class!, \lstinline!struct!, or
 \lstinline!union! --- that invokes another constructor defined for the same
-\emcppsgloss{UDT} as part of its initialization of an object of that type.
+\emcppsgloss[user defined type (UDT)]{UDT} as part of its initialization of an object of that type.
 The syntax for invoking another constructor is to specify
 the name of the type as the only element in the \emcppsgloss{member initializer list}:
 
@@ -67,9 +69,11 @@ void f()
     S1 s;  // OK, prints (ù{\codeincomments{"abc"}}ù) to (ù{\codeincomments{stdout}}ù)
 }
 \end{emcppslisting}
+\newpage%%%%%
 
 \noindent If an exception is thrown while executing a nondelegating constructor,
-the object being initialized is considered only \emcppsgloss{partially constructed} (i.e., the object is not yet known to be in a valid state),
+the object being initialized is considered only \emcppsgloss{partially
+constructed} (i.e., the object is not yet known to be in a valid state),
 and hence its destructor will \emph{not} be
 invoked:
 
@@ -86,7 +90,8 @@ void f() try { S2 s; } catch(int) { }
     // prints only "(ù{\codeincomments{S2() }}ù)" to (ù{\codeincomments{stdout}}ù) (the destructor of (ù{\codeincomments{S2}}ù) is never invoked)
 \end{emcppslisting}
 
-\noindent Although the destructor of a \emcppsgloss{partially constructed} object will not be invoked, the destructors of
+\noindent Although the destructor of a \emcppsgloss{partially
+constructed} object will not be invoked, the destructors of
 each successfully constructed base and of data members will still be
 invoked:
 
@@ -111,12 +116,13 @@ void f() try { C c; } catch(int) { }
 
 \noindent Notice that base-class \lstinline!B! and member \lstinline!d_a! of type
 \lstinline!A! were fully constructed, and so their respective destructors
-are called, even though the destructor for class \lstinline!C! itself is
-  never \mbox{executed}.
+are called, even though the destructor for class \lstinline!C! itself is never \mbox{executed}.
 
 However, if an exception is thrown in the body of a delegating
-constructor, the object being initialized is considered \emcppsgloss{fully constructed}, as the target constructor must have returned control to
+constructor, the object being initialized is considered \emcppsgloss{fully
+constructed}, as the target constructor must have returned control to
 the delegator; hence, the object's destructor \emph{is} invoked:
+\newpage%%%%%
 
 \begin{emcppslisting}
 #include <iostream>  // (ù{\codeincomments{std::cout}}ù)
@@ -137,7 +143,8 @@ void f() try { S3 s(0); } catch(int) { }
 
 \subsubsection[Avoiding code duplication among constructors]{Avoiding code duplication among constructors}\label{avoiding-code-duplication-among-constructors}
 
-Avoiding gratuitous code duplication is considered by many to be a best
+%Avoiding gratuitous code duplication is considered by many to be a best practice.
+Many consider avoiding gratuitous code duplication a best
 practice. Having one ordinary member function call another has always
 been an option, but having one constructor invoke another constructor
 directly has not. Classic workarounds included repeating the code or
@@ -148,8 +155,8 @@ make use of \emcppsgloss[member initializer list]{member initializer lists} to i
 constructors} can be used to minimize code duplication when some of
 the same operations are performed across multiple constructors without
 having to forgo efficient initialization.
-
-As an example, consider an \lstinline!IPV4Host! class representing a
+%As an example,
+Consider an \lstinline!IPV4Host! class representing a
 network endpoint that can be constructed either (1) by a 32-bit address
 and a 16-bit port or (2) by an IPV4 string with
 \lstinline!XXX.XXX.XXX.XXX:XXXXX! format{\cprotect\footnote{Note that
@@ -160,7 +167,7 @@ factored out into a separate \emcppsgloss[value semantic]{value-semantic} class,
   see \intraref{ctordelegrating-potential-pitfalls}{suboptimal-factoring}.}}:
 %  {\it\titleref{ctordelegrating-potential-pitfalls}:} {\it\titleref{suboptimal-factoring}} on page~\pageref{suboptimal-factoring}.}}:
 
-
+%\enlargethispage*{2ex}%%%%% to fit code
 \begin{emcppshiddenlisting}[emcppsbatch={e1,e2,e3,e4}]
 #include <cstdint> // (ù{\codeincomments{std::uint16\_t}}ù), (ù{\codeincomments{std::uint32\_t}}ù)
 #include <string>   // (ù{\codeincomments{std::string}}ù)
@@ -206,6 +213,7 @@ public:
 introduction of a separate, private helper function that
 would be called by each of the constructors:
 
+\enlargethispage*{2ex}%%%% to fit the code
 \begin{emcppslisting}[emcppsbatch=e2]
 // C++03 (obsolete)
 #include <cstdint>  // (ù{\codeincomments{std::uint16\_t}}ù), (ù{\codeincomments{std::uint32\_t}}ù)
@@ -279,13 +287,13 @@ directly through the \emcppsgloss{member initializer list}.
 \subsubsection[Delegation cycles]{Delegation cycles}\label{delegation-cycles}
 
 If a constructor delegates to itself either directly or indirectly, the
-program is \emcppsgloss[ill formed, no diagnostic required]{ill formed, no diagnostic required (IFNDR)}. While some compilers can, under certain conditions, detect delegation cycles at compile time, they are neither
+program is \emcppsgloss[ill formed, no diagnostic required (IFNDR)]{ill formed, no diagnostic required (IFNDR)}. While some compilers can, under certain conditions, detect delegation cycles at compile time, they are neither
 required nor necessarily able to do so. For example, even the simplest delegation cycles might not result in a diagnostic from a compiler{\cprotect\footnote{GCC 10.x does not detect this delegation
 cycle at compile time and produces a binary that, if run, will
 necessarily exhibit \emcppsgloss{undefined behavior}. Clang 10.x, on the
 other hand, halts compilation with a helpful error message:
 
-\begin{lstlisting}[language=bash, style=plain, basicstyle={\ttfamily\footnotesize}]
+\begin{lstlisting}[language=bash, style=footcodeplain]
 error: constructor for S creates a delegation cycle
 \end{lstlisting}\vspace*{-1ex}
       }}:
@@ -356,7 +364,7 @@ an \lstinline!IPV4Address! object as an argument.
 \subsection[See Also]{See Also}\label{see-also}
 
 \begin{itemize}
-\item{\seealsoref{forwardingref}{\seealsolocationc}provides perfect forwarding of arguments from one ctor to another.}
+\item{\seealsoref{forwardingref}{\seealsolocationc}provides perfect forwarding of arguments from one ctor to another.}%\pagebreak%%%%%
 \item{\seealsoref{variadictemplate}{\seealsolocationc}describes how to implement constructors that forward an arbitrary list of arguments to other constructors.}
 \end{itemize}
 

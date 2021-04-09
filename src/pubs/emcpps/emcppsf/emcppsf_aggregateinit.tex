@@ -1,5 +1,6 @@
 % 2 Feb 2021, copyedits entered and proofed
 % 8 Feb 2021 JMB, compilation fixes
+% 22 March 2021, in FPPs
 
 \emcppsFeature{
     short={Aggregate Init '14},
@@ -34,19 +35,22 @@ struct A                // aggregate type in C++11 and C++14
 \end{emcppslisting}
 
 \noindent Because \lstinline!A! (but not \lstinline!S!) is considered an \emcppsgloss{aggregate} in
-C++11, instances of \lstinline!A! can be created via \emcppsgloss{aggregate initialization} (whereas instances of \lstinline!S! cannot):
+C++11, instances of \lstinline!A! can be created via \emcppsgloss{aggregate
+initialization} (whereas instances of \lstinline!S! cannot):
 
 \begin{emcppslisting}[emcppsbatch=e1]
 A a={100, true};  // OK, in both C++11 and C++14
 S s={100, true};  // Error, in C++11; OK, in C++14
 \end{emcppslisting}
 
-
 \noindent Note that since C++11, direct-list-initialization may be used to perform aggregate initialization (see \featureref{\locationc}{bracedinit}):
+
 \begin{emcppslisting}[emcppsbatch=e2]
 A a{100, true};  // OK in both C++11 and C++14 but not in C++03
 \end{emcppslisting}
-As of C++14, the requirements for a type to be categorized as an
+
+\enlargethispage*{2ex}
+\noindent As of C++14, the requirements for a type to be categorized as an
 \emcppsgloss{aggregate} are relaxed, allowing classes employing default
 member initializers to be considered as such; hence, both \lstinline!A! and
 \lstinline!S! are considered \emcppsgloss[aggregate]{aggregates} in C++14 and eligible for
@@ -93,22 +97,24 @@ struct HTTPRequestHandlerConfig
 };
 \end{emcppslisting}
 
+\enlargethispage*{2ex}
 \noindent \emcppsgloss[aggregate initialization]{Aggregate initialization} can be used when creating objects of
-type \nobreak{\lstinline!HTTPRequestHandlerConfig!} (above) to override one or more
+type\linebreak[4]
+\lstinline!HTTPRequestHandlerConfig! (above) to override one or more
 of the defaults in definition order{\cprotect\footnote{In C++20, the
 designated initializers feature adds flexibility (e.g., for
 configuration \lstinline!struct!s, such as
 \lstinline!HTTPRequestHandlerConfig!) by enabling explicit specification
 of the names of the data members:
 
-\begin{emcppslisting}[emcppsbatch=e4, basicstyle={\ttfamily\footnotesize}]
+\begin{emcppslisting}[emcppsbatch=e4,style=footcode]
 HTTPRequestHandlerConfig lowTimeout{.timeout = 15};
-    // (ù{\codeincomments{maxQueuedRequests}}ù), (ù{\codeincomments{minThreads}}ù), and (ù{\codeincomments{maxThreads}}ù) have their default value.
+    // (ù{\fncodeincomments{maxQueuedRequests}}ù), (ù{\fncodeincomments{minThreads}}ù), and (ù{\fncodeincomments{maxThreads}}ù) have their default value.
 
 HTTPRequestHandlerConfig highPerformance{.timeout = 120, .maxThreads = 16};
-    // (ù{\codeincomments{maxQueuedRequests}}ù) and (ù{\codeincomments{minThreads}}ù) have their default value.
+    // (ù{\fncodeincomments{maxQueuedRequests}}ù) and (ù{\fncodeincomments{minThreads}}ù) have their default value.
 \end{emcppslisting}
-      }}:
+\vspace*{-3ex} }}:
 
 \begin{emcppslisting}[emcppsbatch=e4]
 HTTPRequestHandlerConfig getRequestHandlerConfig(bool inLowMemoryEnvironment)
@@ -131,27 +137,29 @@ HTTPRequestHandlerConfig getRequestHandlerConfig(bool inLowMemoryEnvironment)
 
 \subsection[Potential Pitfalls]{Potential Pitfalls}\label{potential-pitfalls}
 
+%%%%%%%% New section added 19 March 2021
 \subsubsection{Empty list initializing members does not use the default initializer}
 
 When we add default member initializers to members of an aggregate,
 those initializers are in effect \emph{only} if that member has no corresponding
-initializer in the braced initializer list.  We cannot explicitly \emph{request}
+initializer in the braced initializer list. We cannot explicitly \emph{request}
 the default value by placing empty braces into the list because that will
 value-initialize the member with an empty initializer, not
-use its default member initializer.   Any case in which we want to explicitly initialize a later member variable's value during aggregate initialization means we must manually determine the proper default for all prior members:
+use its default member initializer.  Any case where we want to explicitly initialize a later member variables value during aggregate initialization means we must manually determine the proper default for all prior members:
 
 \begin{emcppslisting}[emcppsstandards={c++14}]
-struct A 
+struct A
 {
      int i{1};
      int j{2};
      int k{3};
 };
 
-A a1{};            // OK,  result is i=1, j=2,         k=3
-A a2{ 4 };         // OK,  result is i=4, j=2,         k=3
+A a1{};            // OK, result is i=1, j=2,         k=3
+A a2{ 4 };         // OK, result is i=4, j=2,         k=3
 A a3{ 4, {}, 8 };  // Bug, result is i=4, j=0 (not 2), k=3
 \end{emcppslisting}
+%%%%%%%%%%%%%%%%%%%%%%
 
 \subsection[Annoyances]{Annoyances}\label{annoyances}
 
@@ -177,6 +185,7 @@ default member initializers (see \featureref{\locationa}{Default-Member-Initiali
 \lstinline!struct!~\lstinline!X! containing three data members, one of which
 has a default value:
 
+\newpage%%%%%
 \begin{emcppslisting}[emcppsbatch=e5]
 struct X
 {

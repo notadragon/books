@@ -16,12 +16,12 @@ Any nonreference type is permitted to be a member of a \lstinline!union!.
 
 \subsection[Description]{Description}\label{unrestrictedunion-description}
 
-Prior to C++11, only \emcppsgloss{trivial types} --- e.g.,
-\emcppsgloss{fundamental types}, such as \lstinline!int! and \lstinline!double!,
+Prior to C++11, only \romeogloss{trivial types} --- e.g.,
+\romeogloss{fundamental types}, such as \lstinline!int! and \lstinline!double!,
 enumerated or pointer types, or a C-style array or \lstinline!struct!
-(a.k.a. a \emcppsgloss{POD}) --- were allowed to be members of a
+(a.k.a. a \romeogloss{POD}) --- were allowed to be members of a
 \lstinline!union!. This limitation prevented any user-defined type having
-a \emcppsgloss[non trivial special member function]{non-trivial special member function} from being a member of a
+a \romeogloss{non-trivial special member function} from being a member of a
 \lstinline!union!:
 
 \begin{emcppshiddenlisting}[emcppsbatch=e1]
@@ -36,13 +36,15 @@ union U0
 \end{emcppslisting}
 
 \noindent C++11 relaxes such restrictions on \lstinline!union! members, such as
-\lstinline!d_s! above, allowing any type other than a \emcppsgloss{reference type} to be a member of a \lstinline!union!.
+\lstinline!d_s! above, allowing any type other than a \romeogloss{reference
+type} to be a member of a \lstinline!union!.
 
 A \lstinline!union! type is permitted to have user-defined special member
 functions but --- by design --- does not initialize any of its members
 automatically. Any member of a \lstinline!union! having a
-\emcppsgloss[non trivial constructor]{non-trivial constructor}, such as \lstinline!struct!~\lstinline!Nt!
-below, must be constructed manually (e.g., via \emcppsgloss[placement new]{placement \lstinline!new!}) before it can be used:
+\romeogloss{non-trivial constructor}, such as \lstinline!struct!~\lstinline!Nt!
+below, must be constructed manually (e.g., via \romeogloss{placement
+\lstinline!new!}) before it can be used:
 
 \begin{emcppslisting}[emcppsbatch=e2]
 struct Nt  // used as part of a (ù{\codeincomments{union}}ù) (below)
@@ -55,10 +57,12 @@ struct Nt  // used as part of a (ù{\codeincomments{union}}ù) (below)
 };
 \end{emcppslisting}
 
-\noindent As an added safety measure, any non-trivial \emcppsgloss{special member function} defined --- either implicitly or explicitly --- for any
-\emcppsgloss{member} of a \lstinline!union! results in the compiler implicitly
+\noindent As an added safety measure, any non-trivial \romeogloss{special member
+function} defined --- either implicitly or explicitly --- for any
+\romeogloss{member} of a \lstinline!union! results in the compiler implicitly
 deleting (see %Section~\ref{deleted-functions},
-``\titleref{deleted-functions}" on page~\pageref{deleted-functions}) the corresponding \emcppsgloss{special member function} of the \lstinline!union! itself:
+``\titleref{deleted-functions}" on page~\pageref{deleted-functions}) the corresponding \romeogloss{special
+member function} of the \lstinline!union! itself:
 
 \begin{emcppslisting}[emcppsbatch=e2]
 union U1
@@ -136,10 +140,10 @@ struct U2
 \end{emcppslisting}
 
 
-\noindent Notice that we have employed \emcppsgloss[placement new]{placement \lstinline!new!} syntax to
+\noindent Notice that we have employed \romeogloss{placement \lstinline!new!} syntax to
 control the lifetime of both member objects. Although assignment would
 be permitted for the trivial \lstinline!int! type, it would be
-\emcppsgloss{undefined behavior} for the non-trivial \lstinline!Nt! type:
+\romeogloss{undefined behavior} for the non-trivial \lstinline!Nt! type:
 
 %begin{emcppslisting}
 %U2(bool useInt) : d_useInt(useInt)  // value constructor
@@ -181,7 +185,7 @@ struct U2
 
 \noindent Now if we were to try to copy-construct or assign one object of type
 \lstinline!U2! to another, the operation would fail because we have not
-yet specifically addressed those \emcppsgloss[special member function]{special member functions}:
+yet specifically addressed those \romeogloss{special member functions}:
 
 \begin{emcppslisting}[emcppsbatch=e2]
 void f()
@@ -303,14 +307,14 @@ the compiler cannot know which member of the union is active.
 
 \subsection[Use Cases]{Use Cases}\label{unrestrictedunion-use-cases}
 
-\subsubsection[Implementing a \emcppsgloss{sum type} as a discriminated {\tt union}]{Implementing a sum type as a discriminated {\SubsubsecCode union}}\label{implementing-a-sum-type-as-a-discriminating-(or-tagged)-union}
+\subsubsection[Implementing a \romeogloss{sum type} as a discriminated {\tt union}]{Implementing a sum type as a discriminated {\SubsubsecCode union}}\label{implementing-a-sum-type-as-a-discriminating-(or-tagged)-union}
 
-A \emcppsgloss{sum type} is an algebraic data type that provides a choice
+A \romeogloss{sum type} is an algebraic data type that provides a choice
 among a fixed set of specific types. A C++11 unrestricted union can serve as a convenient and efficient way to define storage for a sum type (also called a \emph{tagged} or \emph{discriminated} union) because the alignment and size calculations are performed automatically by the compiler.
 
 As an example, consider writing a parsing function \lstinline!parseInteger!
 that, given a\linebreak[4] \lstinline!std::string! \lstinline!input!, will return, as a
-\emcppsgloss{sum type} \lstinline!ParseResult! (see below), containing either an
+\romeogloss{sum type} \lstinline!ParseResult! (see below), containing either an
 \lstinline!int! result (on success) or an informative error message
 on failure:
 
@@ -370,7 +374,7 @@ ParseResult parseInteger(const std::string& input)  // Return a sum type.
 \noindent The implementation above relies on \lstinline!ParseResult! being able to
 hold a value of type either \lstinline!int! or \lstinline!std::string!. By
 encapsulating a C++ \lstinline!union! and a \emph{discriminator} as part
-of the \lstinline!ParseResult! \emcppsgloss{sum type}, we can achieve the
+of the \lstinline!ParseResult! \romeogloss{sum type}, we can achieve the
 desired semantics:
 
 %begin{emcppslisting}
@@ -420,7 +424,7 @@ public:
 \end{emcppslisting}
 
 
-\noindent If a \emcppsgloss{sum type} comprised more than two types, the discriminator would be an appropriately-sized integral or enumerated type instead of a Boolean.
+\noindent If a \romeogloss{sum type} comprised more than two types, the discriminator would be an appropriately-sized integral or enumerated type instead of a Boolean.
 
 As discussed in
 %{\it\titleref{unrestrictedunion-description}} on page~\pageref{unrestrictedunion-description}
@@ -552,10 +556,11 @@ ParseResult& ParseResult::operator=(const ParseResult& rhs)
     return *this;
 }
 \end{emcppslisting}
-In practice, \lstinline!ParseResult! would typically use a more general \emcppsgloss{sum type}{\cprotect\footnote{\lstinline!std::variant!, introduced
-in C++17, is the standard construct used to represent a \emcppsgloss{sum type} as a \emph{discriminated union}. Prior to C++17,
+In practice, \lstinline!ParseResult! would typically use a more general \romeogloss{sum type}{\cprotect\footnote{\lstinline!std::variant!, introduced
+in C++17, is the standard construct used to represent a \romeogloss{sum
+type} as a \emph{discriminated union}. Prior to C++17,
 \lstinline!boost::variant! was the most widely used \emph{tagged} union
-  implementation of a \emcppsgloss{sum type}.}} abstraction to support arbitrary value types and provide proper exception safety.
+  implementation of a \romeogloss{sum type}.}} abstraction to support arbitrary value types and provide proper exception safety.
 
 %\noindent In practice, \texttt{ParseResult} would typically be defined as a
 %template and renamed to allow any arbitrary result type \texttt{T} to be
@@ -568,14 +573,15 @@ in C++17, is the standard construct used to represent a \emcppsgloss{sum type} a
 
 \subsection[Potential Pitfalls]{Potential Pitfalls}\label{potential-pitfalls}
 
-\subsubsection[Inadvertent misuse can lead to latent \emcppsgloss{undefined behavior} at runtime]{Inadvertent misuse can lead to latent \emcppsgloss{undefined behavior} at runtime}\label{inadvertent-misuse-can-lead-to-latent-undefined-behavior-at-runtime}
+\subsubsection[Inadvertent misuse can lead to latent \romeogloss{undefined behavior} at runtime]{Inadvertent misuse can lead to latent \romeogloss{undefined behavior} at runtime}\label{inadvertent-misuse-can-lead-to-latent-undefined-behavior-at-runtime}
 
 When implementing a type that makes use of an unrestricted union,
 forgetting to initialize a non-trivial object (using either a
-\emph{member initializer list} or \emcppsgloss[placement new]{placement \lstinline!new!}) or
+\emph{member initializer list} or \romeogloss{placement \lstinline!new!}) or
 accessing a different object than the one that was actually initialized
-can result in tacit \emcppsgloss{undefined behavior}. Although forgetting to
-destroy an object does not necessarily result in \emcppsgloss{undefined behavior}, failing to do so for any object that manages a resource such
+can result in tacit \romeogloss{undefined behavior}. Although forgetting to
+destroy an object does not necessarily result in \romeogloss{undefined
+behavior}, failing to do so for any object that manages a resource such
 as dynamic memory will result in a \emph{resource leak} and/or lead to
 unintended behavior. Note that destroying an
 object having a trivial destructor is never necessary; there are, however, rare cases where

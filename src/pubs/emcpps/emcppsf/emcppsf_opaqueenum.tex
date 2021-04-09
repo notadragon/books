@@ -1,5 +1,8 @@
-
 % 01 Feb, 2021 JMB - packet 4 compilation fixes
+% 6 March 2021, revisions in and proofed
+%%%%%% NEEDS: one answer from John re citation in text  + Further Reading and one answer from Slava re .e and e.
+% 6 March 2021, sent to copyediting
+% 19 March 2021, copyedits in and proofed.
 
 
 \emcppsFeature{
@@ -14,144 +17,275 @@
 \setcounter{lstlisting}{0}
 %\section[Opaque {\tt enum}s]{Opaque Enumeration Declarations}\label{enumopaque}\label{opaque-enumeration-declarations}
 
+Any enumeration with a \emph{fixed} \emcppsgloss[underlying type (UT)]{underlying type} can be declared without being defined, i.e., declared without its enumerators.
 
-Enumerated types, such as an \lstinline!enum! or \lstinline!enum! class (see \featureref{\locationc}{enumclass}), whose underlying type (see \featureref{\locationc}{explicit-enumeration-underlying-type}) is well-specified, can be
-declared without being defined, i.e., declared without its enumerators.
+%Enumerated types, such as an \lstinline!enum! or \lstinline!enum! class (see \featureref{\locationc}{enumclass}), whose underlying type (see \featureref{\locationc}{explicit-enumeration-underlying-type}) is well-specified, can be
+%declared without being defined, i.e., declared without its enumerators.
 
 \subsection[Description]{Description}\label{description}
 
-We identify two distinct forms of \emcppsgloss[opaque declaration]{opaque declarations}, i.e.,
-declarations that are not also definitions:
-\begin{enumerate}
-\item{A \emcppsgloss{forward declaration} has some translation unit in which the full definition and that declaration both appear. This can be a declaration in a header file where the definition is in the same header or in the corresponding implementation file. It can also be a declaration that appears in the same implementation file as the corresponding definition.}
-\item{A \emcppsgloss{local declaration} has no translation unit that includes both that declaration and the corresponding full definition.}
-\end{enumerate}
-
-A classic (C++03) C-style \lstinline!enum! cannot have \emcppsgloss[opaque declaration]{opaque declarations}, nor can its definition be repeated within the same
-\emcppsgloss{translation unit} (TU):
+Prior to C++11, enumerations could not be declared without the compiler having access to all of its enumerators, meaning that the definition of a specific \lstinline!enum! had to be present in the \emcppsgloss{translation unit (TU)} prior to any declarations:
 
 \begin{emcppslisting}
-enum E0;                 // Error, opaque declaration
-enum    { e_A0, e_B0 };  // OK, anonymous classic (only) (ù{\codeincomments{enum}}ù)
+enum E0;                 // Error, incomplete (ù{\codeincomments{enum}}ù) type
 enum E1 { e_A1, e_B1 };  // OK, definition
-enum E1;                 // OK, redeclaration in same TU
-enum E2 { e_A2, e_B2 };  // OK, definition
-enum E2 { e_A2, e_B2 };  // Error, redefinition in same TU
+enum E1;                 // OK, redeclaration of existing (ù{\codeincomments{enum}}ù) in the same TU
 \end{emcppslisting}
 
-\noindent The underlying integral types used to represent objects of each of the
-(classic) enumerations in the example above is \emcppsgloss{implementation defined}, making
-all of them ineligible for \emcppsgloss{opaque declaration}. This restriction
-on \emcppsgloss[opaque declaration]{opaque declarations} exists because the specific values of
-the enumerators might affect the underlying type %(see \featureref{\locationc}{explicit-enumeration-underlying-type})
-(e.g.,
-size, alignment, \lstinline!signed!ness), and therefore the declaration
-alone cannot be used to create objects of that type. A declaration that
-specifies the underlying type or a full definition can, however, be used
-to create objects of that type. Specifying an underlying
-type %(see \featureref{\locationc}{explicit-enumeration-underlying-type})
-explicitly makes \emcppsgloss{opaque declaration} possible:
-
-\begin{emcppslisting}[emcppsbatch=e1]
-enum    : char { e_A, e_B };     // OK, (anonymous) complete definition
-enum E3 : char;                  // OK, forward declaration w/underlying type
-enum E3 : char { e_A3, e_B3 };   // OK, compatible complete definition
-enum E4 : short { e_A4, e_B4 };  // OK, complete definition
-enum E4 : short;                 // OK, compatible opaque redeclaration
-enum E4 : int;                   // Error, incompatible opaque redeclaration
-enum E5 : int { e_A5, e_B5 };    // OK, complete definition
-enum E5 : int { e_A5, e_B5 };    // Error, complete redefinition in same TU
-\end{emcppslisting}
-
-\noindent The modern (C++11) \lstinline!enum!~\lstinline!class!, %(see \featureref{\locationc}{enumclass}),
-which
-provides its enumerators with (1) stronger typing and (2) an enclosing
-scope, also comes with a default \emcppsgloss{underlying type} of
-\lstinline!int!, thereby making it eligible to be declared without a
-definition (even without explicit qualification):
-
-\begin{emcppslisting}[emcppsbatch=e1]
-enum class E6;                 // OK, implicit underlying type ((ù{\codeincomments{int}}ù))
-enum class E6 : int;           // OK, explicit matching underlying type
-enum class E6 { e_A3, e_B3 };  // OK, compatible complete definition
-enum class E7 { e_A4, e_B4 };  // OK, complete definition, (ù{\codeincomments{int}}ù) underlying type
-enum class E7;                 // OK, compatible opaque redeclaration
-enum class E7 : short;         // Error, incompatible opaque redeclaration
-enum class E8 : long;          // OK, opaque declaration, (ù{\codeincomments{long}}ù) underlying type
-enum class E8 : long { e_A5 }; // OK, compatible complete definition
-enum class E9 { e_A6, e_B7 };  // OK, complete definition
-enum class E9 { e_A6, e_B7 };  // Error, complete redefinition in same TU
-enum class    { e_A, e_B };    // Error, anonymous (ù{\codeincomments{enum}}ù) classes are not allowed
-\end{emcppslisting}
-
-\noindent To summarize, each classical \lstinline!enum! type having an explicitly
-specified \emcppsgloss{underlying type} and every modern \lstinline!enum!~\lstinline!class! type can be declared (e.g., for the first
-time in a TU) as a \emcppsgloss{complete type}:
-
-\begin{emcppslisting}[emcppsbatch=e1]
-enum E10 : char;  static_assert(sizeof(E10)  == 1);
-enum class E11;   static_assert(sizeof(E11) == sizeof(int));
-
-E10 a;            static_assert(sizeof a == 1);
-E11 b;            static_assert(sizeof b == sizeof(int));
-\end{emcppslisting}
-
-\noindent Typical usage of opaque enumerations often involves placing the
-\emcppsgloss{forward declaration} within a header and sequestering the
-complete definition within a corresponding \lstinline!.cpp! (or else a
-second header), thereby \emcppsgloss{insulating} (at least some) clients from
-changes to the enumerator list (see \intraref{use-cases-opaqueenum}{using-opaque-enumerations-within-a-header-file}):
+Since C++11, enumerations can have a \emph{fixed} \emcppsgloss[underlying type (UT)]{underlying type} (see \featureref{\locationc}{explicit-enumeration-underlying-type}), meaning that their integral representation does not depend on the values of their enumerators.  Such enumerations can be declared without enumerators via an \emcppsgloss{opaque declaration}:
 
 \begin{emcppslisting}
-// mycomponent.h:
-// ...
-enum E9 : char;   // forward declaration of (ù{\codeincomments{enum E9}}ù)
-enum class E10;   // forward declaration of (ù{\codeincomments{enum class E10}}ù)
-
-
-// mycomponent.cpp:
-#include <mycomponent.h>
-// ...
-enum E9 : char { e_A9, e_B9, e_C9 };
-    // complete definition compatible with forward declaration of (ù{\codeincomments{E9}}ù)
-
-enum class E10 { e_A10, e_B10, e_C10 };
-    // complete definition compatible with forward declaration of (ù{\codeincomments{E10}}ù)
+enum E2 : short;  // OK, opaque declaration with fixed (ù{\codeincomments{char}}ù) underlying type
+enum E3;          // Error, opaque declaration without fixed underlying type
 \end{emcppslisting}
 
-\noindent Note, however, that clients embedding \emph{local declarations} directly
-in their code can be problematic; see \intraref{potential-pitfalls-opaqueenum}{redeclaring-an-externally-defined-enumeration-locally}.
+The declaration of the \lstinline!E2! enumeration above gives the compiler enough information to know that the size and alignment of the type is \lstinline!sizeof(short)! and \lstinline!alignof(short)!, respectively, even though the enumerators have not yet been seen.  Conversely, the size, alignment, and signedness of a classic enumeration such as \lstinline!E3! is \emcppsgloss{implementation defined} and dependent on the specific enumerator values. The compiler cannot determine these properties until the enumerators are seen; hence, classic enumerations are not eligible for \emcppsgloss{opaque declaration}.
+
+C++11 also introduced \emcppsgloss[scoped enumeration]{scoped enumerations} (see \featureref{\locationc}{enumclass}), declared with the keyword sequence \lstinline!enum!~\lstinline!class! or \lstinline!enum!~\lstinline!struct!.  A \emcppsgloss{scoped enumeration} implicitly has an \emcppsgloss[underlying type (UT)]{underlying type} of \lstinline!int! unless the user explicitly specifies a different \emcppsgloss[underlying type (UT)]{underlying type}.  Because the underlying type of a \emcppsgloss{scoped enumeration} is always known at the point of declaration, it, too, can be declared with an \emcppsgloss{opaque declaration}:
+
+\begin{emcppslisting}
+enum class E4;          // OK, scoped (ù{\codeincomments{enum}}ù), default (ù{\codeincomments{int}}ù) underlying type
+enum class E5 : short;  // OK, scoped (ù{\codeincomments{enum}}ù), fixed (ù{\codeincomments{short}}ù) underlying type
+\end{emcppslisting}
+
+Within a single \emcppsgloss[translation unit (TU)]{translation unit}, the enumerators for an \lstinline!enum! declared with an \emcppsgloss{opaque declaration} can be defined before the declaration, defined after it, or not provided at all:
+
+\begin{emcppslisting}
+enum E6 : unsigned { e_A6, e_A7 };  // OK, (ù{\codeincomments{enum}}ù) definition
+enum E6 : unsigned;                 // OK, redeclaration of existing (ù{\codeincomments{enum}}ù)
+
+enum E7 : int;                      // OK, opaque (ù{\codeincomments{enum}}ù) declaration
+enum E7 : int { e_A7 };             // OK, (ù{\codeincomments{enum}}ù) definition
+
+enum E8 : short;                    // OK, opaque (ù{\codeincomments{enum}}ù) declaration
+\end{emcppslisting}
+
+All the declarations of an enumeration within a single TU must agree on its \emcppsgloss[underlying type (UT)]{underlying type}; otherwise, the program is ill formed:
+
+\begin{emcppslisting}
+enum class E9;              // OK, fixed default underlying type of (ù{\codeincomments{int}}ù)
+enum class E9 : int;        // OK, underlying type matches previous declaration
+
+enum E10 : short;           // OK, fixed explicit underlying type (ù{\codeincomments{short}}ù)
+enum E10 : char { e_A10 };  // Error, redeclaration with different underlying type
+
+enum class E11 : char;      // OK, fixed explicit underlying type (ù{\codeincomments{char}}ù)
+enum class E11 : short;     // Error, redeclaration with different underlying type
+\end{emcppslisting}
+
+Note that, as in C++03, multiple definitions of an enumeration are not allowed within a single TU:
+
+\begin{emcppslisting}
+enum E12 : char;            // OK, opaque (ù{\codeincomments{enum}}ù) declaration
+enum E12 : char { e_A12 };  // OK, (ù{\codeincomments{enum}}ù) definition
+enum E12 : char;            // OK, opaque (ù{\codeincomments{enum}}ù) redeclaration
+enum E12 : char { e_A12 };  // Error, (ù{\codeincomments{enum}}ù) redefinition
+
+enum class E13;             // OK, opaque (ù{\codeincomments{enum}}ù) declaration
+enum class E13 { e_A13 };   // OK, (ù{\codeincomments{enum}}ù) definition
+enum class E13;             // OK, opaque (ù{\codeincomments{enum}}ù) redeclaration
+enum class E13 { e_A13 };   // Error, (ù{\codeincomments{enum}}ù) redefinition
+\end{emcppslisting}
+
+An enumeration  declared with an \emcppsgloss{opaque declaration} is a \emcppsgloss{complete type}.  This means that, for example, we can request its size using \lstinline!sizeof!, have a local, global, or member variable of the enumeration's type, and so on --- all without having access to the enumeration's definition:
+
+\begin{emcppslisting}
+enum E14 : char;
+static_assert(sizeof(E14) == 1, "");            // OK, (ù{\codeincomments{sizeof}}ù) of a complete type
+
+enum class E15;
+static_assert(sizeof(E15) == sizeof(int), "");  // OK, (ù{\codeincomments{sizeof}}ù) of a complete type
+
+E14 a;  // OK, variable of a complete type
+E15 b;  // OK,     "     " "     "      "
+
+struct S {
+    E14 d_e14;  // OK, data member of a complete type
+    E15 d_e15;  // OK,   "     "    " "     "      "
+
+    S(E14 e14, E15 e15)  // OK, by-value function arguments of complete types
+    : d_e14(e14)
+    , d_e15(e15)
+    {
+    }
+};
+\end{emcppslisting}
+
+Typical usage of opaque enumeration declarations often involves placing the \emcppsgloss{forward declaration}
+within a header and sequestering the complete definition within a corresponding \lstinline!.cpp! (or a second header). A \emcppsgloss{forward declaration} can insulate clients from changes to the enumerator
+list (see \intraref{use-cases-opaqueenum}{using-opaque-enumerations-within-a-header-file}):
+
+\begin{emcppslisting}
+// myclass.h:
+// ...
+
+class MyClass {
+    // ...
+private:
+    enum class State;  // forward declaration of (ù{\codeincomments{State}}ù) enumeration
+    State d_state;
+};
+
+// ...
+
+// myclass.cpp:
+
+#include <myclass.h>
+// ...
+enum class MyClass::State { e_STATE1, e_STATE2, e_STATE3 };
+    // complete definition compatible with forward declaration of (ù{\codeincomments{MyClass::State}}ù)
+\end{emcppslisting}
+
+Note that such a \emcppsgloss{forward declaration} is distinct from a \emcppsgloss{local declaration}.  A \emcppsgloss{forward declaration} is characterized by having a translation unit that deliberately comprises both the definition and the \emcppsgloss{opaque declaration} of the enumeration.  This translation unit can result either from their direct colocation in the same file or via the inclusion of a header in the corresponding implementation file (as in the example above).  For a \emcppsgloss{local declaration}, no such translation unit exists:
+
+\begin{emcppslisting}
+// library.h:
+// ...
+
+enum class E18 : short { e_A18, /* ... */ e_Z18 };
+
+// client.cpp:
+
+// Note that 'library.h' is (ù{\emphincomments{not}}ù) included
+
+enum class E18;  // BAD IDEA - a (ù{\emphincomments{local}}ù) opaque enumeration declaration
+\end{emcppslisting}
+
+A \emcppsgloss{local declaration}, such as \lstinline!E18! above, can be problematic; see \intraref{potential-pitfalls-opaqueenum}{redeclaring-an-externally-defined-enumeration-locally}.
+
+%We identify two distinct forms of \romeogloss{opaque declarations}, i.e.,
+%declarations that are not also definitions:
+%\begin{enumerate}
+%\item{A \romeogloss{forward declaration} has some translation unit in which the full definition and that declaration both appear. This can be a declaration in a header file where the definition is in the same header or in the corresponding implementation file. It can also be a declaration that appears in the same implementation file as the corresponding definition.}
+%\item{A \romeogloss{local declaration} has no translation unit that includes both that declaration and the corresponding full definition.}
+%\end{enumerate}
+%
+%A classic (C++03) C-style \lstinline!enum! cannot have \romeogloss{opaque
+%declarations}, nor can its definition be repeated within the same
+%\romeogloss{translation unit} (TU):
+%
+%\begin{emcppslisting}
+%enum E0;                 // Error, opaque declaration
+%enum    { e_A0, e_B0 };  // OK, anonymous classic (only) (ù{\codeincomments{enum}}ù)
+%enum E1 { e_A1, e_B1 };  // OK, definition
+%enum E1;                 // OK, redeclaration in same TU
+%enum E2 { e_A2, e_B2 };  // OK, definition
+%enum E2 { e_A2, e_B2 };  // Error, redefinition in same TU
+%\end{emcppslisting}
+%
+%\noindent The underlying integral types used to represent objects of each of the
+%(classic) enumerations in the example above is \romeogloss{implementation defined}, making
+%all of them ineligible for \romeogloss{opaque declaration}. This restriction
+%on \romeogloss{opaque declarations} exists because the specific values of
+%the enumerators might affect the underlying type %(see \featureref{\locationc}{explicit-enumeration-underlying-type})
+%(e.g.,
+%size, alignment, \lstinline!signed!ness), and therefore the declaration
+%alone cannot be used to create objects of that type. A declaration that
+%specifies the underlying type or a full definition can, however, be used
+%to create objects of that type. Specifying an underlying
+%type %(see \featureref{\locationc}{explicit-enumeration-underlying-type})
+%explicitly makes \romeogloss{opaque declaration} possible:
+%
+%\begin{emcppslisting}[emcppsbatch=e1]
+%enum    : char { e_A, e_B };     // OK, (anonymous) complete definition
+%enum E3 : char;                  // OK, forward declaration w/underlying type
+%enum E3 : char { e_A3, e_B3 };   // OK, compatible complete definition
+%enum E4 : short { e_A4, e_B4 };  // OK, complete definition
+%enum E4 : short;                 // OK, compatible opaque redeclaration
+%enum E4 : int;                   // Error, incompatible opaque redeclaration
+%enum E5 : int { e_A5, e_B5 };    // OK, complete definition
+%enum E5 : int { e_A5, e_B5 };    // Error, complete redefinition in same TU
+%\end{emcppslisting}
+%
+%\noindent The modern (C++11) \lstinline!enum!~\lstinline!class!, %(see \featureref{\locationc}{enumclass}),
+%which
+%provides its enumerators with (1) stronger typing and (2) an enclosing
+%scope, also comes with a default \romeogloss{underlying type} of
+%\lstinline!int!, thereby making it eligible to be declared without a
+%definition (even without explicit qualification):
+%
+%\begin{emcppslisting}[emcppsbatch=e1]
+%enum class E6;                 // OK, implicit underlying type ((ù{\codeincomments{int}}ù))
+%enum class E6 : int;           // OK, explicit matching underlying type
+%enum class E6 { e_A3, e_B3 };  // OK, compatible complete definition
+%enum class E7 { e_A4, e_B4 };  // OK, complete definition, (ù{\codeincomments{int}}ù) underlying type
+%enum class E7;                 // OK, compatible opaque redeclaration
+%enum class E7 : short;         // Error, incompatible opaque redeclaration
+%enum class E8 : long;          // OK, opaque declaration, (ù{\codeincomments{long}}ù) underlying type
+%enum class E8 : long { e_A5 }; // OK, compatible complete definition
+%enum class E9 { e_A6, e_B7 };  // OK, complete definition
+%enum class E9 { e_A6, e_B7 };  // Error, complete redefinition in same TU
+%enum class    { e_A, e_B };    // Error, anonymous (ù{\codeincomments{enum}}ù) classes are not allowed
+%\end{emcppslisting}
+%
+%\noindent To summarize, each classical \lstinline!enum! type having an explicitly
+%specified \romeogloss{{underlying type}} and every modern \lstinline!enum!~\lstinline!class! type can be declared (e.g., for the first
+%time in a TU) as a \romeogloss{complete type}:
+%
+%\begin{emcppslisting}[emcppsbatch=e1]
+%enum E10 : char;  static_assert(sizeof(E10)  == 1);
+%enum class E11;   static_assert(sizeof(E11) == sizeof(int));
+%
+%E10 a;            static_assert(sizeof a == 1);
+%E11 b;            static_assert(sizeof b == sizeof(int));
+%\end{emcppslisting}
+%
+%\noindent Typical usage of opaque enumerations often involves placing the
+%\romeogloss{forward declaration} within a header and sequestering the
+%complete definition within a corresponding \lstinline!.cpp! (or else a
+%second header), thereby \romeogloss{insulating} (at least some) clients from
+%changes to the enumerator list (see \intraref{use-cases-opaqueenum}{using-opaque-enumerations-within-a-header-file}):
+%
+%\begin{emcppslisting}
+%// mycomponent.h:
+%// ...
+%enum E9 : char;   // forward declaration of (ù{\codeincomments{enum E9}}ù)
+%enum class E10;   // forward declaration of (ù{\codeincomments{enum class E10}}ù)
+%
+%
+%// mycomponent.cpp:
+%#include <mycomponent.h>
+%// ...
+%enum E9 : char { e_A9, e_B9, e_C9 };
+%    // complete definition compatible with forward declaration of (ù{\codeincomments{E9}}ù)
+%
+%enum class E10 { e_A10, e_B10, e_C10 };
+%    // complete definition compatible with forward declaration of (ù{\codeincomments{E10}}ù)
+%\end{emcppslisting}
+%
+%\noindent Note, however, that clients embedding \emph{local declarations} directly
+%in their code can be problematic; see \intraref{potential-pitfalls-opaqueenum}{redeclaring-an-externally-defined-enumeration-locally}.
 
 \subsection[Use Cases]{Use Cases}\label{use-cases-opaqueenum}
 
 \subsubsection[Using opaque enumerations within a header file]{Using opaque enumerations within a header file}\label{using-opaque-enumerations-within-a-header-file}
 
 \emcppsgloss[physical design]{Physical design} involves two related but distinct notions of
-information \emph{hiding}: \emcppsgloss{encapsulation} and \emcppsgloss{insulation}.
+information \emph{hiding}: \emcppsgloss{encapsulation}\footnote{\cite{liskov87}}\footnote{\cite{liskov16}} and \emcppsgloss{insulation}.\footnote{\cite{lakos96}, Chapter~6, pp. 327--471}\footnote{\cite{lakos20}, Sections~3.10--3.11, pp.~733--835}
 An implementation detail is \emph{encapsulated} if changing it (in a
 semantically compatible way) does not require clients to rework their
 code but might require them to recompile it.
 
 An \emph{insulated} implementation detail, on the other hand, can be
-altered compatibly \emph{without} forcing clients even to recompile.
+altered compatibly \emph{without} forcing clients even to recompile, merely to relink their code against updated libraries.
 The advantages of avoiding such \emcppsgloss[compile time coupling]{compile-time coupling} transcend
-merely reducing compile time. For larger codebases in which various
+simply reducing compile time. For larger codebases in which various
 layers are managed under different release cycles, making a change to an
 \emph{insulated} detail can be done with a \lstinline!.o! patch and a
 relink the same day, whereas an \emph{uninsulated} change might
 precipitate a waterfall of releases spanning days, weeks, or even
 longer.
 
-As a first example of \emcppsgloss[opaque enumeration]{opaque-enumeration} usage, consider a
-non-\emph{value-semantic} \emcppsgloss{mechanism} class, \lstinline!Proctor!,
+As a first example of \emcppsgloss[opaque enumeration]{opaque enumeration} usage, consider a
+non-\emcppsgloss[value semantic]{value-semantic} \emcppsgloss{mechanism} class, \lstinline!Proctor!,
 implemented as a finite-state machine:
 
 \begin{emcppslisting}[emcppsbatch=e2]
 // proctor.h:
-// ...
+
 class Proctor
 {
-    int d_current;  // "opaque" but unconstrained (ù{\codeincomments{int}}ù) type (BAD IDEA)
+    int d_state;  // "opaque" but unconstrained (ù{\codeincomments{int}}ù) type (BAD IDEA)
     // ...
 
 public:
@@ -161,7 +295,7 @@ public:
 \end{emcppslisting}
 
 \noindent Among other private members, \lstinline!Proctor! has a data member,
-\lstinline!d_current!, representing the current enumerated state of
+\lstinline!d_state!, representing the current enumerated state of
 the object. We anticipate that the implementation of the underlying
 state machine will change regularly over time but that the
 \lstinline!public! interface is relatively stable. We will, therefore, want
@@ -175,14 +309,12 @@ sequestered within the corresponding \lstinline!.cpp! file:
 #include <proctor.h>
 
 enum State { e_STARTING, e_READY, e_RUNNING, e_DONE };
-Proctor::Proctor() : d_current(e_STARTING) { /* ... */ }
+
+Proctor::Proctor() : d_state(e_STARTING) { /* ... */ }
 // ...
 \end{emcppslisting}
 
-\noindent Prior to C++11, enumerations could not be \emcppsgloss{forward declared}. To
-avoid exposing (in a header file) enumerators that were used only
-privately (in the \lstinline!.cpp! file), a completely unconstrained
-\lstinline!int! would be used as a data member to represent the state. With
+\noindent Prior to C++11, enumerations could not be \emcppsgloss[forward declare]{forward declared}. To avoid the unnecessary exposition of the enumerators in the header file,  a completely unconstrained \lstinline!int! would be used as a data member, and the enumeration would be defined in the \lstinline!.cpp! file. With
 the advent of modern C++, we now have better options. First, we might
 consider adding an explicit underlying type to the enumeration in the
 \lstinline!.cpp! file:
@@ -202,17 +334,18 @@ public:
 #include <proctor.h>
 
 enum State : int { e_STARTING, e_READY, e_RUNNING, e_DONE };
-Proctor::Proctor() : d_current(e_STARTING) { /* ... */ }
+
+Proctor::Proctor() : d_state(e_STARTING) { /* ... */ }
 // ...
 \end{emcppslisting}
 
 \noindent Now that the \emcppsgloss[component local]{component-local} \lstinline!enum! has an explicit
 underlying type, we can \emcppsgloss{forward declare} it in the header file.
 The existence of \lstinline!proctor.cpp!, which includes
-\lstinline!proctor.h!, makes this declaration a \emph{forward declaration}
-and not just an \emph{opaque declaration}. Compilation of
+\lstinline!proctor.h!, makes this declaration a \emcppsgloss{forward declaration}
+and not just a \emcppsgloss{local declaration}. Compilation of
 \lstinline!proctor.cpp! guarantees that the declaration and definition are
-compatible. Having this \emph{forward declaration} improves (somewhat)
+compatible. Having this \emcppsgloss{forward declaration} improves (somewhat)
 our type safety:
 
 \begin{emcppslisting}[emcppsbatch=e4]
@@ -222,7 +355,7 @@ enum State : int;  // opaque declaration of enumeration (new in C++11)
 
 class Proctor
 {
-    State d_current;  // opaque classical enumerated type (BETTER IDEA)
+    State d_state;  // opaque classical enumerated type (BETTER IDEA)
     // ...
 
 public:
@@ -231,9 +364,9 @@ public:
 };
 \end{emcppslisting}
 
-\noindent But we can do even better. First we will want to nest the enumerated
+\noindent But we can do even better. First, we will want to nest the enumerated
 \lstinline!State! type within the private section of the proctor to avoid
-needless namespace pollution. What's more, because the numerical values
+needless namespace pollution. Then, because the numerical values
 of the enumerators are not relevant, we can more closely model our
 intent by nesting a more strongly typed \lstinline!enum!~\lstinline!class! instead:
 
@@ -252,7 +385,7 @@ public:
 };
 \end{emcppslisting}
 
-\noindent We would then declare the nested
+\noindent Next, we would then define the nested
 \lstinline!enum!~\lstinline!class! %(see \featureref{\locationc}{enumclass})
 accordingly in the
 \lstinline!.cpp! file:
@@ -262,18 +395,16 @@ accordingly in the
 #include <proctor.h>
 
 enum class Proctor::State { e_STARTING, e_READY, e_RUNNING, e_DONE };
+
 Proctor::Proctor() : d_current(State::e_STARTING) { /* ... */ }
 // ...
 \end{emcppslisting}
 
-\noindent Finally, notice that in this example we first \emph{forward declared}
+\noindent Finally, notice that in the header file of this example we first \emcppsgloss[forward declare]{forward declared}
 the nested \lstinline!enum!~\lstinline!class! type within class scope and
-then in a separate statement defined a data member of the opaque
+then separately defined a data member of the opaque
 enumerated type. We needed to do this in two statements because
-simultaneously \emph{opaquely declaring} either a classic \lstinline!enum!
-having an explicit underlying type %(see \featureref{\locationc}{explicit-enumeration-underlying-type})
-or an
-\lstinline!enum!~\lstinline!class! %(see \featureref{\locationc}{enumclass})
+simultaneously \emph{opaquely declaring} an enumeration
 and also defining an object
 of that type in a single statement is not possible:
 
@@ -292,13 +423,167 @@ enum class E4 { e_A, e_B } e4;  // OK,  "    "       "      "   "        "
 
 \noindent Providing such a full definition, however, would have run counter to our
 intention to \emcppsgloss{insulate} the enumerator list of
-\lstinline!Proctor::State! from clients \lstinline!#include!ing the header
+\lstinline!Proctor::State! from clients including the header
 file defining \lstinline!Proctor!.
+
+
+\subsubsection[Dual-Access: Insulating some external clients from the enumerator list]{Dual-Access: Insulating some external clients from the enumerator list}\label{dual-access:-insulating-some-external-clients-from-the-enumerator-list}
+
+In previous use cases, the goal has been to \emcppsgloss{insulate} \emph{all}
+external clients from the enumerators of an enumeration that is visible
+(but not necessarily programmatically reachable) in the defining
+component's header. Consider the situation in which a \emcppsgloss{component}
+(\lstinline!.h!/\lstinline!.cpp! pair) itself defines an enumeration that will
+be used by various clients within a single program, some of which will
+need access to the enumerators.
+
+When an \lstinline!enum!~\lstinline!class! or a classic \lstinline!enum! having
+an explicitly specified underlying type (see \featureref{\locationc}{explicit-enumeration-underlying-type}) is specified in
+a header for direct programmatic use, external clients are at liberty to
+unilaterally redeclare it \emph{opaquely}, i.e., without its enumerator
+list. A compelling motivation for doing so would be for a client who
+doesn't make direct use of the enumerators to \emcppsgloss{insulate} itself
+and/or its clients from having to recompile whenever the enumerator list
+changes.
+
+Embedding any such \emcppsgloss{local declaration} in client code, however,
+would be highly problematic: If the underlying type of the declaration
+(in one translation unit) were somehow to become inconsistent with that
+of the definition (in some other translation unit), any program
+incorporating both translation units would immediately become silently
+\emcppsgloss{ill formed, no diagnostic required (IFNDR)}; see \intraref{potential-pitfalls-opaqueenum}{redeclaring-an-externally-defined-enumeration-locally}. Unless a separate forwarding header file is
+provided along with (and ideally included by) the header defining the
+full enumeration, any client opting to exploit this
+opacity feature of an enumerated type will have no alternative but to
+redeclare the enumeration locally; see \intraref{potential-pitfalls-opaqueenum}{inciting-local-enumeration-declarations-an-attractive-nuisance}.
+
+For example, consider an \lstinline!enum!~\lstinline!class!, \lstinline!Event!,
+intended for public use by external clients:
+
+\begin{emcppslisting}
+// event.h:
+// ...
+enum class Event : char { /*... changes frequently ...*/ };
+// ...             ^^^^
+\end{emcppslisting}
+
+\noindent Now imagine some client header file, \lstinline!badclient.h!, that makes
+use of the \lstinline!Event! enumeration and chooses to avoid compile-time
+coupling itself to the enumerator list by
+embedding, for whatever reason, a \emcppsgloss{local declaration} of \lstinline!Event! instead:
+
+\begin{emcppslisting}
+// badclient.h:
+// ...
+enum class Event : char;  // BAD IDEA: local external declaration
+// ...
+struct BadObject
+{
+    Event d_currentEvent;  // object of locally declare enumeration
+    // ...
+};
+// ...
+\end{emcppslisting}
+
+\noindent Imagine now that the number of events that can fit in a \lstinline!char! is
+exceeded and we decide to change the definition to have an underlying
+type of \lstinline!short!:
+
+\begin{emcppslisting}
+// event.h:
+// ...
+enum class Event : short { /*... changes frequently ...*/ };
+// ...             ^^^^^
+\end{emcppslisting}
+
+\noindent Client code, such as in \lstinline!badclient.h!, that fails to include the
+\lstinline!event.h! header will have no automatic way of knowing that it
+needs to change, and recompiling the code for all cases where
+\lstinline!event.h! isn't also included in the translation unit will not
+fix the problem. Unless every such client is somehow updated manually, a
+newly linked program comprising them will be \emcppsgloss[ill formed, no diagnostic required (IFNDR)]{IFNDR} with the likely
+consequence of either a crash or (worse) with the likely consequence of either a crash or, worse, the program continues to run and misbehaves. When providing a programmatically accessible definition of
+an enumerated type in a header where the \emcppsgloss[underlying type (UT)]{underlying type} is
+specified either explicitly or implicitly, we can give external
+clients a \emph{safe} alternative to local declaration by also providing
+an auxiliary header containing \emph{just} the corresponding opaque
+declaration:
+
+\begin{emcppslisting}[emcppsbatch=e7]
+// event.fwd.h:
+// ...
+enum class Event : char;
+// ...
+\end{emcppslisting}
+
+\noindent Here we have chosen to treat the forwarding header file as part of the same event component as the principal header but with an injected descriptive suffix field, \lstinline!.fwd!.\footnote{Using the compound \emph{suffix} \lstinline!fwd.h! (e.g., \lstinline!comp.fwd.h!) for a forwarding header --- instead of, say, \lstinline!comp_fwd.h! or \lstinline!comp.fh! --- is advantageous in two ways. First, it preserves both the \emcppsgloss{component}'s \emcppsgloss{base name} and the conventional \emcppsgloss{file extension} for headers on the host platform.  Second, it informs the human reader that this is a \emph{forwarding} header that may co-exist alongside a nonforwarding one. See \cite{lakos20}, section~2.4, pp.~297--333.}
+%; this approach, as opposed to, say, \lstinline!file_fwd.h!, \lstinline!filefwd.h!, or \lstinline!file.hh!, was chosen so as not to (1) encroach on a disciplined, component-naming scheme involving reserved use of underscores\footnote{\cite{lakos20}, section~2.4, pp.~297--333} or (2) confuse tools and scripts that expect header-file names to end with a \lstinline!.h! suffix.
+
+In general, having a forwarding header always included in its
+corresponding full header facilitates situations such as default
+template arguments where the declaration can appear at most once in any
+given translation unit; the only drawback is that the
+comparatively small forwarding header file must now also be opened and
+parsed if the full header file is included in a given translation
+unit. To ensure consistency, we thus \lstinline!#include! this forwarding
+header in the original header defining the full enumeration:
+
+\begin{emcppslisting}[emcppsbatch=e7]
+// event.h:
+// ...                  // Ensure opaque declaration (included here) is
+#include <event.fwd.h>  // consistent with complete definition (below).
+// ...
+enum class Event : char { /*... changes frequently ...*/ };
+// ...
+\end{emcppslisting}
+
+\noindent In this way, every translation unit that includes the definition will
+serve to ensure that the forward declaration and definition match;
+hence, clients can incorporate safely only the presumably more stable
+forwarding header:
+
+\begin{emcppslisting}[emcppsbatch=e7]
+// goodclient.h:
+// ...
+#include <event.fwd.h>  // GOOD IDEA: consistent opaque declaration
+// ...
+class Client
+{
+    Event d_currentEvent;
+    // ...
+};
+\end{emcppslisting}
+
+%%%%%%%%%%%%% Keep for next edition
+%\noindent Note that we have consistently
+%employed angle brackets exclusively for all include directives used
+%throughout this book to maximize flexibility of deployment presuming a
+%  regimen for unique naming.\footnote{See \cite{lakos20}, section~1.5.1,
+%  pp.~201--203.}
+%%%%%%%%%%%%%%%%%
+
+  To illustrate real-world practical use of the opaque-enumerations
+feature, consider the various \emcppsgloss[component]{components}
+%{\cprotect\footnote{See \cite{lakos20}, sections~1.6 and 1.11, pp.~209--216 and pp.~256--259, respectively.}}
+  that might depend
+on{\cprotect\footnote{\cite{lakos20}, section~1.8, ``The Depends-On Relation," pp.~237--243.}} an \lstinline!Event! enumeration such as that above:
+\begin{itemize}
+\item{\textbf{\emcppsgloss[message]{\lstinline!Message!}} — The component provides a \emph{value-semantic} \lstinline!Message! class consisting of just raw data,\cprotect\footnote{We sometimes refer to data that is meaningful only in the context of a higher-level entity as \emcppsgloss{dumb data}; see \cite{lakos20}, section~3.5.5, pp.~629--633.} including an \lstinline!Event! field representing the type of event. This component never makes direct use of any enumeration values and thus needs to include only \lstinline!event.fwd.h! and the corresponding opaque \emph{forward} declaration of the \lstinline!Event! enumeration.}
+\item{\textbf{\emcppsgloss[sender]{\lstinline!Sender!} and \emcppsgloss[receiver]{\lstinline!Receiver!}} — These are a pair of components that, respectively, create and consume \lstinline!Message! objects. To populate a \lstinline!Message! object, a \lstinline!Sender! will need to provide a valid value for the \lstinline!Event! member. Similarly, to process a \lstinline!Message!, a \lstinline!Receiver! will need to understand the potential individual enumerated values for the \lstinline!Event! field. Both of these components will include the primary \lstinline!event.h! header and thus have the complete definition of \lstinline!Event! available to them.}
+\item{\textbf{\emcppsgloss[messenger]{\lstinline!Messenger!}} — The final component, a general engine capable of being handed \lstinline!Message! objects by a \lstinline!Sender! and then delivering those objects in an appropriate fashion to a \lstinline!Receiver!, needs a complete and usable definition of \lstinline!Message! objects — possibly copying them or storing them in containers before delivery — but has no need for understanding the possible values of the \lstinline!Event! member within those \lstinline!Message! objects. This component can participate fully and correctly in the larger system while being completely \emph{insulated} from the enumeration values of the \lstinline!Event! enumeration.}
+\end{itemize}
+By factoring out the \lstinline!Event! enumeration into its own
+separate component and providing two distinct but compatible headers,
+one containing the opaque declaration and the other (which includes the
+first) providing the complete definition, we enable having different
+components choose not to compile-time couple themselves with the
+enumerator list without forcing them to \emph{unsafely} redeclare the
+enumeration locally.
 
 \subsubsection[Cookie: Insulating all external clients from the enumerator list]{Cookie: Insulating all external clients from the enumerator list}\label{cookie:-insulating-all-external-clients-from-the-enumerator-list}
 
 A commonly recurring \emcppsgloss{design pattern}, commonly known as the
-``Memento pattern,"\footnote{\cite{gamma95}, Chapter 5, section ``Memento,'' pp.~283--???} manifests when a facility providing a service, often in a
+``Memento pattern,"\footnote{\cite{gamma95}, Chapter 5, section ``Memento,'' pp.~283--291} manifests when a facility providing a service, often in a
 multi-client environment, hands off a packet of opaque information ---
 a.k.a. a \emcppsgloss{cookie} --- to a client to hold and then present back to
 the facility to enable resuming operations where processing left off.
@@ -311,7 +596,8 @@ implementation details that are held but not used substantively by
 clients, we offer this Memento pattern as a possible use case
 for \emcppsgloss[opaque enumeration]{opaque enumerations}.
 
-Event-driven programming,\footnote{See also \cite{gamma95}, Chapter 5, section ``Observer,''  pp.~293--???} historically implemented using \emcppsgloss{callback functions}, introduces a style of programming that is decidedly
+Event-driven programming,\footnote{See also \cite{gamma95}, Chapter 5, section ``Observer,''  pp.~293--303} historically implemented using \emcppsgloss{callback
+functions}, introduces a style of programming that is decidedly
 different from that to which we might have become accustomed. In this
 programming paradigm, a higher-level agent (e.g., \lstinline!main!) would
 begin by instantiating an \lstinline!Engine! that will be responsible for
@@ -323,7 +609,7 @@ here we will make use of a C++11 Standard Library type,
 function objects and their associated state. This callback will be
 provided one object to represent the event that just happened and
 another object that can be used opaquely to reregister interest in the
-same event again.
+same event again, if appropriate for the application.
 
 This opaque cookie and passing around of the client state might seem
 like an unnecessary step, but often the event management involved in
@@ -381,7 +667,7 @@ public:
     State getState() const;
         // Return the current (ù{\codeincomments{state}}ù) of this callback.
 
-    void setState(State state) const;
+    void setState(State state);
         // Set the current state to the specified (ù{\codeincomments{state}}ù).
 
     Callback& getCallback() const;
@@ -393,7 +679,7 @@ class CallbackEngine
 private:
     // ... (other, stable (ù{\codeincomments{private}}ù) data members implementing this object)
 
-    bool d_running;  // active state
+    bool d_isRunning;  // active state
 
     std::deque<CallbackData> d_pendingCallbacks;
         // The collection of clients currently registered for interest, or having
@@ -439,16 +725,16 @@ static void myCallback(const EventData&    event,
 
 int main()
 {
-   CallbackEngine e;  // Create a configurable callback engine object.
+   CallbackEngine engine;  // Create a configurable callback engine object.
 
    //...     (Configure the callback engine, (ù{\codeincomments{e}}ù), as appropriate.)
 
-   e.registerInterest(&myCallback);  // Even a stateless function pointer can
-                                     // be used with (ù{\codeincomments{std::function}}ù).
+   engine.registerInterest(&myCallback);  // Even a stateless function pointer can
+                                          // be used with (ù{\codeincomments{std::function}}ù).
 
    // ...create and register other clients for interest...
 
-   e.run();    // Cede control to (ù{\codeincomments{e}}ù)'s event loop until complete.
+   engine.run();    // Cede control to (ù{\codeincomments{e}}ù)'s event loop until complete.
 
    return 0;
 }
@@ -474,14 +760,14 @@ void myCallback(const EventData&     event,
 {
     int status = EventProcessor::processEvent(event);
 
-    if (status > 0)  // status is non-zero; continue interest in event
+    if (status > 0)  // status is non-zero; continue interest in event now
     {
         engine->reregisterInterest(cookie);
     }
     else if (status < 0)  // Negative status indicates (ù{\codeincomments{EventProcessor}}ù) wants
                           // to reregister later.
     {
-        EventProcessor::storeCallback(engine,cookie);
+        EventProcessor::storeCallback(engine, cookie);
                           // Call (ù{\codeincomments{reregisterInterest}}ù) later.
     }
 
@@ -551,7 +837,8 @@ void CallbackEngine::run()
 
         // Go through the elements of (ù{\codeincomments{d\_pendingCallbacks}}ù) to deliver this
         // event to each of them.
-        std::deque<CallbackData> callbacks = std::move(d_pendingCallbacks);
+        std::deque<CallbackData> callbacks;
+        callbacks.swap(d_pendingCallbacks);
 
         // Loop once over the callbacks we are about to notify to update their
         // state so that we know they are now in a different container.
@@ -624,7 +911,7 @@ that state in a type-safe manner while remaining insulated from this
 definition.
 
 Prior to C++11, we could not have \emph{forward declared} this
-enumeration, and so would have had to represent it in a
+enumeration and so would have had to represent it in a
 \emph{type}-\emph{unsafe} way --- e.g., as an \lstinline!int!. Thanks to
 the modern \lstinline!enum!~\lstinline!class! (see \featureref{\locationc}{enumclass}), however, we can
 conveniently \emcppsgloss{forward declare} it as a nested type and then,
@@ -638,156 +925,6 @@ in the previous code example could have been used for any number of
 useful components: a parser or tokenizer, a workflow engine, or even a
 more generalized event loop.
 
-\subsubsection[Dual-Access: Insulating some external clients from the enumerator list]{Dual-Access: Insulating some external clients from the enumerator list}\label{dual-access:-insulating-some-external-clients-from-the-enumerator-list}
-
-In previous use cases, the goal has been to \emcppsgloss{insulate} \emph{all}
-external clients from the enumerators of an enumeration that is visible
-(but not necessarily programmatically reachable) in the defining
-component's header. Consider the situation in which a \emcppsgloss{component}
-(\lstinline!.h!/\lstinline!.cpp! pair) itself defines an enumeration that will
-be used by various clients within a single program, some of which will
-need access to the enumerators.
-
-When an \lstinline!enum!~\lstinline!class! or a classic \lstinline!enum! having
-an explicitly specified underlying type (see \featureref{\locationc}{explicit-enumeration-underlying-type}) is specified in
-a header for direct programmatic use, external clients are at liberty to
-unilaterally redeclare it \emph{opaquely}, i.e., without its enumerator
-list. A compelling motivation for doing so would be for a client who
-doesn't make direct use of the enumerators to \emcppsgloss{insulate} itself
-and/or its clients from having to recompile whenever the enumerator list
-changes.
-
-Embedding any such \emcppsgloss{local declaration} in client code, however,
-would be highly problematic: If the underlying type of the declaration
-(in one translation unit) were somehow to become inconsistent with that
-of the definition (in some other translation unit), any program
-incorporating both translation units would immediately become silently
-\emcppsgloss[ill formed, no diagnostic required]{ill-formed, no diagnostic required (IFNDR)}; see \intraref{potential-pitfalls-opaqueenum}{redeclaring-an-externally-defined-enumeration-locally}. Unless a separate ``forwarding'' header file is
-provided along with (and ideally included by) the header defining the
-full enumeration, any client opting to exploit this
-opacity feature of an enumerated type will have no alternative but to
-redeclare the enumeration locally; see \intraref{potential-pitfalls-opaqueenum}{inciting-local-enumeration-declarations-an-attractive-nuisance}.
-
-For example, consider an \lstinline!enum!~\lstinline!class!, \lstinline!Event!,
-intended for public use by external clients:
-
-\begin{emcppslisting}
-// event.h:
-// ...
-enum class Event : char { /*... changes frequently ...*/ };
-// ...             ^^^^
-\end{emcppslisting}
-
-\noindent Now imagine some client header file, \lstinline!badclient.h!, that makes
-use of the \lstinline!Event! enumeration and chooses to avoid compile-time
-coupling itself to the enumerator list by
-embedding, for whatever reason, a \emcppsgloss{local declaration} of \lstinline!Event! instead:
-
-\begin{emcppslisting}
-// badclient.h:
-// ...
-enum class Event : char;  // BAD IDEA: local external declaration
-// ...
-struct BadObject
-{
-    Event d_currentEvent;  // object of locally declare enumeration
-    // ...
-};
-// ...
-\end{emcppslisting}
-
-\noindent Imagine now that the number of events that can fit in a \lstinline!char! is
-exceeded and we decide to change the definition to have an underlying
-type of \lstinline!short!:
-
-\begin{emcppslisting}
-// event.h:
-// ...
-enum class Event : short { /*... changes frequently ...*/ };
-// ...             ^^^^^
-\end{emcppslisting}
-
-\noindent Client code, such as in \lstinline!badclient.h!, that fails to include the
-\lstinline!event.h! header will have no automatic way of knowing that it
-needs to change, and recompiling the code for all cases where
-\lstinline!event.h! isn't also included in the translation unit will not
-fix the problem. Unless every such client is somehow updated manually, a
-newly linked program comprising them will be \emcppsgloss{IFNDR} with the likely
-consequence of either a crash or (worse) when the program runs and
-misbehaves. When providing a programmatically accessible definition of
-an enumerated type in a header where the \emcppsgloss{underlying type} is
-specified either explicitly or implicitly, we can give external
-clients a \emph{safe} alternative to local declaration by also providing
-an auxiliary header containing \emph{just} the corresponding opaque
-declaration:
-
-\begin{emcppslisting}[emcppsbatch=e7]
-// event.fwd.h:
-// ...
-enum class Event : char;
-// ...
-\end{emcppslisting}
-
-\noindent Here we have chosen to treat the forwarding header file as part of the same event component as the principal header but with an injected descriptive suffix field, \lstinline!.fwd!; this approach, as opposed to, say, \lstinline!file_fwd.h!, \lstinline!filefwd.h!, or \lstinline!file.hh!, was chosen so as not to (1) encroach on a disciplined, component-naming scheme involving reserved use of underscores\footnote{\cite{lakos20}, section~2.4, pp.~297--333} or (2) confuse tools and scripts that expect header-file names to end with a \lstinline!.h! suffix.
-
-In general, having a forwarding header always included in its
-corresponding full header facilitates situations such as default
-template arguments where the declaration can appear at most once in any
-given translation unit; the only drawback being that the
-comparatively small forwarding header file must now also be opened and
-parsed if the full header file is included in a given translation
-unit. To ensure consistency, we thus \lstinline!#include! this forwarding
-header in the original header defining the full enumeration:
-
-\begin{emcppslisting}[emcppsbatch=e7]
-// event.h:
-// ...                  // Ensure opaque declaration (included here) is
-#include <event.fwd.h>  // consistent with complete definition (below).
-// ...
-enum class Event : char { /*... changes frequently ...*/ };
-// ...
-\end{emcppslisting}
-
-\noindent In this way, every translation unit that includes the definition will
-serve to ensure that the forward declaration and definition match;
-hence, clients can incorporate safely only the presumably more stable
-forwarding header:
-
-\begin{emcppslisting}[emcppsbatch=e7]
-// goodclient.h:
-// ...
-#include <event.fwd.h>  // GOOD IDEA: consistent opaque declaration
-// ...
-class Client
-{
-    Event d_currentEvent;
-    // ...
-};
-\end{emcppslisting}
-
-\noindent Note that we have consistently
-employed angle brackets exclusively for all include directives used
-throughout this book to maximize flexibility of deployment presuming a
-  regimen for unique naming.\footnote{See \cite{lakos20}, section~1.5.1,
-  pp.~201--203.}
-
-  To illustrate real-world practical use of the opaque-enumerations
-feature, consider the various components{\cprotect\footnote{See
-  \cite{lakos20}, sections~1.6 and 1.11, pp.~209--216 and
-  pp.~256--259, respectively.}} that might depend
-on{\cprotect\footnote{\cite{lakos20}, section~1.9?, pp.~237--243  JOHN: Please consult the book and correct. Section 1.9 is pp 243--251. Section 1.8 is pp. 237--243.}} an \lstinline!Event! enumeration such as that above:
-\begin{itemize}
-\item{\textbf{\emcppsgloss[message]{\lstinline!message!}} — The component provides a \emph{value-semantic} \lstinline!Message! class consisting of just raw data,\cprotect\footnote{We sometimes refer to data that is meaningful only in the context of a higher-level entity as \emcppsgloss{dumb data}; see \cite{lakos20}, section~3.5.5, pp.~629--633.} including an \lstinline!Event! field representing the type of event. This component never makes direct use of any enumeration values and thus needs to include only \lstinline!event.fwd.h! and the corresponding opaque \emph{forward} declaration of the \lstinline!Event! enumeration.}
-\item{\textbf{\emcppsgloss[sender]{\lstinline!sender!} and \emcppsgloss[receiver]{\lstinline!receiver!}} — These are a pair of components that, respectively, create and consume \lstinline!Message! objects. To populate a \lstinline!Message! object, a \lstinline!Sender! will need to provide a valid value for the \lstinline!Event! member. Similarly, to process a \lstinline!Message!, a \lstinline!Receiver! will need to understand the potential individual enumerated values for the \lstinline!Event! field. Both of these components will include the primary \lstinline!event.h! header and thus have the complete definition of \lstinline!Event! available to them.}
-\item{\textbf{\emcppsgloss[messenger]{\lstinline!messenger!}} — The final component, a general engine capable of being handed \lstinline!Message! objects by a \lstinline!Sender! and then delivering those objects in an appropriate fashion to a \lstinline!Receiver!, needs a complete and usable definition of \lstinline!Message! objects — possibly copying them or storing them in containers before delivery — but has no need for understanding the possible values of the \lstinline!Event! member within those \lstinline!Message! objects. This component can participate fully and correctly in the larger system while being completely \emph{insulated} from the enumeration values of the \lstinline!Event! enumeration.}
-\end{itemize}
-tl;dr: By factoring out the \lstinline!Event! enumeration into its own
-separate component and providing two distinct but compatible headers,
-one containing the opaque declaration and the other (which includes the
-first) providing the complete definition, we enable having different
-components choose not to compile-time couple themselves with the
-enumerator list without forcing them to (\emph{unsafely}) redeclare the
-enumeration locally.
 
 \subsection[Potential Pitfalls]{Potential Pitfalls}\label{potential-pitfalls-opaqueenum}
 
@@ -795,7 +932,8 @@ enumeration locally.
 
 An opaque enumeration declaration enables the use of that
 enumeration without granting visibility to its enumerators, reducing
-physical coupling between components. Unlike a \emcppsgloss{forward class declaration}, an opaque enumeration declaration produces a complete
+physical coupling between components. Unlike a \emcppsgloss{forward class
+declaration}, an opaque enumeration declaration produces a complete
 type, sufficient for substantive use (e.g., via the linker):
 
 \begin{emcppshiddenlisting}[emcppsbatch=e8]
@@ -804,13 +942,14 @@ type, sufficient for substantive use (e.g., via the linker):
 \end{emcppshiddenlisting}
 \begin{emcppslisting}[emcppsbatch=e8]
 // client.cpp:
+#include <cstdint>  // (ù{\codeincomments{std::uint8\_t}}ù)
 enum Event : std::uint8_t;
 Event e;  // OK, (ù{\codeincomments{Event}}ù) is a complete type.
 \end{emcppslisting}
 
 \noindent The \emph{underlying type} specified in an opaque \lstinline!enum!
-declaration must exactly match the full definition; otherwise a program
-incorporating both is automatically \emcppsgloss{IFNDR}. Updating an
+declaration must exactly match the full definition; otherwise, a program
+incorporating both is \emcppsgloss[ill formed, no diagnostic required (IFNDR)]{IFNDR}. Updating an
 \lstinline!enum!'s underlying type to accommodate additional values can
 lead to latent defects when these changes are not propagated to all
 local declarations:
@@ -827,7 +966,7 @@ enum Event : std::uint16_t { /* now more than 256 events */ };
 \noindent Consistency of a local opaque \lstinline!enum! declaration's underlying
 type with that of its complete definition in a separate translation unit
 cannot be enforced by the compiler, potentially leading to a program
-that is \emcppsgloss{IFNDR}. In the \lstinline!client.cpp! example shown above, if the opaque
+that is \emcppsgloss[ill formed, no diagnostic required (IFNDR)]{IFNDR}. In the \lstinline!client.cpp! example shown above, if the opaque
 declaration in \lstinline!client.cpp! is not somehow updated to reflect the
 changes in \lstinline!event.h!, the program will compile, link, and run,
 but its behavior has silently become undefined. The only robust solution
@@ -858,8 +997,8 @@ int x;
 in the \lstinline!.cpp! file of the library component while a supposed
 declaration of \lstinline!x! is embedded in the file defining
 \lstinline!main!. Should the type of just the definition of \lstinline!x!
-change, both translation units will continue to compile but, when
-linked, the resulting program will be \emcppsgloss{IFNDR}:
+change, both translation units will continue to compile, but, when
+linked, the resulting program will be \emcppsgloss[ill formed, no diagnostic required (IFNDR)]{IFNDR}:
 
 \noindent\begin{minipage}{.65\textwidth}
 \begin{emcppslisting}
@@ -919,40 +1058,39 @@ The maintainability pitfall associated with opaque enumerations,
 however, is qualitatively more severe than for other external-linkage
 types, such as a global \lstinline!int!: (1) the full definition for the
 enumeration type itself needs to reside in a header for \emph{any}
-external client to make use of its individual enumerators and (2)
+external client to make use of its individual enumerators, and (2)
 typical components consist of just a \lstinline!.h!/\lstinline!.cpp! pair,
 i.e., exactly one \lstinline!.h! file and usually just one \lstinline!.cpp!
 file.{\cprotect\footnote{\cite{lakos20}, sections~2.2.11--2.2.13,
   pp.~280--281}}
 
-Exposing, within a library header file, an opaquely declarable
-enumeration that is programmatically accessible by external clients
-without providing some maintainable way for those clients to keep their
-elided declarations in sync with the full definition introduces what we
-are calling an \emph{attractive nuisance}: the client is forced to
-choose between (a) introducing the added risk and maintenance burden of
-having to manually maintain consistency between the underlying types for
-all its separate opaque uses and the one full definition or (b)
-forgo use of this opaque-enumeration feature entirely, forcing
-gratuitous compile-time coupling with
-the unused and perhaps unstable enumerators. At even moderate scale, excessive
-compile-time coupling can adversely affect projects in ways that are far
-more insidious than just increased compile times during development ---
-e.g., any emergency changes that might need to occur and be deployed
-quickly to production without forcing all clients to recompile and then
-be retested and then, eventually, be rereleased.\footnote{For a complete
-real-world example of how compile-time coupling can delay a ``hot fix''
-by weeks, not just hours, see \cite{lakos20}, section~3.10.5,
-pp.~783--789.}
+%Exposing, within a library header file, an opaquely declarable
+%enumeration that is programmatically accessible by external clients
+%without providing some maintainable way for those clients to keep their
+%elided declarations in sync with the full definition introduces what we
+%are calling an \emph{attractive nuisance}: the client is forced to
+%choose between (a) introducing the added risk and maintenance burden of
+%having to manually maintain consistency between the underlying types for
+%all its separate opaque uses and the one full definition or (b)
+%forgo use of this opaque-enumeration feature entirely, forcing
+%gratuitous compile-time coupling with
+%the unused and perhaps unstable enumerators. At even moderate scale, excessive
+%compile-time coupling can adversely affect projects in ways that are far
+%more insidious than just increased compile times during development ---
+%e.g., any emergency changes that might need to occur and be deployed
+%quickly to production without forcing all clients to recompile and then
+%be retested and then, eventually, be rereleased.\footnote{For a complete
+%real-world example of how compile-time coupling can delay a ``hot fix''
+%by weeks, not just hours, see \cite{lakos20}, section~3.10.5,
+%pp.~783--789.}
 
 \subsubsection[Inciting local enumeration declarations: an attractive nuisance]{Inciting local enumeration declarations: an attractive nuisance}\label{inciting-local-enumeration-declarations-an-attractive-nuisance}
 
 Whenever we, as library component authors, provide the complete
-definition of an \lstinline!enum!~\lstinline!class! or a classic enumeration
-with an explicitly specified underlying type and fail to provide a
-corresponding header having just the opaque declaration, we confront our
-clients with the unenviable conundrum of whether to needlessly
-compile-time couple themselves and/or their clients with the details of
+definition of an enumeration with a fixed underlying type and fail to provide a
+corresponding forwarding header having just the opaque declaration, we confront our
+clients with the difficult decision of whether to needlessly
+compile-time couple\footnote{For a complete real-world example of how compile-time coupling can delay a ``hot fix'' by weeks, not just hours, see \cite{lakos20}, section~3.10.5, pp.~783--789.} themselves and/or their clients with the details of
 the enumerator list or to make the dubious choice to unilaterally
 redeclare that enumeration locally.
 
@@ -963,20 +1101,13 @@ see \intrarefsimple{redeclaring-an-externally-defined-enumeration-locally}. The 
 for other external-linkage types, such as a global \lstinline!int!, in that
 the ability to elide the enumerators amounts to an \emph{attractive
 nuisance} wherein a client --- wanting to do so and having access to
-only a single header containing the unelided definition (i.e.,
-comprising the enumeration name, underlying integral type, and
-enumerator list) --- might be persuaded into providing an elided copy of
-the \lstinline!enum!'s definition (i.e., one omitting just the enumerators)
-locally!
+only a single header containing the complete definition --- might be persuaded into declaring the enumeration locally!
 
 Ensuring that library components that define
-enumerations (e.g.,
-\lstinline!enum!~\lstinline!class!~\lstinline!Event!) whose
+enumerations whose
 enumerators can be elided also consistently provide a second
 forwarding header file containing the opaque declaration of each such
-enumeration (i.e., enumeration name and underlying integral type only)
-would be one generally applicable way to sidestep this often
-surprisingly insidious maintenance burden; see \intrarefsimple{dual-access:-insulating-some-external-clients-from-the-enumerator-list}. Note that the attractive
+enumeration would be one generally applicable way to sidestep this maintenance burden; see \intrarefsimple{dual-access:-insulating-some-external-clients-from-the-enumerator-list}. Note that the attractive
 nuisance potentially exists even when the primary intent of the component is not to make the enumeration generally
 available.\footnote{\cite{wight}}
 
@@ -1006,19 +1137,21 @@ values are valid is arguably dubious.
 \subsection[See Also]{See Also}\label{see-also}
 
 \begin{itemize}
-\item{\seealsoref{explicit-enumeration-underlying-type}{\locationc}Discusses the underlying integral representation for enumeration variables and their values.}
-\item{\seealsoref{enumclass}{\locationc}Introduces an implicitly scoped, more strongly typed enumeration.}
+\item{\seealsoref{explicit-enumeration-underlying-type}{\locationc}discusses the underlying integral representation for enumeration variables and their values.}
+\item{\seealsoref{enumclass}{\locationc}introduces an implicitly scoped, more strongly typed enumeration.}
 \end{itemize}
 
 \subsection[Further Reading]{Further Reading}\label{further-reading}
 
 \begin{itemize}
-\item{For more on internal versus external linkage, see \cite{lakos20}, section~1.3.1, pp.~154--159.}
-\item{For more on the use of header files to ensure consistency across translation units, see \cite{lakos20}, section~1.4, pp.~190--201, especially Figure~1-35, p.~197.}
-\item{For more on the use of \lstinline!#include! directives and \lstinline!#include! guards, see \cite{lakos20}, section~1.5, pp.~201--209.}
-\item{For a complete delineation of inherent properties that belong to every well-conceived \lstinline!.h!/\lstinline!.cpp! pair, see \cite{lakos20}, sections~1.6 and 1.11, pp.~219--216 and 256--259, respectively.}
-\item{For an introduction to physical dependency, see \cite{lakos20}, section~1.8, pp.~237--243.}
-\item{For a suggestion on how to achieve unique naming of files, see \cite{lakos20}, section~2.4, pp.~297--333.}
-\item{For a thorough treatment of \emcppsgloss{architectural insulation}, see \cite{lakos20}, sections~3.10--3.11, pp.~773--835.}
+\item{For more on declaration versus definition, header files,  \lstinline!.h! and \lstinline!.cpp! pairs, extracting actual dependencies, the depends-on relation, logical and physical name cohesion, avoiding unnecessary compile-time dependencies, and architectural insulation techniques, see \cite{lakos20}.}
+%\item{For more on internal versus external linkage, see \cite{lakos20}, section~1.3.1, pp.~154--159.}
+%\item{For more on the use of header files to ensure consistency across translation units, see \cite{lakos20}, section~1.4, pp.~190--201, especially Figure~1-35, p.~197.}
+%%\item{For more on the use of \lstinline!#include! directives and \lstinline!#include! guards, see \cite{lakos20}, section~1.5, pp.~201--209.}
+%\item{For a complete delineation of inherent properties that belong to every well-conceived \lstinline!.h!/\lstinline!.cpp! pair, see \cite{lakos20}, sections~1.6 and 1.11, pp.~219--216 and 256--259, respectively.}
+%\item{For an introduction to physical dependency, see \cite{lakos20}, section~1.8, pp.~237--243.}
+%\item{For a suggestion on how to achieve unique naming of files, see \cite{lakos20}, section~2.4, pp.~297--333.}
+%\item{For a thorough treatment of \romeogloss{architectural insulation}, see \cite{lakos20}, sections~3.10--3.11, pp.~773--835.}
+\item{A complementary view of production software design can be found in \cite{martin17}.}
 \end{itemize}
 

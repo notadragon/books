@@ -1,5 +1,7 @@
 % 12 Feb 2021, revisions in; ready for Josh's code fixes
 % 16 Feb 2021 JMB; code compiles
+% 24 Feb 2021, copyedits in and proofed
+% 22 March 2021, in FPPs
 
 \emcppsFeature{
     short={Raw String Literals},
@@ -26,7 +28,7 @@ we want to write a small program that outputs the following text into the standa
 \begin{lstlisting}[style=plain]
 printf("Hello, %s%c\n", "World", '!');
 \end{lstlisting}
-    
+
 \noindent In C++03, capturing the line of C code above in a string literal would
 require five escape (\lstinline!\!) characters distributed
 throughout the string:
@@ -41,7 +43,7 @@ int main()
                //             escape characters
 }
 \end{emcppslisting}
-    
+
 \noindent If we use C++11's \emph{raw} string-literal syntax, no escaping is
 required:
 
@@ -55,12 +57,12 @@ int main()
                //   additional raw string-literal syntax (C++11)
 }
 \end{emcppslisting}
-    
+
 \noindent To represent the original character
 data as a raw string literal, we typically need only to add a capital \lstinline!R! immediately
 (adjacently) before the starting quote (\lstinline!"!) and nest the
-character data within parentheses, \lstinline!(!~\lstinline!)! (with some exceptions; see \intrarefsimple{collisions}).  
-%\textit{\titleref{collisions}} on page~\pageref{collisions}). 
+character data within parentheses, \lstinline!(!~\lstinline!)! (with some exceptions; see \intrarefsimple{collisions}).
+%\textit{\titleref{collisions}} on page~\pageref{collisions}).
 Sequences of
 characters that would be escaped in a regular string literal are instead
 interpreted verbatim:
@@ -69,15 +71,13 @@ interpreted verbatim:
 const char s0[] = R"({ "key": "value" })";
     // OK, equivalent to (ù{\codeincomments{"\{ $\backslash$"key$\backslash$": $\backslash$"value$\backslash$" \}"}}ù)
 \end{emcppslisting}
-    
-\noindent In contrast to conventional string literals, \emph{raw} string literals
+
+\noindent Recall that, to incorporate a newline character into a conventional string literal, one must represent that newline using the escape sequence \lstinline!\n!.  Attempting to do so by entering a newline into the source (i.e., making the string literal span lines of source code) is an error. In contrast to conventional string literals, \emph{raw} string literals
 (1) treat unescaped embedded double quotes (\lstinline!"!) as literal data,
 (2) do not interpret special-character escape sequences (e.g.,
-\lstinline!\n!, \lstinline!\t!), and (3) interpret both vertical{\cprotect\footnote{To incorporate a newline character into a conventional string literal one must represent that newline using the escape sequence \lstinline!\n!.  Attempting to do so by actually entering a newline into the source (i.e., making the string literal span lines of source code) is an error.}} and horizontal 
+\lstinline!\n!, \lstinline!\t!), and (3) interpret both vertical and horizontal
 whitespace characters present in
-the source file as part of the string contents{\cprotect\footnote{In
-this example, we assume that all trailing whitespace has been stripped
-since even trailing whitespace in a raw literal would be captured.}}:
+the source file as part of the string contents:
 
 
 \begin{emcppslisting}
@@ -86,11 +86,13 @@ line two
     line three)";
     // OK
 \end{emcppslisting}
-    
-\noindent Note that any literal tab characters are treated the same as a
+
+\noindent In
+this example, we assume that all trailing whitespace has been stripped
+since even trailing whitespace in a raw literal would be captured. Note that any literal tab characters are treated the same as a
 \lstinline!\t! and hence can be problematic, especially when
-developers have inconsistent tab settings; see \intraref{potential-pitfalls-rawstringliteral}{unexpected-indentation}.  
-%\textit{\titleref{potential-pitfalls-rawstringliteral}: \titleref{unexpected-indentation}} on page~\pageref{unexpected-indentation}. 
+developers have inconsistent tab settings; see \intraref{potential-pitfalls-rawstringliteral}{unexpected-indentation}.
+%\textit{\titleref{potential-pitfalls-rawstringliteral}: \titleref{unexpected-indentation}} on page~\pageref{unexpected-indentation}.
 Finally, all string literals are concatenated with
 adjacent ones in the same way the conventional ones are in C++03:
 
@@ -98,18 +100,18 @@ adjacent ones in the same way the conventional ones are in C++03:
 const char s2[] = R"(line one)"         "\n"
                     "line two"          "\n"
                   R"(    line three)";
-    // OK, equivalent to (ù{\codeincomments{"line one$\backslash$nline two$\backslash$n~~~~line three"}}ù)    
+    // OK, equivalent to (ù{\codeincomments{"line one$\backslash$nline two$\backslash$n~~~~line three"}}ù)
 \end{emcppslisting}
 
 \noindent These same rules apply to both raw \emph{wide} string literals and raw \emph{Unicode} ones (see \featureref{\locationa}{unicode-string-and-character-literals}) that are introduced by placing their corresponding prefix before the \lstinline!R! character:
 
 \begin{emcppslisting}
-const wchar_t  ws [] =  LR"(Raw\tWide\tLiteral)";  
-    // Represents "Raw\tWide\tLiteral", not "Raw    Wide    Literal".
+const wchar_t  ws [] =  LR"(Raw\tWide\tLiteral)";
+    // represents "Raw\tWide\tLiteral", not "Raw    Wide    Literal"
 
 const char     u8s[] = u8R"(\U0001F378)";  // Represents "\U0001F378", *not* "(ù{\martini}ù)"
-const char16_t us [] =  uR"(\U0001F378)";  //       "         "          "     " 
-const char32_t Us [] =  UR"(\U0001F378)";  //       "         "          "     " 
+const char16_t us [] =  uR"(\U0001F378)";  //       "         "          "     "
+const char32_t Us [] =  UR"(\U0001F378)";  //       "         "          "     "
 \end{emcppslisting}
 
 \subsubsection[Collisions]{Collisions}\label{collisions}
@@ -128,17 +130,17 @@ void emitHelloWorld()
   // The (ù{\codeincomments{)"}}ù) character sequence terminates a typical raw string literal.
 }
 \end{emcppslisting}
-    
-\noindent If we use the basic syntax for a \emph{raw} string literal we will get a
+
+\noindent If we use the basic syntax for a \emph{raw} string literal, we will get a
 syntax error:
 
 
 \begin{emcppslisting}[emcppsignore={syntax error}]
 const char s3[] = R"(printf("printf(\"Hello, World!\")"))";  (ù{\codeincomments{// collision}}ù)
 (ù{\codeincomments{//}}ù)                                                   (ù{\codeincomments{\textasciicircum\textasciicircum}}ù)
-(ù{\codeincomments{//}}ù)                      (ù{\codeincomments{Syntax error after literal ends}}ù)
+(ù{\codeincomments{//}}ù)                      (ù{\codeincomments{syntax error after literal ends}}ù)
 \end{emcppslisting}
-    
+
 \noindent To circumvent this problem, we could escape every special character in
 the string separately, as in C++03, but the result is difficult to read
 and error prone:
@@ -146,11 +148,10 @@ and error prone:
 \begin{emcppslisting}
 const char s4[] = "printf(\"printf(\\\"Hello, World!\\\")\")";  // error prone
 \end{emcppslisting}
-    
+
 \noindent Instead, we can use the extended disambiguation syntax of \emph{raw}
 string literals to resolve the issue:
 
-% LORI: The comment is colored properly.  The code is not colored properly.  If we choose to keep the code colored then we need to adjust this example significantly.
 %\begin{emcppslisting}
 %const char s5[] = R"###(printf("printf(\"Hello, World!\")"))###";  (ù{\codeincomments{\color{skyblue}\ttfamily\itshape // cleaner}}ù)
 %\end{emcppslisting}
@@ -158,12 +159,9 @@ string literals to resolve the issue:
 const char s5[] = R"###(printf("printf(\"Hello, World!\")"))###";  (ù{\codeincomments{// cleaner}}ù)
 \end{emcppslisting}
 
-    
+
 \noindent This disambiguation syntax allows us to insert an essentially
-arbitrary{\cprotect\footnote{The delimiter of a raw string literal can
-comprise any member of the \emcppsgloss{basic source character set} except
-space, backslash, parentheses, and the control characters representing
-  horizontal tab, vertical tab, form feed, and new line.}} sequence of
+arbitrary sequence of
 characters between the outermost quote/parenthesis pairs that avoids the
 collision with the literal data when taken as a combined sequence (e.g.,
 \lstinline!)###"!):
@@ -177,18 +175,23 @@ const char s6[] = R"xyz(<-- Literal String Data -->)xyz";
 //                |
 //                | uppercase (ù{\codeincomments{R}}ù)
 \end{emcppslisting}
-    
-\noindent The value of \lstinline!s6! above is equivalent to
+
+\noindent The delimiter of a raw string literal can
+comprise any member of the \emcppsgloss{basic source character set} except
+space, backslash, parentheses, and the control characters representing
+  horizontal tab, vertical tab, form feed, and new line.
+
+The value of \lstinline!s6! above is equivalent to
 \lstinline!"<--!~\lstinline!Literal!~\lstinline!String!~\lstinline!Data!~\lstinline!-->"!.
 Every raw string literal comprises these syntactical elements, in order:
 \begin{itemize}
 \item{an uppercase \lstinline!R!}
-\item{the opening double quotes, \lstinline!"!} 
+\item{the opening double quotes, \lstinline!"!}
 \item{an optional arbitrary sequence of characters called the \emph{delimiter} (e.g., \lstinline!xyz!)}
 \item{an opening parenthesis, \lstinline!(!}
 \item{the contents of the string}
 \item{a closing parenthesis, \lstinline!)!}
-\item{the same delimiter (if any) specified previously (i.e., \lstinline!xyz!, not reversed)} 
+\item{the same delimiter specified previously, if any (i.e., \lstinline!xyz!, not reversed)}
 \item{the closing double quotes, \lstinline!"!}
 \end{itemize}
 
@@ -199,7 +202,7 @@ sequence:
 const char s7[] = R"("Hello, World!")";
     // OK, equivalent to (ù{\codeincomments{$\backslash$"Hello, World!$\backslash$"}}ù)
 \end{emcppslisting}
-    
+
 \noindent A nonempty delimiter (e.g.,~\lstinline|!|) can be used to disambiguate any
 appearance of the \lstinline!)"! character sequence within the literal data
 
@@ -207,9 +210,9 @@ appearance of the \lstinline!)"! character sequence within the literal data
 const char s8[] = R"!("--- R"(Raw literals are not recursive!)" ---")!";
     // OK, equivalent to (ù{\codeincomments{$\backslash$"--- R$\backslash$"(Raw literals are not recursive!)$\backslash$" ---$\backslash$"}}ù)
 \end{emcppslisting}
-    
+
 \noindent Had an empty delimiter been used to initialize \lstinline!s8! (above), the
-compiler would have produced a (perhaps obscure) compile-time error:
+compiler would have produced a perhaps obscure compile-time error:
 
 %\begin{emcppslisting}
 % // error: decrement of read-only location
@@ -218,11 +221,11 @@ compiler would have produced a (perhaps obscure) compile-time error:
 % //                                                              ^~
 %\end{emcppslisting}
 \begin{emcppslisting}[emcppserrorlines={1}]
-const char s8a[] = R"("---R"( Raw literals are not recursive!)" ---")";         
-    //                                                            ^~            
+const char s8a[] = R"("---R"( Raw literals are not recursive!)" ---")";
+    //                                                            ^~
     // Error, decrement of read-only location
 \end{emcppslisting}
-    
+
 \noindent In fact, it could turn out that a program with an unexpectedly
 terminated \emph{raw} string literal could still be valid and compile
 quietly:
@@ -234,13 +237,13 @@ quietly:
 void emitPith()
 {
     printf(R"("Live-Free, don't (ever)","Die!");
-        (ù{\codeincomments{// Prints: "Live-Free, don't (ever}}ù)
+        (ù{\codeincomments{// prints "Live-Free, don't (ever}}ù)
 
     printf((R"("Live-Free, don't (ever)","Die!"));
-        (ù{\codeincomments{// Prints: Die!}}ù)
+        (ù{\codeincomments{// prints Die!}}ù)
 }
 \end{emcppslisting}
-    
+
 \noindent Fortunately, examples like the one above are invariably contrived, not
 accidental.
 
@@ -259,18 +262,17 @@ conventional string literal:
 const char* productIdRegex = "[0-9]{5}\\(\".*\"\\)";
     // This regular expression matches strings like (ù{\codeincomments{12345("Product")}}ù).
 \end{emcppslisting}
-    
+
 \noindent Not only do the backslashes obscure the meaning to human readers, a
-mechanical translation is often needed{\cprotect\footnote{Such as when
-you want to copy the contents of the string literal into an online
-  regular-expression validation tool.}} when transforming between source
-and data, introducing significant opportunities for human error. Using a
+mechanical translation is often needed when transforming between source
+and data --- such as when copying the contents of the string literal into an online regular-expression validation tool --- introducing significant opportunities for human error. Using a
 raw string literal solves these problems:
 
 \begin{emcppslisting}
 const char* productIdRegex = R"([0-9]{5}\(".*"\))";
 \end{emcppslisting}
-    
+
+\newpage%%%%
 \noindent Another format that benefits from raw string literals is JSON, due to
 its frequent use of double quotes:
 
@@ -282,7 +284,7 @@ const char* testProductResponse = R"!(
     "relatedProducts": ["59214(\"CameraBag\")", "42931(\"SdStorageCard\")"]
 })!";
 \end{emcppslisting}
-    
+
 \noindent With a conventional string literal, the JSON string above would require
 every occurrence of \lstinline!"! and \lstinline!\! to be escaped
 and every new line to be represented as \lstinline!\n!, resulting
@@ -290,7 +292,7 @@ in visual noise, less interoperability with other tools accepting or
 producing JSON, and heightened risk during manual maintenance.
 
 Finally, raw string literals can also be helpful for
-whitespace-sensitive languages, such as Python (but see \intraref{potential-pitfalls-rawstringliteral}{encoding-of-newlines-and-whitespace}): 
+whitespace-sensitive languages, such as Python (but see \intraref{potential-pitfalls-rawstringliteral}{encoding-of-newlines-and-whitespace}):
 %\textit{\titleref{potential-pitfalls-rawstringliteral}: \titleref{encoding-of-newlines-and-whitespace}} on page~\pageref{encoding-of-newlines-and-whitespace}):
 
 \begin{emcppslisting}
@@ -298,7 +300,7 @@ const char* testPythonInterpreterPrint = R"(def test():
     print("test printing from Python")
 )";
 \end{emcppslisting}
-    
+
 
 \subsection[Potential Pitfalls]{Potential Pitfalls}\label{potential-pitfalls-rawstringliteral}
 
@@ -306,10 +308,7 @@ const char* testPythonInterpreterPrint = R"(def test():
 
 Consistent indentation and formatting of source code facilitates human
 comprehension of program structure. Space and tabulation
-(\lstinline!\t!) characters{\cprotect\footnote{Always
-representing indentation as the precise number of spaces (instead of
-tab characters) --- especially when committed to source-code control
-  systems --- goes a long way to avoiding this issue.}} used for the
+(\lstinline!\t!) characters used for the
 purpose of source code formatting are, however, always interpreted as
 part of a raw string literal's contents:
 
@@ -325,7 +324,7 @@ void emitPythonEvaluator0(const char* expression)
             return )" << expression << '\n';
 }
 \end{emcppslisting}
-    
+
 \noindent Despite the intention of the programmer to aid readability by indenting
 the above raw string literal consistently with the rest of the code, the
 streamed data will contain a large number of spaces (or tabulation
@@ -338,7 +337,7 @@ characters), resulting in an invalid Python program:
 # ^~~~~~
 # Error: excessive indentation
 \end{lstlisting}
-    
+
 \noindent Correct Python code would start unindented and then be indented the same number
 of spaces (e.g.,~exactly four):
 
@@ -347,7 +346,7 @@ def evaluate():
     print("Evaluating...")
     return (ù{\emph{someExpression}}ù)
 \end{lstlisting}
-    
+
 \noindent Correct --- albeit visually jarring --- Python code can be expressed with a
 single \emph{raw} string literal, but visualizing the final output requires some effort:
 
@@ -359,8 +358,13 @@ void emitPythonEvaluator1(const char* expression)
     return )" << expression << '\n';
 }
 \end{emcppslisting}
-    
-\noindent When more explicit control is desired, we can use a mixture of
+
+\noindent Always
+representing indentation as the precise number of spaces (instead of
+tab characters) --- especially when committed to source-code control
+  systems --- goes a long way toward avoiding unexpected indentation issues.
+
+When more explicit control is desired, we can use a mixture of
 \emcppsgloss{raw string literals} and explicit new lines represented as
 \emcppsgloss{conventional string literals}:
 
@@ -373,7 +377,7 @@ void emitPythonEvaluator2(const char *expression)
         R"(    return )" << expression << '\n';
 }
 \end{emcppslisting}
-    
+
 
 \subsubsection[Encoding of new lines and whitespace]{Encoding of new lines and whitespace}\label{encoding-of-newlines-and-whitespace}
 
@@ -390,6 +394,7 @@ versus spaces) used as part of a raw string literal can be significant.
 As an example, consider a unit test verifying that a string representing
 the status of the system is as expected:
 
+\newpage%%%%%%
 \begin{emcppshiddenlisting}[emcppsbatch=e5]
 #include <string>   // (ù{\codeincomments{std::string}}ù)
 #include <cassert>  // standard C (ù{\codeincomments{assert}}ù) macro
@@ -408,31 +413,33 @@ void verifyDefaultOutput()
     assert(output == expected);
 }
 \end{emcppslisting}
-    
+
 \noindent The unit test might pass for years, until, for instance, the
 company's indentation style changes from tabulation characters to
-spaces, leading the \lstinline!expected! string to contain spaces instead of tabs, and thus test failures.{\cprotect\footnote{A
+spaces, leading the \lstinline!expected! string to contain spaces instead of tabs, and thus test failures.
+
+A
 well-designed unit test will typically be imbued with \emph{expected
 values}, rather than values that were produced by the previous run.
 The latter is sometimes referred to as a \emcppsgloss{benchmark test}, and such tests are often implemented as \emph{diffs} against
 a file containing output from a previous run. This file has
-presumably been reviewed and is known (believed) to be correct and is sometimes called the \emcppsgloss{golden file}. Though ill advised, when trying to get a new version of the software to pass the benchmark test and when the precise format of the output of a system
+presumably been reviewed and is considered to be correct and is sometimes called the \emcppsgloss{golden file}. Though ill advised, when trying to get a new version of the software to pass the benchmark test and when the precise format of the output of a system
 changes subtly, the \emcppsgloss{golden file} may be summarily jettisoned --- and the new
 output installed in its stead --- with little if any detailed review.
 Hence, well-designed unit tests will often hard code exactly what is
 to be expected (nothing more or less) directly in the
-  \emcppsgloss[test driver]{test-driver} source code.}}
+  \emcppsgloss[test driver]{test-driver} source code.
 
 \subsection[Annoyances]{Annoyances}\label{annoyances}
 
-None so far
+\hspace*{\fill}
 
 \subsection[See Also]{See Also}\label{see-also}
 
-None so far
+\hspace*{\fill}
 
 \subsection[Further Reading]{Further Reading}\label{further-reading}
 
-None so far
+\hspace*{\fill}
 
 

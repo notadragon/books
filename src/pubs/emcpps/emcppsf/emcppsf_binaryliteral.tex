@@ -1,5 +1,6 @@
 %% copyedits in and proofed
 %% 27 Jan, code checked and replaced as needed by Josh
+% 22 March 2021, in FPPs
 
 \emcppsFeature{
     toclong={Binary Literals: The \lstinline!0b! Prefix},
@@ -13,7 +14,7 @@
 \setcounter{lstlisting}{0}
 
 
-\textit{Binary literals} are \emcppsgloss{integer literals} representing their values in base 2.
+\textit{Binary literals} are \textbf{integer literals}\glossary{integer literals} representing their values in base 2.
 
 \subsection[Description]{Description}\label{description-binary}
 
@@ -179,7 +180,7 @@ unsigned int lastFourBits(unsigned int value)
 \end{emcppslisting}
 
 
-
+\enlargethispage*{-8ex}
 Similarly, other bitwise operations, such as setting or getting
 individual bits, might benefit from the use of binary literals. For
 instance, consider a set of flags used to represent the state of an
@@ -314,6 +315,7 @@ virtual machine's manual or documentation directly in the source avoids the need
 mentally convert such constant data to and from, say, a hexadecimal
 number.
 
+\newpage%%%%%%
 Binary literals are also suitable for capturing bitmaps. For instance,
 consider a bitmap representing the uppercase letter \textit{C}\/:
 

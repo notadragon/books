@@ -1,5 +1,8 @@
 % 6 Feb 2021, copyedits in and proofed
 % 8 Feb 2021 JMB, compilation fixes
+% 9 Feb 2021, FPPs set
+% 17 Feb 2021, glossary commands updated
+% 3 March 2021, proofreading correx in and proofed
 
 \emcppsFeature{
     short={Attribute Syntax},
@@ -57,7 +60,7 @@ arbitrary sequence of tokens:
 [[theoretical(1, "two", 3.0)]]  // multiple-argument attribute
 [[complicated({1, 2, 3} + 5)]]  // arbitrary tokens(ù{\footnotemark}ù)
 \end{emcppslisting}
-\footnotetext{GCC offered no support for certain tokens in the attributes until GCC v9.3 (c. 2020).}
+\footnotetext{GCC offered no support for certain tokens in the attributes until GCC~v9.3 (c. 2020).}
 
 \noindent Note that having an incorrect number of arguments or an incompatible
 argument type is a compile-time error for all  attributes defined by the Standard; %\pagebreak%%%%%%%
@@ -255,7 +258,8 @@ Portability is the biggest advantage of preferring standard syntax when it is av
 \subsubsection[Prompting useful compiler diagnostics]{Prompting useful compiler diagnostics}\label{eliciting-useful-compiler-diagnostics}
 
 Decorating entities with certain attributes can give compilers enough
-additional context to provide more detailed diagnostics. For example,
+additional con-\linebreak %%%%%%%% to reduce the wacky linespacing caused by long code term next line
+text to provide more detailed diagnostics. For example,
 the GCC-specific\linebreak[4] \lstinline![[gnu::warn_unused_result]]!
 attribute{\cprotect\footnote{For compatibility with GCC,
 Clang supports \lstinline![[gnu::warn_unused_result]]! as
@@ -276,7 +280,7 @@ struct UDPListener
         // The behavior is undefined unless (ù{\codeincomments{start}}ù) was called successfully.
 };
 \end{emcppslisting}
-%\pagebreak%%%%%%
+\pagebreak%%%%%%
 
 \noindent Such annotation of the client-facing declaration can prevent defects
 caused by a client forgetting to inspect the result of a
@@ -339,8 +343,9 @@ void checkBalance(int balance)
 
 \noindent Because the (annotated) \lstinline!reportError(const!~\lstinline!char*)!
 appears on the \lstinline!else! branch of the \lstinline!if! statement (above), the compiler
-knows to expect that \lstinline!balance! is likely \emph{not} to be
-negative and therefore optimizes its predictive branching accordingly.
+knows to expect that \lstinline!balance! is likely \pagebreak%%%%%%%
+\emph{not} to be negative
+and therefore optimizes its predictive branching accordingly.
 Note that even if our hint to the compiler turns out to be misleading at
 run time, the semantics of every well-formed program remain the same.
 
@@ -390,7 +395,7 @@ Vector2D vectorLerp(const Vector2D& start, const Vector2D& end, double factor)
 \noindent In the case where the values of the two components
 are the same, the compiler is allowed to invoke
 \lstinline!linearInterpolation! only once --- even if its body is not
-visible in \lstinline!vectorLerp!'s translation unit:
+visible in \lstinline!vectorLerp!'s translation unit:\newpage%%%%%%
 
 \begin{emcppslisting}[emcppsbatch=e8]
 // pseudocode (hypothetical compiler transformation)
@@ -456,10 +461,11 @@ void hereticalFunction()
     printElements(array, array + 6);  // elicits warning C26481
 }
 \end{emcppslisting}
+%\pagebreak%%%%%%%%%
 
 \noindent Any block of code for which validating rule C26481 is considered
 undesirable can be decorated with the
-\lstinline![[gsl::suppress(bounds.1)]]! attribute:
+\lstinline![[gsl::suppress(bounds.1)]]! attribute:\pagebreak%%%%%%%%%
 
 % gsl::suppress is ignored by gcc, requires a string on clang, and an identifier
 % on MSVC.  sigh.
@@ -626,7 +632,7 @@ constant for all time.
 \subsection[See Also]{See Also}\label{see-also}
 
 \begin{itemize}
-\item{\seealsoref{the-noreturn-attribute}{\seealsolocationa}presents a standard attribute used to indicated that a particular function never returns control flow to its caller.}
+\item{\seealsoref{the-noreturn-attribute}{\seealsolocationa}presents a standard attribute used to indicate that a particular function never returns control flow to its caller.}
 \item{\seealsoref{deprecated}{\seealsolocationb}presents a standard attribute that discourages the use of an entity via compiler diagnostics.}
 \item{\seealsoref{carriesdependency}{\seealsolocatione}presents a standard attribute used to communicate release-consume dependency-chain information to the compiler to avoid unnecessary memory-fence instructions.}
 %\item{\locationa, ``\titleref{alignas}" on page~\pageref{alignas} --- Safe C++11 attribute (with a keyword-like syntax) used to widen the alignment of a type or an object}

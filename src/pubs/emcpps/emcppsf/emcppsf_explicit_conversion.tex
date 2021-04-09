@@ -1,5 +1,7 @@
 % 12 Feb 2021, revisions in; ready for Josh's code fixes
 % 16 Feb 2021 JMB; code compiles
+% 24 Feb 2021, copyedits in and proofed
+% 24 Feb 2021, FPPs created
 
 \emcppsFeature{
     short={\lstinline!explicit! Operators},
@@ -22,10 +24,7 @@ Though sometimes desirable, implicit conversions achieved via user-defined \emph
 functions} --- either \emcppsgloss{converting constructors} accepting a
 single argument or \emcppsgloss{conversion operators} --- can also be problematic, especially when the
 conversion involves a commonly used type (e.g., \lstinline!int! or
-\lstinline!double!){\cprotect\footnote{Use of a conversion operator to
-calculate distance from the origin in this unrealistically simple \lstinline!Point!
-example is for didactic purposes only. In practice, we would typically
-use a named function for this purpose; see \intraref{potential-pitfalls-explicitconv}{sometimes-a-named-function-is-better}.}}:
+\lstinline!double!):
 %{\it\titleref{potential-pitfalls-explicitconv}: \titleref{sometimes-a-named-function-is-better}} on page~\pageref{sometimes-a-named-function-is-better}.}}:
 
 \begin{emcppslisting}[emcppsbatch=e1]
@@ -39,8 +38,13 @@ public:
     operator double() const;  // Return distance from origin as a (ù{\codeincomments{double}}ù).
 };
 \end{emcppslisting}
-    
-\noindent As ever, calling a function that takes a \lstinline!Point! but
+
+\noindent Using a conversion operator to
+calculate distance from the origin in this unrealistically simple \lstinline!Point!
+example is for didactic purposes only. In practice, we would typically
+use a named function for this purpose; see \intraref{potential-pitfalls-explicitconv}{sometimes-a-named-function-is-better}.
+
+As ever, calling a function that takes a \lstinline!Point! but
 accidentally passing an \lstinline!int! can lead to surprises:
 
 \begin{emcppslisting}[emcppsbatch=e1]
@@ -53,13 +57,13 @@ void f1(int i)
     g1(i);  // oops, called (ù{\codeincomments{g1}}ù) with (ù{\codeincomments{Point(i, 0)}}ù) by mistake
 }
 \end{emcppslisting}
-    
+
 \noindent This problem could have been solved even in C++98 by declaring the
 constructor to be \lstinline!explicit!:
 
 \begin{emcppshiddenlisting}[emcppsbatch=e2]
 class Point;
-void g0(Point p);       
+void g0(Point p);
 void g1(const Point& p);
 class Point {
 public:
@@ -70,6 +74,7 @@ explicit Point(int x = 0, int y = 0);  // explicit converting constructor
 \begin{emcppshiddenlisting}[emcppsbatch=e2]
 };
 \end{emcppshiddenlisting}
+\newpage%%%%%
 \noindent If the conversion is desired, it must now be specified explicitly:
 
 \begin{emcppslisting}[emcppsbatch=e2]
@@ -81,7 +86,7 @@ void f2(int i)
     g1(Point(i));  // OK
 }
 \end{emcppslisting}
-    
+
 \noindent The companion problem stemming from an \emph{implicit conversion
 operator}, albeit less severe, remained:
 
@@ -115,7 +120,8 @@ void g()
     double e(s0);                  // Error, direct initialization
 }
 \end{emcppslisting}
-    
+
+\enlargethispage*{-13ex}%%%%%
 \noindent In contrast, had the conversion operator above not been declared to be
 \lstinline!explicit!, all conversions shown above would compile:
 
@@ -133,15 +139,16 @@ void f()
     double e(s1);                  // OK (direct initialization)
 }
 \end{emcppslisting}
-    
-\noindent Additionally, the notion of \emcppsgloss[contextual convertibility to bool]{contextual convertibility to \lstinline!bool!} 
+
+\noindent Additionally, the notion of \emcppsgloss[contextual convertibility to bool]{contextual convertibility to
+\lstinline!bool!}
 %{\cprotect\footnote{Since the early days of C++, a common
 %  idiom to test for validity of an object has been to use it in a
 %  context where it can (implicitly) convert itself to a type whose value
 %  can be interpreted (contextually) as a boolean, with \lstinline!true!
 %  implying validity (and \lstinline!false! otherwise). Implicit conversion
-%  to \lstinline!bool! (an integral type) was considered too dangerous, 
-%  so the cumbersome \emcppsgloss[safe bool idiom]{safe-\lstinline!bool! idiom} was used instead,
+%  to \lstinline!bool! (an integral type) was considered too dangerous,
+%  so the cumbersome \romeogloss{safe-\lstinline!bool! idiom} was used instead,
 %  converting to a type that --- while contextually convertible to
 %  \lstinline!bool! --- could not (by design) participate in any other
 %  operations. While making the conversion to \lstinline!bool! (or
@@ -152,12 +159,12 @@ void f()
 %  expression \lstinline!E! to include an application of
 %  \lstinline!static_cast<const!~\lstinline!volatile!~\lstinline!bool>! to
 %  \lstinline!E!, thus enabling explicit conversion to \lstinline!bool! to be
-%  used in lieu of the (now deprecated) \emcppsgloss[safe bool idiom]{safe-\lstinline!bool! idiom}; see
-%  \cite{sharpe13}.}} 
+%  used in lieu of the (now deprecated) \romeogloss{safe-\lstinline!bool! idiom}; see
+%  \cite{sharpe13}.}}
 applicable to arguments of logical operations
 (e.g., \lstinline!&&!, \lstinline!||!, and \lstinline|!|) and conditions of
 most control-flow constructs (e.g., \lstinline!if!, \lstinline!while!) was
-extended in C++11 to admit \emph{explicit} (user-defined) \lstinline!bool!
+extended in C++11 to admit \emph{explicit} user-defined \lstinline!bool!
 conversion operators (see \intraref{use-cases-explicitconv}{enabling-contextual-conversions-to-bool-as-a-test-for-validity}):
 %{\it\titleref{use-cases-explicitconv}: \titleref{enabling-contextual-conversions-to-bool-as-a-test-for-validity}} on page~\pageref{enabling-contextual-conversions-to-bool-as-a-test-for-validity}):
 
@@ -174,15 +181,15 @@ void h()
     int k(s2);                     // Error, direct initialization
     double fd(s2);                 // Error, direct initialization
     bool b0 = s2;                  // Error, copy initialization
-    bool b1(s2);                   // OK, direct initialization)                                     
+    bool b1(s2);                   // OK, direct initialization)
     !s2;                           // OK, contextual conversion to (ù{\codeincomments{bool}}ù)                                               -
     s2 && s2;                      // OK, contextual conversion to (ù{\codeincomments{bool}}ù)
 }
 \end{emcppslisting}
-    
+
 %\noindent Prior to C++11, essentially the same effect as having an \emph{explicit}
 %\lstinline!operator!~\lstinline!bool()! member was achieved (albeit far less
-%conveniently) via the \emcppsgloss[safe bool idiom]{safe-\lstinline!bool! idiom}.
+%conveniently) via the \romeogloss{safe-\lstinline!bool! idiom}.
 
 \subsection[Use Cases]{Use Cases}\label{use-cases-explicitconv}
 
@@ -191,6 +198,7 @@ void h()
 Having a conventional test for validity that involves testing whether the object itself evaluates to \lstinline!true! or \lstinline!false! is an idiom that goes back to the
 origins of C++. The Standard input/output library, for example, uses this
 idiom to determine if a given stream is valid:
+\newpage%%%%%%%%
 
 \begin{emcppslisting}
 // C++03
@@ -210,10 +218,10 @@ std::ostream& printTypeValue(std::ostream& stream, double value)
     return stream;
 }
 \end{emcppslisting}
-    
+
 \noindent Implementing the implicit conversion to \lstinline!bool! was, however,
 problematic as the straight\-forward approach of using a
-\emcppsgloss{conversion operator} could easily allow accidental misuse to go
+\emcppsgloss[conversion operators]{conversion operator} could easily allow accidental misuse to go
 undetected:
 
 \begin{emcppslisting}
@@ -232,24 +240,26 @@ int client(ostream& out)
     return out + 1;  // likely a latent runtime bug: always returns 1 or 2
 }
 \end{emcppslisting}
-    
-\noindent The classic workaround, the \emcppsgloss[safe bool idiom]{safe-\lstinline!bool! idiom},\footnote{https://www.artima.com/cppsource/safebool.html} 
+
+\noindent The classic workaround, the \emcppsgloss[safe-bool-idiom]{safe-\lstinline!bool! idiom},\footnote{https://www.artima.com/cppsource/safebool.html}
 was to return some obscure pointer\linebreak[4] %%%%%
- type (e.g., \emcppsgloss{pointer to member}) that could not possibly be useful in any context other\linebreak[4] %%%%%
+ type (e.g., \emcppsgloss{pointer to
+member}) that could not possibly be useful in any context other\linebreak[4] %%%%%
  than one in which \lstinline!false! and a null pointer-to-member value are
-treated equivalently. With explicit conversion operators, such workarounds are no longer required. As discussed in \intrarefsimple{description-explicitconv}, 
-%\textit{\titleref{description-explicitconv}} on page~\pageref{description-explicitconv}, 
+treated equivalently. With explicit conversion operators, such workarounds are no longer required. As discussed in \intrarefsimple{description-explicitconv},
+%\textit{\titleref{description-explicitconv}} on page~\pageref{description-explicitconv},
 a conversion operator to type
 \lstinline!bool! that is declared \lstinline!explicit! continues to act as if
 it were \emph{implicit} only in those places where we might want it to
 do so and nowhere else --- i.e., exactly those places that enable
-\emcppsgloss[contextual conversion to bool]{contextual conversion to \lstinline!bool!}.{\cprotect\footnote{Note that two
+\emcppsgloss[contextual convertibility to bool]{contextual conversion to \lstinline!bool!}.{\cprotect\footnote{Note that two
 consecutive \lstinline|!| operators can be used to synthesize a
-\emcppsgloss[contextual conversion to bool]{contextual conversion to \lstinline!bool!} --- i.e., if \lstinline!X! is an
+\emcppsgloss[contextual convertibility to bool]{contextual conversion to \lstinline!bool!} --- i.e., if \lstinline!X! is an
 expression that is explicitly convertible to \lstinline!bool!, then
-\lstinline|(!!(X))| will be \lstinline!(true)! or \lstinline!(false)!
+\lstinline|(!!(X))| will be \lstinline!true! or \lstinline!false!
   accordingly.}}
 
+\newpage%%%%%
 As a concrete example, consider a \lstinline!ConnectionHandle! class that
 can be in either a \emph{valid} or \emph{invalid} state. For the user's
 convenience and consistency with other proxy types (e.g., raw pointers)
@@ -258,7 +268,7 @@ that have a similar \emph{invalid} state, representing the invalid (or null) sta
 
 
 \begin{emcppslisting}[emcppsbatch=e2]
-#include <cstddef>  // (ù{\codeincomments{std::size\_t}ù)                                            
+#include <cstddef>  // (ù{\codeincomments{std::size\_t}ù)
 #include <iostream> // (ù{\codeincomments{std::cerr}ù)
 struct ConnectionHandle
 {
@@ -269,7 +279,7 @@ struct ConnectionHandle
         // Return (ù{\codeincomments{true}}ù) if the handle is valid and (ù{\codeincomments{false}}ù) otherwise.
 };
 \end{emcppslisting}
-    
+
 \noindent Instances of \lstinline!ConnectionHandle! will convert to \lstinline!bool!
 only where one might reasonably want them to do so, say, as the
 predicate of an \lstinline!if! statement:
@@ -287,7 +297,7 @@ int ping(const ConnectionHandle& handle)
     return -1;  // failure
 }
 \end{emcppslisting}
-    
+
 \noindent Having an \lstinline!explicit! conversion operator prevents unwanted
 conversions to \lstinline!bool! that might otherwise happen inadvertently:
 
@@ -299,14 +309,14 @@ bool hasEnoughThroughput(const ConnectionHandle& ingress,
 //                                    ^~~~~~
 }
 \end{emcppslisting}
-    
+
 \noindent After the relational operator (\lstinline!<=!) in the example above, the
 programmer mistakenly wrote \lstinline!egress! instead of
-\mbox{\lstinline!egress.maxThroughput()!}. Fortunately the conversion operator of\linebreak[4] %%%%%
-\mbox{\lstinline!ConnectionHandle!} was declared to be \lstinline!explicit! and a
+\mbox{\lstinline!egress.maxThroughput()!}. Fortunately, the conversion operator of\linebreak[4] %%%%%
+\mbox{\lstinline!ConnectionHandle!} was declared to be \lstinline!explicit!, and a
 compile-time error ensued; if the conversion had
 been \emph{implicit}, the example code above would have compiled, and,
-if executed, the above (faulty) implementation of the \mbox{\lstinline!hasEnoughThroughput!}
+if executed, the above faulty implementation of the \mbox{\lstinline!hasEnoughThroughput!}
 function would have silently exhibited well-defined but incorrect
 behavior.
 
@@ -316,7 +326,7 @@ behavior.
 
 Implicit conversions to and from common arithmetic types, especially
 \lstinline!int!, are generally ill advised given the likelihood of
-accidental misuse. 
+accidental misuse.
 %However, sometimes \emph{implicit}
 %conversion is exactly what is needed. Such cases occur frequently with
 %wrapper and proxy types that might need to interoperate with a large
@@ -337,7 +347,7 @@ accidental misuse.
 %types intended to be dropped in and used in existing codebases. If, for
 %example, we wanted to provide a proxy for a writeable
 %\lstinline!std::string! that, say, also logged, we might want an implicit
-%conversion to a \lstinline!std::string&&! (perhaps using reference qualifiers; 
+%conversion to a \lstinline!std::string&&! (perhaps using reference qualifiers;
 %see \featureref{\locatione}{refqualifiers}). In such cases, making the
 %conversion explicit would entirely defeat the purpose of the proxy,
 %which is to achieve new functionality with minimal effect on existing
@@ -351,18 +361,18 @@ class NibbleConstReference
 {
     // ...
 public:
-    operator int() const; // IMPLICIT
+    operator int() const; // implicit
 
     // ...
 };
 
-class PackedNibbleVector 
+class PackedNibbleVector
 {
     // ...
 public:
     bool empty() const;
     NibbleConstReference operator[](int index) const;
-    
+
     // ...
 };
 \end{emcppslisting}
@@ -372,9 +382,9 @@ public:
 \begin{emcppslisting}[emcppsbatch=e3]
 int firstOrZero(const PackedNibbleVector& values)
 {
-    return values.empty() 
-        ? 0 
-        : values[0]; // Compiles only if conversion operator is implicit.
+    return values.empty()
+        ? 0
+        : values[0]; // compiles only if conversion operator is implicit
 }
 \end{emcppslisting}
 
@@ -385,19 +395,19 @@ Other kinds of overuses of even \emph{explicit} conversion
 operators exist. Like any user-defined operator, when the operation being
 implemented is not somehow either canonical or ubiquitously idiomatic
 for that operator, expressing that operation by a
-named (i.e., non-operator) function is often better. Recall from \intrarefsimple{description-explicitconv} 
-% {\it\titleref{description-explicitconv}} on page~\pageref{description-explicitconv} 
+named (i.e., nonoperator) function is often better. Recall from \intrarefsimple{description-explicitconv}
+% {\it\titleref{description-explicitconv}} on page~\pageref{description-explicitconv}
 that we used a conversion operator of
 class \lstinline!Point! to represent the distance from the origin. This
-example serves both to illustrate how conversion operators \emph{can} be
-used and also how they probably should \emph{not} be. Consider that (1)
+example serves to illustrate both how conversion operators \emph{can} be
+used and how they probably should \emph{not} be. Consider that (1)
 many mathematical operations on a 2-D integral point might return a \lstinline!double! (e.g., \lstinline!magnitude!,
 \lstinline!angle!) and (2) we might want to represent the same
 information but in different units (e.g., \lstinline!angleInDegrees!,
-\lstinline!angleInRadians!).{\cprotect\footnote{Another valid design
-decision is returning an object of type \lstinline!Angle! that captures
+\lstinline!angleInRadians!). Another valid design
+decision would be to return an object of user-defined type, say, \lstinline!Angle!, that captures
 the amplitude and provides named accessory to the different units
-  (e.g., \lstinline!asDegrees!, \lstinline!asRadians!).}}
+  (e.g., \lstinline!asDegrees!, \lstinline!asRadians!).
 
 Rather than employing any conversion \emph{operator} (\lstinline!explicit!
 or otherwise), consider instead providing a named function, which (1) is
@@ -417,22 +427,22 @@ public:
     double magnitude() const;  // Return distance from origin as a (ù{\codeincomments{double}}ù).
 };
 \end{emcppslisting}
-    
+
 \noindent Note that defining \emcppsgloss{nonprimitive functionality}, like
 \lstinline!magnitude!, in a separate \emph{utility} at a higher level in the
 physical hierarchy (e.g., \lstinline!PointUtil::magnitude(const!~\lstinline!Point&!~\lstinline!p)!) might be better still.{\cprotect\footnote{For more on
 separating out \emcppsgloss{nonprimitive functionality}, see
-  \cite{lakos20}, sections 3.2.7--3.2.8, pp 529--552.}}
+  \cite{lakos20}, sections 3.2.7--3.2.8, pp. 529--552.}}
 
 \subsection[Annoyances]{Annoyances}\label{annoyances}
 
-None so far
+\hspace{\fill}
 
 \subsection[See Also]{See Also}\label{see-also}
 
-None so far
+\hspace{\fill}
 
 \subsection[Further Reading]{Further Reading}\label{further-reading}
 
-None so far
+\hspace{\fill}
 

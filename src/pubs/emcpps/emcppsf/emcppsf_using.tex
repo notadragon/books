@@ -1,5 +1,6 @@
 % 2 Feb 2021, copyedits in and proofed
 % 8 Feb 2021 JMB, compilation fixes
+% 22 March 2021, in FPPs
 
 \emcppsFeature{
     short={\lstinline!using! Aliases},
@@ -17,10 +18,10 @@
 
 %Alias declarations and alias templates provide an expanded use of the
 %\lstinline!using! keyword, offering an alternative syntax (to
-%\lstinline!typedef!) for creating a \emcppsgloss{type alias} that can itself be
+%\lstinline!typedef!) for creating a \romeogloss{type alias} that can itself be
 %a template.
 
-Alias declarations and alias templates provide an expanded use of the \lstinline!using! keyword to introduce aliases for types and templates, thus providing a more general alternative to \lstinline!typedef!.
+Alias declarations and alias templates provide an expanded use of the \lstinline!using! keyword~to introduce aliases for types and templates, thus providing a more general alternative to~\lstinline!typedef!.
 
 \subsection[Description]{Description}\label{description}
 
@@ -77,6 +78,7 @@ Type8<int>    i;  // equivalent to (ù{\codeincomments{int i;}}ù)
 Type8<double> d;  // equivalent to (ù{\codeincomments{double d;}}ù)
 \end{emcppslisting}
 
+\newpage%%%%%%
 \noindent Note, however, that neither partial nor full specialization of alias
 templates is supported:
 
@@ -108,7 +110,7 @@ PairOfCharAnd<double> pcd;  // equivalent to (ù{\codeincomments{std::pair<char,
 
 \noindent Finally, note that similar functionality can be
 achieved in C++03, it suppresses type deduction and requires additional boilerplate code at both the
-point of definition and the call site:
+point of definition and the call~site:
 
 \begin{emcppshiddenlisting}[emcppsbatch=e1]
 #include <utility>  // (ù{\codeincomments{std::pair}}ù)
@@ -137,6 +139,7 @@ member functions, or data members require looking in the middle of the
 declaration to find the alias name. As an example, consider a
 \emph{callback} type alias intended to be used with asynchronous functions:
 
+\newpage%%%%
 \begin{emcppslisting}
 typedef void(*CompletionCallback)(void* userData);
 \end{emcppslisting}
@@ -197,7 +200,8 @@ private:
 
 \noindent The example above, though clear and regular, involves significant
 repetition, making it more difficult to maintain should we later opt to
-change data structures. If we were to instead use an \emcppsgloss{alias template} to bind the \lstinline!UserId! type to the first type
+change data structures. If we were to instead use an \emcppsgloss{alias
+template} to bind the \lstinline!UserId! type to the first type
 parameter of \lstinline!std::map!, we could both reduce code repetition
 and enable the programmer to consistently replace \lstinline!std::map!
 to another container
@@ -212,6 +216,7 @@ significantly faster average access times. See
   \cite{cpprefb}.}}) by performing the change in only
 one place:
 
+\newpage%%%%%
 \begin{emcppslisting}[emcppsbatch=e3]
 class UserData  // class with well-factored implementation (GOOD IDEA)
 {
@@ -229,7 +234,8 @@ private:
 
 \subsubsection[Providing a shorthand notation for type traits]{Providing a shorthand notation for type traits}\label{providing-a-shorthand-notation-for-type-traits}
 
-Alias templates can provide a shorthand notation for \emcppsgloss{type traits}, avoiding \emcppsgloss{boilerplate code} in the usage site. As an
+Alias templates can provide a shorthand notation for \emcppsgloss[type trait]{type
+traits}, avoiding \emcppsgloss{boilerplate code} in the usage site. As an
 example, consider a simple type trait that adds a pointer to a given
 type (akin to \lstinline!std::add_pointer!):
 

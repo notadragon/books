@@ -21,7 +21,8 @@ explicitly.
 \subsection[Description]{Description}\label{description}
 
 The traditional means for initializing non\lstinline!static! data members
-and base class objects within a class is a constructor's \emcppsgloss{member initializer list}:
+and base class objects within a class is a constructor's \emcppsgloss{member
+initializer list}:
 
 \begin{emcppslisting}
 struct B
@@ -41,7 +42,8 @@ struct D : B
     
 
 Starting with C++11, non\lstinline!static! data members --- except for bit
-fields --- can also be initialized using a \emcppsgloss{default member initializer}, either by using \emcppsgloss{copy initialization} or
+fields --- can also be initialized using a \emcppsgloss{default member
+initializer}, either by using \emcppsgloss{copy initialization} or
 \emcppsgloss{direct list initialization}; see
 \featureref{\locationc}{bracedinit}:
 
@@ -55,7 +57,8 @@ struct S0
 \end{emcppslisting}
     
 
-Note that although braced initialization is supported, \emcppsgloss{direct initialization} with a parenthesized list is not:
+Note that although braced initialization is supported, \emcppsgloss{direct
+initialization} with a parenthesized list is not:
 
 \begin{emcppslisting}
 struct S1
@@ -66,7 +69,8 @@ struct S1
     
 
 For any member, \lstinline!m!, that has a default member initializer,
-constructors that don't initialize \lstinline!m! in their \emcppsgloss{member initializer list} will implicitly initialize \lstinline!m! by using the
+constructors that don't initialize \lstinline!m! in their \emcppsgloss{member
+initializer list} will implicitly initialize \lstinline!m! by using the
 default member initializer value:
 
 \begin{emcppslisting}
@@ -695,7 +699,8 @@ subobjects of \lstinline!CompoundObject! strongly depend on being
 initialized after the \lstinline!d_context! member variable, so the order
 of members is subtly constrained. Consequently, innocuous changes in
 member order during maintenance are liable to introduce
-bugs.{\cprotect\footnote{C++17 introduces the \emcppsgloss{polymorphic memory resource} allocator model, which is a \emcppsgloss{scoped allocator model}
+bugs.{\cprotect\footnote{C++17 introduces the \emcppsgloss{polymorphic memory
+resource} allocator model, which is a \emcppsgloss{scoped allocator model}
   with issues similar to \lstinline!ContextualObject!.}}
 
 \subsection[Annoyances]{Annoyances}\label{annoyances}
@@ -753,7 +758,8 @@ initialization (like \lstinline!i1!) or braced initialization (like
 \subsubsection[Limitations of applicability]{Limitations of applicability}\label{limitations-of-applicability}
 
 Default member initializers can be used to replace the initialization of
-almost all members that can be placed in a constructor's \emcppsgloss{member initializer list}, except for two cases:
+almost all members that can be placed in a constructor's \emcppsgloss{member
+initializer list}, except for two cases:
 
 \begin{itemize}
 \item{Bit-field data members\cprotect\footnote{In C++20, bit fields can now be initialized through a default member initializer:

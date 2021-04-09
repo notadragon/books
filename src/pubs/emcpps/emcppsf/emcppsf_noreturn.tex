@@ -1,6 +1,7 @@
 %%% 15 Jan: copyedits in and proofed
 %% 27 Jan, code checked and replaced as needed by Josh
 % 01 Feb, 2021 JMB - listing that does compile marked as non-compiling
+% 22 March 2021, in FPPs
 
 \emcppsFeature{
     toclong={The \lstinline![[noreturn]]! Attribute},
@@ -39,7 +40,7 @@ such a function never returns control flow to the caller:
 
 
 \noindent The \lstinline![[noreturn]]! attribute is not part of a function's type
-and is also, therefore, not part of the type of a function pointer. Applying \lstinline![[noreturn]]! to a function
+and is also, therefore, not part of~the type of a function pointer. Applying \lstinline![[noreturn]]! to a function
 pointer is not an error, though doing so has no actual effect in standard C++; see
 %{\it\titleref{noreturn-potential-pitfalls}: \titleref{misuse-of-[[noreturn]]-on-function-pointers}} on page~\pageref{misuse-of-[[noreturn]]-on-function-pointers}
 \intraref{noreturn-potential-pitfalls}{misuse-of-[[noreturn]]-on-function-pointers}. Using it on a pointer might have
@@ -59,7 +60,7 @@ Consider the task of creating an assertion handler that, when invoked,
 always aborts execution of the program after printing some useful
 information about the source of the assertion. Since this specific
 handler will never return because it unconditionally invokes a \linebreak[4]%%%%%
-\mbox{\lstinline![[noreturn]]std::abort!} function, it is a viable candidate for
+\lstinline![[noreturn]]std::abort! function, it is a viable candidate for
 \lstinline![[noreturn]]!:
 
 \begin{emcppshiddenlisting}[emcppsbatch=e2]
@@ -77,7 +78,7 @@ const LogError& operator<<(const LogError& lhs, const T&) { return lhs; }
 }
 \end{emcppslisting}
 
-
+\newpage%%%%%%
 \noindent The additional information provided by the attribute will allow a
 compiler to warn if it determines that a code path in the
 function would allow it to return normally:
@@ -187,13 +188,14 @@ void client()
 
 
 \noindent Notice that even though \lstinline![[noreturn]]! appeared only on the first
-declaration --- that in the \lstinline!util.h! header --- the \lstinline![[noreturn]]!
+declaration --- that in the~\lstinline!util.h! header --- the \lstinline![[noreturn]]!
 attribute carries over to the redeclaration used in the\linebreak[4] \lstinline!throwBadAlloc!
 function's definition because the header was included in the
 corresponding \lstinline!.cpp! file.
 
 \subsection[Potential Pitfalls]{Potential Pitfalls}\label{noreturn-potential-pitfalls}
 
+%%%% Keep \tt here. listings cannot handle the [[ ]]
 \subsubsection[\tt{[[noreturn]]} can inadvertently break an otherwise working program]{{\SubsubsecCode [[noreturn]]} can inadvertently break an otherwise working program}\label{[[noreturn]]-can-inadvertently-break-an-otherwise-working-program}
 
 Unlike many attributes, using \lstinline![[noreturn]]! \emph{can} alter
@@ -228,9 +230,10 @@ number of hard-to-diagnose defects (e.g., due to incorrectly elided
 code) might materialize as a consequence of the ensuing
 \emcppsgloss{undefined behavior}. Furthermore, if a function is declared \lstinline![[noreturn]]! in some
 translation units within a program but not in others, that program is
-\emcppsgloss[ill formed, no diagnostic required]{ill-formed, no diagnostic required (IFNDR)}.
+\emcppsgloss{ill formed, no diagnostic required (IFNDR)}.
 
-\subsubsection[Misuse of {\tt[[noreturn]]} on function pointers]{Misuse of {\SubsubsecCode [[noreturn]]} on function pointers}\label{misuse-of-[[noreturn]]-on-function-pointers}
+%%%% Keep \tt here. listings cannot handle the [[ ]]
+\subsubsection[Misuse of \tt{[[noreturn]]} on function pointers]{Misuse of {\SubsubsecCode [[noreturn]]} on function pointers}\label{misuse-of-[[noreturn]]-on-function-pointers}
 
 Although the \lstinline![[noreturn]]! attribute is permitted to syntactically appertain
 to a function pointer for the benefit of external tools,
@@ -279,7 +282,7 @@ when applied to other than a function's declaration is misguided.
 
 \begin{itemize}
 \item{%``\titleref{attributes}" on page~\pageref{attributes} —
-\seealsoref{attributes}{\locationa}\lstinline![[noreturn]]! is a built-in attribute that follows the general syntax and placement rules of C++ attributes.}
+\seealsoref{attributes}{\seealsolocationa}\lstinline![[noreturn]]! is a built-in attribute that follows the general syntax and placement rules of C++ attributes.}
 \end{itemize}
 
 \subsection[Further Reading]{Further Reading}\label{further-reading}

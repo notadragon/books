@@ -1,5 +1,6 @@
 %%%% 15 Jan: copyedits in and proofed
 %% 27 Jan, code checked and replaced as needed by Josh
+% 22 March 2021, in FPPs
 
 \emcppsFeature{
     short={Trailing Return},
@@ -134,6 +135,7 @@ function's signature, \lstinline!auto!~\lstinline!f(long!~\lstinline!long)!, and
 //              [function (int) returning] double  *R;
 //                                         double (*R)(int);
 \end{emcppslisting}
+\pagebreak%%%%
 
 \noindent The two equivalent forms of the same declaration are shown below:
 
@@ -188,7 +190,8 @@ this interface necessarily supports any set of input types for which
 \lstinline!a!~\lstinline!+!~\lstinline!factor!~\lstinline!*!~\lstinline!(b!~\lstinline!-!~\lstinline!a)!
 is valid, including types such as mathematical vectors, matrices, or
 expression templates. As an added benefit, the presence of the
-expression in the function's declaration enables \emcppsgloss[expression sfinae]{expression SFINAE}, which is typically desirable for generic template functions
+expression in the function's declaration enables \emcppsgloss{expression
+SFINAE}, which is typically desirable for generic template functions
 (see %Section~\ref{decltype}, ``\titleref{decltype}" on page~\pageref{decltype}
 \featureref{\locationa}{decltype}).
 
@@ -289,9 +292,9 @@ if a type alias is used via \lstinline!typedef! or, as of C++11,
 
 \begin{itemize}
 \item{%Section~\ref{decltype}, ``\titleref{decltype}" on page~\pageref{decltype} —
-\seealsoref{decltype}{\locationa}Function declarations may use \lstinline!decltype! either in conjunction with, or as an alternative to, trailing return types.}
+\seealsoref{decltype}{\seealsolocationa}Function declarations may use \lstinline!decltype! either in conjunction with, or as an alternative to, trailing return types.}
 \item{%Section~\ref{Function-Return-Type-Deduction}, ``\titleref{Function-Return-Type-Deduction}" on page~\pageref{Function-Return-Type-Deduction} —
-\seealsoref{Function-Return-Type-Deduction}{\locationf}Leaving the return type to deduction shares syntactical similarities with trailing return types but brings with it significant pitfalls when migrating from C++11 to C++14.}
+\seealsoref{Function-Return-Type-Deduction}{\seealsolocationf}Leaving the return type to deduction shares syntactical similarities with trailing return types but brings with it significant pitfalls when migrating from C++11 to C++14.}
 \end{itemize}
 
 \subsection[Further Reading]{Further Reading}\label{further-reading}

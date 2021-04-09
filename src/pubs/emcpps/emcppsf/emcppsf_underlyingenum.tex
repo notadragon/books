@@ -1,5 +1,10 @@
 
 % 01 Feb, 2021 JMB - packet 4 compilation fixes
+% 10 Feb 2021, some cleanup before sending for revisions
+% 4 March 2021, revisions entered and proofed
+% 5 March 2021, glossary entries updated
+% 5 March 2021, sent to copyediting
+% 13 March 2021, copyedits in and proofed
 
 
 \emcppsFeature{
@@ -13,55 +18,53 @@
 
 
 The underlying type of an enumeration is the fundamental
-\textbf{integral type} used to represent its enumerated values, which
+\emcppsgloss{integral type} used to represent its enumerated values, which
 can be specified explicitly in C++11.
 
 \subsection[Description]{Description}\label{description}
 
 Every enumeration employs an integral type, known as its
-\textbf{underlying type}, to represent its compile-time-enumerated
-values. By default, the \textbf{underlying type} of a C++98
-\texttt{enum} is chosen by the
-implementation to be large enough to represent all of the values in an
-enumeration and is allowed to exceed the size of an \texttt{int}
+\emcppsgloss[underlying type (UT)]{underlying type}, to represent its compile-time-enumerated
+values. By default, the \emcppsgloss[underlying type (UT)]{underlying type} of a C++03
+\lstinline!enum! is chosen by the
+implementation to be large enough to represent all of the values in the
+enumeration and is allowed to exceed the size of an \lstinline!int!
 \emph{only} if there are enumerators having values that cannot be
-represented as an \texttt{int} or \texttt{unsigned}~\texttt{int}:
+represented as an \lstinline!int! or \lstinline!unsigned!~\lstinline!int!:
 
 \begin{emcppslisting}
-enum RGB { e_RED, e_GREEN, e_BLUE };                     // OK, fits any (ù{\codeincomments{char}}ù)
+enum RGB { e_RED, e_GREEN, e_BLUE };                  // OK, fits any (ù{\codeincomments{char}}ù)
 
-enum Port { e_LEFT = -81, e_RIGHT = -82 };               // OK, fits (ù{\codeincomments{signed char}}ù)
+enum Port { e_LEFT = -81, e_RIGHT = -82 };            // OK, fits (ù{\codeincomments{signed char}}ù)
 
-enum Mask { e_LOW = 32767, e_HIGH = 65535 };             // OK, fits (ù{\codeincomments{unsigned short}}ù)
+enum Mask { e_LOW = 32767, e_HIGH = 65535 };          // OK, fits (ù{\codeincomments{unsigned short}}ù)
 
-enum Big { e_32 = 1<<32 };                               // Error, too big for (ù{\codeincomments{int}}ù)
+enum Big { e_31 = 1U<<31 };                           // OK, fits (ù{\codeincomments{unsigned int}}ù)
 
-enum Err { K = 1024, M = K*K, G = M*K, T = G*K };        // Error, (ù{\codeincomments{G*K}}ù) overflows (ù{\codeincomments{int}}ù)...
+enum Err { K = 1024, M = K*K, G = M*K, T = G*K };     // Error, (ù{\codeincomments{G*K}}ù) overflows (ù{\codeincomments{int}}ù)...
 
-enum OK { K = 1<<10, M = 1<<20, G = 1<<30, T = 1l<<40 }; // OK
+enum OK { K = 1<<10, M = 1<<20, G = 1<<30, T = 1LL<<40 }; // OK
 \end{emcppslisting}
 
-\noindent The default underlying type chosen for an \texttt{enum} is always
+\noindent The default underlying type chosen for an \lstinline!enum! is always
 sufficiently large to represent \emph{all} enumerator values defined for
-that \texttt{enum}. If the value doesn't fit in an \texttt{int}, it will
+that \lstinline!enum!. If the value doesn't fit in an \lstinline!int!, it will
 be selected deterministically as the first type able to represent all
-values from the sequence: \texttt{unsigned}~\texttt{int}, \texttt{long},
-\texttt{unsigned}~\texttt{long}, \texttt{long}~\texttt{long},
-\texttt{unsigned}~\texttt{long}~\texttt{long}.
+values from the sequence: \lstinline!unsigned!~\lstinline!int!, \lstinline!long!,
+\lstinline!unsigned!~\lstinline!long!, \lstinline!long!~\lstinline!long!,
+\lstinline!unsigned!~\lstinline!long!~\lstinline!long!; see \featureref{\locationa}{long-long}.
 
-While specifying an enumeration’s underlying type was impossible before C++11, the compiler could be forced to choose at least a 32-bit or 64-bit signed integral type by adding an enumerator having a sufficiently large negative value --- e.g., \lstinline!1 << 31! for a 32-bit and \lstinline!1 << 63! for a 64-bit signed integer (assuming such is available on the target platform).
+While specifying an enumeration’s underlying type was impossible before C++11, the compiler could be forced to choose at least a 32-bit or 64-bit signed integral type by adding an enumerator having a sufficiently large negative value --- e.g., \lstinline!-1 << 31! for a 32-bit and \lstinline!-1LL << 63! for a 64-bit signed integer (assuming such is available on the target platform).
 
-The above applies only to C++98 \lstinline!enum!s; the default underlying type of an \lstinline!enum! \lstinline!class! is ubiquitously \lstinline!int!, and it is not implementation defined; see \featureref{\locationc}{enumclass}.
+The above applies only to C++03 \lstinline!enum!s; the default underlying type of an \lstinline!enum! \lstinline!class! is ubiquitously \lstinline!int!, and it is not implementation defined; see \featureref{\locationc}{enumclass}.
 
-Note that \lstinline!char! and \lstinline!wchar_t!, like enumerations, are their own distinct types (as opposed to \lstinline!typedef!-like aliases such as \lstinline!std::uint8_t!) and have their own implementation-defined underlying integral types. With \lstinline!char!, for example, the underlying type will always be either \lstinline!signed! \lstinline!char! or \lstinline!unsigned! \lstinline!char! (both of which are also distinct C++ types).{\cprotect\footnote{The same is true in C++11 for
-\texttt{char16\_t} and \texttt{char32\_t} and in C++20 for
-  \texttt{char8\_t}.}}
+Note that \lstinline!char! and \lstinline!wchar_t!, like enumerations, are their own distinct types (as opposed to \lstinline!typedef!-like aliases such as \lstinline!std::uint8_t!) and have their own implementation-defined underlying integral types. With \lstinline!char!, for example, the underlying type will always be either \lstinline!signed! \lstinline!char! or \lstinline!unsigned! \lstinline!char! (both of which are also distinct C++ types). The same is true in C++11 for \lstinline!char16_t! and \lstinline!char32_t!.{\protect\footnote{C++20 adds \lstinline!char8_t!, which is a distinct type that has \lstinline!unsigned! \lstinline!char! as its underlying type.}}
 
 \subsubsection[Specifying underlying type explicitly]{Specifying underlying type explicitly}\label{specifying-underlying-type-explicitly}
 
-As of C++11, we have the ability to specify the \textbf{integral type}
-that is used to represent an \texttt{enum}. This is achieved by
-providing the type explicitly in the \texttt{enum}'s declaration
+As of C++11, we have the ability to specify the \emcppsgloss{integral type}
+that is used to represent an \lstinline!enum!. This is achieved by
+providing the type explicitly in the \lstinline!enum!'s declaration
 following the enumeration's (optional) name and preceded by a colon:
 
 \begin{emcppslisting}
@@ -76,21 +79,22 @@ enum Port : unsigned char
 };
 \end{emcppslisting}
 
-\noindent If any of the values specified in the definition of the \texttt{enum} is
-outside the boundaries of what the provided \textbf{underlying type} is
-able to represent, the compiler will emit an error, but see \textit{\titleref{potential-pitfalls-underlyingenum}: \titleref{subtleties-of-integral-promotion}} on page~\pageref{subtleties-of-integral-promotion}.
+\noindent If any of the values specified in the definition of the \lstinline!enum! is
+outside the boundaries of what the provided \emcppsgloss[underlying type (UT)]{underlying type} is
+able to represent, the compiler will emit an error, but see \intraref{potential-pitfalls-underlyingenum}{subtleties-of-integral-promotion}.
+%\textit{\titleref{potential-pitfalls-underlyingenum}: \titleref{subtleties-of-integral-promotion}} on page~\pageref{subtleties-of-integral-promotion}.
 
 \subsection[Use Cases]{Use Cases}\label{use-cases}
 
 \subsubsection[Ensuring a compact representation where enumerator values are salient]{Ensuring a compact representation where enumerator values are salient}\label{ensuring-a-compact-representation-where-enumerator-values-are-salient}
 
-When the enumeration needs to have an efficient representation, e.g.,
+When an enumeration needs to have an efficient representation, e.g.,
 when it is used as a data member of a widely replicated type,
 restricting the width of the underlying type to something smaller than
 would occur by default on the target platform might be justified.
 
 As a concrete example, suppose that we want to enumerate the months of
-the year, for example, in anticipation of placing that enumeration
+the year, in anticipation of placing that enumeration
 inside a date class having an internal representation that maintains the
 year as a two-byte signed integer, the month as an enumeration, and the
 day as an 8-bit signed integer:
@@ -119,50 +123,72 @@ public:
 };
 \end{emcppslisting}
 
-\noindent Within the software, the \texttt{Date} is typically constructed using
-the values obtained through the GUI, where the month is always selected
-from a drop-down menu. Management has requested that the month be
-supplied to the constructor as an \texttt{enum} to avoid recurring
+\noindent Suppose that, within an application, a \lstinline!Date! is typically constructed using
+values obtained through a GUI, where the month is always selected
+from a drop-down menu. The month is
+supplied to the constructor as an \lstinline!enum! to avoid recurring
 defects where the individual fields of the date are supplied in
 month/day/year format. New functionality will be written to expect the
 month to be enumerated. Still, the date class will be used in contexts
 where the numerical value of the month is significant, such as in calls
 to legacy functions that accept the month as an integer. Moreover,
 iterating over a range of months is common and requires that the
-enumerators convert automatically to their integral \textbf{underlying
+enumerators convert automatically to their integral \emcppsgloss[underlying type (UT)]{underlying
 type}, thus contraindicating use of the more strongly typed
-\texttt{enum} \texttt{class}:
+\lstinline!enum! \lstinline!class!:
 
 \begin{emcppslisting}
-enum Month  // defaulted underlying type (BAD IDEA)
+enum Month // defaulted underlying type (BAD IDEA)
 {
-    e_JAN = 1, e_FEB, e_MAR,    // winter
-    e_APR    , e_MAY, e_JUN,    // spring
-    e_JUL    , e_AUG, e_SEP,    // summer
-    e_OCT    , e_NOV, e_DEC     // autumn
+    e_JAN = 1, e_FEB, e_MAR, e_APR, e_MAY, e_JUN,
+    e_JUL , e_AUG, e_SEP, e_OCT, e_NOV, e_DEC
 };
-
-static_assert(sizeof(Month) == 4 && alignof(Month) == 4, "");
+static_assert(sizeof(Month) <= 4 && alignof(Month) <= 4, "");
 \end{emcppslisting}
 
-\noindent As it turns out, date values are used widely throughout this codebase,
-and the proposed \texttt{Date} type is expected to be used in large
-aggregates. The underlying type of the \texttt{enum} in the code snippet
-above is implementation-defined and could be as small as a \texttt{char}
-or as large as an \texttt{int} despite all the values fitting in a
-\texttt{char}. Hence, if this enumeration were used as a data member in
-the \texttt{Date} class, \texttt{sizeof(Date)} would likely balloon to
-12 bytes on some relevant platforms due to \textbf{natural alignment}!
-(See ``\titleref{alignas}" on page~\pageref{alignas}.)
+%\begin{emcppslisting}
+%enum Month  // defaulted underlying type (BAD IDEA)
+%{
+%    enum Month {
+%    e_JAN = 1, e_FEB, e_MAR, e_APR, e_MAY, e_JUN,
+%    e_JUL    , e_AUG, e_SEP, e_OCT, e_NOV, e_DEC
+%    };
+%};
+%
+%static_assert(sizeof(Month) <= 4 && alignof(Month) <= 4, "");
+%\end{emcppslisting}
 
-While reordering the data members of \texttt{Date} such that \texttt{d\_year} and
-\texttt{d\_day} were adjacent would ensure that \texttt{sizeof(Date)}
+%\begin{emcppslisting}
+%enum Month  // defaulted underlying type (BAD IDEA)
+%{
+%    e_JAN = 1, e_FEB, e_MAR,    // winter
+%    e_APR    , e_MAY, e_JUN,    // spring
+%    e_JUL    , e_AUG, e_SEP,    // summer
+%    e_OCT    , e_NOV, e_DEC     // autumn
+%};
+%
+%static_assert(sizeof(Month) == 4 && alignof(Month) == 4, "");
+%\end{emcppslisting}
+
+\noindent As it turns out, date values are used widely throughout this codebase,
+and the proposed \lstinline!Date! type is expected to be used in large
+aggregates. The underlying type of the \lstinline!enum! in the code snippet
+above is implementation-defined and could be as small as a \lstinline!char!
+or as large as an \lstinline!int! despite all the values fitting in a
+\lstinline!char!. Hence, if this enumeration were used as a data member in
+the \lstinline!Date! class, \lstinline!sizeof(Date)! would likely balloon to
+12 bytes on some relevant platforms due to \emcppsgloss{natural alignment}!
+(See \featureref{\locationc}{alignas}.)
+%``\titleref{alignas}" on page~\pageref{alignas}.)
+
+While reordering the data members of \lstinline!Date! such that \lstinline!d_year! and
+\lstinline!d_day! were adjacent would ensure that \lstinline!sizeof(Date)!
 would not exceed 8 bytes, a better approach is to explicitly specify the
-enumeration's underlying type to ensure \texttt{sizeof(Date)} is exactly
-the 4 bytes needed to accurately represent the value of the
-\texttt{Date} object. Given that the values in this enumeration fit in
-an 8-bit signed integer, we can specify its \textbf{underlying type} to
-be, e.g., \texttt{std::int8\_t} or \texttt{signed}~\texttt{char}, on
+enumeration's underlying type to ensure \lstinline!sizeof(Date)! is exactly
+the 4 bytes needed to accurately represent the value of a
+\lstinline!Date! object. Given that the values in this enumeration fit in
+an 8-bit signed integer, we can specify its \emcppsgloss[underlying type (UT)]{underlying type} to
+be, e.g., \lstinline!std::int8_t! or \lstinline!signed!~\lstinline!char!, on
 every platform:
 
 \begin{emcppslisting}
@@ -170,17 +196,17 @@ every platform:
 
 enum Month : std::int8_t  // user-provided underlying type (GOOD IDEA)
 {
-    e_JAN = 1, e_FEB, e_MAR,    // winter
-    e_APR    , e_MAY, e_JUN,    // spring
-    e_JUL    , e_AUG, e_SEP,    // summer
-    e_OCT    , e_NOV, e_DEC     // autumn
+    e_JAN = 1, e_FEB, e_MAR,
+    e_APR    , e_MAY, e_JUN,
+    e_JUL    , e_AUG, e_SEP,
+    e_OCT    , e_NOV, e_DEC
 };
 
 static_assert(sizeof(Month) == 1 && alignof(Month) == 1, "");
 \end{emcppslisting}
 
-\noindent With this revised definition of \texttt{Month}, the size of a
-\texttt{Date} class is 4 bytes, which is especially valuable for large
+\noindent With this revised definition of \lstinline!Month!, the size of a
+\lstinline!Date! class is 4 bytes, which is especially valuable for large
 aggregates:
 
 \begin{emcppslisting}[emcppsbatch=e1]
@@ -192,30 +218,31 @@ Date timeSeries[1000 * 1000];  // (ù{\codeincomments{sizeof(timeSeries)}}ù) is
 
 \subsubsection[External use of opaque enumerators]{External use of opaque enumerators}\label{external-use-of-opaque-enumerators-enumunderlying}
 
-Providing an explicit underlying type to an \texttt{enum} enables
-clients to declare or redeclare it as a complete type with or without
+Providing an explicit underlying type to an \lstinline!enum! enables
+clients to declare it as a complete type without
 its enumerators. Unless the opaque form of its definition is exported in
 a header file separate from its full definition, external clients
 wishing to exploit the opaque version will be forced to locally declare
-it with its \textbf{underlying type} but without its enumerator list. If
+it with its \emcppsgloss[underlying type (UT)]{underlying type} but without its enumerator list. If
 the underlying type of the full definition were to change, any program
 incorporating \emph{its own} original and now inconsistent elided
-definition and the \emph{new} full one would become silently ill formed, no diagnostic required (\textbf{IFNDR}). (See ``\titleref{enumopaque}" on page~\pageref{enumopaque}.)
+definition and the \emph{new} full one would become silently \emcppsgloss{ill formed, no diagnostic required (IFNDR)}. (See \featureref{\locationc}{enumopaque}.)
+%``\titleref{enumopaque}" on page~\pageref{enumopaque}.)
 
 \subsubsection[Subtleties of integral promotion]{Subtleties of integral promotion}\label{subtleties-of-integral-promotion}
 
 When used in an arithmetic context, one might naturally assume that the
-type of a classic \texttt{enum} will first convert to its
-\textbf{underlying type}, which is not always the case. When used in a
-context that does not explicitly operate on the \texttt{enum} type
+type of a classic \lstinline!enum! will first convert to its
+\emcppsgloss[underlying type (UT)]{underlying type}, which is not always the case. When used in a
+context that does not explicitly operate on the \lstinline!enum! type
 itself, such as a parameter to a function that takes that enum type,
-\textbf{integral promotion} comes into play. For unscoped enumerations
+\emcppsgloss{integral promotion} comes into play. For unscoped enumerations
 without an explicitly specified underlying type and for character types
-such as \texttt{wchar\_t}, \texttt{char16\_t}, and \texttt{char32\_t},
+such as \lstinline!wchar_t!, \lstinline!char16_t!, and \lstinline!char32_t!,
 integral promotion will directly convert the value to the first type in
-the list \texttt{int}, \texttt{unsigned}~\texttt{int}, \texttt{long},
-\texttt{unsigned}~\texttt{long}, \texttt{long}~\texttt{long}, and
-\texttt{unsigned}~\texttt{long}~\texttt{long} that is sufficiently large
+the list \lstinline!int!, \lstinline!unsigned!~\lstinline!int!, \lstinline!long!,
+\lstinline!unsigned!~\lstinline!long!, \lstinline!long!~\lstinline!long!, and
+\lstinline!unsigned!~\lstinline!long!~\lstinline!long! that is sufficiently large
 to represent all of the values of the underlying type. Enumerations
 having a fixed underlying type will, as a first step, behave as if they
 had decayed to their underlying type.
@@ -241,21 +268,21 @@ void test()
 }
 \end{emcppslisting}
 
-\noindent The overload resolution for \texttt{f} considers the type to which each
+\noindent The overload resolution for \lstinline!f! considers the type to which each
 \emph{individual} enumerator can be directly integrally promoted. This
-conversion for \texttt{E1} can be only to \texttt{int}. For \texttt{E2},
-the conversion will consider \texttt{int} \emph{and} \texttt{short}, and
-\texttt{short}, being an exact match, will be selected. Note that even
+conversion for \lstinline!E1! can be only to \lstinline!int!. For \lstinline!E2!,
+the conversion will consider \lstinline!int! \emph{and} \lstinline!short!, and
+\lstinline!short!, being an exact match, will be selected. Note that even
 though both enumerations are small enough to fit into a
-\texttt{signed}~\texttt{char}, that overload of \texttt{f} will never be
+\lstinline!signed!~\lstinline!char!, that overload of \lstinline!f! will never be
 selected.
 
-One might want to get to the implementation-defined underlying type
+One might want to get to the implementation-defined underlying type,
 though, and the Standard does provide a trait to do that:
-\texttt{std::underlying\_type} in C++11 and the corresponding
-\texttt{std::underlying\_type\_t} alias in C++14. This trait can safely
-be used in a cast without risking loss of value (see
-  ``\titleref{auto}" on page~\pageref{auto}):
+\lstinline!std::underlying_type! in C++11 and the corresponding
+\lstinline!std::underlying_type_t! alias in C++14. This trait can safely
+be used in a cast without risking loss of value (see \featureref{\locationc}{auto}):
+%  ``\titleref{auto}" on page~\pageref{auto}):
 
 \begin{emcppslisting}[emcppsbatch=e2]
 #include <type_traits>  // (ù{\codeincomments{std::underlying\_type}}ù)
@@ -273,41 +300,58 @@ void h()
 }
 \end{emcppslisting}
 
-\noindent As of C++20, however, the use of a classic enumerator in a context in
-which it is compared to or otherwise used in a binary operation with
-either an enumerator of another type or a nonintegral type (i.e., a
-floating-point type, such as \texttt{float}, \texttt{double}, or
-\texttt{long}~\texttt{double}) is deprecated, with the the possibility
-of being removed in C++23. Platforms might decide to warn against such
-uses retroactively:
+%\noindent As of C++20, however, the use of a classic enumerator in a context in
+%which it is compared to or otherwise used in a binary operation with
+%either an enumerator of another type or a nonintegral type (i.e., a
+%floating-point type, such as \lstinline!float!, \lstinline!double!, or
+%\lstinline!long!~\lstinline!double!) is deprecated, with the the possibility
+%of being removed in C++23. Platforms might decide to warn against such
+%uses retroactively:
+%
+%\begin{emcppslisting}
+%enum { k_GRAMS_PER_OZ = 28 };  // not the best idea
+%
+%double gramsFromOunces(double ounces)
+%{
+%    return ounces * k_GRAMS_PER_OZ;  // deprecated in C++20; might warn
+%}
+%\end{emcppslisting}
+%
+%\noindent Casting to the \emcppsgloss{underlying type} is \emph{not} necessarily the
+%same as direct integral promotion. In this context, we might want to
+%change our \lstinline!enum! to a
+%\lstinline!constexpr!~\lstinline!int! in the long
+%term (see \featureref{\locationc}{constexprvar}):
+%%  ``\titleref{constexprvar}" on page~\pageref{constexprvar}):
+%
+%\begin{emcppslisting}
+%constexpr int k_GRAMS_PER_OZ = 28;  // future proof
+%\end{emcppslisting}
+
+Casting to the underlying type is not necessarily the same as direct integral promotion. If
+an enumerator is intended to be used in arithmetic operations,\footnote{As of C++20, using an expression of an unscoped enumerated type in a \emph{binary} operation along with
+an expression of either some \emph{other} enumerated type or any nonintegral type (e.g.,
+\lstinline!double!) is deprecated, with the possibility of being removed in C++23. Platforms
+may decide to warn against such uses retroactively.} a \lstinline!constexpr! variable might
+be a better alternative (see \featureref{\locationc}{constexprvar}):
 
 \begin{emcppslisting}
-enum { k_GRAMS_PER_OZ = 28 };  // not the best idea
+// enum { k_GRAMS_PER_OZ = 28 };    // not the best idea
+constexpr int k_GRAMS_PER_OZ = 28;  // better idea
 
 double gramsFromOunces(double ounces)
 {
-    return ounces * k_GRAMS_PER_OZ;  // deprecated in C++20; might warn
+    return ounces * k_GRAMS_PER_OZ;
 }
-\end{emcppslisting}
-
-\noindent Casting to the \textbf{underlying type} is \emph{not} necessarily the
-same as direct integral promotion. In this context, we might want to
-change our \texttt{enum} to a
-\texttt{constexpr}~\texttt{int} in the long
-term (see
-  ``\titleref{constexprvar}" on page~\pageref{constexprvar}):
-
-\begin{emcppslisting}
-constexpr int k_GRAMS_PER_OZ = 28;  // future proof
 \end{emcppslisting}
 
 
 \subsection[See Also]{See Also}\label{see-also}
 
 \begin{itemize}
-\item{\seealsoref{enumclass}{\locationc}Introduces a scoped, more strongly typed enumeration that can explicitly specify an underlying type.}
-\item{\seealsoref{enumopaque}{\locationc}Offers a means to insulate individual enumerators from clients.}
-\item{\seealsoref{constexprvar}{\locationc}Introduces an alternative way of declaring compile-time constants.}
+\item{\seealsoref{constexprvar}{\seealsolocationc}introduces an alternative way of declaring compile-time constants.}
+\item{\seealsoref{enumclass}{\seealsolocationc}introduces a scoped, more strongly typed enumeration for which the default underlying type is \lstinline!int! and can also be specified explicitly.}
+\item{\seealsoref{enumopaque}{\seealsolocationc}offers a means to insulate individual enumerators from clients.}
 \end{itemize}
 
 \subsection[Further Reading]{Further Reading}\label{further-reading}

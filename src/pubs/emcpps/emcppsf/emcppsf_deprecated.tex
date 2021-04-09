@@ -1,4 +1,6 @@
 % 16 Feb 2021 JMB; code compiles
+% 24 Feb 2021, copyedits in and proofed
+% 22 March 2021, in FPPs
 
 \emcppsFeature{
     short={\lstinline!deprecated!},
@@ -25,7 +27,10 @@ indicate that a particular \emcppsgloss{entity} is no longer recommended and
 to actively discourage its use. Such deprecation typically follows the
 introduction of alternative constructs that are
 superior to the original one, providing time for clients to migrate to
-them (\emph{asynchronously}{\cprotect\footnote{A process for ongoing
+them \emph{asynchronously} before the deprecated
+one is removed in some subsequent release.
+
+An asynchronous process for ongoing
 improvement of legacy codebases, sometimes referred to as
 \emcppsgloss{continuous refactoring}, often allows time for clients to
 migrate --- on their own respective schedules and time frames --- from
@@ -33,8 +38,9 @@ existing \emph{deprecated} constructs to newer ones, rather than
 having every client change in lock step. Allowing clients time to move
 \emph{asynchronously} to newer alternatives is often the only viable
 approach unless (1) the codebase is a closed system, (2) all of the
-relevant code is governed by a single authority, and (3) there is a mechanical way to make the change.}}) before the deprecated
-one is removed in some subsequent release. Although not strictly
+relevant code is governed by a single authority, and (3) there is a mechanical way to make the change.
+
+Although not strictly
 required, the Standard explicitly encourages{\cprotect\footnote{The C++
 Standard characterizes what constitutes a well-formed program, but
 compiler vendors require a great deal of leeway to facilitate the
@@ -47,13 +53,7 @@ conforming compilers to produce a diagnostic message in case a program
 refers to any \emcppsgloss{entity} to which the \lstinline![[deprecated]]!
 attribute appertains. For instance, most popular compilers emit a
 warning whenever a \lstinline![[deprecated]]! function or
-object{\cprotect\footnote{The \lstinline![[deprecated]]! attribute can be
-used portably to decorate other entities: \lstinline!class!,
-\lstinline!struct!, \lstinline!union!, type alias, variable, data member,
-function, enumeration, template specialization. Applying
-\lstinline![[deprecated]]! to a specific enumerator or namespace,
-however, is guaranteed to be supported only since C++17; see
-  \cite{smith15a} for more information.}} is used:
+object is used:
 
 \begin{emcppslisting}
                void f();
@@ -70,8 +70,15 @@ void h()
     b;    // Warning: (ù{\codeincomments{b}}ù) is deprecated.
 }
 \end{emcppslisting}
-    
-\noindent A programmer can supply a \emcppsgloss{string literal} as an
+
+\noindent The \lstinline![[deprecated]]! attribute can be
+used portably to decorate other entities: \lstinline!class!,
+\lstinline!struct!, \lstinline!union!, type alias, variable, data member,
+function, enumeration, template\linebreak[4] \mbox{specialization}.\footnote{Applying
+\lstinline![[deprecated]]! to a specific enumerator or namespace,
+however, is guaranteed to be supported only since C++17; see \cite{smith15a}.}
+
+A programmer can supply a \emcppsgloss{string literal} as an
 argument to the \mbox{\lstinline![[deprecated]]!} attribute (e.g.,
 \mbox{\lstinline![[deprecated("message")]]!}) to inform human users regarding the
 reason for the deprecation:
@@ -86,7 +93,7 @@ void f()
     algo1();
 }
 \end{emcppslisting}
-    
+
 \noindent An \emcppsgloss{entity} that is initially \emph{declared} without
 \lstinline![[deprecated]]! can later be redeclared with the attribute and
 vice versa:
@@ -101,13 +108,13 @@ void g1() { f(); }  // Warning: (ù{\codeincomments{f}}ù) is deprecated.
 void f();
 void g2() { f(); }  // Warning: (ù{\codeincomments{f}}ù) is deprecated (still).
 \end{emcppslisting}
-    
+
 \noindent As shown in \lstinline!g2! (above), redeclaring an \emcppsgloss{entity} that was
 previously decorated with\linebreak[4] \mbox{\lstinline![[deprecated]]!} without the attribute leaves the entity still deprecated.
 
 \subsection[Use Cases]{Use Cases}\label{use-cases}
 
-\subsubsection[Discouraging use of an obsolete or unsafe \emcppsgloss{entity}]{Discouraging use of an obsolete or unsafe \emcppsgloss{entity}}\label{discouraging-use-of-an-obsolete-or-unsafe-entity}
+\subsubsection[Discouraging use of an obsolete or unsafe entity]{Discouraging use of an obsolete or unsafe entity}\label{discouraging-use-of-an-obsolete-or-unsafe-entity}
 
 Decorating any \emcppsgloss{entity} with the \lstinline![[deprecated]]! attribute serves both
 to indicate a particular feature should not be used in the future and
@@ -119,6 +126,7 @@ As an example of productive deprecation, consider the
 \lstinline!RandomGenerator! class having a static \lstinline!nextRandom!
 member function to generate random numbers:
 
+\newpage%%%%
 \begin{emcppslisting}
 struct RandomGenerator
 {
@@ -126,18 +134,18 @@ struct RandomGenerator
         // Generate a random value between 0 and 32767 (inclusive).
 };
 \end{emcppslisting}
-    
+
 \noindent Although such a simple random number generator can be very useful, it
 might become unsuitable for heavy use because good pseudorandom number
 generation requires more state (and the overhead of synchronizing such
 state for a single \lstinline!static! function can be a significant
-performance bottleneck) while good random number generation requires
+performance bottleneck), while good random number generation requires
 potentially very high overhead access to external sources of
-entropy.{\cprotect\footnote{The C Standard Library provides
-\lstinline!rand!, available in C++ through the \lstinline!<cstdlib>! header.
-It has similar issues to our \lstinline!RandomGenerator::nextRandom!
+entropy. The \lstinline!rand! function, inherited from C and available in C++ through the \lstinline!<cstdlib>! header, has many of the same issues as our \lstinline!RandomGenerator::nextRandom!
 function, and similarly developers are guided to use the facilities
-  provided in the \lstinline!<random>! header since C++11.}} One
+  provided in the \lstinline!<random>! header since C++11.
+
+One
 solution is to provide an alternative random number generator that
 maintains more state, allows users to decide where to store that state
 (the random number generator objects), and overall offers more
@@ -155,7 +163,7 @@ public:
        // Generate a quality random value between 0 and 32767 (inclusive).
 };
 \end{emcppslisting}
-    
+
 \noindent Any user of the original random number generator can migrate to the new
 facility with little effort, but that is not a completely trivial
 operation, and migration will take some time before the original feature is no
@@ -173,13 +181,16 @@ struct RandomGenerator
         // ...
 };
 \end{emcppslisting}
-    
+
+\newpage%%%%%
 \noindent By using \lstinline![[deprecated]]! as shown above, existing clients of
 \lstinline!RandomGenerator! are informed that a superior
 alternative, \lstinline!BetterRandomGenerator!, is available, yet they are granted time to
 migrate their code to the new solution rather than having their code broken by the
 removal of the old solution. When clients are notified of the
-deprecation (thanks to a compiler diagnostic), they can schedule time to rewrite their applications to consume the new interface.{\cprotect\footnote{\emcppsgloss[continuous refactoring]{Continuous refactoring} is
+deprecation (thanks to a compiler diagnostic), they can schedule time to rewrite their applications to consume the new interface.
+
+\emcppsgloss[continuous refactoring]{Continuous refactoring} is
 an essential responsibility of a development organization, and
 deciding when to go back and fix what's suboptimal instead of writing
 new code that will please users and contribute more immediately to the
@@ -187,13 +198,13 @@ bottom line will forever be a source of tension. Allowing disparate
 development teams to address such improvements in their own respective
 time frames (perhaps subject to some reasonable overall deadline
 date) is a proven real-world practical way of ameliorating this
-  tension.}}
+  tension.
 
 \subsection[Potential Pitfalls]{Potential Pitfalls}\label{potential-pitfalls}
 
 \subsubsection[Interaction with treating warnings as errors]{Interaction with treating warnings as errors}\label{interaction-with--werror-(e.g,-gcc,-clang)-or-/wx-(msvc)}
 
-In some code bases, compiler warnings are promoted to errors using compiler flags, such as \lstinline!-Werror! for GCC and Clang or \lstinline!/WX! for MSVC, to ensure that their builds are warning-clean. For such code bases, use of the \lstinline![[deprecated]]! attribute by their dependencies as part of the API might introduce unexpected compilation failures. 
+In some code bases, compiler warnings are promoted to errors using compiler flags, such as \lstinline!-Werror! for GCC and Clang or \lstinline!/WX! for MSVC, to ensure that their builds are warning-clean. For such code bases, use of the \lstinline![[deprecated]]! attribute by their dependencies as part of the API might introduce unexpected compilation failures.
 
 Having the compilation process completely stopped due to use of a
 deprecated \emcppsgloss{entity} defeats the purpose of the attribute because users of such an \emcppsgloss{entity} are given no time to adapt their code
@@ -209,17 +220,18 @@ a single client using the to-be-deprecated function in a code base that treats w
 \lstinline![[deprecated]]! attribute. With the frequent advice given in practice to  aggressively treat warnings as errors, the use of
 \lstinline![[deprecated]]! might be completely unfeasible.
 
+\newpage%%%%%
 \subsection[Annoyances]{Annoyances}\label{annoyances}
 
-None so far
+\hspace{\fill}
 
 \subsection[See Also]{See Also}\label{see-also}
 
-None so far
+\hspace{\fill}
 
 \subsection[Further Reading]{Further Reading}\label{further-reading}
 
-None so far
+\hspace{\fill}
 
 
 

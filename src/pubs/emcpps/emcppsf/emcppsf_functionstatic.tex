@@ -1,13 +1,17 @@
 
 % 01 Feb, 2021 JMB - packet 4 compilation fixes
 % 18 Feb 2021, handing off to Josh for revisions
+% 6 March 2021, to copyediting
+% 19 March 2021, copyedits in and proofed
+% 21 March 2021, in FPPs
+
 
 
 \emcppsFeature{
     short={Function \lstinline!static! '11},
     tocshort={Function {\TOCCode static} '11},
-    long={Threadsafe Function-Scope {\SecCode static} Variables},
-    toclong={Threadsafe Function-Scope \lstinline!static! Variables},
+    long={Thread-Safe Function-Scope {\SecCode static} Variables},
+    toclong={Thread-Safe Function-Scope \lstinline!static! Variables},
     rhshort={Function {\RHCode static} '11},
 }{thread-safe-function-static-variables}
 \setcounter{table}{0}
@@ -22,13 +26,13 @@ of multiple concurrent threads.
 
 \subsection[Description]{Description}\label{description-functionstatic}
 
-A variable declared at function (a.k.a. local) scope has \emcppsgloss{automatic storage duration}, 
+A variable declared at function (a.k.a. local) scope has \emcppsgloss{automatic storage duration},
 except when it is marked \lstinline!static!, in which case it has \emcppsgloss{static storage duration}.
 Variables having \emcppsgloss{automatic storage duration} are allocated on the stack
 each time the function is invoked, and initialized when that invocation's \emcppsgloss{flow of control}
 passes through the \emcppsgloss{definition} of that object.
 In contrast, variables with \emcppsgloss{static storage duration} (e.g., \lstinline!iLocal!)
-defined at function scope (e.g., \lstinline!f!) are instead allocated once per program, and are initialized
+defined at function scope (e.g., \lstinline!f!) are instead allocated once per program and are initialized
 only the first time the \emcppsgloss{flow of control} passes
 through the \emcppsgloss{definition} of that object:
 
@@ -55,29 +59,29 @@ int main()
 \lstinline!static! object, \lstinline!iLocal!, with its argument, \lstinline!i!, only
 the first time it is called and then always returns the same value
 (e.g., 10). Hence, when that function is called repeatedly with distinct
-arguments to initialize the \lstinline!a!, \lstinline!b!, and
+arguments to initialize~the \lstinline!a!, \lstinline!b!, and
 \lstinline!c! variables, all three of them are initialized to the same
-value, 10, supplied to the first invocation of \lstinline!f!. Although the function-scope \lstinline!static!
+value, 10, supplied to the~first invocation of \lstinline!f!. Although the function-scope \lstinline!static!
 object, \lstinline!iLocal!, was created after \lstinline!main! was entered, it
 will not be destroyed until after \lstinline!main! exits.
 
-\subsubsection[Concurrent Initialization]{Concurrent Initialization}\label{concurrent-initialization}
+\subsubsection[Concurrent initialization]{Concurrent initialization}\label{concurrent-initialization}
 
 Historically, initialization of \emcppsgloss[function scope]{function-scope}
 \emcppsgloss{static storage duration} objects was not guaranteed to be safe in a
-\emcppsgloss{multithreading context} because it was subject to \emcppsgloss{data races}   
+\emcppsgloss{multithreading context} because it was subject to \emcppsgloss{data races}
 if the function was called concurrently from multiple threads.   These \emcppsgloss{data races}
 around initialization can lead to the initializer being invoked multiple times, object
 construction running concurrently on the same object, and control flow continuing past
 the variable definition before initialization had completed at all.  All of these
 variations would result in critical software flaws.
-One common but non-portable pre-C++11 workaround was the 
-\emph{double-checked lock pattern}; see \intrarefsimple{appendix:-c++03-double-checked-lock-pattern}.
+One common but nonportable pre-C++11 workaround was the
+\emph{double-checked lock pattern}; see \intraref{appendix-functionstatic}{appendix:-c++03-double-checked-lock-pattern}.
 
 As of C++11, a conforming compiler is now required to ensure that
 initialization of \emcppsgloss[function scope]{function-scope} \emcppsgloss{static storage duration}
 objects is performed safely, and exactly once, before execution continues past the initializer, even when the function is called
-concurrently from multiple threads. 
+concurrently from multiple threads.
 
 \subsubsection[Destruction]{Destruction}\label{destruction}
 
@@ -86,24 +90,24 @@ leaves the scope in which they are declared.
 In contrast, \lstinline!static! local objects that have been initialized are
 not destroyed until normal program termination,  either after the \lstinline!main! function returns
 normally or when the \lstinline!std::exit! function is
-called. 
+called.
 The order of destruction
 of these objects will be the reverse of the order in which they completed construction.
 Note that programs can terminate in several other ways,
 such as a call to \lstinline!std::quick_exit!, \lstinline!_Exit!, or
 \lstinline!std::abort!, that explicitly do \emph{not} destroy
-  \emcppsgloss{static storage duration} objects.
+  \emcppsgloss{static storage duration} objects. This behavior is as if each static object is scheduled for destruction by using the C Standard Library function \lstinline!std::atexit! right after construction.
 
 
 \subsubsection[Logger example]{Logger example}\label{logger-example}
 
-Let's now consider a 
+Let's now consider a
 real-world example in which a single object --- e.g.,
 \lstinline!localLogger! in the example below --- is used widely throughout a program (see
-also \intraref{use-cases-functionstatic}{meyers-singleton}):{\cprotect\footnote{An
+also \intraref{use-cases-functionstatic}{meyers-singleton}){\cprotect\footnote{An
 eminently useful, full-featured logger, known as the \texttt{ball} logger, can be found in the
 \texttt{ball} package of the \texttt{bal} package group of Bloomberg's open-source
-  BDE libraries (\cite{bde14}, subdirectory \texttt{/groups/bal/ball}).}})
+  BDE libraries (\cite{bde14}, subdirectory \texttt{/groups/bal/ball}).}}:
 
 \begin{emcppshiddenlisting}[emcppsbatch=e3]
 struct Logger {
@@ -122,37 +126,36 @@ Logger& getLogger()  // ubiquitous pattern commonly known as "Meyers Singleton"
 int main()
 {
     getLogger() << "hello";
-        // OK, invokes (ù{\codeincomments{Logger}}ù)s constructor for the first (and only) time
+        // OK, invokes (ù{\codeincomments{Logger}}ù)'s constructor for the first (and only) time
 
     getLogger() << "world";
         // OK, uses the previously constructed (ù{\codeincomments{Logger}}ù) instance
 }
 \end{emcppslisting}
 
-Here we have an example of the ``Singleton pattern''\footnote{\cite{gamma95}, Chapter 3, section
-``Singleton'', pp.-127--???} being used to create the shared \lstinline!Logger! instance
+Here we have an example of the ``Singleton pattern''\footnote{\cite{gamma95}, Chapter~3, section~``Singleton,'' pp.~127--134} being used to create the shared \lstinline!Logger! instance
 and provide access to it through the \lstinline!getLogger()! function.  The \lstinline!static! local
 instance of \lstinline!Logger!, \lstinline!localLogger!, will be initialized exactly once and then
 destroyed after normal program termination.  In C++03, it would not be safe to call
-this function concurrently from multiple threads. 
-Conversely, C++11 \emph{guarantees} that the initialization  
+this function concurrently from multiple threads.
+Conversely, C++11 \emph{guarantees} that the initialization
 of \lstinline!localLogger! will happen exactly once even when multiple threads call
-\lstinline!getLogger! concurrently.
+\lstinline!getLogger! \mbox{concurrently}.
 
 \subsubsection[Multithreaded contexts]{Multithreaded contexts}\label{multithreaded-contexts}
 
-The C++11 Standard Library provides copious utilities and abstractions related
-to multithreading. One part of that, \lstinline!std::thread!, is a portable
+The C++11 Standard Library provides several utilities and abstractions related
+to multi\-threading. The \lstinline!std::thread! class is a portable
 wrapper for a platform-specific thread handle provided by the
 operating system. When constructing an \lstinline!std::thread! object
-with a \emcppsgloss{callable object} a new thread
+with a \emcppsgloss{callable object}, a new thread
 invoking that \emcppsgloss{callable object} will be spawned.   Prior to destroying such
-\lstinline!std::thread! objects it is also neccessary to invoke the
+\lstinline!std::thread! objects it is necessary to invoke the
 \lstinline!join! member function on the thread object, which will block until
 the background thread of execution completes invoking its \emcppsgloss{callable object}.
 
 This threading facility from the standard library can be used
-with our earlier \lstinline!Logger! example from \intraref{description-functionstatic}{logger-example},
+with our earlier \lstinline!Logger! example from \intrarefsimple{logger-example},
 to concurrently attempt to access the \lstinline!getLogger! function:
 
 \begin{emcppshiddenlisting}[emcppsbatch={e6,e15}]
@@ -184,12 +187,13 @@ int main()
 \end{emcppslisting}
 
 Such use prior to the C++11 thread-safety guarantees (with pre-C++11 threading libraries) could
-have led to a \emcppsgloss{data race} during the initialization of
+have led to a \emcppsgloss[data races]{data race} during the initialization of
 \lstinline!localLogger!, which was defined as a local \lstinline!static!
 object in \lstinline!getLogger!.   This \emcppsgloss{undefined behavior} might have resulted in
 invoking the constructor of \lstinline!localLogger! multiple times, returning from
-\lstinline!localLogger! before that constructor had actually been completed, or
-any other form of misbehavior over which a developer has no control.
+\lstinline!localLogger! \pagebreak%%%%
+ before that constructor had actually been completed, or
+any other form of misbehavior over which the developer has no control.
 
 \noindent As of C++11, the example above has no \emcppsgloss{data races} provided that \linebreak%%%%%%
 \lstinline!Logger::operator<<(const!~\lstinline!char*)! is designed properly
@@ -200,7 +204,7 @@ the logger) is not. That is to say, the implicit \emcppsgloss{critical section}
 that is guarded by the compiler includes evaluation of the
 initializer, which is why a recursive call to initialize a
 function-scope \lstinline!static! variable is \emcppsgloss{undefined behavior} and is
-likely to result in deadlock; see \intrarefsimple{dangerous-recursive-initialization}.
+likely to result in deadlock; see \intraref{potential-pitfalls-functionstatic}{dangerous-recursive-initialization}.
 Such use of function-scope \lstinline!static!s, however, is not foolproof;
 see \intraref{potential-pitfalls-functionstatic}{depending-on-order-of-destruction-of-local-objects-after-main-returns}.
 
@@ -214,8 +218,8 @@ other during destruction; see \intraref{potential-pitfalls-functionstatic}{depen
 
 \subsubsection[Meyers Singleton]{Meyers Singleton}\label{meyers-singleton}
 
-The guarantees surrounding access across \emcppsgloss[translation unit]{translation units} to runtime
-initialized objects at file or namespace scope are few and dubious ---
+The guarantees surrounding access across \emcppsgloss[translation unit (TU)]{translation units} to runtime
+initialized objects at file or namespace scope are few and weak ---
 especially when that access might occur prior to entering \lstinline!main!.
 Consider a library component, \lstinline!libcomp!, that defines a
 file-scope \lstinline!static! singleton, \lstinline!globalS!, that is
@@ -239,6 +243,7 @@ S& getGlobalS();  // access to global singleton object of type (ù{\codeincommen
 
 #endif
 \end{emcppslisting}
+\vspace*{2ex} % for some extra space
 
 %%% ask if these are supposed to be one.  JMB: They should be separate
 
@@ -249,16 +254,16 @@ S& getGlobalS();  // access to global singleton object of type (ù{\codeincommen
 static S globalS;
 S& getGlobalS() { return globalS; }  // access into this translation unit
 \end{emcppslisting}
+\newpage%%%%%
 
 \noindent The interface in the \lstinline!libcomp.h! file comprises the definition of
 \lstinline!S! along with the declaration of an accessor function,
-\lstinline!getGlobalS!. Any function wishing to access the singleton
-\lstinline!globalS! object sequestered within the \lstinline!libcomp.cpp! file
-would \emph{presumably} do so safely via the global
-\lstinline!getGlobalS()! accessor function. Now consider the
-\lstinline!main.cpp! file in the example below, which implements
+\lstinline!getGlobalS!. Code outside the \lstinline!libcomp.cpp! file can access the singleton object \lstinline!globalS! only by calling the free function \lstinline!getGlobalS()!. Now consider the
+ \lstinline!main.cpp!
+  file in the example below, which  implements
 \lstinline!main! and also makes use of \lstinline!globalS! prior to entering
 \lstinline!main!:
+
 
 \begin{emcppslisting}[emcppsbatch=e7]
 // main.cpp:
@@ -277,15 +282,15 @@ int main()
 \noindent Depending on the compiler or the link line, the call
 initializing \lstinline!globalInitFlag! may occur and return \emph{prior}
 to the initialization of  \lstinline!globalS!.  C++ does not guarantee that objects at
-file or namespace scope in separate \emcppsgloss[translation unit]{translation units} will be
-initialized just because a function located within that \emcppsgloss{translation unit}
+file or namespace scope in separate \emcppsgloss[translation unit (TU)]{translation units} will be
+initialized just because a function located within that \emcppsgloss[translation unit (TU)]{translation unit}
 happens to be called.
 
-An effective pattern for helping to ensure that a non-local object
-\emph{is} initialized before it is used from a separate \emcppsgloss{translation unit}
+An effective pattern for helping to ensure that a nonlocal object
+\emph{is} initialized before it is used from a separate \emcppsgloss[translation unit (TU)]{translation unit}
 --- especially when that use might occur prior to entering \lstinline!main!
---- is simply to move the \lstinline!static! object at file or namespace
-scope inside the scope of the function accessing it, making it a
+--- is simply to move the \lstinline!static! object from file or namespace
+scope to the scope of the function accessing it, making it a
 function-scope \lstinline!static! instead:
 
 \begin{emcppshiddenlisting}[emcppsbatch=e8]
@@ -311,9 +316,10 @@ than immediately terminating the program, as would be the case if declared as a
 \lstinline!static! global variable. Much more importantly, however, since C++11, the
 \emcppsgloss[meyers singleton]{Meyers Singleton} pattern automatically inherits the benefits of
 effortless race-free initialization of \emph{reusable} program-wide
-singleton objects.  The \emcppsgloss[meyers singleton]{Meyers Singleton} can be safely used 
+singleton objects.  The \emcppsgloss[meyers singleton]{Meyers Singleton} can be safely used
 both in the programs where the singleton initialization might happen before \lstinline!main!
 and those where it might happen after additional threads have already been started.
+\newpage%%%%
 
 As discussed in \intrarefsimple{description-functionstatic}, the augmentation of a
 thread-safety guarantee for the runtime initialization of
@@ -321,7 +327,7 @@ thread-safety guarantee for the runtime initialization of
 effort required to create a thread-safe singleton.  Note that, prior to C++11,
 the simple function-scope \lstinline!static!
 implementation would not be safe if concurrent threads were trying to
-initialize the logger; see \intrarefsimple{appendix:-c++03-double-checked-lock-pattern}.
+initialize the logger; see \intraref{appendix-functionstatic}{appendix:-c++03-double-checked-lock-pattern}.
 
 The \emcppsgloss[meyers singleton]{Meyers Singleton} is also seen in a slightly different form
 where the singleton type's constructor is made \lstinline!private! to
@@ -332,7 +338,7 @@ prevent more than just the one singleton object from being created:
 class Logger
 {
 private:
-    Logger(const char* logFilePath);  // Configure the singleton,
+    Logger(const char* logFilePath);  // configures the singleton
     ~Logger();                        // suppresses copy construction too
 
 public:
@@ -364,7 +370,7 @@ void client()
 \noindent This formulation of the singleton pattern, however, conflates the type
 of the singleton object with its use and purpose as a singleton. Once we
 find a use of a singleton object, finding another and perhaps even a
-third is not uncommon.  
+third is not uncommon.
 
 Consider, for example, an application on an early
 model of mobile phone where we want to refer to the phone's camera.
@@ -376,14 +382,18 @@ one camera, say, a front \lstinline!Camera! and a back \lstinline!Camera!. Our
 brittle design doesn't
 admit the dual-singleton use of the same fundamental \lstinline!Camera!
 type. A more finely factored solution would be to implement the
-\lstinline!Camera! type separately and then to provide a thin wrapper,
-e.g., perhaps using the \emcppsgloss[strong typedef idiom]{strong-\lstinline!typedef! idiom} (see \featureref{\locationa}{inheriting-constructors}), corresponding to each singleton
-use:
+\lstinline!Camera! type\linebreak[4]
+ \mbox{separately} and then to provide a thin wrapper,
+e.g., perhaps using the \emcppsgloss[strong typedef idiom]{strong-\lstinline!typedef!\linebreak[4]%%%%%
+\newpage
+ idiom} (see \featureref{\locationa}{inheriting-constructors}), corresponding to each singleton\linebreak[4]%%%%%
+ use:
+
 
 \begin{emcppshiddenlisting}[emcppsbatch=e11]
 struct Camera {
   Camera();
-};    
+};
 \end{emcppshiddenlisting}
 \begin{emcppslisting}[emcppsbatch=e11]
 class PrimaryCamera
@@ -391,7 +401,7 @@ class PrimaryCamera
 private:
     Camera& d_camera_r;
     PrimaryCamera(Camera& camera)  // implicit constructor
-      : d_camera_r(camera) { }  
+      : d_camera_r(camera) { }
 
 public:
     static PrimaryCamera getInstance()
@@ -405,8 +415,7 @@ public:
 \noindent With this design, adding a second and even a third singleton that is
 able to reuse the underlying \lstinline!Camera! mechanism is facilitated.
 
-Although this function-scope-\lstinline!static! approach is vastly superior
-to the file-scope-\lstinline!static! one, it does have its limitations. In
+Although this function-scope-\lstinline!static! approach provides stronger guarantees than the file-scope-\lstinline!static! one, it does have its limitations. In
 particular, when one global facility object, such as a logger, is used
 in the destructor of another function-scope static object, the logger
 object may possibly have already been destroyed when it is
@@ -433,18 +442,7 @@ that, for many classic and current profiling tools (e.g., \emph{Purify},
 \emph{Coverity}), this intentionally never-freed dynamic allocation is
 indistinguishable from a \emcppsgloss{memory leak}. The ultimate workaround
 is to create the object itself in \lstinline!static! memory, in an
-appropriately sized and aligned region of memory{\cprotect\footnote{Note
-that any memory that \lstinline!Logger! itself manages would still come
-from the global heap and be recognized as memory leaks. If available,
-we could leverage a polymorphic-allocator implementation such as
-\lstinline!std::pmr! in C++17. We would first create a fixed-size array
-of memory having \emcppsgloss{static storage duration}. Then we would
-create a \lstinline!static! memory-allocation mechanism (e.g.,
-\lstinline!std::pmr::monotonic_buffer_resource!). Next we would use
-placement \lstinline!new! to construct the logger within the static
-memory pool using our static allocation mechanism and supply that same
-mechanism to the \lstinline!Logger! object so that it could get all its
-  internal memory from that static pool as well; see \cite{lakos22}.}}:
+appropriately sized and aligned region of memory:
 
 \begin{emcppslisting}[emcppsbatch=e13]
 #include <new>  // placement (ù{\codeincomments{new}}ù)
@@ -457,7 +455,18 @@ Logger& getLogger()
 }
 \end{emcppslisting}
 
-\noindent In this final incarnation of a decidedly non-Meyers-Singleton pattern,
+\noindent Note that any memory that the \lstinline!Logger! itself manages would still come from the global heap and be recognized as memory leaks.{\cprotect\footnote{If the global heap is to be entirely avoided,
+we could leverage a polymorphic-allocator implementation such as
+\lstinline!std::pmr! in C++17. We would first create a fixed-size array
+of memory having \emcppsgloss{static storage duration}. Then we would
+create a \lstinline!static! memory-allocation mechanism (e.g.,
+\lstinline!std::pmr::monotonic_buffer_resource!). Next we would use
+placement \lstinline!new! to construct the logger within the static
+memory pool using our static allocation mechanism and supply that same
+mechanism to the \lstinline!Logger! object so that it could get all its
+  internal memory from that static pool as well; see \cite{lakos22}.}}
+
+In this final incarnation of a decidedly non-Meyers-Singleton pattern,
 we first reserve a block of memory of sufficient size and the correct
 alignment for \lstinline!Logger! using \linebreak[4]%%%%%
 \lstinline!std::aligned_storage!. Next
@@ -467,21 +476,20 @@ is not from the dynamic store, so typical profiling tools will not track
 and will not provide a false warning when we fail to destroy this object
 at program termination time. Now we can return a reference to the logger
 object embedded safely in static memory knowing that it will be there
-for all eternity.
+until application exit.
 
 \subsection[Potential Pitfalls]{Potential Pitfalls}\label{potential-pitfalls-functionstatic}
 
-\subsubsection[\tt{static} Storage Duration Objects are not Guaranteed to be Initialized]{{SubsubsecCode static} Storage Duration Objects are not Guaranteed to be Initialized}\label{static-storage duration-objects-are-not-guaranteed-to-be-initialized}
+\subsubsection[\lstinline!static! storage duration objects are not guaranteed to be initialized]{{\SubsubsecCode static} storage duration objects are not guaranteed to be initialized}\label{static-storage duration-objects-are-not-guaranteed-to-be-initialized}
 
 Despite C++11's guarantee that each individual function-scope
 \lstinline!static! initialization will occur at most once and before control can reach
-a point where the variable can be referenced, almost no similar
-guarantees are made of non-local objects of \emcppsgloss{static storage duration} objects.
-This makes any interdependencies in the initialization of such objects, especially across
-\emcppsgloss[translation unit]{translation units} (TUs), an abundant source of insidious
+a point where the variable can be referenced, no analogous guarantees are made of nonlocal objects of \emcppsgloss{static storage duration}.
+This makes any interdependency in the initialization of such objects, especially across
+\emcppsgloss[translation unit (TU)]{translation units (TUs)}, an abundant source of insidious
 errors.
 
-Objects that undergo \emcppsgloss{constant initialization} have no issue:
+Objects that undergo \emcppsgloss{constant initialization} have no such issue:
 such objects will never be accessible at run time before having their
 initial values. Objects that are not constant
 initialized{\cprotect\footnote{C++20 added a new keyword,
@@ -489,9 +497,9 @@ initialized{\cprotect\footnote{C++20 added a new keyword,
 \emph{require} that the variable in question undergo constant
 initialization and thus can never be accessed at run time prior to the
   start of its lifetime.}} will instead be \emcppsgloss{zero initialized}
-until their constructors run, which itself might lead to conspicuous (or
-perhaps latent) \emcppsgloss{undefined behavior}.
+until their constructors run, which itself might lead to \emcppsgloss{undefined behavior} that is not necessarily conspicuous.
 
+\enlargethispage*{1ex}%%%%%
 As a demonstration of what can happen when we depend on the relative
 order of initialization of variables at file or
 namespace scope used before \lstinline!main!, consider the
@@ -508,10 +516,12 @@ int setA(int i)        // Initialize (ù{\codeincomments{a}}ù); then (ù{\codei
     setB(i);           // Invoke setter to populate the other one.
     return 0;          // Return successful status.
 }
-
+\end{emcppslisting}
+\pagebreak%%%%%%%
+\begin{emcppslisting}
 // b.cpp:
 int *b = new int;      // runtime initialization of file-scope variable
-int setB(int i)        // Initialize (ù{\codeincomments{b}}ù)
+int setB(int i)        // Initialize (ù{\codeincomments{b}}ù).
 {
     *b = i;            // Populate the allocated heap memory.
     return 0;          // Return successful status.
@@ -525,7 +535,7 @@ int main()             // main program entry point
 }
 \end{emcppslisting}
 
-\noindent These two \emcppsgloss[translation unit]{translation units} will be initialized before \lstinline!main! is
+\noindent These two \emcppsgloss[translation unit (TU)]{translation units} will be initialized before \lstinline!main! is
 entered in some order, but --- regardless of that order --- the program
 in the example above will wind up dereferencing a null pointer
 before entering \lstinline!main!:
@@ -551,7 +561,7 @@ int setA(int i)        // Initialize this (ù{\codeincomments{static}}ù) variab
     return 0;                 // Return successful status.
 }
 
-// b.cpp: (make analagous changes)
+// b.cpp: (make analogous changes)
 \end{emcppslisting}
 
 \noindent Now the program reliably executes without incident:
@@ -562,7 +572,7 @@ $ ./a.out
 $
 \end{lstlisting}
 
-\noindent In other words, even though no order exists in which the \emcppsgloss[translation unit]{translation units}
+\noindent In other words, even though no order exists in which the \emcppsgloss[translation unit (TU)]{translation units}
 as a whole could have been initialized prior to entering
 \lstinline!main! such that the \emph{file}-scope variables
 would be valid before they were used, by instead making them
@@ -570,13 +580,13 @@ would be valid before they were used, by instead making them
 each variable is itself initialized before it is used, regardless of
 translation-unit-initialization order.
 
-While on the surface it may seem as though local and non-local objects of \emcppsgloss{static storage duration}
+While on the surface it may seem as though local and nonlocal objects of \emcppsgloss{static storage duration}
 are effectively interchangeable, this is clearly not the case.  Even when
-clients cannot directly access the non-local object due to giving it
+clients cannot directly access the nonlocal object due to giving it
 \emcppsgloss{internal linkage} by marking it \lstinline!static! or putting it in an \emcppsgloss{unnamed namespace},
 the initialization behaviors make such objects behave very differently.
 
-\subsubsection[Dangerous Recursive Initialization]{Dangerous Recursive Initialization}\label{dangerous-recursive-initialization}
+\subsubsection[Dangerous recursive initialization]{Dangerous recursive initialization}\label{dangerous-recursive-initialization}
 
 As with all other initialization, control flow does not continue
 \emph{past} the \emcppsgloss{definition} of a \lstinline!static! local object until
@@ -584,7 +594,7 @@ after the initialization is complete, making recursive \lstinline!static!
 initialization --- or any initializer that might eventually call back to the same function --- dangerous:
 
 \begin{emcppslisting}
-int fz(int i)  // The behavior is undefined unless (ù{\codeincomments{i}}ù) is 0.
+int fz(int i)  // The behavior of the first call is undefined unless (ù{\codeincomments{i}}ù) is 0.
 {
     static int dz = i ? fz(i - 1) : 0;  // Initialize recursively. (BAD IDEA)
     return dz;
@@ -603,8 +613,7 @@ same definition again before the initialization of the
 \lstinline!return! statement in \lstinline!fz!. Given a likely implementation
 with a nonrecursive mutex or similar lock, the program can potentially deadlock,
 though many implementations provide better diagnostics with an exception or
-assertion violation when this form of error is encountered.
-{\cprotect\footnote{Prior to standardization (see \cite{ellis90}, section~6.7, p.~92),
+assertion violation when this form of error is encountered.{\cprotect\footnote{Prior to standardization (see \cite{ellis90}, section~6.7, p.~92),
 C++ allowed control to flow past a
 \lstinline!static! function-scope variable even during a recursive call
 made as part of the initialization of that variable. This would result
@@ -616,16 +625,7 @@ retaining some of the pre-C++98 behavior. This optional behavior is,
 however, fraught with peril and unsupported in any standard version of
   C++.}}
 
-% For Lori: 
-%@book{ellis90,
-%  author = {Margaret A. Ellis and Bjarne Stroustrup},
-%  title = {{The Annotated C++ Reference Manual}},
-%  address = {Reading, MA},
-%  publisher = {Addison-Wesley},
-%  year = {1990},
-%}
-
-\subsubsection[Subtleties with Recursion]{Subtleties with Recursion}\label{subtleties-with-recursion}
+\subsubsection[Subtleties with recursion]{Subtleties with recursion}\label{subtleties-with-recursion}
 
 Even when not recursing within the initializer itself, the rule for the
 initialization of \lstinline!static! objects at function
@@ -634,7 +634,8 @@ Notably, the initialization happens based
 on when flow of control first passes the variable definition and \emph{not}
 based on the first invocation of the containing function.  Due to this, when a recursive call
 happens in relation to the definition of a \lstinline!static! local variable
-impacts which values might be used for the initialization:
+impacts which values might be used for the initialization:\pagebreak%%%%%
+
 
 \begin{emcppshiddenlisting}[emcppsbatch=e2]
 #include <cassert>  // standard C (ù{\codeincomments{assert}}ù) macro
@@ -647,7 +648,7 @@ int fx(int i)  // self-recursive after creating function-(ù{\codeincomments{sta
     return dx;             // Return (ù{\codeincomments{dx}}ù) third.
 }
 
-int fy(int i)  // self-recursive before creating function-(ù{\codeincomments{static}}ù) variable,(ù{\codeincomments{dy}}ù)
+int fy(int i)  // self-recursive before creating function-(ù{\codeincomments{static}}ù) variable, (ù{\codeincomments{dy}}ù)
 {
     if (i) { fy(i - 1); }  // Recurse first.
     static int dy = i;     // Create (ù{\codeincomments{dy}}ù) second.
@@ -670,19 +671,19 @@ variable is initialized (e.g., \lstinline!fx! in the example above), then the
 occurs on the \emph{last} recursive call.
 
 
-\subsubsection[Depending on order-of-destruction of local objects after {\tt main} returns]{Depending on order-of-destruction of local objects after {\SubsubsecCode main} returns}\label{depending-on-order-of-destruction-of-local-objects-after-main-returns}
+\subsubsection[Depending on order-of-destruction of local objects after \lstinline!main! returns]{Depending on order-of-destruction of local objects after {\SubsubsecCode main} returns}\label{depending-on-order-of-destruction-of-local-objects-after-main-returns}
 
-Within any given \emcppsgloss{translation unit}, the relative order of initialization
+Within any given \emcppsgloss[translation unit (TU)]{translation unit}, the relative order of initialization
 of objects at file or namespace scope having \emcppsgloss{static storage duration} is
 well defined and predictable. As soon as we have a way to reference an
-object outside of the current \emcppsgloss{translation unit}, before \lstinline!main! is
+object outside of the current \emcppsgloss[translation unit (TU)]{translation unit}, before \lstinline!main! is
 entered, we are at risk of using the object before it has been
 initialized. Provided the initialization itself is not cyclic in nature,
 we can make use of function-scope \lstinline!static! objects (see \intraref{use-cases-functionstatic}{meyers-singleton}) to
-ensure that no such uninitialized use occurs, even across \emcppsgloss[translation unit]{translation units}
+ensure that no such uninitialized use occurs, even across \emcppsgloss[translation unit (TU)]{translation units}
 before \lstinline!main! is entered. The relative order of destruction
 of such function-scope \lstinline!static! variables --- even when they
-reside within the same \emcppsgloss{translation unit} --- is not clearly known at compile time,
+reside within the same \emcppsgloss[translation unit (TU)]{translation unit} --- is not clearly known at compile time,
 as it will be the reverse of the order in which they are initialized, and
 reliance on such order can easily lead to \emcppsgloss{undefined behavior} in
 practice.
@@ -690,11 +691,12 @@ practice.
 This specific problem occurs when a \lstinline!static! object at file,
 namespace, or function scope uses (or might use) in its destructor
 another \lstinline!static! object that is either (1) at file or namespace
-scope and resides in a separate \emcppsgloss{translation unit} or (2) any other
+scope and resides in a separate \emcppsgloss[translation unit (TU)]{translation unit} or (2) any other
 function-scope \lstinline!static! object (i.e., including one in the same
-\emcppsgloss{translation unit}). For example, suppose we have implemented a low-level
+\emcppsgloss[translation unit (TU)]{translation unit}). For example, suppose we have implemented a low-level
 logging facility as a Meyers Singleton:
 
+\newpage%%%%%%
 \begin{emcppslisting}[emcppsbatch=e15]
 Logger& getLogger()
 {
@@ -736,28 +738,33 @@ FileManager& getFileManager()
 \end{emcppslisting}
 
 \noindent Whether \lstinline!getLogger! or \lstinline!getFileManager! is called first
-doesn't really matter; if \lstinline!getFileManager! is called first, the
+doesn't really matter; if\linebreak[4]%%%%%
+ \lstinline!getFileManager! is called first, the
 logger will be initialized as part of \lstinline!FileManager!'s
 constructor. However, whether the \lstinline!Logger! or
 \lstinline!FileManager! object is destroyed first \emph{is} important:
 
 \begin{itemize}
 \item{If the \lstinline!FileManager! object is destroyed prior to the \lstinline!Logger! object, the program will have well-defined behavior.}
-\item{Otherwise, the program will have \emcppsgloss{undefined behavior} because the destructor of \lstinline!FileManager! will invoke \lstinline!getLogger!, which will now return a reference to a previously destroyed object.}
+\item{Otherwise, the program will have \emcppsgloss{undefined behavior} because the destructor of\linebreak[4]%%%%%
+ \lstinline!FileManager! will invoke \lstinline!getLogger!, which will now return a reference to a previously destroyed object.}
 \end{itemize}
 
-Logging in the the constructor of the \lstinline!FileManager! 
+%\enlargethispage*{-1ex}%%%%%%%
+Logging in the constructor of the \lstinline!FileManager!
 makes it certain that the logger's function-local
 \lstinline!static! will be initialized before that of the file manager;
 hence, since destruction occurs in reverse relative order of creation,
-the logger's function-local \lstinline!static! will be destroyed after that
+the logger's function-local \lstinline!static! will be destroyed after\linebreak[4]
+\newpage%%%%%
+that
 of the file manager. But suppose that \lstinline!FileManager! didn't always
 log at construction and was created before anything else logged. In that
 case, we have no reason to think that the logger would be around for the
 \lstinline!FileManager! to log during its destruction after \lstinline!main!.
 
 In the case of low-level, widely used facilities, such as a logger, a
-conventional Meyers Singleton is counter-indicated. The two most common
+conventional Meyers Singleton is contraindicated. The two most common
 alternatives discussed at the end of \intraref{use-cases-functionstatic}{meyers-singleton} involve never ending the lifetime of
 the mechanism at all. It is worth noting that truly global objects ---
 such as \lstinline!cout!, \lstinline!cerr!, and \lstinline!clog! --- from the
@@ -772,8 +779,8 @@ A single-threaded application invoking a function containing a
 \emcppsgloss[function scope]{function-scope} \emcppsgloss{static storage duration} variable might
 have unnecessary synchronization overhead, such as an \emcppsgloss{atomic}
 load operation. For example, consider a program that accesses
-a simple  \emcppsgloss[meyers singleton]{Meyers singleton} for a user-defined type with a
-\emcppsgloss[user provied]{user-provied} default constructor:
+a simple  \emcppsgloss[meyers singleton]{Meyers Singleton} for a user-defined type with a
+\emcppsgloss[user provided]{user-provided} default constructor:
 
 \begin{emcppslisting}
 struct S  // user-defined type
@@ -794,10 +801,11 @@ int main()
 }
 \end{emcppslisting}
 
+%\enlargethispage*{3ex}
 \noindent Although it is clearly visible to the compiler that \lstinline!getS()! is
 invoked by only one thread, the generated assembly instructions might
 still contain \emcppsgloss{atomic} operations or other forms of
-synchronization and the call to \lstinline!getS()! might not be 
+synchronization and the call to \lstinline!getS()! might not be
 inlined.{\cprotect\footnote{Both GCC 10.x and Clang 10.x, using the
 \lstinline!-Ofast! optimization level, generate assembly instructions for
 an \emcppsgloss{acquire/release memory barrier} and fail to inline the call
@@ -806,10 +814,11 @@ number of operations performed considerably but still does not lead to
 the compilers' inlining of the function call. Both popular compilers
 will, however, reduce the program to just two x86 assembly
 instructions if the \emcppsgloss[user provided]{user-provided} constructor of \lstinline!S!
-  is either removed or defaulted (see \featureref{\locationa}{defaulted-special-member-functions});
+  is either removed or defaulted
+   (see \featureref{\locationa}{defaulted-special-member-functions});
   doing so will turn \lstinline!S! into a \emcppsgloss[trivially constructible]{trivially-constructible}
   type, implying that no code needs to be executed during
-  initialization:
+  initialization:\pagebreak[4]
 
   \begin{lstlisting}[language=bash,style=footcodeplain]
   xor eax, eax  ; zero out 'eax' register
@@ -823,16 +832,20 @@ instructions if the \emcppsgloss[user provided]{user-provided} constructor of \l
 
 \subsection[See Also]{See Also}\label{see-also}
 
-None so far.
+\hspace*{\fill}
 
 \subsection[Further Reading]{Further Reading}\label{further-reading}
 
 \begin{itemize}
-\item{\cite{meyers04}}
+\item{\cite{meyers04a}}
+\item{For an in-depth discussion of the difficulties of implementing double-checked locking in C++03, see \cite{meyers04b}.}
 \item{\cite{stroustrup20}}
+\item{For a discussion of  the Singleton pattern and a variety of implementations in C++03, see Chapter~6 of \cite{alexandrescu01}.}
 \end{itemize}
 
-\subsection[Appendix: C++03 Double-Checked Lock Pattern]{Appendix: C++03 Double-Checked Lock Pattern}\label{appendix:-c++03-double-checked-lock-pattern}
+\subsection[Appendix]{Appendix}\label{appendix-functionstatic}
+
+\subsubsection[C++03 double-checked-lock pattern]{C++03 double-checked-lock pattern}\label{appendix:-c++03-double-checked-lock-pattern}
 
 Prior to the introduction of the \emcppsgloss[function scope]{function-scope} \lstinline!static!
 object initialization guarantees discussed in \intrarefsimple{description-functionstatic}, preventing multiple initializations of \lstinline!static! objects
@@ -841,6 +854,7 @@ Guarding access using a \lstinline!mutex! was often a significant performance co
 using the unreliable, double-checked lock pattern was often attempted to
 avoid the overhead:
 
+\enlargethispage*{2ex}
 \begin{emcppshiddenlisting}[emcppsbatch=e16]
 #include <mutex>  // (ù{\codeincomments{std::mutex}}ù), (ù{\codeincomments{std::lock\_guard}}ù)
 \end{emcppshiddenlisting}
@@ -869,10 +883,9 @@ Logger& getInstance()
 as a partial
 substitute for an atomic variable, a non-portable solution that is not correct
 in standard C++ but has historically been moderately effective.  The C++11 standard
-library does, however, provide the \lstinline!<atomic>! header which is a far superior alternative,
+library does, however, provide the \lstinline!<atomic>! header, which is a far superior alternative,
 and many implementations have historically
-provided extensions to support atomic types even prior to C++11.  Whenever possible those
-should be used instead.
+provided extensions to support atomic types even prior to C++11.  Where available, compiler extensions are typically preferable over home-grown solutions.
 
 In addition to
 being difficult to write, this decidedly complex workaround would often
@@ -899,7 +912,7 @@ changing the type of \lstinline!loggerPtr! to
 complicated, the same function would reliably implement the Meyers
 Singleton in C++03 on contemporary hardware.
 
-\enlargethispage*{2ex} %%%%%% just to get that final } on this page so external reviewers don't freak out
+%\enlargethispage*{2ex} %%%%%% just to get that final } on this page so external reviewers don't freak out
 So the final recommended solution for portable thread-safe
 initialization in modern C++ is to simply let the compiler do the work
 and to use the simplest implementation that gets the job done, e.g., a

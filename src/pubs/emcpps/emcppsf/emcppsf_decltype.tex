@@ -1,5 +1,8 @@
-%%%% copyedits in and proofed
-%% 27 Jan, code checked and replaced as needed by Josh
+% copyedits in and proofed
+% 27 Jan, code checked and replaced as needed by Josh
+% 9 Feb 2021, FPPs set
+% 17 Feb 2021, glossary tags updated
+% 3 March 2021, proofreading correx in and proofed
 
 \emcppsFeature{
     toclong={Operator for Extracting Expression Types},
@@ -55,11 +58,11 @@ its \emcppsgloss{value category} (see \featureref{\locationc}{Rvalue-References}
 %%%%%%%%%%% changing this per Greg & design discussion
 \begin{center}
 {\small \begin{tabular}{c|c}\thickhline
-\rowcolor[gray]{.9}   {\sffamily\bfseries Value category of {\ttfamily\bfseries E}}
-& {\sffamily\bfseries Result of {\ttfamily\bfseries decltype(E)}} \\ \hline
+\rowcolor[gray]{.9}   {\sffamily\bfseries Value category of \lstinline!E!}
+& {\sffamily\bfseries Result of {\lstinline!decltype(E)!}} \\ \hline
 {\romeovalueinside prvalue} &\lstinline!T! \\ \hline
-{\romeovalueinside lvalue} & \lstinline!T\&! \\ \hline
-{\romeovalueinside xvalue} & \lstinline!T\&\&! \\ \thickhline
+{\romeovalueinside lvalue} & \lstinline!T&! \\ \hline
+{\romeovalueinside xvalue} & \lstinline!T&&! \\ \thickhline
 \end{tabular}
 }
 \end{center}
@@ -206,10 +209,12 @@ public:
 };
 \end{emcppslisting}
 
+%%%% lots of manual linebreaking to balance the whole paragraph due to the code term at the end
 \noindent This unsigned 8-bit type was selected to minimize bandwidth usage
-as the checksum length is sent over the network. Next, picture a loop
+as the checksum\linebreak length is sent over the network. Next, picture a loop
 that computes the checksum of a \lstinline!Packet!, using the same type for its iteration variable to match the
-type returned by \lstinline!Packet::checksumLength!:
+type returned by\linebreak%%%%%%
+\lstinline!Packet::checksumLength!:
 
 \begin{emcppshiddenlisting}[emcppsbatch=e7]
 #include <cstdint>  // (ù{\codeincomments{std::uint8\_t}}ù)
@@ -306,7 +311,8 @@ auto loggedSum(const A& a, const B& b)
     return result;
 }
 \end{emcppslisting}
-Using \lstinline!decltype(a!~\lstinline!+!~\lstinline!b)! as a return type is significantly different from relying on automatic \emcppsgloss[return type deduction]{\lstinline!return!-type deduction}; see \featureref{\locationc}{auto-feature}. Note that this particular use involves significant repetition of the expression \lstinline!a+b!.  See
+Using \lstinline!decltype(a!~\lstinline!+!~\lstinline!b)! as a return type is significantly different from relying on automatic \emcppsgloss[return type deduction]{\lstinline!return!-type
+deduction}; see \featureref{\locationc}{auto-feature}. Note that this particular use involves significant repetition of the expression \lstinline!a+b!.  See
 %\textit{\titleref{annoyances-decltype}: \titleref{decltype-mechanical}} on page~\pageref{decltype-mechanical}
 \intraref{annoyances-decltype}{decltype-mechanical}
 for a discussion of ways in which this might be avoided.
@@ -332,7 +338,8 @@ void sortRange(Range& range)
 \end{emcppslisting}
 
 \noindent The client-facing \lstinline!sortRange! function (above) delegates its
-behavior to an overloaded \lstinline!sortRangeImpl! function (below),
+behavior to an overloaded\linebreak%%%%
+ \lstinline!sortRangeImpl! function (below),
 invoking the latter with the \lstinline!range! and a \emcppsgloss{disambiguator}
 of type \lstinline!int!. The type of this additional parameter, whose value
 is arbitrary, is used to give priority to the \lstinline!sort! member
@@ -378,10 +385,11 @@ not a valid expression for the deduced \lstinline!Range!
 type.{\cprotect\footnote{The technique of exposing a possibly unused
 unevaluated expression --- e.g., using \lstinline!decltype! --- in a function's
 declaration for the purpose of expression-validity detection prior to
-template instantiation is commonly known as \emcppsgloss[expression sfinae]{expression SFINAE},
+template instantiation is commonly known as \emcppsgloss{expression SFINAE},
 which is a restricted form of the more general (classical) SFINAE, and acts exclusively on
 expressions visible in a function's signature rather than on frequently obscure
   template-based type computations.}}
+\pagebreak%%%%%%%
 
 The relative position of
 \lstinline!decltype(range.sort())! in the signature of
@@ -485,14 +493,15 @@ Here, \lstinline!std::declval!, a function that cannot be executed at runtime an
 \subsection[See Also]{See Also}\label{see-also}
 
 \begin{itemize}
-\item{%``\titleref{Rvalue-References}" on page~\pageref{Rvalue-References} ---
-\seealsoref{Rvalue-References}{\locationc}The \lstinline!decltype! operator yields precise information on whether an expression is an \romeovalue{lvalue} or \romeovalue{rvalue}.}
 \item{%``\titleref{alias-declarations-and-alias-templates}" on page~\pageref{alias-declarations-and-alias-templates} ---
-\seealsoref{alias-declarations-and-alias-templates}{\locationa}Oftentimes, it is useful to give a name to the type yielded by \lstinline!decltype!, which is done with a \lstinline!using! alias.}
+\seealsoref{alias-declarations-and-alias-templates}{\seealsolocationa}Oftentimes, it is useful to give a name to the type yielded by \lstinline!decltype!, which is done with a \lstinline!using! alias.}
 \item{%``\titleref{auto-feature}" on page~\pageref{auto-feature} ---
-\seealsoref{auto-feature}{\locationc}The type computed by \lstinline!decltype! is similar to, but distinct from, the type deduction used by \lstinline!auto!.}
+\seealsoref{auto-feature}{\seealsolocationc}The type computed by \lstinline!decltype! is similar to, but distinct from, the type deduction used by \lstinline!auto!.}
+\item{%``\titleref{Rvalue-References}" on page~\pageref{Rvalue-References} ---
+\seealsoref{Rvalue-References}{\seealsolocationc}The \lstinline!decltype! operator yields precise information on whether an expression is an \romeovalue{lvalue} or \romeovalue{rvalue}.}
+\newpage%%%%%%%
 \item{%``\titleref{decltypeauto}" on page~\pageref{decltypeauto} ---
-\seealsoref{decltypeauto}{\locationf}\lstinline!decltype! type computation rules can be useful in conjunction with an \lstinline!auto! variable.}
+\seealsoref{decltypeauto}{\seealsolocationf}\lstinline!decltype! type computation rules can be useful in conjunction with an \lstinline!auto! variable.}
 \end{itemize}
 
 \subsection[Further Reading]{Further Reading}\label{further-reading}

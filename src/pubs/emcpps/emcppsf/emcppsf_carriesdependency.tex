@@ -1,5 +1,8 @@
 % 19 Feb 2021, ready for Josh's code fixes
 % 20 Feb 2021 JMB - code cleaned up, compiles.
+% 2 March 2021, copyedits entered and proofed.
+% 18 March 2021, author revisions made after copyediting; entered and proofed.
+% 26 March 2021, in FPPs
 
 
 \emcppsFeature{
@@ -18,7 +21,7 @@
 
 The\lstinline![[carries_dependency]]! attribute provides a means to
 manually identify function parameters and \lstinline!return! values as
-components of \emcppsgloss[data dependency chain]{data dependency chains} to enable (including
+components of \emcppsgloss[data dependency chain]{data dependency chains} to enable (primarily
 across translation units) use of the lighter-weight
 \emcppsgloss[release consume]{release-consume} \emcppsgloss{synchronization paradigm} as an
 optimization over the more conservative \emcppsgloss[release acquire]{release-acquire}
@@ -31,18 +34,19 @@ C++11 ushered in support for multithreading by introducing a rigorously
 specified memory model. The Standard Library provides support for
 managing threads, including their execution, synchronization, and
 intercommunication. As a part of the new memory model, the Standard
-defines various \emcppsgloss[synchronization operation]{synchronization operations}, which can be \emph{sequentially
-consistent}, \emph{release}, \emph{acquire}, 
+defines various \emcppsgloss[synchronization operation]{synchronization operations} that are classified as either \emph{sequentially
+consistent}, \emph{release}, \emph{acquire},
 \emph{release-and-acquire}, or \emph{consume} operations. These
 operations play a key role in making changes in data in one thread
 visible in another.
 
-The modern C++ memory model describes two \emcppsgloss[synchronization paradigm]{synchronization paradigms}{\cprotect\footnote{The current suite of supported
-\emcppsgloss[synchronization paradigm]{synchronization paradigms} comprise \emcppsgloss[release acquire]{release-acquire} and \emcppsgloss[release consume]{release-consume}, although in practice
-\emcppsgloss[release consume]{release-consume} is implemented in terms of \emcppsgloss[release acquire]{release-acquire} in all known implementations.}} that are used
-to coordinate data flow across concurrent threads of execution. In
+The modern C++ memory model describes two \emcppsgloss[synchronization
+paradigm]{synchronization paradigms} that are used
+to coordinate data flow among concurrent threads of execution. The current suite of supported
+\emcppsgloss[synchronization paradigm]{synchronization paradigms} comprises \emcppsgloss[release acquire]{release-acquire} and \emcppsgloss[release consume]{release-consume}, although in practice
+\emcppsgloss[release consume]{release-consume} is implemented in terms of \emcppsgloss[release acquire]{release-acquire} in all known implementations. In
 particular, the \emcppsgloss[release consume]{release-consume} paradigm requires that the
-compiler is given fine-grained understanding of the \emcppsgloss[intra thread dependency]{intra-thread dependencies} among the \emph{reads} and \emph{writes} within a program
+compiler be given fine-grained understanding of the \emcppsgloss[intra thread dependency]{intra-thread dependencies} among the reads and writes within a program
 and relates those to atomic \emph{release stores} and \emph{consume
 loads} that happen concurrently across multiple threads of execution.
 Dependency chains in the \emcppsgloss[release consume]{release-consume} synchronization
@@ -52,14 +56,14 @@ paradigm specify which evaluations following the \emph{consume load} are
 \subsubsection[The release-acquire paradigm]{The release-acquire paradigm}\label{the-release-acquire-paradigm}
 
 A \emph{release} operation writes a value to a memory location, and an
-\emph{acquire} operation reads a value from a memory location. In a \emcppsgloss[release acquire]{release-acquire}{\cprotect\footnote{Although many have
-referred to it as \emph{acquire-release}, the proper, standard,
-  \emph{time-ordered} nomenclature is \emph{release-acquire}.}} pair, the acquire operation reads the value written by
+\emph{acquire} operation reads a value from a memory location. Although many have
+referred to the release-acquire paradigm as \emph{acquire-release}, the proper, standard,
+  time-ordered nomenclature is \emph{release-acquire}. In a \emcppsgloss[release acquire]{release-acquire} pair, the acquire operation reads the value written by
 the release operation, which means that all of the reads and writes to
 \emph{any} memory location \emph{before the release operation} happen
-before \emph{all} of the reads and writes \emph{after the acquire operation}. Note that this paradigm does \emph{not} use 
-dependency chains or the \lstinline![[carries_dependency]]! attribute. See \intraref{use-cases-carriesdependency}{producer-consumer-programming-pattern} 
-%{\intraref{{Use Cases: A producer-consumer implementation}}} below 
+before \emph{all} of the reads and writes \emph{after the acquire operation}. Note that this paradigm does \emph{not} use
+dependency chains or the \lstinline![[carries_dependency]]! attribute. See \intraref{use-cases-carriesdependency}{producer-consumer-programming-pattern}
+%{\intraref{{Use Cases: A producer-consumer implementation}}} below
 for a
 complete example that implements this paradigm.
 
@@ -67,11 +71,12 @@ complete example that implements this paradigm.
 
 In the current revisions of C++, \emcppsgloss{data dependency} is defined as
 existing whenever the output of one evaluation is used as the input of
-another. When one evaluation has a data dependency on another
+another.
+ When one evaluation has a data dependency on another
 evaluation, the second evaluation is said to \emcppsgloss{carry dependency}
-to the other.{\cprotect\footnote{Note that the Standard Library function
+to the other. The Standard Library function
 \lstinline!std::kill_dependency! is also related and can be used to
-  \emph{break} a data dependency chain.}} Naturally the compiler must
+  \emph{break} a data dependency chain. Naturally the compiler must
 ensure that any evaluation that depends on another must not be started
 until the first evaluation is complete. A \emcppsgloss{data dependency chain}
 is formed when multiple evaluations carry dependency transitively; the
@@ -89,11 +94,11 @@ and stores provided by the RCU synchronization mechanism for performance purpose
 \emcppsgloss[memory fence instruction]{memory-fence instructions} that would otherwise be required to
 enforce the correct ordering. In such cases, however, ordering is
 guaranteed only between those operations making up the relevant
-\emcppsgloss{data dependency chain}. {\cprotect\footnote{The C++ definition
+\emcppsgloss{data dependency chain}. The C++ definition
 of data dependency is intended to mimic the data dependency on RCU
-systems. However, note that C++ currently defines data dependency in
+systems. Note, however, that C++ currently defines data dependency in
 terms of evaluations, while RCU data dependency is defined in terms of
-  loads and stores.}}
+  loads and stores.
 
 This optimization was intended to be available in C++ through use of a
 \emph{release-consume} pair, which, as its name
@@ -111,7 +116,7 @@ redundant. Revisions to render this feature implementable and therefore
 usable are currently under consideration by the C++ Standards Committee.
 Prototypes for various approaches have been produced. When a usable
 feature with real implementations is delivered, it quite possibly will
-not work exactly as described in the examples here; see \intrarefsimple{use-cases-carriesdependency}. 
+not work exactly as described in the examples here; see \intrarefsimple{use-cases-carriesdependency}.
 % {\intraref{{Use Cases}}}, below.
 
 \subsubsection[Using the {\protect\lstinline![[carries_dependency]]!} attribute]{Using the {\SubsubsecCode [[carries\_dependency]]} attribute}\label{using-the-[[carries_dependency]]-attribute}
@@ -123,33 +128,33 @@ dependency chain. In such cases, the user can apply the
 \lstinline![[carries_dependency]]! attribute to imbue the necessary
 information for the compiler to track the propagation of dependency
 chains into and out of functions across translation units, thus possibly
-avoiding unnecessary memory-fence instructions; see \intrarefsimple{use-cases-carriesdependency}.{\cprotect\footnote{Note that the Standard Library function
+avoiding unnecessary memory-fence instructions; see \intrarefsimple{use-cases-carriesdependency}. Note that the Standard Library function
 \lstinline!std::kill_dependency! is also related and can be used to
-  \emph{break} a data dependency chain.}} 
+  \emph{break} a data dependency chain.
 % {\intrarefsub{{Using the \lstinline![[carries_dependency]]! attribute}}}, below.
 
 The \lstinline![[carries_dependency]]! attribute can be applied to a
-function declaration as a whole by placing it in front of the function,
+function declaration as a whole by placing it in front of the function declaration,
 in which case the attribute applies to the \lstinline!return! value:
 
 \begin{emcppslisting}
 [[carries_dependency]] int* f();  // attribute applied to entire function (ù{\codeincomments{f}}ù)
 \end{emcppslisting}
-    
+
 \noindent In the example above, the \lstinline![[carries_dependency]]! attribute was
 applied to the declaration of function \lstinline!f! to indicate that the
 \lstinline!return! value carries a dependency out of the function. The
 compiler may now be able to avoid emitting a memory-fence instruction
 for the return value of \lstinline!f!.
 
-This same \lstinline![[carries_dependency]]! attribute can also be applied
+The \lstinline![[carries_dependency]]! attribute can also be applied
 to one or more of the function's parameter declarations by placing it
 immediately after the parameter name:
 
 \begin{emcppslisting}
 void g(int* input [[carries_dependency]]); // attribute applied to (ù{\codeincomments{input}}ù)
 \end{emcppslisting}
-    
+
 \noindent In the declaration of function \lstinline!g! in the example above, the
 \lstinline![[carries_dependency]]! attribute is applied to the
 \lstinline!input! parameter to indicate that a dependency is carried
@@ -164,11 +169,13 @@ that function shall specify that \lstinline![[carries_dependency]]!
 attribute. Similarly, if the first declaration of a function or one of
 its parameters specifies the \lstinline![[carries_dependency]]! attribute
 in one translation unit and the first declaration of the same function
-in another translation unit doesn't, the program is IFNDR.
+in another translation unit doesn't, the program is \emcppsgloss{ill formed, no diagnostic required (IFNDR)}.
 
-The user is responsible for ensuring that an existing dependency chain
-is available if needed for synchronization purposes. The
-\lstinline![[carries_dependency]]! attribute will not create a \mbox{dependency}.
+%The user is responsible for ensuring that an existing dependency chain
+%is available if needed for synchronization purposes. The
+%\lstinline![[carries_dependency]]! attribute will not create a \mbox{dependency}.
+
+It is important to note that while the \lstinline![[carries_dependency]]! attribute informs the compiler about the presence of a dependency chain, it does not itself create one.  The dependency chain must be present in the implementation to have any effect on synchronization.
 
 \subsection[Use Cases]{Use Cases}\label{use-cases-carriesdependency}
 
@@ -177,42 +184,106 @@ is available if needed for synchronization purposes. The
 The popular producer-consumer programming pattern uses
 \emph{release-acquire} pairs to synchronize between threads:
 
+%\begin{emcppslisting}
+%#include <cassert>  // standard C (ù{\codeincomments{assert}}ù) macro
+%#include <atomic>   // (ù{\codeincomments{std::atomic}}ù), (ù{\codeincomments{std::memory\_order\_release}}ù)
+%                    // (ù{\codeincomments{std::memory\_order\_acquire}}ù)
+%
+%struct S
+%{
+%    int i;
+%    char c;
+%    double d;
+%};
+%
+%S data;
+%std::atomic<int> guard;
+%
+%void producerThread()
+%{
+%    data.i = 42;
+%    data.c = 'c';
+%    data.d = 5.0;
+%    guard.store(1, std::memory_order_release);
+%}
+%
+%void consumerThread()
+%{
+%    if (guard.load(std::memory_order_acquire) == 1)
+%    {
+%        // By dint of the release-acquire guarantee, we know that all the
+%        // data changes are visible if the guard change is visible.
+%        assert(data.i == 42);
+%        assert(data.c == 'c');
+%        assert(data.d == 5.0);
+%    }
+%}
+%\end{emcppslisting}
+\newpage%%%%%%%
 \begin{emcppslisting}
-#include <cassert>  // standard C (ù{\codeincomments{assert}}ù) macro
-#include <atomic>   // (ù{\codeincomments{std::atomic}}ù), (ù{\codeincomments{std::memory\_order\_release}}ù)
-                    // (ù{\codeincomments{std::memory\_order\_acquire}}ù)
+// my_shareddata.h
+void initSharedData();
+    // Initialize the shared data of (ù{\codeincomments{my\_shareddata.o}}ù) to a well-known
+    // aggregation of values.
+
+void accessSharedData();
+    // Confirm that the shared data of (ù{\codeincomments{my\_shareddata.o}}ù) have been initialized
+    // and have their expected values.
+\end{emcppslisting}
+\vspace*{2ex}
+\begin{emcppslisting}
+// my_shareddata.cpp
+#include <my_shareddata.h>
+
+#include <atomic>  // (ù{\codeincomments{std::atomic}}ù), (ù{\codeincomments{std::memory\_order\_release}}ù), and
+                   // (ù{\codeincomments{std::memory\_order\_acquire}}ù)
+#include <cassert> // standard C (ù{\codeincomments{assert}}ù) macro
 
 struct S
 {
-    int i;
-    char c;
+    int    i;
+    char   c;
     double d;
 };
 
-S data;
-std::atomic<int> guard;
+static S                data;     // (ù{\codeincomments{static}}ù) for insulation
+static std::atomic<int> guard(0); // (ù{\codeincomments{static}}ù) for insulation
 
-void producerThread()
+void initSharedData()
 {
     data.i = 42;
     data.c = 'c';
     data.d = 5.0;
+
     guard.store(1, std::memory_order_release);
 }
 
-void consumerThread()
+void accessSharedData()
 {
-    if (guard.load(std::memory_order_acquire) == 1)
-    {
-        // By dint of the release-acquire guarantee, we know that all the
-        // data changes are visible if the guard change is visible.
-        assert(data.i == 42);
-        assert(data.c == 'c');
-        assert(data.d == 5.0);
-    }
+    while(0 == guard.load(std::memory_order_acquire))
+        /* empty */ ;
+
+    assert(42  == data.i);
+    assert('c' == data.c);
+    assert(5.0 == data.d);
 }
 \end{emcppslisting}
-    
+\newpage%%%%%%%
+\begin{emcppslisting}
+// my_app.cpp
+#include <my_shareddata.h>
+#include <thread>  // (ù{\codeincomments{std::thread}}ù)
+
+int main()
+{
+    std::thread t2(accessSharedData);
+    std::thread t1(  initSharedData);
+
+    t1.join();
+    t2.join();
+}
+\end{emcppslisting}
+
 \noindent When this \emph{release-acquire} \emph{synchronization paradigm} is
 used, the compiler must maintain the ordering of the statements to avoid
 breaking the \emph{release-acquire} guarantee; the compiler will also
@@ -224,77 +295,216 @@ semantics, we would somehow need to make the \lstinline!assert! statements
 a part of the dependency chain on the \lstinline!load! from the
 \lstinline!guard! object. We can accomplish this because reading data
 through a pointer establishes a dependency chain between the reading of
-that pointer value and the reading of the referenced data
+that pointer value and the reading of the referenced data.  Since \emph{release-consume} allows the developer to specify that data of concern, using that policy instead of \emph{release-acquire} policy (in the code example above) allows the compiler to be more selective in its use of memory fences::
 
-\begin{emcppslisting}[emcppsbatch=e1]
-#include <cassert>  // standard C (ù{\codeincomments{assert}}ù) macro
-#include <atomic>   // (ù{\codeincomments{std::atomic}}ù), (ù{\codeincomments{std::memory\_order\_release}}ù)
-                    // (ù{\codeincomments{std::memory\_order\_consume}}ù)
+%\begin{emcppslisting}[emcppsbatch=e1]
+%#include <cassert>  // standard C (ù{\codeincomments{assert}}ù) macro
+%#include <atomic>   // (ù{\codeincomments{std::atomic}}ù), (ù{\codeincomments{std::memory\_order\_release}}ù)
+%                    // (ù{\codeincomments{std::memory\_order\_consume}}ù)
+%
+%struct S
+%{
+%    int i;
+%    char c;
+%    double d;
+%};
+%
+%S data;
+%std::atomic<S*> guard(nullptr);
+%
+%void producerThread()
+%{
+%    data.i = 42;
+%    data.c = 'c';
+%    data.d = 5.0;
+%    guard.store(&data, std::memory_order_release);
+%}
+%
+%void consumerThread()
+%{
+%    S* setData = guard.load(std::memory_order_consume);
+%    if (setData)
+%    {
+%        assert(setData->i == 42);
+%        assert(setData->c == 'c');
+%        assert(setData->d == 5.0);
+%    }
+%}
+%\end{emcppslisting}
+\enlargethispage*{2ex}
+\begin{emcppslisting}
+// my_shareddata.cpp (use (ù{\codeincomments{\_*consume}}ù), not (ù{\codeincomments{*\_acquire}}ù))
+#include <my_shareddata.h>
+
+#include <atomic>  // (ù{\codeincomments{std::atomic}}ù), (ù{\codeincomments{std::memory\_order\_release}}ù), and
+                   // (ù{\codeincomments{std::memory\_order\_consume}}ù) (not (ù{\codeincomments{*\_acquire}}ù))
+#include <cassert> // standard C (ù{\codeincomments{assert}}ù) macro
 
 struct S
 {
-    int i;
-    char c;
+    /* definition not changed */
+};
+
+static S               data;           // (ù{\codeincomments{static}}ù) for insulation (as before)
+static std::atomic<S*> guard(nullptr); // guards just one (ù{\codeincomments{struct S}}ù).
+
+void initSharedData()
+{
+    data.i = 42;   // as before
+    data.c = 'c';  // as before
+    data.d = 5.0;  // as before
+
+    guard.store(&data, std::memory_order_release);  // Set (ù{\codeincomments{\&data}}ù), not 1.
+}
+
+void accessSharedData()
+{
+    S *sharedDataPtr = nullptr;
+
+    // Load using (ù{\codeincomments{*\_consume}}ù), not (ù{\codeincomments{*\_acquire}}ù).
+    while (nullptr == (sharedDataPtr = guard.load(std::memory_order_consume)))
+        /* empty */ ;
+
+    assert(&data == sharedDataPtr);
+
+    assert(42  == sharedDataPtr->i);
+    assert('c' == sharedDataPtr->c);
+    assert(5.0 == sharedDataPtr->d);
+}
+\end{emcppslisting}
+
+\noindent Finally, if we want to start to refactor the work of
+the \lstinline!my_sharedata! component into multiple
+ functions across different
+translation units, we would want to carefully apply the
+\lstinline![[carries_dependency]]! attribute to the newly refactored
+functions, so calling into these functions might conceivably be better
+optimized:
+
+%\begin{emcppslisting}[emcppsbatch=e1]
+%[[carries_dependency]] S* loadData()
+%{
+%    return guard.load(std::memory_order_consume);
+%}
+%
+%void checkData(S* s [[carries_dependency]])
+%{
+%    assert(s->i == 42);
+%    assert(s->c == 'c');
+%    assert(s->d == 5.0);
+%}
+%
+%void betterThreadB()
+%{
+%    S* setData = loadData();
+%    if (setData)
+%    {
+%        checkData(setData);
+%    }
+%}
+%\end{emcppslisting}
+\begin{emcppslisting}
+// (ù{\codeincomments{my\_shareddataimpl.h}}ù)
+
+struct S
+{
+    int    i;
+    char   c;
     double d;
 };
 
-S data;
-std::atomic<S*> guard(nullptr);
+[[carries_dependency]] S* getSharedDataPtr();
+    // Return the address of the shared data in this translation unit.
 
-void producerThread()
+void releaseSharedData(S *sharedDataPtr [[carries_dependency]]);
+    // Release the shared data in this translation unit.  The behavior is
+    // undefined unless (ù{\codeincomments{getSharedDataPtr() == sharedDataPtr}}ù).
+
+[[carries_dependency]] S* accessInitializedSharedData();
+    // Return the address of the initialized shared data in this translation
+    // unit.
+
+void checkSharedDataValue(S* s [[carries_dependency]],
+                          int    i,
+                          char   c,
+                          double d);
+    // Confirm that data at the specified (ù{\codeincomments{s}}ù) has the specified (ù{\codeincomments{i}}ù), (ù{\codeincomments{c}}ù), and
+    // (ù{\codeincomments{d}}ù) as constituent values.
+\end{emcppslisting}
+\newpage%%%%%%
+\begin{emcppslisting}
+// (ù{\codeincomments{my\_shareddataimpl.cpp}}ù)
+
+#include <my_shareddataimpl.h>
+
+#include <cassert>
+#include <atomic>
+
+static S               data;           // (ù{\codeincomments{static}}ù) for insulation
+static std::atomic<S*> guard(nullptr); // guards one (ù{\codeincomments{struct S}}ù).
+
+[[carries_dependency]] S* getSharedDataPtr()
 {
-    data.i = 42;
-    data.c = 'c';
-    data.d = 5.0;
-    guard.store(&data, std::memory_order_release);
+    return &data;
 }
 
-void consumerThread()
+void releaseSharedData(S *sharedDataPtr [[carries_dependency]])
 {
-    S* setData = guard.load(std::memory_order_consume);
-    if (setData)
-    {
-        assert(setData->i == 42);
-        assert(setData->c == 'c');
-        assert(setData->d == 5.0);
-    }
+    assert(&data == sharedDataPtr);
+
+    guard.store(sharedDataPtr, std::memory_order_release);
+}
+
+[[carries_dependency]] S* accessInitializedSharedData()
+{
+    S *sharedDataPtr = nullptr;
+
+    while (nullptr == (sharedDataPtr = guard.load(std::memory_order_consume)))
+        /* empty */ ;
+
+    assert(&data == sharedDataPtr);
+
+    return sharedDataPtr;
+}
+
+void checkSharedDataValue(S*     s [[carries_dependency]],
+                          int    i,
+                          char   c,
+                          double d)
+{
+    assert(i == s->i);
+    assert(c == s->c);
+    assert(d == s->d);
 }
 \end{emcppslisting}
-    
-\noindent Finally, if we want to start to refactor the work of
-\lstinline!consumerThread! into multiple\linebreak%%%%
- functions across different
-translation units, we would want to carefully apply the\linebreak%%%%
-\lstinline![[carries_dependency]]! attribute to the newly refactored
-functions, so calling into these functions might conceivably be better
-optimized, like this:
+\newpage%%%%%
+\begin{emcppslisting}
+// (ù{\codeincomments{my\_shareddata.cpp}}ù) (re-factored to use (ù{\codeincomments{*impl}}ù))
+#include <my_shareddata.h>
+#include <my_shareddataimpl.h>
 
-\begin{emcppslisting}[emcppsbatch=e1]
-[[carries_dependency]] S* loadData()
+void initSharedData()
 {
-    return guard.load(std::memory_order_consume);
+    S *sharedDataPtr = getSharedDataPtr();
+
+    sharedDataPtr->i = 42;
+    sharedDataPtr->c = 'c';
+    sharedDataPtr->d = 5.0;
+
+    releaseSharedData(sharedDataPtr);
 }
 
-void checkData(S* s [[carries_dependency]])
+void accessSharedData()
 {
-    assert(s->i == 42);
-    assert(s->c == 'c');
-    assert(s->d == 5.0);
-}
-
-void betterThreadB()
-{
-    S* setData = loadData();
-    if (setData)
-    {
-        checkData(setData);
-    }
+    S *sharedDataPtr = accessInitializedSharedData();
+    checkSharedDataValue(sharedDataPtr, 42, 'c', 5.0);
 }
 \end{emcppslisting}
-    
-\noindent Again, as of this writing, all known compilers implement \emph{consume}
-loads as \emph{acquire} loads and thus fail to provide the desired
-optimization.
+
+
+%\noindent Again, as of this writing, all known compilers implement \emph{consume}
+%loads as \emph{acquire} loads and thus fail to provide the desired
+%optimization.
 
 \subsection[Potential Pitfalls]{Potential Pitfalls}\label{potential-pitfalls}
 
@@ -309,34 +519,36 @@ guarantees until such time as a theoretical, not-yet-existent compiler
 that properly supports the \emcppsgloss[release consume]{release-consume}
 \emcppsgloss{synchronization paradigm} becomes widely available. In the
 meantime, applications that require the potential performance benefits
-of \emph{consume} semantics typically make careful --- and potentially
-very implementation-specific --- use of the \lstinline!volatile! keyword or
-handcrafted inline assembly instead.{\cprotect\footnote{Since C++17, the
+of \emph{consume} semantics typically make careful use of platform-specific functionality instead.{\cprotect\footnote{Since C++17, the
 use of \lstinline!memory_order_consume! has been explicitly
   discouraged after the acceptance of \cite{boehm16}. The specific
   note in the standard now says, ``Prefer
-  \lstinline!memory_order::acquire!, which provides stronger guarantees
-  than \lstinline!memory_order::consume!'' (\cite{iso17}, section~32.4 ``Order and Consistency," paragraph~1.3, Note~1, p.~1346). Implementations have found it infeasible to provide performance better
-  than that of \lstinline!memory_order::acquire!. Specification revisions
-  are under consideration by the Standards Committee.}}
+  \lstinline!memory_order_acquire!, which provides stronger guarantees
+  than \lstinline!memory_order_consume!. Implementations have found it infeasible to provide performance better
+  than that of \lstinline!memory_order_acquire!. Specification revisions
+  are under consideration'' (\cite{iso17}, section~32.4 ``Order and Consistency," paragraph~1.3, Note~1, p.~1346). }}
 
 \subsection[Annoyances]{Annoyances}\label{annoyances}
 
-\subsubsection[Ill-formed when inconsistently applied]{Ill-formed when inconsistently applied}\label{ill-formed-when-inconsistently-applied}
+\hspace*{\fill}\\
 
-Like many aspects of a declaration, such as the
-\lstinline![[noreturn]]! attribute (see\linebreak%%%%%
-\featureref{\locationa}{the-noreturn-attribute}),
-\lstinline!alignas! specifier (see \featureref{\locationa}{alignas}), language linkage, and so on,
-the \lstinline![[carries_dependency]]! attribute must be applied to a
-function's declaration consistently across all translation units.
-Failing to apply it on the first declaration in a translation unit and
-then later to a (re)declaration is ill-formed. Such uniqueness issues
-are readily dispatched when (1) each function's owner supplies a
-corresponding header having the canonical declarations for that function
-and (2) every client includes that corresponding header rather than
-attempting to redefine the function locally.
 
+%\subsubsection[Ill formed when inconsistently applied]{Ill formed when inconsistently applied}\label{ill-formed-when-inconsistently-applied}
+%
+%Like many aspects of a declaration, such as the
+%\lstinline![[noreturn]]! attribute (see\linebreak%%%%%
+%\featureref{\locationa}{the-noreturn-attribute}),
+%\lstinline!alignas! specifier (see \featureref{\locationa}{alignas}), language linkage, and so on,
+%the \lstinline![[carries_dependency]]! attribute must be applied to a
+%function's declaration consistently across all translation units.
+%Failing to apply it on the first declaration in a translation unit and
+%then later to a (re)declaration is ill formed. Such uniqueness issues
+%are readily dispatched when (1) each function's owner supplies a
+%corresponding header having the canonical declarations for that function
+%and (2) every client includes that corresponding header rather than
+%attempting to redefine the function locally.
+
+\newpage%%%%%%
 \subsection[See Also]{See Also}\label{see-also}
 
 \begin{itemize}
@@ -348,6 +560,9 @@ attempting to redefine the function locally.
 
 \subsection[Further Reading]{Further Reading}\label{further-reading}
 
-TODO
+\begin{itemize}
+\item{\cite{marton17}}
+\item{\cite{marton18}}
+\end{itemize}
 
 

@@ -1,7 +1,6 @@
 % 26 March 2021, updating commands
-% 27 March 2021, Slava's revisions in and proofed. 
-% 28 March 2021, sent to CE, external review, and Josh for code check
-% 28 March 2021 JMB, code check done
+% 27 March 2021, Slava's revisions in and proofed.
+% 28 March 2021, sent to CE and Josh for code check
 
 \emcppsFeature{
     short={\lstinline!alignof!},
@@ -29,7 +28,8 @@ The \lstinline!alignof! operator, when applied to a type, evaluates to an
 arbitrary expression, \lstinline!alignof! is defined for only type identifiers but often works on expressions
 anyway (see \intrarefsimple{annoyances-alignof}). The argument type,
 \lstinline!T!, supplied to \lstinline!alignof! must be a
-\emcppsgloss{complete type}, a \emcppsgloss{reference type}, or an \emcppsgloss{array type}. If \lstinline!T! is a \emcppsgloss{complete type}, the result is the
+\emcppsgloss{complete type}, a \emcppsgloss{reference type}, or an \emcppsgloss{array
+type}. If \lstinline!T! is a \emcppsgloss{complete type}, the result is the
 alignment requirement for \lstinline!T!. If \lstinline!T! is a
 \emcppsgloss{reference type}, the result is the alignment requirement for the
 referenced type. If \lstinline!T! is an \emcppsgloss{array type}, the
@@ -45,7 +45,7 @@ static_assert(alignof(short&)   == 2, "");  // reference type  ((ù{\codeincomme
 static_assert(alignof(short[5]) == 2, "");  // array type      ((ù{\codeincomments{sizeof}}ù) is 10)
 static_assert(alignof(short[])  == 2, "");  // array type      ((ù{\codeincomments{sizeof}}ù) fails)
 \end{emcppslisting}
-    
+
 
 \subsubsection[\lstinline!alignof! Fundamental Types]{{\SubsubsecCode alignof} Fundamental Types}\label{alignof-fundamental-types}
 
@@ -53,7 +53,8 @@ Like their size, the alignment requirements of a \lstinline!char!,
 \lstinline!signed!~\lstinline!char!, and \lstinline!unsigned!~\lstinline!char! are
 guaranteed to be 1 on every conforming
 platform. For any other fundamental or pointer type \lstinline!FPT!,
-\lstinline!alignof(FPT)! is platform-dependent but is typically approximated well by the type's \emcppsgloss{natural alignment} --- i.e.,
+\lstinline!alignof(FPT)! is platform-dependent but is typically approximated well by the type's \emcppsgloss{natural
+alignment} --- i.e.,
 \lstinline!sizeof(FPT)!~\lstinline!==!~\lstinline!alignof(FPT)!:
 
 \begin{emcppslisting}
@@ -63,12 +64,12 @@ static_assert(alignof(int)    == 4, "");  //    "         "
 static_assert(alignof(double) == 8, "");  //    "         "
 static_assert(alignof(void*)  >= 4, "");  //    "         "
 \end{emcppslisting}
-    
+
 
 \subsubsection[\lstinline!alignof! User-Defined Types]{{\SubsubsecCode alignof} User-Defined Types}\label{alignof-user-defined-types}
 
 When applied to user-defined types, alignment is always at least that of
-the strictest alignment of any of its arguments' base or member objects. 
+the strictest alignment of any of its arguments' base or member objects.
 %Empty types are defined to have a size (and alignment) of 1 to
 %ensure that every object has a unique address.{\cprotect\footnote{An
 %exception is made for an object of a type derived from an empty (base)
@@ -80,7 +81,7 @@ the strictest alignment of any of its arguments' base or member objects.
 %struct E { };            // size = 1; alignment = 1
 %struct D : E { int i };  // size = 4; alignment = 4
 %\end{emcppslisting}
-%      }} 
+%      }}
 Compilers will (by default) avoid nonessential padding because any
 extra padding would be wasteful of (e.g., cache)
 memory:
@@ -99,28 +100,28 @@ memory:
 %struct SA { long double; };             // (ù{\codeincomments{sizeof(SA)}}ù) is (ù{\codeincomments{16}}ù); (ù{\codeincomments{alignof(SA)}}ù) is (ù{\codeincomments{16}}ù)
 %struct SB { long double; char c};       // (ù{\codeincomments{sizeof(SB)}}ù) is (ù{\codeincomments{32}}ù); (ù{\codeincomments{alignof(SB)}}ù) is (ù{\codeincomments{16}}ù)
 %\end{emcppslisting}
-\begin{emcppslisting}[emcppsbatch=e1]
-struct S0 { };                           // sizeof(S0) is  1; alignof(S0) is  1   
-struct S1 { char c; };                   // sizeof(S1) is  1; alignof(S1) is  1   
-struct S2 { short s; };                  // sizeof(S2) is  2; alignof(S2) is  2   
-struct S3 { char c; short s; };          // sizeof(S3) is  4; alignof(S3) is  2   
-struct S4 { short s1; short s2; };       // sizeof(S4) is  4; alignof(S4) is  2   
-struct S5 { int i; char c; };            // sizeof(S5) is  8; alignof(S5) is  4   
-struct S6 { char c1; int i; char c2; };  // sizeof(S6) is 12; alignof(S6) is  4   
-struct S7 { char c; short s; int i; };   // sizeof(S7) is  8; alignof(S7) is  4   
-struct S8 { double d; };                 // sizeof(S8) is  8; alignof(S8) is  8   
-struct S9 { double d; char c; };         // sizeof(S9) is 16; alignof(S9) is  8   
-struct SA { long double ld; };           // sizeof(SA) is 16; alignof(SA) is 16   
+\begin{emcppslisting}
+struct S0 { };                           // sizeof(S0) is  1; alignof(S0) is  1
+struct S1 { char c; };                   // sizeof(S1) is  1; alignof(S1) is  1
+struct S2 { short s; };                  // sizeof(S2) is  2; alignof(S2) is  2
+struct S3 { char c; short s; };          // sizeof(S3) is  4; alignof(S3) is  2
+struct S4 { short s1; short s2; };       // sizeof(S4) is  4; alignof(S4) is  2
+struct S5 { int i; char c; };            // sizeof(S5) is  8; alignof(S5) is  4
+struct S6 { char c1; int i; char c2; };  // sizeof(S6) is 12; alignof(S6) is  4
+struct S7 { char c; short s; int i; };   // sizeof(S7) is  8; alignof(S7) is  4
+struct S8 { double d; };                 // sizeof(S8) is  8; alignof(S8) is  8
+struct S9 { double d; char c; }          // sizeof(S9) is 16; alignof(S9) is  8
+struct SA { long double ld; };           // sizeof(SA) is 16; alignof(SA) is 16
 struct SB { long double ld; char c; };   // sizeof(SB) is 32; alignof(SB) is 16
 \end{emcppslisting}
 
 \noindent The size of empty types, such as \lstinline!S0! above, are defined to have the size and alignment of 1 to ensure that each object and member subobject of type \lstinline!S0! has a unique address. However, if an empty type is used as a base, the size of the derived type will not be affected (with some exceptions) due to the  \emcppsgloss{empty base optimization}:
 
-\begin{emcppslisting}[emcppsbatch=e1]
+\begin{emcppslisting}
 struct D0 : S0 { int i; };  // sizeof(D0) is 4; alignof(D0) is 4
 \end{emcppslisting}
 
-The alignment of the base type always affects the derived type's alignment. However, this is observable only for an empty base if it is \emcppsgloss[over aligned]{over-aligned} (see \featureref{\locationc}{alignas}):
+The alignment of the base type always affects the derived type's alignment. However, this is observable only for an empty base if it is \emcppsgloss{over-aligned} (see \featureref{\locationc}{alignas}):
 
 \begin{emcppslisting}
 struct alignas(8) E { };   // sizeof(E)  is 8; alignof(E)  is 8
@@ -135,19 +136,16 @@ array does not require any padding between array elements (which is explicitly p
 \lstinline!N!:
 
 \begin{emcppslisting}
-#include <cstddef>  // (ù{\codeincomments{std::size\_t}}ù)
-
-template <typename T, std::size_t N>                                            
-void f()                                                                        
-{                                                                               
+template <typename T, std::size_t N>
+void f()
+{
     static_assert(0 == sizeof(T) % alignof(T), "guaranteed");
-                                 
-    T a[N];                                                                     
-    static_assert(N == sizeof(a) / sizeof(*a), "guaranteed");                                 
-}
 
+    T a[N];
+    static_assert(N == sizeof(a) / sizeof(*a), "guaranteed");
+}
 \end{emcppslisting}
-    
+
 \noindent The alignment of user-defined types can be made artificially stricter
   (but not weaker) using the \lstinline!alignas! specifier (see \featureref{\locationc}{alignas}).
   Also note that, for \emcppsgloss[standard layout types]{standard-layout types}, the address of the
@@ -155,23 +153,22 @@ void f()
   object (see \featureref{\locationc}{gpods}):
 
   \begin{emcppslisting}
-struct S { int i; };                                                            
-class T { public: S s; };                                                       
-T t;                                                                            
-static_assert(static_cast<void*>(&t.s) == &t, "guaranteed");                                                                             
+struct S { int i; };
+class T { public: S s; };
+T t;
+static_assert(static_cast<void*>(&t.s) == &t, "guaranteed");
 static_assert(static_cast<void*>(&t.s) == &t.s.i, "guaranteed");
 \end{emcppslisting}
-      
+
 \noindent This property also holds for unions:
 
-\begin{emcppslisting}
-struct { union { char c; float f; double d; }; } u;                             
-static_assert(static_cast<void*>(&u) == &u.c, "guaranteed");          
-static_assert(static_cast<void*>(&u) == &u.f, "guaranteed");          
+  \begin{emcppslisting}
+struct { union { char c; float f; double d; }; } u;
+static_assert(static_cast<void*>(&u) == &u.c, "guaranteed");
+static_assert(static_cast<void*>(&u) == &u.f, "guaranteed");
 static_assert(static_cast<void*>(&u) == &u.d, "guaranteed");
 \end{emcppslisting}
 
-    
 
 \subsection[Use Cases]{Use Cases}\label{use-cases}
 
@@ -183,7 +180,7 @@ of those attributes for a given type on the current platform. For
 example:
 
 \begin{emcppslisting}
-#include <iostream>  // (ù{\codeincomments{std::cout}}ù)
+#include <iostream>
 
 void f()
 {
@@ -191,7 +188,7 @@ void f()
     std::cout << "alignof(double): " << alignof(double) << '\n';  // usually 8
 }
 \end{emcppslisting}
-    
+
 \noindent Printing the size and alignment of a \lstinline!struct! along with those of
 each of its individual data members can lead to the discovery of
 suboptimal ordering of data members, resulting in wasteful extra
@@ -214,7 +211,7 @@ struct Optimal
     char   d_c;  // size =  1;  alignment = 1
 };               // size = 16;  alignment = 8
 \end{emcppslisting}
-    
+
 \noindent Both \lstinline!alignof(Wasteful)! and \lstinline!alignof(Optimal)! are
 \lstinline!8! on our platform but \lstinline!sizeof(Wasteful)! is \lstinline!24!, whereas
 \lstinline!sizeof(Optimal)! is only \lstinline!16!. Even though these two
@@ -241,7 +238,7 @@ struct Optimal
     char   padding_0[3];  // size =  3
 };                        // size = 16;  alignment = 8
 \end{emcppslisting}
-    
+
 
 \subsubsection[Determining if a given buffer is sufficiently aligned]{Determining if a given buffer is sufficiently aligned}\label{determining-if-a-given-buffer-is-sufficiently-aligned}
 
@@ -256,23 +253,20 @@ implementation strategies surrounding alignment for \lstinline!std::any!
 in both \lstinline!libstdc++! and \lstinline!libc++! closely mirror those
 used to implement the simplified \lstinline!MyAny! class presented here.
 Note that \lstinline!std::any! also records the current \lstinline!typeid!
-(on construction or assignment) which can be queried with the \lstinline!type! member
-function to determine, at runtime, 
+(on construction or assignment) so that it can implement a
+\lstinline!const! template member function,
+\lstinline!bool!~\lstinline!is<T>()!~\lstinline!const!, to query, at runtime,
 whether a specified type is currently the active one:
 
-\begin{emcppslisting}[emcppsstandards={c++17},style=footcode]
-#include <any>  // (ù{\codeincomments{std::any}}ù)
+\begin{emcppslisting}[style=footcode]
 void f(const std::any& object)
 {
-    if (object.type() == typeid(int)) { /* ... */ }
+    if (object.is<int>()) { /* ... */ }
 }
 \end{emcppslisting}
       }}:
 
-\begin{emcppslisting}[emcppsbatch=e2]
-#include <cassert>   // standard C (ù{\codeincomments{assert}}ù) macro
-#include <string>    // (ù{\codeincomments{std::string}}ù)
-#include <my_any.h>  // (ù{\codeincomments{MyAny}}ù)
+\begin{emcppslisting}
 void f()
 {
     MyAny obj = 10;               // can be initialized with values of any type
@@ -282,7 +276,7 @@ void f()
     assert(obj.as<std::string>() == "hello");
 }
 \end{emcppslisting}
-    
+
 \noindent A straightforward implementation of \lstinline!MyAny! would be to allocate
 an appropriately sized block of dynamic memory each time a value of a
 new type is assigned. Such a naive implementation would force memory
@@ -290,11 +284,11 @@ allocations even though the vast majority of values assigned in practice
 are small (e.g., fundamental types), most of which would fit within the
 space that would otherwise be occupied by just the pointer needed to
 refer to dynamic memory. As a practical optimization, we might instead
-consider reserving a small buffer  
+consider reserving a small buffer
 %(say, roughly{\cprotect\footnote{We
 %would likely choose a slightly larger value, e.g., 35 or 39, if that
 %space would otherwise be filled with essential padding due to overall
-%  alignment requirements.}} 32 bytes) 
+%  alignment requirements.}} 32 bytes)
   within the footprint of the
 \lstinline!MyAny! object to hold the value provided (1) it will fit and (2)
 the buffer is sufficiently aligned. The natural implementation of this
@@ -312,7 +306,7 @@ platform and 8 on a 64-bit one){\cprotect\footnote{We could, in
       }}:
 
 %\begin{emcppslisting}
-%#include <cstddef>  // (ù{\codeincomments{std::size\_t}}ù)
+%#include <cstddef>  // (ù{\codeincomments{std::size_t}}ù)
 %
 %class MyAny  // nontemplate class
 %{
@@ -343,8 +337,7 @@ platform and 8 on a 64-bit one){\cprotect\footnote{We could, in
 %
 %};  // Size of (ù{\codeincomments{MyAny}}ù) is (ù{\codeincomments{40}}ù); alignment of (ù{\codeincomments{MyAny}}ù) is (ù{\codeincomments{alignof(char*)}}ù) (e.g., 8).
 %\end{emcppslisting}
-\begin{emcppslisting}[emcppsbatch=e2]
-// my_any.h:
+\begin{emcppslisting}
 #include <cstddef>  // (ù{\codeincomments{std::size\_t}}ù)
 
 class MyAny  // nontemplate class
@@ -352,7 +345,6 @@ class MyAny  // nontemplate class
     union {
         char *d_buf_p;       // pointer to dynamic memory if needed
         char  d_buffer[39];  // small buffer
-
     };  // Size of (ù{\codeincomments{union}}ù) is (ù{\codeincomments{39}}ù); alignment of (ù{\codeincomments{union}}ù) is (ù{\codeincomments{alignof(char*)}}ù).
 
     char d_onHeapFlag;             // boolean (discriminator) for union (above)
@@ -372,7 +364,7 @@ public:
 };  // Size of (ù{\codeincomments{MyAny}}ù) is (ù{\codeincomments{40}}ù); alignment of (ù{\codeincomments{MyAny}}ù) is (ù{\codeincomments{alignof(char*)}}ù) (e.g., 8).
 \end{emcppslisting}
 
-    
+
 \noindent We chose the size of \lstinline!d_buffer! in the example above to be 39 for two reasons. First, we decided that we want 32-byte types to fit into the buffer, meaning that the size of \lstinline!d_buffer! should be at least 32. Combined with the use of \lstinline!char! for the \lstinline!d_onHeapFlag!, which is guaranteed to have the size of 1, this means that \lstinline!sizeof(MyAny) >= 33!. Second, we want to ensure that no space is wasted on padding. On platforms where \lstinline!alignof(MyAny)! is 8, which will be the case for many 64-bit platforms, \lstinline!sizeof(MyAny)! would be 40, which we choose to achieve by increasing the useful capacity to 39 instead of having the compiler add unused padding.
 
 The (templated) constructor{\cprotect\footnote{In a real-world
@@ -384,7 +376,7 @@ can then decide (potentially at compile time) whether to store the given
 object \lstinline!x! in the internal small buffer storage or on the heap,
 depending on \lstinline!x!'s size and alignment:
 
-\begin{emcppslisting}[emcppsbatch=e2]
+\begin{emcppslisting}
 template <typename T>
 MyAny::MyAny(const T& x)
 {
@@ -402,7 +394,7 @@ MyAny::MyAny(const T& x)
     }
 }
 \end{emcppslisting}
-    
+
 \noindent Using the \lstinline!alignof! operator in the constructor
 above to check whether the alignment of \lstinline!T! is compatible with
 the alignment of the small buffer is necessary to avoid attempting to
@@ -459,7 +451,7 @@ ignoring alignment --- and then go back and fix it using
 \lstinline!alignof! so that it returns properly aligned memory:
 
 \begin{emcppslisting}
-#include <cstddef>  // (ù{\codeincomments{std::size\_t}}ù) 
+#include <cstddef> // (ù{\codeincomments{std::size\_t}}ù)
 
 template <std::size_t N>
 struct MonotonicBuffer  // first pass at a monotonic memory buffer
@@ -480,7 +472,7 @@ struct MonotonicBuffer  // first pass at a monotonic memory buffer
     }
 };
 \end{emcppslisting}
-    
+
 \noindent \lstinline!MonotonicBuffer! is a class template with one integral template
 parameter that controls the size of the \lstinline!d_buffer! member from
 which it will dispense memory. Note that, while \lstinline!d_buffer! has
@@ -493,34 +485,15 @@ constructor merely initializes the next-address pointer,
 function manages to return a monotonically increasing sequence of addresses corresponding to
 objects allocated sequentially from the local pool:
 
-\begin{emcppshiddenlisting}[emcppsbatch=e3]
-#include <cstddef>  // (ù{\codeincomments{std::size\_t}}ù) 
-
-template <std::size_t N>
-struct MonotonicBuffer  // first pass at a monotonic memory buffer
-{
-    char  d_buffer[N];  // fixed-size buffer
-    char* d_top_p;      //  next available address
-
-    MonotonicBuffer() : d_top_p(d_buffer) { }
-       // Initialize the next available address to be the start of the buffer.
-
-    template <typename T>
-    void* allocate();
-};
-\end{emcppshiddenlisting}
-\begin{emcppslisting}[emcppsbatch=e3]
-void test1()
-{
-    MonotonicBuffer<20> mb;  // On a 64-bit platform, the alignment will be 8.
-    char*   cp = static_cast<char*  >(mb.allocate<char  >());  // &d_buffer[ 0]
-    double* dp = static_cast<double*>(mb.allocate<double>());  // &d_buffer[ 1]
-    short*  sp = static_cast<short* >(mb.allocate<short >());  // &d_buffer[ 9]
-    int*    ip = static_cast<int*   >(mb.allocate<int   >());  // &d_buffer[11]
-    float*  fp = static_cast<float* >(mb.allocate<float >());  // &d_buffer[15]
-}
+\begin{emcppslisting}
+MonotonicBuffer<20> mb;  // On a 64-bit platform, the alignment will be 8.
+char*   cp = static_cast<char*  >(mb.allocate<char  >());  // &d_buffer[ 0]
+double* dp = static_cast<double*>(mb.allocate<double>());  // &d_buffer[ 1]
+short*  sp = static_cast<short* >(mb.allocate<short >());  // &d_buffer[ 9]
+int*    ip = static_cast<int*   >(mb.allocate<int   >());  // &d_buffer[11]
+float*  fp = static_cast<float* >(mb.allocate<float >());  // &d_buffer[15]
 \end{emcppslisting}
-    
+
 \noindent The predominant problem with this first attempt at an implementation of
 \lstinline!allocate! is that the addresses returned do not necessarily
 satisfy the alignment requirements of the supplied type. A
@@ -543,21 +516,20 @@ requirement to be properly aligned:
 %    return alignedAddress - a;                            // return padding
 %}
 %\end{emcppslisting}
-\begin{emcppslisting}[emcppsbatch=e3]
-#include <cstdint>  // (ù{\codeincomments{std::uintptr\_t}}ù)
+\begin{emcppslisting}
 std::size_t calculatePadding(const char* address, std::size_t alignment)
     // Requires: alignment is a (non-negative, integral) power of 2.
 {
-    return (alignment - reinterpret_cast<std::uintptr_t>(address)) & 
+    return (alignment - reinterpret_cast<std::uintptr_t>(address)) &
            (alignment - 1);
 }
 \end{emcppslisting}
-    
+
 \noindent Armed with the
 \lstinline!calculatePadding! helper function (above), we are all set to write the final (correct) version of the \lstinline!allocate! method of the \lstinline!MonotonicBuffer! class template:
 
-\begin{emcppslisting}[emcppsbatch=e3]
-template <std::size_t N>                                                        
+\begin{emcppslisting}
+template <std::size_t N>
 template <typename T>
 void* MonotonicBuffer<N>::allocate()
 {
@@ -579,7 +551,7 @@ void* MonotonicBuffer<N>::allocate()
     return alignedAddress;                     // Return memory for (ù{\codeincomments{T}}ù) object.
 }
 \end{emcppslisting}
-    
+
 \noindent Using this corrected implementation that uses \lstinline!alignof! to pass
 the alignment of the supplied type \lstinline!T! to the
 \lstinline!calculatePadding! function, the addresses returned from the
@@ -596,18 +568,15 @@ instead be 0, 4, 12, 16, and \lstinline!nullptr!, respectively. If
   thereby improving consistency of behavior, especially on 32-bit
   platforms.}}:
 
-\begin{emcppslisting}[emcppsbatch=e3]
-void test2()
-{
-    MonotonicBuffer<20> mb;  // Assume 64-bit platform (8-byte aligned).
-    char*   cp = static_cast<char*  >(mb.allocate<char  >());  // &d_buffer[ 0]
-    double* dp = static_cast<double*>(mb.allocate<double>());  // &d_buffer[ 8]
-    short*  sp = static_cast<short* >(mb.allocate<short >());  // &d_buffer[16]
-    int*    ip = static_cast<int*   >(mb.allocate<int   >());  // 0 (no space)
-    bool*   bp = static_cast<bool*  >(mb.allocate<bool  >());  // &d_buffer[18]
-}
+\begin{emcppslisting}
+MonotonicBuffer<20> mb;  // Assume 64-bit platform (8-byte aligned).
+char*   cp = static_cast<char*  >(mb.allocate<char  >());  // &d_buffer[ 0]
+double* dp = static_cast<double*>(mb.allocate<double>());  // &d_buffer[ 8]
+short*  sp = static_cast<short* >(mb.allocate<short >());  // &d_buffer[16]
+int*    ip = static_cast<int*   >(mb.allocate<int   >());  // 0 (out of space)
+bool*   bp = static_cast<bool*  >(mb.allocate<bool  >());  // &d_buffer[18]
 \end{emcppslisting}
-    
+
 \noindent In practice, an object that allocates memory, such as a \lstinline!vector!
 or a \lstinline!list!, will be constructed to use an allocator that provides memory that is guaranteed to have either \emcppsgloss{maximal fundamental alignment}, \emcppsgloss{natural alignment}, or alignment that satisfies.
 
@@ -632,18 +601,15 @@ expressions, \lstinline!alignof! is a common GNU extension and most compilers su
 \begin{emcppslisting}
 static_assert(sizeof(int)  == 4, "");     // OK, (ù{\codeincomments{int}}ù) is a type.
 static_assert(alignof(int) == 4, "");     // OK, (ù{\codeincomments{int}}ù) is a type.
-static_assert(sizeof(3 + 2) == 4, "");    // OK, (ù{\codeincomments{3 + 2}}ù) is an expression.           
+static_assert(sizeof(3 + 2) == 4, "");    // OK, (ù{\codeincomments{3 + 2}}ù) is an expression.
 static_assert(alignof(3 + 2) == 4, "");   // Error, (ù{\codeincomments{3 + 2}}ù) is not a type.
 \end{emcppslisting}
-    
+
 \noindent This asymmetry can result in a need to leverage
 \lstinline!decltype! (see \featureref{\locationa}{decltype}) when inspecting an expression instead
 of a type:
 
-\begin{emcppshiddenlisting}[emcppsbatch={e4,e5,e6}]
-#include <iostream>  // (ù{\codeincomments{std::cout}}ù)
-\end{emcppshiddenlisting}
-\begin{emcppslisting}[emcppsbatch=e4]
+\begin{emcppslisting}
 void f()
 {
     enum { e_SUCCESS, e_FAILURE } result;
@@ -651,25 +617,26 @@ void f()
     std::cout << "alignment:" << alignof(decltype(result)) << '\n';
 }
 \end{emcppslisting}
-    
-\noindent The same sort of issue occurs in conjunction with modern \emcppsgloss{type inference} features such as \lstinline!auto! (see \featureref{\locationc}{auto-feature}) and
+
+\noindent The same sort of issue occurs in conjunction with modern \emcppsgloss{type
+inference} features such as \lstinline!auto! (see \featureref{\locationc}{auto-feature}) and
 generic lambdas (see \featureref{\locationd}{genericlambda}). As a real-world example, consider the
 generic lambda (C++14) being used to introduce a small
 \emph{local function} that prints out information regarding the size and
 alignment of a given \lstinline!object!, likely for debugging purposes:
 
-\begin{emcppslisting}[emcppsbatch=e5,emcppsstandards={c++14}]
+\begin{emcppslisting}
 auto printTypeInformation = [](auto object)
 {
     std::cout << "     size: " << sizeof(object) << '\n'
               << "alignment: " << alignof(decltype(object)) << '\n';
 };
 \end{emcppslisting}
-    
+
 \noindent Because there is no explicit type available within the body of the
 \lstinline!printTypeInformation! lambda,{\cprotect\footnote{In C++20, referring to the type of a generic lambda parameter explicitly is possible (due to the addition to lambdas of some familiar template syntax):
 
-\begin{emcppslisting}[emcppsbatch=e6,style=footcode,emcppsstandards={c++20}]
+\begin{emcppslisting}[style=footcode]
 auto printTypeInformation = []<typename T>(T object)
 {
     std::cout << "     size: " << sizeof(T) << '\n'

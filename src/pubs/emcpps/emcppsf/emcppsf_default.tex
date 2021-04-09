@@ -1,4 +1,9 @@
+% copyedits in and proofed
 % 8 Feb 2021 JMB, compilation fixes
+% 9 Feb 2021, FPPs set
+% 17 Feb 2021, glossary tags updated
+% 3 March 2021, proofreading correx in and proofed
+% 20 March 2021, altered appendix title typesetting
 
 \emcppsFeature{
     short={Defaulted Functions},
@@ -12,7 +17,7 @@
 %\section[Defaulted Functions]{Using {\SecCode =default} for Special Member Functions}\label{Defaulted-Special-Member-Functions}\label{defaulted-special-member-functions}
 
 
-Use of \lstinline!=!\,\lstinline!default! in a \emcppsgloss{special member function}'s
+Use of \lstinline!=!\,\lstinline!default! in a \emcppsgloss[special member function]{special member function}'s
 declaration instructs the compiler to attempt to generate the function
 automatically.
 
@@ -27,7 +32,7 @@ an object unless
 developers implement some or all of these functions
 themselves. Determining which of the \emcppsgloss[special member function]{special member functions}
 will continue to be generated and which will be suppressed in the
-presence of \emcppsgloss[user provided special member functions]{user-provided special member functions}
+presence of \emcppsgloss[user provided special member function]{user-provided special member functions}
 requires remembering the numerous rules the compiler uses.
 
 \subsubsection[Declaring a special member function explicitly]{Declaring a special member function explicitly}\label{declaring-a-special-member-function-explicitly}
@@ -45,7 +50,7 @@ corresponding user-provided copy operations. As of C++11, reliance on
 
 Here, we
 will briefly illustrate a few common cases and then refer you to Howard
-Hinnant's now famous table (see page~\pageref{default-table1} of \intrarefnopage{appendix:-implicit-generation-of-special-member-functions})
+Hinnant's now famous table (see page~\pageref{default-table1} of \intrarefdoublenopage{appendix-default}{implicit-generation-of-special-member-functions})
 %{\it\titleref{appendix:-implicit-generation-of-special-member-functions}})
 to
 demystify what's going on under the hood.
@@ -64,7 +69,8 @@ struct S1
 \noindent A user-provided default constructor has no effect on other special
 member functions. Providing any other constructor, however, will
 suppress automatic generation of the default constructor. We can, however, use
-\lstinline!=!\,\lstinline!default! to restore the constructor as a \emcppsgloss{trivial operation}; see \intraref{default-use-cases}{restoring-the-generation-of-a-special-member-function-suppressed-by-another}.
+\lstinline!=!\,\lstinline!default! to restore the constructor as a \emcppsgloss{trivial
+operation}; see \intraref{default-use-cases}{restoring-the-generation-of-a-special-member-function-suppressed-by-another}.
 %{\it\titleref{default-use-cases}: \titleref{restoring-the-generation-of-a-special-member-function-suppressed-by-another}} on page~\pageref{restoring-the-generation-of-a-special-member-function-suppressed-by-another}.
 Note that a nondeclared
 function is nonexistent, which means that it will \emph{not}
@@ -192,7 +198,9 @@ available.
 
 The \lstinline!=!\,\lstinline!default! syntax can also be used after the first
 declaration, but with a distinctly different meaning: The compiler will
-treat the first declaration as a \emcppsgloss[user provided special member function]{user-provided special member function} and thus will suppress the generation of other
+treat the first declaration as a \emcppsgloss[user provided special member
+function]{user-provided special member
+function} and thus will suppress the generation of other
 \emcppsgloss[special member function]{special member functions} accordingly.
 
 \begin{emcppslisting}[language=C++,label=default-exampleh-code]
@@ -286,7 +294,7 @@ public:
 };
 \end{emcppslisting}
 
-\noindent Attempting to compile function \lstinline!f! (from page~\pageref{default-voidf-code}) would now fail on the
+\noindent Attempting to compile function \lstinline!f! would now fail on the
 first line, where it attempts to default-construct the token. Using
 the \lstinline!=!\,\lstinline!default! feature, however, we can reinstate the
 default constructor to work trivially, just as
@@ -551,7 +559,7 @@ struct Metrics
 };
 \end{emcppslisting}
 
-\noindent Now imagine that we would like to add a constructor to this struct to make its use more convenient:
+\noindent Now imagine that we would like to add a constructor to this struct to make its use more convenient:\newpage%%%%%%
 
 \begin{emcppslisting}
 struct Metrics
@@ -565,7 +573,7 @@ struct Metrics
 };
 \end{emcppslisting}
 
-\noindent As illustrated in \intrarefsimple{appendix:-implicit-generation-of-special-member-functions}, the presence of a user-provided constructor suppressed the implicit generation of the default constructor.  Replacing the default constructor with a seemingly equivalent user-provided one might appear to work as intended:
+\noindent As illustrated in \intraref{appendix-default}{implicit-generation-of-special-member-functions}, the presence of a user-provided constructor suppressed the implicit generation of the default constructor.  Replacing the default constructor with a seemingly equivalent user-provided one might appear to work as intended:
 
 \begin{emcppslisting}
 struct Metrics
@@ -599,10 +607,11 @@ struct Metrics
 \subsubsection[Physically decoupling the interface from the implementation]{Physically decoupling the interface from the implementation}\label{physically-decoupling-the-interface-from-the-implementation}
 
 Sometimes, especially during large-scale development, avoiding compile-time coupling clients to the
-implementations of individual methods offers distinct maintenance advantages. Specifying that a special member
+implementations of individual methods offers distinct maintenance advantages.\linebreak\newpage%%%%%%
+Specifying that a special member
 function is defaulted on its first declaration (i.e., in class scope)
 implies that making any change to this implementation will force all
-clients to recompile:
+clients to \mbox{recompile}:
 
 \begin{emcppslisting}
 // smallscale.h:
@@ -613,7 +622,7 @@ struct SmallScale
 };
 \end{emcppslisting}
 
-\noindent The important issue regarding recompilation here is not merely compile time per se but compile-time coupling{\cprotect\footnote{See
+\noindent The important issue regarding recompilation here is not merely compile time per se but compile-time coupling.{\cprotect\footnote{See
   \cite{lakos20}, section 3.10.5, pp.~783--789.}}
 
 Alternatively, we can choose to declare the function but deliberately
@@ -629,7 +638,7 @@ struct LargeScale
 };
 \end{emcppslisting}
 
-\noindent We can then default just the non-inline implementation in a
+\noindent We can then default just the noninline implementation in a
 corresponding{\cprotect\footnote{In practice, every \lstinline!.cpp! file
 (other than the one containing \lstinline!main!) typically has a unique
 associated header (\lstinline!.h!) file and often vice versa  (with the \lstinline!.cpp! and \lstinline!.h! pair of files constituting a component); see \cite{lakos20}, sections 1.6 and 1.11,
@@ -653,7 +662,9 @@ without necessarily forcing our clients to recompile.
 %%%%%%%%%%%%%%%% Moved from Annoyances to Pitfalls
 \subsubsection[Defaulted special member functions cannot restore trivial copyability]{Defaulted special member functions cannot restore trivial copyability}
 
-Library classes often rely on whether the type on which they are operating is eligible for being copied with \lstinline!memcpy! for optimization purposes.  Such could be the case for implementing, say, \lstinline!vector!, which would make a single call to \lstinline!memcpy! when growing its buffer.  For the \lstinline!memcpy! or \lstinline!memmove! to be well-defined, however, the type of the object that is stored in the buffer must be \emcppsgloss{trivially copyable}.  One might assume that this trait means that, as long as the copy constructor of the type is trivial, this optimization will apply.  Defaulting the copy operations would then allow us to achieve this goal, while allowing the type to have a non-trivial destructor or move operation.  Such, however, is not the case.
+Library classes often rely on whether the type on which they are operating is eligible for being copied with \lstinline!memcpy! for optimization purposes.  Such could be the case for implementing, \pagebreak%%%%%
+say, \lstinline!vector!, which would make a single call to \lstinline!memcpy! when growing its buffer.
+For the \lstinline!memcpy! or \lstinline!memmove! to be well-defined, however, the type of the object that is stored in the buffer must be \emcppsgloss{trivially copyable}.  One might assume that this trait means that, as long as the copy constructor of the type is trivial, this optimization will apply.  Defaulting the copy operations would then allow us to achieve this goal, while allowing the type to have a non-trivial destructor or move operation.  Such, however, is not the case.
 
 The requirements for a type to be considered \emcppsgloss{trivially copyable} --- and thus eligible for use with \lstinline!memcpy! --- include triviality of all of its nondeleted copy and move operations as well as of its destructor.  Furthermore, library authors cannot perform fine-grained dispatch based on which operations on the type are in fact trivial.  Even if we detect that the type is trivially copy-constructible with the \lstinline!std::is_trivially_copy_constructible! trait and know that our code would use only copy constructors (and not copy assignment nor any move operations), we still would not be able to use \lstinline!memcpy! unless the more restrictive \lstinline!std::is_trivially_copyable! trait is also \lstinline!true!.
 %%%%%%%%%%%%%%%%
@@ -676,7 +687,7 @@ C++11. It models unique ownership over a dynamically allocated
   to represent ownership transfer between instances:
   %%% question
 
-  \begin{emcppshiddenlisting}[emcppsbatch=e5]
+  \begin{emcppshiddenlisting}[emcppsbatch=e5,style=footcode]
   #include <memory>  // (ù{\codeincomments{std::unique\_ptr}}ù)
   \end{emcppshiddenlisting}
   \begin{emcppslisting}[emcppsbatch=e5,basicstyle={\ttfamily\footnotesize}]
@@ -684,7 +695,7 @@ C++11. It models unique ownership over a dynamically allocated
   std::unique_ptr<int> up(p);                   // OK, take ownership of (ù{\codeincomments{p}}ù).
   std::unique_ptr<int> upCopy = up;             // Error, copy is deleted
   std::unique_ptr<int> upMove = std::move(up);  // OK, transfer ownership.
-  \end{emcppslisting}
+  \end{emcppslisting}\vspace*{-1ex}
       }} data member:
 
 \begin{emcppslisting}
@@ -700,6 +711,7 @@ public:
     Connection(const Connection&) = default;
 };
 \end{emcppslisting}
+\pagebreak%%%%%%%
 
 \noindent Despite the defaulted copy constructor, \lstinline!Connection! will not be
 copy-constructible as\linebreak[4] \lstinline!std::unique_ptr! is a noncopyable type.
@@ -752,7 +764,7 @@ of ongoing software maintenance.
 
 \begin{itemize}
 \item{\seealsoref{deleted-functions}{\seealsolocationa}describes a companion feature, \lstinline!=!\,\lstinline!delete!, that can be used to suppress access to implicitly generated \emcppsgloss[special member function]{special member functions}.}
-\item{\seealsoref{compile-time-assertions-(static_assert)}{\seealsolocationa}describes a facility that can be used to verify at compile time that undesirable copy and move operations are declared to be accessibly.}
+\item{\seealsoref{compile-time-assertions-(static_assert)}{\seealsolocationa}describes a facility that can be used to verify at compile time that undesirable copy and move operations are declared to be accessible.}
 \item{\seealsoref{Rvalue-References}{\seealsolocationc}provides the bases for \emcppsgloss{move operations}, namely, the move-constructor and move-assignment \emcppsgloss[special member function]{special member functions}, which too can be defaulted.}
 \end{itemize}
 
@@ -763,7 +775,9 @@ of ongoing software maintenance.
 \item{Howard Hinnant, ``Everything You Ever Wanted to Know About Move Semantics," \cite{hinnant16}}
 \end{itemize}
 
-\subsection[Appendix: Implicit Generation of Special Member Functions]{Appendix: Implicit Generation of Special Member Functions}\label{appendix:-implicit-generation-of-special-member-functions}
+\subsection[Appendix]{Appendix}\label{appendix-default}
+
+\subsubsection[Implicit Generation of Special Member Functions]{Implicit Generation of Special Member Functions}\label{implicit-generation-of-special-member-functions}
 
 The rules a compiler uses to decide if a special member function
 should be generated implicitly are not entirely intuitive. Howard
@@ -774,10 +788,10 @@ member function and leaves the rest to the compiler. To understand Table~\ref{de
 column, the corresponding row will show what is implicitly generated by
 the compiler.
 
-\begin{table}[h!]  %%% PRODUCTION: REQUIRES REPRINT PERMISSION;
+\begin{table}[h!]  %%% PRODUCTION: REQUIRES REPRINT PERMISSION
 \begin{center}
 \begin{threeparttable}
-\caption{Implicit Generation of Special Member Functions.}\label{default-table1}
+\caption{Implicit generation of special member functions}\label{default-table1}
 {\footnotesize %%% setting smaller to fit
 \begin{tabular}{p{.127\textwidth}|p{.1\textwidth}|p{.11\textwidth}|p{.1\textwidth}|p{.127\textwidth}|p{.1\textwidth}|p{.127\textwidth}}
 \thickhline
@@ -824,10 +838,11 @@ implicitly generated member \mbox{function}.}
 As an example, explicitly declaring a copy-assignment operator
 would result in the default constructor, destructor, and
 copy constructor being defaulted and in the move
-operations not being declared. If more than one \emcppsgloss{special member function} is user declared (regardless of whether or how it is
+operations not being declared. If more than one \emcppsgloss[special member function]{special member
+function} is user declared (regardless of whether or how it is
 implemented), the remaining generated member functions are those in the
 intersection of the corresponding rows. For example, explicitly
-declaring both the destructor and the default constructor would still
+declaring both the~destructor and the default constructor would still
 result in the copy constructor and the copy-assignment operator being
 defaulted and both move operations not being declared. Relying on the
 compiler-generated copy operations when the destructor is anything but

@@ -1,7 +1,8 @@
-% 3 March 2021, to Josh for code check and addition to Annoyances 
+% 3 March 2021, to Josh for code check and addition to Annoyances
+% 6 March 2021, back from Josh
+% 23 March 2021, copyedits in...
 
 
- 
 
 \emcppsFeature{
     short={\lstinline!constexpr! Variables},
@@ -21,7 +22,7 @@ and enabling its use \emph{at compile-time}.
 \subsection[Description]{Description}\label{description}
 
 Variables of \emph{all} built-in types and certain user-defined types,
-collectively known as \emcppsgloss[literal type]{literal types}, may be be declared
+collectively known as \emcppsgloss[literal type]{literal types}, may be declared
 \lstinline!constexpr!, allowing them to be initialized \emph{at
 compile-time} and subsequently used in \emcppsgloss[constant expression]{constant expressions}:
 
@@ -42,7 +43,7 @@ constexpr const char *s2 = "help";  // (ù{\codeincomments{s2}}ù) is a compile-
 
 Although \lstinline!const! integers initialized in the view of the compiler
 can be used within constant expressions --- e.g., as the first argument
-to \lstinline!static_assert!, the size of an array, or as a non-type
+to \lstinline!static_assert!, as the size of an array, or as a non-type
 template parameter --- such is not the case for any other types:
 
 \begin{emcppslisting}[emcppsbatch=e1]
@@ -62,7 +63,7 @@ static_assert(sizeof a == 404, ""); // OK, we are assuming the size of (ù{\code
 std::array<int, s1[1]> f;           // Error, (ù{\codeincomments{s1}}ù) is not (ù{\codeincomments{constexpr}}ù).
 std::array<int, s2[1]> e;           // OK, defines a (ù{\codeincomments{std::array}}ù), (ù{\codeincomments{e}}ù), of 101 integers
 \end{emcppslisting}
-    
+
 \noindent Prior to C++11, the types of variables usable in a \emcppsgloss{constant expression} were quite limited:
 
 \begin{emcppslisting}
@@ -80,8 +81,8 @@ int da2[d];          // Error, (ù{\codeincomments{d}}ù) initializer (still) no
 const int e = 17;    // OK
 int ea[e];           // OK
 \end{emcppslisting}
-    
-\noindent For an \emcppsgloss{integral constant} to be usable at compile time (e.g, as
+
+\noindent For an \emcppsgloss{integral constant} to be usable at compile time (e.g., as
 part of \emcppsgloss{constant expression}), certain requirements must be
 satisfied:
 
@@ -110,12 +111,12 @@ int f() { return 0; }  // (ù{\codeincomments{f()}}ù) is not a compile-time (ù
 constexpr       int x2 = f();  // Error, (ù{\codeincomments{f()}}ù) "    "   "     "     "     "
 constexpr const int x3 = f();  // Error, (ù{\codeincomments{f()}}ù) "    "   "     "     "     "
 \end{emcppslisting}
-    
+
 \noindent As the example code above demonstrates, variables marked
 \lstinline!constexpr! \emph{must} satisfy the same requirements needed for
 integral constants to be usable as \emcppsgloss{constant expression}. Unlike
 other integral constants, their initializers \emph{must} be constant
-expressions or else the program is \emcppsgloss{ill formed}. 
+expressions or else the program is \emcppsgloss{ill formed}.
 
 For a variable of other than \lstinline!const! integral type to be usable
 in a \emcppsgloss{constant expression}, certain criteria must hold:
@@ -129,15 +130,14 @@ struct S  // simple (aggregate) literal type
     int i;  // built-in integer data member
 };
 
-constexpr S s{1};  // OK, literal type initialized via constant expression
-
-s = S();           // Error, (ù{\codeincomments{s}}ù) is implicitly declared (ù{\codeincomments{const}}ù) via (ù{\codeincomments{constexpr}}ù).
-
-static_assert(s.i == 1);  // OK, subobjects of (ù{\codeincomments{constexpr}}ù) objects are (ù{\codeincomments{constexpr}}ù).
-
-constexpr int j = s.i;    // OK, subobjects are usable in (ù{\emphincomments{constant expressions}}ù).
+void test1()
+{
+    constexpr S s{1};       // OK, literal type (ù{\emphincomments{constant expression}}ù) initialized
+    s = S();                // Error, (ù{\codeincomments{constexpr}}ù) implies (ù{\codeincomments{const}}ù).
+    constexpr int j = s.i;  // OK, subobjects are usable in (ù{\emphincomments{constant expressions}}ù).
+}
 \end{emcppslisting}
-    
+
 \noindent In the example above, we have, for expedience of exposition, used brace
 initialization to initialize the aggregate; see \featureref{\locationc}{bracedinit}. Note that subobjects of \lstinline!constexpr! objects
 are also effectively \lstinline!constexpr! and can be used freely in
@@ -155,14 +155,14 @@ constexpr int v2 = 17;   // OK
 constexpr int v3 = g();  // Error, (ù{\codeincomments{g()}}ù) is not (ù{\codeincomments{constexpr}}ù).
 constexpr int v4 = h();  // OK
 
-void func(int c)
+void test2(int c)
 {
     constexpr int v5 = c;          // Error, (ù{\codeincomments{c}}ù) not a compile-time constant.
     constexpr int v6 = sizeof(c);  // OK, (ù{\codeincomments{c}}ù) is not evaluated.
 }
 \end{emcppslisting}
 }
-    
+
 \item{Any variable declared \lstinline!constexpr! must be of \emcppsgloss{literal type}; all literal types are, among other things, \emcppsgloss{trivially destructible}:
 
 \begin{emcppslisting}
@@ -182,7 +182,7 @@ struct Nlt  // (ù{\emphincomments{non}ù)literal type.
 
 constexpr Nlt nlt;  // Error, (ù{\codeincomments{Nlt}}ù) is not a (ù{\emphincomments{literal type}ù).
 \end{emcppslisting}
-    
+
 \noindent Since all \emcppsgloss[literal type]{literal types} are trivially destructible, the
 compiler does not need to emit any special code to manage the end of the
 lifetime of a \lstinline!constexpr! variable, which can essentially live
@@ -192,7 +192,7 @@ destructors for \lstinline!constexpr! variables will be invoked under the
 same conditions that a destructor would be invoked for a
   non\lstinline!constexpr! global or \lstinline!static! variable.}}}
 
-\item{Unlike integral constants, non\lstinline!static! data members cannot be \lstinline!constexpr!. Only variables at global or \lstinline!namespace! scope, automatic variables, or \lstinline!static! data members of a \lstinline!class! or \lstinline!struct! may be declared \lstinline!constexpr!. Consequently, any given \lstinline!constexpr! variable is a top-level object, never a subobject of another (possible non\lstinline!constexpr!) object:
+\item{Unlike integral constants, non\lstinline!static! data members cannot be \lstinline!constexpr!. Only variables at global or \lstinline!namespace! scope, automatic variables, or \lstinline!static! data members of a \lstinline!class! or \lstinline!struct! may be declared \lstinline!constexpr!. Consequently, any given \lstinline!constexpr! variable is a top-level object, never a subobject of another, possibly non\lstinline!constexpr!, object:
 
 \begin{emcppslisting}
                constexpr int i = 17;    // OK, file scope
@@ -210,7 +210,7 @@ void g()
            constexpr int n = 92;  // OK
 };
 \end{emcppslisting}
-    
+
 \noindent Recall, however, that \emcppsgloss[nonstatic data member]{nonstatic data members} of
 \lstinline!constexpr! objects are implicitly \lstinline!constexpr! and
 therefore can be used directly in any \emcppsgloss[constant expression]{constant expressions}:
@@ -228,7 +228,7 @@ It is important to note the significance of one of the
 differences between a \lstinline!constexpr! integral variable and a
 \lstinline!const! integral variable. Because the initializer of a
 \lstinline!constexpr! variable is \emph{required} to be a \emcppsgloss{constant expression}, it is not subject to the possibility of undefined behavior
-(e.g., integer overflow, out-of-bounds array access) at run time and will
+(e.g., integer overflow or out-of-bounds array access) at run time and will
 instead result in a compile-time error:
 
 \begin{emcppslisting}
@@ -244,7 +244,7 @@ constexpr const int jC = iC * iC;  // Error, overflow in constant expression
 constexpr       int iD = 1 << 16;  // Example (ù{\codeincomments{D}}ù) is the same as (ù{\codeincomments{C}}ù), above.
 constexpr       int jD = iD * iD;  // Error, overflow in constant expression
 \end{emcppslisting}
-    
+
 \noindent The code example above shows that an integer constant-expression
 overflow, absent \lstinline!constexpr!, is not required by the C++ Standard
 to be treated as ill formed, whereas the initializer for a
@@ -252,7 +252,7 @@ to be treated as ill formed, whereas the initializer for a
 (not just a warning).
 
 There is a strong association between \lstinline!constexpr! variable and
-functions; see\linebreak[4]%%%%%  
+functions; see\linebreak[4]%%%%%
 \featureref{\locationc}{constexprfunc}. Using a
 \lstinline!constexpr! variable rather than just a \lstinline!const! one forces the
 compiler to detect overflow within the body of \lstinline!constexpr!
@@ -260,15 +260,14 @@ function and report it --- as a compile-time error --- in a way that it
 would not otherwise be authorized to do.
 
 For example, suppose we have two similar functions, \lstinline!squareA! and
-\lstinline!square!, defined for the built-in type (\lstinline!signed!)
-\lstinline!int! that each return the integral product of multiplying the
+\lstinline!square!, defined for the built-in type \lstinline!int! that each return the integral product of multiplying the
 argument with itself:
 
 \begin{emcppslisting}[emcppsbatch=e2]
           int squareA(int i) { return i * i; }  // non-(ù{\codeincomments{constexpr}}ù) function
 constexpr int squareB(int i) { return i * i; }  // (ù{\codeincomments{constexpr}}ù) function
 \end{emcppslisting}
-    
+
 \noindent Declaring a variable to be just \lstinline!const! does nothing to force the
 compiler to check the evaluation of either function for overflow:
 
@@ -285,29 +284,27 @@ constexpr       int yB2 = squareB(1 << 15);  // OK
           const int zC1 = squareB(1 << 16);  // Bug, (ù{\codeincomments{zC1}}ù)  "   "    "
 constexpr       int zC2 = squareB(1 << 16);  // Error, (ù{\codeincomments{int}}ù) overflow detected!
 \end{emcppslisting}
-    
+
 \noindent By declaring a variable to be not just \lstinline!const! but
 \lstinline!constexpr!, we make the compiler evaluate that (necessarily
 \lstinline!constexpr!) function for those specific arguments at compile
-time, and, if there is overflow, immediately report the defect as being
+time and, if there is overflow, immediately report the defect as being
 \emcppsgloss{ill formed}.
 
 \subsubsection[Internal Linkage]{Internal Linkage}
 
-When a variable at file or namespace scope is either \lstinline!const! or \lstinline!constexpr!,
-and nothing explicitly gives it external like (e.g., being marked \lstinline!extern!), it
+When a variable at file or namespace scope is either \lstinline!const! or \lstinline!constexpr! and nothing explicitly gives it external linkage (e.g., being marked \lstinline!extern!), it
 will have \emcppsgloss{internal linkage}.  This means each translation unit will have its own copy of the
 variable.{\cprotect\footnote{In C++17, all \lstinline!constexpr! variables are instead automatically \lstinline!inline! as well,
 guaranteeing that there is only one instance in a program.}}
 
-In general, only the values of such variables are relevant - their initializers are seen, they are utilized
-at compile time, and it has no effect if different translation units use different objects with the same
-value.  Often, after compile time evaluation is completed, the variables themselves will no longer be
-needed and no actual address will be allocated for them at runtime.   Only in cases where the address of
+In general, only the values of such variables are relevant: their initializers are seen, they are used at compile time, and there is no effect if different translation units use different objects having the same
+name and a different value.  Often, after compile-time evaluation is completed, the variables themselves will no longer be
+needed, and no actual address will be allocated for them at run time.   Only in cases where the address of
 the variable is used will this difference be observable.
 
 Notably, \lstinline!static! member variables do not get \emcppsgloss{internal linkage}.  Because of this, if they
-are going to be used in a way that requires they have an address allocated at runtime they need to have a
+are going to be used in a way that requires they have an address allocated at run time, they need to have a
 definition outside of their class; see \intraref{annoyances-constexprvar}{static-member-variables-require-external-definitions}.
 
 \subsection[Use Cases]{Use Cases}\label{use-cases}
@@ -328,13 +325,13 @@ int hoursToSeconds0(int hours)
     return hours * 3600;
 }
 \end{emcppslisting}
-    
+
 \noindent This use of \emph{magic constants} has, however, long been
-known\footnote{\cite{kernighan99}, section~1.5, pp.~19-22} to make finding uses of the constants
+known\footnote{\cite{kernighan99}, section~1.5, pp.~19--22} to make finding uses of the constants
 and the relationships between related ones needlessly difficult. For
 integral values only, we could always represent such compile-time
-constants symbolically by using a classic \lstinline!enum! type (in
-deliberate preference to the modern, type-safe enumerator; see \featureref{\locationc}{enumclass}):
+constants symbolically by using a classic \lstinline!enum! type, in
+deliberate preference to the modern, type-safe enumerator; see \featureref{\locationc}{enumclass}:
 
 \begin{emcppslisting}
 struct TimeRatios1  // explicit scope for single classic anonymous (ù{\codeincomments{enum}}ù) type
@@ -353,8 +350,8 @@ int hoursToSeconds1(int hours)
     return hours * TimeRatios1::k_SECONDS_PER_HOUR;
 }
 \end{emcppslisting}
-    
-\noindent This traditional solution, while often effective, gave little control to
+
+\noindent This traditional solution, while often effective, gives little control to
 the underlying integral type of the enumerator used to represent the
 symbolic compile-time constant, leaving it at the mercy of the totality
 of values used to initialize its members. Such inflexibility might lead
@@ -382,7 +379,7 @@ struct TimeRatios2  // explicit scope for single classic anonymous (ù{\codeinco
     };
 };
 \end{emcppslisting}
-    
+
 \noindent The original \emph{values} will remain unchanged, but the burden of all
 of the warnings resulting from the change in \emcppsgloss[underlying type (UT)]{UT} and rippling throughout a large codebase could be expensive to
 repair.
@@ -407,10 +404,10 @@ struct TimeRatios3  // explicit scope for multiple classic anonymous (ù{\codein
     enum { k_USEC_PER_WEEK = 1000L*1000*60*60*24*7 };  // UT: (ù{\codeincomments{long}}ù)
 };
 \end{emcppslisting}
-    
+
 \noindent In this case, the original values as well as their respective \emcppsgloss[underlying type (UT)]{UTs} will
-remain unchanged and each new enumerated value will independently take
-on its own independent \emcppsgloss[underlying type (UT)]{UT}, which is either implemenation defined or else
+remain unchanged, and each new enumerated value will independently take
+on its own independent \emcppsgloss[underlying type (UT)]{UT}, which is either implementation defined or else
 dictated by the number of bits required to represent the value, which
 is, in this case, non-negative.
 
@@ -444,7 +441,7 @@ long hoursToNanos(int hours)
     return hours * TimeRatios4::k_NANOS_PER_HOUR;
 }
 \end{emcppslisting}
-    
+
 \noindent In the example above, we've rendered the \lstinline!constexpr! variables as
 \lstinline!static! members of a \lstinline!struct! rather than placing them at
 namespace scope primarily to show that, from a user perspective, the two
@@ -453,14 +450,14 @@ being that a client would be prevented from unilaterally adding logical
 content to the ``namespace'' of a \lstinline!TimeRatio!~\lstinline!struct!.
 When it comes to C-style \emcppsgloss[free function]{free functions}, however, the
 advantages for \lstinline!static! members of a struct over namespace scope
-are many and \mbox{unequivocal}.{\cprotect\footnote{\cite{lakos20}, section~2.4.9, pp.~312-321, specifically Figure 2-23}}
+are many and \mbox{unequivocal}.{\cprotect\footnote{\cite{lakos20}, section~2.4.9, pp.~312--321, specifically Figure 2-23}}
 
 \subsubsection[Nonintegral symbolic numeric constants]{Nonintegral symbolic numeric constants}\label{non-integral-symbolic-numeric-constants}
 
-Not all symbolic numeric constants that are needed at compile-time are
+Not all symbolic numeric constants that are needed at compile time are
 necessarily integral. Consider, for example, the mathematical constants
 \lstinline!pi! and \lstinline!e!, which are typically represented as a
-floating point type, such as \lstinline!double! (or
+floating-point type, such as \lstinline!double! (or
 \lstinline!long!~\lstinline!double!).
 
 The classical solution to avoid encoding this type of constant values as
@@ -476,8 +473,8 @@ double areaOfCircle(double radius)
     return 2 * M_PI * radius;
 }
 \end{emcppslisting}
-    
-\noindent While this approach can be effective, it comes with all the well known
+
+\noindent While this approach can be effective, it comes with all the well-known
 downsides of using the C preprocessor. This approach is also fraught
 with risk such that the headers standard on many systems make these
 macros available in C or C++ only upon request by \lstinline!#define!ing
@@ -503,7 +500,7 @@ double areaOfCircle(double radius)
     return 2 * NumericConstants::k_PI * radius;
 }
 \end{emcppslisting}
-    
+
 \noindent In the example above, we have made valuable use of a safe C++14
 feature to help identify the needed precision of the numeric literal;
 see \featureref{\locationb}{digitseparator}. Beyond the potential name
@@ -514,11 +511,11 @@ what are significant will nonetheless be silently ignored.
 
 \subsubsection[Storing \lstinline!constexpr! data structures]{Storing {\SubsubsecCode constexpr} data structures}\label{storing-constexpr-data-structures}
 
-Precomputing values (at compile time) for subsequent use (at run time)
+Precomputing values at compile time for subsequent use at run time
 is one impactful use of \lstinline!constexpr! \emph{functions}, but see \intraref{potential-pitfalls-constexprvar}{constexpr-function-pitfalls}. Storing these values in explicitly
 \lstinline!constexpr! variables ensures that the values are (1) guaranteed
 to be computed at compile time and not, for example, at startup as the
-result of a (dangerous) runtime initialization of a file- or
+result of a dangerous runtime initialization of a file- or
 namespace-scoped variable and (2) usable as part of the evaluation of
 any \emcppsgloss{constant expression}; see \featureref{\locationc}{constexprfunc}.
 
@@ -560,8 +557,8 @@ public:
     }
 };
 \end{emcppslisting}
-    
-\noindent The numerous alternative approaches to writing such data structures,
+
+\noindent The numerous alternative approaches to writing such data structures
 vary in their complexity, trade-offs, and understandability. In this
 case, we default initialize our elements before populating them but do
 not need to rely on any other significant new language infrastructure.
@@ -579,7 +576,7 @@ constexpr ConstexprArray<int, 500> squares(square);
 static_assert(squares[1]   == 1,    "");
 static_assert(squares[289] == 83521,"");
 \end{emcppslisting}
-    
+
 \noindent Note that, as with many applications of \lstinline!constexpr! functions,
 attempting to initialize a large array of \lstinline!constexpr! variables
 will quickly bump up against compiler-imposed template instantiation
@@ -595,13 +592,13 @@ compile time brings the full power of the compiler to bear in addressing
 such undefined behavior.
 
 As an academically interesting example of this eminently practical
-security problem, suppose we want to write a (compile-time) function in
-C++ to compute the \emcppsgloss[collatz length]{Collatz length} of an arbitrary positive
+security problem, suppose we want to write a compile-time function in
+C++ to compute the \emcppsgloss[Collatz length]{Collatz length} of an arbitrary positive
 integer and generate a compilation error if any intermediate calculation
 would result in signed integer overflow.
 
 First let's take a step back now to understand what we are talking about
-here with respect to \emcppsgloss[collatz length]{Collatz length}. Suppose we have a function
+here with respect to \emcppsgloss[Collatz length]{Collatz length}. Suppose we have a function
 \lstinline!cf! that takes a positive \lstinline!int!, \lstinline!n!, and for even
 \lstinline!n! returns \lstinline!n/2! and for odd \lstinline!n! returns
 \lstinline!3n+1!.
@@ -609,19 +606,19 @@ here with respect to \emcppsgloss[collatz length]{Collatz length}. Suppose we ha
 \begin{emcppslisting}
 int cf(int n) { return n % 2 ? 3 * n + 1 : n / 2; }  // Collatz function
 \end{emcppslisting}
-    
-\noindent Given a positive integer, \lstinline!n!, the \emcppsgloss[collatz sequence]{Collatz sequence},
+
+\noindent Given a positive integer, \lstinline!n!, the \emcppsgloss[Collatz sequence]{Collatz sequence},
 \lstinline!cs(n)!, is defined as the sequence of integers generated by
-repeated application of the \emcppsgloss[collatz function]{Collatz function} --- e.g,\linebreak[4]%%%%
+repeated application of the \emcppsgloss[Collatz function]{Collatz function} --- e.g.,\linebreak[4]%%%%
  \lstinline!cs(1)!~\lstinline!=!~\lstinline!{!~\lstinline!4,!~\lstinline!2,!~\lstinline!1,!~\lstinline!4,!~\lstinline!2,!~\lstinline!1,!~\lstinline!4,!~\lstinline!...!~\lstinline!};!,
 \lstinline!cs(3)!~\lstinline!=!~\lstinline!{!~\lstinline!10,!~\lstinline!5,!~\lstinline!16,!~\lstinline!8,!~\lstinline!4,!~\lstinline!2,!~\lstinline!1,!~\lstinline!4,!~\lstinline!...!~\lstinline!}!,
 and so on. A classic (but as yet unproven) conjecture in mathematics
-states that, for every positive integer, $n$, the \emcppsgloss[collatz sequence]{Collatz sequence} for $n$ will eventually reach 1. The \emcppsgloss[collatz length]{Collatz length} of
+states that, for every positive integer, $n$, the \emcppsgloss[Collatz sequence]{Collatz sequence} for $n$ will eventually reach 1. The \emcppsgloss[Collatz length]{Collatz length} of
 the positive integer $n$ is the number of iterations of the
-\emcppsgloss[collatz function]{Collatz function} needed to reach 1, starting from $n$.~Note that
-the \emcppsgloss[collatz sequence]{Collatz sequence} for \lstinline!n!~\lstinline!=!~\lstinline!1! is
+\emcppsgloss[Collatz function]{Collatz function} needed to reach 1, starting from $n$.~Note that
+the \emcppsgloss[Collatz sequence]{Collatz sequence} for \lstinline!n!~\lstinline!=!~\lstinline!1! is
 \lstinline!{!~\lstinline!1,!~\lstinline!1,!~\lstinline!1,!~\lstinline!...!~\lstinline!}!
-and its \emcppsgloss[collatz length]{Collatz length} is 0.
+and its \emcppsgloss[Collatz length]{Collatz length} is 0.
 
 This example showcases the need for a \lstinline!constexpr! variable in
 that we need to create a \emcppsgloss{constexpr context} -- i.e., one
@@ -666,9 +663,9 @@ const int c2 = collatzLength(104899295810901231);
 constexpr int x2 = collatzLength(104899295810901231);
     // Error, overflow in constant evaluation
 \end{emcppslisting}
-    
+
 \noindent In the example above, the variables \lstinline!c1! and \lstinline!x1! can be
-initialized correctly at compile-time, but \lstinline!c2! and \lstinline!x2!
+initialized correctly at compile time, but \lstinline!c2! and \lstinline!x2!
 cannot. The non\lstinline!constexpr! nature of \lstinline!c2! allows the
 overflow to occur and exhibit undefined behavior --- integer overflow
 --- at run time. On the other hand, the variable \lstinline!x2!, due to
@@ -691,12 +688,12 @@ precomputation externally to program, and embed the calculated result
 Python) script that performed the calculation --- into the C++ program
 source itself.
 
-\subsection[Annoyances]{Annoyances}\label{annoyances}
+\subsection[Annoyances]{Annoyances}\label{annoyances-constexprvar}
 
-\subsubsection[\lstinline!static! member variables require external definitions]{{\SubsubsecCode static} member variables require external definitions}
+\subsubsection[\lstinline!static! member variables require external definitions]{{\SubsubsecCode static} member variables require external definitions}\label{static-member-variables-require-external-definitions}
 
-In most stituations there is little behavioral difference between a variable at file or namespace scope and a
-\lstinline!static! member variable - primarily they differ only in name lookup and access control restrictions.
+In most situations there is little behavioral difference between a variable at file or namespace scope and a
+\lstinline!static! member variable; primarily they differ only in name lookup and access control restrictions.
 When they are \lstinline!constexpr!, however, they behave very differently when they need to exist
 at runtime.  A file or namespace scope variable will have \emcppsgloss{internal linkage}, allowing free use
 of its address with the understanding that that address will be different in different translation units:
@@ -733,8 +730,8 @@ int main()
 For \lstinline!static! data members, however, things become more difficult.  While the \emcppsgloss{declaration} in the
 class \emcppsgloss{definition} needs to have an initializer, that is not itself a \emcppsgloss{definition} and will
 not result in static storage being allocated at runtime for the object, ending in a linker error when you try to
-build an application that tries to reference it:{\cprotect\footnote{The C++17 change to make \lstinline!constexpr! variables \lstinline!inline! also applies
-to \lstinline!static! member variables, removing the need to provide external definitions when they are used.}
+build an application that tries to reference it{\cprotect\footnote{The C++17 change to make \lstinline!constexpr! variables \lstinline!inline! also applies
+to \lstinline!static! member variables, removing the need to provide external definitions when they are used.}:
 
 
 \begin{emcppslisting}[emcppsbatch=e4]
@@ -779,7 +776,7 @@ class S
 
 const S S::constVal{};  // OK, initialize static (ù{\codeincomments{const}}ù) member.
 \end{emcppslisting}
-    
+
 \noindent The ``obvious'' workaround of applying a more traditional singleton
 pattern, where the singleton object is a static local variable in a
 function call, also fails (see \featureref{\locationa}{thread-safe-function-static-variables}) because \lstinline!constexpr! functions are not allowed to have
@@ -792,10 +789,10 @@ constexpr const S& singleton()
    return object;
 }
 \end{emcppslisting}
-    
-\noindent The only fully-featured solution available for \lstinline!constexpr!
+
+\noindent The only fully featured solution available for \lstinline!constexpr!
 objects of static storage duration is to put them outside of their type,
-either at global scope, \lstinline!namespace! scope, or nested within a
+either at global scope, at \lstinline!namespace! scope, or nested within a
 befriended helper class{\cprotect\footnote{C++20 provides an alternate
 partial solution with the \lstinline!constinit! keyword, allowing for
 compile-time initialization of static data members, but that still
@@ -814,16 +811,16 @@ struct T
     static constexpr S constexprS{};
 };
 \end{emcppslisting}
-    
+
 
 \subsection[See Also]{See Also}\label{see-also}
 
 \begin{itemize}
 \item{\seealsoref{constexprfunc}{\seealsolocationc}can be used to initialize a \lstinline!constexpr! variable.}
-\item{\seealsoref{userdeflit}{\seealsolocationc}provide a convenient way of initializing a \lstinline!constexpr! variable of a UDT with a compile-time value.}
+\item{\seealsoref{userdeflit}{\seealsolocationc}provides a convenient way of initializing a \lstinline!constexpr! variable of a UDT with a compile-time value.}
 \end{itemize}
 
 \subsection[Further Reading]{Further Reading}\label{further-reading}
 
-TODO
+\hspace*{\fill}
 

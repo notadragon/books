@@ -1,5 +1,7 @@
-
 % 01 Feb, 2021 JMB - packet 4 compilation fixes
+% 25 Feb 2021, updated gloss commands
+% 18 March 2021, revisions in and proofed
+
 
 \emcppsFeature{
     short={\lstinline!extern!~\lstinline!template!},
@@ -50,13 +52,20 @@ subsection, \intrarefnopage{explicit-instantiation-definition}.
 
 \subsubsection[Explicit-instantiation definition]{Explicit-instantiation definition}\label{explicit-instantiation-definition}
 
-The ability to create an \emcppsgloss[explicit instantiation definition]{explicit-instantiation definition} has been available since C++98.{\cprotect\footnote{The
+Creating an \emcppsgloss[explicit instantiation
+definition]{explicit-instantiation
+definition} was possible prior to C++11.{\cprotect\footnote{The
   C++03 Standard term for the syntax used to create an
-  \emcppsgloss[explicit instantiation definition]{explicit-instantiation \emph{definition}}, though rarely used,
-  was \emcppsgloss[explicit instantiation directive]{explicit-instantiation \emph{directive}}. The term
-  \emcppsgloss[explicit instantiation directive]{explicit-instantiation directive} was clarified in
+  \emcppsgloss[explicit instantiation
+definition]{explicit-instantiation \emph{definition}}, though rarely used,
+  was \emcppsgloss[explicit instantiation
+directive]{explicit-instantiation \emph{directive}}. The term
+  \emcppsgloss[explicit instantiation
+directive]{explicit-instantiation directive} was clarified in
   C++11 and can now also refer to syntax that is used to create a
-  \emph{declaration} --- i.e., \emcppsgloss[explicit instantiation declaration]{explicit-instantiation \emph{declaration}}.}} The requisite syntax is to place the keyword
+  \emph{declaration} --- i.e., \emcppsgloss[explicit instantiation
+declaration]{explicit-instantiation
+  \emph{declaration}}.}} The requisite syntax is to place the keyword
 \lstinline!template! in front of the name of the fully specialized class
 template, function template, or --- in C++14 --- variable
 template (see \featureref{\locationb}{variable-templates}):
@@ -69,7 +78,8 @@ template class std::vector<int>;
     // translation unit.
 \end{emcppslisting}
 
-\noindent This \emcppsgloss[explicit instantiation directive]{explicit-instantiation directive} compels the compiler to
+\noindent This \emcppsgloss[explicit instantiation
+directive]{explicit-instantiation directive} compels the compiler to
 instantiate \emph{all} functions defined by the named
 \lstinline!std::vector! class template having the specified \lstinline!int!
 template argument; any collateral object code resulting from these
@@ -80,10 +90,12 @@ for many classes; see \intraref{potential-pitfalls-externtemplate}{accidentally-
 
 \subsubsection[Explicit-instantiation declaration]{Explicit-instantiation declaration}\label{explicit-instantiation-declaration}
 
-C++11 introduced the \emcppsgloss[explicit instantiation declaration]{explicit-instantiation \emph{declaration}},
-complement to the \emcppsgloss[explicit instantiation definition]{explicit-instantiation \emph{definition}}. The
+C++11 introduced the \emcppsgloss[explicit instantiation
+declaration]{explicit-instan\-ti\-ation \emph{declaration}},
+a complement to the \emcppsgloss[explicit instantiation
+definition]{explicit-\linebreak[3]instan\-ti\-ation \emph{definition}}. The
 newly provided syntax allows us to place
-\lstinline!extern!~\lstinline!template! in front of the declaration of the
+\lstinline!extern!~\lstinline!template! in front of the declaration of an
 explicit specialization of a class template, a function template, or a
 variable template: %(see \featureref{\locationb}{variable-templates}):
 
@@ -111,7 +123,7 @@ bodies for that template specialization in the translation unit:
 // client.cpp:
 #include <vector>  // (ù{\codeincomments{std::vector}}ù) (general template)
 
-extern template class std::vector<int>;  // specialization for (ù{\codeincomments{int}}ù) elements
+extern template class std::vector<int>;
 
 void client(std::vector<int>& inOut)  // fully specialized instance of a (ù{\codeincomments{vector}}ù)
 {
@@ -124,15 +136,17 @@ void client(std::vector<int>& inOut)  // fully specialized instance of a (ù{\co
 
 \noindent In the example above, the two tiny member functions of \lstinline!vector!,
 namely \lstinline!size! and \lstinline!operator[]!, will typically be
-substituted inline --- in precisely the same way they would have been
+inlined --- in precisely the same way they would have been
 had the \lstinline!extern!~\lstinline!template! declaration been omitted. The
 \emph{only} purpose of an \lstinline!extern!~\lstinline!template! declaration
 is to suppress object-code generation for this particular template
 instantiation for the current translation unit.
 
-Finally, note that the use of \emcppsgloss[explicit instantiation directive]{explicit-instantiation \emph{directives}} have absolutely no affect on the logical meaning of a
+Finally, note that the use of \emcppsgloss[explicit instantiation
+directive]{explicit-instantiation
+\emph{directives}} has absolutely no effect on the logical meaning of a
 well-formed program; in particular, when applied to specializations of
-function templates, they have no affect whatsoever on overload
+function templates, they have no effect on overload
 resolution:
 
 \begin{emcppslisting}
@@ -141,26 +155,24 @@ template <typename T> bool f(T v) {/*...*/}  // general template definition
 extern template bool f(char c);  // specialization of (ù{\codeincomments{f}}ù) for (ù{\codeincomments{char}}ù)
 extern template bool f(int v);   // specialization of (ù{\codeincomments{f}}ù) for (ù{\codeincomments{int}}ù)
 
-char     c;
-short    s;
-int      i;
-unsigned u;
-
-bool bc = f(c);  // exact match: Object code is suppressed locally.
-bool bs = f(s);  // not exact match: Object code is generated locally.
-bool bi = f(i);  // exact match: Object code is suppressed locally.
-bool bu = f(u);  // not exact match: Object code is generated locally.
+bool bc = f((char)    0);  // exact match: Object code is suppressed locally.
+bool bs = f((short)   0);  // not exact match: Object code is generated locally.
+bool bi = f((int)     0);  // exact match: Object code is suppressed locally.
+bool bu = f((unsigned)0);  // not exact match: Object code is generated locally.
 \end{emcppslisting}
 
 \noindent As the example above illustrates, overload resolution and template
 parameter deduction occur independently of any
-\emcppsgloss[explicit instantiation declaration]{explicit-instantiation declarations}. Only \emph{after}
+\emcppsgloss[explicit instantiation
+declaration]{explicit-instantiation declarations}. Only \emph{after}
 the template to be instantiated is determined does the
 \lstinline!extern!~\lstinline!template! syntax take effect; see also \intraref{potential-pitfalls-externtemplate}{corresponding-explicit-instantiation-declarations-and-definitions}.
 
 \subsubsection[A more complete illustrative example]{A more complete illustrative example}\label{a-more-complete-illustrative-example}
 
-So far, we have seen the use of \emcppsgloss[explicit instantiation declaration]{explicit-instantiation declarations} and \emcppsgloss[explicit instantiation definition]{explicit-instan\-tiation definitions} applied to only a
+So far, we have seen the use of \emcppsgloss[explicit instantiation
+declaration]{explicit-instantiation declarations} and \emcppsgloss[explicit instantiation
+definition]{explicit-instan\-tiation definitions} applied to only a
 (standard) \emph{class} template, \lstinline!std::vector!. The same syntax
 shown in the previous code snippet applies also to full specializations of individual
 function templates and variable templates. % (see \featureref{\locationb}{variable-templates}).
@@ -184,10 +196,10 @@ namespace my  // namespace for all entities defined within this component
 template <typename T>
 class Vector
 {
-    static std::size_t s_count; // track number of objects constructed
-    T* d_data_p;                // pointer to dynamically allocated memory
-    std::size_t d_length;       // current number of elements in the vector
-    std::size_t d_capacity;     // number of elements currently allocated
+    static std::size_t s_count;     // track number of objects constructed
+    T*                 d_data_p;    // pointer to dynamically allocated memory
+    std::size_t        d_length;    // current number of elements in the vector
+    std::size_t        d_capacity;  // number of elements currently allocated
 
 public:
     // ...
@@ -244,7 +256,7 @@ the definition being used winds up getting inlined.
 To eliminate object code for specializations of entities in the
 \lstinline!my_vector! component, we must first decide where the unique
 definitions will go; see \intraref{annoyances-externtemplate}{no-good-place-to-put-definitions-for-unrelated-classes}. In this
-specific case, however, we own the component that requires
+specific case, we own the component that requires
 specialization, and the specialization is for a ubiquitous built-in type;
 hence, the natural place to generate the specialized definitions is in a
 \lstinline!.cpp! file corresponding to the component's header:
@@ -259,13 +271,13 @@ namespace my  // namespace for all entities defined within this component
 {
 
 template class Vector<int>;
-    // Generate object code for all non(ù{\codeincomments{template}}ù) member-function and (ù{\codeincomments{static}}ù)
-    // member-variable definitions of template (ù{\codeincomments{my::Vector}}ù) having (ù{\codeincomments{int}}ù) elements.
+    // Generate object code for all non(ù{\codeincomments{template}}ù) member functions and definitions
+    // of (ù{\codeincomments{static}}ù) data members of template (ù{\codeincomments{my::Vector}}ù) having (ù{\codeincomments{int}}ù) elements.
 
 template std::size_t Vector<double>::length() const;  // BAD IDEA
     // In addition, we could generate object code for just a particular member
     // function definition of (ù{\codeincomments{my::Vector}}ù) (e.g., (ù{\codeincomments{length}}ù)) for some other
-    // parameter type (e.g., (ù{\codeincomments{double}}ù)), which is shown here for pedagogy only.
+    // parameter type (e.g., (ù{\codeincomments{double}}ù)).
 
 template void swap(Vector<int>& lhs, Vector<int>& rhs);
     // Generate object code for the full specialization of the (ù{\codeincomments{swap}}ù) free-
@@ -275,7 +287,7 @@ template const std::size_t vectorSize<int>;  // C++14 variable template
     // Generate the object-code-level definition for the specialization of the
     // C++14 variable template instantiated for built-in type (ù{\codeincomments{int}}ù).
 
-//template std::size_t Vector<int>::s_count = 0;
+template std::size_t Vector<int>::s_count;
     // Generate the object-code-level definition for the specialization of the
     // (ù{\codeincomments{static}}ù) member variable of (ù{\codeincomments{Vector}}ù) instantiated for built-in type (ù{\codeincomments{int}}ù).
 
@@ -284,15 +296,20 @@ template const std::size_t vectorSize<int>;  // C++14 variable template
 
 \noindent Each of the constructs introduced by the keyword \lstinline!template!
 within the \lstinline!my! namespace in the code snippet above represents a
-separate \emcppsgloss[explicit instantiation definition]{explicit-instantiation definition}. These
+separate \emcppsgloss[explicit instantiation
+definition]{explicit-instantiation definition}. These
 constructs instruct the compiler to generate object-level definitions
 for general templates declared in \lstinline!my_vector.h! specialized on
-the built-in type \lstinline!int!.
+the built-in type \lstinline!int!. Explicit instantiation of individual member functions, such as \lstinline!length()! in the example above, is, however, only rarely useful; see \intraref{annoyances-externtemplate}{all-members-of-an-explicitly-defined-template-class-must-be-valid}.
 
-Having installed the necessary \emcppsgloss[explicit instantiation definition]{explicit-instantiation definitions} in the component's \lstinline!my_vector.cpp! file, we
+Having installed the necessary \emcppsgloss[explicit instantiation
+definition]{explicit-instantiation
+definitions} in the component's\linebreak[4]%%%%%
+ \lstinline!my_vector.cpp! file, we
 must now go back to its \lstinline!my_vector.h! file and, without altering
 any of the previously existing lines of code, \emph{add} the
-corresponding \emcppsgloss[explicit instantiation declaration]{explicit-instantiation declarations} to
+corresponding \emcppsgloss[explicit instantiation
+declaration]{explicit-instantiation declarations} to
 suppress redundant local code generation:
 
 \begin{emcppshiddenlisting}[emcppsbatch=e1b]
@@ -310,10 +327,14 @@ namespace my  // namespace for all entities defined within this component
 // ...  everything that was in the original (ù{\codeincomments{my}}ù) namespace
 // ...
 
+                    // -----------------------------------
+                    // Explicit instantiation declarations
+                    // -----------------------------------
+
 extern template class Vector<int>;
     // Suppress object code for this class template specialized for (ù{\codeincomments{int}}ù).
 
-extern template std::size_t Vector<double>::size() const;  // BAD IDEA
+extern template std::size_t Vector<double>::length() const;  // BAD IDEA
     // Suppress object code for this member, only specialized for (ù{\codeincomments{double}}ù).
 
 extern template void swap(Vector<int>& lhs, Vector<int>& rhs);
@@ -331,18 +352,23 @@ extern template std::size_t Vector<int>::s_count;
 \end{emcppslisting}
 
 \noindent Each of the constructs that begin with \lstinline!extern!~\lstinline!template!
-in the example above are \emcppsgloss[explicit instantiation declaration]{explicit-instantiation declarations}, which serve only to suppress the generation of any
+in the example above are \emcppsgloss[explicit instantiation
+declaration]{explicit-instantiation
+declarations}, which serve only to suppress the generation of any
 object code emitted to the \lstinline!.o! file of the current translation
 unit in which such specializations are used. These added
-\lstinline!extern!~\lstinline!template! declarations must appear in the
-\lstinline!my_header.h! source file \emph{after} the declaration of the
+\lstinline!extern!~\lstinline!template! declarations must appear in \lstinline!my_header.h! \emph{after} the declaration of the
 corresponding general template and, importantly, before whatever
 relevant definitions are ever used.
 
 \subsubsection[The effect on various \lstinline!.o! files]{The effect on various {\SubsubsecCode .o} files}\label{the-effect-on-various-.o-files}
 
-To illustrate the effect of \emcppsgloss[explicit instantiation declaration]{explicit-instantiation declarations} and \emcppsgloss[explicit instantiation definition]{explicit-instantiation definitions} on the contents of object and executable files,
-we'll use a simple \lstinline!lib_interval! library \emcppsgloss{component}
+To illustrate the effect of \emcppsgloss[explicit instantiation
+declaration]{explicit-instantiation
+declarations} and \emcppsgloss[explicit instantiation
+definition]{explicit-instantiation
+definitions} on the contents of object and executable files,
+we'll use a simple \lstinline!lib_interval! library \emcppsgloss[components]{component}
 consisting of a header file, \lstinline!lib_interval.h!, and an
 implementation file, \lstinline!lib_interval.cpp!. The latter, apart from
 including its corresponding header, is effectively empty:
@@ -355,7 +381,7 @@ including its corresponding header, is effectively empty:
 namespace lib  // namespace for all entities defined within this component
 {
 
-template <typename T>  // elided sketch of a class template
+template <typename T>  // elided definition of a class template
 class Interval
 {
     T d_low;   // interval's low value
@@ -380,7 +406,7 @@ public:
     // ...
 };
 
-template <typename T>                   // elided sketch of a function template
+template <typename T>                   // elided definition of a function template
 bool intersect(const Interval<T>& i1, const Interval<T>& i2)
     // Determine whether the specified intervals intersect ...
 {
@@ -399,11 +425,8 @@ bool intersect(const Interval<T>& i1, const Interval<T>& i2)
 #include <lib_interval.h>
 \end{emcppslisting}
 
-\noindent This library component defines, in the namespace \lstinline!lib!, a heavily
-elided sketch of an implementation of (1) a class template,
-\lstinline!Interval!, and (2) a function template, \lstinline!intersect!, the
-only practical purpose of which is to provide some sample template
-source code to compile.
+\noindent This library component above defines, in the namespace \lstinline!lib!, an implementation of (1) a class template,
+\lstinline!Interval!, and (2) a function template, \lstinline!intersect!.
 
 Let's also consider a trivial application that uses this library
 \emcppsgloss{component}:
@@ -466,9 +489,9 @@ template, however, was implicitly instantiated for only type
 \lstinline!double!. Note importantly that all of the implicitly
 instantiated functions have the \lstinline!W! symbol type, indicating that
 they are \emph{weak} symbols, which are permitted to be present in
-multiple object files. By contrast, this file defines the strong symbol
-\lstinline!main!, marked here by a \lstinline!T!. Linking this file with any
-other file containing such a symbol would cause the linker to report a
+multiple object files. By contrast, this file also defines the \emph{strong} symbol
+\lstinline!main!, marked here by a \lstinline!T!. Linking \lstinline!app.o! with any
+other object file containing such a symbol would cause the linker to report a
 multiply-defined-symbol error. On the other hand, the
 \lstinline!lib_interval.o! file corresponds to the
 \lstinline!lib_interval! library component, whose \lstinline!.cpp! file
@@ -487,46 +510,47 @@ something more readable like
 \begin{lstlisting}[language=bash]
 $ gcc -o app app.o lib_interval.o
 $ nm -C app
-000000000040056e T lib::Interval<double>::Interval(double const&, double const&)
-00000000004005a2 T lib::Interval<int>::Interval(int const&, int const&)
-00000000004005ce T bool lib::intersect<double>(lib::Interval<double> const&,
+000000000040056e W lib::Interval<double>::Interval(double const&, double const&)
+00000000004005a2 W lib::Interval<int>::Interval(int const&, int const&)
+00000000004005ce W bool lib::intersect<double>(lib::Interval<double> const&,
                                                lib::Interval<double> const&)
 00000000004004b7 T main
 \end{lstlisting}
 
-\noindent As the textual output above confirms, each of the needed \emph{weak}
-template symbols, previously marked with a \lstinline!W!, is bound into the
-final program as a \emph{strong} symbol, now --- like \lstinline!main! ---
-marked with a \lstinline!T!.{\cprotect\footnote{Whether the symbol is
-marked \lstinline!W! or \lstinline!T! in the final executable is
-implementation specific and of no consequence here. We present these
-  concepts in this particular way to aid cognition.}} In this tiny
-illustrative example, only one set of weak symbols appeared in the
-combined \lstinline!.o! files.
+\noindent As the textual output above confirms, the final program contains exactly one copy of each weak symbol. In this tiny illustrative example, these weak symbols have been defined in only a single object file, thus not requiring the linker to select one definition out of many.
+
+%As the textual output above confirms, each of the needed \emph{weak}
+%template symbols, previously marked with a \lstinline!W!, is bound into the
+%final program as a \emph{strong} symbol, now --- like \lstinline!main! ---
+%marked with a \lstinline!T!.{\cprotect\footnote{Whether the symbol is
+%marked \lstinline!W! or \lstinline!T! in the final executable is
+%implementation specific and of no consequence here. We present these
+%  concepts in this particular way to aid cognition.}} In this tiny
+%illustrative example, only one set of weak symbols appeared in the
+%combined \lstinline!.o! files.
 
 More generally, if the application comprises multiple object files, each
 file will potentially contain their own set of weak symbols,
-often leading to duplicate code \emcppsgloss{sections} for implicitly
+often leading to duplicate code \emcppsgloss[section]{sections} for implicitly
 instantiated class, function, and variable
 templates instantiated on the same parameters. When the linker combines
 object files, it will arbitrarily choose at most one of each of these
-respective and hopefully identical weak-symbol \emcppsgloss{sections} to
-include in the final executable, now marked as a strong symbol
-(\lstinline!T!).
+respective and hopefully identical weak-symbol \emcppsgloss[section]{sections} to
+include in the final executable.
 
-Imagine now that our program includes a large number of \lstinline!.o!
-files, many of which make use of our \lstinline!lib_interval! component,
+Imagine now that our program includes a large number of object files, many of which make use of our \lstinline!lib_interval! component,
 particularly to operate on \lstinline!double! intervals. Suppose, for now,
 we decide we would like to suppress the generation of object code for
-templates related to just \lstinline!double! types with the intent of later putting them all in one place, i.e., the currently
+templates related to just \lstinline!double! type with the intent of later putting them all in one place, i.e., the currently
 empty \lstinline!lib_interval.o!. Achieving this objective is precisely what the
 \lstinline!extern!~\lstinline!template! syntax is designed to accomplish.
 
 Returning to our \lstinline!lib_interval.h! file, we need not change one
 line of code; we need only to \emph{add} two
-\emcppsgloss[explicit instantiation declaration]{explicit-instantiation declarations} --- one for the
-template \emph{class}, \lstinline!Interval<double>!, and one for the
-template \emph{function},
+\emcppsgloss[explicit instantiation
+declaration]{explicit-instantiation declarations} --- one for the
+\emph{class} template, \lstinline!Interval<double>!, and one for the
+\emph{function} template,
 \lstinline!intersect<double>(const!~\lstinline!double&,!~\lstinline!const!~\lstinline!double&)!
 --- to the header file anywhere \emph{after} their respective
 corresponding general template declaration and definition:
@@ -558,13 +582,17 @@ bool intersect(const Interval<T>&, const Interval<T>&)
 namespace lib  // namespace for all entities defined within this component
 {
 
-template <typename T>                    // elided sketch of a class template
-class Interval;                          // ...
-    // ...                       (same as before)
+template <typename T>
+class Interval
+{
+   // ...   (same as before)
+};
 
-template <typename T>                    // elided sketch of a function template
-bool intersect(const Interval<T>& i1, const Interval<T>& i2);
+template <typename T>
+bool intersect(const Interval<T>& i1, const Interval<T>& i2)
+{
     // ...                       (same as before)
+}
 
 extern template class Interval<double>;  // explicit-instantiation declaration
 
@@ -594,7 +622,7 @@ lib_interval.o:
 \end{lstlisting}
 
 \noindent Notice that this time some of the symbols --- specifically those
-relating to the \lstinline!class! and \lstinline!function! templates
+relating to the class and function templates
 instantiated for type \lstinline!double! --- have changed from \lstinline!W!,
 indicating a \emph{weak} symbol, to \lstinline!U!, indicating an
 \emph{undefined} one. What this means is that, instead of generating a
@@ -602,7 +630,8 @@ weak symbol for the explicit specializations for \lstinline!double!, the
 compiler left those symbols undefined, as if only the
 \emph{declarations} of the member and free-function templates had been
 available when compiling \lstinline!app.cpp!, yet inlining of the
-instantiated definitions is in no way affected. \emcppsgloss[undefined symbols]{Undefined symbols} are symbols that are expected to be made available to the
+instantiated definitions is in no way affected. \emcppsgloss[undefined symbols]{Undefined
+symbols} are symbols that are expected to be made available to the
 linker from other object files. Attempting to link this application
 expectedly fails because no object files being linked contain the needed
 definitions for those instantiations:
@@ -625,10 +654,12 @@ collect2: error: ld returned 1 exit status
 \noindent To provide the missing definitions, we will need to instantiate them
 explicitly. Since the type for which the class and function are being
 specialized is the ubiquitous built-in type, \lstinline!double!, the ideal
-place to sequester those definitions would be within the \lstinline!.o!
+place to sequester those definitions would be within the object
 file of the \lstinline!lib_interval! library component itself, but see \intraref{annoyances-externtemplate}{no-good-place-to-put-definitions-for-unrelated-classes}. To force the needed
 template definitions into the \lstinline!lib_interval.o! file, we will
-need to pull out our trusty \emcppsgloss[explicit instantiation definition]{explicit-instantiation definition} syntax, i.e., the \lstinline!template! prefix:
+need to use \emcppsgloss[explicit instantiation
+definition]{explicit-instantiation
+definition} syntax, i.e., the \lstinline!template! prefix:
 
 \begin{emcppslisting}[emcppsbatch=e3]
 // lib_interval.cpp:
@@ -664,7 +695,7 @@ lib_interval.o:
                                                lib::Interval<double> const&)
 \end{lstlisting}
 
-\noindent The application \lstinline!.o! file, \lstinline!app.o!, naturally remained
+\noindent The application object file, \lstinline!app.o!, naturally remained
 unchanged. What's new here is that the functions that were missing from
 the \lstinline!app.o! file are now available in the
 \lstinline!lib_interval.o! file, again as \emph{weak} (\lstinline!W!), as
@@ -675,30 +706,31 @@ symbols might all be linked into the resulting executable unless we take
 explicit precautions to exclude those that aren't
 needed{\cprotect\footnote{To avoid including the explicitly generated
 definitions that are being used to resolve undefined symbols, we have
-instructed the linker to remove all unused code \emcppsgloss{sections} from the
+instructed the linker to remove all unused code \emcppsgloss[section]{sections} from the
 executable. The \lstinline!-Wl! option passes comma-separated options to
 the linker. The \lstinline!--gc-sections! option instructs the compiler
 to compile and assemble and instructs the linker to omit individual
-unused \emcppsgloss{sections}, where each section contains, for example, its own
+unused \emcppsgloss[section]{sections}, where each section contains, for example, its own
   instantiation of a function template.}}:
 
 \begin{lstlisting}[language=bash]
 $ gcc -o app app.o lib_interval.o -Wl,--gc-sections
 $ nm -C app
-00000000004005ca T lib::Interval<double>::Interval(double const&, double const&)
-000000000040056e T lib::Interval<int>::Interval(int const&, int const&)
-000000000040063d T bool lib::intersect<double>(lib::Interval<double> const&,
+00000000004005ca W lib::Interval<double>::Interval(double const&, double const&)
+000000000040056e W lib::Interval<int>::Interval(int const&, int const&)
+000000000040063d W bool lib::intersect<double>(lib::Interval<double> const&,
                                                lib::Interval<double> const&)
 00000000004004b7 T main
 \end{lstlisting}
 
-\noindent tl;dr: This \lstinline!extern!~\lstinline!template! feature is provided to
+The \lstinline!extern!~\lstinline!template! feature is provided to
 enable software architects to reduce code bloat in individual
-\lstinline!.o! files for common instantiations of class,
+object files for common instantiations of class,
 function, and, as of C++14, variable templates in
 large-scale C++ software systems. The practical benefit is in reducing
 the physical size of libraries, which \emph{might} lead to improved link
-times. \emcppsgloss[explicit instantiation declaration]{Explicit-instantiation declarations} do \emph{not}
+times. \emcppsgloss[explicit instantiation
+declaration]{Explicit-instantiation declarations} do \emph{not}
 (1) affect the meaning of a program, (2) suppress template
 instantiation, (3) impede the compiler's ability to \lstinline!inline!, or
 (4) meaningfully improve compile time. To be clear, the \emph{only}
@@ -719,7 +751,7 @@ example, consider a fixed-size-array class template,
 separate translation units, in a large-scale \lstinline!game! project for
 both integral and floating-point calculations, primarily with type
 parameters \lstinline!int! and \lstinline!double! and array sizes of either
-\lstinline!2! or \lstinline!3!:
+\lstinline!2! or~\lstinline!3!:
 
 \begin{emcppslisting}[emcppsbatch=e4]
 // game_fixedarray.h:
@@ -727,6 +759,7 @@ parameters \lstinline!int! and \lstinline!double! and array sizes of either
 #define INCLUDED_GAME_FIXEDARRAY
 
 #include <cstddef>  // (ù{\codeincomments{std::size\_t}}ù)
+
 namespace game  // namespace for all entities defined within this component
 {
 
@@ -743,6 +776,7 @@ public:
 
 template <typename T, std::size_t N>
 T dot(const FixedArray<T, N>& a, const FixedArray<T, N>& b) { /*...*/ }
+    // Return the scalar ("dot") product of the specified 'a' and 'b'
 
 // Explicit-instantiation declarations for full template specializations
 // commonly used by the (ù{\codeincomments{game}}ù) project are provided below.
@@ -790,7 +824,7 @@ generation within just the one \lstinline!.o! corresponding to the
 #include <game_fixedarray.h>  // included as first substantive line of code
 
 // Explicit-instantiation definitions for full template specializations
-// commonly used by the (ù{\codeincomments{game}}ù)] project are provided below.
+// commonly used by the (ù{\codeincomments{game}}ù) project are provided below.
 
 template class game::FixedArray<int, 2>;              // class template
 template int game::dot(const FixedArray<int, 2>& a,   // function template
@@ -867,19 +901,19 @@ struct Unit {
 \begin{emcppslisting}[emcppsbatch=e5]
 // app_geometryutil.cpp:
 
-#include <game_fixedarray.h>
-#include <game_unit.h>
+#include <game_fixedarray.h>  // (ù{\codeincomments{game::FixedArray}}ù)
+#include <game_unit.h>        // (ù{\codeincomments{game::Unit}}ù)
 
 using namespace game;
 
-void translate(game::Unit* object, const FixedArray<double, 2>& dst)
+void translate(Unit* object, const FixedArray<double, 2>& dst)
     // Perform precise movement of the object on 2D plane.
 {
     FixedArray<double, 2> objectProjection;
     // ...
 }
 
-void translate(game::Unit* object, const FixedArray<double, 3>& dst)
+void translate(Unit* object, const FixedArray<double, 3>& dst)
     // Perform precise movement of the object in 3D space.
 {
     FixedArray<double, 3> delta;
@@ -904,12 +938,12 @@ bool isOrthogonal(const FixedArray<int, 3>& a1, const FixedArray<int, 3>& a2)
 \begin{emcppslisting}[emcppsbatch=e5]
 // app_physics.cpp:
 
-#include <game_fixedarray.h>
-#include <game_unit.h>
+#include <game_fixedarray.h>  // (ù{\codeincomments{game::FixedArray}}ù)
+#include <game_unit.h>        // (ù{\codeincomments{game::Unit}}ù)
 
 using namespace game;
 
-void collide(game::Unit* objectA, game::Unit* objectB)
+void collide(Unit* objectA, Unit* objectB)
     // Calculate the result of object collision in 3D space.
 {
     FixedArray<double, 3> centerOfMassA = objectA->centerOfMass();
@@ -917,7 +951,7 @@ void collide(game::Unit* objectA, game::Unit* objectB)
     // ..
 }
 
-void accelerate(game::Unit* object, const FixedArray<double, 3>& force)
+void accelerate(Unit* object, const FixedArray<double, 3>& force)
     // Calculate the position after applying a specified force for the
     // duration of a game tick.
 {
@@ -953,7 +987,9 @@ $ nm -C app_physics.o
 0000000000000000 W game::Unit::centerOfMass()
 \end{lstlisting}
 
-\noindent Whether optimization involving \emcppsgloss[explicit instantiation directive]{explicit-instantiation directives} reduces library sizes on disc has no noticeable effect or
+\noindent Whether optimization involving \emcppsgloss[explicit instantiation
+directive]{explicit-instantiation
+directives} reduces library sizes on disc has no noticeable effect or
 actually makes matters worse will depend on the particulars of the
 system at hand. Having this optimization applied to frequently used
 templates across a large organization has been known to decrease object
@@ -961,7 +997,11 @@ file sizes, storage needs, link times, and overall build times, but see \intrare
 
 \subsubsection[Insulating template definitions from clients]{Insulating template definitions from clients}\label{insulating-template-definitions-from-clients}
 
-Even before the introduction of \emcppsgloss[explicit instantiation declaration]{explicit-instantiation \emph{declarations}}, strategic use of \emcppsgloss[explicit instantiation definition]{explicit-instantiation \emph{definitions}} made it possible to \emcppsgloss{insulate} the
+Even before the introduction of \emcppsgloss[explicit instantiation
+declaration]{explicit-instantiation
+\emph{declarations}}, strategic use of \emcppsgloss[explicit instantiation
+definition]{explicit-instantiation
+\emph{definitions}} made it possible to \emcppsgloss{insulate} the
 \emph{definition} of a template from client code, presenting instead
 just a limited set of instantiations against which clients may link.
 Such insulation enables the definition of the template to change without
@@ -973,8 +1013,8 @@ As an example, suppose we have a single free-function template,
 
 \begin{emcppslisting}[emcppsbatch=e6]
 // transform.h:
-#ifndef INCLUDED_TRANSFORM_H
-#define INCLUDED_TRANSFORM_H
+#ifndef INCLUDED_TRANSFORM
+#define INCLUDED_TRANSFORM
 
 template <typename T>  // declaration (only) of free-function template
 T transform(const T& value);
@@ -1008,18 +1048,20 @@ template float transform(const float&);    // Instantiate for type (ù{\codeinco
 template double transform(const double&);  // Instantiate for type (ù{\codeincomments{double}}ù).
 \end{emcppslisting}
 
-\noindent Without the two \emcppsgloss[explicit instantiation definition]{explicit-instantiation definitions} in
+\noindent Without the two \emcppsgloss[explicit instantiation
+definition]{explicit-instantiation definitions} in
 the \lstinline!transform.cpp! file above, its corresponding object file,
 \lstinline!transform.o!, would be empty.
 
 Note that, as of C++11, we \emph{could} place the corresponding
-\emcppsgloss[explicit instantiation definition]{explicit-instantiation definitions} in the header file
+\emcppsgloss[explicit instantiation
+definition]{explicit-instantiation definitions} in the header file
 for, say, documentation purposes:
 
 \begin{emcppslisting}
 // transform.h:
-#ifndef INCLUDED_TRANSFORM_H
-#define INCLUDED_TRANSFORM_H
+#ifndef INCLUDED_TRANSFORM
+#define INCLUDED_TRANSFORM
 
 template <typename T>  // declaration (only) of free-function template
 T transform(const T& value);
@@ -1034,10 +1076,19 @@ extern template double transform(const double&);  // has no effect whatsoever
 
 \noindent But because no definition of the \lstinline!transform! free-function
 template is visible in the header, no \emph{implicit} instantiation can
-result from client use; hence, the two \emcppsgloss[explicit instantiation declaration]{explicit-instantiation declarations} above for \lstinline!float! and \lstinline!double!,
+result from client use; hence, the two \emcppsgloss[explicit instantiation
+declaration]{explicit-instantiation
+declarations} above for \lstinline!float! and \lstinline!double!,
 respectively, do nothing.
 
 \subsection[Potential Pitfalls]{Potential Pitfalls}\label{potential-pitfalls-externtemplate}
+
+%% potentially add to the next edition: from Marshall Clow:
+%Also, in the “Pitfalls” you failed to mention the one that I find the worst:
+%
+%If you explicitly instantiate template definitions in a shared library, you can’t ever change that w/o rebuilding every client of the library.
+%This is especially annoying if you discover that one function is a performance bottleneck, and you would like to inline it.
+%But if you mark it as “inline”, it won’t get placed into the dylib, and then programs that use the dylib and depend on that symbol will fail to load.
 
 \subsubsection[Corresponding explicit-instantiation declarations and definitions]{Corresponding explicit-instantiation declarations and definitions}\label{corresponding-explicit-instantiation-declarations-and-definitions}
 
@@ -1047,9 +1098,13 @@ a well-formed program, several moving parts have to be brought together
 correctly:
 \begin{enumerate}
 \item{Each general template, \lstinline!C<T>!, whose object code bloat is to be optimized must be declared within some designated component’s header file, \lstinline!c.h!.}
-\item{The specific definition of each \lstinline!C<T>! relevant to an explicit specialization being optimized — including general, partial-specialization, and full-specialization definitions — must appear in the header file prior to its corresponding \emcppsgloss[explicit instantiation declaration]{explicit-instantiation declaration}.}
-\item{Each \emcppsgloss[explicit instantiation declaration]{explicit-instantiation declaration} for each specialization of each separate top-level — i.e., class, function, or variable — template must appear in the component’s \lstinline!.h! file \emph{after} the corresponding general template declaration and the relevant general, partial-specialization, or full-specialization definition, but, in practice, always after \emph{all} such definitions, not just the relevant one.}
-\item{Each template specialization having an \emcppsgloss[explicit instantiation declaration]{explicit-instantiation declaration} in the header file must have a corresponding \emcppsgloss[explicit instantiation definition]{explicit-instantiation definition} in the component’s implementation file, \lstinline!c.cpp!.}
+\item{The specific definition of each \lstinline!C<T>! relevant to an explicit specialization being optimized — including general, partial-specialization, and full-specialization definitions — must appear in the header file prior to its corresponding \emcppsgloss[explicit instantiation
+declaration]{explicit-instantiation declaration}.}
+\item{Each \emcppsgloss[explicit instantiation
+declaration]{explicit-instantiation declaration} for each specialization of each separate top-level — i.e., class, function, or variable — template must appear in the component’s \lstinline!.h! file \emph{after} the corresponding general template declaration and the relevant general, partial-specialization, or full-specialization definition, but, in practice, always after \emph{all} such definitions, not just the relevant one.}
+\item{Each template specialization having an \emcppsgloss[explicit instantiation
+declaration]{explicit-instantiation declaration} in the header file must have a corresponding \emcppsgloss[explicit instantiation
+definition]{explicit-instantiation definition} in the component’s implementation file, \lstinline!c.cpp!.}
 \end{enumerate}
 Absent items (1) and (2), clients would have no way to safely separate
 out the usability and inlineability of the template definitions yet
@@ -1065,18 +1120,23 @@ that template will be generated locally in the client's translation unit
 as usual, negating any benefits with respect to local object-code size,
 irrespective of what is specified in the \lstinline!c.cpp! file.
 
-Finally, unless we provide a matching \emcppsgloss[explicit instantiation definition]{explicit-instantiation definition} in the \lstinline!c.cpp! file for each and every
-corresponding \emcppsgloss[explicit instantiation declaration]{explicit-instantiation declaration} in the
+Finally, unless we provide a matching \emcppsgloss[explicit instantiation
+definition]{explicit-instantiation
+definition} in the \lstinline!c.cpp! file for each and every
+corresponding \emcppsgloss[explicit instantiation
+declaration]{explicit-instantiation declaration} in the
 \lstinline!c.h! file as in item (4), our optimization attempts might well
 result in a library component that compiles, links, and even passes some
 unit tests but, when released to our clients, fails to link.
-Additionally, any \emcppsgloss[explicit instantiation definition]{explicit-instantiation definition} in
+Additionally, any \emcppsgloss[explicit instantiation
+definition]{explicit-instantiation definition} in
 the \lstinline!c.cpp! file that is not accompanied by a corresponding
-\emcppsgloss[explicit instantiation declaration]{explicit-instantiation declaration} in the \lstinline!c.h!
+\emcppsgloss[explicit instantiation
+declaration]{explicit-instantiation declaration} in the \lstinline!c.h!
 file will inflate the size of the \lstinline!c.o! file with no possibility
 of reducing code bloat in client code{\cprotect\footnote{Fortunately,
 these extra instantiations do not result in multiply-defined symbols
-because they still reside in their own \emcppsgloss{sections} and are marked
+because they still reside in their own \emcppsgloss[section]{sections} and are marked
   as \emph{weak} symbols.}}:
 
 \begin{emcppslisting}[emcppsbatch=e7]
@@ -1096,8 +1156,8 @@ extern template void f<char>(char c);         // Error, unmatched in (ù{\codein
 // c.cpp:
 #include <c.h>                                 // incorporate own header first
 
-extern template void f<int>(int v);            // OK, matched in (ù{\codeincomments{c.h}}ù)
-extern template void f<double>(double v);      // Bug, unmatched in (ù{\codeincomments{c.h}}ù) file
+template void f<int>(int v);                   // OK, matched in (ù{\codeincomments{c.h}}ù)
+template void f<double>(double v);             // Bug, unmatched in (ù{\codeincomments{c.h}}ù) file
 \end{emcppslisting}
 \vspace*{2ex}   %%%% extra space to highlight different snippets
 \begin{emcppslisting}[emcppsbatch=e7]
@@ -1119,52 +1179,64 @@ void client()
 
 \noindent In the example above, \lstinline!f(i)! works as expected, with the linker
 finding the definition of \lstinline!f<int>! in \lstinline!c.o!; \lstinline!f(c)!
-fails to link, because no definition of \lstinline!f<c>! is guaranteed to
+fails to link, because no definition of \lstinline!f<char>! is guaranteed to
 be found anywhere; and \lstinline!f(d)! accidentally works by silently
 generating a \emph{redundant} local copy of \lstinline!f<double>! in
 \lstinline!client.o! while another, identical definition is generated
 explicitly in \lstinline!c.o!. Importantly, note that
-\lstinline!extern!~\lstinline!template! has \emph{absolutely no affect} on
+\lstinline!extern!~\lstinline!template! has \emph{absolutely no effect} on
 overload resolution because the call to \lstinline!f(c)! did \emph{not}
 resolve to \lstinline!f<int>!.
 
 \subsubsection[Accidentally making matters worse]{Accidentally making matters worse}\label{accidentally-making-matters-worse}
 
-When making the decision to preinstantiate common specializations of
-popular templates within some designated \lstinline!.o! file, one must
-consider that not all programs necessarily need every (or even any) such
-instantiation. Special consideration should be given to classes that
-have many methods but typically use only a few.
+When making the decision to explicitly instantiate common specializations of popular templates
+within some designated object file, one must consider that not all programs necessarily need
+every (or even any) such instantiation. Special consideration should be given to classes that
+have many member functions but typically use only a few.
 
-The language feature is sufficiently flexible that one can suppress and
-preinstantiate just one or a handful of member functions of such a type. Intuition is all well and good, but measurement simply has no
-substitute.
+For such classes, it might be beneficial to explicitly instantiate individual member functions instead of the entire class template.  However, selecting \emph{which} member functions to explicitly instantiate and with \emph{which} template arguments they should be instantiated without carefully measuring the effect on the overall object size might result in not only overall pessimization, but also to an unnecessary maintenance burden. Finally, remember that one
+might need to explicitly tell the linker to strip unused sections resulting, for example, from
+forced instantiation of common template specializations, to avoid inadvertently bloating
+executables, which could adversely affect load times.
 
-If one suspects that \emcppsgloss[explicit instantiation directive]{explicit-instantiation directives}
-might profitably reduce the size of libraries resulting from object code
-that is bloated due to redundant local reinstantiations of popular
-templates on common types, measuring before and after and retaining the
-change \emph{only} if it offers a significant --- at least measurable
---- improvement avoids complicating the codebase without a verifiable
-return on the investment. Finally, remember that one might need to
-explicitly tell the linker to strip unused \emcppsgloss{sections} resulting,
-for example, from forced instantiation of common template
-specializations, to avoid inadvertently bloating executables, which
-could adversely affect load times.
+%When making the decision to preinstantiate common specializations of
+%popular templates within some designated \lstinline!.o! file, one must
+%consider that not all programs necessarily need every (or even any) such
+%instantiation. Special consideration should be given to classes that
+%have many methods but typically use only a few.
+%
+%The language feature is sufficiently flexible that one can suppress and
+%preinstantiate just one or a handful of member functions of such a type. Intuition is all well and good, but measurement simply has no
+%substitute.
+%
+%If one suspects that \emcppsgloss[explicit instantiation
+%directive]{explicit-instantiation directives}
+%might profitably reduce the size of libraries resulting from object code
+%that is bloated due to redundant local reinstantiations of popular
+%templates on common types, measuring before and after and retaining the
+%change \emph{only} if it offers a significant --- at least measurable
+%--- improvement avoids complicating the codebase without a verifiable
+%return on the investment. Finally, remember that one might need to
+%explicitly tell the linker to strip unused \emcppsgloss[section]{sections} resulting,
+%for example, from forced instantiation of common template
+%specializations, to avoid inadvertently bloating executables, which
+%could adversely affect load times.
 
 \subsection[Annoyances]{Annoyances}\label{annoyances-externtemplate}
 
 \subsubsection[No good place to put definitions for unrelated classes]{No good place to put definitions for unrelated classes}\label{no-good-place-to-put-definitions-for-unrelated-classes}
 
+%%% PRODUCTION: John may want to add a citation to the "note that" footnote below, if he can find the relevant material.
 When we consider the implications of physical
 dependency,\footnote{See \cite{lakos96}}\footnote{See \cite{lakos20}} determining in which component to deposit the
 specialized definitions can be problematic. For example, consider a
 codebase implementing a core library that provides both a nontemplated
 \lstinline!String! class and a \lstinline!Vector! container class template.
 These fundamentally unrelated entities would ideally live in separate
-physical \emcppsgloss{components} --- i.e., \lstinline!.h!/\lstinline!.cpp! pairs
+physical \emcppsgloss[component]{components} --- i.e., \lstinline!.h!/\lstinline!.cpp! pairs
 --- neither of which depends physically on the other. That is, an
-application using just one of these components could ideally be
+application using just one of these components could be
 compiled, linked, tested, and deployed entirely independently of the
 other. Now, consider a large codebase that makes heavy use of
 \lstinline!Vector<String>!: In what component should the object-code-level
@@ -1172,11 +1244,14 @@ definitions for the \lstinline!Vector<String>! specialization
 reside?{\cprotect\footnote{Note that the problem of determining in which
 component to instantiate the object-level implementation of a template
 for a user-defined type is similar to that of specializing an
-  arbitrary user-defined trait for a user-defined type.}} There are two
+  arbitrary user-defined trait for a user-defined type. JOHN: ADD LAKOS20 CITATION HERE. %  <!-- TODO: LAH: Add this footnote citation during revisions when/if John finds what he is seeking. "; see [lakos20]{.citation}, section x.y.z, pp. xxx-yyy, especially footnote nn, p. zzz." <!-- JLakos: I looked for this, I know we have two paragraphs on it, but I just cannot find it WE NEED TO FIND IT DARN INT!  IT'S A GOOD FOOTNOTE. STILL TBD JSL 201205_1827-->
+  }} There are two
 obvious alternatives:
 \begin{enumerate}
-\item{\lstinline!vector!: In this case, \lstinline!vector.h! would hold  \lstinline!extern!~\lstinline!template!~\lstinline!class!~\lstinline!Vector<String>;! --- the \emcppsgloss[explicit instantiation declaration]{explicit-instantiation \emph{declaration}} --- and \lstinline!vector.cpp! would hold\linebreak[4]%%%%%
-\lstinline!template!~\lstinline!class!~\lstinline!Vector<String>;! --- the \emcppsgloss[explicit instantiation definition]{explicit-instantiation \emph{definition}}. With this approach, we would create a physical dependency of the \lstinline!vector! component on \lstinline!string!. Any client program wanting to use a \lstinline!Vector! would also depend on \lstinline!string! regardless of whether it was needed.}
+\item{\lstinline!vector!: In this case, \lstinline!vector.h! would hold  \lstinline!extern!~\lstinline!template!~\lstinline!class!~\lstinline!Vector<String>;! --- the \emcppsgloss[explicit instantiation
+declaration]{explicit-instantiation \emph{declaration}} --- and \lstinline!vector.cpp! would hold\linebreak[4]%%%%%
+\lstinline!template!~\lstinline!class!~\lstinline!Vector<String>;! --- the \emcppsgloss[explicit instantiation
+definition]{explicit-instantiation \emph{definition}}. With this approach, we would create a physical dependency of the \lstinline!vector! component on \lstinline!string!. Any client program wanting to use a \lstinline!Vector! would also depend on \lstinline!string! regardless of whether it was needed.}
 \item{\lstinline!string!: In this case, \lstinline!string.h! and \lstinline!string.cpp! would instead be modified so as to depend on \lstinline!vector!. Clients wanting to use a \lstinline!string! would also be forced to depend physically on \lstinline!vector! \emph{at} \emph{compile} \emph{time}.}
 \end{enumerate}
 Another possibility might be to create a third component, call it
@@ -1187,7 +1262,7 @@ to a higher level in the physical hierarchy, we avoid forcing any client
 to depend on more than what is actually needed. The practical drawback
 to this approach is that only those clients that proactively include the
 composite \lstinline!stringvector.h! header would realize any benefit;
-fortunately, in this case, there is no \emcppsgloss[one definition rule]{one-definition rule (ODR)} issue if they don't.
+fortunately, in this case, there is no \emcppsgloss{one-definition rule (ODR)} violation if they don't.
 
 Finally, complex machinery could be added to both \lstinline!string.h! and
 \lstinline!vector.h! to conditionally include \lstinline!stringvector.h!
@@ -1198,18 +1273,19 @@ are best avoided.\footnote{\cite{lakos20}, section~3.4, ``Avoiding Cyclic Link-T
 
 \subsubsection[All members of an explicitly defined template class must be valid]{All members of an explicitly defined template class must be valid}\label{all-members-of-an-explicitly-defined-template-class-must-be-valid}
 
-In general, when using a template class, only those members that are
+In general, when using a class template, only those members that are
 actually used get implicitly instantiated. This hallmark allows class
 templates to provide functionality for parameter types having certain
 capabilities (e.g., default constructible) while also providing partial
 support for types lacking those same capabilities. When providing an
-\emcppsgloss[explicit instantiation definition]{explicit-instantiation definition}, however, \emph{all}
-members of a template class are instantiated.
+\emcppsgloss[explicit instantiation
+definition]{explicit-instantiation definition}, however, \emph{all}
+members of a class template are instantiated.
 
 Consider a simple class template having a data member that can be either
-default-initialized (via the template's default constructor) or
-initialized with an instance of the member's type (supplied at
-construction):
+default-initialized via the template's default constructor or
+initialized with an instance of the member's type supplied at
+construction:
 
 \begin{emcppslisting}[emcppsbatch=e8]
 template <typename T>
@@ -1234,7 +1310,7 @@ public:
 \begin{emcppslisting}[emcppsbatch=e8]
 struct U
 {
-    U(int i) { /* do something with (ù{\codeincomments{i}}ù) */ }
+    U(int i) { /* construct from (ù{\codeincomments{i}}ù) */ }
     // ...
 };
 
@@ -1247,9 +1323,11 @@ void useWU()
 
 \noindent As it stands, the code above is well formed even though
 \lstinline!W<U>::W()! would fail to compile if instantiated. Consequently,
-although providing an \emcppsgloss[explicit instantiation declaration]{explicit-instantiation declaration}
+although providing an \emcppsgloss[explicit instantiation
+declaration]{explicit-instantiation declaration}
 for \lstinline!W<U>! is valid, a corresponding
-\emcppsgloss[explicit instantiation definition]{explicit-instantiation definition} for \lstinline!W<U>!
+\emcppsgloss[explicit instantiation
+definition]{explicit-instantiation definition} for \lstinline!W<U>!
 fails to compile, as would an implicit instantiation of
 \lstinline!W<U>::W()!:
 
@@ -1260,12 +1338,14 @@ template class W<U>;         // Error, (ù{\codeincomments{U::U()}}ù) not avail
 
 void useWU0()
 {
-    W<U> wu0{};       // Error, (ù{\codeincomments{U::U()}}ù) not available for (ù{\codeincomments{W<U>::W()}}ù)
+    W<U> wu0;       // Error, (ù{\codeincomments{U::U()}}ù) not available for (ù{\codeincomments{W<U>::W()}}ù)
 }
 \end{emcppslisting}
 
 \noindent Unfortunately, the only workaround to achieve a comparable reduction in
-code bloat is to provide member-specific \emcppsgloss[explicit instantiation directive]{explicit-instantiation directives} for each valid member of \lstinline!W<U>!, an approach
+code bloat is to provide \emcppsgloss[explicit instantiation
+directive]{explicit-instantiation
+directives} for each valid member function of \lstinline!W<U>!, an approach
 that would likely carry a significantly greater maintenance burden:
 
 \begin{emcppslisting}[emcppsbatch=e8]
@@ -1284,7 +1364,7 @@ are there nonetheless.
 \subsection[See Also]{See Also}\label{see-also}
 
 \begin{itemize}
-\item{\seealsoref{variable-templates}{\locationb}Extension of the template syntax for defining a family of like-named variables or static data members that can be instantiated explicitly}
+\item{\seealsoref{variable-templates}{\seealsolocationb}Extension of the template syntax for defining a family of like-named variables or static data members that can be instantiated explicitly}
 \end{itemize}
 
 \subsection[Further Reading]{Further Reading}\label{further-reading}

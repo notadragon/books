@@ -1,11 +1,12 @@
 % 13 Jan: copyedits in and proofed
 %% 27 Jan, code checked and replaced as needed by Josh
+% 22 March 2021, in FPPs
 
 
 \emcppsFeature{
     short={\lstinline!override!},
     tocshort={\TOCCode override},
-    long={The {\tt override} Member-Function Specifier},
+    long={The {\SecCode override} Member-Function Specifier},
     rhshort={\RHCode override},
 }{override}
 %\section[{\tt override}]{The {\SecCode override} Member-Function Specifier\sectionmark{\RHCode override}}\label{override}\sectionmark{\RHCode override}
@@ -18,6 +19,7 @@ The \lstinline!override! keyword ensures that a member function overrides a corr
 
 \subsection[Description]{Description}\label{description}
 
+\enlargethispage*{-3ex}
 The \emcppsgloss{contextual keyword} \lstinline!override! can be provided at the
 end of a member-function declaration to ensure that the decorated
 function is indeed \emph{overriding} a corresponding \lstinline!virtual!
@@ -93,8 +95,6 @@ As noted, \lstinline!override! is a contextual keyword. C++11 introduces keyword
 
 %%%%%%%% EXCEPTION! override here should NOT be bold
 \begin{emcppslisting}
-int (ù{\ttfamily{override}}ù) = 1;  // OK
-int (ù{override}ù) = 1;  // OK
 int override = 1;  // OK
 \end{emcppslisting}
 
@@ -144,6 +144,7 @@ struct ErrorCategory
 };
 \end{emcppslisting}
 
+\newpage%%%%%%
 Without applying the corresponding modification to all classes deriving
 from\linebreak[4] \lstinline!ErrorCategory!, the semantics of the program change due to
 the derived classes now hiding
@@ -191,6 +192,7 @@ was used but might fail even to warn where it is not.
 
 \hspace*{\fill}
 
+\newpage%%%%%
 \subsection[Further Reading]{Further Reading}\label{further-reading}
 
 \begin{itemize}

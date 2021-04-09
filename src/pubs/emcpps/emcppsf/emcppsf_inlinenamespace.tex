@@ -66,15 +66,15 @@ namespace n
     // using namespace v2;  // redundant when used with an (ù{\codeincomments{inline namespace}}ù)
 }
 \end{emcppslisting}
-    
- 
+
+
 %%%%% because the long list of code terms in the FN below cause a persistent end-of-line error, those long lists are being set as a command:
 %\newcommand{inlinelonglistone}{\lstinline!namespace!~\lstinline!n!~\lstinline!{!~\lstinline!inline!~\lstinline!namespace~\lstinline!v!~\lstinline!{!~\lstinline!int!~\lstinline!d;!~\lstinline!}!~\lstinline!}!}
 %\newcommand{inlinelonglisttwo}{\lstinline!namespace!~\lstinline!n!~\lstinline!{!~\lstinline!namespace}!~\lstinline!v!~\lstinline!{!~\lstinline!int!~\lstinline!d;!~\lstinline!}!~\lstinline!using!~\lstinline!namespace!~\lstinline!v;!~\lstinline!}! }
 \noindent Four subtle details distinguish these approaches:
 \begin{enumerate}
 \item{Name collisions with existing names behave differently due to differing name-lookup rules.}
-\item{\emcppsgloss[argument dependent lookup]{Argument-dependent lookup} (ADL) gives special treatment to \lstinline!inline! namespaces.}
+\item{\emcppsgloss[argument-dependent lookup (ADL)]{Argument-dependent lookup (ADL)} gives special treatment to \lstinline!inline! namespaces.}
 \item{Template specializations can refer to the primary template in an \lstinline!inline! namespace even if written in the enclosing namespace.}
 \item{Reopening namespaces might reopen an \lstinline!inline! namespace.}
 \end{enumerate}
@@ -85,40 +85,14 @@ that (1) nested symbolic names (e.g., \lstinline!n::v1::T!) at the
 \lstinline!_ZN1n2v11dE!, \lstinline!_ZN1n2v21dE!), and (3) assigned
 relocatable addresses (e.g., \lstinline!0x01a64e90!, \lstinline!0x01a64e94!)
 at the \emcppsgloss{ABI} level remain unaffected by the use of either
-\lstinline!inline! or \lstinline!using! or both.{\cprotect\footnote{Compiling
-source files containing, alternately, 
-\lstinline!namespace!~\lstinline!n!~\lstinline!{!~\lstinline!inline!~\lstinline!namespace!~\lstinline!v!~\lstinline!{!~\lstinline!int!~\lstinline!d;!~\lstinline!}!~\lstinline!}! 
-and\linebreak[4]%%%%%% 
-\lstinline!namespace!~\lstinline!n!~\lstinline!{!~\lstinline!namespace!~\lstinline!v!~\lstinline!{!~\lstinline!int!~\lstinline!d;!~\lstinline!}!~\lstinline!using!~\lstinline!namespace!~\lstinline!v;!~\lstinline!}!, will produce identical assembly. This can be seen with GCC by running \lstinline!g++!~\lstinline!-S!~\lstinline!<file>.cpp! and viewing the contents of the generated \lstinline!<file>.s!. Note that Compiler Explorer is another valuable tool for learning about what comes out the other end of a C++ compiler: see https://godbolt.org/.}} Note that a \lstinline!using! directive immediately following an \lstinline!inline!
+\lstinline!inline! or \lstinline!using! or both. To be precise, source files containing, alternately, \lstinline!namespace!~\lstinline!n!~\lstinline!{!~\lstinline!inline!~\lstinline!namespace!~\lstinline!v!~\lstinline!{!~\lstinline!int!~\lstinline!d;!~\lstinline!}!~\lstinline!}!
+and
+\lstinline!namespace!~\lstinline!n!~\lstinline!{!~\lstinline!namespace!~\lstinline!v!~\lstinline!{!~\lstinline!int!~\lstinline!d;!~\lstinline!}!~\lstinline!using!~\lstinline!namespace!~\lstinline!v;!~\lstinline!}!, will produce identical assembly.{\cprotect\footnote{These mangled names can be seen with GCC by running \lstinline!g++!~\lstinline!-S!~\lstinline!<file>.cpp! and viewing the contents of the generated \lstinline!<file>.s!. Note that Compiler Explorer is another valuable tool for learning about what comes out the other end of a C++ compiler: see https://godbolt.org/.}} Note that a \lstinline!using! directive immediately following an \lstinline!inline!
 namespace is superfluous; name lookup will always consider names in
 \lstinline!inline! namespaces before those imported by a \lstinline!using!
 directive. Such a directive can, however, be used to import the contents
 of an \lstinline!inline! namespace to some other namespace, albeit only in
-the conventional, \emcppsgloss[using directive]{\lstinline!using! directive} sense; see \intraref{annoyances-inlinenamespace}{only-one-namespace-can-contain-any-given-inline-namespace}. 
-
-%%%%%%%%%% code for FN
-%\begin{emcppslisting}[style=footcode]
-%namespace n { inline namespace v { int d; } }
-%\end{emcppslisting}
-%
-%and 
-%
-%\begin{emcppslisting}[style=footcode]
-%namespace n { namespace} v { int! d; } using namespace v; }
-%\end{emcppslisting}
-%%%%%%%%%%%% Previous code in FN
-%\texttt{namespace}~\texttt{n}~\texttt{\{}~\texttt{inline}~\texttt{namespace}~\texttt{v}~\texttt{\{}~\texttt{int}~\texttt{d;}~\texttt{\}}~\texttt{\}} and\linebreak[4]%%%%%% 
-%\texttt{namespace}~\texttt{n}~\texttt{\{}~\texttt{namespace\}}~\texttt{v}~\texttt{\{}~\texttt{int}~\texttt{d;}~\texttt{\}}~\texttt{using}~
-%\texttt{namespace}~\texttt{v;}~
-%\texttt{\}},
-%
-%\lstinline!namespace!~\lstinline!n!~\lstinline!{!~\lstinline!inline!~\lstinline!namespace!~\lstinline!v!~\lstinline!{!~\lstinline!int!~\lstinline!d;!~\lstinline!}!~\lstinline!}! 
-%and\linebreak[4]%%%%%% 
-%\lstinline!namespace!~\lstinline!n!~\lstinline!{!~\lstinline!namespace}!~\lstinline!v!~\lstinline!{!~\lstinline!int!~\lstinline!d;!~\lstinline!}!~\lstinline!using!~\lstinline!namespace!~\lstinline!v;!~\lstinline!}!,
-% 
-%
-%%%%%%%%%%%% Previous xref
-%\textit{\titleref{annoyances-inlinenamespace}: \titleref{only-one-namespace-can-contain-any-given-inline-namespace}} on page~\pageref{only-one-namespace-can-contain-any-given-inline-namespace}.
+the conventional, \emcppsgloss[using directive]{\lstinline!using! directive} sense; see \intraref{annoyances-inlinenamespace}{only-one-namespace-can-contain-any-given-inline-namespace}.
 
 More generally, each namespace has what is called its
 \emph{\lstinline!inline! namespace set}, which is the transitive closure of
@@ -134,9 +108,7 @@ namespace.
 When both a type and a variable are declared with the same name in the
 same scope, the variable name hides the type name --- such behavior can
 be demonstrated by using the form of \lstinline!sizeof! that accepts a
-nonparenthesized \emph{expression}{\cprotect\footnote{The form of
-\lstinline!sizeof! that accepts a \emph{type} as its argument
-  specifically requires parentheses.}}:
+nonparenthesized \emph{expression} (recall that the form of \lstinline!sizeof! that accepts a \emph{type} as its argument requires parentheses):
 
 \begin{emcppslisting}
 struct A { double d; };  static_assert(sizeof(  A) == 8, "");  // type
@@ -145,7 +117,7 @@ struct A { double d; };  static_assert(sizeof(  A) == 8, "");  // type
 int A;                   static_assert(sizeof(  A) == 4, "");  // data
                          static_assert(sizeof   A  == 4, "");  // OK
 \end{emcppslisting}
-    
+
 \noindent Unless both type and variable entities are declared within the same
 scope, no preference is given to variable names; the name of an entity
 in an inner scope hides a like-named entity in an enclosing scope:
@@ -159,7 +131,7 @@ void f()
     }                         static_assert(sizeof(B) == 8, "");  // variable
 }
 \end{emcppslisting}
-    
+
 \noindent When an entity is declared in an enclosing \lstinline!namespace! and
 another entity having the same name hides it in a \emph{lexically}
 nested scope, then (apart from \lstinline!inline! namespaces) access to a
@@ -174,7 +146,7 @@ void g()
                          static_assert(sizeof(::C) == 8, "");  // type
 }                        static_assert(sizeof(  C) == 8, "");  // type
 \end{emcppslisting}
-    
+
 \noindent A conventional nested namespace behaves as one might expect:
 
 \begin{emcppslisting}
@@ -193,11 +165,11 @@ namespace outer
                             static_assert(sizeof(outer::D) == 8, ""); // type
 }                           static_assert(sizeof(outer::D) == 8, ""); // type
 \end{emcppslisting}
-    
+
 \noindent In the example above, the inner variable name, \lstinline!D!, hides the
 outer type with the same name, starting from the point of \lstinline!D!'s
 declaration in \lstinline!inner! until \lstinline!inner! is closed, after
-which the unqualified name \lstinline!D! reverts back to the type in the
+which the unqualified name \lstinline!D! reverts to the type in the
 \lstinline!outer! namespace. Then, right after the subsequent
 \lstinline!using!~\lstinline!namespace!~\lstinline!inner;! directive, the meaning
 of the unqualified name \lstinline!D! in \lstinline!outer! becomes ambiguous,
@@ -214,18 +186,18 @@ followed by a \mbox{\lstinline!using!} directive, however, the ability to recove
 by name the hidden entity in the enclosing namespace is lost.
 Unqualified name lookup considers the inline namespace set and the used
 namespace set simultaneously. Qualified name lookup first considers the
-\lstinline!inline! namespace set, and \emph{then} goes on to look into used
+\lstinline!inline! namespace set and \emph{then} goes on to look into used
 namespaces. This means we can still refer to \lstinline!outer::D! in the
 example above, but doing so would still be ambiguous if \lstinline!inner!
 were an inline namespace. This subtle difference in behavior is a
 byproduct of the highly specific use case that motivated this feature
-and for which it was explicitly designed; see \intraref{use-cases-inlinenamespace}{link-safe-abi-versioning}. 
+and for which it was explicitly designed; see \intraref{use-cases-inlinenamespace}{link-safe-abi-versioning}.
 %\textit{\titleref{use-cases-inlinenamespace}: \titleref{link-safe-abi-versioning}} on page~\pageref{link-safe-abi-versioning}.
 
 \subsubsection[Argument-dependent–lookup interoperability across \lstinline!inline! \lstinline!namespace! boundaries]{Argument-dependent–lookup interoperability across\\[0.5ex] {\SubsubsecCode inline} {\SubsubsecCode namespace} boundaries}\label{argument-dependent–lookup-interoperability-across-inline-namespace-boundaries}
 
 Another important aspect of \lstinline!inline! namespaces is that they
-allow \emcppsgloss{ADL} to work seamlessly across \lstinline!inline! namespace
+allow \emcppsgloss[argument-dependent lookup (ADL)]{ADL} to work seamlessly across \lstinline!inline! namespace
 boundaries. Whenever unqualified function names are being resolved, a
 list of \emph{associated namespaces} is built for each argument of the
 function. This list of associated namespaces comprises the namespace of the
@@ -262,25 +234,25 @@ void client()
     g(outer::inner::V());  // Error, (ù{\codeincomments{g}}ù) is not declared in this scope.
 }
 \end{emcppslisting}
-    
+
 \noindent In the example above, a \lstinline!client! invoking \lstinline!f! with an
 object of type \lstinline!outer::U! fails to compile because
 \lstinline!f(outer::U)! is declared in the nested \lstinline!inner! namespace,
 which is not the same as declaring it in \lstinline!outer!. Because
-\emcppsgloss{ADL} does not look into namespaces added with the \lstinline!using!
-directive, \emcppsgloss{ADL} does not find the needed
+\emcppsgloss[argument-dependent lookup (ADL)]{ADL} does not look into namespaces added with the \lstinline!using!
+directive, \emcppsgloss[argument-dependent lookup (ADL)]{ADL} does not find the needed
 \lstinline!outer::inner::f! function. Similarly, the type \lstinline!V!,
 defined in namespace \lstinline!outer::inner!, is not declared in the same
 namespace as the function \lstinline!g! that operates on it. Hence, when
 \lstinline!g! is invoked from within \lstinline!client! on an object of type
-\lstinline!outer::inner::V!, \emcppsgloss{ADL} again does not find the needed
+\lstinline!outer::inner::V!, \emcppsgloss[argument-dependent lookup (ADL)]{ADL} again does not find the needed
 function \lstinline!outer::g(outer::V)!.
 
 Simply making the \lstinline!inner! namespace \lstinline!inline! solves both
-of these \emcppsgloss{ADL}-related problems. All transitively nested
+of these \emcppsgloss[argument-dependent lookup (ADL)]{ADL}-related problems. All transitively nested
 \lstinline!inline! namespaces --- up to and including the most proximate
 non-\lstinline!inline! enclosing namespace --- are treated as one with
-respect to \emcppsgloss{ADL}.
+respect to \emcppsgloss[argument-dependent lookup (ADL)]{ADL}.
 
 \subsubsection[The ability to specialize templates declared in a nested \lstinline!inline! namespace]{The ability to specialize templates declared in a nested {\SubsubsecCode inline} namespace}\label{the-ability-to-specialize-templates-declared-in-a-nested-inline-namespace}
 
@@ -318,7 +290,7 @@ using namespace out;               // conventional using directive
 template <>
 struct S<int> { };                 // Error, cannot specialize from this scope
 \end{emcppslisting}
-    
+
 \noindent Note that the conventional nested namespace \lstinline!out! followed by a
 \lstinline!using! directive in the enclosing namespace does not admit
 specialization from that outermost namespace, whereas all of the
@@ -347,7 +319,7 @@ namespace out                      // proximate non-(ù{\codeincomments{inline}}
 template <typename T>              // function template general definition
 void out::in1::f() { }
 \end{emcppslisting}
-    
+
 \noindent An important takeaway from the examples above is that every template
 entity --- be it class or function --- \emph{must} be declared
 in \emph{exactly} one place within the collection of namespaces that
@@ -378,7 +350,7 @@ namespace outer
     struct Z<double> { };          // Error, (ù{\codeincomments{outer::Z}}ù) or (ù{\codeincomments{outer::inner::Z}}ù)?
 }
 \end{emcppslisting}
-    
+
 
 \subsubsection[Reopening namespaces can reopen nested \lstinline!inline! ones]{Reopening namespaces can reopen nested {\SubsubsecCode inline} ones}\label{reopening-namespaces-can-reopen-nested-inline-ones}
 
@@ -408,7 +380,7 @@ namespace outer
         struct S { };    // defines (ù{\codeincomments{::outer::inner::n::S}}ù)
     }
 
-    namespace m          // Error, (ù{\codeincomments{namespace m}}ù) is ambiguous
+    namespace m          // Error, (ù{\codeincomments{namespace m}}ù) is ambiguous.
     {
         struct T { };    // with clang defines (ù{\codeincomments{::outer::m::T}}ù)
     }
@@ -416,7 +388,7 @@ namespace outer
 
 static_assert(std::is_same<outer::n::S, outer::inner::n::S>::value, "");
 \end{emcppslisting}
-    
+
 \noindent In the code snippet above, no issue occurs with reopening
 \lstinline!outer::inner::n! and no issue would have occurred with reopening
 \lstinline!outer::m! but for the \lstinline!inner! namespaces having been
@@ -445,7 +417,7 @@ the last declaration of \lstinline!n! is not lexically scoped within
 \lstinline!inner!. Notice that the definition of \lstinline!S! is perhaps
 surprisingly defining \lstinline!::outer::inner::n::S!, not
 \lstinline!::outer::n::S!. For more on what is \emph{not} supported by this
-feature, see \intraref{annoyances-inlinenamespace}{inability-to-redeclare-across-namespaces-impedes-code-factoring}. 
+feature, see \intraref{annoyances-inlinenamespace}{inability-to-redeclare-across-namespaces-impedes-code-factoring}.
 %\textit{\titleref{annoyances-inlinenamespace}: \titleref{inability-to-redeclare-across-namespaces-impedes-code-factoring}} on page~\pageref{inability-to-redeclare-across-namespaces-impedes-code-factoring}.
 
 \subsection[Use Cases]{Use Cases}\label{use-cases-inlinenamespace}
@@ -478,7 +450,7 @@ namespace parselib
     double analyze(const Parser<T>& parser);
 }
 \end{emcppslisting}
-    
+
 \noindent To use our library, clients will need to specialize our \lstinline!Parser!
 class directly within the \lstinline!parselib! namespace:
 
@@ -501,7 +473,7 @@ namespace parselib  // necessary to specialize (ù{\codeincomments{Parser}}ù)
     double analyze(const Parser<MyClass>& parser);
 };
 \end{emcppslisting}
-    
+
 \noindent Typical \lstinline!client! code will also look for the \lstinline!Parser!
 class directly within the \lstinline!parselib! namespace:
 
@@ -521,12 +493,12 @@ void client()
     // ...
 }
 \end{emcppslisting}
-    
+
 \noindent Note that invoking \lstinline!analyze! on objects of some instantiated type
-of the \lstinline!Parser! class template will rely on \emcppsgloss{ADL} to find
+of the \lstinline!Parser! class template will rely on \emcppsgloss[argument-dependent lookup (ADL)]{ADL} to find
 the corresponding overload.
 
-We anticipate that our library's API will evolve over time so we want to
+We anticipate that our library's API will evolve over time, so we want to
 enhance the design of \lstinline!parselib! accordingly. One of our goals is
 to somehow encourage clients to move essentially all at once, yet also to
 accommodate both the early adopters and the inevitable stragglers that
@@ -557,13 +529,13 @@ namespace parselib
     }
 }
 \end{emcppslisting}
-    
+
 \noindent As suggested by the name \lstinline!v1!, this namespace serves primarily as
 a mechanism to support library evolution through \emcppsgloss{API} and
-\emcppsgloss{ABI} versioning (see \intraref{use-cases-inlinenamespace}{link-safe-abi-versioning} 
-%\textit{\titleref{use-cases-inlinenamespace}: \titleref{link-safe-abi-versioning}} on page~\pageref{link-safe-abi-versioning} 
-and \intraref{use-cases-inlinenamespace}{build-modes-and-abi-link-safety} ). 
-%\textit{\titleref{use-cases-inlinenamespace}: \titleref{build-modes-and-abi-link-safety}} on page~\pageref{build-modes-and-abi-link-safety}). 
+\emcppsgloss{ABI} versioning (see \intraref{use-cases-inlinenamespace}{link-safe-abi-versioning}
+%\textit{\titleref{use-cases-inlinenamespace}: \titleref{link-safe-abi-versioning}} on page~\pageref{link-safe-abi-versioning}
+and \intraref{use-cases-inlinenamespace}{build-modes-and-abi-link-safety} ).
+%\textit{\titleref{use-cases-inlinenamespace}: \titleref{build-modes-and-abi-link-safety}} on page~\pageref{build-modes-and-abi-link-safety}).
 The need to specialize \lstinline!class!~\lstinline!Parser! and,
 independently, the reliance on ADL to find the free function template
 \lstinline!analyze! require the use of \lstinline!inline! namespaces, as
@@ -574,7 +546,7 @@ Note that, whenever a subsystem starts out directly in a first-level
 namespace and is subsequently moved to a second-level nested namespace
 for the purpose of versioning, declaring the inner namespace
 \lstinline!inline! is the most reliable way to avoid inadvertently
-destabilizing existing clients; see also \intraref{potential-pitfalls-inlinenamespace}{enabling-selective-using-directives-for-short-named-entities}.  
+destabilizing existing clients; see also \intraref{potential-pitfalls-inlinenamespace}{enabling-selective-using-directives-for-short-named-entities}.
 %\textit{\titleref{potential-pitfalls-inlinenamespace}: \titleref{enabling-selective-using-directives-for-short-named-entities}} on page~\pageref{enabling-selective-using-directives-for-short-named-entities}.
 
 Now suppose we decide to enhance \lstinline!parselib! in a
@@ -629,7 +601,7 @@ namespace parselib
     }
 }
 \end{emcppslisting}
-    
+
 \noindent When we release this new version with \lstinline!v2! made \lstinline!inline!,
 all existing clients that rely on the version supported directly in
 \lstinline!parselib! will, by design, break when they recompile. At
@@ -646,7 +618,7 @@ void client()
     // ...                                                      ^^^^ Look here!
 }
 \end{emcppslisting}
-    
+
 \noindent The second option is to change all references to
 \lstinline!parselib! to refer to the original version in \lstinline!v1!
 explicitly:
@@ -688,7 +660,7 @@ void client1()
     // ...
 }
 \end{emcppslisting}
-    
+
 \noindent Providing the updated version in a new \lstinline!inline! namespace
 \lstinline!v2! provides a more flexible migration path --- especially for a
 large population of independent client programs --- compared to manual
@@ -706,39 +678,41 @@ no need for enhancements can achieve stability by referring to a
 particular version in perpetuity or until it is physically removed from
 the library source.
 
-Although this same functionality can sometimes be realized without the
-use of \lstinline!inline! namespaces (i.e., by adding a
+Although this same functionality can sometimes be realized without using \lstinline!inline! namespaces (i.e., by adding a
 \lstinline!using!~\lstinline!namespace! directive at the end of the
-\lstinline!parselib! namespace), the use of ADL and the ability to
+\lstinline!parselib! namespace), any benefit of ADL and the ability to
 specialize templates from within the enclosing \lstinline!parselib!
-namespace itself would be lost.{\cprotect\footnote{Note that, because
+namespace itself would be lost. Note that, because
 specialization doesn't kick in until overload resolution is completed,
-specializing overloaded functions is dubious at best; see \intraref{potential-pitfalls-inlinenamespace}{specializing-templates-in-std-can-be-problematic}.}}
+specializing overloaded functions is dubious at best; see \intraref{potential-pitfalls-inlinenamespace}{specializing-templates-in-std-can-be-problematic}.
 %\textit{\titleref{potential-pitfalls-inlinenamespace}: \titleref{specializing-templates-in-std-can-be-problematic}} on page~\pageref{specializing-templates-in-std-can-be-problematic}.}}
 
 Providing separate namespaces for each successive version has an
-additional advantage in an entirely separate dimension. Though not
-demonstrated by this specific example,{\cprotect\footnote{For distinct
-nested namespaces to effectively guard against accidental link-time
+additional advantage in an entirely separate dimension: avoiding inadvertent, difficult-to-diagnose, latent linkage defects. Though not
+demonstrated by this specific example,
+cases do arise where simply changing which of the version namespaces is
+declared \lstinline!inline! might lead to an \emcppsgloss[ill formed, no diagnostic required (IFNDR)]{ill formed, no-diagnostic
+required (IFNDR)} program. This might happen when one or more of
+its translation units that use the library are not recompiled before the
+program is relinked to the new static or dynamic library containing the
+updated version of the library software; see \intraref{use-cases-inlinenamespace}{link-safe-abi-versioning}.
+%\textit{\titleref{use-cases-inlinenamespace}: \titleref{link-safe-abi-versioning}} on page~\pageref{link-safe-abi-versioning}.
+
+For distinct
+nested namespaces to guard effectively against accidental link-time
 errors, the symbols involved have to (1) reside in object code (e.g.,
-a \emcppsgloss[header only library]{header-only library} would fail this requirement) and (2)
+a \emcppsgloss{header-only library} would fail this requirement) and (2)
 have the same \emcppsgloss{name mangling} (i.e., linker symbol) in both
 versions. In this particular instance, however, the signature of the
 \lstinline!parse! member function of \lstinline!parser! did change, and its
 mangled name will consequently change as well; hence the same
-  \lstinline!undefined!~\lstinline!symbol! link error would result either way.}}
-cases do arise where simply changing which of the version namespaces is
-declared \lstinline!inline! might lead to an \emcppsgloss[ill formed, no diagnostic required]{ill-formed, no-diagnostic required (IFNDR)} program. This might happen when one or more of
-its translation units that use the library are not recompiled before the
-program is relinked to the new static or dynamic library containing the
-updated version of the library software; see \intraref{use-cases-inlinenamespace}{link-safe-abi-versioning}. 
-%\textit{\titleref{use-cases-inlinenamespace}: \titleref{link-safe-abi-versioning}} on page~\pageref{link-safe-abi-versioning}.
+  \lstinline!undefined!~\lstinline!symbol! link error would result either way.
 
 \subsubsection[Link-safe ABI versioning]{Link-safe ABI versioning}\label{link-safe-abi-versioning}
 
 \lstinline!inline! namespaces are not intended as a mechanism for
 source-code versioning; instead, they prevent programs from being
-\emcppsgloss[ill formed]{ill-formed} due to linking some version of a library with client
+\emcppsgloss[ill formed]{ill formed} due to linking some version of a library with client
 code compiled using some other, typically older version of the same
 library. Below, we present two examples: a simple pedagogical example
 to illustrate the principle followed by a more real-world example.
@@ -754,8 +728,8 @@ struct Thing  // version 1 of class (ù{\codeincomments{Thing}}ù)
     Thing();  // original non-(ù{\codeincomments{inline}}ù) constructor (defined in (ù{\codeincomments{.cpp}}ù) file)
 };
 \end{emcppslisting}
-    
-\noindent Compiling a source file with this version of the header included might produce an object file that can be incompatible yet linkable with an object file resulting from compiling a different source file with an a different version of this header included:
+
+\noindent Compiling a source file with this version of the header included might produce an object file that can be incompatible yet linkable with an object file resulting from compiling a different source file with a different version of this header included:
 
 \begin{emcppslisting}
 struct Thing   // version 2 of class (ù{\codeincomments{Thing}}ù)
@@ -764,7 +738,7 @@ struct Thing   // version 2 of class (ù{\codeincomments{Thing}}ù)
     Thing();   // updated non-(ù{\codeincomments{inline}}ù) constructor (defined in (ù{\codeincomments{.cpp}}ù) file)
 };
 \end{emcppslisting}
-    
+
 \noindent To make the problem that we are illustrating concrete, let's represent
 the client as a \lstinline!main! program that does nothing but create a
 \lstinline!Thing! and print the value of its only data member, \lstinline!i!.
@@ -780,7 +754,7 @@ int main()
      std::cout << t.i << '\n';
 }
 \end{emcppslisting}
-    
+
 \noindent If we compile this program, a reference to a locally undefined linker
 symbol, such as
 \lstinline!_ZN2my7impl_v15ThingC1Ev!,{\cprotect\footnote{On a Unix
@@ -795,7 +769,7 @@ constructor, will be generated in the \lstinline!main.o! file:
 \begin{lstlisting}[language=bash,style=plain]
 $ g++ -c main.cpp
 \end{lstlisting}
-    
+
 \noindent Without explicit intervention, the spelling of this linker symbol would
 be unaffected by any subsequent changes made to the implementation of
 \lstinline!my::Thing!, such as its data members or implementation of its
@@ -829,7 +803,7 @@ namespace my                  // outer namespace (used directly by clients)
 
 #endif
 \end{emcppslisting}
-    
+
 \noindent The implementation file \lstinline!my_thing.cpp! contains all of the
 non-\lstinline!inline! function bodies that will be translated separately
 into the \lstinline!my_thing.o! file:
@@ -848,7 +822,7 @@ namespace my                   // outer namespace (used directly by clients)
     }
 }
 \end{emcppslisting}
-    
+
 \noindent Observing common good practice, we include the header file of the component
 as the first substantive line of code to ensure that --- irrespective of
 anything else --- the header always compiles in isolation, thereby
@@ -862,7 +836,7 @@ of the very same linker symbol, such as
 \begin{lstlisting}[language=bash,style=plain]
 $ g++ -c my_thing.cpp
 \end{lstlisting}
-    
+
 \noindent We can then link \lstinline!main.o! and \lstinline!my_thing.o! into an
 executable and run it:
 
@@ -872,13 +846,13 @@ $ ./prog
 
 0
 \end{lstlisting}
-    
+
 \noindent Now, suppose we were to change the definition of \lstinline!my::Thing! to hold a \lstinline!double! instead of an \lstinline!int!, recompile
 \lstinline!my_thing.cpp!, and then relink with the original
 \lstinline!main.o! without recompiling \lstinline!main.cpp! first. None of the
 relevant linker symbols would change, and the code would recompile and link
 just fine, but the resulting binary \lstinline!prog! would be
-\emcppsgloss{IFNDR}: the client would be trying to print a 4-byte,
+\emcppsgloss[ill formed, no diagnostic required (IFNDR)]{IFNDR}: the client would be trying to print a 4-byte,
 \lstinline!int! data member, \lstinline!i!, in \lstinline!main.o! that was loaded
 by the library component as an 8-byte, \lstinline!double! into \lstinline!d!
 in \lstinline!my_thing.o!. We can resolve this problem by changing --- or,
@@ -918,7 +892,7 @@ namespace my                     // outer namespace (used directly by clients)
     }
 }
 \end{emcppslisting}
-    
+
 \noindent Now clients that attempt to link against the new library will not find
 the linker symbol, such as \lstinline!_Z...impl_v1...v!, and the link
 stage will fail. Once clients recompile, however, the undefined linker
@@ -974,10 +948,10 @@ namespace auth      // outer namespace (used directly by clients)
     }
 }
 \end{emcppslisting}
-    
+
 \noindent Attempting to link together older binary artifacts built against version
 1 with binary artifacts built against version 2 will result in a
-link-time error rather than allowing an \emcppsgloss[ill formed]{ill-formed} program to
+link-time error rather than allowing an \emcppsgloss[ill formed]{ill formed} program to
 be created. Note, however, that this approach works only if functionality essential
 to typical use is defined out of line in a \lstinline!.cpp! file. For example, it would add absolutely no value for libraries that are
 shipped entirely as header files, since the versioning offered here
@@ -989,11 +963,7 @@ during the link stage.
 In certain scenarios, a class might have two different memory layouts
 depending on compilation flags. For instance, consider a low-level
 \lstinline!ManualBuffer! class template in which an additional data member
-is added for debugging purposes{\cprotect\footnote{Note that we have
-  employed the C++11 \lstinline!alignas! attribute (see \featureref{\locationc}{alignas})   
- % ``\titleref{alignas}" on page~\pageref{alignas}) 
-  here
-  because it is exactly what's needed for this usage example.}}:
+is added for debugging purposes:
 
 \begin{emcppslisting}
 template <typename T>
@@ -1018,8 +988,14 @@ public:
     // ...
 };
 \end{emcppslisting}
-    
-\noindent The \lstinline!d_engaged! flag in the example above serves as a way to detect misuse of
+
+\noindent Note that we have
+  employed the C++11 \lstinline!alignas! attribute (see \featureref{\locationc}{alignas})
+ % ``\titleref{alignas}" on page~\pageref{alignas})
+  here
+  because it is exactly what's needed for this usage example.
+
+The \lstinline!d_engaged! flag in the example above serves as a way to detect misuse of
 the \mbox{\lstinline!ManualBuffer!} class but only in debug builds. The extra
 space and run time required to maintain this Boolean flag is undesirable
 in a release build because \mbox{\lstinline!ManualBuffer!} is intended to be an
@@ -1030,18 +1006,15 @@ The linker symbol names generated for the methods of
 \lstinline!ManualBuffer! are the same irrespective of the chosen build
 mode. If the same program links together two object files where
 \lstinline!ManualBuffer! is used --- one built in debug mode and one built
-in release mode --- the \emcppsgloss{one definition rule} will be violated
-and the program will again be \emcppsgloss{IFNDR}.
+in release mode --- the \emcppsgloss[one-definition rule (ODR)]{one-definition rule (ODR)} will be violated,
+and the program will again be \emcppsgloss[ill formed, no diagnostic required (IFNDR)]{IFNDR}.
 
-One way of avoiding these sorts of incompatibilities at link time is to
-introduce two \lstinline!inline! namespaces, the entire purpose of which is
-to change the ABI-level names of the linker symbols associated with
-\lstinline!ManualBuffer! depending on the build mode{\cprotect\footnote{Prior
+Prior
 to \lstinline!inline! namespaces, it was possible to control the
 ABI-level name of linked symbols by creating separate template
 instantiations on a per-build-mode basis:
 
-\begin{emcppslisting}[style=footcode]
+\begin{emcppslisting}[]
 #ifndef NDEBUG
 enum { is_debug_build = 1 };
 #else
@@ -1051,11 +1024,16 @@ enum { is_debug_build = 0 };
 template <typename T, bool Debug = is_debug_build>
 struct ManualBuffer { /* ... */ };
 \end{emcppslisting}
-    
+
 \noindent While the code above changes the interface of \lstinline!ManualBuffer! to
 accept an additional template parameter, it also allows debug and
 release versions of the same class to coexist in the same program,
-  which might prove useful, e.g., for testing.}}:
+  which might prove useful, e.g., for testing.
+
+Another way of avoiding incompatibilities at link time is to
+introduce two \lstinline!inline! namespaces, the entire purpose of which is
+to change the ABI-level names of the linker symbols associated with
+\lstinline!ManualBuffer! depending on the build mode:
 
 \begin{emcppslisting}
 #ifndef NDEBUG            // perhaps a BAD IDEA
@@ -1071,17 +1049,17 @@ inline namespace debug
     };
 }
 \end{emcppslisting}
-    
+
 \noindent The approach demonstrated in this example tries to ensure that a linker
 error will occur if any attempt is made to link objects built with a
 build mode different from that of \mbox{\lstinline!manualbuffer.o!}. Tying it to
 the \lstinline!NDEBUG! flag, however, might have unintended consequences;
 we might introduce unwanted restrictions in what we call
-\emcppsgloss[mixed mode builds]{mixed-mode builds}. Most modern platforms support the notion of
+\emcppsgloss{mixed-mode builds}. Most modern platforms support the notion of
 linking a collection of object files irrespective of their
 optimization levels. The same is certainly true for whether or not
 C-style \lstinline!assert! is enabled. In other words, we may want to have
-a mixed-mode build where we link object files which differ in their optimization and assertion options, as long as they are binary compatible --- i.e., in this case, they all must be uniform with respect to the implementation of \lstinline!ManualBuffer!.  Hence, a more general, albeit more complicated and
+a mixed-mode build where we link object files that differ in their optimization and assertion options, as long as they are binary compatible --- i.e., in this case, they all must be uniform with respect to the implementation of \lstinline!ManualBuffer!.  Hence, a more general, albeit more complicated and
 manual, approach would be to tie the non-interoperable behavior
 associated with this ``safe'' or ``defensive'' build mode to a different
 switch entirely. Another consideration would be to avoid ever inlining a
@@ -1115,7 +1093,7 @@ namespace buflib  // GOOD IDEA: enclosing namespace for nested (ù{\codeincommen
     }
 }
 \end{emcppslisting}
-    
+
 \noindent And, of course, the appropriate conditional compilation within the
 function bodies would need to be in the corresponding \lstinline!.cpp!
 file.
@@ -1124,7 +1102,7 @@ Finally, if we have two implementations of a particular entity that are
 sufficiently distinct, we might choose to represent them in their
 entirety, controlled by their own bespoke conditional-compilation
 switches, as illustrated here using the \lstinline!my::VersionedThing! type
-(see \intraref{use-cases-inlinenamespace}{link-safe-abi-versioning}): 
+(see \intraref{use-cases-inlinenamespace}{link-safe-abi-versioning}):
 % \textit{\titleref{use-cases-inlinenamespace}: \titleref{link-safe-abi-versioning}} on page~\pageref{link-safe-abi-versioning}:
 
 \begin{emcppshiddenlisting}[emcppsbatch=e7]
@@ -1164,8 +1142,8 @@ namespace my
 }
 #endif
 \end{emcppslisting}
-    
-\noindent However, see \intraref{potential-pitfalls-inlinenamespace}{inline-namespace-based-versioning-doesn’t-scale}. 
+
+\noindent However, see \intraref{potential-pitfalls-inlinenamespace}{inline-namespace-based-versioning-doesn’t-scale}.
 %\textit{\titleref{potential-pitfalls-inlinenamespace}: \titleref{inline-namespace-based-versioning-doesn’t-scale}} on page~\pageref{inline-namespace-based-versioning-doesn’t-scale}.
 
 \subsubsection[Enabling selective \lstinline!using! directives for short-named entities]{Enabling selective {\SubsubsecCode using} directives for short-named entities}\label{enabling-selective-using-directives-for-short-named-entities}
@@ -1180,7 +1158,7 @@ effective way of organizing shared codebases. For example,
 \lstinline!chrono_literals!, were introduced as \lstinline!inline! namespaces
 in C++14. As it turns out, clients of these nested namespaces have no
 need to specialize any templates defined in these namespaces nor do they
-define types that must be found through \emcppsgloss{ADL}, but one can at
+define types that must be found through \emcppsgloss[argument-dependent lookup (ADL)]{ADL}, but one can at
 least imagine special circumstances in which such tiny-named entities
 are either templates that require specialization or operator-like
 functions, such as \lstinline!swap!, defined for local types within those
@@ -1189,8 +1167,8 @@ required to preserve the desired ``as if'' properties.
 
 Even without either of these two needs, another property of an
 \lstinline!inline! namespace differentiates it from a non-\lstinline!inline!
-one followed by a \lstinline!using! directive. Recall from\intraref{description-inlinenamespace}{loss-of-access-to-duplicate-names-in-enclosing-namespace}  
-%\textit{\titleref{description-inlinenamespace}: \titleref{loss-of-access-to-duplicate-names-in-enclosing-namespace}} on page~\pageref{loss-of-access-to-duplicate-names-in-enclosing-namespace} 
+one followed by a \lstinline!using! directive. Recall from\intraref{description-inlinenamespace}{loss-of-access-to-duplicate-names-in-enclosing-namespace}
+%\textit{\titleref{description-inlinenamespace}: \titleref{loss-of-access-to-duplicate-names-in-enclosing-namespace}} on page~\pageref{loss-of-access-to-duplicate-names-in-enclosing-namespace}
 that a name in an outer namespace will
 hide a duplicate name imported via a \lstinline!using! directive, whereas
 any access to that duplicate name within the enclosing namespace would
@@ -1210,7 +1188,7 @@ namespace abc
     int smart();
 }
 \end{emcppslisting}
-    
+
 \noindent A second header, \lstinline!abc_header2.h!, creates a suite of many
 functions having tiny function names. In a perhaps misguided effort to
 avoid clobbering other symbols within the \lstinline!abc! namespace having
@@ -1236,7 +1214,7 @@ namespace abc
     using namespace nested;  // becomes superfluous if (ù{\codeincomments{nested}}ù) is made (ù{\codeincomments{inline}}ù)
 }
 \end{emcppslisting}
-    
+
 \noindent Now suppose that a client application includes
 both of these headers to accomplish some task:
 
@@ -1252,7 +1230,7 @@ int function()
         // Bug, silently uses the (ù{\codeincomments{abc::i()}}ù) defined in (ù{\codeincomments{abc\_header1.h}}ù)
 }
 \end{emcppslisting}
-    
+
 \noindent In trying to cede control to the client as to whether the declared or
 imported \lstinline!abc::i()! function is to be used, we have, in effect,
 invited the defect illustrated in the above example whereby the client
@@ -1279,13 +1257,13 @@ critical problems can linger until run time instead of being caught at
 compile time.
 
 Controlling which namespace is \lstinline!inline! using macros, such as was
-done in the\linebreak[4] \lstinline!my::VersionedThing! example in \intraref{use-cases-inlinenamespace}{link-safe-abi-versioning},  
-%\textit{\titleref{use-cases-inlinenamespace}: \titleref{link-safe-abi-versioning}} on page~\pageref{link-safe-abi-versioning}, 
+done in the\linebreak[4] \lstinline!my::VersionedThing! example in \intraref{use-cases-inlinenamespace}{link-safe-abi-versioning},
+%\textit{\titleref{use-cases-inlinenamespace}: \titleref{link-safe-abi-versioning}} on page~\pageref{link-safe-abi-versioning},
 will result in code that
 directly uses the unversioned name, \lstinline!my::VersionedThing! being
 bound directly to the versioned name \lstinline!my::v1::VersionedThing! or
 \lstinline!my::v2::VersionedThing!, along with the class layout of that
-particular entity. Sometimes details of the use of the \lstinline!inline!
+particular entity. Sometimes details of using the \lstinline!inline!
 namespace member are not resolved by the linker, such as the object
 layout when we use types from that namespace as member variables in
 other objects:
@@ -1307,7 +1285,7 @@ namespace my
     };
 }
 \end{emcppslisting}
-    
+
 \noindent This new \lstinline!ThingAggregate! type does not have the versioned
 \lstinline!inline! namespace as part of its mangled name; it does, however,
 have a completely different layout if built with
@@ -1342,7 +1320,7 @@ This need for layers above a library to be aware of and to integrate
 into their own structure the same namespaces the library has removes all
 or most of the benefits of using \lstinline!inline! namespaces for
 versioning. For an authentic real-world case study of heroic industrial use --- and
-eventual disuse --- of \lstinline!inline!-namespaces for versioning, see \intrarefsimple{appendix:-case-study-of-using-inline-namespaces-for-versioning}. 
+eventual disuse --- of \lstinline!inline!-namespaces for versioning, see \intrarefsimple{appendix:-case-study-of-using-inline-namespaces-for-versioning}.
 % \textit{\titleref{appendix:-case-study-of-using-inline-namespaces-for-versioning}} on page~\pageref{appendix:-case-study-of-using-inline-namespaces-for-versioning}.
 
 \subsubsection[Relying on \lstinline!inline! namespaces to solve library evolution]{Relying on {\SubsubsecCode inline} namespaces to solve library evolution}\label{specializing-templates-in-std-can-be-problematic}
@@ -1350,8 +1328,8 @@ eventual disuse --- of \lstinline!inline!-namespaces for versioning, see \intrar
 %Inline namespaces might be perceived as a complete solution for the owner of a library to evolve its API. Such, however, is not the case. As an example, consider the case of the C++ Standard Library, which does not use \lstinline!inline! namespaces for versioning. Instead, to allow for its necessary evolution, the Standard
 %Library --- the \lstinline!std! namespace, in particular --- carries
 %certain special restrictions on what one can do with it that are
-%enforced by deeming certain constructs \emcppsgloss{ill formed} or
-%engendering \emcppsgloss{undefined behavior}.
+%enforced by deeming certain constructs \romeogloss{ill formed} or
+%engendering \romeogloss{undefined behavior}.
 
 Inline namespaces might be misperceived as a complete solution for the owner of a library to evolve its API. As an especially relevant example, consider the C++ Standard Library, which itself does not use inline namespaces for versioning. Instead, to allow for its anticipated essential evolution, the Standard Library imposes certain special restrictions on what is permitted to occur within its own \lstinline!std! namespace by dint of deeming certain problematic uses as either \emcppsgloss{ill formed} or otherwise engendering \emcppsgloss{undefined behavior}.
 
@@ -1383,13 +1361,13 @@ might think that all names in namespace \lstinline!std! could be made
 available at a global scope simply by inserting an\linebreak[4]%%%%%%
 \lstinline!inline!~\lstinline!namespace!~\lstinline!std!~\lstinline!{}! before
 including any standard headers. This practice is, however, explicitly
-called out as ill-formed within the C++11 Standard.\footnote{Although not uniformly diagnosed as an error by
+called out as ill-formed within the C++11 Standard. Although not uniformly diagnosed as an error by
 all compilers, attempting this forbidden practice is apt to lead to
-surprising problems even if not diagnosed as an error immediately.}
+surprising problems even if not diagnosed as an error immediately.
 
 \subsubsection[Inconsistent use of \lstinline!inline! keyword is ill formed, no diagnostic required]{Inconsistent use of {\SubsubsecCode inline} keyword is ill formed, no diagnostic required}\label{inconsistent-use-of-inline-keyword-is-ifndr}
 
-It is an \emcppsgloss{ODR} violation, \emcppsgloss{IFNDR}, for a nested namespace
+It is an \emcppsgloss[one-definition rule (ODR)]{ODR} violation, \emcppsgloss[ill formed, no diagnostic required (IFNDR)]{IFNDR}, for a nested namespace
 to be \lstinline!inline! in one translation unit and non-\lstinline!inline! in
 another. And yet, the motivating use case of this feature relies on the
 linker to actively complain whenever different, incompatible versions
@@ -1434,7 +1412,7 @@ namespace outer                                          // enclosing namespace
     template<> void A0::h0<int>() { }                    // declarations above
 }                                                        // in (ù{\codeincomments{outer}}ù) namespace
 \end{emcppslisting}
-    
+
 \noindent Note that, in the case of \lstinline!g0! in this example, the
 ``specialization'' \lstinline!void!~\lstinline!g0(int)! is a non-template
 \emph{overload} of the function template \lstinline!g0! rather than a
@@ -1466,7 +1444,7 @@ namespace outer                                     // enclosing namespace
     }
 }
 \end{emcppslisting}
-    
+
 \noindent Attempting to declare a template in the \lstinline!outer! namespace and
 then define, effectively redeclaring, it in an \lstinline!inline! inner one
 causes the name to be inaccessible within the \lstinline!outer! namespace:
@@ -1477,7 +1455,7 @@ namespace outer                                          // enclosing namespace
     template<typename T> struct S2;                      // declarations of
     template<typename T> void f2();                      // various class and
     template<typename T> void g2(T v);                   // function templates
-    
+
     inline namespace inner                               // nested namespace
     {
         template<typename T> struct S2 { };              // definitions of
@@ -1490,7 +1468,7 @@ namespace outer                                          // enclosing namespace
     void g2(int) { }                   // OK, (ù{\codeincomments{g2}}ù) is an overload definition.
 }
 \end{emcppslisting}
-    
+
 \noindent Finally, declaring a template in the nested \lstinline!inline! namespace
 \lstinline!inner! in the example above and then subsequently defining it in
 the enclosing \lstinline!outer! namespace has the same effect of making
@@ -1518,7 +1496,7 @@ namespace outer                                          // enclosing namespace
     template<> void A3::h3<int>() { }  // Error, (ù{\codeincomments{h2}}ù) is ambiguous in (ù{\codeincomments{outer}}ù).
 }
 \end{emcppslisting}
-    
+
 \noindent Note that, although the definition for a member function template must
 be located directly within the namespace in which it is declared, a
 class or function template, once declared, may instead be defined in a different
@@ -1550,12 +1528,12 @@ namespace outer
     }
 }
 \end{emcppslisting}
-    
+
 \noindent Also note that, as ever, the corresponding definition of the declared
 template must have been seen before it can be used in a context
 requiring a complete type. The importance of ensuring that all
 specializations of a template have been seen before it is used
-substantively (i.e., \emcppsgloss[odr used]{ODR-used}) cannot be overstated, giving
+substantively (i.e., \emcppsgloss[one-definition rule (ODR)]{ODR}-used) cannot be overstated, giving
 rise to the only limerick, which is actually part of the normative text,
 in the C++ Language Standard{\cprotect\footnote{See \cite{iso11},
   section~14.7.3.7, pp.~375--375, specifically p.~376.}}:
@@ -1583,7 +1561,7 @@ As an example, the C++14 Standard Library provides a hierarchy of nested
 namespace\linebreak[4] \lstinline!std!: \lstinline!std::literals::complex_literals!,
 \lstinline!std::literals::chrono_literals!,\linebreak[4]
 \lstinline!std::literals::string_literals!, and
-\lstinline!std::literals::string_view_literals!.\linebreak[4] 
+\lstinline!std::literals::string_view_literals!.\linebreak[4]
 These namespaces can
 be imported to a local scope in one shot via a
 \lstinline!using!~\lstinline!std::literals! or instead, more selectively, by
@@ -1605,7 +1583,7 @@ was added to the\linebreak[4]
  \lstinline!std::chrono! namespace. The Standard does not, however, benefit in any objective way from any of
 these namespaces being \lstinline!inline! since the artifacts in the
 \lstinline!literals! namespace neither depend on ADL nor are templates in
-need of user-defined specializations; hence having all
+need of user-defined specializations; hence, having all
 non-\lstinline!inline! namespaces with appropriate \lstinline!using!
 declarations would have been functionally indistinguishable from the
 bifurcated approach taken.
@@ -1613,13 +1591,16 @@ bifurcated approach taken.
 \subsection[See Also]{See Also}\label{see-also}
 
 \begin{itemize}
-\item{%``\titleref{alignas}" on page~\pageref{alignas} — 
-\seealsoref{alignas}{\seealsolocationc}Safe C++11 feature used in the example in  \textit{\titleref{use-cases-inlinenamespace}: \titleref{build-modes-and-abi-link-safety}} on page~\pageref{build-modes-and-abi-link-safety} to provide properly aligned storage for an object of arbitrary type \lstinline!T!.}
+\item{%``\titleref{alignas}" on page~\pageref{alignas} —
+\seealsoref{alignas}{\seealsolocationc}provides properly aligned storage for an object of arbitrary type \lstinline!T! in the example in  \intraref{use-cases-inlinenamespace}{build-modes-and-abi-link-safety}.}
 \end{itemize}
 
 \subsection[Further Reading]{Further Reading}\label{further-reading}
 
-TODO, TBD
+\begin{itemize}
+\item{\cite{sutter14b} uses inline namespaces as part of a proposal for a portable ABI across compilers.}
+\item{\cite{lopez-gomez20} uses inline namespaces as part of a solution to avoid ODR violation in an interpreter.}
+\end{itemize}
 
 \subsection[Appendix: Case study of using \lstinline!inline! namespaces for versioning]{Appendix: Case study of using {\SubsecCode inline} namespaces for versioning}\label{appendix:-case-study-of-using-inline-namespaces-for-versioning}
 
@@ -1635,7 +1616,7 @@ is that they don't obviously appear in final binaries, unless you look
 for them. So each individual team was including bits of Boost quietly
 and without telling their legal department. Why? Because it saved time.
 (This was C++98, and \lstinline!boost::shared_ptr! and
-\lstinline!boost::function! are both extremely attractive facilities).
+\lstinline!boost::function! are both extremely attractive facilities.)
 
 Here's the really interesting part: Most of these copies of Boost were
 not the same version. They were varying over a five-year release period.
@@ -1649,7 +1630,7 @@ up their implementation into an internal inline namespace. That inline
 namespace ought to mean something:
 \begin{itemize}
 \item{\lstinline!lib::v1! is the \emph{stable}, version-1 ABI, which is guaranteed to be compatible with all past and future \lstinline!lib::v1! ABIs, forever, as determined by the ABI-compliance-check tool that runs on \emcppsgloss{CI}. The same goes for \lstinline!v2!, \lstinline!v3!, and so on.}
-\item{\lstinline!lib::v2_a7fe42d! is the \emph{unstable}, version-2 ABI, which may be incompatible with any other \lstinline!lib::*!~\lstinline!ABI!; hence the seven hex chars after the underscore are the git short \emcppsgloss{SHA}, permuted by every commit to the git repository but, in practice, per CMake configure, because nobody wants to rebuild everything per commit. This ensures that no symbols from any revision of \lstinline!lib! will \emph{ever} silently collide or otherwise interfere with any other revision of \lstinline!lib!, when combined into a single binary by a dumb linker.}
+\item{\lstinline!lib::v2_a7fe42d! is the \emph{unstable}, version-2 ABI, which may be incompatible with any other \lstinline!lib::*!~\lstinline!ABI!; hence, the seven hex chars after the underscore are the git short \emcppsgloss{SHA}, permuted by every commit to the git repository but, in practice, per CMake configure, because nobody wants to rebuild everything per commit. This ensures that no symbols from any revision of \lstinline!lib! will \emph{ever} silently collide or otherwise interfere with any other revision of \lstinline!lib!, when combined into a single binary by a dumb linker.}
 \end{itemize}
 
 I have been steadily making progress on getting Boost to avoid putting
@@ -1660,7 +1641,7 @@ That's all the same as the pitch for \lstinline!inline! namespaces. You'll
 see the same technique used in \lstinline!libstdc++! and many other major modern C++
 codebases.
 
-But I'll tell you now, I don't use \lstinline!inline! namespaces any more.
+But I'll tell you now, I don't use \lstinline!inline! namespaces anymore.
 Now what I do is use a macro defined to a uniquely named namespace. My
 build system uses the git SHA to synthesize namespace macros for my
 namespace name, beginning the namespace and ending the namespace.
@@ -1674,10 +1655,10 @@ namespace OUTCOME_V2_NAMESPACE {
 \end{emcppshiddenlisting}
 \begin{emcppslisting}[emcppsbatch=e10]
 namespace output = OUTCOME_V2_NAMESPACE;
-\end{emcppslisting} 
+\end{emcppslisting}
 
-\noindent That macro expands to something like \lstinline!::outcome_v2_ee9abc2!,
-that is, I don't use \lstinline!inline! namespaces any more.
+\noindent That macro expands to something like \lstinline!::outcome_v2_ee9abc2!;
+that is, I don't use \lstinline!inline! namespaces anymore.
 
 Why?
 

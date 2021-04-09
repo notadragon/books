@@ -1,6 +1,8 @@
 % 18 March 2021, revisions in and proofed; commands updated
 % 18 March 2021, sent to Slava for a second review and sent to Josh for code review
 % 19 March 2021 JMB - code compiles take 2
+% 27 March 2021, revisions from Slava in and proofed.
+% 28 March 2021, sent to CE
 
 \emcppsFeature{
     short={\lstinline!alignas!},
@@ -19,18 +21,18 @@ the \emcppsgloss{alignment} of a \lstinline!struct!, \lstinline!class!, \lstinli
 
 \subsection[Description]{Description}\label{description-alignas}
 
-Each object type in C++ has an \emcppsgloss{alignment requirement} which restricts the addresses at which an object of that type is permitted to reside within the virtual-memory-address space. The \emcppsgloss{alignment requirement} is imposed by the object type on all objects of that type. The \lstinline!alignas! specifier provides a means of specifying a stricter alignment requirement than dictated by the type itself for (1) a particular variable of the type, (2) an individual data member of a \emcppsgloss[user defined type (UDT)]{user-defined type (UDT)}. \lstinline!alignas! can also be applied to a \emcppsgloss[user defined type (UDT)]{UDT} itself, but see \intraref{potential-pitfalls-alignas}{applying-alignas-to-a-type-might-be-misleading}.
+Each object type in C++ has an \emcppsgloss{alignment requirement} that restricts the addresses at which an object of that type is permitted to reside within the virtual-memory-address space. The \emcppsgloss{alignment requirement} is imposed by the object type on all objects of that type. The \lstinline!alignas! specifier provides a means of specifying a stricter alignment requirement than dictated by the type itself for a particular variable of the type or an individual data member of a \emcppsgloss[user defined type (UDT)]{user-defined type (UDT)}. The \lstinline!alignas! specifier can also be applied to a \emcppsgloss[user defined type (UDT)]{UDT} itself, but see \intraref{potential-pitfalls-alignas}{applying-alignas-to-a-type-might-be-misleading}.
 
 \subsubsection[Supported alignments]{Supported alignments}\label{description-supported-alignments}
 
-An alignment value is an integer of type \lstinline!std::size_t! that represent the number of bytes between the addresses at which a given object may be allocated.  All alignment values in C++ are always non-negative powers of two, and are divided into two categories depending whether they are larger than the alignment requirement of the \lstinline!std::max_align_t! type.  The \lstinline!std::max_align_t! type is a type whose alignment requirement is at least as strict as that of every \emcppsgloss{scalar type}.  If the alignment value is less than or equal to the alignment requirement of \lstinline!std::max_align_t!, it is a \emcppsgloss{fundamental alignment}; otherwise it is an \emcppsgloss{extended alignment}.  \lstinline!std::max_align_t! is typically an alias to the largest scalar type, which is \lstinline!long double! on most platforms, and its alignment requirement is usually 8 or 16.
+An alignment value is an integer of type \lstinline!std::size_t! that represents the number of bytes between the addresses at which a given object may be allocated.  All alignment values in C++ are always non-negative powers of two and are divided into two categories depending on whether they are larger than the alignment requirement of the \lstinline!std::max_align_t! type.  The \lstinline!std::max_align_t! type's alignment requirement is at least as strict as that of every \emcppsgloss{scalar type}.  An alignment value of less than or equal to the alignment requirement of \lstinline!std::max_align_t! is a \emcppsgloss{fundamental alignment}; otherwise, it is an \emcppsgloss{extended alignment}.  The \lstinline!std::max_align_t! type is typically an alias to the largest scalar type, which is \lstinline!long double! on most platforms, and its alignment requirement is usually 8 or 16.
 
-\emcppsgloss[fundamental alignment]{Fundamental alignments} are required to be supported in \emph{all} contexts -- i.e., for variables with automatic, static, and dynamic storage durations, as well as for non-static data members of a class, and function arguments.  While all fundamental and pointer types have \emcppsgloss[fundamental alignment]{fundamental alignments}, their specific values are \emcppsgloss{implementation defined} and may differ between platforms.  For example, the alignment requirement of type \lstinline!long! might be \lstinline!4! on MSVC and \lstinline!8! on GCC.
+\emcppsgloss[fundamental alignment]{Fundamental alignments} are required to be supported in \emph{all} contexts --- i.e., for variables with automatic, static, and dynamic storage durations as well as for nonstatic data members of a class and for function arguments.  While all fundamental and pointer types have \emcppsgloss[fundamental alignment]{fundamental alignments}, their specific values are \emcppsgloss[implementation defined]{implementation defined} and may differ between platforms.  For example, the alignment requirement of type \lstinline!long! might be \lstinline!4! on MSVC and \lstinline!8! on GCC.
 
-In contrast, whether \emph{any} \emcppsgloss{extended alignment} is supported at all, and if it is -- in which contexts -- is \emcppsgloss{implementation defined}. For example, the strictest supported \emcppsgloss{extended alignment} for a variable with static storage duration might be as large as $2^{28}$ or $2^{29}$ on or as small as $2^{13}$.\footnote{Implementations may warn when the alignment of a global object exceeds some maximal hardware threshold (such as the size of a physical memory page, e.g., 4096 or 8192).  For automatic variables (defined on the program stack), making alignment more restrictive than what would naturally be employed is seldom desired because at most one thread is able to access proximately located variables there unless explicitly passed in via address to separate threads; see \intraref{alignas-use-cases}{avoiding-false-sharing-among-distinct-objects-in-a-multi-threaded-program}. Note that, in the case of i in the first code snippet on \pageref{}
-[page 66---REVISIONS: pls tell me exactly what you're referring to and I'll add a label there, so we get an automatically updating page number], a conforming platform that did not support an extended alignment of 64 would be required to report an error at compile time.}
+%%%%%%%%% Revisit xref in FN during FPP creation
+In contrast, whether \emph{any} \emcppsgloss{extended alignment} is supported at all and, if so, in which contexts, is \emcppsgloss{implementation defined}.\footnote{Implementations may warn when the alignment of a global object exceeds some maximal hardware threshold (such as the size of a physical memory page, e.g., 4096 or 8192).  For automatic variables (defined on the program stack), making alignment more restrictive than what would naturally be employed is seldom desired because at most one thread is able to access proximately located variables there unless explicitly passed in via address to separate threads; see \intraref{alignas-use-cases}{avoiding-false-sharing-among-distinct-objects-in-a-multi-threaded-program}. Note that, in the case of \lstinline!i0! in the \lstinline!alignas(32)! line in the last code snippet on page~\pageref{fnref}, a conforming platform that did not support an extended alignment of 32 would be required to report an error at compile time. [PRODUCTION: update the page xref as needed at FPPs. We may need to say "on this page" or otherwise clarify once pagination is set.]} For example, the strictest supported \emcppsgloss{extended alignment} for a variable with static storage duration might be as large as $2^{28}$ or $2^{29}$ or as small as $2^{13}$.
 
-Since many aspects pertaining to the alignment requirements are \emcppsgloss{implementation defined}, we will use a specific platform to illustrate the behavior of \lstinline!alignas! throughout this section.  Accordingly, the examples below show the behavior observed for the \lstinline!Clang! compiler targetting desktop x86-64 Linux.
+Since many aspects pertaining to the alignment requirements are \emcppsgloss{implementation defined}, we will use a specific platform to illustrate the behavior of \lstinline!alignas! throughout this feature's section.  Accordingly, the examples below show the behavior observed for the Clang compiler targetting desktop x86-64 Linux.
 
 %The \texttt{alignas} specifier provides a means of further restricting
 %the granularity at which (1) a particular object of arbitrary type, (2)
@@ -40,11 +42,11 @@ Since many aspects pertaining to the alignment requirements are \emcppsgloss{imp
 
 \subsubsection[Strengthening the alignment of a particular object]{Strengthening the alignment of a particular object}\label{restricting-the-alignment-of-a-particular-object}\label{strengthening-the-alignment-of-a-particular-object}
 
-In its most basic form, \lstinline!alignas! specifier allows to strengthen the alignment requirement of a particular object. The desired alignment requirement is an \emcppsgloss{integral constant expression} provided as an argument to \lstinline!alignas!:
+In its most basic form, the \lstinline!alignas! specifier strengthens the alignment requirement of a particular object. The desired alignment requirement is an \emcppsgloss{integral constant expression} provided as an argument to \lstinline!alignas!:
 
 \begin{emcppslisting}
-alignas(8) int i;    // OK, i is aligned on an 8 byte address boundary.
-int j alignas(8), k; // OK, j is 8 byte aligned; alignment of k is unchanged.
+alignas(8) int i;     // OK, i is aligned on an 8 byte address boundary.
+int j alignas(8), k;  // OK, j is 8 byte aligned; alignment of k is unchanged.
 \end{emcppslisting}
 
 \noindent If more than one alignment pertains to a given object, the strictest alignment value is applied:
@@ -60,7 +62,7 @@ must satisfy several\linebreak[4] \mbox{requirements}:
 \begin{enumerate}
 \item{Be either zero or a non-negative integral power of two of type \lstinline!std::size_t! (0, 1, 2, 4, 8, 16\dots).}
 %\item{Be at least the minimum alignment\cprotect\footnote{The minimum alignment of an entity is the least restrictive memory-address boundary at which the entity can be placed and have the program continue to work properly. This value is platform dependent and often subject to compiler controls but, by default, is often well approximated by \textbf{natural alignment}; see \textit{\titleref{alignas-appendix}: \titleref{natural-alignment}} on page \pageref{natural-alignment}.} required by the decorated entity.}
-\item{Be larger or equal to what the alignment requirement would be without \lstinline!alignas! specifier.}
+\item{Be larger or equal to what the alignment requirement would be without the \lstinline!alignas! specifier.}
 \item{Be supported on the platform in the context in which the entity appears.}
 %\cprotect\footnote{The notion of the largest supported alignment is characterized by both \textbf{maximal alignment} and the maximum \textbf{extended alignment}. \textbf{Maximal alignment} is defined as that most restrictive alignment that is valid in \emph{all} contexts on the current platform. All fundamental and pointer types necessarily have a minimal alignment that is less than or equal to \texttt{alignof(std::max\_align\_t)} — typically 8 or 16. Any alignment value greater than \textbf{maximal alignment} is an \textbf{extended alignment} value. Whether any extended alignment is supported (and in which contexts) is implementation defined. On typical platforms, extended alignment will often be as large as $2^{18}$ or $2^{19}$, however implementations may warn when the alignment of a global object exceeds some maximal hardware threshold (such as the size of a physical memory page, e.g., 4096 or 8192). For \textbf{automatic variables} (defined on the program stack), making alignment more restrictive than what would naturally be employed  is seldom desired because at most one thread is able to access proximately located variables there unless explicitly passed in via address to separate threads; see \textit{\titleref{alignas-use-cases}: \titleref{avoiding-false-sharing-among-distinct-objects-in-a-multi-threaded-program}} on page~\pageref{avoiding-false-sharing-among-distinct-objects-in-a-multi-threaded-program}. Note that, in the case of \texttt{i} in the first code snippet on page~\pageref{restricting-the-alignment-of-a-particular-object}, a conforming platform that did not support an extended alignment of 64 would be required to report an error at compile time.}
 \end{enumerate}
@@ -95,7 +97,7 @@ must satisfy several\linebreak[4] \mbox{requirements}:
 %    alignas(32) double e3;  // OK, maximum alignment value exceeded; might warn
 %}
 %\end{lstlisting}
-\begin{emcppslisting}
+\begin{emcppslisting}[label=fnref]
 // Static variables declared at namespace scope
 alignas(32) int i0; // OK, 32-byte aligned (extended alignment)
 alignas(16) int i1; // OK, 16-byte aligned (strictest fundamental alignment)
@@ -106,7 +108,7 @@ alignas(2)  int i5; // Error, less than alignment would be without (ù{\codeinco
 alignas(0)  int i6; // OK, (ù{\codeincomments{alignas}}ù) specifier ignored
 
 alignas(1024 * 16) int i7;
-    // OK, might warn on other platforms: e.g., exceeds physical page size
+    // OK, might warn on other platforms, e.g., exceeds physical page size
 
 alignas(1 << 30) int i8;
     // Error, exceeds maximum supported extended alignment
@@ -207,7 +209,7 @@ implementation variance resulting from this lack of clarity in the
   eventually stop accepting the \lstinline!alignas! specifier on
   enumerations in the future.}}
 
-Again, specifying an alignment that is less than what be without the \lstinline!alignas! specifier is ill formed:
+Again, specifying an alignment that is less than what would be without the \lstinline!alignas! specifier is ill formed:
 
 \begin{emcppslisting}
 struct alignas(2) T0 { int i; };
@@ -233,75 +235,115 @@ alignas(int) char c;  // equivalent to (ù{\codeincomments{alignas(alignof(int))
 
 \subsubsection[Creating a sufficiently aligned object buffer]{Creating a sufficiently aligned object buffer}\label{creating-a-sufficiently-aligned-object-buffer}
 
-When writing low-level, system-infrastructure code, constructing an object within a raw buffer is sometimes useful. As a minimal
-example, consider a function that uses a local character buffer to
-create an object of type \lstinline!std::complex<long!~\lstinline!double>! on
-the program stack using placement \lstinline!new!:
+%When writing low-level, system-infrastructure code, constructing an object within a raw buffer is sometimes useful. As a minimal
+%example, consider a function that uses a local character buffer to
+%create an object of type \lstinline!std::complex<long!~\lstinline!double>! on
+%the program stack using placement \lstinline!new!:
+%
+%\begin{emcppslisting}
+%#include <complex>  // (ù{\codeincomments{std::complex}}ù)
+%
+%void f()
+%{
+%    // ...
+%    char objectBuffer[sizeof(std::complex<long double>)];    // BAD IDEA
+%    // ...
+%    new (objectBuffer) std::complex<long double>(1.0, 0.0);  // Might dump core!
+%    // ...
+%}
+%\end{emcppslisting}
+%
+%\noindent The essential problem with the code above is that \lstinline!objectBuffer!,
+%being an array of characters (each having an alignment of 1), is itself
+%byte aligned. The compiler is therefore free to place it on any address
+%boundary. On the other hand, \lstinline!std::complex<long!~\lstinline!double>! is an aggregate consisting of two \lstinline!long!~\lstinline!double! objects
+%and therefore necessarily requires (at least) the same strict alignment
+%(typically 16) as the two \lstinline!long!~\lstinline!double! objects it comprises. Previous
+%solutions to this problem involved creating a \lstinline!union! of the
+%object buffer and some maximally aligned type (e.g.,
+%\lstinline!std::max_align_t!):
+%
+%\begin{emcppslisting}
+%#include <complex>  // (ù{\codeincomments{std::complex}}ù)
+%#include <cstddef>  // (ù{\codeincomments{std::max\_align\_t}}ù)
+%
+%void f()
+%{
+%    // ...
+%
+%    union {  // awkward workaround
+%        std::max_align_t dummy;  // (ù{\codeincomments{typedef}}ù) to maximally aligned type
+%        char objectBuffer[sizeof(std::complex<long double>)];
+%    } objectBuffer;
+%
+%    // ...
+%
+%    new (&objectBuffer) std::complex<long double>(1.0, 0.0);  // OK
+%
+%    // ...
+%}
+%\end{emcppslisting}
+%
+%\noindent Using the alternate syntax for \lstinline!alignas!, we can avoid gratuitous
+%complexity and just state our intentions explicitly:
+%
+%\begin{emcppslisting}
+%#include <complex>  // (ù{\codeincomments{std::complex}}ù)
+%void f()
+%{
+%    // ...
+%
+%    alignas(std::complex<long double>) char objectBuffer[
+%                              sizeof(std::complex<long double>)];  // GOOD IDEA
+%
+%    // ...
+%
+%    new (objectBuffer) std::complex<long double>(1.0, 0.0);  // OK
+%
+%    // ...
+%}
+%\end{emcppslisting}
+
+One of motivating use cases for introducing the \lstinline!alignas! feature was creating static capacity, dynamic size containers that do not use dynamic allocations:
 
 \begin{emcppslisting}
-#include <complex>  // (ù{\codeincomments{std::complex}}ù)
+#include <cassert>  // standard C (ù{\codeincomments{assert}}ù) macro
+#include <new>      // placement new
 
-void f()
-{
-    // ...
-    char objectBuffer[sizeof(std::complex<long double>)];    // BAD IDEA
-    // ...
-    new (objectBuffer) std::complex<long double>(1.0, 0.0);  // Might dump core!
-    // ...
-}
+template <typename TYPE, std::size_t CAPACITY>
+class FixedVector {
 \end{emcppslisting}
 
-\noindent The essential problem with the code above is that \lstinline!objectBuffer!,
-being an array of characters (each having an alignment of 1), is itself
-byte aligned. The compiler is therefore free to place it on any address
-boundary. On the other hand, \lstinline!std::complex<long!~\lstinline!double>! is an aggregate consisting of two \lstinline!long!~\lstinline!double! objects
-and therefore necessarily requires (at least) the same strict alignment
-(typically 16) as the two \lstinline!long!~\lstinline!double! objects it comprises. Previous
-solutions to this problem involved creating a \lstinline!union! of the
-object buffer and some maximally aligned type (e.g.,
-\lstinline!std::max_align_t!):
+To avoid the overhead of initializing the unused elements, such a generic container needs to have a character buffer data member and employ placement \lstinline!new! to construct the elements as needed. This buffer needs to be of sufficient size to store the elements, which one can easily compute using \lstinline!CAPACITY!~\lstinline!*!~\lstinline!sizeof(T)!.  In addition, however, ensuring that the buffer is sufficiently aligned to store elements of the supplied \lstinline!TYPE! is important.  With \lstinline!alignas!, ensuring this requirement is straightforward:
 
 \begin{emcppslisting}
-#include <complex>  // (ù{\codeincomments{std::complex}}ù)
-#include <cstddef>  // (ù{\codeincomments{std::max\_align\_t}}ù)
+    alignas(TYPE) char d_buffer[CAPACITY * sizeof(TYPE)];
+        // raw memory buffer of proper size and alignment for (ù{\codeincomments{TYPE}}ù) elements
 
-void f()
-{
+    std::size_t        d_size;
+        // current size of the vector
+
+    TYPE *rawElementPtr(std::size_t index)
+        // Return the pointer to the element with the specified (ù{\codeincomments{index}}ù).
+    {
+        return reinterpret_cast<TYPE *>(d_buffer) + index;
+    }
+
+public:
     // ...
 
-    union {  // awkward workaround
-        std::max_align_t dummy;  // (ù{\codeincomments{typedef}}ù) to maximally aligned type
-        char objectBuffer[sizeof(std::complex<long double>)];
-    } objectBuffer;
+    void resize(std::size_t size)
+    {
+        assert(size <= CAPACITY);
+        while (d_size < size) new (rawBufferPtr(d_size++)) TYPE;
+        while (d_size > size) rawElementPtr(--d_size)->~TYPE();
+    }
 
     // ...
-
-    new (&objectBuffer) std::complex<long double>(1.0, 0.0);  // OK
-
-    // ...
-}
+};
 \end{emcppslisting}
 
-\noindent Using the alternate syntax for \lstinline!alignas!, we can avoid gratuitous
-complexity and just state our intentions explicitly:
-
-\begin{emcppslisting}
-#include <complex>  // (ù{\codeincomments{std::complex}}ù)
-void f()
-{
-    // ...
-
-    alignas(std::complex<long double>) char objectBuffer[
-                              sizeof(std::complex<long double>)];  // GOOD IDEA
-
-    // ...
-
-    new (objectBuffer) std::complex<long double>(1.0, 0.0);  // OK
-
-    // ...
-}
-\end{emcppslisting}
-
+Without the use of \lstinline!alignas!, \lstinline!d_buffer! (in the code snippet above), which is an array of characters, would itself have an alignment requirement of 1.  The compiler would therefore be free to place it on any address boundary, which is problematic for any \lstinline!TYPE! argument with an alignment requirement stricter than 1.
 
 \subsubsection[Ensuring proper alignment for architecture-specific instructions]{Ensuring proper alignment for architecture-specific instructions}\label{ensuring-proper-alignment-for-architecture-specific-instructions}
 
@@ -377,8 +419,7 @@ close proximity on the program stack:
 #include <thread>  // (ù{\codeincomments{std::thread}}ù)
 
 void incrementJob(int* p);
-    // Repeatedly increment (ù{\codeincomments{*p}}ù) a large, fixed number of times;
-    // periodically write its current value to (ù{\codeincomments{target}}ù).
+    // Repeatedly increment (ù{\codeincomments{*p}}ù) a large, fixed number of times.
 
 void f()
 {
@@ -414,12 +455,12 @@ ensure that the two variables reside on distinct cache lines:
 \begin{emcppslisting}[emcppsbatch=e2]
 // ...
 
-enum { k_CACHE_LINE_SIZE = 64 };  // A cache line on this platform is 64 bytes
+enum { k_CACHE_LINE_SIZE = 64 };  // A cache line on this platform is 64 bytes.
 
 void f()
 {
     alignas(k_CACHE_LINE_SIZE) int i0 = 0; // (ù{\codeincomments{i1}}ù) and (ù{\codeincomments{i2}}ù) are on separate
-    alignas(k_CACHE_LINE_SIZE) int i1 = 0; // cache lines
+    alignas(k_CACHE_LINE_SIZE) int i1 = 0; // cache lines.
 
     // ...
 }
@@ -436,15 +477,16 @@ Core i7-9700k CPU (8 cores, 64-byte cache line size). Over the
 course of multiple runs, the version of the benchmark without
 \lstinline!alignas! took 18.5967ms to complete (on average), while the
 version with \lstinline!alignas! took 2.45333ms to complete (on average).
-  See \textbf{{[PRODUCTION: CODE PROVIDED WITH BOOK] alignasbenchmark}} for the source code of the program.}} Note that because supported extended alignments are implementation defined, using \lstinline!alignas! is not a strictly portable solution. Opting for less elegant padding approach instead of \lstinline!alignas! might be preferrable for portability.
+  See \textbf{{[PRODUCTION: CODE PROVIDED WITH BOOK] alignasbenchmark}} for the source code of the program.}} Note that because supported extended alignments are implementation defined, using \lstinline!alignas! is not a strictly portable solution. Opting for less elegant and more wasteful padding approach instead of \lstinline!alignas! might be preferrable for portability.
 
 \subsubsection[Avoiding false sharing within a single thread-aware object]{Avoiding false sharing within a single thread-aware object}\label{avoiding-false-sharing-within-a-single-thread-aware-object}
 
-A real-world scenario where the need for preventing \emcppsgloss{false sharing} is fundamental occurs in the implementation of high-performance
+A real-world scenario where the need for preventing \emcppsgloss{false
+sharing} is fundamental occurs in the implementation of high-performance
 concurrent data structures. As an example, a thread-safe ring buffer
 might make use of \lstinline!alignas! to ensure that the indices of the
 head and tail of the buffer are aligned at the start of a cache line
-(typically 64, 128, or 256 bytes),\footnote{In C++17, one can portably retrieve the minimum offset between two objects that avoids false sharing through the \lstinline!std::hardware_destructive_interference_size! constant defined in the \lstinline!<new>! header.}  thereby preventing them from
+(typically 64, 128, or 256 bytes),\footnote{In C++17, one can portably retrieve the minimum offset between two objects to avoid false sharing through the \lstinline!std::hardware_destructive_interference_size! constant defined in the \lstinline!<new>! header.}  thereby preventing them from
 occupying the same one.
 
 \begin{emcppslisting}[emcppsbatch=e2]
@@ -482,7 +524,8 @@ that would be required for the entity being declared if all
 declarations).
 \end{quote}
 The compiler is required to honor the
-specified value if it is a \emcppsgloss{fundamental alignment},{\cprotect\footnote{``If the constant expression evaluates to
+specified value if it is a \emcppsgloss{fundamental
+alignment},{\cprotect\footnote{``If the constant expression evaluates to
 a fundamental alignment, the alignment requirement of the declared
 entity shall be the specified fundamental alignment'': \cite{cpp11}, section~7.6.2, ``Alignment Specifier," paragraph~2, item~2, p. 178.}} so
 imagining how this would lead to anything other than an ill-formed
@@ -499,8 +542,7 @@ struct alignas(1) U { T e; };    // Error, (ù{\codeincomments{alignas(1)}}ù) i
 
 \noindent Each of the three errors above are reported by Clang. MSVC and ICC issue a warning, whereas
  GCC
-provides no diagnostic at all ---
-even in the most pedantic warning mode. Thus, one could write a program,
+provides no diagnostic at all, even in the most pedantic warning mode. Thus, one could write a program,
 involving statements like those above, that happens to work on one
 platform (e.g., GCC) but fails to compile on another (e.g.,
 Clang).{\cprotect\footnote{Underspecifying alignment is not reported at
@@ -533,7 +575,8 @@ struct alignas(8) Foo;       // OK, has no effect; might warn after definition
 \end{emcppslisting}
 
 \noindent Specifying an alignment in a forward declaration without specifying an
-equivalent one in the defining declaration is \emcppsgloss[ill formed, no diagnostic required]{ill formed, no diagnostic required (IFNDR)} if the two declarations appear in distinct translation
+equivalent one in the defining declaration is \emcppsgloss{ill formed, no diagnostic
+required (IFNDR)} if the two declarations appear in distinct translation
 units:
 
 \begin{emcppslisting}
@@ -541,7 +584,7 @@ struct alignas(4) Bar;      // OK, forward declaration
 struct Bar { };             // Error, missing (ù{\codeincomments{alignas}}ù) specifier
 
 struct alignas(4) Baz;      // OK, forward declaration
-struct alignas(8) Baz { };  // Error, non-equivalent (ù{\codeincomments{alignas}}ù) specifier
+struct alignas(8) Baz { };  // Error, nonequivalent (ù{\codeincomments{alignas}}ù) specifier
 \end{emcppslisting}
 
 \noindent Both of the errors above are flagged by Clang. MSVC and ICC warn on the first one and produce an error on the second one, whereas neither of them is
@@ -577,7 +620,7 @@ struct alignas(16) S1 {
 };
 \end{emcppslisting}
 
-Indeed, for all objects of the \lstinline!S0! and \lstinline!S1! types (above), their respective \lstinline!d_buffer! data members will be aligned on a 16-byte boundary. Such equivalency, however, holds only for \emcppsgloss{standard layout types}.  Adding a virtual function or even simply changing the access control for some of the data members\footnote{According to the C++20 Standard, compilers are allowed to reorder data members having different access control.  However, no compilers take advantage of this ability in practice, and C++23 might mandate that the data members are always laid out in declaration order; see \cite{balog20}.} might break this equivalency:
+Indeed, for all objects of the \lstinline!S0! and \lstinline!S1! types (in the example above), their respective \lstinline!d_buffer! data members will be aligned on a 16-byte boundary. Such equivalency, however, holds only for \emcppsgloss{standard layout types}.  Adding a virtual function or even simply changing the access control for some of the data members\footnote{According to the C++20 Standard, compilers are allowed to reorder data members having different access control.  However, no compilers take advantage of this ability in practice, and C++23 might mandate that the data members are always laid out in declaration order; see \cite{balog20}.} might break this equivalency:
 
 \begin{emcppslisting}
 struct S2 {
@@ -588,7 +631,7 @@ struct S2 {
 };
 
 struct alignas(16) S3 {
-    char d_buffer[128];              // (ù{\emphincomments{NOT}}ù) guaranteed to be 16-byte aligned!
+    char d_buffer[128];              // (ù{\emphincomments{not}}ù) guaranteed to be 16-byte aligned
     int  d_index;
 
     virtual ~S3();
@@ -601,13 +644,13 @@ private:
 };
 
 struct alignas(16) S5 {
-    char d_buffer[128];              // (ù{\emphincomments{NOT}}ù) guaranteed to be 16-byte aligned!
+    char d_buffer[128];              // (ù{\emphincomments{not}}ù) guaranteed to be 16-byte aligned
 private:
     int  d_index;
 };
 \end{emcppslisting}
 
-Any code that relies on the \lstinline!d_buffer! member of instances of the \lstinline!S3! and \lstinline!S5! types (above) being 16-byte aligned is defective.
+Any code that relies on the \lstinline!d_buffer! member of instances of the \lstinline!S3! and \lstinline!S5! types (in the code example above) being 16-byte aligned is defective.
 
 \subsubsection[Overlooking alternative approaches to avoid false sharing]{Overlooking alternative approaches to avoid false sharing}\label{stricter-alignment-might-reduce-cache-utilization}\label{overlooking-alternative-approaches-to-avoid-false-sharing}
 
@@ -616,7 +659,8 @@ naturally occur on the host platform means that fewer of them can fit
 within any given level of physical cache within the hardware. Types
 having data members whose alignment is artificially strengthened tend to be
 larger and thus suffer the same lost cache utilization. As an
-alternative to enforcing stricter alignment to avoid \emcppsgloss{false sharing}, consider organizing a multithreaded program such that tight
+alternative to enforcing stricter alignment to avoid \emcppsgloss{false
+sharing}, consider organizing a multithreaded program such that tight
 clusters of repeatedly accessed objects are always acted upon by only a
 single thread at a time, e.g., using local (arena) memory allocators;
 see \intraref{alignas-appendix}{cache-lines,-l1,-l2,-and-l3-cache,-pages,-and-virtual-memory}.
@@ -626,7 +670,7 @@ see \intraref{alignas-appendix}{cache-lines,-l1,-l2,-and-l3-cache,-pages,-and-vi
 
 \begin{itemize}
 \item{%Section~\ref{alignof}, ``\titleref{alignof}" — Safe C++11 feature that
-\seealsoref{alignof}{\seealsolocationc}inspects the alignment of a given type}
+\seealsoref{alignof}{\seealsolocationc}inspects the alignment of a given type.}
 %\item{Section~\ref{attributes}, ``\titleref{attributes}" — Safe C++11 feature that shows how other attributes (following the conventional attribute notation) are used to annotate source code, improve error diagnostics, and implicitly code generation} %%% WORDS MISSING!
 \end{itemize}
 
@@ -657,7 +701,7 @@ None so far
 %double d;  // size 8; alignment 8; boundaries: 0x00, 0x08, 0x10, 0x18, ...
 %\end{lstlisting}
 
-Many micro-architectures are optimized for working with data that has \emcppsgloss{natural alignment} --- that is that objects reside on an address boundary that divides their size rounded up to the nearest power of two.  With the additional restriction that no padding is allowed between C++ array elements, the alignment requirements of fundamental types are often equal to their respective size on most platforms:
+Many micro-architectures are optimized for working with data that has \emcppsgloss{natural alignment}, i.e., objects reside on an address boundary that divides their size rounded up to the nearest power of two.  With the additional restriction that no padding is allowed between C++ array elements, the alignment requirements of fundamental types are often equal to their respective size on most platforms:
 
 \begin{emcppslisting}
 char        c;  // size 1;  alignment 1;  boundaries: 0x00, 0x01, 0x02, ...
@@ -675,7 +719,7 @@ char  arrC[4];  // size 4; alignment 1
 short arrS[4];  // size 8; alignment 2
 \end{emcppslisting}
 
-For user-defined types, compilers compute the alignment and add appropriate padding between the data members and after the last one such that all alignment requirements of the data members are satisfied and no padding would be required should an array of the type be created. Typically, this results in the alignment requirement of a \emcppsgloss[user defined type (UDT)]{UDT} be the same as that of the most strictly aligned non-static data member:
+For user-defined types, compilers compute the alignment and add appropriate padding between the data members and after the last one such that all alignment requirements of the data members are satisfied and no padding would be required should an array of the type be created. Typically, this results in the alignment requirement of a \emcppsgloss[user defined type (UDT)]{UDT} being the same as that of the most strictly aligned nonstatic data member:
 
 %For aggregates (including arrays) or user-defined types, the alignment
 %is typically that of the most strictly aligned subelement:
@@ -714,7 +758,8 @@ struct S4
 };              // size 2; alignment 1
 \end{emcppslisting}
 
-\noindent Size and alignment behave similarly with respect to \emcppsgloss{structural inheritance}:
+\noindent Size and alignment behave similarly with respect to \emcppsgloss{structural
+inheritance}:
 
 \begin{emcppslisting}[emcppsbatch=e3]
 struct D0 : S0
@@ -794,10 +839,13 @@ the cache itself. When the CPU accesses main memory, it first looks to
 see if that memory is in the cache; if it is, the value is returned
 quickly (known as a \emcppsgloss{cache hit}). Otherwise, the cache line(s)
 containing that data is (are) fetched (from the next higher level of cache
-or from main memory) and placed into the cache (known as a \emcppsgloss{cache miss}), possibly ejecting other less recently used
+or from main memory) and placed into the cache (known as a \emcppsgloss{cache
+miss}), possibly ejecting other less recently used
 ones.{\cprotect\footnote{Conceptually, the cache is often thought of as
 being able to hold any arbitrary subset of the most recently accessed
-cache lines. This kind of cache is known as \emcppsgloss{fully associative}. Although it provides the best hit rate, a \emcppsgloss{fully associative} cache requires the most power along with significant
+cache lines. This kind of cache is known as \emcppsgloss{fully
+associative}. Although it provides the best hit rate, a \emcppsgloss{fully
+associative} cache requires the most power along with significant
 additional chip area to perform the fully parallel lookup. \emcppsgloss[direct mapped]{Direct-mapped} cache associativity is at the
 other extreme. In direct mapped, each memory location has exactly one location
 available to it in the cache. If another memory location mapping to
@@ -822,7 +870,7 @@ themselves synchronized by the hardware. Such unexpected and typically
 undesirable sharing of a cache line by unrelated data acted upon by two
 concurrent threads is known as \emcppsgloss{false sharing}. One way of
 avoiding \emcppsgloss{false sharing} is to align such data on a cache-line
-boundary, thus rendering accidental collocation of such data on the same
+boundary, thus rendering accidental colocation of such data on the same
 cache line impossible. Another (more broad-based) design approach that
 avoids lowering cache utilization is to ensure that data acted upon by a
 given thread is kept physically separate --- e.g., through the use of
@@ -861,17 +909,16 @@ operations) --- become scattered across multiple (perhaps many)
 to no longer fit within physical memory. This phenomenon, known as
 \emcppsgloss{diffusion} (which is a distinct concept from
 \emcppsgloss{fragmentation}), is what typically leads to a substantial
-runtime performance degradation (due to \emcppsgloss{thrashing}) in large,
+runtime performance degradation (due to cache line \emcppsgloss{thrashing}) in large,
 long-running programs. Such \emcppsgloss{diffusion} can be mitigated by
 judicious use of local arena memory allocators (and deliberate
 avoidance of \emcppsgloss{move operations} across disparate localities of
   frequent memory usage).}} What's more, dense working sets, in addition
 to facilitating hits for repeat access, increase the likelihood that
 data that is coresident on a page (or cache line) will be needed soon
-(i.e., in effect acting as a prefetch).{\cprotect\footnote{We sometimes
-lightheartedly refer to the beneficial prefetch of unrelated data that
+(i.e., in effect acting as a prefetch).{\cprotect\footnote{Beneficial prefetching of unrelated data that
 is accidentally needed subsequently (e.g., within a single thread) due
-to high locality within a cache line (or a physical page) as
+to high locality within a cache line (or a physical page) is sometimes referred to as
   \emcppsgloss{true sharing}.}} Table~\ref{table-alignas-appendix} provides a summary of typical physical parameters found in modern computers today.
 
 %%%%%%TODO: TBD: @Lori: Format this as a figure with a caption. @jslakos: Double-check accuracy of values.

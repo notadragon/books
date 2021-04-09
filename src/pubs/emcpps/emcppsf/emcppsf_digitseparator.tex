@@ -1,5 +1,6 @@
 % 5 Feb 2021, copyedits in and proofed
 % 8 Feb 2021 JMB, compilation fixes
+% 22 March 2021, in FPPs
 
 \emcppsFeature{
     toclong={The Digit Separator: \lstinline!'!},
@@ -105,6 +106,7 @@ unsigned long long big1 = 9'223'372'036'854'775'808;  // (ù{\codeincomments{2\^
     //                           ^~~~~~~~~~~~~~~~~~~~~~~~~~
 \end{emcppslisting}
 
+\newpage%%%%%%
 \noindent Such warnings can typically be suppressed by adding a \lstinline!ull!
 suffix to the literal:
 
@@ -127,7 +129,7 @@ float reallyPrecise = 3.141'592'653'589'793'238'462'643'383'279'502'884;  (ù{\c
     (ù{\commentcolor{// Everything after}ù) (ù{\codeincomments{3.141'592'6}}ù) (ù{\commentcolor{is typically ignored silently.}ù)
 \end{emcppslisting}
 
-\noindent For more information, see \intrarefsimple{appendix:-silent-loss-of-precision-in-floating-point-literals}.
+\noindent For more information, see \intraref{appendix-digitsep}{appendix:-silent-loss-of-precision-in-floating-point-literals}.
 %{\it\titleref{appendix:-silent-loss-of-precision-in-floating-point-literals}} on page~\pageref{appendix:-silent-loss-of-precision-in-floating-point-literals}.
 
 \subsection[Use Cases]{Use Cases}\label{use-cases}
@@ -175,6 +177,7 @@ literals to group bits in octets (\emcppsgloss{bytes}) or quartets
 \end{center}
 \end{table}
 
+\newpage%%%%%%
 \subsection[Potential Pitfalls]{Potential Pitfalls}\label{potential-pitfalls}
 
 \hspace{\fill}
@@ -193,7 +196,9 @@ IEEE Standard 754 for Binary Floating-Point Arithmetic,'' \cite{kahan97}}
 \item{{\textit{IEEE Standard for Floating-Point Arithmetic}}, \cite{ieee19}}
 \end{itemize}
 
-\subsection[Appendix: Silent Loss of Precision in Floating-Point Literals]{Appendix: Silent Loss of Precision in Floating-Point Literals}\label{appendix:-silent-loss-of-precision-in-floating-point-literals}
+\subsection[Appendix]{Appendix}\label{appendix-digitsep}
+
+\subsubsection[Silent loss of precision in floating-point literals]{Silent loss of precision in floating-point literals}\label{appendix:-silent-loss-of-precision-in-floating-point-literals}
 
 Just because we can keep track of precision in floating-point literals
 doesn't mean that the compiler can. As an aside, it is worth
@@ -218,9 +223,14 @@ supports a total of at last 20 decimal digits). A notable exception is Microsoft
 typical precisions for various IEEE-conforming floating-point types is
 presented for convenient reference in Table~\ref{digitseparator-table3}. The actual bounds on a
 given platform can be found using the standard
-\lstinline!std::numeric_limits! class template found in \lstinline!<limits>!.\pagebreak[4]
-\begin{table}[h!]
+\lstinline!std::numeric_limits! class template found in \lstinline!<limits>!.
+\pagebreak%%%%%
+
+
+
+\begin{table}[t]
 \begin{center}
+\vspace*{-3ex}
 \begin{threeparttable}
 \caption{Available precisions for various IEEE-754 floating-point types}\label{digitseparator-table3}\vspace{1.5ex}
 {\small \begin{tabular}{c|c|c|c|c|c}\thickhline
@@ -232,7 +242,8 @@ binary16 & Half precision & \multicolumn{1}{r|}{11} & \multicolumn{1}{r|}{3.31} 
 binary32 & Single precision & \multicolumn{1}{r|}{24} & \multicolumn{1}{r|}{7.22} & \multicolumn{1}{r|}{8} & \multicolumn{1}{r}{$\sim3.4\text{e}38$}\\ \hline
 binary64 & Double precision & \multicolumn{1}{r|}{53} & \multicolumn{1}{r|}{15.95} & \multicolumn{1}{r|}{11} & \multicolumn{1}{r}{$\sim1.\text{e}308$}\\ \hline
 \rule{0pt}{3.5mm}binary80 & Extended precision & \multicolumn{1}{r|}{69} & \multicolumn{1}{r|}{20.77} & \multicolumn{1}{r|}{11} & \multicolumn{1}{r}{$\sim10^{308}$}\\ \hline
-\rule{0pt}{3.5mm}binary128 & Quadruple precision & \multicolumn{1}{r|}{113} & \multicolumn{1}{r|}{34.02} & \multicolumn{1}{r|}{15} & \multicolumn{1}{r}{$\sim10^{4932}$}\\ \hline
+\rule{0pt}{3.5mm}binary128 & Quadruple precision & \multicolumn{1}{r|}{113} & \multicolumn{1}{r|}{34.02} & \multicolumn{1}{r|}{15} & \multicolumn{1}{r}{$\sim10^{4932}$}\\
+\thickhline
 \end{tabular}
 } % end small
 \begin{tablenotes}{\footnotesize
@@ -284,7 +295,8 @@ can make use of the precision suggested by the original literal; if
 they \emph{are} the same, however, then it is likely that the available
 precision has been exceeded. Iterative use of this technique by
 developers can help them to empirically narrow down the maximal number
-of decimal digits a particular platform will support for a particular
+of decimal digits a particular platform\linebreak[4]
+\newpage will support for a particular
 floating-point type and value. Note, however, that because the compiler is not required to use the floating-point arithmetic of the target platform \emph{during compilation}, this approach might not be applicable for a cross-compilation scenario.
 
 One final useful tidbit pertains to the safe (lossless) conversion

@@ -1,5 +1,7 @@
 % 8 March 2021, ready for Josh's code check
 % 9 March 2021 JMB - code compiles, corrected u8 bugs
+% 17 March 2021, copyedits in and proofed
+
 
 \emcppsFeature{
     short={User-Defined Literals},
@@ -13,11 +15,12 @@
 
 C++11 allows developers to define a new suffix for a \emph{numeric},
 \emph{character}, or \emph{string} literal, enabling a convenient
-lexical representation of the \emph{value} of a \emcppsgloss[user defined type (UDT)]{user-defined type (UDT)} or even a novel notation for the value of a built-in type.
+lexical representation of the \emph{value} of a \emcppsgloss[user defined type (UDT)]{user-defined
+type (UDT)} or even a novel notation for the value of a built-in type.
 
 \subsection[Description]{Description}\label{description-userdeflit}
 
-A \emcppsgloss{literal} is a single token in a program that represents a
+A \emcppsgloss{literal} is a single token in a program that represents, in C and classic C++, a
 value of an integer, floating-point, character, string, Boolean, or
 pointer type.
 
@@ -25,12 +28,12 @@ Examples of familiar literal tokens are integer literals \lstinline!19! and
 \lstinline!0x13!, each representing an \lstinline!int! having a value of 19;
 floating-point literals \lstinline!0.19! and \lstinline!1.9e-1!, each
 representing a \lstinline!double! having a value of 0.19; character
-literals \lstinline!'a'! and \lstinline!\141!, 
+literals \lstinline!'a'! and \lstinline!\141!,
 each representing a
 \lstinline!char! having the (ASCII) value for the letter ``a''; string
 literal, \lstinline!"hello"!, representing a null-terminated array
-containing the 6 characters \lstinline!'h'!, \lstinline!'e'!, \lstinline!'l'!,
-\lstinline!'l'!, \lstinline!'o'!, and \lstinline!'\0'!; 
+containing the six characters \lstinline!'h'!, \lstinline!'e'!, \lstinline!'l'!,
+\lstinline!'l'!, \lstinline!'o'!, and \lstinline!'\0'!;
 and Boolean
 keyword literals \lstinline!true! and \lstinline!false!, representing the
 corresponding Boolean values. C++11 added the keyword literal,
@@ -39,7 +42,7 @@ null pointer value.
 
 Both integer and floating-point literals have always had suffixes to
 identify other numeric C++ types. For example, \lstinline!123L! and
-\lstinline!123ULL! are literals of type \lstinline!signed!~\lstinline!long! and\linebreak[4]%%%%%   
+\lstinline!123ULL! are literals of type \lstinline!signed!~\lstinline!long! and\linebreak[4]%%%%%
 \lstinline!unsigned!~\lstinline!long!~\lstinline!long!, respectively, both having
 a decimal value 123, whereas \lstinline!123.f! is a literal of type
 \lstinline!float! having precisely the decimal value 123. We can easily
@@ -66,20 +69,21 @@ void test0()
     f(123f);   // Error, invalid hex digit (ù{\codeincomments{f}}ù) in decimal constant
 }
 \end{emcppslisting}
-    
-\noindent Notice that applying an \lstinline!L! (or \lstinline!l!) suffix to a
+
+\noindent Notice that applying an \lstinline!L! or \lstinline!l! suffix to a
 floating-point literal (of default type \lstinline!double!) identifies it
 as being of type \lstinline!long!~\lstinline!double!, which is a
 \emcppsgloss{standard conversion} away from both \lstinline!float! and
-\lstinline!double!, making the call ambiguous. Applying \lstinline!F! (or
-\lstinline!f!) to an integer literal is, by default, not permitted unless a
+\lstinline!double!, making the call ambiguous. Applying \lstinline!F! or
+\lstinline!f! to an integer literal is, by default, not permitted unless a
 user-defined literal (UDL) of a compatible type can be found.
 
-Classic C++ allowed only values of built-in type to be represented as
+Classic C++ allowed values of only built-in types to be represented as
 compile-time literals. To express a hard-coded value of a UDT, a
 developer would need to use a \emcppsgloss{value constructor} or
-\emcppsgloss{factory function} and, unlike literals of built-in type, these
-\emph{runtime} workarounds could never be used in a \emcppsgloss{constant expression}. For example, we might want to create a user-defined type,
+\emcppsgloss{factory function} and, unlike literals of built-in types, these
+\emph{runtime} workarounds could never be used in a \emcppsgloss{constant
+expression}. For example, we might want to create a user-defined type,
 \lstinline!Name!, that can construct itself from a null-terminated string:
 
 \begin{emcppslisting}[emcppsbatch=e1]
@@ -92,14 +96,14 @@ public:
     //...
 };
 \end{emcppslisting}
-    
+
 \noindent We can then initialize a variable of type \lstinline!Name! from a string
 literal using the value constructor:
 
 \begin{emcppslisting}[emcppsbatch=e1]
 Name nameField("Maria");  // (ù{\codeincomments{Name}}ù) object having value (ù{\codeincomments{"Maria"}}ù)
 \end{emcppslisting}
-    
+
 \noindent Alternatively, we could create one or more \emcppsgloss[factory function]{factory functions}
 that return a constructed object appropriately configured with the
 desired value. Multiple factory functions having different names can be
@@ -126,17 +130,17 @@ void test1()
     assert(t1 == t2);                 // expect same type and same value
 }
 \end{emcppslisting}
-    
-\noindent  Note that, as of C++11 and later, the two functional constructs
+
+\noindent  Note that, as of C++11, the two functional constructs
 described above can be declared \lstinline!constexpr! and thus be eligible
 to be evaluated as part of a \emcppsgloss{constant expression}; see
-\featureref{\locationc}{constexprfunc}. 
+\featureref{\locationc}{constexprfunc}.
 
 Although usable, the aforementioned C++03 workarounds for representing
 literal values of a UDT lack the compactness and expressiveness of those
 for built-in types. A fundamental design goal of C++ has always been to
 minimize such differences. To that end, C++11 extends the notion of
-\emcppsgloss{type suffix} to include user-definable identifiers with
+\emcppsgloss[type suffix]{type suffix} to include user-definable identifiers with
 a leading underscore (e.g., \lstinline!_name!, \lstinline!_time!,
 \lstinline!_temp!):
 
@@ -151,33 +155,40 @@ void test2()  // same as (ù{\codeincomments{test1}}ù) above, but this time wit
     assert(t1 == t2);        // expect same type and same value
 }
 \end{emcppslisting}
-    
-\noindent The example above demonstrates the basic idea of a \emcppsgloss[user defined literal (UDL)]{UDL} implemented as a new kind of operator:
-\lstinline!operator""! followed by a suffix name. A \emcppsgloss[user defined literal (UDL)]{UDL} is a
-literal token having a \emcppsgloss[udl suffix]{UDL suffix} that names a \emcppsgloss[udl operator]{UDL operator}. A \emcppsgloss[user defined literal (UDL)]{UDL} \emph{uses} a suffix whereas a \emcppsgloss[udl operator]{UDL operator} \emph{defines} a suffix. A \emcppsgloss[udl suffix]{UDL suffix} must be a valid
+
+\noindent The example above demonstrates the basic idea of a \emcppsgloss[user defined
+literal (UDL)]{UDL} implemented as a new kind of operator:
+\lstinline!operator""! followed by a suffix name. A \emcppsgloss[user defined
+literal (UDL)]{UDL} is a
+literal token having a \emcppsgloss{UDL suffix} that names a \emcppsgloss{UDL
+operator}. A \emcppsgloss[user defined
+literal (UDL)]{UDL} \emph{uses} a suffix, whereas a \emcppsgloss{UDL
+operator} \emph{defines} a suffix. A \emcppsgloss{UDL suffix} must be a valid
 identifier that begins with an underscore (\lstinline!_!). Note that the
 leading underscore is \emph{not} required for \emcppsgloss[UDL suffix]{UDL suffixes}
-defined by the C++ Standard Library. A \emcppsgloss[user defined literal (UDL)]{UDL} is formed by
-appending a \emcppsgloss[udl suffix]{UDL suffix} to a native literal of one of four
+defined by the C++ Standard Library. A \emcppsgloss[user defined
+literal (UDL)]{UDL} is formed by
+appending a \emcppsgloss{UDL suffix} to a native literal of one of four
 \emcppsgloss[type category]{type categories}: \emcppsgloss[integer literal]{integer literals} (e.g.,
 \lstinline!2020_year!), \emcppsgloss[floating point literal]{floating-point literals} (e.g.,
 \lstinline!98.6_F!), \emcppsgloss[character literal]{character literals} (e.g.,
-\lstinline!'x'_ebcdic!, and \emcppsgloss[string literal]{string literals} (e.g.,
+\lstinline!'x'_ebcdic!), and \emcppsgloss[string literal]{string literals} (e.g.,
 \lstinline!"1!~\lstinline!Pennsylvania!~\lstinline!Ave"_validated!). Regardless
 of the type category, a \emcppsgloss[user defined literal (UDL)]{UDL} can evaluate to any built-in or
-user-defined type. What's more, the same \emcppsgloss[udl suffix]{UDL suffix} can apply
+user-defined type. What's more, the same \emcppsgloss{UDL suffix} can apply
 to more than one of the four UDL type categories enumerated above,
 potentially yielding a different type for each category.
 
 Each UDL operator is effectively a \emcppsgloss{factory operator} that takes
-a highly-constrained argument list (see \intrarefsimple{user-defined-literal-(udl)-operators}) 
+a highly constrained parameter list (see \intrarefsimple{user-defined-literal-(udl)-operators})
 and returns an
-appropriately configured object. The defined \emcppsgloss[udl suffix]{UDL suffix}, like
+appropriately configured object. The defined \emcppsgloss{UDL suffix}, like
 postfix operators \lstinline!++! and \lstinline!--!, names a function to be
 called, but is parsed as part of the preceding literal (with no
 intervening whitespace) and cannot be applied to an arbitrary run-time
 expression. In fact, the compiler does not always produce an \emph{a
-priori} interpretation of the literal before invoking the \emcppsgloss[udl operator]{UDL operator}.
+priori} interpretation of the literal before invoking the \emcppsgloss{UDL
+operator}.
 
 Let's now see how we might create a \emcppsgloss[user defined literal (UDL)]{UDL} for our original
 user-defined type, \lstinline!Name!. In this example, the \emcppsgloss[user defined literal (UDL)]{UDL}
@@ -198,12 +209,12 @@ Name operator""_Nm(const char* n, std::size_t /* length */) { return Name(n); }
 
 Name nameField = "Maria"_Nm;  // (ù{\codeincomments{Name}}ù) object having value "Maria"
 \end{emcppslisting}
-    
+
 \noindent The UDL definition for string literals above, \lstinline!operator""_Nm! in
 this case, takes two arguments: a \lstinline!const!~\lstinline!char*!
 representing a null-terminated character string and a
-\lstinline!std::size_t! representing the length of that string (excluding
-the null terminator). In our example, we ignore the second parameter in
+\lstinline!std::size_t! representing the length of that string excluding
+the null terminator. In our example, we ignore the second argument in
 the body of the UDL operator, but it must nonetheless be present in the
 parameter list.
 
@@ -217,7 +228,7 @@ for example, often return built-in types normalized to specific units:
 constexpr std::time_t minutes(int m) { return m * 60; }    // minutes to seconds
 constexpr std::time_t hours(int h)   { return h * 3600; }  // hours to seconds
 \end{emcppslisting}
-    
+
 \noindent Each of the unit-conversion functions above returns an
 \lstinline!std::time_t! (a standard type alias for a built-in integral
 type) representing a duration in seconds. We can combine such uniform
@@ -226,10 +237,10 @@ quantities initialized from values in disparate units as needed:
 \begin{emcppslisting}[emcppsbatch=e4]
 std::time_t duration = hours(3) + minutes(15);   // 3.25 hours as seconds
 \end{emcppslisting}
-    
+
 \noindent Replacing the unit-conversion functions with UDLs allows us to express
 the desired value with a more natural-looking syntax. We now define two
-new UDL operators defining suffixes \lstinline!_min! for minutes and
+new UDL operators, creating suffixes \lstinline!_min! for minutes and
 \lstinline!_hr! for hours, respectively:
 
 \begin{emcppslisting}[emcppsbatch=e5]
@@ -245,10 +256,9 @@ std::time_t operator""_hr(unsigned long long h)
 
 std::time_t duration = 3_hr + 15_min;  // 3.25 hours as seconds
 \end{emcppslisting}
-    
-\noindent We are not done yet. The \emcppsgloss[user defined literal (UDL)]{UDL} language feature was designed with
-the idea of providing a convenient syntax for arbitrary literal values
-that can also be treated as compile-time constants usable in
+
+\noindent We are not done yet. Unlike built-in literals, \emcppsgloss[user defined literal (UDL)]{UDLs} that use the suffixes defined above cannot express arbitrary literal values
+that can be treated as compile-time constants usable in
 \emcppsgloss[constant expression]{constant expressions} such as sizing an array or within a
 \lstinline!static_assert!:
 
@@ -256,7 +266,7 @@ that can also be treated as compile-time constants usable in
 int a1[5_hr];                    // Error, (ù{\codeincomments{5\_hr}}ù) is not a compile-time constant.
 static_assert(1_min == 60, "");  // Error, (ù{\codeincomments{1\_min}}ù) "  "  "    "      "     "
 \end{emcppslisting}
-    
+
 \noindent Typical definitions of UDLs will, therefore, also involve another C++11
 feature, \lstinline!constexpr! functions (see \featureref{\locationc}{constexprfunc}). By simply adding
 \lstinline!constexpr! to the declaration of our UDL operators, we enable
@@ -280,14 +290,14 @@ constexpr std::time_t operator""_Hr(unsigned long long h)
 int a2[5_Hr];                    // OK, (ù{\codeincomments{5\_Hr}}ù) is a compile-time constant.
 static_assert(1_Min == 60, "");  // OK, (ù{\codeincomments{1\_Min}}ù) " "    "     "      "
 \end{emcppslisting}
-    
+
 \noindent In short, a UDL operator is a new kind of \emcppsgloss{free operator} that
 (1) may be defined with certain specific signatures limited to a subset
 of the built-in types and (2) is invoked automatically when used as a
 suffix of a built-in literal. There are, however, multiple ways to
 define UDL operators --- \emph{precomputed-argument}, \emph{raw}, and
 \emph{template} --- each more expressive and complex than the previous.
-The many allowed variations on the definitions of \emcppsgloss[UDL operator]{UDL operators}
+The allowed variations on the definitions of \emcppsgloss[UDL operator]{UDL operators}
 are elucidated below.
 
 \subsubsection[Restrictions on UDLs]{Restrictions on UDLs}\label{restrictions-on-user-defined-literals-(udls)}
@@ -297,7 +307,7 @@ and string literals. Left deliberately unsupported are the two
 \emph{Boolean} literals, \lstinline!true! and \lstinline!false!, and the
 \emph{pointer} literal, \lstinline!nullptr! (see \featureref{\locationa}{null-pointer-literal-(nullptr)}). These omissions serve to sidestep
 lexical ambiguities --- e.g., the Boolean literal, \lstinline!true!,
-combined with the \emcppsgloss[udl suffix]{UDL suffix} \lstinline!_fact! would be
+combined with the \emcppsgloss{UDL suffix} \lstinline!_fact! would be
 indistinguishable from the identifier, \lstinline!true_fact!.
 
 We'll refer to the sequence of characters that make up a literal
@@ -313,32 +323,32 @@ program and, hence, neither would \lstinline!192.168.0.1_ipv4!.
 Interestingly, creating a \emcppsgloss[user defined literal (UDL)]{UDL} that
 would cause an overflow if interpreted without the suffix \emph{is} permitted. Thus, for
 example, the \emcppsgloss[user defined literal (UDL)]{UDL} \lstinline!0x123456789abcdef012345678_verylong!,
-which comprises 24 hex digits and the \emcppsgloss[udl suffix]{UDL suffix}
+which comprises 24 hex digits and the \emcppsgloss{UDL suffix}
 \lstinline!_verylong!, would be valid even on an architecture whose native
 integers cannot exceed 64 bits (16 hex digits); see \featureref{\locationa}{long-long}.
 
 Note that there are no \emph{negative} numeric literals in C++. The
 negative numeric value \lstinline!-123! is represented as two separate
-tokens: the negation operator and a (positive) literal, \lstinline!123!.
+tokens: the negation operator and a positive literal, \lstinline!123!.
 Similarly, an expression like \lstinline!-3_t1! will attempt to apply the
 negation operator to the object of, say, \lstinline!Type1! produced by the
 \lstinline!3_t1! \emcppsgloss[user defined literal (UDL)]{UDL}, which in turn comes from passing an
 \lstinline!unsigned!~\lstinline!long!~\lstinline!long! having the positive value
-3 to the \emcppsgloss[udl operator]{UDL operator} \lstinline!operator""_t1!. Such an
+3 to the \emcppsgloss{UDL operator} \lstinline!operator""_t1!. Such an
 expression will be \emcppsgloss{ill formed} unless there is a negation
 operator that operates on \emph{rvalues} of type \lstinline!Type1!. None of
-the three forms of \emcppsgloss[UDL operator]{UDL operators} (see \intrarefsimple{prepared-argument-udl-operators}, \intrarefsimple{raw-udl-operators}, and \intrarefsimple{templated-udl-operators}) needs to (or
-is able to) handle a \emcppsgloss{naked literal} representing a negative
+the three forms of \emcppsgloss[UDL operator]{UDL operators} (see \intrarefsimple{prepared-argument-udl-operators}, \intrarefsimple{raw-udl-operators}, and \intrarefsimple{templated-udl-operators}) needs, or
+is able, to handle a \emcppsgloss{naked literal} representing a negative
 number.
 
 When two or more string literals appear without intervening tokens, they
-are concatenated to form a single string literal. If at least one of
-them has a UDL suffix, then the suffix is applied to the concatenation
-of the \emcppsgloss{naked literal} strings. If more than one of them has a
-suffix, then all such suffixes must be the same \emcppsgloss[udl suffix]{UDL suffix};
+are concatenated and treated as a single string literal. If at least one of
+those strings has a UDL suffix, then the suffix is applied to the concatenation
+of the \emcppsgloss{naked literal} strings. If more than one of the strings has a
+suffix, then all such suffixes must be the same \emcppsgloss{UDL suffix};
 concatenating string literals having different suffixes is not
 permitted, but strings having no suffix may be concatenated with strings
-having a \emcppsgloss[udl suffix]{UDL suffix}:
+having a \emcppsgloss{UDL suffix}:
 
 \begin{emcppslisting}
 #include <cstddef>  // (ù{\codeincomments{std::size\_t}}ù)
@@ -356,8 +366,8 @@ XStr f   = "hello"_X    " world"_X;  //  "      "      "     "     "
 XStr g   = "hel"_X "lo" " world"_X;  //  "      "      "     "     "
 XStr h   = "hello"_X    " world"_Y;  // Error, mixing UDL suffixes (ù{\codeincomments{\_X}}ù) and (ù{\codeincomments{\_Y}}ù)
 \end{emcppslisting}
-    
-\noindent Finally, combining a \emcppsgloss[udl suffix]{UDL suffix} with a
+
+\noindent Finally, combining a \emcppsgloss{UDL suffix} with a
 second built-in or user-defined suffix on a single token is not possible. Writing
 \lstinline!45L_Min!, for example, in an attempt to combine the \lstinline!L!
 suffix (for \lstinline!long!) with the \lstinline!_Min! suffix (for the
@@ -366,27 +376,28 @@ simply yield the undefined and invalid suffix, \lstinline!L_Min!.
 
 \subsubsection[UDL operators]{UDL operators}\label{user-defined-literal-(udl)-operators}
 
-A \emcppsgloss[udl suffix]{UDL suffix} (e.g., \lstinline!_udl!) is created by defining a
-\emcppsgloss[udl operator]{UDL operator} (e.g., \lstinline!operator""_udl!) that follows a
+A \emcppsgloss{UDL suffix} (e.g., \lstinline!_udl!) is created by defining a
+\emcppsgloss{UDL operator} (e.g., \lstinline!operator""_udl!) that follows a
 strict set of rules described in this section. In the declaration and
-definition of a \emcppsgloss[udl operator]{UDL operator}, the name of the \emcppsgloss[udl suffix]{UDL suffix} \emph{may} be separated from the quotes by whitespace; in fact,
+definition of a \emcppsgloss{UDL operator}, the name of the \emcppsgloss{UDL
+suffix} \emph{may} be separated from the quotes by whitespace; in fact,
 some older compilers might even \emph{require} such whitespace due to a
-defect in the original C++11 specification that has since been
-corrected. Thus, for all but the oldest C++11 compilers,
+defect (since corrected and retroactively applied)  in the original C++11 specification. Thus, for all but the oldest C++11 compilers,
 \lstinline!operator""_udl!, \lstinline!operator""!~\lstinline!_udl!, and
 \lstinline!operator!~\lstinline!""!~\lstinline!_udl! are all valid spellings of
-the same \emcppsgloss[udl operator]{UDL operator} name. Note that whitespace is \emph{not}
+the same \emcppsgloss{UDL operator} name. Note that whitespace is \emph{not}
 permitted between a literal and its suffix in the \emph{use} of a
 \emcppsgloss[user defined literal (UDL)]{UDL}. For example, \lstinline!1.2!~\lstinline!_udl! is ill formed;
 \lstinline!1.2_udl! must appear as a single token with no whitespace.
 
 A \emcppsgloss[user defined literal (UDL)]{UDL} generally consists of two parts: (1) a valid lexical
 literal token and (2) a user-defined suffix. The signature of each
-\emcppsgloss[udl operator]{UDL operator} must conform to one of three patterns,
-distinguished by the way the compiler supplies the \emcppsgloss{naked literal} to the \emcppsgloss[udl operator]{UDL operator}:
+\emcppsgloss{UDL operator} must conform to one of three patterns,
+distinguished by the way the compiler supplies the \emcppsgloss{naked
+literal} to the \emcppsgloss{UDL operator}:
 
 \begin{enumerate}
-\item{\emcppsgloss[prepared-argument UDL operator]{Prepared-argument UDL operator} — The \emcppsgloss{naked literal} is evaluated at compile-time and passed into the operator as a value:
+\item{\emcppsgloss[prepared-argument UDL operator]{Prepared-argument UDL operator} — The \emcppsgloss{naked literal} is evaluated at compile time and passed into the operator as a value:
 \begin{emcppshiddenlisting}[emcppsbatch=e7]
 struct Type1 {};
 struct Type2 {};
@@ -394,37 +405,40 @@ struct Type3 {};
 \end{emcppshiddenlisting}
 \begin{emcppslisting}[emcppsbatch=e7]
 Type1 operator"" _t1(unsigned long long n);
-Type1 t1 = 780_t1;  // Calls (ù{\codeincomments{operator""\_t1(780ULL)}}ù)
+Type1 t1 = 780_t1;  // calls (ù{\codeincomments{operator""\_t1(780ULL)}}ù)
 \end{emcppslisting}
     }
 \item{\emcppsgloss[raw UDL operator]{Raw UDL operator} — The characters that make up the \emcppsgloss{naked literal} are passed to the operator as a \emph{raw}, unevaluated string (for numeric literals only):
 \begin{emcppslisting}[emcppsbatch=e7]
 Type2 operator"" _t2(const char *token);
-Type2 t2 = 780_t2;  // Calls (ù{\codeincomments{operator""\_t2("780")}}ù)
+Type2 t2 = 780_t2;  // calls (ù{\codeincomments{operator""\_t2("780")}}ù)
 \end{emcppslisting}
     }
 \item{\emcppsgloss[templated UDL operator]{Templated UDL operator} — The UDL operator is a template whose parameter list is a variadic sequence of \lstinline!char! values (see \featureref{\locationc}{variadictemplate}) that make up the \emcppsgloss{naked literal} (for numeric literals only):
 \begin{emcppslisting}[emcppsbatch=e7]
 template <char...> Type3 operator"" _t3();
-Type3 t3 = 780_t3;  // Calls (ù{\codeincomments{operator""\_t3<'7', '8', '0'>()}}ù)
+Type3 t3 = 780_t3;  // calls (ù{\codeincomments{operator""\_t3<'7', '8', '0'>()}}ù)
 \end{emcppslisting}
     }
 \end{enumerate}
 
-Each of these three forms of \emcppsgloss[UDL operator]{UDL operators} are expounded in more detail in its own separate subsection; see \intrarefsimple{prepared-argument-udl-operators}, \intrarefsimple{raw-udl-operators}, and \intrarefsimple{templated-udl-operators}.
+Each of these three forms of \emcppsgloss[UDL operator]{UDL
+operators} is expounded in more detail in its own separate section; see \intrarefsimple{prepared-argument-udl-operators}, \intrarefsimple{raw-udl-operators}, and \intrarefsimple{templated-udl-operators}.
 
 When a \emcppsgloss[user defined literal (UDL)]{UDL} is encountered, the compiler prioritizes a
-\emcppsgloss[prepared argument udl operator]{prepared-argument UDL operator} over the other two. Given a
+\emcppsgloss{prepared-argument UDL operator} over the other two. Given a
 \emcppsgloss[user defined literal (UDL)]{UDL} having suffix \lstinline!_udl!, the compiler will look for
-any \lstinline!operator""_udl! in the local scope (\emcppsgloss{unqualified name lookup}). If, among the operators found, there is a
-\emcppsgloss[prepared argument udl operator]{prepared-argument UDL operator} that exactly matches the type of
-the \emcppsgloss{naked literal}, then that \emcppsgloss[udl operator]{UDL operator} is called.
+any \lstinline!operator""_udl! in the local scope (\emcppsgloss{unqualified
+name lookup}). If, among the operators found, there is a
+\emcppsgloss{prepared-argument UDL operator} that exactly matches the type of
+the \emcppsgloss{naked literal}, then that \emcppsgloss{UDL operator} is called.
 Otherwise, for numeric literals only, the \emcppsgloss[raw UDL operator]{raw} or
-\emcppsgloss[templated udl operator]{templated UDL operator} (only one of which is permitted to exist
-for a given suffix) is invoked. This set of lookup rules is deliberately
+\emcppsgloss{templated UDL operator} --- only one of which is permitted to exist
+for a given suffix --- is invoked. This set of lookup rules is deliberately
 short and rigid. Importantly, this lookup sequence differs from other
-operator invocations in that it does \emph{not} involve \emcppsgloss{overload resolution} or argument conversions, nor does it employ
-\emcppsgloss[argument dependent lookup]{argument-dependent lookup (ADL)} to find operators in
+operator invocations in that it does \emph{not} involve \emcppsgloss{overload
+resolution} or argument conversions, nor does it employ
+\emcppsgloss[argument-dependent lookup (ADL)]{argument-dependent lookup (ADL)} to find operators in
 other namespaces.
 
 Although \emcppsgloss[argument-dependent lookup (ADL)]{ADL} is never an issue for \emcppsgloss[user defined literal (UDL)]{UDLs}, common
@@ -451,7 +465,7 @@ namespace ns1  // namespace containing types returned by UDL operators
         Type1 operator"" _t1(const char*, std::size_t);
     }
 
-    using namespace literals;  // Make literals available in namespace (ù{\codeincomments{ns1}}ù)
+    using namespace literals;  // Make literals available in namespace (ù{\codeincomments{ns1}}ù).
 }
 
 void test1()  // file scope: finds UDL operator via (ù{\codeincomments{using}}ù) directive
@@ -460,11 +474,12 @@ void test1()  // file scope: finds UDL operator via (ù{\codeincomments{using}}�
     check("xyzzy"_t1);              // OK, finds (ù{\codeincomments{ns1::check}}ù) via ADL
 }
 \end{emcppslisting}
-    
-\noindent To use the \lstinline!_t1! \emcppsgloss[udl suffix]{UDL suffix} above, \lstinline!test1! must
-somehow be able to find the declaration of its corresponding \emcppsgloss[udl operator]{UDL operator} locally, which is accomplished by placing the operator in a
-nested namespace and importing the entire namespace via a \emcppsgloss[using directive]{\lstinline!using! directive}. We could have, instead, avoided the nested namespace and
-required each needed operator to be imported individually:
+
+\noindent To use the \lstinline!_t1! \emcppsgloss{UDL suffix} above, \lstinline!test1! must
+somehow be able to find the declaration of its corresponding \emcppsgloss{UDL
+operator} locally, which is accomplished by placing the operator in a
+nested namespace and importing the entire namespace via a \emcppsgloss[using
+directive]{\lstinline!using! directive}. We could have avoided the nested namespace and, instead, required each needed operator to be imported individually:
 
 \begin{emcppshiddenlisting}[emcppsbatch=e9]
 #include <cstddef>  // (ù{\codeincomments{std::size\_t}}ù)
@@ -485,7 +500,7 @@ void test2()  // file scope: finds UDL operator via (ù{\codeincomments{using}}�
     check("xyzzy"_t2);          // OK, finds (ù{\codeincomments{ns2::check}}ù) via ADL
 }
 \end{emcppslisting}
-    
+
 \noindent When multiple \emcppsgloss[UDL operator]{UDL operators} are provided for a collection of
 types, however, the idiom of placing just the \emcppsgloss[UDL operator]{UDL operators} in
 a nested namespace (typically incorporating the name ``literals'')
@@ -502,12 +517,15 @@ declared \lstinline!inline! and doing so is contraindicated; see \featureref{\lo
 
 The \emph{prepared-argument} pattern for \emcppsgloss[UDL operator]{UDL operators} is
 supported for all four of the \emcppsgloss[UDL type category]{UDL type categories}: integer,
-floating-point, character, and string. If this form of \emcppsgloss[udl operator]{UDL operator} is selected (see \intrarefsimple{user-defined-literal-(udl)-operators}), the compiler
+floating-point, character, and string. If this form of \emcppsgloss{UDL
+operator} is selected (see \intrarefsimple{user-defined-literal-(udl)-operators}), the compiler
 first determines which of the four \emcppsgloss[UDL type category]{UDL type categories} applies
-to the \emcppsgloss{naked literal}, evaluates it (without regard to the
-\emcppsgloss[udl suffix]{UDL suffix}), and then passes the prepared (i.e., precomputed)
-value to the \emcppsgloss[udl operator]{UDL operator}, which further processes its argument
-and returns the value of the UDL. Note that the \emcppsgloss[udl type category]{UDL type category} of the \emcppsgloss[udl operator]{UDL operator} refers only to the \emcppsgloss{naked literal}; its return value can be any arbitrary type, with or without an
+to the \emcppsgloss{naked literal}, evaluates it without regard to the
+\emcppsgloss{UDL suffix}, and then passes the prepared (i.e., precomputed)
+value to the \emcppsgloss{UDL operator}, which further processes its argument
+and returns the value of the UDL. Note that the \emcppsgloss{UDL type
+category} of the \emcppsgloss{UDL operator} refers to only the \emcppsgloss{naked
+literal}; its return value can be any arbitrary type, with or without an
 obvious relationship to its type category:
 
 \begin{emcppshiddenlisting}[emcppsbatch=e10]
@@ -520,11 +538,15 @@ Smile operator"" _fx(long double);  // floating-point literal returning (ù{\cod
 float operator"" _ix(unsigned long long);  // integer literal returning (ù{\codeincomments{float}}ù)
 int operator"" _sx(const char*, std::size_t);  // string literal returning (ù{\codeincomments{int}}ù)
 \end{emcppslisting}
-    
-\noindent The \emcppsgloss[udl type category]{UDL type category} for a \emcppsgloss[prepared argument udl operator]{prepared-argument UDL operator} is determined by the operator's signature; integer and
+
+\noindent The \emcppsgloss{UDL type category} for a \emcppsgloss{prepared-argument UDL
+operator} is determined by the operator's signature; integer and
 floating-point \emcppsgloss[UDL operator]{UDL operators} each take a single argument of,
-respectively, the largest \emph{unsigned} integer or floating-point type
-defined by the language. Multiple \emcppsgloss[prepared-argument UDL operator]{prepared-argument UDL operators} may be declared in the same scope for the same \emcppsgloss[udl suffix]{UDL suffix} (e.g., \lstinline!_aa!) and each may return a distinct arbitrary
+respectively, the largest unsigned integer or floating-point type
+defined by the language. Multiple \emcppsgloss[prepared-argument UDL
+operator]{prepared-argument UDL
+operators} may be declared in the same scope for the same \emcppsgloss{UDL
+suffix} (e.g., \lstinline!_aa!) and each may return a distinct arbitrary
 type (e.g., \lstinline!short!, \lstinline!Smile!):
 
 \begin{emcppslisting}[emcppsbatch=e10]
@@ -532,11 +554,12 @@ short operator"" _aa(unsigned long long n);  // integer literal operator
 Smile operator"" _aa(long double n);         // floating-point literal operator
 bool  operator"" _bb(long double n);         // floating-point literal operator
 \end{emcppslisting}
-    
+
 \noindent The \emcppsgloss{naked literal} is evaluated as an
 \lstinline!unsigned!~\lstinline!long!~\lstinline!long! for integer literals (see \featureref{\locationa}{long-long}) or a
 \lstinline!long!~\lstinline!double! for floating-point literals; the prepared
-value is then passed via the \lstinline!n! parameter to the \emcppsgloss[udl operator]{UDL operator}. The compiler does the work of parsing and evaluating the
+value is then passed via the \lstinline!n! parameter to the \emcppsgloss{UDL
+operator}. The compiler does the work of parsing and evaluating the
 sequence of digits, radix prefixes (e.g., \lstinline!0! for octal and
 \lstinline!0x! for hexadecimal), decimal points, and exponents. C++14
 provides additional features related to built-in
@@ -546,28 +569,29 @@ literals; see \featureref{\locationb}{binary-literals} and \featureref{\location
 short v1 = 123_aa;  // OK, invokes (ù{\codeincomments{operator"" \_aa(unsigned long long)}}ù)
 Smile v2 = 1.3_aa;  // OK, invokes (ù{\codeincomments{operator"" \_aa(long double)}}ù)
 \end{emcppslisting}
-    
+
 \noindent There is no \emcppsgloss{overload resolution},
-\emcppsgloss[integer to floating point conversion]{integer-to-floating-point conversion}, or
-\emcppsgloss[floating point to integer conversion]{floating-point-to-integer conversion}, nor are \emcppsgloss[UDL operator]{UDL operators} having numerically lower precision permitted:
+\emcppsgloss{integer-to-floating-point conversion}, or
+\emcppsgloss{floating-point-to-integer conversion}, nor are \emcppsgloss[UDL operator]{UDL
+operators} having numerically lower precision permitted:
 
 \begin{emcppslisting}[emcppsbatch=e10]
-Smile operator"" _cc(double n);  // Error, invalid argument list
+Smile operator"" _cc(double n);  // Error, invalid parameter list
 \end{emcppslisting}
-    
-\noindent If lookup does not find a \emcppsgloss[udl operator]{UDL operator} that matches the type
+
+\noindent If lookup does not find a \emcppsgloss{UDL operator} that matches the type
 category of the \emcppsgloss{naked literal} exactly, the match fails:
 
 \begin{emcppslisting}[emcppsbatch=e10]
 bool v3 = 123_bb;  // Error, unable to find integer literal (ù{\codeincomments{\_bb}}ù)
 bool v4 = 1.3_bb;  // OK, invokes (ù{\codeincomments{operator"" \_bb(long double)}}ù)
 \end{emcppslisting}
-    
+
 \noindent Because the \emcppsgloss{naked literal} is fully evaluated by the compiler,
 overflow and precision loss could become issues just as they are for
 native literals. These limitations vary by platform, but typical
 platforms are limited to 64-bit
-\lstinline!unsigned!~\lstinline!long!~\lstinline!long! and 64-bit
+\lstinline!unsigned!~\lstinline!long!~\lstinline!long! or 64-bit
 \lstinline!long!~\lstinline!double! types in IEEE
 754 format:
 
@@ -576,27 +600,26 @@ Smile v5 = 1.2e310_aa;              // Bug, argument evaluates to infinity
 Smile v6 = 2.5e-310_aa;             // Bug, argument evaluates to denormalized
 short v7 = 0x1234568790abcdef0_aa;  // Error, doesn't fit in any integer type
 \end{emcppslisting}
-    
-\noindent Note that the over-sized integer initializer for \lstinline!v7! in the code snippet above
+
+\noindent Note that the oversized integer initializer for \lstinline!v7! in the code snippet above
 results in an error on some compilers but only a warning on others.
 
-A rarely-used feature of C++03 is the \emcppsgloss{encoding prefix},
+A rarely used feature of C++03 is the \emcppsgloss{encoding prefix},
 \lstinline!L!, on a character or string literal. The literals \lstinline!'x'!
 and \lstinline!"hello"! have (built-in) types \lstinline!char! and
 \lstinline!char[6]!, respectively, whereas \lstinline!L'x'! and
 \lstinline!L"hello"! have the respective types \lstinline!wchar_t! and
-\lstinline!wchar_t[6]!. C++11 added three more string 
-\emcppsgloss[encoding prefix]{encoding prefixes}: \lstinline!u! to indicate \emcppsgloss[UTF 16]{UTF-16}
-with a type of \lstinline!const char16_t*!, \lstinline!U! to indicate \emcppsgloss[UTF 32]{UTF-32} 
-with a type \lstinline!const char32_t*!, and \lstinline!u8! to indicate \emcppsgloss[UTF 8]{UTF-8}
+\lstinline!wchar_t[6]!. C++11 added three more string
+\emcppsgloss[encoding prefix]{encoding prefixes}: \lstinline!u! to indicate \emcppsgloss{UTF-16}
+with a type of \lstinline!const char16_t*!, \lstinline!U! to indicate \emcppsgloss{UTF-32}
+with a type \lstinline!const char32_t*!, and \lstinline!u8! to indicate \emcppsgloss{UTF-8}
 with a type of \lstinline!const char*!.  The \lstinline!u! and \lstinline!U! prefixes can also
-be used on character literals; see  \featureref{\locationa}{unicode-string-and-character-literals}.
-{\cprotect\footnote{C++17 allows the \lstinline!u8! prefix on
+be used on character literals; see  \featureref{\locationa}{unicode-string-and-character-literals}.{\cprotect\footnote{C++17 allows the \lstinline!u8! prefix on
   character literals as well as on string literals, while C++20 changes the type for
   \lstinline!u8! prefixed string and character literals from \lstinline!char! to \lstinline!char8_t!.}}
 
 The four C++11 \emcppsgloss[encoding prefix]{encoding prefixes} for character literals can
-each be supported by a distinct \emcppsgloss[udl operator]{UDL operator} signature (e.g.,
+each be supported by a distinct \emcppsgloss{UDL operator} signature (e.g.,
 \lstinline!_dd! below), each of which might return a distinct, arbitrary
 type:
 
@@ -606,28 +629,30 @@ double      operator"" _dd(char16_t ch);  // u'x'
 const char* operator"" _dd(char32_t ch);  // U'x'
 Smile       operator"" _dd(wchar_t  ch);  // L'x'
 \end{emcppslisting}
-    
-\noindent Any or all of the above forms can co-exist. A character \emcppsgloss{naked literal} (e.g., \lstinline!'Q'!) is translated into the appropriate
+
+\noindent Any or all of the above forms can co-exist. A character \emcppsgloss{naked
+literal} (e.g., \lstinline!'Q'!) is translated into the appropriate
 character type and value in the \emcppsgloss{execution character set} (i.e.,
 the set of characters used at run time on the target operating system)
-and passed via the \lstinline!ch! parameter to the body of the \emcppsgloss[udl operator]{UDL operator}. As ever, there are no narrowing or widening conversions, so
+and passed via the \lstinline!ch! parameter to the body of the \emcppsgloss{UDL
+operator}. As ever, there are no narrowing or widening conversions, so
 the program is ill formed if the precise signature of the needed
-\emcppsgloss[udl operator]{UDL operator} is not found:
+\emcppsgloss{UDL operator} is not found:
 
 \begin{emcppslisting}[emcppsbatch=e10]
 int    operator"" _ee(char);      //  'x'
 double operator"" _ee(char32_t);  // U'x'
 
-int         c1 =  'Q'_ee;  // OK, matches (ù{\codeincomments{char}}ù) argument type
-double      c2 = U'Q'_ee;  // OK, matches (ù{\codeincomments{char32\_t}}ù) argument type
-const char* c3 = u'Q'_ee;  // Error, no match for (ù{\codeincomments{char16\_t}}ù) argument type
-Smile       c4 = L'Q'_ee;  // Error, no match for (ù{\codeincomments{wchar\_t}}ù) argument type
+int         c1 =  'Q'_ee;  // OK, matches (ù{\codeincomments{char}}ù) parameter type
+double      c2 = U'Q'_ee;  // OK, matches (ù{\codeincomments{char32\_t}}ù) parameter type
+const char* c3 = u'Q'_ee;  // Error, no match for (ù{\codeincomments{char16\_t}}ù) parameter type
+Smile       c4 = L'Q'_ee;  // Error, no match for (ù{\codeincomments{wchar\_t}}ù) parameter type
 \end{emcppslisting}
-    
-\noindent Similarly, there are four valid \emcppsgloss[udl operator]{UDL operator} signatures for
-string literals in C++11 each of which again might
-return a different type:{\cprotect\footnote{C++20 allows a fifth signature for
-string literals with the \lstinline!u8! prefix that takes a \lstinline!const char8_t*!.}}
+
+\noindent Similarly, there are four valid \emcppsgloss{UDL operator} signatures for
+string literals in C++11, each of which again might
+return a different type{\cprotect\footnote{C++20 allows a fifth signature for
+string literals with the \lstinline!u8! prefix that takes a \lstinline!const char8_t*!.}}:
 
 \begin{emcppslisting}[emcppsbatch=e10]
 bool  operator"" _dd(const char*     str, std::size_t len);  //   "str"
@@ -635,19 +660,19 @@ int   operator"" _dd(const char16_t* str, std::size_t len);  //  u"str"
 float operator"" _dd(const char32_t* str, std::size_t len);  //  U"str"
 Smile operator"" _dd(const wchar_t*  str, std::size_t len);  //  L"str"
 \end{emcppslisting}
-    
+
 \noindent The string \emcppsgloss{naked literal} evaluates to a null-terminated
 character array. The address of the first element of that array is
-passed to the \emcppsgloss[udl operator]{UDL operator} via the \lstinline!str! parameter and
-its length (excluding the null terminator) is passed via \lstinline!len!.
+passed to the \emcppsgloss{UDL operator} via the \lstinline!str! parameter, and
+its length --- excluding the null terminator --- is passed via \lstinline!len!.
 
 To recap, multiple \emcppsgloss[prepared-argument UDL operator]{prepared-argument UDL operators} can co-exist
-for a single \emcppsgloss[udl suffix]{UDL suffix}, each having a different type category
+for a single \emcppsgloss{UDL suffix}, each having a distinct type category
 and each potentially returning a different C++ type. To show another
 example, the suffix \lstinline!_s! on a floating-point literal could
-return a \lstinline!double! to mean seconds, whereas the same suffix on a
-string literal might return a \lstinline!std::string!. Moreover, string
-\emcppsgloss[UDL operator]{UDL operators} (and, similarly, character \emcppsgloss[UDL operator]{UDL operators}) that differ by character type (\lstinline!char!,
+return an \lstinline!double! to mean seconds, whereas the same suffix on a
+string literal might return an \lstinline!std::string!. Moreover, string and character
+\emcppsgloss[UDL operator]{UDL operators} that differ by character type (\lstinline!char!,
 \lstinline!char16_t!, and so on) often have different return types.
 Similar string \emcppsgloss[UDL operator]{UDL operators} typically --- but not necessarily
 --- return similar types, such as \lstinline!std::string! and
@@ -668,7 +693,7 @@ double         d = 12_s;       // yields (ù{\codeincomments{double}}ù) having 
 std::u16string w = u"Hola"_s;  // yields (ù{\codeincomments{std::u16string}}ù) having value (ù{\codeincomments{Hola}}ù)
 std::string    s = "Hello"_s;  // yields (ù{\codeincomments{std::string}}ù) having value (ù{\codeincomments{Hello}}ù)
 \end{emcppslisting}
-    
+
 \noindent Note again that these operators are invariably declared
 \lstinline!constexpr! (see \featureref{\locationc}{constexprfunc})
 because they can \emph{always} be evaluated at compile time because
@@ -679,9 +704,9 @@ code.
 
 The \emph{raw} pattern for \emcppsgloss[UDL operator]{UDL operators} is supported for only
 the integer and floating-point \emcppsgloss[UDL type category]{UDL type categories}. If this
-form of \emcppsgloss[udl operator]{UDL operator} is selected (see \intrarefsimple{user-defined-literal-(udl)-operators}), the compiler packages up the \emcppsgloss{naked literal} as an
+form of \emcppsgloss{UDL operator} is selected (see \intrarefsimple{user-defined-literal-(udl)-operators}), the compiler packages up the \emcppsgloss{naked literal} as an
 unprocessed string --- i.e., a sequence of raw characters transferred
-from the source --- and passes it to the \emcppsgloss[udl operator]{UDL operator} as a
+from the source --- and passes it to the \emcppsgloss{UDL operator} as a
 null-terminated character string. All \emcppsgloss[raw UDL operator]{raw UDL operators} (e.g.,
 for suffix \lstinline!_rl! below) have the same signature:
 
@@ -692,21 +717,24 @@ Type operator"" _rl(const char*);
 
 Type t1 = 425_rl;  // invokes (ù{\codeincomments{operator ""\_rl("425")}}ù)
 \end{emcppslisting}
-    
-\noindent This signature can be distinguished from a \emcppsgloss[prepared argument udl operator]{prepared-argument UDL operator} for string literals by the \emph{absence} of a
+
+\noindent This signature can be distinguished from a \emcppsgloss{prepared-argument UDL
+operator} for string literals by the \emph{absence} of an
 \lstinline!std::size_t! parameter representing its \emph{length}.
 
 The raw string argument will be verified by the compiler to be a
 well-formed integer or floating-point literal token but is otherwise
-untouched by the compiler. For any given \emcppsgloss[udl suffix]{UDL suffix}, at most
-one matching \emcppsgloss[raw udl operator]{raw UDL operator} may be in scope at a time; hence,
+untouched by the compiler. For any given \emcppsgloss{UDL suffix}, at most
+one matching \emcppsgloss{raw UDL operator} may be in scope at a time; hence,
 the \emph{return} type cannot vary based on, e.g., whether the
 \emcppsgloss{naked literal} contains a decimal point. Such a capability
 \emph{is}, however, available; see \intrarefsimple{templated-udl-operators}.
 
 In particular, it might be the case that not all valid tokens accepted
 by the compiler will satisfy the \emcppsgloss{narrow contract} offered by a
-specific \emcppsgloss[udl operator]{UDL operator}. For example, we can define a \emcppsgloss[udl suffix]{UDL suffix}, \lstinline!_3!, to express base-3 integers using a \emcppsgloss[raw udl operator]{raw UDL operator}:
+specific \emcppsgloss{UDL operator}. For example, we can define a \emcppsgloss{UDL
+suffix}, \lstinline!_3!, to express base-3 integers using a \emcppsgloss{raw
+UDL operator}:
 
 \begin{emcppslisting}[emcppsbatch=e11]
 int operator"" _3(const char* digits)
@@ -723,7 +751,7 @@ int operator"" _3(const char* digits)
     return result;
 }
 \end{emcppslisting}
-    
+
 \noindent We can now test this function at run time using the standard
 \lstinline!assert! macro:
 
@@ -743,10 +771,10 @@ void test()
     assert(10 == 101_3);
 }
 \end{emcppslisting}
-    
-\noindent Note that in C++14, we could have declared our \lstinline!_3! \emcppsgloss[raw udl operator]{raw UDL operator} \lstinline!constexpr! and replaced all of the (runtime)
-\lstinline!assert! statements with (compile-time) \lstinline!static_assert!\linebreak[4]%%%%%% 
-\mbox{declarations}.
+
+\noindent Note that we could have declared our \lstinline!_3! \emcppsgloss{raw
+UDL operator} \lstinline!constexpr! and replaced all of the (runtime)
+\lstinline!assert! statements with (compile-time) \lstinline!static_assert! declarations. Also observe that, as written, \lstinline!constexpr!~\lstinline!operator""!~\lstinline!_3! requires C++14's relaxed \lstinline!constexpr! function restrictions (see \featureref{\locationc}{constexprfunc}), but it could be reimplemented to work in C++11.
 
 Let's now consider valid lexical integer literals representing values
 outside of what would be considered valid of base-3 integers:
@@ -757,14 +785,15 @@ int i2 = 23_3;                    // (2) Bug, returns (ù{\codeincomments{(int) 
 int i3 = 21.1_3;                  // (3) Bug, returns (ù{\codeincomments{(int) 58}}ù)
 int i4 = 22211100022211100022_3;  // (4) Bug, too big for 32-bit (ù{\codeincomments{int}}ù)
 \end{emcppslisting}
-    
+
 \noindent In the example code above, (1) is a valid base-3 integer; (2) is a valid
 integer literal but contains the digit 3, which is \emph{not} a valid
-base-3 digit; (3) is a valid floating-point literal, but the \emcppsgloss[udl operator]{UDL operator} returns values of only type \lstinline!int!; and (4) is in
+base-3 digit; (3) is a valid floating-point literal, but the \emcppsgloss{UDL
+operator} returns values of only type \lstinline!int!; and (4) is in
 principle a valid integer literal but represents a value that is too
 large to fit in a 32-bit \lstinline!int!. Because cases (2), (3), and (4)
 are valid lexical literals, it is up to the implementation of the
-\emcppsgloss[udl operator]{UDL operator} to reject invalid values.
+\emcppsgloss{UDL operator} to reject invalid values.
 
 Let's now consider a more robust implementation of a base-3 integer
 \emcppsgloss[user defined literal (UDL)]{UDL}, \lstinline!_3b!, that throws an exception when the literal
@@ -802,47 +831,43 @@ int operator"" _3b(const char *digits)
     return ret;
 }
 \end{emcppslisting}
-    
-\noindent In this implementation of a \emcppsgloss[raw udl operator]{raw UDL operator} for a suffix
-\lstinline!_3b!, the first \lstinline!if! statement looks for the C++14-only digit-separator and ignores it. The second \lstinline!if! statement
-looks for characters not in the valid range for base-3 digits; it throws
-an \lstinline!out_of_range! exception for cases (2) and (3). The third
-\lstinline!if! statement determines whether the computation is about to
-overflow; it throws an \lstinline!overflow_error! exception for case (4).
-The absence of compiler interpretation makes \emcppsgloss[raw UDL operator]{raw UDL operators}
-potentially difficult to write but also very powerful. Interpreting
-existing literal characters in a new way and accepting literals that
-would otherwise overflow or lose precision can make raw UDLs extremely
-expressive; e.g., the base-3 \emcppsgloss[raw udl operator]{raw UDL operator} shown above could
-not be expressed using a \emcppsgloss[prepared argument udl operator]{prepared-argument UDL operator}. This
-expressiveness comes at the cost of needing to parse the token in code,
-including performing thorough error detection; even seemingly simple
-code, like the base-3 example, can require significant effort to get
-just right.
 
-If the intent is to consume integer literals, a \emcppsgloss[raw udl operator]{raw UDL operator} needs to handle (i.e., either process or reject) not only the
+\noindent In this implementation of a \emcppsgloss{raw UDL operator} for a suffix
+\lstinline!_3b!, the first \lstinline!if! statement looks for the C++14-only digit separator and ignores it. The second \lstinline!if! statement
+looks for characters not in the valid range for base-3 and, for cases (2) and (3), throws
+an \lstinline!out_of_range! exception. The third
+\lstinline!if! statement determines whether the computation is about to
+overflow and, for case (4), throws an \lstinline!overflow_error! exception.
+The absence of compiler interpretation makes \emcppsgloss[raw UDL operator]{raw UDL operators}
+potentially difficult to write but also powerful. Interpreting
+existing literal characters in a new way and accepting literals that
+would otherwise overflow or lose precision confers additional expressiveness on raw UDLs; e.g., the base-3 \emcppsgloss{raw UDL operator} shown above could
+not be expressed using a \emcppsgloss{prepared-argument UDL operator}. The downside of this additional expressiveness is the need to implement, debug, and maintain custom token parsing, including error checking.
+
+If the intent is to consume integer literals, a \emcppsgloss{raw UDL
+operator} needs to  either process or reject not only the
 decimal digits \lstinline!'0'! to \lstinline!'9'!, but also the hex digits
 \lstinline!'a'!--\lstinline!'f'! and \lstinline!'A'!--\lstinline!'F'! as well as
-radix prefixes \lstinline!0!, \lstinline!0x!, and \lstinline!0X!. In C++14, it
+radix prefixes \lstinline!0!, \lstinline!0x!, and \lstinline!0X!. In C++14, the operator
 must also handle the \lstinline!0b! (binary) radix prefix and the digit
-separator \lstinline!'\''!.  
+separator \lstinline!'\''!.
 
-For floating-point literals, the \emcppsgloss[raw udl operator]{raw UDL operator} needs to
+For floating-point literals, the \emcppsgloss{raw UDL operator} needs to
 handle the decimal digits, decimal point, exponent prefix (\lstinline!'e'!
 or \lstinline!'E'!), and optional exponent sign (\lstinline!'+'! or
 \lstinline!'-'!). It is possible to handle both integer and floating-point
-literals in a single \emcppsgloss[raw udl operator]{raw UDL operator}, provided the return type
+literals in a single \emcppsgloss{raw UDL operator}, provided the return type
 is the same for both. In all cases, it is usually wise to reject
 \emph{any} unexpected character, including characters that are not
 currently legal within numeric literals, in case the set of legal
 characters is enlarged in the future, e.g., by adding a new radix.
 
-A \emcppsgloss[raw udl operator]{raw UDL operator} can be declared \lstinline!constexpr!, but be
+A \emcppsgloss{raw UDL operator} can be declared \lstinline!constexpr!, but be
 aware that the rules for what is allowed in a \lstinline!constexpr!
 function differ significantly between C++11 and C++14, as described in \featureref{\locationc}{constexprfunc}. In particular, the
 loop-based implementation of \lstinline!operator""_3! (above) can be
 declared \lstinline!constexpr! in C++14 but not in C++11, though it is
-possible to define a \lstinline!constexpr! \emcppsgloss[udl operator]{UDL operator} in C++11
+possible to define a \lstinline!constexpr! \emcppsgloss{UDL operator} in C++11
 that has the same behavior by using a recursive implementation. If the
 literal is evaluated as part of a constant expression and if the literal
 contains errors that would result in exceptions being thrown (i.e., an
@@ -854,14 +879,15 @@ constant expression, an exception will still be thrown at run time:
 constexpr int i4 = 25_3;  // Error, "throw" not allowed in constant expression
           int i5 = 25_3;  // Bug, exception thrown at run time
 \end{emcppslisting}
-    
+
 \noindent To ensure that every invalid literal is detected at compile time, use
-templated UDL operators, as described in \intrarefnopage{templated-udl-operators}.
+templated UDL operators, as described in the next section.
+%\intrarefnopage{templated-udl-operators}.
 
 \subsubsection[Templated UDL operators]{Templated UDL operators}\label{templated-udl-operators}
 
-A \emcppsgloss[templated udl operator]{templated UDL operator} (known as a \emph{literal operator
-template} in the Standard) is a variadic template (see \featureref{\locationc}{variadictemplate}) having a template parameter list
+A \emcppsgloss{templated UDL operator}, known as a \emph{literal operator
+template} in the Standard, is a variadic template (see \featureref{\locationc}{variadictemplate}) having a template parameter list
 consisting of a pack of an arbitrary number of \lstinline!char! parameters
 and an empty runtime parameter list:
 
@@ -870,25 +896,25 @@ struct Type { /*...*/ };
 
 template <char...> Type operator"" _udl();
 \end{emcppslisting}
-    
-\noindent The \emcppsgloss[templated udl operator]{templated UDL operator} pattern supports only the integer
+
+\noindent The \emcppsgloss{templated UDL operator} pattern supports only the integer
 and floating-point type categories.{\cprotect\footnote{C++20 added
 support for user-defined string literal templates, albeit with a
-  different syntax.}} If this form of \emcppsgloss[udl operator]{UDL operator} is selected
+  different syntax.}} If this form of \emcppsgloss{UDL operator} is selected
 (see \intrarefsimple{user-defined-literal-(udl)-operators}), the compiler breaks up the
 \emcppsgloss{naked literal} into a sequence of raw characters and passes each
 one as a separate template argument to the instantiation of the
-\emcppsgloss[udl operator]{UDL operator}:
+\emcppsgloss{UDL operator}:
 
 \begin{emcppslisting}[emcppsbatch=e12]
 Type t1 = 42.5_udl;  // calls (ù{\codeincomments{operator""\_udl<'4', '2', '.', '5'>()}}ù)
 \end{emcppslisting}
-    
+
 \noindent As in the case of \emcppsgloss[raw UDL operator]{raw UDL operators}, the raw sequence of
 characters will be verified by the compiler to be a well-formed integer
-or floating-point literal token, but the \emcppsgloss[udl operator]{UDL operator} must
+or floating-point literal token, but the \emcppsgloss{UDL operator} must
 deduce meaning from those characters. Unlike \emcppsgloss[raw UDL operator]{raw UDL operators},
-a \emcppsgloss[templated udl operator]{templated UDL operator} can return different types based on
+a \emcppsgloss{templated UDL operator} can return different types based on
 the content of the \emcppsgloss{naked literal}. For example, electrical
 resistance might be expressed as \lstinline!Resistance<float>! or
 \lstinline!Resistance<int>!, where the intention is to express resistance
@@ -900,8 +926,8 @@ template <class T> class Resistance;
 template <> class Resistance<int>   { /* ... (resistance >= 10 ohms) */ };
 template <> class Resistance<float> { /* ... (resistance <  10 ohms) */ };
 \end{emcppslisting}
-    
-\noindent The \lstinline!_ohms! \emcppsgloss[udl operator]{UDL operator} (in the code snippet below) determines the correct
+
+\noindent The \lstinline!_ohms! \emcppsgloss{UDL operator} (in the code snippet below) determines the correct
 return type and value based on the characters making up the naked
 numeric literal. The compile-time template logic needed to make this
 selection requires template metaprogramming, which in turn requires
@@ -917,26 +943,23 @@ template <char... Cs>
 constexpr typename MakeResistance<Cs...>::ReturnType
 operator"" _ohms() { return MakeResistance<Cs...>::factory(); }
 \end{emcppslisting}
-    
-\noindent The return type is computed by the template metafunction\linebreak[4]%%%%%
-\lstinline!MakeResistance<c...>::ReturnType!. In C++14, the return type can
+
+\noindent \lstinline!MakeResistance<c...>::ReturnType! is the template metafunction used to compute the return type. In C++14, the return type can
 be deduced directly from the \lstinline!return! statement; see \featureref{\locationf}{Function-Return-Type-Deduction}.
 The implementation of \lstinline!MakeResistance! uses partial
 specializations to detect specific numeric literal patterns:
 
 \begin{emcppslisting}[emcppsbatch=e12]
 template <char d0, char... d>
-struct MakeResistance
+struct MakeResistance  // primary template (for value >= 10)
 {
-    // primary template (for value >= 10)
     using ReturnType = Resistance<int>;
     static constexpr ReturnType factory();
 };
 
 template <char d0>
-struct MakeResistance<d0>
+struct MakeResistance<d0>  // specialize for single digit ('0' - '9')
 {
-    // specialize for single digit ('0' - '9')
     using ReturnType = Resistance<float>;
     static constexpr ReturnType factory(); // resistance 0 to 9 ohms
 };
@@ -945,12 +968,11 @@ template <char d0, char... d>
 struct MakeResistance<d0, '.', d...>  // specialize for decimal point after
                                       // first digit (e.g., (ù{\codeincomments{1.23}}ù))
 {
-    
     using ReturnType = Resistance<float>;
     static constexpr ReturnType factory(); // resistance 0.0 to < 10.0
 };
 \end{emcppslisting}
-    
+
 \noindent The primary \lstinline!MakeResistance! template will return a
 \lstinline!Resistance<int>! for any sequence of characters that does not
 match one of the partial specializations. The first partial
@@ -965,15 +987,16 @@ Resistance<int>   r1 = 200_ohms;
 Resistance<float> r2 = 5_ohms;
 Resistance<float> r3 = 2.5_ohms;
 \end{emcppslisting}
-    
+
 \noindent Note that this simplified example does not recognize floating-point
 literals such as \lstinline!12.5! or \lstinline!.04! that don't have their
 decimal point as the second character. The description of fixed-point
-literals in \intrarefsimple{use-cases-userdeflit} provides a more complete exposition of this sort
+literals in \intraref{use-cases-userdeflit}{user-defined-numeric-types} provides a more complete exposition of this sort
 of return-type selection, including details of the recursive template
 metaprogramming used to determine the return type and its value.
 
-Being template arguments, the characters that make up the \emcppsgloss{naked literal} are constant expressions and can be used with
+As template arguments, the characters that make up the \emcppsgloss{naked
+literal} are constant expressions and can be used with
 \lstinline!static_assert! to force error detection at compile time. Unlike
 \emcppsgloss[raw UDL operator]{raw UDL operators}, there is no risk of throwing an exception at
 run time, even when initializing a value in a non-\lstinline!constexpr!
@@ -983,7 +1006,7 @@ context:
 constexpr auto r4 = 12.5_ohms;  // Error, (ù{\codeincomments{constexpr}}ù) context
           auto r5 = 12.5_ohms;  // Bug, non-(ù{\codeincomments{constexpr}}ù) context
 \end{emcppslisting}
-    
+
 \noindent Being able to select a context-specific return type and to force
 compile-time error checking makes \emcppsgloss[templated UDL operator]{templated UDL operators} the
 most expressive pattern for defining \emcppsgloss[UDL operator]{UDL operators}. These
@@ -1006,14 +1029,14 @@ characters, which decays to a pointer-to-character when passed as a
 function argument. The C++ Standard Library has had, from the start,
 string classes (\lstinline!std::basic_string!, \lstinline!std::string!, and
 \lstinline!std::wstring!) that improve on C-style character arrays by
-providing proper copy semantics, equality comparison, variable sizing,
+providing proper \emcppsgloss{copy semantics}, equality comparison, variable sizing,
 and so on. With the advent of \emcppsgloss[user defined literal (UDL)]{UDLs}, we can finally create
 literals of these library string types by utilizing the standard
 \lstinline!s! suffix. The \emcppsgloss[UDL operator]{UDL operators} for string literals are in
 header file \lstinline!<string>! in namespace\linebreak%%%%%
-\lstinline!std::literals::string_literals!:{\cprotect\footnote{C++20 adds \lstinline!char8_t!
-and changes the type of \lstinline!s3! in the above example from \lstinline!std::string! to
-\lstinline!std::u8string!.}}
+\lstinline!std::literals::string_literals!{\cprotect\footnote{C++20 adds \lstinline!char8_t!
+and changes the type of \lstinline!s3! in the coding example from \lstinline!std::string! to
+\lstinline!std::u8string!.}}:
 
 \begin{emcppslisting}[emcppsstandards=c++14]
 #include <string>  // (ù{\codeincomments{std::basic\_string}}ù), related types, and UDL operators
@@ -1026,7 +1049,7 @@ std::u16string s4 =  u"hello"s;   // value (ù{\codeincomments{std::u16string(u"
 std::u32string s5 =  U"hello"s;   // value (ù{\codeincomments{std::u32string(U"hello")}}ù)
 std::wstring   s6 =  L"hello"s;   // value (ù{\codeincomments{std::wstring(L"hello")}}ù)
 \end{emcppslisting}
-    
+
 \noindent Complex numbers can also be expressed using a more natural style,
 mimicking the notation used in mathematics. Within namespace
 \lstinline!std::literals::complex_literals!, the suffixes \lstinline!i!,
@@ -1043,7 +1066,7 @@ std::complex<double>      c1 = 2.4 + 3i;    // value (ù{\codeincomments{{2.4, 3
 std::complex<long double> c2 = 1.2 + 5.1l;  // value (ù{\codeincomments{{1.2L, 5.1L}}}ù)
 std::complex<float>       c3 = 0.1f + 2.if;  // value (ù{\codeincomments{{0.1F, 2.0F}}}ù)
 \end{emcppslisting}
-    
+
 \noindent The time utilities in the standard header, \lstinline!<chrono>!, contain an
 elaborate and flexible system of units of duration. Each unit is a
 specialization of the class template\linebreak%%%%%
@@ -1053,7 +1076,7 @@ floating-point) and a ratio relative to seconds. Thus,
 \lstinline!duration<long,!~\lstinline!ratio<3600,!~\lstinline!1>>! can represent
 an integral number of hours.
 
-The \lstinline!<chrono>! header also defines literal suffixes (in namespace\linebreak%%%%% 
+The \lstinline!<chrono>! header also defines literal suffixes (in namespace\linebreak%%%%%
 \lstinline!std::literals::chrono_literals!) having familiar names for time
 units such as \lstinline!s! for seconds, \lstinline!min! for minutes, and so
 on. Integer literals will yield a \lstinline!duration! having an integral
@@ -1072,14 +1095,14 @@ auto d5 = 250ms;   // 250 milliseconds (integral)
 auto d6 = 90us;    // 90 microseconds (integral)
 auto d7 = 104.ns;  // 104.0 nanoseconds (floating-point)
 \end{emcppslisting}
-    
+
 \noindent In the example above, the \lstinline!auto! keyword (see \featureref{\locationc}{auto}) is used to allow the compiler to deduce
 the correct type from the literal expression. Although simple integer
 duration types have convenient aliases such as
 \lstinline!std::chrono::hours!, some types do not have a standard name for
 the corresponding \lstinline!duration! specialization; e.g., \lstinline!1.2hr!
 returns a value of type
-\lstinline!std::chrono::duration<T, std::ratio<3600>>! where \lstinline!T! is a signed integer of at least 23 bits and 
+\lstinline!std::chrono::duration<T,!~\lstinline!std::ratio<3600>>! where \lstinline!T! is a signed integer of at least 23 bits and
 where the actual integer representation is implementation-defined.
 Naming a duration is even more complex when adding \lstinline!duration!s
 together; the resulting \lstinline!duration! type is selected by the
@@ -1089,7 +1112,7 @@ library to minimize loss of precision:
 auto d8 = 2h + 35min + 20s;  // integral, 9320 seconds (2:35:20 in seconds)
 auto d9 = 2.4s + 100ms;       // floating-point, 2500.0 milliseconds
 \end{emcppslisting}
-    
+
 \noindent We are certain to see more \emcppsgloss[UDL suffix]{UDL suffixes} defined in future
 Standards.
 
@@ -1125,7 +1148,7 @@ public:
     // ...
 };
 \end{emcppslisting}
-    
+
 \noindent Neither \lstinline!PartNumber! nor \lstinline!ModelNumber! defines integer
 operations such as addition or multiplication, so any attempt to modify
 one (other than by assignment) or add two such values would result in a
@@ -1153,10 +1176,10 @@ void registerParts1()
     registerPart("Bolt", ModelNumber(77), PartNumber(77));  // OK, correct args
 }
 \end{emcppslisting}
-    
-\noindent The code above allows the compiler to detect a number of errors that
+
+\noindent The code above allows the compiler to detect errors that
 would be easy to make had part and model numbers been represented as raw
-\lstinline!int! values. The attempt at adding to a part number is rejected,
+\lstinline!int! values. Attempting to add to a part number is rejected,
 as is the attempt to call \lstinline!inventory! without specifying whether
 part-number inventory or model-number inventory is desired. Finally, the
 \lstinline!registerPart! function cannot be called with its arguments
@@ -1184,7 +1207,7 @@ void registerParts2()
     registerPart("Bolt", 77_model, 77_part); // OK, arguments in correct order
 }
 \end{emcppslisting}
-    
+
 \noindent A wrapper class can also be useful for tracking certain compile-time
 attributes of a general-purpose type such as \lstinline!std::string!. For
 example, a system that reads input from a user must sanitize each input
@@ -1202,11 +1225,9 @@ class SanitizedString
 {
     std::string d_value;
 
-    // private construction from general-purpose string:
     explicit SanitizedString(const std::string& value) : d_value(value) { }
 
 public:
-    // factory function:
     static SanitizedString fromRawString(const std::string& rawStr)
     {
         return SanitizedString(rawStr);
@@ -1214,7 +1235,6 @@ public:
 
     // ...
 
-    // friend operator for concatenating sanitized strings:
     friend SanitizedString operator+(const SanitizedString& s1,
                                      const SanitizedString& s2)
     {
@@ -1224,10 +1244,10 @@ public:
     // ...
 };
 \end{emcppslisting}
-    
+
 \noindent Calling \lstinline!SanitizedString::fromRawString! is deliberately
 cumbersome in an attempt to make developers think carefully before using
-it. It is, however, \emph{too} cumbersome in situations where the safety
+it. This call might, however, be \emph{too} cumbersome in situations where the safety
 of a literal string is not in question:
 
 \begin{emcppslisting}[emcppsbatch=e15]
@@ -1264,7 +1284,7 @@ void processInstructions1()
     }
 }
 \end{emcppslisting}
-    
+
 \noindent The first call to \lstinline!process! does not compile because, by design,
 we cannot concatenate a raw string and a sanitized string. The second
 call works but is unnecessarily cumbersome. Literal strings are
@@ -1277,6 +1297,7 @@ no need to call \lstinline!SanitizedString::fromRawString!. Again, a
 namespace sanitized_string_literals
 {
     SanitizedString operator""_san(const char *str, std::size_t len)
+        // Create a sanitized string.
     {
         return SanitizedString::fromRawString(std::string(str, len));
     }
@@ -1292,7 +1313,7 @@ void processInstructions2()
 
     if (isSafeString(instructions))
     {
-       // String is considered safe; sanitize it.
+       // The (ù{\codeincomments{instructions}}ù) string is considered safe; sanitize it.
        SanitizedString sanInstr = SanitizedString::fromRawString(instructions);
        // ...
 
@@ -1304,7 +1325,7 @@ void processInstructions2()
     // ...
 }
 \end{emcppslisting}
-    
+
 \noindent This usage shows a case where the \emcppsgloss[user defined literal (UDL)]{UDL} is more than just
 convenient; because a \emcppsgloss[user defined literal (UDL)]{UDL} applies \emph{only} to literals, it
 is largely immune to accidental misuse.
@@ -1334,10 +1355,10 @@ BigNum operator/(const BigNum&, const BigNum&);
 BigNum abs(const BigNum&);
 // ...
 \end{emcppslisting}
-    
+
 \noindent A \lstinline!BigNum! literal must be able to represent a value larger than
 would fit in the largest built-in integral type, so we define the suffix
-using a \emcppsgloss[raw udl operator]{raw UDL operator}:
+using a \emcppsgloss{raw UDL operator}:
 
 \begin{emcppslisting}[emcppsbatch=e16]
 namespace literals
@@ -1348,22 +1369,22 @@ BigNum operator"" _bignum(const char *digits)  // raw literal
     // ...        (Compute (ù{\codeincomments{BigNum}}ù) from (ù{\codeincomments{digits}}ù).)
     return value;
 }
-}  // close namespace (ù{\codeincomments{literals}}ù) 
+}  // close namespace (ù{\codeincomments{literals}}ù)
 
 using namespace literals;
-}  // close namespace (ù{\codeincomments{bignum}}ù) 
+}  // close namespace (ù{\codeincomments{bignum}}ù)
 
 using namespace bignum::literals;  // Make (ù{\codeincomments{\_bignum}}ù) literal available.
 bignum::BigNum bnval  = 587135094024263344739630005208021231626182814_bignum;
 bignum::BigNum bigone = 1_bignum;  // small value, but still has type (ù{\codeincomments{BigNum}}ù)
 \end{emcppslisting}
-    
-\noindent The \lstinline!BigNum! class is great for large integers, but numbers with
+
+\noindent The \lstinline!BigNum! class is appropriate for large integers, but numbers having
 fractional parts have a different problem: The IEEE standard
 \lstinline!double! floating-point type cannot exactly represent certain
 values, e.g., \lstinline!24692134.03!. When \lstinline!double!s are used to
 represent values, long summations may eventually produce an error in the
-hundredths place, i.e., the result will be off by \lstinline!.01! or more.
+hundredths place; i.e., the result will be off by \lstinline!.01! or more.
 In financial calculations, where values represent money, errors of just
 one or two pennies might be unacceptable. For this problem, we turn to
 decimal fixed-point (rather than binary floating-point) arithmetic.
@@ -1377,7 +1398,7 @@ with two decimal digits of precision can represent the value
 \lstinline!24692134.035!. We'll define our \lstinline!FixedPoint! class as a
 template, where the \lstinline!Precision! parameter specifies the number of
 decimal places{\cprotect\footnote{A more complete and powerful
-fixed-point class template was proposed for standardization in \cite{mcfarlane19}.}}:
+fixed-point class template was proposed for standardization in \mbox{\cite{mcfarlane19}}.}}:
 
 \begin{emcppslisting}[emcppsbatch=e17]
 #include <limits>  // (ù{\codeincomments{std::numeric\_limits}}ù)
@@ -1396,39 +1417,42 @@ public:
     constexpr FixedPoint(long long);       // Convert from (ù{\codeincomments{long long}}ù).
     constexpr FixedPoint(double);          // Convert from (ù{\codeincomments{double}}ù).
 
-    // "Raw" constructor: Create a (ù{\codeincomments{FixedPoint}}ù) object with the specified data.
-    // No precision adjustment is made to the data.
     constexpr FixedPoint(long long data, std::true_type /*isRaw*/)
+        // Create a (ù{\codeincomments{FixedPoint}}ù) object with the specified (ù{\codeincomments{data}}ù).  Note that
+        // this is a "raw" constructor and no precision adjustment is made to
+        // the (ù{\codeincomments{data}}ù).
         : d_data(data) { }
 
-    friend std::ostream& operator<<(std::ostream& os, const FixedPoint& v)
+    friend std::ostream& operator<<(std::ostream& stream, const FixedPoint& v)
+        // Format the specified fixed-point number (ù{\codeincomments{v}}ù), write it to the
+        // specified (ù{\codeincomments{stream}}ù), and return (ù{\codeincomments{stream}}ù).
     {
         std::string str = std::to_string(v.d_data);
         // Insert leading '0's, if needed.
         if (str.length() < Precision)
             str.insert(0, (Precision - str.length()), '0');
         str.insert(str.length() - Precision, 1, '.');
-        return os << str;
+        return stream << str;
     }
 };
 \end{emcppslisting}
-    
-\noindent Our data representation is a \lstinline!c.long!~\lstinline!long!, making the
+
+\noindent Our data representation is a \lstinline!long!~\lstinline!long! (see \featureref{\locationa}{long-long}), making the
 largest value that can be represented
 \lstinline!std::numeric_limits<long!~\lstinline!long>::max()!~\lstinline!/!~\lstinline!pow(10,!~\lstinline!Precision)!, assuming an integer \lstinline!pow! function. The output function,
-\lstinline!operator<<!, simply converts \lstinline!d_data! to a string and
+\lstinline!operator<<!, converts \lstinline!d_data! to a string and
 then inserts the decimal point into the correct location. The special
-``raw'' constructor exists so that our \emcppsgloss[udl operator]{UDL operator} can easily
+``raw'' constructor exists so that our \emcppsgloss{UDL operator} can easily
 construct a value without losing precision, as we'll see later; the
 unused second parameter is a dummy to distinguish it from other
 constructors.
 
-We want to define a \emcppsgloss[templated udl operator]{templated UDL operator} to return a
+We want to define a \emcppsgloss{templated UDL operator} to return a
 \lstinline!FixedPoint! type such that, for example, \lstinline!12.34! would
 return a value of type \lstinline!FixedPoint<2>! (for the two decimal
-places) whereas \lstinline!12.340! would return a value of type
-\lstinline!FixedPoint<3>!. We must first define a helper template to
-compute both the type and raw value of the fixed point number, given a
+places), whereas \lstinline!12.340! would return a value of type
+\lstinline!FixedPoint<3>!. We must first define a variadic helper template (see \featureref{\locationc}{variadictemplate}) to
+compute both the type and the raw value of the fixed point number, given a
 sequence of digits:
 
 \begin{emcppslisting}[emcppsbatch=e17]
@@ -1438,7 +1462,7 @@ namespace literals  // fixed-point literals defined in this namespace
 template <long long rawVal, int precision, char... c>
 struct MakeFixedPoint;
 \end{emcppslisting}
-    
+
 \noindent This helper template will be recursively instantiated; at each level of
 recursion \lstinline!rawVal! is the value computed so far,
 \lstinline!precision! is the number of decimal places seen so far, and
@@ -1446,23 +1470,26 @@ recursion \lstinline!rawVal! is the value computed so far,
 special value of \lstinline!-1! for \lstinline!precision! indicates that the decimal
 point has not yet been consumed.
 
-The base case of our recursive template is when the parameter pack,
+The base case of our recursive template occurs when the parameter pack,
 \lstinline!c...!, is empty --- i.e., there are no more characters to
 consume. In this case, the computed type is simply
-\lstinline!FixedPoint<precision>! and the value of the \emcppsgloss[udl operator]{UDL operator} is computed from \lstinline!rawVal!. We define the base case as a
+\lstinline!FixedPoint<precision>!, and the value of the \emcppsgloss{UDL
+operator} is computed from \lstinline!rawVal!. We define the base case as a
 partial specialization of \lstinline!MakeFixedPoint! where there is no
 character parameter pack:
 
 \begin{emcppslisting}[emcppsbatch=e17]
 template <long long rawVal, int precision>
-struct MakeFixedPoint<rawVal, precision> {
+struct MakeFixedPoint<rawVal, precision>
+{
     // base case when there are no more characters
     using type = FixedPoint<(precision < 0) ? 0 : precision>;
     static constexpr type makeValue() { return { rawVal, std::true_type{} }; }
+        // Return the computed fixed-point number.
 };
 \end{emcppslisting}
-    
-\noindent The other case is when there are one or more characters yet to be
+
+\noindent The other case occurs when there are one or more characters yet to be
 consumed. The helper must perform error checking for bad input
 characters and overflow before consuming the character and instantiating
 itself recursively:
@@ -1489,22 +1516,22 @@ private:
                                           precision < 0 ? -1 :
                                           precision + 1);
 
-    // Instantiate this template recursively to consume remaining characters in
-    // (ù{\codeincomments{c...}}ù).
+    // Instantiate this template recursively to consume remaining characters.
     using RecurseType = MakeFixedPoint<(c0isdig ? 10 * rawVal + c0 - '0' :
                                         rawVal), nextPrecision, c...>;
 
 public:
     using                 type = typename RecurseType::type;
     static constexpr type makeValue() { return RecurseType::makeValue(); }
+        // Return the computed fixed-point number.
 };
 \end{emcppslisting}
-    
+
 \noindent This specialization consumes one character, \lstinline!c0!, from the
-parameter pack. The first\linebreak[4]%%%%%%  
+parameter pack. The first\linebreak[4]%%%%%%
 \lstinline!static_assert! checks that
 \lstinline!c0! is either a digit, digit separator
-(\lstinline!'\''!), 
+(\lstinline!'\''!),
 or decimal point (\lstinline!'.'!). The second
 \lstinline!static_assert! checks that the computation is not in danger of
 overflowing the maximum value of a \lstinline!long!~\lstinline!long!. The
@@ -1520,10 +1547,11 @@ potentially larger \lstinline!rawVal!, a potentially larger
 definitions of \lstinline!type! and \lstinline!makeValue! simply defer to the
 definitions in the recursive instantiation.
 
-Finally, we define the \lstinline!_fixed! \emcppsgloss[templated udl operator]{templated UDL operator},
+Finally, we define the \lstinline!_fixed! \emcppsgloss{templated UDL operator},
 instantiating \lstinline!MakeFixedPoint! with an initial \lstinline!rawVal! of
 \lstinline!0!, an initial \lstinline!precision! of \lstinline!-1!, and with a \lstinline!c...!
-parameter pack consisting of all of the characters in the \emcppsgloss{naked literal}:
+parameter pack consisting of all of the characters in the \emcppsgloss{naked
+literal}:
 
 \begin{emcppslisting}[emcppsbatch=e17]
 template <char... c>
@@ -1532,10 +1560,10 @@ constexpr typename MakeFixedPoint<0, -1, c...>::type operator"" _fixed()
     return MakeFixedPoint<0, -1, c...>::makeValue();
 }
 
-}  // close namespace (ù{\codeincomments{literals}}ù) 
-}  // close namespace (ù{\codeincomments{fixedpoint}}ù) 
+}  // Close namespace (ù{\codeincomments{literals}}ù).
+}  // Close namespace (ù{\codeincomments{fixedpoint}}ù).
 \end{emcppslisting}
-    
+
 \noindent Now the \lstinline!_fixed! suffix can be used for fixed-point
 \emcppsgloss[user defined literal (UDL)]{UDLs} where the precision of the returned type is automatically
 deduced based on the number of decimal places in the literal. Note that
@@ -1557,16 +1585,17 @@ int fixedTest()
     std::cout << fx2 << '\n';            // prints "123.450"
 }
 \end{emcppslisting}
-    
-\noindent An effort is underway to define a standard \emcppsgloss[decimal floating point]{decimal floating-point} type, which, like our decimal fixed-point type, retains
+
+\noindent An effort is underway to define a standard \emcppsgloss[decimal floating point]{decimal
+floating-point} type, which, like our decimal fixed-point type, retains
 the benefit of precisely representing decimal fractions but where the
 precision is variable at run time. If implemented as a library type, a
-\emcppsgloss[udl suffix]{UDL suffix} would allow such type to have a natural
+\emcppsgloss{UDL suffix} would allow such type to have a natural
 representation in code.\footnote{\cite{kuhl12}}
 
 \subsubsection[User-defined string types]{User-defined string types}\label{user-defined-string-types}
 
-A Universally Unique Identifier (UUID) is a 128-bit number that
+A universally unique identifier (UUID) is a 128-bit number that
 identifies specific pieces of data in computer systems. It can be
 readily expressed as an array of two 64-bit integers:
 
@@ -1574,16 +1603,17 @@ readily expressed as an array of two 64-bit integers:
 #include <cstddef>  // (ù{\codeincomments{std::size\_t}}ù)
 \end{emcppshiddenlisting}
 \begin{emcppslisting}[emcppsbatch=e18]
+#include <cstdint>  // std::uint64_t
 class UUIDv4
 {
-    unsigned long long d_value[2];
+    std::unit64_t d_value[2];
     // ...
 };
 \end{emcppslisting}
-    
+
 \noindent A version-4 UUID has a canonical human-readable format consisting of
 five groups of hex digits separated by hyphens, e.g.,
-``ed66b67a-f593-4def-9a9b-e69d1d6295ef''. Although storing this
+\lstinline!ed66b67a-f593-4def-9a9b-e69d1d6295ef!. Although storing this
 representation as a string would be easy, converting it using the
 packed, 128-bit integer format of the above \lstinline!UUIDv4! class is
 more efficient and convenient. Moreover, UUIDs that are hard-coded into
@@ -1605,7 +1635,7 @@ namespace uuid_literals
 using namespace uuid_literals;
 constexpr UUIDv4 buildId = "eeec1114-8078-49c5-93ca-fea6fbd6a280"_uuid;
 \end{emcppslisting}
-    
+
 
 \subsubsection[Unit conversions and dimensional units]{Unit conversions and dimensional units}\label{unit-conversions-and-dimensional-units}
 
@@ -1615,7 +1645,7 @@ normalized unit and to annotate a value's unit within the code. For
 example, the standard trigonometric functions all operate on
 \lstinline!double! values where angles are expressed in radians. However,
 many people are more comfortable with degrees than radians, especially
-when expressing the value directly as a hand-written number:
+when expressing the value directly as a handwritten number:
 
 \begin{emcppslisting}[emcppsbatch=e19]
 #include <cmath>  // (ù{\codeincomments{std::sin}}ù), (ù{\codeincomments{std::cos}}ù)
@@ -1625,9 +1655,9 @@ constexpr double pi = 3.14159265358979311599796346854;
 double s1 = std::sin(30.0);    // Bug, intended (ù{\codeincomments{sin(30 deg)}}ù) but got (ù{\codeincomments{sin(30 rad)}}ù)
 double s2 = std::sin(pi / 6);  // OK, returns (ù{\codeincomments{sin(30 deg)}}ù)
 \end{emcppslisting}
-    
+
 \noindent The normalized unit in this case is a radian, expressed as a
-\lstinline!double!, but radians are generally fractions of pi and are thus
+\lstinline!double!, but radians are generally fractions of $\pi$ and are thus
 inconvenient to write. \emcppsgloss[user defined literal (UDL)]{UDLs} can provide convenient
 normalization from degrees or gradians to radians:
 
@@ -1645,9 +1675,9 @@ double s3 = std::sin(30.0_deg);     // OK, returns (ù{\codeincomments{sin(30 de
 double s4 = std::sin(4.7124_rad);   // OK, returns approx (ù{\codeincomments{-1.0}}ù)
 double s5 = std::cos(50.0_grad);    // OK, returns (ù{\codeincomments{sin(50 grad) == sin(45 deg)}}ù)
 \end{emcppslisting}
-    
-\noindent Unfortunately, the applicability of this approach to unit normalization
-is very limited. First, it is a one-way conversion --- e.g., the
+
+\noindent Unfortunately, the applicability of the above approach to unit normalization
+is very limited. First, the conversion is one way --- e.g., the
 expression \lstinline!std::cout!~\lstinline!<<!~\lstinline!30.0_deg! will print
 out \lstinline!0.524!, not \lstinline!30.0!, necessitating a call to a
 radians-to-degrees conversion function when a human-readable value is
@@ -1656,7 +1686,7 @@ the units that it holds, so \lstinline!double!~\lstinline!inputAngle! doesn't
 tell the reader (or program) whether the angle is expected to be input
 in degrees or radians.
 
-A much more robust way to use \emcppsgloss[user defined literal (UDL)]{UDLs} to express units is to
+A more robust way to use \emcppsgloss[user defined literal (UDL)]{UDLs} to express units is to
 define them as part of a comprehensive library of unit classes.
 Dimensional quantities (length, temperature, currency, and so on) often
 benefit from being represented by \emcppsgloss[dimensional unit type]{dimensional unit types} that
@@ -1665,13 +1695,13 @@ For example, creating a function to compute kinetic energy from speed
 and mass seems simple:
 
 \begin{emcppslisting}[emcppsbatch=e20]
-// Return kinetic energy in joules given (ù{\codeincomments{speed}}ù) in mps and (ù{\codeincomments{mass}}ù) in kg.
 double kineticE(double speed, double mass)
+    // Return kinetic energy in joules given (ù{\codeincomments{speed}}ù) in mps and (ù{\codeincomments{mass}}ù) in kg.
 {
     return speed * speed * mass;
 }
 \end{emcppslisting}
-    
+
 \noindent Yet this simple function can be called incorrectly in numerous ways,
 with no compiler diagnostics to help prevent the errors:
 
@@ -1687,7 +1717,7 @@ double x2 = kineticE(m1Kg, s1);  // Bug, arguments reversed
 double x3 = kineticE(s1, m1);    // Bug, mass should be in kg, not g
 double x4 = kineticE(s1, m1Kg);  // OK, meters per sec and kg units
 \end{emcppslisting}
-    
+
 \noindent One way to detect some of these errors at compile time is to use a
 wrapper for each dimension:
 
@@ -1713,7 +1743,7 @@ Energy x6 = kineticE(m2Kg, s2); // Error, reversed arguments, incompatible types
 Energy x7 = kineticE(s2, m2);   // Bug, mass should be in kg, not g.
 Energy x8 = kineticE(s2, m2Kg); // OK, m/s and Kg units
 \end{emcppslisting}
-    
+
 \noindent Note that the compiler correctly diagnoses an error in the
 initializations of \lstinline!x5! and \lstinline!x6! but still fails to
 diagnose the unit error in the initialization of \lstinline!x7!.
@@ -1743,11 +1773,11 @@ auto m3Kg = 2.045_kg;  // mass expressed as kg
 Energy x9  = kineticE(s3, m3);    // OK, (ù{\codeincomments{m3}}ù) has been normalized to Kg units.
 Energy x10 = kineticE(s3, m3Kg);  // OK, m/s and Kg units
 \end{emcppslisting}
-    
+
 \noindent Note that there are two \emcppsgloss[user defined literal (UDL)]{UDLs} that yield \lstinline!Distance! and
 two \emcppsgloss[user defined literal (UDL)]{UDLs} that yield \lstinline!Mass!. Typically, the internal
 representation of each of these dimensional types has a normalized
-representation, e.g., \lstinline!Distance! might be represented in meters
+representation; e.g., \lstinline!Distance! might be represented in meters
 internally, so \lstinline!25_cm! would be represented by a \lstinline!double!
 data member with value \lstinline!0.25!. It is also possible, however, for
 the unit to be stored alongside the value, thus avoiding rounding errors
@@ -1766,7 +1796,7 @@ namespace unit_literals
     constexpr Kilograms operator"" _kg (long double kg);
 }
 \end{emcppslisting}
-    
+
 \noindent We now get \emph{different} types for \lstinline!100_g! and
 \lstinline!0.1_kg!, but we can define \lstinline!MassUnit! in such a way that
 they interoperate. The time-interval units that we saw previously in
@@ -1779,9 +1809,8 @@ the topic of a comprehensive physical units library in \cite{pusz20b}.}}
 Because code is easier to maintain when ``magic'' values are expressed
 as named constants rather than literal values, a typical program does
 not contain many literals (see \intraref{potential-pitfalls-defmemberinit}{overuse-defmemberinit}). The
-exception to this general rule is in unit tests where many values are
-successively passed to a subsystem to test its behavior with a number of
-different input values. For example, we define a \lstinline!Date! class
+exception to this general rule is in unit tests where many different values are
+successively passed to a subsystem to test its behavior. For example, we define a \lstinline!Date! class
 that supplies a subtraction operator returning the number of days
 between two \lstinline!Date!s:
 
@@ -1799,7 +1828,7 @@ public:
 int operator-(const Date& lhs, const Date& rhs);
     // Return the number of days from (ù{\codeincomments{rhs}}ù) to (ù{\codeincomments{lhs}}ù).
 \end{emcppslisting}
-    
+
 \noindent To test the subtraction operator, we need to feed it combinations of
 dates and compare the result with the expected result. We do this by
 creating an array where each row holds a pair of dates and the expected
@@ -1848,7 +1877,7 @@ void testSubtraction()
     }
 }
 \end{emcppslisting}
-    
+
 
 \subsection[Potential Pitfalls]{Potential Pitfalls}\label{potential-pitfalls-defmemberinit}
 
@@ -1857,7 +1886,7 @@ void testSubtraction()
 \emcppsgloss[raw UDL operator]{Raw UDL operators} and \emcppsgloss[templated UDL operator]{templated UDL operators} must
 parse and handle every character from the \emph{union} of the set of
 legal characters in integer and floating-point literals, even if the
-\emcppsgloss[udl operator]{UDL operator} is expecting only one of the two numeric type
+\emcppsgloss{UDL operator} is expecting only one of the two numeric type
 categories. Failure to generate an error for an invalid character is
 likely to produce an incorrect value, rather than a program crash or
 compilation error:
@@ -1875,9 +1904,9 @@ short operator"" _short(const char *digits)
 }
 
 short s1 = 123_short;   // OK, value 123
-short s2 = 123._short;  // Bug, (ù{\codeincomments{.}}ù) treated as digit value (ù{\codeincomments{-2}}ù)
+short s2 = 123._short;  // Bug, (ù{\codeincomments{'.'}}ù) treated as digit value (ù{\codeincomments{-2}}ù)
 \end{emcppslisting}
-    
+
 \noindent Testing only for the \emph{expected} characters and rejecting any others
 is better than checking for \emph{invalid} characters and accepting the
 rest:
@@ -1910,41 +1939,39 @@ short s3 = 123_shrt2;    // OK, value 123
 short s4 = 123._shrt2;   // Error (detected), throws (ù{\codeincomments{out\_of\_range("Bad digit")}}ù)
 short s5 = 0x123_shrt2;  // Error (detected), throws (ù{\codeincomments{out\_of\_range("Bad digit")}}ù)
 \end{emcppslisting}
-    
+
 \noindent The first \lstinline!if! will catch an unexpected decimal point but not an
-unexpected \lstinline!'e'!, \lstinline!'x'!, \lstinline!'\'!, 
-and so
-on. The second \lstinline!if! will catch all unexpected characters. If a
+unexpected characters such as \lstinline!'e'!, \lstinline!'x'!, \lstinline!'\'!. The second \lstinline!if! will catch all unexpected characters. If a
 new radix or other currently illegal character is introduced in a future
 Standard, the second \lstinline!if! will avoid processing it incorrectly.
 Note that, for example, after \emcppsgloss[user defined literal (UDL)]{UDLs} were added in C++11, both
 the \lstinline!0b! radix and the digit separator (\lstinline!'!) were
 introduced in C++14, potentially breaking any C++11-compliant
-\emcppsgloss[udl operator]{UDL operator} that didn't properly handle those characters.
+\emcppsgloss{UDL operator} that didn't properly handle those characters.
 
 
-%%%%%%%% PRODUCTION: May want to soften/neutralize the language on FPPs. 
+%%%%%%%% PRODUCTION: May want to soften/neutralize the language on FPPs.
 %\emph{TODO (VR): this annoyance seems quite subjective.}
 \subsubsection[Overuse]{Overuse}\label{overuse-defmemberinit}
 
-While UDLs offer conciseness, they aren't always the best way to create
+Although UDLs offer conciseness, they aren't always necessarily the most effective way to create
 a literal value in a program. Sometimes a regular constructor or
-function call is almost as concise and is simpler and more flexible. For
+function call might be almost as concise, simpler, and more flexible. For
 example, \lstinline!deg(90)! is as readable as \lstinline!90_deg! and can be
 applied to runtime values as well as to literals. If the constructor for
-a type naturally takes two or more arguments, a string \emcppsgloss[udl operator]{UDL operator} could theoretically parse a comma-separated list of arguments
+a type naturally takes two or more arguments, a string \emcppsgloss{UDL
+operator} could theoretically parse a comma-separated list of arguments
 --- e.g., \lstinline!"(2.0,!~\lstinline!6.0)"_point! to represent a 2-D
 coordinate --- but is the literal really easier to read than
 \lstinline!Point(2.0,!~\lstinline!6.0)!?
 
 Finally, even for simple cases, consider how \emph{often} a literal is
 likely to be used. The use of ``magic numbers'' in code is widely
-discouraged. Numeric literals other than \lstinline!-1!, \lstinline!0!,
+discouraged. Numeric literals other than, say, \lstinline!-1!, \lstinline!0!,
 \lstinline!1!, \lstinline!2!, and \lstinline!10! or string literals other than
-\lstinline!""! are usually used only to initialize named constants. The
-speed of sound would probably be written as a constant,
-\lstinline!speedOfSound!, rather than a literal, \lstinline!343_mps!. The use
-of literals to supply the special values used to initialize named
+\lstinline!""! are typically used only to initialize named constants. The
+speed of sound, for example,  would probably be written as a constant, e.g.,
+\lstinline!speedOfSound!, rather than a literal, \lstinline!343_mps!. Using literals to supply the special values used to initialize named
 constants provides little benefit by way of overall program readability:
 
 \begin{emcppshiddenlisting}[emcppsbatch=e22]
@@ -1962,16 +1989,14 @@ constexpr Speed mach2 = 2 * speedOfSound1; // Literal is irrelevant.
 constexpr Speed mach3 = 3 * speedOfSound2; // Literal is irrelevant.
 constexpr Speed mach4 = 4 * 343_mps;       // Bad style: "magic" number
 \end{emcppslisting}
-    
+
 \noindent Often, the most common literal is the one that expresses the notion of
-an \emph{empty} or \emph{zero} value. Consider creating constants for
-such values, such as
-\lstinline!constexpr!~\lstinline!Thing!~\lstinline!EmptyThing{}!, instead of
-defining a \emcppsgloss[udl operator]{UDL operator} just to be able to write
+an \emph{empty} or \emph{zero} value. A clearer, more descriptive alternative might be to create named constants, such as  \lstinline!constexpr!~\lstinline!Thing!~\lstinline!k_EMPTY_THING!, instead of
+defining a \emcppsgloss{UDL operator} just to be able to write
 \lstinline!""_thing! or \lstinline!0_thing!.
 
 
-%%%%%%%%%% REMOVE for this edition but keep for perhaps using for later editions. 
+%%%%%%%%%% REMOVE for this edition but keep for perhaps using for later editions.
 %\subsubsection[Obfuscation]{Obfuscation}\label{obfuscation}
 %
 %\emcppsgloss[user defined literal (UDL)]{UDLs} are mostly \emcppsgloss{syntactic sugar}, although they can
@@ -1995,7 +2020,7 @@ defining a \emcppsgloss[udl operator]{UDL operator} just to be able to write
 A string literal with a suffix, e.g., \lstinline!"hello"_wrld!, is a
 single token in C++11 but was two tokens, \lstinline!"hello"! and
 \lstinline!_wrld!, in previous versions of the language. This change could
-result in a subtle difference in meaning, usually resulting in a
+manifest in a subtle difference in meaning, usually resulting in a
 compilation error, if \lstinline!_wrld! is a macro:
 
 \begin{emcppslisting}[emcppserrorlines=2]
@@ -2003,7 +2028,7 @@ compilation error, if \lstinline!_wrld! is a macro:
 const char* s = "hello"_wrld;  // "hello world" in C++03, UDL in C++11
 \end{emcppslisting}
 
-\subsubsection[Over-verbose usage]{Over-verbose usage}
+\subsubsection[Verbose usage]{Verbose usage}
 
 One of the main selling points of user-defined literals is enabling developers to write concise and expressive code. However, since literal operators are commonly bundled together in a separate namespace, the required \emcppsgloss[using directive]{\lstinline!using! directive} on the caller side can become a burden if only one or few uses of a literal operator appear in a scope:
 
@@ -2020,12 +2045,12 @@ bool operator >(const Date&,const Date&);
 \begin{emcppslisting}[emcppsbatch=e23]
 bool isAfterLunarLanding(Date d)
 {
-    using namespace test_literals;  // Import (ù{\codeincomments{\_date}}ù) UDL suffix
+    using namespace test_literals;  // Import (ù{\codeincomments{\_date}}ù) UDL suffix.
     return d > "1969-07-20"_date;
 }
 \end{emcppslisting}
 
-\noindent The authors of the \lstinline!_date\lstinline! UDL should provide its same functionality as a function or constructor to ensure that users do not always require a possibly over-verbose \emcppsgloss[using directive]{\lstinline!using! directive} to achieve their goals:
+\noindent The authors of the \lstinline!_date! UDL should provide its same functionality as a function or constructor to ensure that users do not always require a possibly over-verbose \emcppsgloss[using directive]{\lstinline!using! directive} to achieve their goals:
 
 \begin{emcppslisting}[emcppsbatch=e24]
 bool isAfterLunarLanding(Date d)
@@ -2034,15 +2059,15 @@ bool isAfterLunarLanding(Date d)
 }
 \end{emcppslisting}
 
-    
+
 
 \subsection[Annoyances]{Annoyances}\label{annoyances}
 
 \subsubsection[No conversion from floating-point to integer \lstinline!UDL!]{No conversion from floating-point to integer {\SubsubsecCode UDL}}\label{no-conversion-from-floating-point-to-integer-udl}
 
-Defining a prepared-argument floating-point \emcppsgloss[udl operator]{UDL operator} does
+Defining a prepared-argument floating-point \emcppsgloss{UDL operator} does
 not make the corresponding suffix available to numeric literals that
-look like integers or vice versa:
+look like integers and vice versa:
 
 \begin{emcppslisting}
 double operator"" _mpg(long double v);
@@ -2050,18 +2075,15 @@ double operator"" _mpg(long double v);
 double v1 = 12_mpg;   // Error, no integer UDL operator for (ù{\codeincomments{\_mpg}}ù)
 double v2 = 12._mpg;  // OK, floating-point UDL operator for (ù{\codeincomments{\_mpg}}ù) found
 \end{emcppslisting}
-    
-\noindent While this behavior is deliberate, it is important when authoring
-\emcppsgloss[UDL operator]{UDL operators} to consider whether integer literals should match
-the suffix (even if they are treated as floating-point types) and, if
-so, to add appropriate unit tests.
+
+\noindent If the intention is to define a prepared-argument UDL where numbers with and without a decimal point are accepted, then both forms of the \emcppsgloss{UDL operator} must be defined.
 
 \subsubsection[Potential suffix-name collisions]{Potential suffix-name collisions}\label{potential-suffix-name-collisions}
 
-Using a \emcppsgloss[udl suffix]{UDL suffix} requires bringing the corresponding
-\emcppsgloss[udl operator]{UDL operator} into the current scope, e.g., by means of a
+Using a \emcppsgloss{UDL suffix} requires bringing the corresponding
+\emcppsgloss{UDL operator} into the current scope, e.g., by means of a
 \lstinline!using! directive. If the scope is large enough and if more than
-one imported namespace contains a \emcppsgloss[udl operator]{UDL operator} with the same
+one imported namespace contains a \emcppsgloss{UDL operator} with the same
 name, a name collision can result:
 
 \begin{emcppshiddenlisting}[emcppsbatch=e25]
@@ -2078,42 +2100,41 @@ using namespace temperature_literals; // colliding (ù{\codeincomments{\_deg}}ù
 
 auto d = 12.0_deg;  // Error, ambiguous use of suffix, (ù{\codeincomments{\_deg}}ù)
 \end{emcppslisting}
-    
+
 %\noindent Furthermore, there is no straightforward way to disambiguate this case
 %because qualified name lookup does not work for \emcppsgloss[UDL suffix]{UDL suffixes}
 %(e.g., \lstinline!12.0trig_literals::_deg! does not compile).
 
-\noindent While it is possible to disambiguate the colliding suffixes via qualified name lookup, the required verbosity defeats the entire purpose of using a UDL in the first place:
+\noindent While it is possible to disambiguate the colliding suffixes via qualified name lookup, the ensuing verbosity might defeat the purpose of using a UDL in the first place:
 
 \begin{emcppslisting}[emcppsbatch=e25]
 auto a = trig_literals::operator""_deg(12.0);
 auto b = temperature_literals::operator""_deg(12.0);
 \end{emcppslisting}
-   
 
-\subsubsection[Easy to confuse raw with string UDL operators]{Easy to confuse raw with string UDL operators}\label{easy-to-confuse-raw-with-string-udl-operators}
 
-A \emcppsgloss[udl operator]{UDL operator} that takes a single
-\lstinline!const!~\lstinline!char*! argument is a \emcppsgloss[raw udl operator]{raw UDL operator}
-for numeric literals but is easily confused for a
-\emcppsgloss[prepared argument udl operator]{prepared-argument UDL operator} for string literals:
+\subsubsection[Confusing raw with string UDL operators]{Confusing raw with string UDL operators}\label{easy-to-confuse-raw-with-string-udl-operators}
+
+A \emcppsgloss{UDL operator} that takes a single
+\lstinline!const!~\lstinline!char*! argument is a \emcppsgloss{raw UDL operator}
+for numeric literals but can be easily confused for a
+\emcppsgloss{prepared-argument UDL operator} for string literals:
 
 \begin{emcppslisting}
 int operator"" _udl(const char *);
 
 int s = "hello"_udl;  // Error, no match for (ù{\codeincomments{operator""(const char*, size\_t)}}ù)
 \end{emcppslisting}
-    
+
 \noindent Fortunately, such a problem will typically result in a compile-time
-error that is easily \mbox{diagnosed}.
+error.
 
 \subsubsection[No templated UDL operators for string literals]{No templated UDL operators for string literals}\label{no-templated-udl-operators-for-string-literals}
 
 \emcppsgloss[templated UDL operator]{Templated UDL operators} are called only for numeric literals;
 string literals are limited to the prepared-argument pattern. It is thus
-not possible to choose, at compile-time, different return types based on
-the contents of a string literal. This limitation was removed in
-C++20 with a new syntax.
+not possible to choose, at compile time, different return types based on
+the contents of a string literal.\footnote{As of C++20, new syntax is added that removes the limitation of not being able to affect the return-type base on the contents of a literal string.}
 
 \subsubsection[No way to parse a leading \lstinline!-! or \lstinline!+!]{No way to parse a leading {\SubsubsecCode -} or {\SubsubsecCode +}}\label{no-way-to-parse-a-leading---or-+}
 
@@ -2122,17 +2143,19 @@ As described in \intraref{description-userdeflit}{restrictions-on-user-defined-l
 operator and not part of the literal. There are occasions, however,
 where it would be convenient to know whether the literal value is being
 negated. For example, if temperatures are being stored as
-\lstinline!double! values in Kelvin and if the \emcppsgloss[udl suffix]{UDL suffix}
+\lstinline!double! values in Kelvin and if the \emcppsgloss{UDL suffix}
 \lstinline!_C! converts a floating-point literal from Celsius to Kelvin by
 calling a function, \lstinline!cToK(double)!, then the expression
 \lstinline!-10.0_C! produces the nonsensical value \lstinline!-283.15!
 (\lstinline!-cToK(10.0)!) rather than the intuitive value of \lstinline!+263.15!
-(\lstinline!cToK(-10.0)!). Parsing the
-\lstinline!-!~sign as part of the literal would be nice but is simply not possible.
+(\lstinline!cToK(-10.0)!). Alas, parsing the
+\lstinline!-!~sign as part of the literal is simply not possible.
 
 \subsubsection[Parsing numbers is hard]{Parsing numbers is hard}\label{parsing-numbers-is-hard}
 
-Many of the benefits of \emcppsgloss[raw UDL operator]{raw UDL operators} and \emcppsgloss[templated UDL operator]{templated UDL operators} require parsing integer and/or floating-point values
+Many of the benefits of \emcppsgloss[raw UDL operator]{raw UDL operators} and \emcppsgloss[templated
+UDL operator]{templated
+UDL operators} require parsing integer and/or floating-point values
 manually, in code, often using recursion. Getting this right is tedious
 at best. The Standard Library does not provide much support, especially
 for \lstinline!constexpr! parsing.
@@ -2142,14 +2165,19 @@ for \lstinline!constexpr! parsing.
 \subsection[See Also]{See Also}\label{see-also}
 
 \begin{itemize}
-\item{\seealsoref{decltype}{\seealsolocationa}is often helpful for deducing the return type of a \emcppsgloss[templated udl operator]{templated UDL operator}.}
-\item{\seealsoref{null-pointer-literal-(nullptr)}{\seealsolocationa}is a keyword that unambiguously denotes the null pointer literal.}
-\item{\seealsoref{auto}{\seealsolocationc} can be used to declare a variable to hold the value of a \emcppsgloss[user defined literal (UDL)]{UDL} when the type of the \emcppsgloss[user defined literal (UDL)]{UDL} varies based on its contents.}
-\item{\seealsoref{constexprfunc}{\seealsolocationc}allow most \emcppsgloss[user defined literal (UDL)]{UDLs} to be used as part of a constant expression.}
-\item{\seealsoref{variadictemplate}{\seealsolocationc}are required for implementing \emcppsgloss[templated UDL operator]{templated UDL operators}.}
-\item{\seealsoref{inline-namespaces}{\seealsolocatione}are not recommended for \emcppsgloss[UDL operator]{UDL operators}. However, the C++14 Standard Library puts \emcppsgloss[UDL operator]{UDL operators} into \lstinline!inline! namespaces.}
+\item{\seealsoref{decltype}{\seealsolocationa}introduces a keyword often helpful for deducing the return type of a \emcppsgloss{templated UDL operator}.}
+\item{\seealsoref{null-pointer-literal-(nullptr)}{\seealsolocationa}describes a keyword that unambiguously denotes the null pointer literal.}
+\item{\seealsoref{auto}{\seealsolocationc} shows how type inference can be used to declare a variable to hold the value of a \emcppsgloss[user defined literal (UDL)]{UDL} when the type of the \emcppsgloss[user defined literal (UDL)]{UDL} varies based on its contents.}
+\item{\seealsoref{constexprfunc}{\seealsolocationc}describes how most \emcppsgloss[user defined literal (UDL)]{UDLs} can be used as part of a constant expression.}
+\item{\seealsoref{variadictemplate}{\seealsolocationc}shows how templates can take an infinite number of parameters, which is required for implementing \emcppsgloss[templated UDL operator]{templated UDL operators}.}
+\item{\seealsoref{inline-namespaces}{\seealsolocatione}describes a feature not recommended for \emcppsgloss[UDL operator]{UDL operators}, yet the C++14 Standard Library puts \emcppsgloss[UDL operator]{UDL operators} into \lstinline!inline! namespaces.}
 \end{itemize}
 
 \subsection[Further Reading]{Further Reading}\label{further-reading}
 
-TO DO
+\begin{itemize}
+\item{\cite{mcintosh08}}
+\item{For a discussion of user-defined literals with recommendations for idiomatic use, see \cite{dewhurst19}.}
+\end{itemize}
+
+

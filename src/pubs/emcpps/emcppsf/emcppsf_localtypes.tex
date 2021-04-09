@@ -1,5 +1,6 @@
 % 5 Feb 2021, copyedits in and proofed
 % 8 Feb 2021 JMB, compilation fixes
+% 22 March 2021, in FPPs
 
 \emcppsFeature{
     short={Local Types '11},
@@ -52,6 +53,7 @@ These new relaxed rules for template arguments are essential to the
 ergonomics of \emcppsgloss{lambda expressions} (see \featureref{\locationc}{lambda}), as such types are both
 unnamed and local in typical usage:
 
+\newpage%%%%
 \begin{emcppslisting}
 #include <algorithm>  // (ù{\codeincomments{std::sort}}ù)
 #include <string>     // (ù{\codeincomments{std::string}}ù)
@@ -113,6 +115,7 @@ inline int dijkstra(std::vector<Vertex>* path, const Graph& graph)
 }
 \end{emcppslisting}
 
+\newpage%%%%
 \noindent Defining \lstinline!VertexMetadata! outside of the body of
 \lstinline!dijkstra! --- e.g., to comply with C++03 restrictions --- would
 make that implementation-specific helper class directly accessible to
@@ -143,7 +146,7 @@ type, \lstinline!City!:
 #include <algorithm>  // (ù{\codeincomments{std::copy}}ù)
 #include <iostream>   // (ù{\codeincomments{std::ostream}}ù)
 #include <iterator>   // (ù{\codeincomments{std::ostream\_iterator}}ù)
-#include <set>        // (ù{\codeincomments{std::set}}ù)       
+#include <set>        // (ù{\codeincomments{std::set}}ù)
 #include <string>     // (ù{\codeincomments{std::string}}ù)
 #include <vector>     // (ù{\codeincomments{std::vector}}ù)
 
@@ -159,6 +162,7 @@ std::ostream& operator<<(std::ostream& stream,
 \noindent Consider now the task of writing a function to print unique elements of
 an\linebreak[4] \lstinline!std::vector<City>!, ordered by name:
 
+\newpage%%%%%
 \begin{emcppslisting}[emcppsbatch=e2]
 void printUniqueCitiesOrderedByName(const std::vector<City>& cities)
 {

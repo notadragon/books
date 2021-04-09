@@ -1,5 +1,6 @@
 % 13 Jan: copyedits in and proofed
 %% 27 Jan, code checked and replaced as needed by Josh
+% 22 March 2021, in FPPs
 
 \emcppsFeature{
     short={{\lstinline!nullptr!}},
@@ -51,7 +52,7 @@ float (S::*pmf0)(int) = &S::g;    // Initialize with non-null address.
 float (S::*pmf1)(int) = nullptr;  // Initialize with null address.
 \end{emcppslisting}
 
-
+\newpage%%%%%
 \noindent Because \lstinline!std::nullptr_t! is its own distinct type, overloading on
 it is possible:
 
@@ -103,6 +104,7 @@ values returned via output parameters (as opposed to a \lstinline!return!
 statement) are always returned via pointer to a modifiable
 object. Functions that return via argument typically do so to reserve the function’s return value to communicate status.{\cprotect\footnote{See \cite{lakos96}, section~9.1.11, pp.~621--628, specifically the \emph{Guideline} at the bottom of p.~621: ``Be consistent about returning values through arguments (e.g., avoid declaring non\lstinline!const! reference parameters)."}} A function in this codebase might ``zero" the output parameter's local pointer variable to indicate and ensure that nothing more is to be written. The function below illustrates three different ways of doing this:
 
+\newpage%%%%%%
 \begin{emcppshiddenlisting}[emcppsbatch=e1]
 #include <cstdlib>  // (ù{\codeincomments{NULL}}ù)
 // --- Replace
@@ -200,7 +202,7 @@ void f()
 are unavoidable because it obviates explicit
 casts. (Note that explicitly casting \lstinline!0! to an
 appropriately typed pointer --- other than \lstinline!void*! --- was at one
-  time considered by some to be a best practice, especially in C.)
+  time considered by some to be a best practice, especially in~C.)
 
 \subsubsection[Overloading for a literal null pointer]{Overloading for a literal null pointer}\label{overloading-for-a-literal-null-pointer}
 
@@ -231,7 +233,7 @@ a runtime error (see
 \featureref{\locationb}{deleted-functions}):
 
 \begin{emcppshiddenlisting}[emcppsbatch=e4]
-#include <cstddef>  // (ù{\codeincomments{std::size\_t}}ù)
+#include <cstdlib>  // (ù{\codeincomments{std::size\_t}}ù)
 \end{emcppshiddenlisting}
 \begin{emcppslisting}[emcppsbatch=e4]
 std::size_t strlen(const char* s);

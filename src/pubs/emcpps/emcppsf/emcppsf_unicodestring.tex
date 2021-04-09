@@ -1,5 +1,7 @@
 % 12 Feb 2021, revisions in; ready for Josh's code fixes
 % 16 Feb 2021 JMB; code compiles
+% 24 Feb 2021, copyedits in and proofed
+% 22 March 2021, in FPPs
 
 \emcppsFeature{
     short={Unicode Literals},
@@ -44,8 +46,8 @@ UTF-32  & \lstinline!U"Hello"! & \lstinline!char32_t!\\ \thickhline
 }
 \end{tablenotes}
 \end{threeparttable}
-\end{center} 
-\end{table} 
+\end{center}
+\end{table}
 
 \noindent A Unicode literal value is guaranteed to be encoded in UTF-8, UTF-16, or
 UTF-32, for \lstinline!u8!, \lstinline!u!, and \lstinline!U! literals,
@@ -58,7 +60,7 @@ char s0[] = "Hello";
 char s1[] = u8"Hello";
     // guaranteed to be encoded as (ù{\codeincomments{\{0x48, 0x65, 0x6C, 0x6C, 0x6F, 0x0\}}}ù)
 \end{emcppslisting}
-    
+
 \noindent C++11 also introduces \emph{universal character names} that provide a
 reliably portable way of embedding Unicode code points in a C++ program.
 They can be introduced by the \lstinline!\u! character
@@ -66,14 +68,15 @@ sequence followed by four hexadecimal digits or by the
 \lstinline!\U! character sequence followed by eight
 hexadecimal digits:
 
+\newpage%%%%%%
 \begin{emcppslisting}
-#include <cstdio>  // (ù{\codeincomments{std::puts}ù)                                               
-void f()                                                                        
-{                                                                               
-    std::puts(u8"\U0001F378"); // Unicode code point in a UTF8 encoded literal  
+#include <cstdio>  // (ù{\codeincomments{std::puts}ù)
+void f()
+{
+    std::puts(u8"\U0001F378"); // Unicode code point in a UTF8-encoded literal
 }
 \end{emcppslisting}
-    
+
 \noindent This output statement is guaranteed to emit the cocktail emoji
 (\martini) to \lstinline!stdout!, assuming that the receiving end is configured to
 interpret output bytes as UTF-8.
@@ -96,25 +99,25 @@ of bytes they are able to interpret and display as human-readable text:
 #include <string>   // (ù{\codeincomments{std::string}}ù)
 #include <ostream>  // (ù{\codeincomments{std::ostream}}ù)
 
-class Packet                                                                    
-{                                                                               
-    // ...                                                                      
-public:                                                                         
-    // ...                                                                      
-    std::ostream&  operator<<(const char *message);                             
-};                                                                              
-                                                                                
-                                                                                
-class Server                                                                    
-{                                                                               
-    void broadcastPacket(const Packet& data);                                   
-    // ...                                                                      
-public:                                                                         
-    void broadcastServerMessage(const std::string& message);                    
-    // ...                                                                      
-                                                                                
-};                                                                              
-                                                                                
+class Packet
+{
+    // ...
+public:
+    // ...
+    std::ostream&  operator<<(const char *message);
+};
+
+
+class Server
+{
+    void broadcastPacket(const Packet& data);
+    // ...
+public:
+    void broadcastServerMessage(const std::string& message);
+    // ...
+
+};
+
 \end{emcppshiddenlisting}
 \begin{emcppslisting}[emcppsbatch=e1]
 void Server::broadcastServerMessage(const std::string& utf8Message)
@@ -125,7 +128,7 @@ void Server::broadcastServerMessage(const std::string& utf8Message)
     broadcastPacket(data);
 }
 \end{emcppslisting}
-    
+
 \noindent Not using \lstinline!u8! literals in the code snippet above could potentially result in
 nonportable behavior and might require compiler-specific flags to
 ensure that the source is UTF-8 encoded.
@@ -135,7 +138,7 @@ ensure that the source is UTF-8 encoded.
 \subsubsection[Embedding Unicode graphemes]{Embedding Unicode graphemes}\label{embedding-unicode-graphemes}
 
 The addition of Unicode string literals to the language did not bring
-along an extension of the \emcppsgloss{basic source character set}: Even in C++11, the
+along an extension of~the \emcppsgloss{basic source character set}: Even in C++11, the
 default \emcppsgloss{basic source character set} is a subset of
 ASCII.{\cprotect\footnote{Implementations are free to map characters
 outside the basic source character set to sequences of its members,
@@ -151,7 +154,7 @@ sequence (\lstinline!u8"\U0001F378"!).
 
 \subsubsection[Lack of library support for Unicode]{Lack of library support for Unicode}\label{lack-of-library-support-for-unicode}
 
-Essential \emcppsgloss[vocabulary type]{vocabulary types}, such as \lstinline!std::string!, are
+Essential \emcppsgloss{vocabulary types}, such as \lstinline!std::string!, are
 completely unaware of encoding. They treat any stored string as a
 sequence of bytes. Even when correctly using Unicode string literals,
 programmers unfamiliar with Unicode might be surprised by seemingly
@@ -161,14 +164,14 @@ representing the cocktail emoji:
 \begin{emcppslisting}
 #include <cassert>  // standard C (ù{\codeincomments{assert}}ù) macro
 #include <string>   // (ù{\codeincomments{std::string}}ù)
-                                                                                
-void f()                                                                        
-{                                                                               
-    std::string cocktail(u8"\U0001F378"); // big character (!)                  
-    assert(cocktail.size() == 1);         // assertion failure (!)              
+
+void f()
+{
+    std::string cocktail(u8"\U0001F378"); // big character (!)
+    assert(cocktail.size() == 1);         // assertion failure (!)
 }
 \end{emcppslisting}
-    
+
 \noindent Even though the cocktail emoji is a \emph{single} code point,
 \lstinline!std::string::size! returns the number of code units (bytes) required to
 encode it. The lack of Unicode-aware vocabulary types and utilities in
@@ -178,18 +181,18 @@ especially in the context of international program localization.
 \subsubsection[Problematic treatment of UTF-8 in the type system]{Problematic treatment of UTF-8 in the type system}\label{utf-8-quirks}
 
 UTF-8 string literals use \lstinline!char! as their \emcppsgloss{underlying type}. Such a
-choice is inconsistent with UTF-16 and UTF-32 literals, which provide
-their own distinct character types (\lstinline!char16_t! and
-\lstinline!char32_t!). This precludes providing distinct behavior for UTF-8 encoded strings using function overloading or template specialization because they are indistinguishable from strings having the encoding of the execution character set. Furthermore, whether the underlying
+choice is inconsistent with~UTF-16 and UTF-32 literals, which provide
+their own distinct character types, \lstinline!char16_t! and
+\lstinline!char32_t!, respectively. This precludes providing distinct behavior for UTF-8 encoded strings using function overloading or template specialization because they are indistinguishable from strings having the encoding of the execution character set. Furthermore, whether the underlying
 type of \lstinline!char! is a \lstinline!signed! or \lstinline!unsigned! type is
-itself implementation defined.{\cprotect\footnote{Note that
+itself implementation defined. Note that
 \lstinline!char! is distinct from both \lstinline!signed!~\lstinline!char! and
 \lstinline!unsigned!~\lstinline!char!, but its behavior is guaranteed to be
-  the same as one of those.}}
-  
+  the same as one of those.
+
 C++20
 fundamentally changes how UTF-8 string literals work, by introducing a
-new nonaliasing \lstinline!char8_t! character type whose representation
+new non\-ali\-as\-ing \lstinline!char8_t! character type whose representation
 is guaranteed to match \lstinline!unsigned!~\lstinline!char!. The new
 character type provides several benefits:
 \begin{itemize}
@@ -211,17 +214,17 @@ void f()
     print(u8"text");  // invokes (1) prior to C++20, (0) afterwards
 }
 \end{emcppslisting}
-        
+
 
 \subsection[Annoyances]{Annoyances}\label{annoyances}
 
-None so far
+\hspace{\fill}
 
 \subsection[See Also]{See Also}\label{see-also}
 
-None so far
+\hspace{\fill}
 
 \subsection[Further Reading]{Further Reading}\label{further-reading}
 
-None so far
+\hspace{\fill}
 

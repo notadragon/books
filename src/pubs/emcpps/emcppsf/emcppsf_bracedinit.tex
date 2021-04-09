@@ -1,6 +1,6 @@
-% 22 March 2021, cleaned up LaTeX, updated commands. 
-% 23 March 2021, out to CE, Steven for tech review, external reviewers, and Josh for code check. 
-% 23 March 2021 JMB, code checked except for last code snippet which i need to follow up on.
+% 22 March 2021, cleaned up LaTeX, updated commands.
+% 23 March 2021, out to CE, Steven for tech review, external reviewers, and Josh for code check.
+
 
 
 \emcppsFeature{
@@ -20,7 +20,8 @@ in any initialization context.
 
 \subsection[Description]{Description}\label{description}
 
-\emcppsgloss[list initialization]{List initialization}, originally dubbed \emcppsgloss{uniform initialization}, was conceived to enable a uniform syntax (having the
+\emcppsgloss[list initialization]{List initialization}, originally dubbed \emcppsgloss{uniform
+initialization}, was conceived to enable a uniform syntax (having the
 same meaning) to be used generically to initialize objects irrespective
 of (1) the context in which the syntax is used or (2) the type of the
 object being initialized. Braced-initialization syntax is the language
@@ -39,7 +40,8 @@ something from which to initialize) and (2) \emcppsgloss[default value]{default/
 you don't).
 
 The first dual category of syntactic/semantic initialization comprises
-\emcppsgloss[copy initialization]{\emph{copy} initialization} and \emcppsgloss[direct initialization]{\emph{direct} initialization}. \emph{Direct} initialization is produced when
+\emcppsgloss[copy initialization]{\emph{copy} initialization} and \emcppsgloss[direct initialization]{\emph{direct}
+initialization}. \emph{Direct} initialization is produced when
 initializing an object with one or more arguments within parentheses,
 such as initializing a data member or base class in a constructor's
 initializer list, or in a \lstinline!new! expression. \emph{Copy}
@@ -48,17 +50,14 @@ parentheses, such as passing an argument to a function, or returning a
 value from a function. Both forms may be used to initialize a variable:
 
 \begin{emcppslisting}
-#include <cassert>  // standard C (ù{\codeincomments{assert}}ù) macro
+#include <cassert>  // (ù{\codeincomments{assert}}ù) macro
 
-void test()
-{
-    int i = 23;  // copy initialization
-    int j(23);   // direct initialization
+int i = 23;  // copy initialization
+int j(23);   // direct initialization
 
-    assert(i == j);
-}
+assert(i == j);
 \end{emcppslisting}
-    
+
 \noindent In both cases above, we are initializing the variable (\lstinline!i! or
 \lstinline!j!) with the literal value \lstinline!23!.
 
@@ -82,7 +81,7 @@ S s2(1.0);   // direct init of (ù{\codeincomments{s2}}ù): calls (ù{\codeincom
 S s3 = 1;    // copy init of (ù{\codeincomments{s3}}ù):   calls (ù{\codeincomments{S(double)}}ù); copy constructor may be called
 S s4 = 1.0;  // copy init of (ù{\codeincomments{s4}}ù):   calls (ù{\codeincomments{S(double)}}ù);   "      "         "    "   "
 \end{emcppslisting}
-    
+
 \noindent What's more, \emcppsgloss[copy initialization]{\emph{copy} initialization} is defined as if a
 temporary object is constructed; the compiler is permitted to elide this
 temporary and, in practice, typically does. Note, however, that
@@ -91,7 +90,8 @@ accessible \emph{copy} (or \emph{move}{\cprotect\footnote{If the
 \emph{move} constructor for a user-defined type is declared and not
 accessible, copy initialization is ill formed; see \featureref{\locationc}{Rvalue-References} and \featureref{\locationa}{deleted-functions}.}}) constructor,
 even if the temporary would have been elided.{\cprotect\footnote{In
-C++17, direct materialization replaces \emcppsgloss[copy initialization]{\emph{copy} initialization} in some contexts, thereby obviating the temporary
+C++17, direct materialization replaces \emcppsgloss[copy initialization]{\emph{copy}
+initialization} in some contexts, thereby obviating the temporary
 object construction and also the need for an accessible \emph{copy} or
   \emph{move} constructor.}} Note that function arguments and return
 values are initialized using \emcppsgloss[copy initialization]{\emph{copy} initialization}.
@@ -114,10 +114,11 @@ void ref_inits()
     long& z = x;        // Error, incompatible types
 }
 \end{emcppslisting}
-    
+
 
 \noindent The second dual category of syntactic/semantic initialization comprises
-\emcppsgloss[default initialization]{\emph{default} initialization} and \emcppsgloss[value initialization]{\emph{value} initialization}. Both default and value initialization pertain to
+\emcppsgloss[default initialization]{\emph{default} initialization} and \emcppsgloss[value initialization]{\emph{value}
+initialization}. Both default and value initialization pertain to
 situations in which \emph{no} argument is supplied, and are
 distinguished by the presence or absence of parentheses, where the
 absence of parentheses indicates default initialization and the presence
@@ -133,7 +134,7 @@ int k = int();  // value initialization
 int *pd = new int;    // default initialization of dynamic (ù{\codeincomments{int}}ù) object
 int *pv = new int();  // value        "         "     "      "    "
 \end{emcppslisting}
-    
+
 
 \noindent For \emcppsgloss[scalar type]{scalar types}, \emph{default} initialization does not
 actually initialize an object, and \emph{value} initialization will
@@ -155,7 +156,7 @@ default constructor, the first member of the union will be value
 initialized as the active member of that union when a union object is
 value initialized.
 
-\begin{emcppslisting}[emcppsbatch=e1]
+\begin{emcppslisting}
 struct B
 {
     int i;
@@ -179,7 +180,7 @@ C *pva = new C();      // value   initialization of dynamic (ù{\codeincomments{
 D *pdc = new D;        // default initialization of dynamic (ù{\codeincomments{D}}ù) object, (ù{\codeincomments{c::j}}ù) is uninitialized
 D *pvc = new D();      // value   initialization of dynamic (ù{\codeincomments{D}}ù) object, (ù{\codeincomments{c::j}}ù) is 0
 \end{emcppslisting}
-    
+
 
 \noindent In the case of an object of type \lstinline!B!, both default and value
 initialization will invoke the user-provided default constructor, which
@@ -199,7 +200,7 @@ the top level object, like \lstinline!D! above, need not have a
 user-provided constructor as long as all of its bases and members can
 recursively apply this rule.
 
-\begin{emcppslisting}[emcppsbatch=e1]
+\begin{emcppslisting}
 struct D2 : B { B j; };  // derived class with no user-provided constructors
 
 const D  w;         // Error, (ù{\codeincomments{w.j}}ù) is not initialized.
@@ -207,7 +208,7 @@ const D  x = D();   // OK, (ù{\codeincomments{x}}ù) is value initialized.
 const D2 y;         // OK, (ù{\codeincomments{y}}ù) is default initialized; sub-objects invoke default ctor.
 const D2 z = D2();  // OK, (ù{\codeincomments{z}}ù) is value initialized.
 \end{emcppslisting}
-    
+
 
 \noindent Objects of static storage duration at file, namespace, or function scope
 (see \featureref{\locationa}{thread-safe-function-static-variables}) are
@@ -226,7 +227,7 @@ struct A
 struct B
 {
     int i;
-    B() : i(42) { }
+    B() i(42) { }
 };
 
 A globalA;
@@ -240,12 +241,12 @@ B globalB;
 int globalI;
     // Zero initialization initializes globalI.
 \end{emcppslisting}
-    
+
 
 \noindent Note the implication that default initialization for a static storage
 duration object will always initialize an object ready for use, either
 calling the default constructor of a type with a user-provided default
-constructor or zero-initializing scalars. 
+constructor or zero-initializing scalars.
 
 \begin{table}[h!]
 \begin{center}
@@ -253,9 +254,9 @@ constructor or zero-initializing scalars.
 \caption{Helpful summary of C++03 rules}\label{table-bracedinit-cpp3rules} \vspace{1.5ex}
 {\small \begin{tabular}{c|c|c}\thickhline
 \rowcolor[gray]{.9}    {\sffamily\bfseries Initialization Type} & {\sffamily\bfseries No Arguments} & {\sffamily\bfseries >= 1 Arguments}\\\hline
-\emcppsgloss[with parentheses]{With Parentheses} & \emph{value} & \emph{direct} \\ 
+\emcppsgloss[with parentheses]{With Parentheses} & \emph{value} & \emph{direct} \\
  & \lstinline!int!~\lstinline!i!~\lstinline!=!~\lstinline!int();! & \lstinline!int!~\lstinline!i(23);! \\ \hline
-\emcppsgloss[without parentheses]{Without Parentheses} & \emph{default} & \emph{copy} \\  
+\emcppsgloss[without parentheses]{Without Parentheses} & \emph{default} & \emph{copy} \\
 &  \lstinline!int!~\lstinline!i;! & \lstinline!int!~\lstinline!i!~\lstinline!=!~\lstinline!23;! \\ \thickhline
 \end{tabular}
 }
@@ -276,9 +277,7 @@ classic C \lstinline!struct!, potentially with additional,
 non-\lstinline!virtual! member functions. Note that members of an aggregate
 are not themselves required to be an aggregate.
 
-\begin{emcppslisting}[emcppsbatch=e2]
-#include <string>  // (ù{\codeincomments{std::string}}ù)
-
+\begin{emcppslisting}
 int a[5];           // Arrays are aggregates.
 
 struct A
@@ -291,7 +290,7 @@ private:
     void f();       // Member functions are OK, even if private.
 };
 \end{emcppslisting}
-    
+
 
 \noindent A quick note on terminology: Strictly speaking, arrays comprise
 \emph{elements} and classes comprise \emph{members}, but for ease of
@@ -319,18 +318,16 @@ constructor for a class type and defines the corresponding behavior for
 array initialization.
 
 \begin{emcppslisting}
-int n = 17;
-int *pid = new int[n];   // default initialization of dynamic array object and its elements
-int *piv = new int[n](); // value        "         "     "      "     "     "   "     "
+int *pid = new int[N];   // default initialization of dynamic array object and its elements
+int *piv = new int[N](); // value        "         "     "      "     "     "   "     "
 
-struct A { /*...*/ };
 A *pd = new A;           // default initialization of dynamic (ù{\codeincomments{A}}ù) object and its members
 A *pv = new A();         // value        "         "     "     "    "     "   "     "
 \end{emcppslisting}
-    
+
 
 \noindent Otherwise, an aggregate must be \emph{aggregate} initialized by a braced
-list in the form\linebreak[4] 
+list in the form\linebreak[4]
 \lstinline!=!~\lstinline!{!~\lstinline!list-of-values!~\lstinline!};!, where members
 of the aggregate will be initialized by \emph{copy} initialization from
 the corresponding value in the list of values; if the aggregate has more
@@ -352,34 +349,34 @@ U x = {    };  // OK, value initializes (ù{\codeincomments{x.i}}ù) = 0
 U y = { 1  };  // OK, initializes (ù{\codeincomments{x.i}}ù) = 1
 U z = { "" };  // Error, cannot aggregate initialize (ù{\codeincomments{z.s}}ù)
 \end{emcppslisting}
-    
+
 
 \noindent Let's review the various ways in which we might attempt to initialize an
 object of aggregate type \lstinline!A! in the body of a function,
 \lstinline!test!, i.e., defined at function scope:
 
 \begin{emcppslisting}
-struct A2 { int i; };  // aggregate with a single data member
+struct A2 { int i };  // aggregate with a single data member
 
 void test()
 {
            A2  a1;             // default init: (ù{\codeincomments{i}}ù) is not initialized!
-    const  A2& a2 = A2();      // value init followed by copy init: (ù{\codeincomments{i}}ù) is 0.
-           A2  a3 = A2();      // value init followed by copy init: (ù{\codeincomments{i}}ù) is 0.
+    const  A2& a2 = A();       // value init followed by copy init: (ù{\codeincomments{i}}ù) is 0.
+           A2  a3 = A();       // value init followed by copy init: (ù{\codeincomments{i}}ù) is 0.
            A2  a4();           // Oops, function declaration!
            A2  a5 = { 5 };     // aggregate initialization employing copy init
            A2  a6 = { };       //    "            "            "     value  "
-           A2  a7 = { 5, 6 };  // Error, too many initializers for aggregate (ù{\codeincomments{A2}}ù)
+           A2  a7 = { 5, 6 };  // Error, too many initializers for aggregate (ù{\codeincomments{A}}ù)
     static A2  a8;             // default init after (ù{\codeincomments{i}}ù) is zero initialized.
 }
 \end{emcppslisting}
-    
+
 
 \noindent In the sample code above:
 \begin{itemize}
 \item{\lstinline!a1!: \lstinline!a1! is \emcppsgloss[default initialized]{\emph{default} initialized}, which means that each data member within the aggregate is itself independently \emcppsgloss[default initialized]{\emph{default} initialized}. For scalar types, such as an \lstinline!int!, the effect of default initialization at function scope is a no-op — i.e., \lstinline!a1.i! is not initialized. Any attempt to access the contents of \lstinline!a1.i! will result in \emcppsgloss{undefined behavior}.}
 \item{\lstinline!a2! and \lstinline!a3!: In the cases of both \lstinline!a2! and \lstinline!a3!, a temporary of type \lstinline!A! is first \emcppsgloss[value initialized]{\emph{value} initialized} and then that temporary is used to \emcppsgloss[copy initialized]{\emph{copy} initialize} the named variable: Both \lstinline!a2.i! and \lstinline!a3.i! are initialized to the value \lstinline!0!.}
-\item{\lstinline!a4!: Notice that we are not able to create a \emcppsgloss[value initialized]{\emph{value} initialized} local variable \lstinline!a4! by applying parentheses since that would interpreted as declaring a function taking no arguments and returning an object of type \lstinline!A! by value; see \intraref{use-cases-bracedinit}{} [\textbf{AUs: there is no section with this name ``Avoiding accidentally declaring a function taking no arguments"}] 
+\item{\lstinline!a4!: Notice that we are not able to create a \emcppsgloss[value initialized]{\emph{value} initialized} local variable \lstinline!a4! by applying parentheses since that would interpreted as declaring a function taking no arguments and returning an object of type \lstinline!A! by value; see \intraref{use-cases-bracedinit}{} [\textbf{AUs: there is no section with this name ``Avoiding accidentally declaring a function taking no arguments"}]
 and \intraref{use-cases-bracedinit}{avoiding-the-most-vexing-parse}.}
 \item{\lstinline!a5!, \lstinline!a6!, and \lstinline!a7!: C++03 supports \emcppsgloss{aggregate initialization} using braced syntax as illustrated by \lstinline!a5!, \lstinline!a6!, and \lstinline!a7! in the code snippet above. The local variable \lstinline!a5! is \emcppsgloss[copy initialization]{\emph{copy} initialized} such that \lstinline!a5.i! has the \emph{user supplied} value \lstinline!5! whereas \lstinline!a6! is \emcppsgloss[value initialized]{\emph{value} initialized} since there are no supplied initializers; hence, \lstinline!a6.i! is initialized to 0. Attempting to pass \lstinline!a7! two values to initialize a single data member results in a compile-time error. Note that had class \lstinline!A! held a second data member, the line initializing \lstinline!a5! would have resulted in \emcppsgloss[copy initialization]{\emph{copy} initialization} of the first and \emcppsgloss[value initialized]{\emph{value} initialization} of the second.}
 \item{\lstinline!a8! has static storage duration therefore it is first \emph{zero} initialized (\lstinline!a8.i! is 0) then it is \emph{default} initialized, which is a no-op for the same reasons that \lstinline!a1! is not initialized at all.}
@@ -399,7 +396,7 @@ int    i = { };       // OK, (ù{\codeincomments{i}}ù) is 0.
 int    j = { 1 };     // OK, (ù{\codeincomments{i}}ù) is 1.
 double k = { 3.14 };  // OK, (ù{\codeincomments{k}}ù) is 3.14.
 \end{emcppslisting}
-    
+
 
 \subsubsection[Braced initialization in C++11]{Braced initialization in C++11}\label{braced-initialization-in-c++11}
 
@@ -428,7 +425,7 @@ permitted. Consider, for example, an \lstinline!int! array, \lstinline!a!,
 initialized with various built-in (compile-time constant) \emph{literal}
 values:
 
-\begin{emcppslisting}[emcppserrorlines={4,5,6}]
+\begin{emcppslisting}
 int ai[] =  //      C++03    C++11
 {
     5,      // (0)   OK       OK
@@ -437,7 +434,7 @@ int ai[] =  //      C++03    C++11
     "5",    // (3)  Error    Error, no (ù{\codeincomments{const char*}}ù) to (ù{\codeincomments{int}}ù) conversion exists.
 };
 \end{emcppslisting}
-    
+
 
 \noindent In C++03, floating-point literals would be coerced to fit within an
 integer even if the conversion was known to be lossy --- e.g., element
@@ -454,21 +451,21 @@ can be represented exactly{\cprotect\footnote{As of C++20, implicit
 conversion from either a pointer or pointer-to-member type to
   \lstinline!bool! is generally supported in braced initializations.}}:
 
-\begin{emcppslisting}[emcppserrorlines={6,8,11}]
+\begin{emcppslisting}
 const unsigned long ulc = 1;  // compile-time integral constant: (ù{\codeincomments{1UL}}ù)
 
 short as[] =  //       C++03     C++11                        Stored Value
 {
      32767,   // (0)     OK        OK                        (ù{\codeincomments{as[0] == 32767}}ù)
      32768,   // (1)     OK      Error, overflow
-    -32768,   // (2)     OK        OK                        (ù{\codeincomments{as[2] == -32768}}ù)
+    -32768,   // (2)     OK        OK                        (ù{\codeincomments{as[0] == -32768}}ù)
     -32769,   // (3)   Warning?  Error, underflow
-    1UL,      // (4)     OK        OK                        (ù{\codeincomments{as[4] == 1}}ù)
-    ulc,      // (5)     OK        OK                        (ù{\codeincomments{as[5] == 1}}ù)
+    1UL,      // (4)     OK        OK                        (ù{\codeincomments{as[0] == 1}}ù)
+    ulc,      // (5)     OK        OK                        (ù{\codeincomments{as[0] == 1}}ù)
     1.0       // (6)     OK      Error, narrowing
 };
 \end{emcppslisting}
-    
+
 
 \noindent Notice that both \emph{overflow} (1) and \emph{underflow} (3) are
 rejected for integral values in C++11, whereas neither is ill formed in
@@ -484,7 +481,7 @@ precisely so long as overflow does not occur; if, however, what is being
 initialized is a floating-point scalar and the initializer is integral,
 then the value must be represented exactly:
 
-\begin{emcppslisting}[emcppserrorlines={5,10}]
+\begin{emcppslisting}
 float af[] =     //       C++03   C++11                  Stored Value
 {
      3L,        // (0)     OK     OK                   (ù{\codeincomments{af[0] == 3}}ù)
@@ -497,7 +494,7 @@ float af[] =     //       C++03   C++11                  Stored Value
      1e+39,     // (7)     OK     Error, overflow
 };
 \end{emcppslisting}
-    
+
 
 \noindent In the example above elements (0) -- (2) represent initialization from
 an integral type (\lstinline!int!), which requires that the initialized
@@ -524,20 +521,20 @@ non-\emcppsgloss[constant expression]{constant-expressions} described above, con
 aggregate class, \lstinline!S!, comprising an \lstinline!int!, \lstinline!i!, and
 a \lstinline!double!, \lstinline!d!:
 
-\begin{emcppslisting}[emcppsbatch=e3]
+\begin{emcppslisting}
 struct S  // aggregated class
 {
     int    i;  // *integral* scalar type
     double j;  // *floating-point* scalar type
 };
 \end{emcppslisting}
-    
+
 
 \noindent A function, \lstinline!test!, declaring a variety of arithmetic parameter
 types illustrates restrictions imposed by C++11 braced initialization on
 narrowing initializations that were well formed in C++03:
 
-\begin{emcppslisting}[emcppsbatch=e3,emcppserrorlines={5,6,7,8}]
+\begin{emcppslisting}
 void test(short s, int i, long j, unsigned u, float f, double d, long double e)
 {                     //     C++03  C++11
     S s0 = { i, d };  // (0)  OK     OK
@@ -548,7 +545,7 @@ void test(short s, int i, long j, unsigned u, float f, double d, long double e)
     S s5 = { i, s };  // (5)  OK    Error, (ù{\codeincomments{s}}ù) causes narrowing (theoretically).
 };
 \end{emcppslisting}
-    
+
 
 \noindent In the \lstinline!test! function above, lines (0) and (1) are OK because
 there is no possibility of narrowing on any conforming platform unlike
@@ -578,7 +575,7 @@ S s2 = { i  };  // OK
 S s3 = { 0L };  // OK, (ù{\codeincomments{0L}}ù) is an integer constant expression.
 S s4 = { j  };  // Error, narrowing
 \end{emcppslisting}
-    
+
 
 \noindent In addition, the rules for \emcppsgloss{value initialization} now state that
 members without a specific initializer value in the braced list are
@@ -596,36 +593,36 @@ Regardless of whether the aggregate itself is initialized using a copy
 initialization or direct initialization, the members of the aggregate
 will be copy initialized from the corresponding initializer.
 
-\begin{emcppslisting}[emcppsbatch=e4,emcppserrorlines={13,14,15}]
+\begin{emcppslisting}
 struct E { };                         // empty type
 struct AE { int x; E y; E z; };       // aggregate comprising several empty objects
 struct S { explicit S(int = 0) {} };  // class with (ù{\codeincomments{explicit}}ù) default constructor
 struct AS{ int x; S y; S z; };        // aggregate comprising several (ù{\codeincomments{S}}ù) objects
 
-AE aed;                    // OK
+AE aed;
 AE ae0 = {};               // OK
 AE ae1 = { 0 };            // OK
 AE ae2 = { 0, {} };        // OK
-AE ae3 = { 0, {}, {} };    // OK
+AE ae3 = { 0, {}, {} };    //
 
-AS asd;                    // OK
-AS as0 = {};               // OK in 03; Error in 11 calling explicit ctor for (ù{\codeincomments{S}}ù)
-AS as1 = { 0 };            // OK in 03; Error in 11 calling explicit ctor for (ù{\codeincomments{S}}ù)
-AS as2 = { 0, S() };       // OK in 03; Error in 11 calling explicit ctor for (ù{\codeincomments{S}}ù)
+AS asd;                    //
+AS as0 = {};               // OK in 03; error in 11 calling explicit ctor for (ù{\codeincomments{S}}ù)
+AS as1 = { 0 };            // OK in 03; error in 11 calling explicit ctor for (ù{\codeincomments{S}}ù)
+AS as2 = { 0, S() };       // OK in 03; error in 11 calling explicit ctor for (ù{\codeincomments{S}}ù)
 AS as3 = { 0, S(), S() };  // OK, all aggregate members have an initializer.
 \end{emcppslisting}
-    
+
 
 \noindent To better support generalizing the syntax of brace initialization in a
 style similar to aggregate initialization, an aggregate can make a copy
 of itself through \emph{aggregate} initialization in C++11 as well as
 through \emph{direct} initialization per C++03:
 
-\begin{emcppslisting}[emcppsbatch=e4]
+\begin{emcppslisting}
 S x{};      // OK, value initialization
 S y = {x};  // OK in C++11; copy initialization via aggregate initialization syntax
 \end{emcppslisting}
-    
+
 
 \noindent Otherwise, initialization of aggregates in C++11 is exactly the same
 where it would have a meaning in C++03 and is correspondingly extended
@@ -637,13 +634,10 @@ in the following subsections.
 For C++03, only aggregates and scalars could be initialized via
 braced-initialization syntax:
 
-\begin{emcppshiddenlisting}[emcppsbatch=e5]
-struct Type {};
-\end{emcppshiddenlisting}
-\begin{emcppslisting}[emcppsbatch=e5]
+\begin{emcppslisting}
 Type var = { /*...*/ };  // C++03-style aggregate (only) initialization
 \end{emcppslisting}
-    
+
 
 \noindent The first part of generalizing braced initialization syntax for C++11 is
 to allow the same syntactic form used to initialize aggregates to be
@@ -651,15 +645,11 @@ used for \emph{all} user-defined types. This extended form of braced
 initialization --- known as \emcppsgloss[copy list initialization]{copy \emph{list} initialization} ---
 follows the rules of \emcppsgloss{copy initialization}:
 
-\begin{emcppshiddenlisting}[emcppsbatch=e6]
-struct Class { Class(int i); };
-int val;
-\end{emcppshiddenlisting}
-\begin{emcppslisting}[emcppsbatch=e6]
+\begin{emcppslisting}
 Class var1 = val;      // (C++03) copy initialization
 Class var2 = { val };  // (C++11) copy list initialization
 \end{emcppslisting}
-    
+
 
 \noindent For a non-aggregate class type, C++11 allows the use of a braced list
 provided that its sequence of values serves as a suitable argument to a
@@ -670,71 +660,75 @@ than a single argument. For example, consider a
 \lstinline!struct!~\lstinline!S! having constructors with 0-3 parameters, only
 that last of which is \lstinline!explicit!:
 
-\begin{emcppslisting}[emcppsbatch=e7]
+\begin{emcppslisting}
 struct S
 {
              S();                          // default cor
-             S(int);                       // 1-value ctor
+             S(int};                       // 1-value ctor
              S(int, const char*);          // 2-value ctor
     explicit S(int, const char*, double);  // 3-value ctor
 };
 \end{emcppslisting}
-    
+
 
 \noindent We can use \emcppsgloss[copy list initialization]{\emph{copy} list initialization} only if the selected
 constructor is \emph{not} declared to be \lstinline!explicit!, e.g.,
 \lstinline!s0!, \lstinline!s1!, and \lstinline!s2! but not \lstinline!s3!:
 
-\begin{emcppslisting}[emcppsbatch=e7]
+\begin{emcppslisting}
 S s0 = { };                 // OK, copy list initialization
 S s1 = { 1 };               // OK, copy list initialization
 S s2 = { 1, "two" };        // OK, copy list initialization
 S s3 = { 1, "two", 3.14 };  // Error, constructor is explicit
 \end{emcppslisting}
-    
+
 
 \noindent Had we instead declared our default constructor or any of the others to
 be \lstinline!explicit!, the corresponding \emph{copy} (or
 \emph{copy}-\emph{list}) initialization above would have failed too.
 
-Another important difference between C++11 \emcppsgloss[copy list initialization]{copy \emph{list} initialization} and C++03 \emcppsgloss{copy initialization} is that the
+Another important difference between C++11 \emcppsgloss[copy list initialization]{copy \emph{list}
+initialization} and C++03 \emcppsgloss{copy initialization} is that the
 braced-list syntax considers all constructors, including those that are
 declared to be \lstinline!explicit!. Consider a \lstinline!struct!~\lstinline!X!
 having two overloaded single-argument constructors, i.e., (1) one taking
 an \lstinline!int! and (2) the other a member template taking a single
 (deduced) type, \lstinline!T!, by value:
 
-\begin{emcppslisting}[emcppsbatch=e8]
+\begin{emcppslisting}
 struct Q  // class containing both (ù{\codeincomments{explicit}}ù) and implicit constructor overloads
 {
     explicit Q(int);          // (1) value constructor taking a (ù{\codeincomments{int}}ù)
     template <class T> Q(T);  // (2) value constructor taking a (ù{\codeincomments{T}}ù)
 };
 \end{emcppslisting}
-    
+
 
 \noindent Employing \emcppsgloss[direct initialization]{\emph{direct} initialization} (e.g., \lstinline!x0! in
 the code snippet below) selects the most appropriate constructor,
 regardless of whether it is declared to be \lstinline!explicit!, and
-successfully uses that one; employing \emcppsgloss[copy initialization]{\emph{copy} initialization} (e.g., \lstinline!x1!) drops explicit constructors from the
-overload set before determining a best match; and employing \emcppsgloss[copy list initialization]{copy \emph{list} initialization} (e.g., \lstinline!x2!) again includes all
+successfully uses that one; employing \emcppsgloss[copy initialization]{\emph{copy}
+initialization} (e.g., \lstinline!x1!) drops explicit constructors from the
+overload set before determining a best match; and employing \emcppsgloss[copy list initialization]{copy
+\emph{list} initialization} (e.g., \lstinline!x2!) again includes all
 constructors in the overloads set but is \emcppsgloss{ill formed} if the
 selected constructor is \lstinline!explicit!:
 
-\begin{emcppslisting}[emcppsbatch=e8]
+\begin{emcppslisting}
 Q x0(0);     // OK, direct initialization calls (ù{\codeincomments{Q(int)}}ù).
 Q x1 = 1;    // OK, copy initialization calls (ù{\codeincomments{Q(T)}}ù).
 Q x2 = {2};  // Error, copy list initialization selects but cannot call (ù{\codeincomments{Q(int)}}ù).
 Q x3{3};     // Same idea as (ù{\codeincomments{x0}}ù); direct list initialization calls (ù{\codeincomments{Q(int)}}ù).
 \end{emcppslisting}
-    
+
 
 \noindent In other words, the presence of the \lstinline!=! coupled with the braced
 notation (e.g., \lstinline!x2! in the code example above) forces the
 compiler to choose the constructor \emph{as if} it were direct
 initialization (e.g., \lstinline!x0!) but then forces a compilation failure
 if the selected constructor turns out to be \lstinline!explicit!. This
-``consider-but-fail-if-selected'' behavior of \emcppsgloss{copy list initialization} is analogous to that of functions declared using
+``consider-but-fail-if-selected'' behavior of \emcppsgloss{copy list
+initialization} is analogous to that of functions declared using
 \lstinline!=!~\lstinline!delete!; see \featureref{\locationa}{deleted-functions}. Using
 braces but omitting the \lstinline!=! (e.g., \lstinline!x3!) puts us back in
 the realm of \emph{direct} rather than \emph{copy} initialization; see
@@ -750,10 +744,7 @@ it (e.g., \lstinline!int!~\lstinline!i!), no temporary is created (just as it
 would not have been without the braces); otherwise, a temporary will be
 created, provided that a viable conversion exists and is not narrowing:
 
-\begin{emcppshiddenlisting}[emcppsbatch=e9]
-#include <cassert>  // standard C (ù{\codeincomments{assert}}ù) macro
-\end{emcppshiddenlisting}
-\begin{emcppslisting}[emcppsbatch=e9]
+\begin{emcppslisting}
 void test()
 {
     int  i = 2;               assert(i   == 2);
@@ -771,7 +762,7 @@ void test()
     const int& crj = { j };   // Error, narrowing conversion from (ù{\codeincomments{long}}ù) to (ù{\codeincomments{int}}ù)
 }
 \end{emcppslisting}
-    
+
 
 \noindent As evidenced by the C-style asserts above, no temporary is created when
 initializing either \lstinline!ri! or \lstinline!cri! since modifying the
@@ -791,17 +782,14 @@ unsigned difference between any two pointers (into contiguous memory)
 and is typically, but not necessarily, an alias for an
 \lstinline!unsigned!~\lstinline!long!:
 
-\begin{emcppshiddenlisting}[emcppsbatch=e10]
-#include <cstddef>  // (ù{\codeincomments{std::size\_t}}ù)
-\end{emcppshiddenlisting}
-\begin{emcppslisting}[emcppsbatch=e10,emcppserrorlines={3,4,5}]
+\begin{emcppslisting}
 std::size_t k = 8;  // alias to implementation-defined type, say, (ù{\codeincomments{unsigned long}}ù)
 
 unsigned int&       ra1 = { k };  // Note: Only one of these three lines will
 unsigned long&      ra2 = { k };  // compile on any given platform; the other two
 unsigned long long& ra3 = { k };  // will necessarily be ill formed and not compile.
 \end{emcppslisting}
-    
+
 
 \noindent Historically, a \lstinline!long! has always been of sufficient size to
 \emcppsgloss{pun} a pointer value (BAD IDEA) yet, back in the day when
@@ -824,7 +812,7 @@ permanently to the reference with its lifetime extended coterminously:
 const int& i0 = { };    // OK, (ù{\emphincomments{materialized}}ù) temporary is (ù{\emphincomments{value}}ù) initialized.
 const int& i1 = { 5 };  // OK,       "           "       " (ù{\emphincomments{copy}}ù)      "
 \end{emcppslisting}
-    
+
 
 \noindent In the example above, a temporary is \emph{value} initialized (to 0) and
 bound to \lstinline!i0!; another temporary is then \emph{copy} initialized
@@ -835,24 +823,24 @@ generalization of \emph{copy} and \emph{direct} list initialization.
 Consider an aggregate \lstinline!A! that comprises three \lstinline!int! data
 members, \lstinline!i!, \lstinline!j!, and \lstinline!k!:
 
-\begin{emcppslisting}[emcppsbatch=e11]
+\begin{emcppslisting}
 struct A          // (ù{\codeincomments{struct A}}ù) is an aggregate data type.
 {
     int i, j, k;  // This (ù{\codeincomments{struct}}ù) contains three data members of type (ù{\codeincomments{int}}ù).
 };
 \end{emcppslisting}
-    
+
 
 \noindent We can now use braced initialization to materialize a temporary object
 of aggregate type \lstinline!A! using aggregate initialization.
 
-\begin{emcppslisting}[emcppsbatch=e11]
+\begin{emcppslisting}
 const A& s0 = { };           // (ù{\codeincomments{i}}ù), (ù{\codeincomments{j}}ù), and (ù{\codeincomments{k}}ù) are  (ù{\emphincomments{value}}ù) initialized.
 const A& s1 = { 1 };         // (ù{\codeincomments{i}}ù) (ù{\emphincomments{copy}}ù) and (ù{\codeincomments{j}}ù) and (ù{\codeincomments{k}}ù) are (ù{\emphincomments{value}}ù) initialized.
 const A& s2 = { 1, 2 };      // (ù{\codeincomments{i}}ù) and (ù{\codeincomments{j}}ù) (ù{\emphincomments{copy}}ù) and (ù{\codeincomments{k}}ù) are (ù{\emphincomments{value}}ù) initialized.
 const A& s3 = { 1, 2, 3 };   // (ù{\codeincomments{i}}ù),(ù{\codeincomments{j}}ù), and (ù{\codeincomments{k}}ù) are (ù{\emphincomments{copy}}ù) initialized.
 \end{emcppslisting}
-    
+
 
 In the example above, each of the references, \lstinline!s0! thru
 \lstinline!s3!, is initialized to a temporary \lstinline!struct! of type
@@ -869,24 +857,23 @@ of braced initialization is to allow use of a braced list without the
 intervening \lstinline!=! character between the variable and the opening
 brace to denote \emcppsgloss{direct initialization} too:
 
-\begin{emcppshiddenlisting}[emcppsbatch=e12]
-struct Class {};
-\end{emcppshiddenlisting}
-\begin{emcppslisting}[emcppsbatch=e12]
-Class var1(/*...*/);  // C++03-style direct initialization
-Class var2{/*...*/};  // C++11-style direct list initialization
+\begin{emcppslisting}
+Class var(/*...*/);  // C++03-style direct initialization
+Class var{/*...*/};  // C++11-style direct list initialization
 \end{emcppslisting}
-    
+
 
 \noindent Note that C++ does \emph{not} similarly relax the rules to allow for
 initialization of aggregates with parentheses.\footnote{C++20 finally allows for aggregates to be
 initialized with parentheses.}
 
-The syntax suggested in the previous example is known as \emcppsgloss{direct list initialization} and follows the rules of \emcppsgloss{direct initialization} rather than \emcppsgloss{copy initialization} in that all
+The syntax suggested in the previous example is known as \emcppsgloss{direct
+list initialization} and follows the rules of \emcppsgloss{direct
+initialization} rather than \emcppsgloss{copy initialization} in that all
 constructors of the named \lstinline!type! are both considered and
 accessible in the initial overload set:
 
-\begin{emcppslisting}[emcppsbatch=e13]
+\begin{emcppslisting}
 struct Q  // class containing explicit constructor
 {
     explicit Q(int);  // value constructor taking a (ù{\codeincomments{int}}ù)
@@ -897,7 +884,7 @@ Q x(5);    // OK  direct initialization can call explicit constructors.
 Q y{5};    // OK, direct list initialization can call explicit constructors.
 Q z = {5}; // Error, copy list initialization can't call explicit constructors.
 \end{emcppslisting}
-    
+
 
 \noindent Either form of direct initialization (shown for \lstinline!x! and
 \lstinline!y! in the code example above) may invoke an \lstinline!explicit!
@@ -907,29 +894,31 @@ will necessarily result in a compile-time error.
 However, following the rules of C++11 braced initialization, narrowing
 conversions are rejected by direct \emph{list} initialization:
 
-\begin{emcppslisting}[emcppsbatch=e13]
+\begin{emcppslisting}
 long a = 3L;
 
 Q b(a);  // OK, direct initialization
 Q c{a};  // Error, direct list initialization cannot use a narrowing conversion.
 \end{emcppslisting}
-    
+
 
 \noindent Similarly, \lstinline!explicit! conversion operators (see
 \featureref{\locationa}{explicit-conversion-operators}) can be considered when
-\emcppsgloss[direct list initialization]{\emph{direct} list initialization} (or \emcppsgloss{direct initialization}) is employed on a scalar, but not so with
-\emcppsgloss[copy list initialization]{\emph{copy} list initialization} (or \emcppsgloss{copy initialization}). Consider, for example, a class, \lstinline!W! that can
+\emcppsgloss[direct list initialization]{\emph{direct} list initialization} (or \emcppsgloss{direct
+initialization}) is employed on a scalar, but not so with
+\emcppsgloss[copy list initialization]{\emph{copy} list initialization} (or \emcppsgloss{copy
+initialization}). Consider, for example, a class, \lstinline!W! that can
 covert to either an \lstinline!int! or a \lstinline!long! where conversion to
 \lstinline!int! is explicit and therefore must be \emph{direct}:
 
-\begin{emcppslisting}[emcppsbatch=e14]
+\begin{emcppslisting}
 struct W
 {
     explicit operator int()  const;  // used via direct initialization only
              operator long() const;  // used via direct or copy initialization
 };
 \end{emcppslisting}
-    
+
 
 \noindent Initializing a \lstinline!long! variable with an expression of type
 \lstinline!W! can be accomplished via either \emph{direct} or \emph{copy}
@@ -938,24 +927,27 @@ in the code snippet below), but initializing an \lstinline!int! variable
 with such an expression can be accomplished only via \emph{direct}
 initialization (e.g., \lstinline!iDirect!):
 
-\begin{emcppslisting}[emcppsbatch=e14]
+\begin{emcppslisting}
 long jDirect {W()};  // OK, considers both operators, calls (ù{\codeincomments{operator long}}ù)
 long jCopy = {W()};  // OK, considers implicit op only, calls (ù{\codeincomments{operator long}}ù)
 int  iDirect {W()};  // OK, considers both operators, calls (ù{\codeincomments{operator int}}ù)
 int  iCopy = {W()};  // Error, considers implicit op only, narrowing conversion
 \end{emcppslisting}
-    
 
-\noindent In the example above, attempting to use \emcppsgloss[copy list initialization]{\emph{copy} list initialization} (e.g., \lstinline!iCopy!) forces the conversion to
+
+\noindent In the example above, attempting to use \emcppsgloss[copy list initialization]{\emph{copy} list
+initialization} (e.g., \lstinline!iCopy!) forces the conversion to
 \lstinline!long! as the only option, which results in a narrowing
 conversion and an ill-formed program.
 
-Note that, for \emcppsgloss{aggregate} types, even \emcppsgloss{direct list initialization} will not allow the explicit constructors of the
+Note that, for \emcppsgloss{aggregate} types, even \emcppsgloss{direct list
+initialization} will not allow the explicit constructors of the
 individual member types to be considered since such \emph{member-wise}
 initialization is invariably \emcppsgloss[copy initialization]{\emph{copy} initialization}; see
 \intrarefsimple{c++11-aggregate-initialization}.
 
-We may use \emcppsgloss{direct list initialization} as part of \emcppsgloss{member initialization lists} for base classes and member data of a class (note
+We may use \emcppsgloss{direct list initialization} as part of \emcppsgloss{member
+initialization lists} for base classes and member data of a class (note
 that there is no equivalent to allow \emcppsgloss{copy list initialization}
 in such a context). Consider, for example, an aggregate class,
 \lstinline!B!, a non-aggregate class, \lstinline!C!, and a derived class,
@@ -974,7 +966,7 @@ struct D : B  // class publicly derived from (ù{\codeincomments{B}}ù) containi
     D(int x) : B{x}, m{x} { }  //    "       "        "     "       "
 };
 \end{emcppslisting}
-    
+
 
 \noindent In the definition of class \lstinline!D! above, both constructors employ
 \emcppsgloss{direct list initialization}; the first is also an example of
@@ -983,7 +975,8 @@ struct D : B  // class publicly derived from (ù{\codeincomments{B}}ù) containi
 and members could only be default initialized, value initialized, or
 direct initialized, and not initialized to another value.
 
-New expressions are another context in which \emcppsgloss{direct list initialization} (braces) or \emcppsgloss{direct initialization} (parentheses)
+New expressions are another context in which \emcppsgloss{direct list
+initialization} (braces) or \emcppsgloss{direct initialization} (parentheses)
 can occur and applies similarly to both \emcppsgloss{aggregate} and
 non\emcppsgloss{aggregate} types. If no initializer is provided, the
 allocated object is \emcppsgloss{default initialized}; if empty braces or
@@ -1018,7 +1011,7 @@ int* y1 = new int[5]{1,2,3};      // array direct list initialized from (ù{\cod
 
 int* z1 = new int[5]{1,2,3,4,5};  // direct list initialized from (ù{\codeincomments{\{1,2,3,4,5\}}}ù)
 \end{emcppslisting}
-    
+
 
 \noindent All the comments above apply to the object being created in the
 \lstinline!new! expression; the pointer set to the address of the
@@ -1071,7 +1064,7 @@ int main()
     A a5 = {1};     // Error, aggregate initialization requires non-(ù{\codeincomments{explicit}}ù) ctors.
 }
 \end{emcppslisting}
-    
+
 
 \noindent Note that if the constructors for \lstinline!C! were not marked explicit,
 then all of the variables in the example above would be safely
@@ -1113,7 +1106,7 @@ int main()
     A a5 = {1};     // Error, aggregate initialization requires non-(ù{\codeincomments{explicit}}ù) ctors.
 }
 \end{emcppslisting}
-    
+
 
 \subsubsection[Integrating default member initialization with braced initialization]{Integrating default member initialization with braced initialization}\label{integrating-default-member-initialization-with-braced-initialization}
 
@@ -1142,11 +1135,12 @@ struct W
     S f();        // OK, declares member function (ù{\codeincomments{f}}ù)
 };
 \end{emcppslisting}
-    
+
 
 \subsubsection[List initialization where the list itself is a single argument to a constructor]{List initialization where the list itself is a single argument to a constructor}\label{list-initialization-where-the-list-itself-is-a-single-argument-to-a-constructor}
 
-Another new form of initialization for C++11 is \emcppsgloss{list initialization} with a braced list of arguments to populate a container.
+Another new form of initialization for C++11 is \emcppsgloss{list
+initialization} with a braced list of arguments to populate a container.
 See \featureref{\locationc}{initlist} for details. If a braced list of arguments are
 all of the same type, then the compiler will look for a constructor
 taking an \lstinline!std::initializer_list<T>! argument, where \lstinline!T!
@@ -1158,10 +1152,7 @@ initializer list constructor always wins overload resolution. However,
 \emph{value} initializing from a pair of empty braces will prefer a
 default constructor.
 
-\begin{emcppshiddenlisting}[emcppsbatch=e15]
-#include <initializer_list>  // (ù{\codeincomments{std::initializer\_list}}ù)
-\end{emcppshiddenlisting}
-\begin{emcppslisting}[emcppsbatch=e15]
+\begin{emcppslisting}
 struct S
 {
   S() {}
@@ -1178,7 +1169,7 @@ S f{1,2};        // direct list initialization with (ù{\codeincomments{std::ini
 S g = {1,2};     // copy list initialization with (ù{\codeincomments{std::initializer\_list}}ù)
 S h(1,2);        // direct initialization with two (ù{\codeincomments{int}}ù)s
 \end{emcppslisting}
-    
+
 
 \subsubsection[Omitting the type name when braced initializing a temporary]{Omitting the type name when braced initializing a temporary}\label{omitting-the-type-name-when-braced-initializing-a-temporary}
 
@@ -1201,8 +1192,8 @@ S foo(bool b)
 {
     if (b)
     {
-        return S{ "hello", "world" };  // OK, direct list init of temporary
-        // return { "hello", "world" };// Error, copy list init calls expl ctor.
+        return S{ "hello", "world" };  // OK, direct list initialization of temporary
+        return { "hello", "world" };   // Error, copy list initialization cannot call explicit ctor.
     }
     else
     {
@@ -1220,7 +1211,7 @@ int main()
    bar(  {"Hello", "world"} );  // Error, copy list initialization cannot use explicit ctor.
 }
 \end{emcppslisting}
-    
+
 
 \subsubsection[Initializing variables in conditional expressions]{Initializing variables in conditional expressions}\label{initializing-variables-in-conditional-expressions}
 
@@ -1263,7 +1254,7 @@ void f()
    while (int i) {}        // Error in all versions of C++
 }
 \end{emcppslisting}
-    
+
 
 \subsubsection[Default initialization and \lstinline!=!\,\lstinline!default!]{Default initialization and {\SubsubsecCode =}\,{\SubsubsecCode default}}\label{default-initialization-and-=-default}
 
@@ -1280,7 +1271,7 @@ that, while they are user \emph{declared}, they are not user
 \emph{provided} as long as this definition occurs within the class
 definition itself:
 
-\begin{emcppslisting}[emcppsbatch=e16]
+\begin{emcppslisting}
 struct Trivial
 {
     int i;
@@ -1295,13 +1286,13 @@ struct NonTrivial
 
 NonTrivial::NonTrivial() = default;  // user provided
 \end{emcppslisting}
-    
+
 
 \noindent Following the rules derived from C++03, a class with no user-provided
 default constructor may behave differently under \emph{default}
 initialization compared to \emph{value} initialization:
 
-\begin{emcppslisting}[emcppsbatch=e16]
+\begin{emcppslisting}
 void demo()
 {
     const Trivial    a;    // Error, (ù{\codeincomments{a.i}}ù) not initialized
@@ -1310,7 +1301,7 @@ void demo()
     const NonTrivial d{};  // OK, but (ù{\codeincomments{d.j}}ù) never initialized
 }
 \end{emcppslisting}
-    
+
 
 \noindent Note that we use function local variables for this example to avoid
 confusion with \emph{zero} initialization for global variables.
@@ -1347,7 +1338,7 @@ public:
     }
 };
 \end{emcppslisting}
-    
+
 
 \subsection[Use Cases]{Use Cases}\label{use-cases-bracedinit}
 
@@ -1356,13 +1347,16 @@ public:
 The C++ parser has a pitfall where an attempt to value initialize a
 variable turns out to be a function declaration:
 
-\begin{emcppslisting}[emcppsbatch=e17]
+\begin{emcppslisting}
 struct S{};
 
-S s1();      // Oops! function declaration
-S s2 = S();  // variable declaration using value initialization and then copy initialization
+void foo()
+{
+    S s1();      // Oops! function declaration
+    S s2 = S();  // variable declaration using value initialization and then copy initialization
+}
 \end{emcppslisting}
-    
+
 
 \noindent The declaration of \lstinline!s1! looks like an attempt to value initialize
 a local variable of type \lstinline!S!, but, in fact, it is a forward
@@ -1386,10 +1380,10 @@ same sequence of members are treated as the same type.} with a C++ compiler.
 By switching from parentheses to braces, there is no more risk of
 confusion between a vexing parse and a variable declaration:
 
-\begin{emcppslisting}[emcppsbatch=e17]
+\begin{emcppslisting}
 S s{};  // object of type (ù{\codeincomments{S}}ù)
 \end{emcppslisting}
-    
+
 \noindent As a digression, it is worth noting that \lstinline!S! is an empty type.
 Just as it is ill-formed to rely on default initialization for a
 \lstinline!const! object of a trivial type such as an \lstinline!int! or an
@@ -1404,13 +1398,13 @@ compilers no longer enforce this restriction, and some compilers
 (notably GCC) had already stopped enforcing this rule several years
 previously:
 
-\begin{emcppslisting}[emcppsbatch=e17]
+\begin{emcppslisting}
 const S cs1;        // Error on some compilers (as described above)
 const S cs2{};      // OK, value initialization
 const S cs3 = {};   // OK, aggregate initialization
 const S cs4 = S();  // OK, copy initialization
 \end{emcppslisting}
-    
+
 
 \subsubsection[Avoiding the most vexing parse]{Avoiding the most vexing parse}\label{avoiding-the-most-vexing-parse}
 
@@ -1421,19 +1415,19 @@ parameter of a function type instead, which would otherwise not be legal
 but for the language rule that such a parameter implicitly decays to a
 pointer to a function of that type:
 
-\begin{emcppslisting}[emcppsbatch=e17]
+\begin{emcppslisting}
 struct V { V(const S&) { } };
 
 void foo()
 {
-    V v1(S());    // most vexing parse, function v1 taking a function pointer
-    V v2((S()));  // workaround, object of type V due to parentheses on argument
+    V v1(S());    // most vexing parse, declares function (ù{\codeincomments{v1}}ù) taking a function pointer
+    V v2((S()));  // workaround, object of type (ù{\codeincomments{V}}ù) due to non-redundant parentheses on argument
 
-    S x = S();    // declare a variable of type S
-    V v3(x);      // workaround, named object of type V, with longer lifetime
+    S x = S();    // declare a variable of type (ù{\codeincomments{S}}ù)
+    V v3(x);      // workaround, object of type (ù{\codeincomments{V}}ù) but argument is now named, with longer lifetime
 }
 \end{emcppslisting}
-    
+
 
 \noindent In the example above, \lstinline!v1! is the forward declaration of a
 function in the surrounding namespace that returns an object of type
@@ -1441,10 +1435,10 @@ function in the surrounding namespace that returns an object of type
 pointer-to-function-returning-\lstinline!S!-and-taking-no-arguments,
 \lstinline!S(*)()!. That is, the declaration is equivalent to:
 
-\begin{emcppslisting}[emcppsbatch=e17]
+\begin{emcppslisting}
 V v1(S(*)());
 \end{emcppslisting}
-    
+
 
 \noindent This most vexing of parses can be disambiguated by having the arguments
 clearly form an expression, not a type. One simple way to force the
@@ -1460,24 +1454,26 @@ coding convention to prefer empty braces, rather than parentheses, for
 all value initializations avoids the question of the most vexing parse
 arising:
 
-\begin{emcppslisting}[emcppsbatch=e17]
+\begin{emcppslisting}
 V v4(S{});  // direct initialize object of type (ù{\codeincomments{V}}ù) with value initialized temporary
 \end{emcppslisting}
-    
+
 
 \noindent Note that the most vexing parse can also apply to constructors taking
 multiple arguments, but the issue arises less often since any one
 supplied argument clearly being an expression, rather than a function
 type, resolves the whole parse:
 
-\begin{emcppslisting}[emcppsbatch=e17]
+\begin{emcppslisting}
 struct W { W(const S&, const S&) { } };
 
-W w1( S(),  S());  // most vexing parse, declares function (ù{\codeincomments{w1}}ù) taking two function pointers
-W w2((S()), S());  // workaround, object of type (ù{\codeincomments{V}}ù) due to non-redundant parentheses on argument
-W w3( S{},  S());  // workaround, even a single use of (ù{\codeincomments{S\{\}}}ù) disambiguates further use of (ù{\codeincomments{S()}}ù)
+void foo() {
+  W w1( S(),  S());  // most vexing parse, declares function (ù{\codeincomments{w1}}ù) taking two function pointers
+  W w2((S()), S());  // workaround, object of type (ù{\codeincomments{V}}ù) due to non-redundant parentheses on argument
+  W w3( S{},  S());  // workaround, even a single use of (ù{\codeincomments{S\{\}}}ù) disambiguates further use of (ù{\codeincomments{S()}}ù)
+}
 \end{emcppslisting}
-    
+
 
 \subsubsection[Uniform initialization in generic code]{Uniform initialization in generic code}\label{uniform-initialization-in-generic-code}
 
@@ -1489,7 +1485,7 @@ cases is not possible. Consider the following example of a simple test
 harness for a unit testing framework:
 
 \begin{emcppslisting}
-#include <initializer_list>  // (ù{\codeincomments{std::initializer\_list}}ù)
+#include <initializer_list>
 
 template <class T, class U>
 bool run_test(bool (*test)(const T&), std::initializer_list<U> iL)
@@ -1506,7 +1502,7 @@ bool run_test(bool (*test)(const T&), std::initializer_list<U> iL)
     return true;
 }
 \end{emcppslisting}
-    
+
 
 \noindent In this example, a test function is provided for an object of parameter
 type \lstinline!T! along with an \lstinline!initializer_list! of test values.
@@ -1529,14 +1525,14 @@ options and trade-offs.
 \begin{threeparttable}
 \caption{Summary of the different initialization types}\label{table-bracedinit-inittypes} \vspace{1.5ex}
 {\small \begin{tabular}{c|c|c|c|c|c}\thickhline
-\rowcolor[gray]{.9}    {\sffamily\bfseries Initialization} & {\sffamily\bfseries Syntax } & {\sffamily\bfseries Aggregate} & {\sffamily\bfseries Explicit} & {\sffamily\bfseries Narrowing} & {\sffamily\bfseries \lstinline!initializer_list!} \\ 
+\rowcolor[gray]{.9}    {\sffamily\bfseries Initialization} & {\sffamily\bfseries Syntax } & {\sffamily\bfseries Aggregate} & {\sffamily\bfseries Explicit} & {\sffamily\bfseries Narrowing} & {\sffamily\bfseries \lstinline!initializer_list!} \\
  \rowcolor[gray]{.9}    {\sffamily\bfseries Type} & & {\sffamily\bfseries Support} & {\sffamily\bfseries Constructor} & & {\sffamily\bfseries Constructor} \\
 \rowcolor[gray]{.9}   & & &  {\sffamily\bfseries Used} & & {\sffamily\bfseries Used}\\ \hline
-\emcppsgloss[copy]{Copy} & \lstinline!T!~\lstinline!obj!~\lstinline!=!~\lstinline!val;! & only if \lstinline!U!  & no & allow & no \\ \hline 
-\emcppsgloss[direct]{Direct} & \lstinline!T!~\lstinline!obj(val);! & only if \lstinline!U!  & yes & allow & no \\ \hline 
-\emcppsgloss[direct list]{Direct List} & \lstinline!T!~\lstinline!obj{val};! & yes  & yes & error & yes \\ \hline 
-\emcppsgloss[copy list]{Copy List} & \lstinline!T!~\lstinline!obj!~\lstinline!=!~\lstinline!{val}! & yes  & error if  & error & yes \\ 
-& & & best match & & \\ \thickhline 
+\emcppsgloss[copy]{Copy} & \lstinline!T!~\lstinline!obj!~\lstinline!=!~\lstinline!val;! & only if \lstinline!U!  & no & allow & no \\ \hline
+\emcppsgloss[direct]{Direct} & \lstinline!T!~\lstinline!obj(val);! & only if \lstinline!U!  & yes & allow & no \\ \hline
+\emcppsgloss[direct list]{Direct List} & \lstinline!T!~\lstinline!obj{val};! & yes  & yes & error & yes \\ \hline
+\emcppsgloss[copy list]{Copy List} & \lstinline!T!~\lstinline!obj!~\lstinline!=!~\lstinline!{val}! & yes  & error if  & error & yes \\
+& & & best match & & \\ \thickhline
 \end{tabular}
 }
 \end{threeparttable}
@@ -1558,8 +1554,6 @@ consider when writing a factory function that takes an arbitrary set of
 parameters to create an object of a user-specified type:
 
 \begin{emcppslisting}
-#include <utility>  // (ù{\codeincomments{std::forward}}ù)
-
 template <class T, class... ARGS>
 T factory1(ARGS&&... args)
 {
@@ -1578,9 +1572,10 @@ T factory3(ARGS&&... args)
     return {std::forward<ARGS>(args)...};
 }
 \end{emcppslisting}
-    
 
-\noindent All three factory functions are defined using \emcppsgloss{perfect forwarding} (see \featureref{\locationc}{forwardingref}) but support
+
+\noindent All three factory functions are defined using \emcppsgloss{perfect
+forwarding} (see \featureref{\locationc}{forwardingref}) but support
 different subsets of C++ types and may interpret their arguments
 differently.
 
@@ -1593,7 +1588,8 @@ that C++20 will allow aggregates to be initialized with parentheses as
 well as with braces, which will result in this form being accepted for
   aggregates as well.}}
 
-\lstinline!function2! returns an object created by \emcppsgloss{direct list initialization}. Hence, \lstinline!function2! supports the same types as
+\lstinline!function2! returns an object created by \emcppsgloss{direct list
+initialization}. Hence, \lstinline!function2! supports the same types as
 \lstinline!function1!, plus aggregates. However, due to the use of braced
 initialization, \lstinline!function2! will reject any types in
 \lstinline!ARGS! that require narrowing conversion when passed to the
@@ -1639,10 +1635,7 @@ Starting with C++11, we are able to initialize aggregate members with a
 list of values, using aggregate initialization in place of direct list
 initialization for members that are aggregates:
 
-\begin{emcppshiddenlisting}[emcppsbatch=e18]
-#include <string>  // (ù{\codeincomments{std::string}}ù)
-\end{emcppshiddenlisting}
-\begin{emcppslisting}[emcppsbatch=e18]
+\begin{emcppslisting}
 struct S
 {
     int         i;
@@ -1664,7 +1657,7 @@ public:
     }
 };
 \end{emcppslisting}
-    
+
 
 \noindent Note that as the initializer for \lstinline!C.j! shows in the code example
 above, there is no requirement to consistently use either braces or
@@ -1676,10 +1669,7 @@ aggregates vs.~reporting errors for narrowing conversion. Since member
 initialization supports only \emph{direct} list initialization, there is
 never a concern regarding \lstinline!explicit! conversions in this context:
 
-\begin{emcppshiddenlisting}[emcppsbatch=e19]
-#include <utility>  // (ù{\codeincomments{std::forward}}ù)
-\end{emcppshiddenlisting}
-\begin{emcppslisting}[emcppsbatch=e19]
+\begin{emcppslisting}
 template <class T>
 class Wrap
 {
@@ -1687,8 +1677,7 @@ class Wrap
 
     template <class... ARGS>
     Wrap(ARGS&&... args)
-    : data(std::forward<ARGS>(args)...)
-        // must be empty list or copy for aggregate (ù{\codeincomments{T}}ù)
+    : data(std::forward<ARGS>(args))  // must be empty list or copy for aggregate (ù{\codeincomments{T}}ù)
     {
     }
 };
@@ -1700,12 +1689,12 @@ class WrapAggregate
 
     template <class... ARGS>
     WrapAggregate(ARGS&&... args)
-    : data{std::forward<ARGS>(args)...}  // no narrowing conversions
+    : data{std::forward<ARGS>(args)}  // no narrowing conversions
     {
     }
 };
 \end{emcppslisting}
-    
+
 
 \noindent Again, there is no universal best answer, and an explicit choice should
 be made and documented so that consumers of the class know what to
@@ -1727,12 +1716,12 @@ that could be called, with the exception that if the braced list is
 empty, a default constructor (if available) would have priority:
 
 \begin{emcppslisting}
-#include <initializer_list>  // (ù{\codeincomments{std::initializer\_list}}ù)
+#include <initializer_list>
 
 struct S {
-    explicit S() {}
-    explicit S(int) {}
-    S(std::initializer_list<int> iL) { if (0 == iL.size()) { throw 13; } }
+  explicit S() {}
+  explicit S(int) {}
+  S(std::initializer_list<int> iL) { if (0 == iL.size()) {throw 13;} }
 };
 
 S a{};            // OK, value initialization
@@ -1742,7 +1731,7 @@ S d = {1};        // OK, (ù{\codeincomments{std::initializer\_list}}ù)
 S e{1, 2, 3};     // OK, (ù{\codeincomments{std::initializer\_list}}ù)
 S f = {1, 2, 3};  // OK, (ù{\codeincomments{std::initializer\_list}}ù)
 \end{emcppslisting}
-    
+
 
 \noindent In the presence of initializer list constructors, the overload
 resolution to select which constructor to call will be a two-step
@@ -1756,7 +1745,7 @@ an implicit conversion will be selected over a non--initializer-list
 constructor that does not require a conversion:
 
 \begin{emcppslisting}
-#include <initializer_list>  // (ù{\codeincomments{std::initializer\_list}}ù)
+#include <initializer_list>
 
 struct S
 {
@@ -1766,7 +1755,7 @@ struct S
 
 S s1{1, 'a'};  // calls #1, even though #2 would be a better match
 \end{emcppslisting}
-    
+
 
 \noindent In the example above, due to braced initialization preferring
 initializer-list constructors and because \lstinline!S! has an
@@ -1782,7 +1771,7 @@ the presence of a non\lstinline!initializer_list! constructor that would
 be a match without requiring a narrowing conversion:
 
 \begin{emcppslisting}
-#include <initializer_list>  // (ù{\codeincomments{std::initializer\_list}}ù)
+#include <initializer_list>
 
 struct S
 {
@@ -1790,10 +1779,10 @@ struct S
     S(int i, double d);            // #2
 };
 
-S s2{1, 3.2}; // Error, call to #1 with narrowing conversion, even though call
-              // to #2 would be well formed.
+S s2{1, 3.2}; // narrowing conversion when attempting to call #1,
+              //     even though invoking #2 would be well formed
 \end{emcppslisting}
-    
+
 
 \noindent In the example above, due to braced initialization first selecting a
 constructor and then checking for narrowing conversion, the
@@ -1805,7 +1794,7 @@ forms of initialization than brace lists, which do not prefer
 initializer-list constructors:
 
 \begin{emcppslisting}
-#include <initializer_list>  // (ù{\codeincomments{std::initializer\_list}}ù)
+#include <initializer_list>
 
 struct S
 {
@@ -1817,21 +1806,18 @@ struct S
 S s3(1, 'c'); // calls #2
 S s4(1, 3.2); // calls #3
 \end{emcppslisting}
-    
+
 \noindent This problem often comes up when talking about \lstinline!std::vector!:
 
-\begin{emcppshiddenlisting}[emcppsbatch=e20]
-#include <vector>     // (ù{\codeincomments{std::vector}}ù)
-\end{emcppshiddenlisting}
-\begin{emcppslisting}[emcppsbatch=e20]
-std::vector<std::size_t> v1{5u, 13u};  // Possible bug here.
+\begin{emcppslisting}
+vector<size_t> v1{5u, 13u};  // Possible bug here.
   // If trying to construct a vector of 5 (ù{\codeincomments{size\_t}}ù) with value 13,
   // The (ù{\codeincomments{std::initializer\_list}}ù) constructor is preferred over exact match,
   // so we actually construct a vector with 2 values, 5 and 13.
 
-std::vector<std::size_t> v2(5u, 13u);  // OK, calls the normal constructor
+vector<size_t> v2(5u, 13u);  // OK, calls the normal constructor
 \end{emcppslisting}
-    
+
 
 \subsubsection[Classes with default member initializers lose aggregate status]{Classes with default member initializers lose aggregate status}\label{classes-with-default-member-initializers-lose-aggregate-status}
 
@@ -1867,7 +1853,7 @@ S s2 = {1, 2, 3};  // OK, aggregate initialization
 A a1 = {};         // OK, value initialization with implicit default ctor in C++11
 A a2 = {4, 5, 6};  // Error, no matching constructor in C++11
 \end{emcppslisting}
-    
+
 
 \subsubsection[Implicit move and named return value optimization may be disabled in \lstinline!return! statements]{Implicit move and named return value optimization may be disabled in {\SubsubsecCode return} statements}\label{implicit-move-and-named-return-value-optimization-may-be-disabled-in-return-statements}
 
@@ -1910,7 +1896,7 @@ the second being \lstinline!m2!, which is created as a copy of \lstinline!a!,
 demonstrating that NRVO is not in effect:
 
 \begin{emcppslisting}
-#include <iostream>  // (ù{\codeincomments{std::cout}}ù)
+#include <iostream>
 
 struct S
 {
@@ -1937,7 +1923,7 @@ int main()
     S m2 = braced();    // S(), S(copy)
 }
 \end{emcppslisting}
-    
+
 
 \noindent Implicit move (see \featureref{\locationc}{Rvalue-References}) in a return statement
 is a more subtle operation, so much so that it required a defect
@@ -1962,7 +1948,7 @@ expression turned into a \emph{copy-from-\lstinline!L!} return expression
 because a braced initializer is not a name of an object:
 
 \begin{emcppslisting}
-#include <iostream>  // (ù{\codeincomments{std::cout}}ù)
+#include <iostream>
 
 struct L
 {
@@ -1993,7 +1979,7 @@ int main()
     R r2 = braced();    // L(), R(L-copy)
 }
 \end{emcppslisting}
-    
+
 
 \subsubsection[Surprising behavior of aggregates having deleted constructors]{Surprising behavior of aggregates having deleted constructors}\label{surprising-behavior-of-aggregates-having-deleted-constructors}
 
@@ -2011,7 +1997,7 @@ struct S
 
 S s{}; // surprisingly works (until C++20), and (ù{\codeincomments{0 == s.data}}ù)
 \end{emcppslisting}
-    
+
 \noindent This surprising pitfall occurs for two reasons:
 \begin{enumerate}
 \item{A deleted constructor is \emph{user declared} but not \emph{user provided}, so it does not feature in the list of things that stop a class being an aggregate.}
@@ -2027,11 +2013,12 @@ valid code may report errors for narrowing conversion in aggregate (and,
 therefore, also array) initialization.
 
 \begin{emcppslisting}
-unsigned u = 128;           // (ù{\codeincomments{u}}ù) is computed to an (ù{\codeincomments{int}}ù)-friendly value
+unsigned u;
+u = 128;                    // (ù{\codeincomments{u}}ù) is computed to an (ù{\codeincomments{int}}ù)-friendly value
 int ia[] = { 1, 2, u, 9 };  // OK in C++03, narrowing is allowed.
                             // Error in C++11, narrowing conversion.
 \end{emcppslisting}
-    
+
 
 \noindent Suppose that the computation in the above code ensures that the value
 \lstinline!u! holds at the point of initialization is in the range of
@@ -2067,7 +2054,7 @@ public:
 int i;
 X x(i);  // Error, would narrow in initializing S.m
 \end{emcppslisting}
-    
+
 
 \noindent The workaround is to \lstinline!static_cast! to the target type if it is
 known or to use parentheses and give up aggregate support in the generic
@@ -2085,7 +2072,7 @@ parsing will interpret such commas as separators for multiple macro
 arguments and will likely complain that the macro does not support that
 many arguments:
 
-\begin{emcppslisting}[emcppsbatch=e21]
+\begin{emcppslisting}
 #define MACRO(oneArg) /*...*/
 
 struct C
@@ -2102,7 +2089,7 @@ MACRO(C x(a, b, c))         // OK, commas inside parentheses ignored
 MACRO(S y{a, b, c})         // Error, 3 arguments but MACRO needs 1
 MACRO(std::map<int, int> z) // Error, 2 arguments but MACRO needs 1
 \end{emcppslisting}
-    
+
 
 \noindent As the example above demonstrates, on the first macro invocation, the
 commas within the parentheses are ignored, and the macro is invoked with
@@ -2129,22 +2116,19 @@ preprocessor feature that was adopted for C++11 to turn a
 comma-separated list into a braced-initializer list (and similarly for a
 template instantiation):
 
-\begin{emcppslisting}[emcppsbatch=e21]
+\begin{emcppslisting}
 #define BRACED(...) { __VA_ARGS__ }
 #define TEMPLATE(name, ...) name<__VA_ARGS__>
 
 MACRO(X y BRACED(a, b, c));             // OK, (ù{\codeincomments{X y \{ a, b, c \}}}ù)
 MACRO(TEMPLATE(std::map, int, int) z);  // OK, (ù{\codeincomments{std::map<int, int> z}}ù)
 \end{emcppslisting}
-    
+
 
 \noindent A common way this annoyance might show up is using the Standard Library
 \lstinline!assert! macro:
 
-\begin{emcppshiddenlisting}[emcppsbatch=e21]
-#include <cassert>  // standard C (ù{\codeincomments{assert}}ù) macro
-\end{emcppshiddenlisting}
-\begin{emcppslisting}[emcppsbatch=e21]
+\begin{emcppslisting}
 bool operator==(const C&, const C&);
 
 void f(const C& x, int i, int j, int k)
@@ -2153,7 +2137,7 @@ void f(const C& x, int i, int j, int k)
    assert(C{i, j, k} == x);  // Error, too many arguments to (ù{\codeincomments{assert}}ù) macro
 }
 \end{emcppslisting}
-    
+
 
 \subsubsection[Default member initializer does not deduce array size]{Default member initializer does not deduce array size}\label{default-member-initializer-does-not-deduce-array-size}
 
@@ -2166,7 +2150,7 @@ struct S
     char s[]{"Idle"};  // Error, must specify array size
 };
 \end{emcppslisting}
-    
+
 
 \noindent The rationale is that there is no guarantee that the default member
 initializer will be used to initialize the member; hence, it cannot be a
@@ -2190,16 +2174,9 @@ this is the only part of the language that supports \emph{direct}
 initializations without a corresponding syntax for \emph{copy}
 initializations.
 
-\begin{emcppshiddenlisting}[emcppsbatch=e22]
-// --- Replace
-    , c = (i,i)  // Error, copy list initialization is not allowed.
-    , c(i,i)
-// --- End
-\end{emcppshiddenlisting}
-\begin{emcppslisting}[emcppsbatch=e22]
+\begin{emcppslisting}
 class C
 {
-public:
     explicit C(int);
     C(int, int);
 };
@@ -2213,13 +2190,13 @@ class X
 public:
     X(int i)
     : a(i)       // OK, direct initialization
-    , b(i)       // OK, direct list initialization
-    , c = (i,i)  // Error, copy list initialization is not allowed.
+    : b(i)       // OK, direct list initialization
+    : c = (i,i)  // Error, copy list initialization is not allowed.
     {
     }
 };
 \end{emcppslisting}
-    
+
 
 \subsubsection[Accidental meaning for explicit constructors passed multiple arguments]{Accidental meaning for explicit constructors passed multiple arguments}\label{accidental-meaning-for-explicit-constructors-passed-multiple-arguments}
 
@@ -2294,7 +2271,7 @@ void test()
     g(0, {1, 2, 3});  // OK
 }
 \end{emcppslisting}
-    
+
 
 \noindent Note that this topic is deemed an annoyance, rather than a pitfall,
 because it affects only newly written C++11 (or later) code using the
@@ -2317,7 +2294,7 @@ resolution. Such code is also much harder for a subsequent maintainer,
 or casual code reader, to understand:
 
 \begin{emcppslisting}
-#include <initializer_list>  // (ù{\codeincomments{std::initializer\_list}}ù)
+#include <initializer_list>
 
 struct C
 {
@@ -2332,14 +2309,14 @@ int main()
     return a;
 }
 \end{emcppslisting}
-    
+
 
 \noindent This program compiles and runs, returning the intended result. However,
 consider how the behavior changes if we add a second overload during
 subsequent maintenance:
 
-\begin{emcppslisting}[emcppsbatch=e23]
-#include <initializer_list>  // (ù{\codeincomments{std::initializer\_list}}ù)
+\begin{emcppslisting}
+#include <initializer_list>
 
 struct C
 {
@@ -2356,13 +2333,13 @@ struct A  // additional aggregate class
 
 int test(A, int) { return -1; }  // overload for the aggregate class
 
-int callTest1()
+int main()
 {
     int a = test({1, 2}, 3);     // overload resolution prefers the aggregate
     return a;
 }
 \end{emcppslisting}
-    
+
 
 \noindent Because the overload for \lstinline!A! must now be considered, overload
 resolution may pick a different result. If we are lucky, then the choice
@@ -2375,14 +2352,14 @@ code will have silently changed meaning without touching the file. If
 the above flexibility is not the desired intent, the simple way to avoid
 this risk is to always name the type of any temporary variables:
 
-\begin{emcppslisting}[emcppsbatch=e23]
-int callTest2()
+\begin{emcppslisting}
+int main()
 {
     int a = test(C{1,2}, 3);  // Overload resolution prefers (ù{\codeincomments{struct C}}ù).
     return a;
 }
 \end{emcppslisting}
-    
+
 
 \subsubsection[\lstinline!auto! deduction and braced initialization]{{\SubsubsecCode auto} deduction and braced initialization}\label{auto-deduction-and-braced-initialization}
 
@@ -2395,14 +2372,14 @@ single value using \emph{direct} list initialization, \lstinline!auto! will
 deduce the variable type as the same type as the list value:
 
 \begin{emcppslisting}
-#include <initializer_list>  // (ù{\codeincomments{std::initializer\_list}}ù)
+#include <initializer_list>
 
 auto g{1};         // OK, deduces (ù{\codeincomments{g}}ù) is (ù{\codeincomments{int}}ù)
 auto h{1, 2, 3};     // Error, (ù{\codeincomments{auto}}ù) requires exactly one element in brace list
 auto i = {1};      // OK, deduces (ù{\codeincomments{i}}ù) is (ù{\codeincomments{initializer\_list<int>}}ù)
 auto j = {1, 2, 3};  // OK, deduces (ù{\codeincomments{j}}ù) is (ù{\codeincomments{initializer\_list<int>}}ù)
 \end{emcppslisting}
-    
+
 
 \noindent Note that the declarations of \lstinline!i! and \lstinline!j! in the code
 example above would also be errors if the \lstinline!<initializer_list>!
@@ -2415,8 +2392,8 @@ be called in preference to copy constructors, even though the syntax
 seems restricted to making copies:
 
 \begin{emcppslisting}
-#include <iostream>          // (ù{\codeincomments{std::cout}}ù)
-#include <initializer_list>  // (ù{\codeincomments{std::initializer\_list}}ù)
+#include <iostream>
+#include <initializer_list>
 
 struct S
 {
@@ -2432,7 +2409,7 @@ int main()
                  // deduction. (Note: (ù{\codeincomments{s2}}ù) is deduced to be of type (ù{\codeincomments{S}}ù).)
 }
 \end{emcppslisting}
-    
+
 
 \subsubsection[Compound assignment but not arithmetic operators accept braced lists]{Compound assignment but not arithmetic operators accept braced lists}\label{compound-assignment-but-not-arithmetic-operators-accept-braced-lists}
 
@@ -2444,7 +2421,7 @@ scalar type \lstinline!T!.{\cprotect\footnote{Although valid, the two
   \lstinline!x!~\lstinline!+=!~\lstinline!{3}! and
   \lstinline!x!~\lstinline!*=!~\lstinline!{3}! lines in the example compile
   successfully on Clang but not on GCC or MSVC (applies to all versions
-  at the time of writing). The C++11 standard currently states: 
+  at the time of writing). The C++11 standard currently states:
   \begin{quote}
   A braced-init-list may appear on the right-hand side of
   \begin{itemize}
@@ -2456,7 +2433,7 @@ scalar type \lstinline!T!.{\cprotect\footnote{Although valid, the two
   \lstinline!x={}! is
   \lstinline!x=T{}!}
   \end{itemize}
-  \end{quote} 
+  \end{quote}
   (\cite{cpp11}, paragraph~9, section~5.17, ``Assignment and Compound Assignment Operators," p.~126). There is currently a defect
   report due to clarify the Standard and explicitly state that this rule
   also applies to compound assignments (see \cite{miller12} and
@@ -2474,7 +2451,7 @@ cannot be used in regular arithmetic expressions since the grammar does
 not support brace lists as arbitrary expressions:
 
 \begin{emcppslisting}
-#include <initializer_list>  // (ù{\codeincomments{std::initializer\_list}}ù)
+#include <initializer_list>
 
 struct S
 {
@@ -2500,7 +2477,7 @@ void demo()
     p += {3};    // Error,  equivalent to (ù{\codeincomments{p += (char*)\{3\};}}ù)
 }
 \end{emcppslisting}
-    
+
 
 \subsection[See Also]{See Also}\label{see-also}
 

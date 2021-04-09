@@ -1,6 +1,8 @@
-% 13 Jan 2021 copyedits in and proofed
+% 13 Jan 2021, copyedits in and proofed
 % 27 Jan, code checked and replaced as needed by Josh
 % 01 Feb, 2021 JMB - added a missing include to hidden listing (line 88)
+% 09 Feb 2021, FPPs set
+% 17 Feb 2021, glossary tags would have been updated, but there are zero glossary entries in this feature.
 
 \emcppsFeature{
 toclong={Consecutive Right-Angle Brackets},
@@ -48,7 +50,7 @@ std::vector<std::vector<int>> v0;               // OK
 std::vector<std::vector<std::vector<int>>> v1;  // OK
 \end{emcppslisting}
 
-\subsubsection[Using the greater-than or right-shift operators within template-argument expressions]{Using the greater-than or right-shift operators\\[0.5ex] within template-argument expressions}\label{using-the-greater-than-or-right-shift-operators-within-template-argument-expressions}
+\subsubsection[Using the greater-than or right-shift operators within template-argument expressions]{Using the greater-than or right-shift operators within\\[0.5ex] template-argument expressions}\label{using-the-greater-than-or-right-shift-operators-within-template-argument-expressions}
 
 For templates that take only type parameters, there's no issue. When the
 template parameter is a non-type, however, the greater-than or right-shift operators might be
@@ -202,6 +204,7 @@ int main()
 //
 \end{emcppslisting}
 
+\pagebreak[4]%%%%%%%%
 \noindent Though theoretically possible, programs that (1) are syntactically valid
 in both C++03 and C++11 and (2) have distinct semantics have not
 emerged in practice anywhere that we are aware of.
