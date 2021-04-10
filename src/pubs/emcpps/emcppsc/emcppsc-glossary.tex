@@ -1,134 +1,243 @@
 % This file should contain the full glossary contents
 
-\newglossaryentry{ABI}{
+\longnewglossaryentry{ABI}{
   name={ABI},
   description={
-TODO
+%DRAFT
+%bchapman:
+Application Binary Interface.  An interface to a subsystem that is specified
+in binary, rather than in source.
+
+%osubbo:
+I find ABI and API description be very non-informative.
+ABI is the set of rules and conventions that a binary module must follow to interoperate with other binary modules.
+Common examples of ABI include:
+
+Physical layout of libraries and binaries.
+Procedure calling conventions ( aka passing and returning parameters to/from a function call )
+Interfacing with operating system and/or hardware
+
 }}
 
-\newglossaryentry{ADL}{
-  name={ADL},
-  description={
-TODO
-}}
-
-\newglossaryentry{API}{
+\longnewglossaryentry{API}{
   name={API},
   description={
-TODO
+%DRAFT
+%bchapman:
+Application Programming Interface.  An interface to a subsystem specified at
+the source-level, rather than at the binary level.
+
+%osubbo:
+API is a interface between multiple software modules.
+Common examples of API:
+* Data formats and data exchange protocols.
+* Calls (or requests) that can be made between modules.
 }}
 
-\newglossaryentry{access specifier}{
+\longnewglossaryentry{abstract interface}{
+  name={Abstract Interface},
+  nonumberlist,
+  description={
+TODO
+}}
+\AtBeginDocument{\glsadd{abstract interface}}
+
+\longnewglossaryentry{access modifier}{
+  name={Access Modifier},
+  nonumberlist,
+  description={
+TODO
+}}
+\AtBeginDocument{\glsadd{access modifier}}
+
+\longnewglossaryentry{access specifier}{
   name={Access Specifier},
   description={
-TODO
+%DRAFT
+%bchapman:
+One of the keywords 'private', 'public' or 'protected' which specified what
+code may access part of a class.  Those parts of a class specified as
+'private' may be accessed only within the class, those parts specified as
+'protected' may be accessed only either within the class or by derived classes,
+and those specified as 'public' may be accessed by anything, including other
+classes.
+
 }}
 
-\newglossaryentry{acquire/release memory barrier}{
+\longnewglossaryentry{acquire/release memory barrier}{
   name={Acquire/Release Memory Barrier},
   description={
-TODO
+%DRAFT
+%bchapman:
+An acquire/release memory barrier, also known as a "fence", will prevent all
+write operations in the thread after the fence from being reordered before the
+fence, and prevent all read operations in the thread before the fence from
+being reordered after the fence.
+
+Memory barriers will also synchronize with fences and atomic loads and stores
+in other threads in certain ways, depending upon the memory order of those
+memory barriers, loads, and stores.
 }}
 
-\newglossaryentry{aggregate}{
+\longnewglossaryentry{aggregate}{
   name={Aggregate},
   description={
-TODO: from standard: An aggregate is an array or a class (Clause 9) with no user-provided constructors (12.1), %[[no brace-or-equal-initializers for non-static data members (9.2)]]{PRIOR TO C++14}, no private or protected non-static data members (Clause 11), no base classes (Clause 10), and no virtual functions (10.3). --- Comments from Josh: *"This should be broken down a bit more per standard version... Specifically, 'no base classes' goes away in c++17, and it should be noted that there was no formal definition prior to c++11. It would also be useful to mention the related concepts of POD, standard-layout type, and literal types"*
+%DRAFT
+%bchapman:
+Prior to C++17, a type with no user-provided constructors, no base classes,
+with all of its non-static data members public, and no virtual functions knowns
+as a POD (Plain Old Data) type, could be aggregate-initialized.  In C++17, base
+classes are allowed, provided that they are public, non-virtual, and don't have
+constructors.
 }}
 
-\newglossaryentry{aggregate initialization}{
+\longnewglossaryentry{aggregate initialization}{
   name={Aggregate Initialization},
   description={
-TODO
+%DRAFT
+%bchapman:
+In aggregate initialization, an {Aggregate} variable can be initialized by a
+sequence of objects surrounded by curly braces and separated by commas.  A
+class or an array can be aggregate initialized.  The object being initialized
+has to be an {Aggregate} type or an array of {Aggregate} types.
 }}
 
-\newglossaryentry{aggregate type}{
+\longnewglossaryentry{aggregate type}{
   name={Aggregate Type},
   description={
 TODO
 }}
 
-\newglossaryentry{algorithm selection}{
+\longnewglossaryentry{algebra}{
+  name={Algebra},
+  description={
+TODO
+}}
+
+\longnewglossaryentry{algorithm selection}{
   name={Algorithm Selection},
   description={
 TODO
 }}
 
-\newglossaryentry{alias template}{
+\longnewglossaryentry{alias template}{
   name={Alias Template},
+  description={
+%DRAFT
+%bchapman:
+A statement that aliases one template expression to another via a 'using'
+declaration.
+
+}}
+
+\longnewglossaryentry{alignment}{
+  name={Alignment},
+  description={
+%DRAFT
+The alignment of an \emph{object type} is a \lstinline!std::size\_t! value (always a power of two) representing the number of bytes between successive addresses at which objects of this type can be allocated. It is the reason why \emph{padding} might be introduced between non-static members of a \lstinline!class!.
+}}
+
+\longnewglossaryentry{alignment requirement}{
+  name={Alignment Requirement},
   description={
 TODO
 }}
 
-\newglossaryentry{alignment}{
-  name={Alignment},
-  description={
-The alignment of an \emph{object type} is a \lstinline!std::size\_t! value (always a power of two) representing the number of bytes between successive addresses at which objects of this type can be allocated. It is the reason why \emph{padding} might be introduced between non-static members of a \lstinline!class!.
-}}
-
-\newglossaryentry{architectural insulation}{
+\longnewglossaryentry{architectural insulation}{
   name={Architectural Insulation},
   description={
 TODO
 }}
 
-\newglossaryentry{argument dependent lookup}{
+\longnewglossaryentry{argument dependent lookup}{
   name={Argument Dependent Lookup},
   description={
-TODO
+%DRAFT
+%bchapman:
+Argument-Dependent Lookup.  When a function is called, if one or more of the
+function arguments are in a given namespace, that namespace is searched for
+a function matching the call, thus one can call functions in namespaces without
+explicitly specifying the namespace.
 }}
 
-\newglossaryentry{argument-dependent lookup (ADL)}{
-  name={Argument-Dependent Lookup (Adl)},
+\longnewglossaryentry{argument-dependent lookup (ADL)}{
+  name={Argument-Dependent Lookup (ADL)},
   description={
 TODO
 }}
 
-\newglossaryentry{array to pointer decay}{
+\longnewglossaryentry{arithmetic type}{
+  name={Arithmetic Type},
+  description={
+TODO
+}}
+
+\longnewglossaryentry{array to pointer decay}{
   name={Array To Pointer Decay},
   description={
 TODO
 }}
 
-\newglossaryentry{array type}{
+\longnewglossaryentry{array type}{
   name={Array Type},
   description={
 TODO
 }}
 
-\newglossaryentry{as if}{
-  name={As If},
+\longnewglossaryentry{atomic}{
+  name={Atomic},
+  description={
+%DRAFT
+%bchapman:
+Atomic variables are variables which have appropriate memory fences and
+barriers built in to all their load and store operations to facilitate multiple
+threads coordinating with one another without having to use locks.
+
+}}
+
+\longnewglossaryentry{Automatic}{
+  name={Automatic},
   nonumberlist,
   description={
 TODO
 }}
-\AtBeginDocument{\glsadd{as if}}
+\AtBeginDocument{\glsadd{Automatic}}
 
-\newglossaryentry{atomic}{
-  name={Atomic},
-  description={
-TODO
-}}
-
-\newglossaryentry{automatic}{
+\longnewglossaryentry{automatic}{
   name={Automatic},
   description={
 TODO
 }}
 
-\newglossaryentry{automatic storage duration}{
+\longnewglossaryentry{automatic storage duration}{
   name={Automatic Storage Duration},
   description={
 TODO
 }}
 
-\newglossaryentry{barriers}{
+\longnewglossaryentry{B0}{
+  name={B0},
+  nonumberlist,
+  description={
+TODO
+}}
+\AtBeginDocument{\glsadd{B0}}
+
+\longnewglossaryentry{barriers}{
   name={Barriers},
+  description={
+%bchapman:
+A barrier to prevent reordering of instructions, and influencing cache behavior
+to facilitate coordination of data in multithreading.
+}}
+
+\longnewglossaryentry{base name}{
+  name={Base Name},
   description={
 TODO
 }}
 
-\newglossaryentry{base specifier list}{
+\longnewglossaryentry{base specifier list}{
   name={Base Specifier List},
   description={
 TODO
@@ -137,2476 +246,3189 @@ TODO
 \longnewglossaryentry{basic source character set}{
   name={Basic Source Character Set},
   description={
-TODO (SMD: the basic source character set is the abstract character set that must be available for expressing C++ source code. It's not the same as the source file encoding, which is what it is in C
-
-    from unicode footnote: Implementations are free to map characters outside the basic source character set to sequences of its members, resulting in the possibility of embedding other characters (e.g. emojis) in a C++ source file. 
-
-    @SuperV1234 so are you saying that there are holes that can act as escape sequences?  So like 0xfe means the next character is in play and 0xff means the next 3 characters are in play?  Just don't get it. @SMD shift encodings? I'm not sure if we really want to go there?
-
-    @SMD this is about the ways your editor and compiler can conspire to lie to you. A octets in a u8 literal are not interpreted as unicode. They are interpreted however the compiler interprets source in phase 1 of translation. The fact that the common encoding on Windows is 8 bit complete with no shift characters means that even though your editor will display 🍸, the compiler will see 0xF0 0x9F 0x8D 0xB8, which the compiler will emit as that sequence of bytes, even though the 0xBD is not canonically mapped. 
-)
+TODO
+%(SMD: the basic source character set is the abstract character set that must be available for expressing C++ source code. It's not the same as the source file encoding, which is what it is in C
+%
+%    from unicode footnote: Implementations are free to map characters outside the basic source character set to sequences of its members, resulting in the possibility of embedding other characters (e.g. emojis) in a C++ source file. 
+%
+%    @SuperV1234 so are you saying that there are holes that can act as escape sequences?  So like 0xfe means the next character is in play and 0xff means the next 3 characters are in play?  Just don't get it. @SMD shift encodings? I'm not sure if we really want to go there?
+%
+%    @SMD this is about the ways your editor and compiler can conspire to lie to you. A octets in a u8 literal are not interpreted as unicode. They are interpreted however the compiler interprets source in phase 1 of translation. The fact that the common encoding on Windows is 8 bit complete with no shift characters means that even though your editor will display , the compiler will see 0xF0 0x9F 0x8D 0xB8, which the compiler will emit as that sequence of bytes, even though the 0xBD is not canonically mapped. 
 }}
 
-\newglossaryentry{benchmark test}{
+\longnewglossaryentry{benchmark test}{
   name={Benchmark Test},
   description={
-TODO
+%DRAFT
+%bchapman:
+A test measuring the performance of software, usually measuring speed.
 }}
 
-\newglossaryentry{binary search}{
+\longnewglossaryentry{binary search}{
   name={Binary Search},
   description={
 TODO
 }}
 
-\newglossaryentry{block scope}{
+\longnewglossaryentry{block scope}{
   name={Block Scope},
   description={
 TODO
 }}
 
-\newglossaryentry{boilerplate code}{
+\longnewglossaryentry{boilerplate code}{
   name={Boilerplate Code},
   description={
-TODO
+%DRAFT
+%bchapman:
+    Code that is repeated from one project to another with little variation.
+
+%%osubbo:
+    Above is a definition of a copy-paste.
+Boilerplate code is the code that is necessary to bring a complex software system in operational state.
 }}
 
-\newglossaryentry{brace elision}{
+\longnewglossaryentry{brace elision}{
   name={Brace Elision},
   description={
-TODO
+%DRAFT
+%bchapman:
+In aggregate initiailization, under some circumstances braces around a class or
+array within the larger object being initialized can be left out.
 }}
 
-\newglossaryentry{braced initialization}{
-  name={Braced Initialization},
+\longnewglossaryentry{braced initialization}{
+  name={Brace Initialization},
   description={
 TODO
 }}
 
-\newglossaryentry{bytes}{
+\longnewglossaryentry{bytes}{
   name={Bytes},
   description={
-TODO
+%DRAFT
+%bchapman:
+A byte is a collection of 8 bits, usually accessed as a unit.
 }}
 
-\newglossaryentry{c style functions}{
-  name={C Style Functions},
+\longnewglossaryentry{C style function}{
+  name={C-Style Function},
   description={
-TODO
+%DRAFT
+%bchapman:
+A C Style Function is a function whose signature is defined by a sequence of
+arguments and a return type (where the return type may be 'void').  Virtual
+functions and class methods are not C Style Functions.
 }}
 
-\newglossaryentry{CI}{
+\longnewglossaryentry{CI}{
   name={CI},
   description={
+%DRAFT
+%bchapman:
+%osubbo:
+Continuous Integration (CI) is the practice of automating the integration of code changes from multiple contributors into a single software project.
+}}
+
+\longnewglossaryentry{cv qualifiers}{
+  name={CV-Qualifiers},
+  description={
 TODO
 }}
 
-\newglossaryentry{cache hit}{
+\longnewglossaryentry{cache hit}{
   name={Cache Hit},
   description={
 TODO
 }}
 
-\newglossaryentry{cache line}{
+\longnewglossaryentry{cache line}{
   name={Cache Line},
   description={
 TODO
 }}
 
-\newglossaryentry{cache miss}{
+\longnewglossaryentry{cache miss}{
   name={Cache Miss},
   description={
 TODO
 }}
 
-\newglossaryentry{call operator}{
+\longnewglossaryentry{call operator}{
   name={Call Operator},
   description={
 TODO
 }}
 
-\newglossaryentry{callable object}{
+\longnewglossaryentry{callable object}{
   name={Callable Object},
   description={
-TODO
+%DRAFT
+%bchapman:
+A callable object may be a pointer to a C-style function or a C++ static
+functiion, or an object of a type which has 'operator()' defined so that the
+object can be called like a function.
 }}
 
-\newglossaryentry{callback functions}{
+\longnewglossaryentry{callback functions}{
   name={Callback Functions},
   description={
-TODO
+%DRAFT
+%bchapman:
+An interface technique where the caller of an interface provides callable
+objects to be called by the called entity to communicate output.
 }}
 
-\newglossaryentry{capture default}{
+\longnewglossaryentry{capture default}{
   name={Capture Default},
   description={
 TODO
 }}
 
-\newglossaryentry{capture init}{
+\longnewglossaryentry{capture init}{
   name={Capture Init},
   description={
 TODO
 }}
 
-\newglossaryentry{captured by copy}{
+\longnewglossaryentry{captured by copy}{
   name={Captured By Copy},
   description={
 TODO
 }}
 
-\newglossaryentry{captured by reference}{
+\longnewglossaryentry{captured by reference}{
   name={Captured By Reference},
   description={
 TODO
 }}
 
-\newglossaryentry{captured variable}{
+\longnewglossaryentry{captured variable}{
   name={Captured Variable},
   description={
 TODO
 }}
 
-\newglossaryentry{carry dependency}{
-  name={Carry Dependency},
+\longnewglossaryentry{carry dependency}{
+  name={Carry Dependecy},
   description={
 TODO
 }}
 
-\newglossaryentry{character literal}{
+\longnewglossaryentry{cast}{
+  name={Cast},
+  description={
+TODO
+}}
+
+\longnewglossaryentry{character literal}{
   name={Character Literal},
   description={
 TODO
 }}
 
-\newglossaryentry{class member access expression}{
+\longnewglossaryentry{class member access expression}{
   name={Class Member Access Expression},
   nonumberlist,
   description={
-TODO (include any expression that is used to refer to a class member, such as \lstinline!object.member!, \lstinline!object->member!, \lstinline!object.*member!.)
+%DRAFT
+%bchapman:
+Member methods of a class can be called via 'object.method(...)', or through a
+pointer to the object as 'pointer->method(...)'.  Non-static data members can
+similarly be referred to as 'object.member' or 'pointer->member'.  Static
+functions can be referred to as 'typename::function(...)', static data members
+may be referred to via 'typename::member'.
 }}
 \AtBeginDocument{\glsadd{class member access expression}}
 
-\newglossaryentry{class template}{
+\longnewglossaryentry{class template}{
   name={Class Template},
   description={
 TODO
 }}
 
-\newglossaryentry{class template argument deduction}{
+\longnewglossaryentry{class template argument deduction}{
   name={Class Template Argument Deduction},
   description={
 TODO
 }}
 
-\newglossaryentry{closure}{
+\longnewglossaryentry{closure}{
   name={Closure},
   description={
-TODO
+%DRAFT
+%bchapman:
+In a C++ lambda function, the part of the function declaration between the
+'[]' brackets is the {closure}, and indicates variables other than function
+arguments that are accessible to the function, either variables copied by
+value, or by reference.
 }}
 
-\newglossaryentry{closure object}{
+\longnewglossaryentry{closure object}{
   name={Closure Object},
   description={
 TODO
 }}
 
-\newglossaryentry{closure type}{
+\longnewglossaryentry{closure type}{
   name={Closure Type},
   description={
 TODO
 }}
 
-\newglossaryentry{code bloat}{
+\longnewglossaryentry{code bloat}{
   name={Code Bloat},
   description={
-TODO
+%DRAFT
+%bchapman:
+The phenomenon where the code size of a program grows.  Several factors can
+contribute to this, such as the use of inline subroutines, or enabling
+exceptions (since enabling exceptions makes it necessary for the compiler to
+generate stack unwinding code).
 }}
 
-\newglossaryentry{Collatz function}{
-  name={Collatz Function},
-  nonumberlist,
-  description={
-TODO
-}}
-\AtBeginDocument{\glsadd{Collatz function}}
-
-\newglossaryentry{collatz function}{
+\longnewglossaryentry{Collatz function}{
   name={Collatz Function},
   description={
 TODO
 }}
 
-\newglossaryentry{Collatz length}{
-  name={Collatz Length},
-  nonumberlist,
-  description={
-The Collatz length of a positive integer n is the length of the  Collatz sequence needed to reach 1.  Note that Collatz(1) is 1.
-}}
-\AtBeginDocument{\glsadd{Collatz length}}
-
-\newglossaryentry{collatz length}{
+\longnewglossaryentry{Collatz length}{
   name={Collatz Length},
   description={
 TODO
 }}
 
-\newglossaryentry{Collatz sequence}{
-  name={Collatz Sequence},
-  nonumberlist,
-  description={
-Take a positive integer n. If n is even, divide by 2. If n is odd, multiply by 3 and add 1. Iterate this procedure to form the Collatz sequence.
-}}
-\AtBeginDocument{\glsadd{Collatz sequence}}
-
-\newglossaryentry{collatz sequence}{
+\longnewglossaryentry{Collatz sequence}{
   name={Collatz Sequence},
   description={
 TODO
 }}
 
-\newglossaryentry{comma operator}{
+\longnewglossaryentry{comma operator}{
   name={Comma Operator},
   description={
 TODO
 }}
 
-\newglossaryentry{compile time coupling}{
-  name={Compile Time Coupling},
-  description={
-TODO
-}}
-
-\newglossaryentry{compile time dispatch}{
-  name={Compile Time Dispatch},
-  description={
-TODO
-}}
-
-\newglossaryentry{compile time introspection}{
+\longnewglossaryentry{compile time introspection}{
   name={Compile Time Introspection},
   description={
 TODO
 }}
 
-\newglossaryentry{complete class context}{
+\longnewglossaryentry{compile time constant}{
+  name={Compile-Time Constant},
+  description={
+TODO
+}}
+
+\longnewglossaryentry{compile time coupling}{
+  name={Compile-Time Coupling},
+  description={
+%DRAFT
+%bchapman:
+Most couplings in C++ are compile time, except for calls through function
+pointers or method pointers, or calls to virtual functions, in which case
+the decision about which function will be called is partially made at run time.
+
+}}
+
+\longnewglossaryentry{compile time dispatch}{
+  name={Compile-Time Dispatch},
+  description={
+TODO
+}}
+
+\longnewglossaryentry{complete class context}{
   name={Complete Class Context},
   description={
 TODO
 }}
 
-\newglossaryentry{complete type}{
+\longnewglossaryentry{complete type}{
   name={Complete Type},
   description={
-TODO
+%DRAFT
+%bchapman:
+A type where all the information describing the type is available, so that it
+is possible for the compiler to create an object of the type.  Note that 'void'
+is not a complete type.
 }}
 
-\newglossaryentry{component}{
+\longnewglossaryentry{component}{
   name={Component},
   description={
-TODO
+%DRAFT
+%bchapman:
+A unit of C++ source consisting of 3 files: An include file, an implementation
+file, and a test driver.
 }}
 
-\newglossaryentry{component local}{
+\longnewglossaryentry{component local}{
   name={Component Local},
   description={
 TODO
 }}
 
-\newglossaryentry{components}{
+\longnewglossaryentry{components}{
   name={Components},
   description={
 TODO
 }}
 
-\newglossaryentry{concepts}{
+\longnewglossaryentry{concepts}{
   name={Concepts},
   description={
-TODO
+%DRAFT
+%bchapman:
+A feature of C++20 and beyond where it is possible to add constraints to
+templates to limit the applicability of the template.  Prior to C++ this had
+to be done with SFINAE which was much clumsier.
 }}
 
-\newglossaryentry{concrete class}{
+\longnewglossaryentry{concrete class}{
   name={Concrete Class},
   description={
-TODO
+%DRAFT
+%bchapman:
+Any class that is not abstract.  Concrete classes, unlike abstract classes,
+can be instantiated.
+%osubbo:
+A concrete class is a class which has no pure virtual functions.
 }}
 
-\newglossaryentry{conditionally supported}{
+\longnewglossaryentry{conditionally supported}{
   name={Conditionally Supported},
   description={
+%bchapman:
 A conforming implementation can choose not to support a feature that is specified as \emcppsglossgloss{conditionally supported}; if used and not supported, however, at least one diagnostic --- stating such lack of support --- is required.
 }}
 
-\newglossaryentry{const default constructible}{
-  name={Const Default Constructible},
-  description={
-TODO
-}}
-
-\newglossaryentry{constant expression}{
+\longnewglossaryentry{constant expression}{
   name={Constant Expression},
   description={
-TODO: An expression that can be evaluated at compile-time.  Mention \lstinline!constexpr! and state that \lstinline!const! variables that are initialized from a compile-time constants are themselves required to be compile-time constants.  New info to me in June 2020, worthwhile to have.
+%DRAFT
+%bchapman:
+An expression that can be evaluated at compile-time.  Static const variables
+initialized inline are required to be initialized by constant expressions and
+are themselves constant expressions.
 }}
 
-\newglossaryentry{constant initialization}{
+\longnewglossaryentry{constant initialization}{
   name={Constant Initialization},
   description={
 TODO
 }}
 
-\newglossaryentry{constexpr}{
+\longnewglossaryentry{constexpr}{
   name={Constexpr},
   description={
 TODO
 }}
 
-\newglossaryentry{constexpr context}{
+\longnewglossaryentry{constexpr context}{
   name={Constexpr Context},
   description={
 TODO
 }}
 
-\newglossaryentry{contextual conversion to bool}{
-  name={Contextual Conversion to \lstinline!bool!},
+\longnewglossaryentry{contextual convertibility to bool}{
+  name={Contextual Convertibility to bool},
   description={
+%DRAFT
+%bchapman:
 A property of certain particular language construct (e.g., an \lstinline!if! expression) that permits conversion from any expression \lstinline!E! to be treated \emcppsglossgloss{as if} a \lstinline!static\_cast! to type bool had been applied --- e.g., \lstinline!if (E)! is definitional equivalent to \lstinline!if (static\_cast<bool>(E))!. %See also [explicit conversion operators]{.xref}.
 }}
 
-\newglossaryentry{contextual convertibility to bool}{
-  name={Contextual Convertibility To Bool},
-  description={
-TODO
-}}
-
-\newglossaryentry{contextual keyword}{
+\longnewglossaryentry{contextual keyword}{
   name={Contextual Keyword},
   description={
+%DRAFT
+%bchapman:
 A \emph{``contextual keyword''} is a special identifier that acts like a \emph{keyword} when used in particular contexts. \lstinline!override! is an example as it can be used as a regular identifier outside of member-function declarators.
 }}
 
-\newglossaryentry{continuous refactoring}{
+\longnewglossaryentry{continuous refactoring}{
   name={Continuous Refactoring},
   description={
 TODO
 }}
 
-\newglossaryentry{controlling constant expression}{
+\longnewglossaryentry{contract}{
+  name={Contract},
+  description={
+TODO
+}}
+
+\longnewglossaryentry{controlling constant expression}{
   name={Controlling Constant Expression},
   description={
 TODO
 }}
 
-\newglossaryentry{conventional string literals}{
+\longnewglossaryentry{conventional string literals}{
   name={Conventional String Literals},
   description={
-TODO
+%DRAFT
+%bchapman:
+Conventional string literals consist of a sequence of characters delimited by
+'"'s, creating a sequence of 'const char' characters.  A string literal
+beginning with 'L"' creates a sequence of 'const wchar\_t' objects.  The
+string literal is of type 'char[N]' where 'N' is the integral number of
+'char's in the string.
 }}
 
-\newglossaryentry{conversion operator}{
-  name={Conversion Operator},
-  description={
-TODO
-}}
-
-\newglossaryentry{conversion operators}{
+\longnewglossaryentry{conversion operators}{
   name={Conversion Operators},
   description={
-TODO
+%DRAFT
+%bchapman:
+A conversion from a class to a given type 'TYPE' can be declared as a member
+method, usually an accessor, of the form
+'operator TYPE() const;
+which will create an implicit cast from the class to a 'TYPE' object.
 }}
 
-\newglossaryentry{converting constructors}{
+\longnewglossaryentry{converting constructors}{
   name={Converting Constructors},
   description={
-TODO
+%DRAFT
+%bchapman:
+A converting constructor is a single argument constructor that thus creates a
+means of converting one type to another.  Converting constructors can be
+implicit or explicit.
+
 }}
 
-\newglossaryentry{cookie}{
+\longnewglossaryentry{cookie}{
   name={Cookie},
   description={
 TODO
 }}
 
-\newglossaryentry{copy}{
+\longnewglossaryentry{copy}{
   name={Copy},
   description={
 TODO
 }}
 
-\newglossaryentry{copy assignment operator}{
+\longnewglossaryentry{copy assignment operator}{
   name={Copy Assignment Operator},
   description={
-TODO
+%DRAFT
+%bchapman:
+The copy assignment operator for a class 'TYPE' takes the form
+TYPE& operator=(const TYPE& rhs);
+and will assign the value 'rhs' to the object and return a reference to
+'*this'.
 }}
 
-\newglossaryentry{copy constructor}{
+\longnewglossaryentry{copy constructor}{
   name={Copy Constructor},
   description={
-TODO
+%DRAFT
+%bchapman:
+The copy constructor of class 'TYPE' takes the form
+TYPE(const TYPE& original);
+and will create an object identical to 'original'.
 }}
 
-\newglossaryentry{copy direct}{
-  name={Copy Direct},
+\longnewglossaryentry{copy elision}{
+  name={Copy Elision},
+  description={
+%DRAFT
+%bchapman:
+Copy operations consist of the copy constructor and the copy assignment
+operator.
+}}
+
+\longnewglossaryentry{copy initialization}{
+  name={Copy Initialization},
   description={
 TODO
 }}
 
-\newglossaryentry{copy initialized}{
-  name={Copy Initialized},
+\longnewglossaryentry{copy initialized}{
+  name={Copy Initialize},
   description={
 TODO
 }}
 
-\newglossaryentry{copy list}{
+\longnewglossaryentry{copy list}{
   name={Copy List},
   description={
 TODO
 }}
 
-\newglossaryentry{copy list initialization}{
+\longnewglossaryentry{copy list initialization}{
   name={Copy List Initialization},
   description={
 TODO
 }}
 
-\newglossaryentry{copy operations}{
+\longnewglossaryentry{copy operations}{
   name={Copy Operations},
   description={
 TODO
 }}
 
-\newglossaryentry{copy semantics}{
+\longnewglossaryentry{copy semantics}{
   name={Copy Semantics},
   description={
-An operation on two objects, a destination and a source, has \emcppsglossgloss{copy semantics}
-if, after it completes, the \emcppsglossgloss{value} of the source object remains unchanged and the target object
-has the same \emcppsglossgloss{value} as does the source.   ..  for some criteria the source and destination are
+%DRAFT
+An operation on two objects, a destination and a source, has {\romeoglossfont copy semantics}
+if, after it completes, the {\romeoglossfont value} of the source object remains unchanged and the target object
+has the same {\romeoglossfont value} as does the source.   ..  for some criteria the source and destination are
 the same, for a value semantic type that property is value...
 }}
 
-\newglossaryentry{critical section}{
+\longnewglossaryentry{copy direct}{
+  name={Copy/Direct},
+  description={
+TODO
+}}
+
+\longnewglossaryentry{critical section}{
   name={Critical Section},
   description={
-TODO
+%DRAFT
+%bchapman:
+In a multithreaded component, a section of code guarded by a mutex during which
+critical operations can take place.
 }}
 
-\newglossaryentry{curiously recurring template pattern}{
+\longnewglossaryentry{curiously recurring template pattern}{
   name={Curiously Recurring Template Pattern},
   description={
-TODO
+%DRAFT
+%bchapman:
+A template pattern using
+template <class TYPE> class Base { ... }
+class Derived : public Base<Derived> { ... }
+This pattern allows one to achieve a lot of the advantages of virtual functions
+without needing the overhead of a vtable or calling functios through vtable
+pointers.
 }}
 
-\newglossaryentry{currying}{
+\longnewglossaryentry{curiously recurring template pattern (CRTP)}{
+  name={Curiously Recurring Template Pattern (CRTP)},
+  description={
+%LORI: the acronym should be taken out of the optional argument in this term.  Occurs in extendedfriend.
+}}
+
+\longnewglossaryentry{currying}{
   name={Currying},
   description={
 TODO
 }}
 
-\newglossaryentry{cyclic physical dependency}{
+\longnewglossaryentry{cyclic physical dependency}{
   name={Cyclic Physical Dependency},
   description={
 TODO
 }}
 
-\newglossaryentry{cyclically dependent}{
+\longnewglossaryentry{cyclically dependent}{
   name={Cyclically Dependent},
   description={
 TODO
 }}
 
-\newglossaryentry{data dependency}{
+\longnewglossaryentry{data dependency}{
   name={Data Dependency},
   description={
 TODO
 }}
 
-\newglossaryentry{data dependency chain}{
+\longnewglossaryentry{data dependency chain}{
   name={Data Dependency Chain},
   description={
 TODO
 }}
 
-\newglossaryentry{data member}{
+\longnewglossaryentry{data member}{
   name={Data Member},
   description={
 TODO
 }}
 
-\newglossaryentry{data race}{
-  name={Data Race},
-  description={
-TODO
-}}
-
-\newglossaryentry{data races}{
+\longnewglossaryentry{data races}{
   name={Data Races},
   description={
-TODO
+%DRAFT
+%bchapman:
+A data race is a defect in a multithreaded system where the ordering of events
+in different threads is insufficiently constrained to guarantee the correct
+opetation of the system.
 }}
 
-\newglossaryentry{decimal floating point}{
-  name={Decimal Floating Point},
+\longnewglossaryentry{decimal floating point}{
+  name={Decimal Floating-Point},
   description={
 TODO
 }}
 
-\newglossaryentry{declaration}{
+\longnewglossaryentry{declaration}{
   name={Declaration},
   description={
-TODO
+%DRAFT
+%bchapman:
+A declaration lays out the type of an object or function, but not its
+implementation.
 }}
 
-\newglossaryentry{declarator operator}{
+\longnewglossaryentry{declarator operator}{
   name={Declarator Operator},
   description={
 TODO
 }}
 
-\newglossaryentry{declare}{
+\longnewglossaryentry{declare}{
   name={Declare},
+  description={
+%DRAFT
+%bchapman:
+Declare: to create a declaration.
+}}
+
+\longnewglossaryentry{declared interface}{
+  name={Declared Interface},
+  description={
+%DRAFT
+%bchapman:
+The type of the \emcppsglossgloss{entity} named by the given expression.
+}}
+
+\longnewglossaryentry{declared type}{
+  name={Declared Type},
+  description={
+TODO The type of the *entity* named by the given expression.
+}}
+
+\longnewglossaryentry{declaring}{
+  name={Declaring},
   description={
 TODO
 }}
 
-\newglossaryentry{declared type}{
-  name={Declared Type},
-  description={
-The type of the \emcppsglossgloss{entity} named by the given expression.
-}}
-
-\newglossaryentry{deduced return type}{
+\longnewglossaryentry{deduced return type}{
   name={Deduced Return Type},
   description={
 TODO
 }}
 
-\newglossaryentry{default initialization}{
+\longnewglossaryentry{default initialization}{
   name={Default Initialization},
   description={
 TODO
 }}
 
-\newglossaryentry{default initialized}{
+\longnewglossaryentry{default initialized}{
   name={Default Initialized},
   description={
-TODO
+%DRAFT
+%bchapman:
+A variable that is initialized with an '=' statement on the definition.  Note
+that this is different from 'Default Constructed'.
 }}
 
-\newglossaryentry{default member initializer}{
+\longnewglossaryentry{default member initializer}{
   name={Default Member Initializer},
   description={
 TODO
 }}
 
-\newglossaryentry{default value}{
-  name={Default Value},
+\longnewglossaryentry{default value}{
+  name={Default/Value},
   description={
 TODO
 }}
 
-\newglossaryentry{define}{
+\longnewglossaryentry{defensive}{
+  name={Defensive},
+  nonumberlist,
+  description={
+TODO
+}}
+\AtBeginDocument{\glsadd{defensive}}
+
+\longnewglossaryentry{define}{
   name={Define},
   description={
 TODO
 }}
 
-\newglossaryentry{definition}{
+\longnewglossaryentry{definition}{
   name={Definition},
   description={
-TODO
+%DRAFT
+%bchapman:
+The specification of an object or function, including the implementation.
 }}
 
-\newglossaryentry{delegating constructor}{
+\longnewglossaryentry{delegating constructor}{
   name={Delegating Constructor},
   description={
-TODO
+%DRAFT
+%bchapman:
+In C++11 and later, it is permissible for a constructor of an object to call
+other constructors of the object, delegating to them.
 }}
 
-\newglossaryentry{delete}{
+\longnewglossaryentry{delete}{
   name={Delete},
   description={
-TODO
+%DRAFT
+%bchapman:
+Deleting an object means running its destructor and freeing the memory of its
+footprint.
 }}
 
-\newglossaryentry{deleted function}{
+\longnewglossaryentry{deleted function}{
   name={Deleted Function},
   description={
-TODO
+%DRAFT
+%bchapman:
+In C++11 and beyond, a function in a class can be declared as 'deleted', which
+means that the function will not be created.  This is necessary for unwanted
+constructors and assignment operators which would normally be generated by
+default.
+
 }}
 
-\newglossaryentry{dependent type}{
+\longnewglossaryentry{dependent type}{
   name={Dependent Type},
   description={
-TODO
+%DRAFT
 }}
 
-\newglossaryentry{design pattern}{
+\longnewglossaryentry{design pattern}{
   name={Design Pattern},
   description={
-TODO
+%DRAFT
+%bchapman:
+A pattern of coding used to solve a class of problems.
 }}
 
-\newglossaryentry{diffusion}{
+\longnewglossaryentry{diffusion}{
   name={Diffusion},
   description={
 TODO
 }}
 
-\newglossaryentry{dimensional unit type}{
+\longnewglossaryentry{dimensional unit type}{
   name={Dimensional Unit Type},
   description={
 TODO
 }}
 
-\newglossaryentry{direct}{
+\longnewglossaryentry{direct}{
   name={Direct},
   description={
 TODO
 }}
 
-\newglossaryentry{direct initialization}{
+\longnewglossaryentry{direct initialization}{
+  name={Direct Initialization},
+  description={
+%DRAFT
+%bchapman:
+When a variable is initialized via an '=' sign, either with an aggregate or
+with an expression.
+}}
+
+\longnewglossaryentry{direct mapped}{
   name={Direct Initialization},
   description={
 TODO
 }}
 
-\newglossaryentry{direct initialized}{
+\longnewglossaryentry{direct initialized}{
   name={Direct Initialized},
   description={
 TODO
 }}
 
-\newglossaryentry{direct list}{
+\longnewglossaryentry{direct list}{
   name={Direct List},
   description={
 TODO
 }}
 
-\newglossaryentry{direct list initialization}{
+\longnewglossaryentry{direct list initialization}{
   name={Direct List Initialization},
   description={
 TODO
 }}
 
-\newglossaryentry{direct mapped}{
-  name={Direct Mapped},
-  description={
-TODO
-}}
-
-\newglossaryentry{disambiguator}{
+\longnewglossaryentry{disambiguator}{
   name={Disambiguator},
   description={
-TODO
+%DRAFT
+%bchapman:
+In some expressions, it is necessary to specify 'template' before an expression
+to indicate that it is a template and avoid the compiler interpreting the '<'
+as a 'less-than' symbol.  It is also necessary within a template definition to
+sometimes say 'typename' before an expression to clarify that the following
+expression is a type and not a variable.
 }}
 
-\newglossaryentry{divide and conquer}{
+\longnewglossaryentry{divide and conquer}{
   name={Divide And Conquer},
   description={
 TODO
 }}
 
-\newglossaryentry{duck typing}{
+\longnewglossaryentry{duck typing}{
   name={Duck Typing},
   description={
-TODO
+  %DRAFT
+%bchapman:
+A template function can take a value whose type is a template parameter, and if
+that type supports the wanted funcitonality, the template function can call it.
+"If it can quack, it must be a duck.".
 }}
 
-\newglossaryentry{dumb data}{
+\longnewglossaryentry{dumb data}{
   name={Dumb Data},
+  description={
+%DRAFT
+%bchapman:
+A type that contains data but has not functions or constructors built in.
+}}
+
+\longnewglossaryentry{Eigen}{
+  name={Eigen},
+  nonumberlist,
   description={
 TODO
 }}
+\AtBeginDocument{\glsadd{Eigen}}
 
-\newglossaryentry{embedded development}{
+\longnewglossaryentry{embedded development}{
   name={Embedded Development},
   description={
 TODO
 }}
 
-\newglossaryentry{embedded systems}{
+\longnewglossaryentry{embedded systems}{
   name={Embedded Systems},
+  description={
+%DRAFT
+%bchapman:
+Systems implemented in the field with the program burned into ROM memory rather
+than being loaded into RAM every run.
+}}
+
+\longnewglossaryentry{emplacement}{
+  name={Emplacement},
   description={
 TODO
 }}
 
-\newglossaryentry{empty base optimization}{
+\longnewglossaryentry{empty base optimization}{
   name={Empty Base Optimization},
   description={
 TODO
 }}
 
-\newglossaryentry{encapsulation}{
+\longnewglossaryentry{encapsulation}{
   name={Encapsulation},
   description={
-TODO
+%DRAFT
+%bchapman:
+Encapsulation is the ability to put both the data being operated upon and the
+funcitons operating on it into a single unit.  C++ classes facilitate this.
 }}
 
-\newglossaryentry{encoding prefix}{
+\longnewglossaryentry{encoding prefix}{
   name={Encoding Prefix},
   description={
 TODO
 }}
 
-\newglossaryentry{entity}{
+\longnewglossaryentry{entity}{
   name={Entity},
   description={
+%DRAFT
 One of the primary building blocks of a C++ program. An entity is one of: \emph{value}, \emph{object}, \emph{reference}, \emph{function}, \emph{enumerator}, \emph{type}, \emph{class member}, \emph{bit-field}, \emph{template}, \emph{template specialization}, \emph{namespace}, \emph{parameter pack}, or \lstinline!this!.
 }}
 
-\newglossaryentry{escalating}{
+\longnewglossaryentry{escalating}{
   name={Escalating},
   description={
-TODO
+%DRAFT
+%bchapman:
+On Windows machines, a task can escalate its privileges above the privileges
+it started out with.  On Unix, a program can set the user id to the owner of
+the file, so if the owner of the file is a superuser, that is a way that the
+program can run with superuser privileges even though the one running it
+doesn't have those privileges.
 }}
 
-\newglossaryentry{exception specification}{
+\longnewglossaryentry{exception specification}{
   name={Exception Specification},
   description={
 TODO
 }}
 
-\newglossaryentry{excess n}{
-  name={Excess $\mathbf{n}$},
+\longnewglossaryentry{excess n}{
+  name={Excess N},
   description={
 TODO
 }}
 
-\newglossaryentry{execution character set}{
+\longnewglossaryentry{execution character set}{
   name={Execution Character Set},
   description={
 TODO
 }}
 
-\newglossaryentry{explicit instantiation declaration}{
-  name={Explicit Instantiation Declaration},
+\longnewglossaryentry{explicit}{
+  name={Explicit},
   description={
 TODO
 }}
 
-\newglossaryentry{explicit instantiation definition}{
-  name={Explicit Instantiation Definition},
-  description={
-TODO
-}}
-
-\newglossaryentry{explicit instantiation directive}{
+\longnewglossaryentry{explicit instantiation directive}{
   name={Explicit Instantiation Directive},
   description={
-TODO
+%DRAFT
+%bchapman:
+An explicit instantiation declaration or definition.
 }}
 
-\newglossaryentry{explicit specifier}{
-  name={Explicit Specifier},
+\longnewglossaryentry{explicit instantiation declaration}{
+  name={Explicit Instantiation Declaration},
   description={
-TODO
+%DRAFT
+%bchapman:
+An explicit instantiation declaration of a template tells the compiler not
+to generate the implementation of the template because one will be provided
+explicitly.
 }}
 
-\newglossaryentry{explicit template argument specification}{
+\longnewglossaryentry{explicit instantiation definition}{
+  name={Explicit Instantiation Definition},
+  description={
+%DRAFT
+%bchapman:
+An explict definition of the implementation of a fully specified template
+type.
+}}
+
+\longnewglossaryentry{explicit template argument specification}{
   name={Explicit Template Argument Specification},
   description={
 TODO
 }}
 
-\newglossaryentry{explicitly captured}{
+\longnewglossaryentry{explicitly captured}{
   name={Explicitly Captured},
   description={
 TODO
 }}
 
-\newglossaryentry{explicitly copied}{
+\longnewglossaryentry{explicitly copied}{
   name={Explicitly Copied},
   description={
 TODO
 }}
 
-\newglossaryentry{expression sfinae}{
+\longnewglossaryentry{expression SFINAE}{
   name={Expression SFINAE},
   description={
-TODO
+%DRAFT
+%bchapman:
+SFINAE stands for 'Substitution Failure Is Not An Error".  SFINAE is a trick
+used to weed out of functions or constructors from an overload set by having
+expressions in the argument list or return type which fail to compile.  When
+this happens, the compiler does not report a syntax error but instead just
+removes the overload from the list of candidates.
 }}
 
-\newglossaryentry{extended alignment}{
+\longnewglossaryentry{expression template}{
+  name={Expression Template},
+  description={
+Expression templates is a template
+metaprogramming technique where the full structure of an expression is
+represented with nested template instantiations allowing lazy
+evaluation and certain optimizations. For example, this technique is
+often utilized by linear algebra libraries, such as
+  ``\emcppsgloss[Eigen]{Eigen}" (http://eigen.tuxfamily.org/).
+}}
+
+\longnewglossaryentry{extended alignment}{
   name={Extended Alignment},
   description={
 TODO
 }}
 
-\newglossaryentry{factory function}{
+\longnewglossaryentry{factory function}{
   name={Factory Function},
   description={
 TODO
 }}
 
-\newglossaryentry{factory operator}{
+\longnewglossaryentry{factory operator}{
   name={Factory Operator},
   description={
 TODO
 }}
 
-\newglossaryentry{false sharing}{
-  name={False Sharing},
-  description={
-TODO
-}}
-
-\newglossaryentry{fences}{
+\longnewglossaryentry{fences}{
   name={Fences},
   description={
+%DRAFT
+%bchapman:
+A barrier preventing the reordering of instructions by the compiler, and
+sometimes influencing cache behavior, to facilitate lock-free multithreading.
+}}
+
+\longnewglossaryentry{file extension}{
+  name={File Extension},
+  description={
 TODO
 }}
 
-\newglossaryentry{floating point literal}{
+\longnewglossaryentry{floating point literal}{
   name={Floating Point Literal},
   description={
 TODO
 }}
 
-\newglossaryentry{floating-point-to-integer conversion}{
+\longnewglossaryentry{floating point to integer conversion}{
   name={Floating Point To Integer Conversion},
+  description={
+TODO
+}}
+
+\longnewglossaryentry{floating-point-to-integer conversion}{
+  name={Floating-Point-to-Integer Conversion},
   nonumberlist,
   description={
 TODO
 }}
 \AtBeginDocument{\glsadd{floating-point-to-integer conversion}}
 
-\newglossaryentry{floating point to integer conversion}{
-  name={Floating Point To Integer Conversion},
-  description={
-TODO
-}}
-
-\newglossaryentry{flow of control}{
+\longnewglossaryentry{flow of control}{
   name={Flow Of Control},
   description={
-TODO
+%DRAFT
+%bchapman:
+The sequence of operations in a program as the sequence flows through the code.
 }}
 
-\newglossaryentry{footprint}{
+\longnewglossaryentry{footprint}{
   name={Footprint},
   description={
-TODO
+%DRAFT
+%bchapman:
+The non-dynamic memory taken by an object, which is just the memory taken
+for the object itself.
 }}
 
-\newglossaryentry{for range declaration}{
+\longnewglossaryentry{for range declaration}{
   name={For Range Declaration},
   description={
 TODO
 }}
 
-\newglossaryentry{forward class declaration}{
+\longnewglossaryentry{forward class declaration}{
   name={Forward Class Declaration},
   description={
-TODO
+%DRAFT
+%bchapman:
+A class declaration without a definition, letting the compiler know in advance
+that a class with a certain name will be defined at some point.  Under some
+circumstances, the class will be defined later in the file, in others, the
+class will never be defined in the current compilation unit, but pointers and
+references to it will be manipulated.
 }}
 
-\newglossaryentry{forward declaration}{
+\longnewglossaryentry{forward declaration}{
   name={Forward Declaration},
   description={
-TODO - mention about enums that this was Impossible prior to C++11 as the compiler could not determine the underlying type without visibility of the enumerators.
+%DRAFT
+%bchapman:
+A declaration of a type or function without a definition, so that code
+following the forward declaration can call the function or manipulate the type,
+without knowing the full specification.  Note that forward declarations of enum
+types was impossible prior to C++11 because the storage class of the enum could
+not be determined without full knowledge of the enumerator values.
 }}
 
-\newglossaryentry{forward declare}{
+\longnewglossaryentry{forward declare}{
   name={Forward Declare},
   description={
 TODO
 }}
 
-\newglossaryentry{forward declared}{
+\longnewglossaryentry{forward declared}{
   name={Forward Declared},
+  nonumberlist,
   description={
 TODO
 }}
+\AtBeginDocument{\glsadd{forward declared}}
 
-\newglossaryentry{forwarding reference}{
+\longnewglossaryentry{forwarding reference}{
   name={Forwarding Reference},
   description={
 TODO
 }}
 
-\newglossaryentry{fragmentation}{
+\longnewglossaryentry{fragmentation}{
   name={Fragmentation},
   description={
 TODO
 }}
 
-\newglossaryentry{free function}{
+\longnewglossaryentry{free function}{
   name={Free Function},
   description={
-TODO
+%DRAFT
+%bchapman:
+A function that is not a member of a class.
 }}
 
-\newglossaryentry{free operator}{
+\longnewglossaryentry{free operator}{
   name={Free Operator},
   description={
 TODO
 }}
 
-\newglossaryentry{full expression}{
+\longnewglossaryentry{full expression}{
   name={Full Expression},
   description={
 TODO
 }}
 
-\newglossaryentry{fully associative}{
+\longnewglossaryentry{full specialization}{
+  name={Full Specialization},
+  description={
+TODO
+}}
+
+\longnewglossaryentry{fully associative}{
   name={Fully Associative},
   description={
 TODO
 }}
 
-\newglossaryentry{fully constructed}{
+\longnewglossaryentry{fully constructed}{
   name={Fully Constructed},
   description={
-TODO
+%DRAFT
+%bchapman:
+An object whose constructor has finished running.
 }}
 
-\newglossaryentry{function object}{
+\longnewglossaryentry{function object}{
   name={Function Object},
   description={
 TODO
 }}
 
-\newglossaryentry{function parameter pack}{
+\longnewglossaryentry{function parameter pack}{
   name={Function Parameter Pack},
   description={
 TODO
 }}
 
-\newglossaryentry{function scope}{
+\longnewglossaryentry{function scope}{
   name={Function Scope},
+  description={
+%DRAFT
+%bchapman:
+The scope of the declaration of a function, which can either be in a namespace,
+or at file scope, or within a class.
+}}
+
+\longnewglossaryentry{function template argument type deduction}{
+  name={Function Template Argument Type Deduction},
   description={
 TODO
 }}
 
-\newglossaryentry{function-try-block}{
+\longnewglossaryentry{function try block}{
   name={Function Try Block},
+  description={
+TODO
+}}
+
+\longnewglossaryentry{function-try-block}{
+  name={Function try Block},
   nonumberlist,
   description={
 TODO
 }}
 \AtBeginDocument{\glsadd{function-try-block}}
 
-\newglossaryentry{function try block}{
-  name={Function Try Block},
-  description={
-TODO
-}}
-
-\newglossaryentry{functor}{
+\longnewglossaryentry{functor}{
   name={Functor},
   description={
 TODO
 }}
 
-\newglossaryentry{functor class}{
+\longnewglossaryentry{functor class}{
   name={Functor Class},
   description={
 TODO
 }}
 
-\newglossaryentry{functor type}{
+\longnewglossaryentry{functor type}{
   name={Functor Type},
   description={
 TODO
 }}
 
-\newglossaryentry{fundamental alignment}{
+\longnewglossaryentry{fundamental alignment}{
   name={Fundamental Alignment},
   description={
 TODO
 }}
 
-\newglossaryentry{fundamental integral type}{
+\longnewglossaryentry{fundamental integral type}{
   name={Fundamental Integral Type},
   description={
-TODO
+%DRAFT
+%bchapman:
+A type supported natively by the compiler which is not a class, struct, or
+union and is integral.
 }}
 
-\newglossaryentry{fundamental types}{
-  name={Fundamental Types},
+\longnewglossaryentry{fundamental integral types}{
+  name={Fundamental Integral Types},
+  description={
+%LORI: DUPLICATE of "fundamental integral type", references in emcppsgloss 2 times in longlong
+}}
+
+\longnewglossaryentry{fundamental type}{
+  name={Fundamental Type},
+  description={
+%bchapman:
+Types supported natively by the compiler which are not classes, structs, or
+unions.
+}}
+
+\longnewglossaryentry{garbage value}{
+  name={Garbage Value},
+  nonumberlist,
   description={
 TODO
 }}
+\AtBeginDocument{\glsadd{garbage value}}
 
-\newglossaryentry{general purpose machines}{
+\longnewglossaryentry{general purpose machines}{
   name={General Purpose Machines},
   description={
+%DRAFT
 General-purpose machines are what Big Tech, the financial industry, and many other large companies use exclusively.
 }}
 
-\newglossaryentry{generic lambda}{
+\longnewglossaryentry{generic lambda}{
   name={Generic Lambda},
   description={
 TODO
 }}
 
-\newglossaryentry{generic type}{
+\longnewglossaryentry{generic type}{
   name={Generic Type},
   description={
 TODO
 }}
 
-\newglossaryentry{golden file}{
+\longnewglossaryentry{golden file}{
   name={Golden File},
   description={
-TODO
+%DRAFT
+%bchapman:
+A file containing the expected output of a test program.  The test program is
+run, creating a file of output, which is compared to the golden file, and if
+the files match, the test passes.
+
 }}
 
-\newglossaryentry{header only library}{
-  name={Header Only Library},
+\longnewglossaryentry{golden output}{
+  name={Golden Output},
+  nonumberlist,
   description={
 TODO
 }}
+\AtBeginDocument{\glsadd{golden output}}
 
-\newglossaryentry{hide}{
+\longnewglossaryentry{header only library}{
+  name={Header Only Library},
+  description={
+%DRAFT
+%bchapman:
+A library where the full implmentation of the library is contained in the
+include files, meaning that all functions are either template functions or
+inline functions.
+}}
+
+\longnewglossaryentry{header-only library}{
+  name={Header-Only Library},
+  nonumberlist,
+  description={
+TODO
+}}
+\AtBeginDocument{\glsadd{header-only library}}
+
+\longnewglossaryentry{hide}{
   name={Hide or Hiding},
   alts={{hiding},
        },
   description={
+%DRAFT
+%bchapman:
 Function-name \textbf{hiding} occurs when a member function in a derived class has the same name as one in the base class, but it is not overriding it due to a difference in the function signature or because the member function in the base class is not \texttt{virtual}. The hidden member function will \textbf{not} participate in dynamic dispatch; the member function of the base class will be invoked instead when invoked via a pointer or reference to the base class . The same code would have invoked the derived class's implementation had the member function of the base class had been \textbf{overridden} rather than \textbf{hidden}.
 }}
 
-\newglossaryentry{higher order function}{
-  name={Higher Order Function},
+\longnewglossaryentry{higher order function}{
+  name={Higher-Order Function},
   description={
-TODO
+%DRAFT
+%bchapman:
+A higher order function either takes a function as an argument, or returns a
+function as its return value.
 }}
 
-\newglossaryentry{hyrum's law}{
-  name={Hyrum'S Law},
+\longnewglossaryentry{Hyrum's law}{
+  name={Hyrum's Law},
   description={
-TODO
+%DRAFT
+%bchapman:
+Hyrum's Law states that with a sufficient number of users of an API, it does
+not matter what is promised in the contract, all observable behaviors will be
+depended on by someone in the user base.
 }}
 
-\newglossaryentry{IFNDR}{
+\longnewglossaryentry{IFNDR}{
   name={IFNDR},
   description={
+%DRAFT
+%bchapman:
 see Ill-formed, No Diagnostic Required
 }}
 
-\newglossaryentry{id expression}{
+\longnewglossaryentry{id expression}{
   name={Id Expression},
   description={
-TODO
+%DRAFT
+%bchapman:
+A qualified or unqualified identifier.  It can consist of an identifier, or an
+identifier with additional syntax to make it any type of C++ object.  Note that
+an id expression can occur after the '.' or '->' operators.
 }}
 
-\newglossaryentry{ill formed}{
+\longnewglossaryentry{ill formed}{
   name={Ill Formed},
   description={
+%DRAFT
 TODO % (`[temp.res]p8`). The program is not valid C++. Generally, the compiler is required to produce a diagnostic (error) message, but see % [^ndr](.glossary).
 }}
 
-\newglossaryentry{ill formed, no diagnostic required (IFNDR)}{
-  name={Ill Formed, No Diagnostic Required (Ifndr)},
+\longnewglossaryentry{ill formed, no diagnostic required}{
+  name={Ill Formed, No Diagnostic Required},
   description={
-TODO
-}}
-
-\newglossaryentry{ill formed, no diagnostic required}{
-  name={Ill-Formed, No Diagnostic Required},
-  description={
+%DRAFT
 TODO *No diagnostic required*. The compiler is not mandated by the Standard to produce a diagnostic and the behavior of the code is *undefined*.
 }}
 
-\newglossaryentry{implementation defined}{
+\longnewglossaryentry{ill formed, no diagnostic required (IFNDR)}{
+  name={Ill Formed, No Diagnostic Required  (IFNDR)},
+  description={
+TODO
+}}
+
+\longnewglossaryentry{imperative}{
+  name={Imperative},
+  description={
+TODO
+}}
+
+\longnewglossaryentry{implementation defined}{
   name={Implementation Defined},
   description={
-TODO
+%DRAFT
+%bchapman:
+Implementation defined behavior is behavior that depends not only upon the
+definition of C++, but also the implementation of the platform the program is
+compiled on.  For example, 'sizeof(int)' on a PDP-11 is 2, while on an x86 it
+is 4.
 }}
 
-\newglossaryentry{implementation inheritance}{
+\longnewglossaryentry{implementation inheritance}{
   name={Implementation Inheritance},
   description={
-TODO
+%DRAFT
+%bchapman:
+The implementation of a derived class can either inherit from the base class,
+or a new implementation of the derived class can be specified which will
+override the implementation of the base class.
 }}
 
-\newglossaryentry{implicitly captured}{
+\longnewglossaryentry{implicitly captured}{
   name={Implicitly Captured},
   description={
 TODO
 }}
 
-\newglossaryentry{in process}{
+\longnewglossaryentry{in process}{
   name={In Process},
   description={
 TODO
 }}
 
-\newglossaryentry{inheriting constructors}{
-  name={Inheriting Constructors},
+\longnewglossaryentry{incomplete type}{
+  name={Incomplete Type},
   description={
 TODO
 }}
 
-\newglossaryentry{init capture}{
+\longnewglossaryentry{inheriting constructors}{
+  name={Inheriting Constructors},
+  description={
+%DRAFT
+%bchapman:
+In C++11 and beyond, a class can inherit constructors from a base class.  This
+must be explicitly requested -- in the case of a class 'Derived' which inherits
+from a class 'Base', the statement 'using Base::Base;' must occur in derived.
+This is an all or nothing proposition -- either 'Derived' inherits all of
+'Base's constructors, or none of them.
+}}
+
+\longnewglossaryentry{init capture}{
   name={Init Capture},
   description={
 TODO
 }}
 
-\newglossaryentry{initializer list}{
+\longnewglossaryentry{initializer list}{
   name={Initializer List},
   description={
 TODO
 }}
 
-\newglossaryentry{instantiation time}{
+\longnewglossaryentry{instantiation time}{
   name={Instantiation Time},
   description={
 TODO
 }}
 
-\newglossaryentry{insulate}{
+\longnewglossaryentry{insulate}{
   name={Insulate},
   description={
 TODO
 }}
 
-\newglossaryentry{insulating}{
+\longnewglossaryentry{insulating}{
   name={Insulating},
   description={
 TODO
 }}
 
-\newglossaryentry{insulation}{
+\longnewglossaryentry{insulation}{
   name={Insulation},
   description={
 TODO
 }}
 
-\newglossaryentry{integer literal}{
+\longnewglossaryentry{integer literal}{
   name={Integer Literal},
   description={
-TODO
+%LORI: binaryliteral.tex has this:
+%   \textbf{integer literals}\glossary{integer literals}
+%That should be changed to this:
+%   \emcppsgloss[integer literal]{integer literals}
+%DRAFT
+%bchapman:
+A literal specifying an integer value.  These can be in decimal, in which case
+the literal is a sequence of digits in the range '[0-9]' not beginning with
+'0', or octal in which case they begin with '0' and consist of digits in the
+range '[0-7]', or hexadecimal, in which case the literal begins with 0x' and is
+followed by digits in the range '[0-9a-f]'.  The values created by an integer
+literal must be low enough to fit in an integer.
 }}
 
-\newglossaryentry{integer literals}{
-  name={Integer Literals},
+\longnewglossaryentry{integer to floating point conversion}{
+  name={Integer To Floating Point Conversion},
   description={
 TODO
 }}
 
-\newglossaryentry{integer-to-floating-point conversion}{
-  name={Integer To Floating Point Conversion},
+\longnewglossaryentry{integer-to-floating-point conversion}{
+  name={Integer-to-Floating-Point Conversion},
   nonumberlist,
   description={
 TODO
 }}
 \AtBeginDocument{\glsadd{integer-to-floating-point conversion}}
 
-\newglossaryentry{integer to floating point conversion}{
-  name={Integer To Floating Point Conversion},
+\longnewglossaryentry{integral constant}{
+  name={Integral Constant},
   description={
 TODO
 }}
 
-\newglossaryentry{integral constant expression}{
+\longnewglossaryentry{integral constant expression}{
   name={Integral Constant Expression},
   description={
 TODO
 }}
 
-\newglossaryentry{integral promotion}{
+\longnewglossaryentry{integral promotion}{
   name={Integral Promotion},
   description={
-TODO
+%DRAFT
+%bchapman:
+In expressions, an integral bit field of less than the number of bits in an
+'int' is, by default, promoted to an 'int'.  In integral expressions, if an
+operation occurs between two integral variables of different sizes, the smaller
+one will be promoted to the larger size before the operation.
 }}
 
-\newglossaryentry{integral type}{
+\longnewglossaryentry{integral type}{
   name={Integral Type},
   description={
-TODO
+%DRAFT
+%bchapman:
+A non-floating fundamental type.
 }}
 
-\newglossaryentry{interface inheritance}{
+\longnewglossaryentry{interface inheritance}{
   name={Interface Inheritance},
   description={
-TODO
+%DRAFT
+%bchapman:
+Any time a class 'Derived' is publicly derived from a class 'Base', 'Derived'
+inherits the interface of 'Base', except for the constructors.  Note that
+'Derived' may expand on the interface it inherits.
 }}
 
-\newglossaryentry{interface test}{
+\longnewglossaryentry{interface test}{
   name={Interface Test},
   description={
 TODO
 }}
 
-\newglossaryentry{internal linkage}{
+\longnewglossaryentry{internal linkage}{
   name={Internal Linkage},
   description={
 TODO
 }}
 
-\newglossaryentry{intra thread dependency}{
-  name={Intra Thread Dependency},
+\longnewglossaryentry{intra thread dependency}{
+  name={Intra-Thread Dependency},
   description={
 TODO
 }}
 
-\newglossaryentry{join}{
+\longnewglossaryentry{invocable}{
+  name={Invocable},
+  description={
+TODO
+}}
+
+\longnewglossaryentry{join}{
   name={Join},
   nonumberlist,
   description={
-TODO
+%DRAFT
+%afeher:
+Suspend the execution of one thread until another thread or other threads finish executing.
 }}
 \AtBeginDocument{\glsadd{join}}
 
-\newglossaryentry{lambda body}{
+\longnewglossaryentry{lambda body}{
   name={Lambda Body},
   description={
 TODO
 }}
 
-\newglossaryentry{lambda capture}{
+\longnewglossaryentry{lambda capture}{
   name={Lambda Capture},
   description={
 TODO
 }}
 
-\newglossaryentry{lambda closure}{
+\longnewglossaryentry{lambda closure}{
   name={Lambda Closure},
   description={
 TODO
 }}
 
-\newglossaryentry{lambda declarator}{
+\longnewglossaryentry{lambda declarator}{
   name={Lambda Declarator},
   description={
 TODO
 }}
 
-\newglossaryentry{lambda expressions}{
+\longnewglossaryentry{lambda expressions}{
   name={Lambda Expressions},
   description={
-TODO
+%DRAFT
+%afeher:
+Syntax dedicated to the creation of locally defined functions or function objects (so-called closures) anywhere where expressions are allowed.
 }}
 
-\newglossaryentry{lambda introducer}{
-  name={Lambda Introducer},
-  description={
-TODO
-}}
-
-\newglossaryentry{leaks}{
+\longnewglossaryentry{leaks}{
   name={Leaks},
   nonumberlist,
   description={
-TODO
+%DRAFT
+%afeher:
+A limited system resource (most often memory) that is allocated to a process but never released.
 }}
 \AtBeginDocument{\glsadd{leaks}}
 
-\newglossaryentry{lifetime extension}{
+\longnewglossaryentry{lifetime extension}{
   name={Lifetime Extension},
   description={
 TODO
 }}
 
-\newglossaryentry{linkage}{
+\longnewglossaryentry{linkage}{
   name={Linkage},
   description={
-TODO
+%DRAFT
+%afeher:
+Defines the visibility and behavior of named entities during the static and dynamic linking process.
 }}
 
-\newglossaryentry{list initialization}{
+\longnewglossaryentry{list initialization}{
   name={List Initialization},
   description={
 TODO
 }}
 
-\newglossaryentry{literal}{
+\longnewglossaryentry{literal}{
   name={Literal},
   description={
 TODO
 }}
 
-\newglossaryentry{literal type}{
+\longnewglossaryentry{literal type}{
   name={Literal Type},
   description={
-TODO
+%DRAFT
+%afeher:
+A type that may be used to create constexpr variables, or be constructed, returned, or taken as argument by constexpr functions.
 }}
 
-\newglossaryentry{local class}{
+\longnewglossaryentry{local class}{
   name={Local Class},
   description={
-TODO
+%DRAFT
+%afeher:
+A class defined in the scope of a function as opposed to namespace level.
 }}
 
-\newglossaryentry{local declaration}{
+\longnewglossaryentry{local declaration}{
   name={Local Declaration},
+  description={
+%DRAFT
+%afeher:
+A declaration in the local scope.
+}}
+
+\longnewglossaryentry{local scope}{
+  name={Local Scope},
+  nonumberlist,
+  description={
+%DRAFT
+%afeher:
+The scope of the current statement that is the scope of a function body or another compound statement inside a function body.
+}}
+\AtBeginDocument{\glsadd{local scope}}
+
+\longnewglossaryentry{locality of reference}{
+  name={Locality of Reference},
   description={
 TODO
 }}
 
-\newglossaryentry{local scope}{
-  name={Local Scope},
+\longnewglossaryentry{logical}{
+  name={Logical},
+  description={
+%DRAFT
+%afeher:
+A value with 2 distinct states representing true or false.
+}}
+
+\longnewglossaryentry{long distance friendship}{
+  name={Long Distance Friendship},
+  description={
+%DRAFT
+%afeher:
+Friendship granted to an entity not defined in the current file.
+}}
+
+\longnewglossaryentry{long-distance friendship}{
+  name={Long-Distance Friendship},
   nonumberlist,
   description={
 TODO
 }}
-\AtBeginDocument{\glsadd{local scope}}
+\AtBeginDocument{\glsadd{long-distance friendship}}
 
-\newglossaryentry{locality of reference}{
-  name={Locality Of Reference},
-  description={
-TODO
-}}
-
-\newglossaryentry{logical}{
-  name={Logical},
-  description={
-TODO
-}}
-
-\newglossaryentry{long distance friendship}{
-  name={Long Distance Friendship},
-  description={
-TODO
-}}
-
-\newglossaryentry{lossy conversion}{
+\longnewglossaryentry{lossy conversion}{
   name={Lossy Conversion},
   description={
 TODO
 }}
 
-\newglossaryentry{lvalue reference}{
-  name={Lvalue Reference},
-  description={
-TODO
-}}
-
-\newglossaryentry{mangled names}{
+\longnewglossaryentry{mangled names}{
   name={Mangled Names},
   description={
-TODO
+%DRAFT
+%afeher:
+A name the compiler creates (and the linker uses) to identify potentionally scoped and/or overloaded names.  Such names will contain information to identify the full absolute scope of the name, and in case of C++ function names the signature.
+
 }}
 
-\newglossaryentry{manifestly constant evaluated}{
-  name={Manifestly Constant Evaluated},
+\longnewglossaryentry{manifestly constant evaluated}{
+  name={Manifestly constant evaluated},
   description={
 TODO
 }}
 
-\newglossaryentry{mantissa}{
+\longnewglossaryentry{mantissa}{
   name={Mantissa},
   description={
-TODO
+%DRAFT
+%afeher:
+The part of a floating point representation that contains the significant digits.
 }}
 
-\newglossaryentry{maximal fundamental alignment}{
+\longnewglossaryentry{maximal alignment}{
+  name={Maximal Alignment},
+  nonumberlist,
+  description={
+TODO
+}}
+\AtBeginDocument{\glsadd{maximal alignment}}
+
+\longnewglossaryentry{maximal fundamental alignment}{
   name={Maximal Fundamental Alignment},
   description={
 TODO
 }}
 
-\newglossaryentry{mechanism}{
+\longnewglossaryentry{maximally aligned}{
+  name={Maximally Aligned},
+  nonumberlist,
+  description={
+TODO
+}}
+\AtBeginDocument{\glsadd{maximally aligned}}
+
+\longnewglossaryentry{mechanism}{
   name={Mechanism},
   description={
-TODO
+%DRAFT
+%afeher:
+A type that has no sensible definition of value.  Such types will have behavior, may have state, but that state will not serve the purpose of an abstract value.
 }}
 
-\newglossaryentry{mechanisms}{
+\longnewglossaryentry{mechanisms}{
   name={Mechanisms},
   description={
-TODO
+%LORI: Duplicate of mechanism, used once in ctordelegating (should be \emcppsgloss[mechanism]{mechanisms})
 }}
 
-\newglossaryentry{member}{
+\longnewglossaryentry{member}{
   name={Member},
   description={
-TODO
+%DRAFT
+%afeher:
+A non-friend entity defined in the scope of a class.
 }}
 
-\newglossaryentry{member function}{
+\longnewglossaryentry{member function}{
   name={Member Function},
   description={
 TODO
 }}
 
-\newglossaryentry{member initialization lists}{
-  name={Member Initialization Lists},
-  description={
-TODO
-}}
-
-\newglossaryentry{member initializer list}{
+\longnewglossaryentry{member initialization lists}{
   name={Member Initializer List},
   description={
-TODO
+%LORI: defmemberinit uses the phrase "member initialization list" twice.  It should be "member initializer list" in both cases, and should be an emcppsgloss entry referring to this entry.
+%LORI: bracedinit also refers to "member intiialization lists" as a glossary entry, and that should be "member initializer list" as well.
+%LORI: Correct the above two and this entry should go away.
 }}
-
-\newglossaryentry{memory fence instruction}{
-  name={Memory Fence Instruction},
+  
+\longnewglossaryentry{member initializer list}{
+  name={Member Initializer List},
   description={
-TODO
+%DRAFT
+%afeher:
+Syntax used in constructors to determine how non-static data members get initialized. Note that the initialization order is fixed to the order of declaration, no matter what order the member initializer list has.
+
 }}
 
-\newglossaryentry{memory leak}{
+\longnewglossaryentry{memory leak}{
   name={Memory Leak},
   description={
+%DRAFT
+%afeher:
+See **leak**.
+}}
+
+\longnewglossaryentry{memory fence instruction}{
+  name={Memory-Fence Instruction},
+  description={
 TODO
 }}
 
-\newglossaryentry{message}{
+\longnewglossaryentry{message}{
   name={Message},
   description={
 TODO
 }}
 
-\newglossaryentry{messenger}{
+\longnewglossaryentry{messenger}{
   name={Messenger},
   description={
 TODO
 }}
 
-\newglossaryentry{metaparameter}{
+\longnewglossaryentry{metafunction}{
+  name={Metafunction},
+  description={
+TODO
+}}
+
+\longnewglossaryentry{metaparameter}{
   name={Metaparameter},
   description={
 TODO
 }}
 
-\newglossaryentry{metaprogram}{
+\longnewglossaryentry{metaprogram}{
   name={Metaprogram},
   description={
 TODO
 }}
 
-\newglossaryentry{meyers singleton}{
+\longnewglossaryentry{meyers singleton}{
   name={Meyers Singleton},
   description={
-TODO
+%DRAFT
+%afeher:
+A singleton implemented as a static  variable in the scope of a function, introduced in Scott Meyers' More Effective C++ Item 26.
 }}
 
-\newglossaryentry{mixed mode builds}{
+\longnewglossaryentry{mix-in}{
+  name={Mix-In},
+  nonumberlist,
+  description={
+TODO
+}}
+\AtBeginDocument{\glsadd{mix-in}}
+
+\longnewglossaryentry{mixed mode builds}{
   name={Mixed Mode Builds},
   description={
-TODO
+%DRAFT
+%afeher:
+Builds combining translation units with different levels of assertions enabled.
 }}
 
-\newglossaryentry{modules}{
-  name={Modules},
+\longnewglossaryentry{mixed-mode builds}{
+  name={Mixed-Mode Builds},
+  nonumberlist,
   description={
 TODO
 }}
+\AtBeginDocument{\glsadd{mixed-mode builds}}
 
-\newglossaryentry{monotonic allocator}{
+\longnewglossaryentry{modules}{
+  name={Modules},
+  description={
+%DRAFT
+%afeher:
+A C++20 feature that introduces a new way to organize C++ code that provides better isolation than headers.
+}}
+
+\longnewglossaryentry{monotonic allocator}{
   name={Monotonic Allocator},
   description={
 TODO
 }}
 
-\newglossaryentry{most vexing parse}{
+\longnewglossaryentry{most vexing parse}{
   name={Most Vexing Parse},
   description={
-TODO
+%DRAFT
+%afeher:
+Code intended as variable declaration, that is parsed as a function declaration due to the use of constructor alls as arguments:
+
+%```cpp
+%std::ifstream infile("in.dat");
+%
+%std::vector<int> v(std::istream_iterator<int>(infile),
+%				   std::istream_iterator<int>());
+%
+%// is equivalent to the following function declaration:
+%//     std::vector<int> v(std::istream_iterator<int> infile,
+%//                        std::istream_iterator<int);
+%```
 }}
 
-\newglossaryentry{move operations}{
+\longnewglossaryentry{move operations}{
   name={Move Operations},
   description={
-TODO
+%DRAFT
+%afeher:
+Move construction, move assignment, and their conversion variations where internals of an initializer or assignment right hand side are "moved" into the new or assignee object, leaving the source object in a valid, but unspecified state called moved-from state.  The name "move" can be misleading, as the whole point of this operation is to keep the data where it is, to *not* "move" it to a new memory location.
 }}
 
 \longnewglossaryentry{move semantics}{
   name={Move Semantics},
   description={
+%DRAFT
 An operation on two objects, a destination and a source, has \emcppsglossgloss{move semantics}
 if, after it completes, the target object has the same \emcppsglossgloss{value} that the source object had before
 the operation began.  Note that the source object may be modified, and is left in an unspecified state after
-the operation completes.
-
-Also note that any operation that has \emcppsglossgloss{copy semantics} also has \emcppsglossgloss{move semantics}.
+the operation completes. Also note that any operation that has \emcppsglossgloss{copy semantics} also has \emcppsglossgloss{move semantics}.
 }}
 
-\newglossaryentry{multithreading context}{
+\longnewglossaryentry{multithreading context}{
   name={Multithreading Context},
   description={
 TODO
 }}
 
-\newglossaryentry{naked literal}{
+\longnewglossaryentry{naked literal}{
   name={Naked Literal},
   description={
 TODO
 }}
 
-\newglossaryentry{name mangling}{
+\longnewglossaryentry{name mangling}{
   name={Name Mangling},
   description={
-TODO
+%DRAFT
+%afeher:
+The process by which a **mangled name** is created by the compiler or other tooling such as a symbolic debugger.  Mangled names, in addition to the name, may contain scope, and type information, as well as other decorations that are specific to the ABI.
 }}
 
-\newglossaryentry{narrow contract}{
+\longnewglossaryentry{narrow contract}{
   name={Narrow Contract},
   description={
 TODO
 }}
 
-\newglossaryentry{narrowing conversion}{
+\longnewglossaryentry{narrowing conversion}{
   name={Narrowing Conversion},
   description={
 TODO
 }}
 
-\newglossaryentry{natural alignment}{
+\longnewglossaryentry{natural alignment}{
   name={Natural Alignment},
   description={
 TODO
 }}
 
-\newglossaryentry{new handler}{
-  name={New Handler},
+\longnewglossaryentry{naturally aligned}{
+  name={Naturally Aligned},
+  nonumberlist,
   description={
 TODO
 }}
+\AtBeginDocument{\glsadd{naturally aligned}}
 
-\newglossaryentry{nibbles}{
+\longnewglossaryentry{nibbles}{
   name={Nibbles},
   description={
-TODO
+%DRAFT
+%afeher:
+Half a byte, or 4 bits.
 }}
 
-\newglossaryentry{non trivial constructor}{
+\longnewglossaryentry{non trivial constructor}{
   name={Non Trivial Constructor},
   description={
-TODO
+%DRAFT
+%afeher:
+A constructor not generated by the compiler (implicitly or by `=default`), but written by a programmer.  A constructor becomes non-trivial by the act of its implementation written by hand, even if the resulting machine code is exactly the same as the compiler generated constructor would have been.
 }}
 
-\newglossaryentry{non trivial special member function}{
+\longnewglossaryentry{non trivial special member function}{
   name={Non Trivial Special Member Function},
   description={
-TODO
+%DRAFT
+%afeher:
+Similarly to **non trivial constructor**, a member function whose implementation is written out by the programmer, instead of being implicitly, or by using `=default` explitly generated by the compiler.
 }}
 
-\newglossaryentry{non type parameter pack}{
+\longnewglossaryentry{non type parameter pack}{
   name={Non Type Parameter Pack},
   description={
 TODO
 }}
 
-\newglossaryentry{non-type parameter}{
+\longnewglossaryentry{non-trivial constructor}{
+  name={Non-Trivial Constructor},
+  nonumberlist,
+  description={
+TODO
+}}
+\AtBeginDocument{\glsadd{non-trivial constructor}}
+
+\longnewglossaryentry{non-trivial special member function}{
+  name={Non-Trivial Special Member Function},
+  nonumberlist,
+  description={
+TODO
+}}
+\AtBeginDocument{\glsadd{non-trivial special member function}}
+
+\longnewglossaryentry{non-type parameter}{
   name={Non-Type Parameter},
   description={
 TODO
 }}
 
-\newglossaryentry{non-type parameter pack}{
+\longnewglossaryentry{non-type parameter pack}{
   name={Non-Type Parameter Pack},
   description={
 TODO
 }}
 
-\newglossaryentry{non-type template parameter}{
+\longnewglossaryentry{non-type template parameter}{
   name={Non-Type Template Parameter},
   description={
 TODO
 }}
 
-\newglossaryentry{non-type template parameter pack}{
+\longnewglossaryentry{non-type template parameter pack}{
   name={Non-Type Template Parameter Pack},
   description={
 TODO
 }}
 
-\newglossaryentry{nonprimitive functionality}{
+\longnewglossaryentry{nonprimitive functionality}{
   name={Nonprimitive Functionality},
   description={
-TODO
+%DRAFT
+%afeher:
+Functionality that is entirely implementable in terms of primitive functionality of a type or a set of types, hence requires no access to encapsulated, private details.
 }}
 
-\newglossaryentry{nonstatic data member}{
+\longnewglossaryentry{nonstatic data member}{
   name={Nonstatic Data Member},
   description={
 TODO
 }}
 
-\newglossaryentry{null address}{
+\longnewglossaryentry{null address}{
   name={Null Address},
   description={
-TODO
+%DRAFT
+%afeher:
+A platform specific address that represents a null pointer value.  This address is not necessarily all zero bits.
 }}
 
-\newglossaryentry{null statement}{
+\longnewglossaryentry{null statement}{
   name={Null Statement},
   description={
 TODO
 }}
 
-\newglossaryentry{ODR}{
-  name={ODR},
-  description={
-TODO
-}}
-
-\newglossaryentry{object invariants}{
-  name={Object Invariants},
-  description={
-TODO
-}}
-
-\newglossaryentry{odr used}{
-  name={Odr Used},
-  description={
-TODO
-}}
-
-\newglossaryentry{ODR-used}{
-  name={Odr-Used},
-  description={
-TODO
-}}
-
-\newglossaryentry{one definition rule}{
-  name={One Definition Rule},
-  description={
-TODO
-}}
-
-\newglossaryentry{one-definition rule (ODR)}{
-  name={One Definition Rule},
+\longnewglossaryentry{null statements}{
+  name={Null Statements},
   nonumberlist,
   description={
 TODO
 }}
-\AtBeginDocument{\glsadd{one-definition rule (ODR)}}
+\AtBeginDocument{\glsadd{null statements}}
 
-\newglossaryentry{opaque declaration}{
+\longnewglossaryentry{ODR-used}{
+  name={ODR-used},
+  description={
+%LORI: This should use a glossary key without the hyphen.  There are a number of occurrences in lambda and one in lambdacapture
+}}
+
+\longnewglossaryentry{object invariants}{
+  name={Object Invariants},
+  description={
+%DRAFT
+%afeher:
+Properties of objects of a class that shall remain unchanged during the lifetime of any object of that class, except during computations performed in member or friend functions.
+}}
+
+\longnewglossaryentry{ODR used}{
+  name={Odr Used},
+  description={
+%DRAFT
+%afeher:
+A use of a name that requires the named entity to not just be declared, but also defined in the program.
+}}
+
+\longnewglossaryentry{one definition rule}{
+  name={One Definition Rule},
+  description={
+%DRAFT
+%afeher:
+The One Definition Rule states that only one definition of a named entity may exist in a program.  Entities that may get generated multiple times (inline functions, templates) must be generated from the same C++ code.
+}}
+
+\longnewglossaryentry{one-definition rule (ODR)}{
+  name={One-Definition Rule (ODR)},
+  description={
+%LORI: the acronym should be taken out of the optional argument in this term.  Occurs in externtemplate (once) and inlinenamespace (thrice)
+}}
+
+\longnewglossaryentry{opaque declaration}{
   name={Opaque Declaration},
   description={
-TODO
+%DRAFT
+%afeher:
+A declaration that is not also a definition.
 }}
 
-\newglossaryentry{opaque enumeration}{
+\longnewglossaryentry{opaque declarations}{
+  name={Opaque Declarations},
+  description={
+%LORI: Duplicate of "opaque declaration".   Occurs twice in opaqueenum
+}}
+
+\longnewglossaryentry{opaque enumeration}{
   name={Opaque Enumeration},
   description={
-TODO
+%DRAFT
+%afeher:
+Declaration of an enumeration with an underlying data type that is not also a definition.
 }}
 
-\newglossaryentry{operator}{
+\longnewglossaryentry{operator}{
   name={Operator},
   description={
 TODO
 }}
 
-\newglossaryentry{ordered after}{
+\longnewglossaryentry{ordered after}{
   name={Ordered After},
   description={
 TODO
 }}
 
-\newglossaryentry{over-aligned}{
+\longnewglossaryentry{over aligned}{
   name={Over Aligned},
+  description={
+TODO
+}}
+
+\longnewglossaryentry{over-aligned}{
+  name={Over-Aligned},
   nonumberlist,
   description={
 TODO
 }}
 \AtBeginDocument{\glsadd{over-aligned}}
 
-\newglossaryentry{over aligned}{
-  name={Over Aligned},
-  description={
-TODO
-}}
-
-\newglossaryentry{overload resolution}{
+\longnewglossaryentry{overload resolution}{
   name={Overload Resolution},
   description={
-TODO
+%DRAFT
+%afeher:
+The well-defined and complex process by which the C++ compiler decides which homonymous function shall be called with a set of concrete arguments.
 }}
 
-\newglossaryentry{overriding}{
+\longnewglossaryentry{overriding}{
   name={Overriding},
   description={
-TODO
+%DRAFT
+%afeher:
+Replacing the implementation of a virtual function for a specific derived type.
 }}
 
-\newglossaryentry{POD}{
-  name={POD},
+\longnewglossaryentry{POD}{
+  name={Plain Old Data (POD)},
   description={
-TODO
+%DRAFT
+%afeher:
+A now (C++20) deprecated term (replaced by **Standard Layout Type**) that was used to describe the C++ types that were C compatible, where the same code defining the type would result in the same layout in the two languages, and all initialization, destruction, and copy operations were trivial.
 }}
 
-\newglossaryentry{pack expansion}{
+\longnewglossaryentry{pack expansion}{
   name={Pack Expansion},
   description={
 TODO
 }}
 
-\newglossaryentry{parameter declaration}{
+\longnewglossaryentry{parameter count}{
+  name={Parameter Count},
+  nonumberlist,
+  description={
+TODO
+}}
+\AtBeginDocument{\glsadd{parameter count}}
+
+\longnewglossaryentry{parameter declaration}{
   name={Parameter Declaration},
   description={
 TODO
 }}
 
-\newglossaryentry{parameter pack}{
+\longnewglossaryentry{parameter pack}{
   name={Parameter Pack},
   description={
-TODO
+%DRAFT
+%afeher:
+A list of zero or more types or values that are parameters to a **variadic template**.
 }}
 
-\newglossaryentry{parameter pack expansion}{
+\longnewglossaryentry{parameter pack expansion}{
   name={Parameter Pack Expansion},
   description={
 TODO
 }}
 
-\newglossaryentry{parameter pack expansion context}{
+\longnewglossaryentry{parameter pack expansion context}{
   name={Parameter Pack Expansion Context},
   description={
 TODO
 }}
 
-\newglossaryentry{partial application}{
+\longnewglossaryentry{partial application}{
   name={Partial Application},
   description={
 TODO
 }}
 
-\newglossaryentry{partial implementation}{
+\longnewglossaryentry{partial class template specialization}{
+  name={Partial Class Template Specialization},
+  description={
+TODO
+}}
+
+\longnewglossaryentry{partial implementation}{
   name={Partial Implementation},
   description={
 TODO
 }}
 
-\newglossaryentry{partial ordering of class template specialization}{
+\longnewglossaryentry{partial ordering of class template specialization}{
   name={Partial Ordering Of Class Template Specialization},
   description={
 TODO
 }}
 
-\newglossaryentry{partial specialization}{
+\longnewglossaryentry{partial specialization}{
   name={Partial Specialization},
   description={
 TODO
 }}
 
-\newglossaryentry{partially constructed}{
+\longnewglossaryentry{partially constructed}{
   name={Partially Constructed},
   description={
-TODO
+%DRAFT
+%afeher:
+TODO -- Not in John's book.  Not in any presentations that have actual notes or slides defining it.
 }}
 
-\newglossaryentry{perfect forwarding}{
+\longnewglossaryentry{perfect forwarding}{
   name={Perfect Forwarding},
   description={
 TODO
 }}
 
-\newglossaryentry{physical}{
+\longnewglossaryentry{perfectly forwarded}{
+  name={Perfectly Forwarded},
+  description={
+TODO
+}}
+
+\longnewglossaryentry{physical}{
   name={Physical},
   description={
 TODO
 }}
 
-\newglossaryentry{physical design}{
+\longnewglossaryentry{physical design}{
   name={Physical Design},
   description={
-TODO
+%DRAFT
+%afeher:
+The way in which a logical content is factored and partitioned into source files, and libraries.
 }}
 
-\newglossaryentry{placement new}{
-  name={Placement New},
+\longnewglossaryentry{placeholder type}{
+  name={Placeholder Type},
   description={
 TODO
 }}
 
-\newglossaryentry{pointer to member}{
-  name={Pointer To Member},
+\longnewglossaryentry{placement}{
+  name={Placement},
+  nonumberlist,
   description={
 TODO
 }}
+\AtBeginDocument{\glsadd{placement}}
 
-\newglossaryentry{polymorphic memory resource}{
+\longnewglossaryentry{placement new}{
+  name={Placement \texttt{new}},
+  description={
+%DRAFT
+%afeher:
+A way to construct an object at a particular memory location, i.e. to call a constructor.
+}}
+
+\longnewglossaryentry{pointer to member}{
+  name={Pointer to Member},
+  description={
+%DRAFT
+%afeher:
+A special type that is able to identify (by its value) a specific non-static member, having a specific type, of a specific class type, such as an `int` data member of `class X`, or a possibly virtual, non-static member function of a specific signature and return value.  An actual member cannot be accessed with a pointer to member value alone, it has to be combined with the address of an actual object.
+}}
+
+\longnewglossaryentry{polymorphic memory resource}{
   name={Polymorphic Memory Resource},
   description={
 TODO
 }}
 
-\newglossaryentry{POSIX epoch}{
-  name={Posix Epoch},
-  nonumberlist,
-  description={
-TODO
-}}
-\AtBeginDocument{\glsadd{POSIX epoch}}
-
-\newglossaryentry{posix epoch}{
+\longnewglossaryentry{POSIX epoch}{
   name={Posix Epoch},
   description={
 TODO
 }}
 
-\newglossaryentry{precondition}{
+\longnewglossaryentry{precondition}{
   name={Precondition},
   description={
-TODO
+%DRAFT
+%afeher:
+Conditions that has to be fulfilled before an operation can be performed, such as a stack must have at least one element before we can pop from it.
 }}
 
-\newglossaryentry{predicate}{
+\longnewglossaryentry{predicate}{
   name={Predicate},
   description={
 TODO
 }}
 
-\newglossaryentry{predicate function}{
+\longnewglossaryentry{predicate function}{
   name={Predicate Function},
   description={
-TODO
+%DRAFT
+%afeher:
+A function that returns a Boolean value that answers a question or makes a decision.  Is this number even?  Should this employee get a raise this year?
 }}
 
-\newglossaryentry{predicate functor}{
+\longnewglossaryentry{predicate functor}{
   name={Predicate Functor},
   description={
 TODO
 }}
 
-\newglossaryentry{prepared-argument UDL operator}{
-  name={Prepared Argument UDL Operator},
-  description={
-TODO
-}}
-
-\newglossaryentry{prepared argument udl operator}{
+\longnewglossaryentry{prepared argument UDL operator}{
   name={Prepared Argument Udl Operator},
   description={
 TODO
 }}
 
-\newglossaryentry{primary class template declaration}{
+\longnewglossaryentry{prepared-argument UDL operator}{
+  name={Prepared-Argument UDL Operator},
+  description={
+TODO
+}}
+
+\longnewglossaryentry{primary class template declaration}{
   name={Primary Class Template Declaration},
   description={
 TODO
 }}
 
-\newglossaryentry{primary declaration}{
+\longnewglossaryentry{primary declaration}{
   name={Primary Declaration},
   description={
 TODO
 }}
 
-\newglossaryentry{program stack}{
-  name={Program Stack},
-  nonumberlist,
-  description={
-TODO
-}}
-\AtBeginDocument{\glsadd{program stack}}
-
-\newglossaryentry{protocol}{
+\longnewglossaryentry{protocol}{
   name={Protocol},
   description={
-TODO
+%DRAFT
+%afeher:
+A class that has only pure virtual functions except for a non-inline virtual destructor (defined in the .cpp file), has no data members, and does not derive from any other class (directly or indirectly) that is not itself a protocol class.
 }}
 
-\newglossaryentry{pun}{
+\longnewglossaryentry{pun}{
   name={Pun},
   description={
 TODO
 }}
 
-\newglossaryentry{pure function}{
-  name={Pure Function},
-  description={
-A function that produces no side effects and always returns the same value given the same sequence of argument values.
-}}
-
-\newglossaryentry{qualified name}{
-  name={Qualified Name},
+\longnewglossaryentry{pure abstract interface}{
+  name={Pure Abstract Interface},
   description={
 TODO
 }}
 
-\newglossaryentry{qualifier}{
+\longnewglossaryentry{pure function}{
+  name={Pure Function},
+  description={
+%DRAFT
+%afeher:
+A function that produces no side effects and always returns the same value given the same sequence of argument values, in other words accesses no other state than its parameters.
+}}
+
+\longnewglossaryentry{qualified name}{
+  name={Qualified Name},
+  description={
+%DRAFT
+%afeher:
+A name that contains the scope operator (`::`).
+}}
+
+\longnewglossaryentry{qualifier}{
   name={Qualifier},
   description={
 TODO
 }}
 
-\newglossaryentry{quality of implementation (QoI)}{
-  name={Quality Of Implementation},
-  nonumberlist,
-  description={
-TODO
-}}
-\AtBeginDocument{\glsadd{quality of implementation (QoI)}}
-
-\newglossaryentry{quality of implementation}{
+\longnewglossaryentry{quality of implementation}{
   name={Quality Of Implementation},
   description={
 TODO
 }}
 
-\newglossaryentry{RAII}{
-  name={RAII},
+\longnewglossaryentry{quality of implementation (QoI)}{
+  name={Quality Of Implementation},
   description={
-See Resource Acquisiition is Initialization
+TODO
 }}
 
-\newglossaryentry{range}{
+\longnewglossaryentry{RAII}{
+  name={Resource Aquisition is Initialization (RAII)},
+  description={
+%DRAFT
+%afeher:
+Resource Acquisition is Initialization (acronym RAII) is term that stands for a technique where acquired/allocator resources (memory, file, and other resource handles) are reliquished in the destructor of a class type, and often acquired/allocated by a constructor of that same object.
+}}
+
+\longnewglossaryentry{range}{
   name={Range},
   description={
 TODO
 }}
 
-\newglossaryentry{range based for loop}{
-  name={Range Based For Loop},
-  description={
-TODO
-}}
-
-\newglossaryentry{range expression}{
+\longnewglossaryentry{range expression}{
   name={Range Expression},
   description={
 TODO
 }}
 
-\newglossaryentry{raw string literals}{
+\longnewglossaryentry{range based for loop}{
+  name={Range-Based \texttt{for} Loop},
+  description={
+TODO
+}}
+
+\longnewglossaryentry{raw string literals}{
   name={Raw String Literals},
   description={
-TODO
+%DRAFT
+%afeher:
+A C++11 feature that allows string literals that are actually interpreted literally, without escape sequences.  You may know a similar feature from other languages as heredoc.
 }}
 
-\newglossaryentry{raw UDL operator}{
-  name={Raw Udl Operator},
+\longnewglossaryentry{raw UDL operator}{
+  name={Raw UDL Operator},
   description={
 TODO
 }}
 
-\newglossaryentry{raw udl operator}{
-  name={Raw Udl Operator},
-  description={
-TODO
-}}
-
-\newglossaryentry{reaching scope}{
+\longnewglossaryentry{reaching scope}{
   name={Reaching Scope},
   description={
 TODO
 }}
 
-\newglossaryentry{receiver}{
+\longnewglossaryentry{receiver}{
   name={Receiver},
   description={
 TODO
 }}
 
-\newglossaryentry{redundant check}{
-  name={Redundant Check},
+\longnewglossaryentry{recursion}{
+  name={Recursion},
   description={
 TODO
 }}
 
-\newglossaryentry{reference type}{
+\longnewglossaryentry{redundant check}{
+  name={Redundant Check},
+  description={
+%DRAFT
+%afeher:
+Redundant Code that provides runtime checks to detect and report (but not "handle" or "hide") defects in software.
+}}
+
+\longnewglossaryentry{ref qualifiers}{
+  name={Ref Qualifiers},
+  description={
+TODO
+}}
+
+\longnewglossaryentry{ref-qualifiers}{
+  name={Ref-Qualifiers},
+  nonumberlist,
+  description={
+TODO
+}}
+\AtBeginDocument{\glsadd{ref-qualifiers}}
+
+\longnewglossaryentry{reference collapsing}{
+  name={Reference Collapsing},
+  description={
+TODO
+}}
+
+\longnewglossaryentry{reference type}{
+  name={Reference Type},
+  description={
+%DRAFT
+%afeher:
+A type that denotes an alias to objects of a certain type.
+}}
+
+\longnewglossaryentry{regular type}{
   name={Reference Type},
   description={
 TODO
 }}
 
-\newglossaryentry{regular type}{
-  name={Regular Type},
+\longnewglossaryentry{release acquire}{
+  name={Release-Acquire},
   description={
 TODO
 }}
 
-\newglossaryentry{release acquire}{
-  name={Release Acquire},
+\longnewglossaryentry{release consume}{
+  name={Release-Consume},
   description={
 TODO
 }}
 
-\newglossaryentry{release consume}{
-  name={Release Consume},
-  description={
-TODO
-}}
-
-\newglossaryentry{return type deduction}{
+\longnewglossaryentry{return type deduction}{
   name={Return Type Deduction},
   description={
-TODO
+%DRAFT
+%afeher:
+The name of the feature and the rules and process by which the compiler automatically determines the return type of a function by examining the types of the return statement operands.
 }}
 
-\newglossaryentry{rvalue reference}{
-  name={Rvalue Reference},
+\longnewglossaryentry{return value optimization}{
+  name={Return Value Optimization},
   description={
 TODO
 }}
 
-\newglossaryentry{SFINAE}{
-  name={SFINAE (Substitution Failure Is Not An Error)},
+\longnewglossaryentry{return value optimization (RVO)}{
+  name={Return Value Optimization (RVO)},
+  nonumberlist,
   description={
-See Substitution Failure Is Not An Error
+TODO
+}}
+\AtBeginDocument{\glsadd{return value optimization (RVO)}}
+
+\longnewglossaryentry{SFINAE}{
+  name={Substitution Failure is Not An Error (SFINAE)},
+  description={
+TODO
 }}
 
-\newglossaryentry{SHA}{
+\longnewglossaryentry{SHA}{
   name={SHA},
   description={
-TODO
+%DRAFT
+%osubbo:
+SHA (Secure Hash Algorithms) are a family of cryptographic hash functions.
 }}
 
-\newglossaryentry{safe bool idiom}{
-  name={Safe bool idiom},
+\longnewglossaryentry{safe bool idiom}{
+  name={Safe Bool Idiom},
   description={
+%DRAFT
+%afeher:
 A technique in class design that suppresses unwanted comparisons made available by the presence of a non-\lstinline!explicit! conversion function to \lstinline!bool!. %See also [explicit conversion operators]{.xref}. TODO: "Given a class \lstinline!C!, the idiom requires \lstinline!C! to provide a (implicit in C++03) conversion operator to return a type that is \emph{contextually convertible to \lstinline!bool!} (e.g., any integral or pointer type) but does not support arithmetic (e.g., a \emcppsglossgloss{pointer to member}), and the presence of non-member template comparison functions that invokes a \lstinline!private! (unimplemented) member function, purposefully causing a compile-time error, should two objects of \lstinline!C! ever be compared -- e.g., using equality or relational operations (valid on \emph{all} pointers types); see %[Karlsson04]{.ref}. An early version of a return type designed for this purpose, known as \lstinline!unspecified\_bool\_type! was implemented in Boost; see %[semashev07]{.ref}."
 }}
 
-\newglossaryentry{alignment requirement}{
+\longnewglossaryentry{safe-bool-idiom}{
+  name={Safe-Bool-Idiom},
+  description={
+TODO
+}}
+
+\longnewglossaryentry{scalar type}{
   name={Scalar Type},
   description={
 TODO
 }}
 
-\newglossaryentry{scalar type}{
-  name={Scalar Type},
-  description={
-TODO
-}}
-
-\newglossaryentry{scoped allocator model}{
+\longnewglossaryentry{scoped allocator model}{
   name={Scoped Allocator Model},
   description={
 TODO
 }}
 
-\newglossaryentry{section}{
+\longnewglossaryentry{scoped enumeration}{
+  name={Scoped Enumeration},
+  description={
+TODO
+}}
+
+\longnewglossaryentry{section}{
   name={Section},
   description={
-TODO
+%DRAFT
+%osubbo:
+A part of an object file. A section contains information used by a linker to produce the final executable program.
 }}
 
-\newglossaryentry{sections}{
-  name={Sections},
-  description={
-TODO
-}}
-
-\newglossaryentry{sender}{
+\longnewglossaryentry{sender}{
   name={Sender},
   description={
-TODO
+%DRAFT
+%osubbo:
+TODO ?  A sender is a device or program that originates an information transfer to one or more receivers.
 }}
 
-\newglossaryentry{sequencing operator}{
+\longnewglossaryentry{sequencing operator}{
   name={Sequencing Operator},
   description={
 TODO
 }}
 
-\newglossaryentry{set associative}{
+\longnewglossaryentry{set associative}{
   name={Set Associative},
   description={
 TODO
 }}
 
-\newglossaryentry{side effects}{
+\longnewglossaryentry{shadowed}{
+  name={Shadowed},
+  description={
+TODO
+}}
+
+\longnewglossaryentry{side effects}{
   name={Side Effects},
   description={
-TODO
+%DRAFT
+%osubbo:
+Modification performed by an operation, function or expression outside its local scope.
 }}
 
-\newglossaryentry{signature}{
+\longnewglossaryentry{signature}{
   name={Signature},
   description={
-TODO
+%DRAFT
+%osubbo:
+TODO ? I guess function signature ?  Compiler generated  string that defines inputs and outputs of a function or class method.
 }}
 
-\newglossaryentry{signed integer overflow}{
+\longnewglossaryentry{signed integer overflow}{
   name={Signed Integer Overflow},
   description={
-TODO
+%DRAFT
+%osubbo:
+The result of an operation on 2 signed integer numbers which exceeds the maximum (or goes below the minimum) value the signed integer type can represent.
 }}
 
-\newglossaryentry{simple capture}{
+\longnewglossaryentry{simple capture}{
   name={Simple Capture},
   description={
 TODO
 }}
 
-\newglossaryentry{slicing}{
+\longnewglossaryentry{slicing}{
   name={Slicing},
   description={
-TODO
+%DRAFT
+%osubbo:
+Slicing happens when a derived class object is copied or assigned to a base class object. All additional attributes of the derived class object are removed to form the base class object. 
 }}
 
-\newglossaryentry{smart pointer}{
+\longnewglossaryentry{smart pointer}{
   name={Smart Pointer},
   description={
 TODO
 }}
 
-\newglossaryentry{special functions}{
+\longnewglossaryentry{special functions}{
   name={Special Functions},
+  description={
+%LORI: delete refers to this term, but it should be "special member functions".  That feature should be corrected then this entry should go away.
+}}
+
+\longnewglossaryentry{special member function}{
+  name={Special Member Function},
+  description={
+%DRAFT
+%osubbo:
+As per the C++17 standard, the following are considered special member functions: \emph{destructors}, \emph{default constructors}, \emph{copy constructors}, \emph{move constructors}, \emph{copy assignment operators}, and \emph{move assignment operators}.
+}}
+
+\longnewglossaryentry{special member functions}{
+  name={Special Member Functions},
   description={
 TODO
 }}
 
-\newglossaryentry{special member function}{
-  name={Special Member Function},
-  description={
-As per the C++17 standard, the following are considered special member functions: \emph{destructors}, \emph{default constructors}, \emph{copy constructors}, \emph{move constructors}, \emph{copy assignment operators}, and \emph{move assignment operators}.
-}}
-
-\newglossaryentry{specialization}{
+\longnewglossaryentry{specialization}{
   name={Specialization},
   description={
 TODO
 }}
 
-\newglossaryentry{standard conversion}{
+\longnewglossaryentry{standard conversion}{
   name={Standard Conversion},
   description={
-TODO
+%DRAFT
+%osubbo:
+Conversions defined in C++ language between its  fundamental types, pointers, references and pointers-to-member.
 }}
 
-\newglossaryentry{standard layout types}{
-  name={Standard Layout Types},
+\longnewglossaryentry{standard layout types}{
+  name={Standard-Layout Types},
   description={
 TODO
 }}
 
-\newglossaryentry{static assertion declarations}{
+\longnewglossaryentry{static assertion declarations}{
   name={Static Assertion Declarations},
   description={
-TODO
+%DRAFT
+%osubbo:
+Conditions that are checked in compile time.
 }}
 
-\newglossaryentry{static data space}{
+\longnewglossaryentry{static data space}{
   name={Static Data Space},
   description={
-TODO
+%DRAFT
+%osubbo:
+Memory area of the running program that holds static data.
 }}
 
-\newglossaryentry{static duration}{
-  name={Static Duration},
-  nonumberlist,
-  description={
-TODO
-}}
-\AtBeginDocument{\glsadd{static duration}}
-
-\newglossaryentry{static storage duration}{
+\longnewglossaryentry{static storage duration}{
   name={Static Storage Duration},
   description={
 TODO
 }}
 
-\newglossaryentry{storage duration}{
-  name={Storage Duration},
+\longnewglossaryentry{storage class specifier}{
+  name={Storage Class Specifier},
+  description={
+TODO
+}}
+
+\longnewglossaryentry{string literal}{
+  name={String Literal},
+  description={
+%DRAFT
+%osubbo:
+A string literal represents a sequence of characters that together form a null-terminated string.
+
+}}
+
+\longnewglossaryentry{strong typedef}{
+  name={Strong \texttt{typedef}},
+  description={
+TODO
+}}
+
+\longnewglossaryentry{strong typedef idiom}{
+  name={Strong \texttt{typedef} Idiom},
+  description={
+TODO
+}}
+
+\longnewglossaryentry{strong typedefs}{
+  name={Strong \texttt{typedef}s},
   nonumberlist,
   description={
 TODO
 }}
-\AtBeginDocument{\glsadd{storage duration}}
+\AtBeginDocument{\glsadd{strong typedefs}}
 
-\newglossaryentry{string literal}{
-  name={String Literal},
-  description={
-TODO
-}}
-
-\newglossaryentry{strong typedef idiom}{
-  name={Strong Typedef Idiom},
-  description={
-TODO
-}}
-
-\newglossaryentry{strong typedef}{
-  name={Strong \lstinline!typedef!},
-  description={
-TODO
-}}
-
-\newglossaryentry{structural inheritance}{
+\longnewglossaryentry{structural inheritance}{
   name={Structural Inheritance},
   description={
 TODO
 }}
 
-\newglossaryentry{structured binding}{
+\longnewglossaryentry{structured binding}{
   name={Structured Binding},
   description={
 TODO
 }}
 
-\newglossaryentry{sum type}{
+\longnewglossaryentry{sum type}{
   name={Sum Type},
   description={
-Abstract data type allowing the representation of one of multiple possible alternative types. Each alternative has its own type (and state), and only one alternative can be ``active" at any given point in time. Sum types automatically keep track of which choice is ``active,'' and properly implement value-sematic special member functions (even for non-trivial types). They can be implemented efficiently as a C++ \texttt{class} using a C++ \texttt{union} and a separate (integral) discriminator. This sort of implementation is commonly referred to as a discriminating (or ``tagged'') union.
+%DRAFT
+Abstract data type allowing the representation of one of multiple possible alternative types. Each alternative has its own type (and state), and only one alternative can be ``active" at any given point in time. Sum types automatically keep track of which choice is ``active," and properly implement value-sematic special member functions (even for non-trivial types). They can be implemented efficiently as a C++ \texttt{class} using a C++ \texttt{union} and a separate (integral) discriminator. This sort of implementation is commonly referred to as a discriminating (or ``tagged") union.
 }}
 
-\newglossaryentry{synchronization operation}{
+\longnewglossaryentry{synchronization operation}{
   name={Synchronization Operation},
   description={
 TODO
 }}
 
-\newglossaryentry{synchronization paradigm}{
+\longnewglossaryentry{synchronization paradigm}{
   name={Synchronization Paradigm},
   description={
 TODO
 }}
 
-\newglossaryentry{syntactic sugar}{
+\longnewglossaryentry{syntactic sugar}{
   name={Syntactic Sugar},
   description={
 TODO
 }}
 
-\newglossaryentry{TLB}{
-  name={TLB},
+\longnewglossaryentry{synthetization}{
+  name={Synthetization},
   description={
 TODO
 }}
 
-\newglossaryentry{template argument}{
+\longnewglossaryentry{template argument}{
   name={Template Argument},
   description={
 TODO
 }}
 
-\newglossaryentry{template argument deduction}{
+\longnewglossaryentry{template argument deduction}{
   name={Template Argument Deduction},
   description={
 TODO
 }}
 
-\newglossaryentry{template argument list}{
+\longnewglossaryentry{template argument list}{
   name={Template Argument List},
   description={
 TODO
 }}
 
-\newglossaryentry{template head}{
+\longnewglossaryentry{template head}{
   name={Template Head},
   description={
 TODO
 }}
 
-\newglossaryentry{template instantiation time}{
-  name={Template Instantiation Time},
+\longnewglossaryentry{template instantiation}{
+  name={Template Instantiation},
   description={
 TODO
 }}
 
-\newglossaryentry{template parameter}{
+\longnewglossaryentry{template instantiation time}{
+  name={Template Instantiation Time},
+  description={
+%DRAFT
+%osubbo:
+A source code location when a compiler generates a concrete class or a function from a template for a particular combination of template arguments in order to carry the compilation process.
+}}
+
+\longnewglossaryentry{template parameter}{
   name={Template Parameter},
   description={
 TODO
 }}
 
-\newglossaryentry{template parameter pack}{
+\longnewglossaryentry{template parameter pack}{
   name={Template Parameter Pack},
   description={
 TODO
 }}
 
-\newglossaryentry{template parameters list}{
+\longnewglossaryentry{template parameters list}{
   name={Template Parameters List},
   description={
 TODO
 }}
 
-\newglossaryentry{template template class parameter}{
+\longnewglossaryentry{template template class parameter}{
   name={Template Template Class Parameter},
   description={
 TODO
 }}
 
-\newglossaryentry{template template parameter}{
+\longnewglossaryentry{template template parameter}{
   name={Template Template Parameter},
   description={
 TODO
 }}
 
-\newglossaryentry{template template parameter pack}{
+\longnewglossaryentry{template template parameter pack}{
   name={Template Template Parameter Pack},
   description={
 TODO
 }}
 
-\newglossaryentry{template type parameter}{
+\longnewglossaryentry{template type parameter}{
   name={Template Type Parameter},
   description={
 TODO
 }}
 
-\newglossaryentry{templated UDL operator}{
-  name={Templated Udl Operator},
+\longnewglossaryentry{templated UDL operator}{
+  name={Templated UDL Operator},
   description={
 TODO
 }}
 
-\newglossaryentry{templated udl operator}{
-  name={Templated Udl Operator},
-  description={
-TODO
-}}
-
-\newglossaryentry{ternary operator}{
+\longnewglossaryentry{ternary operator}{
   name={Ternary Operator},
   description={
 TODO
 }}
 
-\newglossaryentry{test driver}{
+\longnewglossaryentry{test driver}{
   name={Test Driver},
   description={
-TODO
+%DRAFT
+%osubbo:
+Test driver is a program that organizes the tests, runs them and handles their output.  
+
 }}
 
-\newglossaryentry{thrashing}{
+\longnewglossaryentry{thrashing}{
   name={Thrashing},
   description={
 TODO
 }}
 
-\newglossaryentry{trailing return type}{
+\longnewglossaryentry{thread pool}{
+  name={Thread Pool},
+  description={
+TODO
+}}
+
+\longnewglossaryentry{trailing return type}{
   name={Trailing Return Type},
   description={
 TODO
 }}
 
-\newglossaryentry{translation unit}{
+\longnewglossaryentry{translation unit}{
   name={Translation Unit},
   description={
+%DRAFT
+%osubbo:
+Translation (or compilation) unit is an ultimate input to a compiler from which an object file is generated. For C/C++ translation unit is roughly equivalent to a source file after it has been processed by a C preprocessor ( i.e. all header files are literally included and macros expanded ).
+}}
+
+\longnewglossaryentry{translation unit (TU)}{
+  name={Translation Unit (TU)},
+  description={
 TODO
 }}
 
-\newglossaryentry{trivial}{
+\longnewglossaryentry{trivial}{
   name={Trivial},
   description={
-TODO
+%DRAFT
+%osubbo:
+TODO ? Trivial type ? A trivial type is a type whose storage is contiguous and which only supports static default initialization.
 }}
 
-\newglossaryentry{trivial operation}{
+\longnewglossaryentry{trivial copy constructor}{
+  name={Trivial Copy Constructor},
+  nonumberlist,
+  description={
+TODO
+}}
+\AtBeginDocument{\glsadd{trivial copy constructor}}
+
+\longnewglossaryentry{trivial operation}{
   name={Trivial Operation},
   description={
-TODO
+%DRAFT
+%osubbo:
+Member functions and operators generated by the compiler.
+
 }}
 
-\newglossaryentry{trivial types}{
+\longnewglossaryentry{trivial types}{
   name={Trivial Types},
   description={
-TODO
+%DRAFT
+%osubbo:
+A class or struct in C++ that has compiler-provided or explicitly defaulted special member functions.
 }}
 
-\newglossaryentry{triviality}{
+\longnewglossaryentry{triviality}{
   name={Triviality},
   description={
 TODO
 }}
 
-\newglossaryentry{trivially constructible}{
+\longnewglossaryentry{trivially constructible}{
   name={Trivially Constructible},
   description={
-TODO
+%DRAFT
+%osubbo:
+A trivially constructible type is a type which can be trivially default-, copy- or move- constructed.
 }}
 
-\longnewglossaryentry{trivially copy constructor}{
-  name={Trivially Copy Constructor},
-  nonumberlist,
-  description={
-The requirements for the copy constructor of a class \lstinline!T! to be considered trivial are as follows:
-
-%\begin{itemize}
-%\item It must not be user-provided;
-%\item If defaulted, its signature must be the same as implicitly-defined (exception specification and qualifiers on the argument must match);
-%\item  \lstinline!T! must have no \lstinline!virtual! member functions or \lstinline!virtual! base classes;
-%\item The copy constructor for every single data member and base class of \lstinline!T! must be trivial (recursively).
-%\end{itemize}
-}}
-\AtBeginDocument{\glsadd{trivially copy constructor}}
-
-\newglossaryentry{trivially copyable}{
+\longnewglossaryentry{trivially copyable}{
   name={Trivially Copyable},
   description={
+%DRAFT
+%osubbo:
+The following types are collectively called trivially copyable types:
+
+* Scalar types;
+* Trivially copyable classes, i.e. classes satisfying following requirements:
+  - At least one copy constructor, move constructor, copy assignment operator, or move assignment operator is eligible
+  - Every eligible copy constructor (if any) is trivial
+  - Every eligible move constructor (if any) is trivial
+  - Every eligible copy assignment operator (if any) is trivial
+  - Every eligible move assignment operator (if any) is trivial
+  - Has a trivial non-deleted destructor
+  - Has no virtual functions or virtual base classes.
+* Arrays of TriviallyCopyable objects
+}}
+
+\longnewglossaryentry{trivially destructible}{
+  name={Trivially Destructible},
+  description={
 TODO
 }}
 
-\newglossaryentry{true sharing}{
+\longnewglossaryentry{true sharing}{
   name={True Sharing},
   description={
 TODO
 }}
 
-\newglossaryentry{type alias}{
+\longnewglossaryentry{type alias}{
   name={Type Alias},
   description={
-TODO
+%DRAFT
+%osubbo:
+Type alias is a name that refers to a previously defined type.
+
 }}
 
-\newglossaryentry{type category}{
+\longnewglossaryentry{type category}{
   name={Type Category},
   description={
 TODO
 }}
 
-\newglossaryentry{type erasure}{
+\longnewglossaryentry{type deduction}{
+  name={Type Deduction},
+  description={
+TODO
+}}
+
+\longnewglossaryentry{type erasure}{
   name={Type Erasure},
   description={
 TODO
 }}
 
-\newglossaryentry{type inference}{
+\longnewglossaryentry{type expression}{
+  name={Type Expression},
+  nonumberlist,
+  description={
+TODO
+}}
+\AtBeginDocument{\glsadd{type expression}}
+
+\longnewglossaryentry{type inference}{
   name={Type Inference},
   description={
 TODO
 }}
 
-\newglossaryentry{type parameter pack}{
+\longnewglossaryentry{type list}{
+  name={Type List},
+  description={
+TODO
+}}
+
+\longnewglossaryentry{type parameter pack}{
   name={Type Parameter Pack},
   description={
 TODO
 }}
 
-\newglossaryentry{type suffix}{
+\longnewglossaryentry{type suffix}{
   name={Type Suffix},
   description={
 TODO
 }}
 
-\newglossaryentry{type template parameter pack}{
+\longnewglossaryentry{type template parameter pack}{
   name={Type Template Parameter Pack},
   description={
 TODO
 }}
 
-\newglossaryentry{type trait}{
+\longnewglossaryentry{type trait}{
   name={Type Trait},
   description={
-TODO
+%DRAFT
+%osubbo:
+Type traits are C++ template metaprogramming technic that gives you the ability to inspect and transform the properties of types.
 }}
 
-\newglossaryentry{type traits}{
-  name={Type Traits},
+\longnewglossaryentry{UDL operator}{
+  name={UDL Operator},
   description={
 TODO
 }}
 
-\newglossaryentry{UDT}{
-  name={UDT},
+\longnewglossaryentry{UDL suffix}{
+  name={UDL Suffix},
   description={
 TODO
 }}
 
-\newglossaryentry{UTF 16}{
+\longnewglossaryentry{UDL type category}{
+  name={UDL Type Categories},
+  description={
+TODO
+}}
+
+\longnewglossaryentry{UTF 16}{
   name={UTF 16},
   description={
 TODO
 }}
 
-\newglossaryentry{UTF 32}{
+\longnewglossaryentry{UTF 32}{
   name={UTF 32},
   description={
 TODO
 }}
 
-\newglossaryentry{UTF 8}{
+\longnewglossaryentry{UTF 8}{
   name={UTF 8},
   description={
 TODO
 }}
 
-\newglossaryentry{UTF-16}{
+\longnewglossaryentry{UTF-16}{
   name={UTF-16},
   nonumberlist,
   description={
@@ -2614,7 +3436,7 @@ TODO
 }}
 \AtBeginDocument{\glsadd{UTF-16}}
 
-\newglossaryentry{UTF-32}{
+\longnewglossaryentry{UTF-32}{
   name={UTF-32},
   nonumberlist,
   description={
@@ -2622,7 +3444,7 @@ TODO
 }}
 \AtBeginDocument{\glsadd{UTF-32}}
 
-\newglossaryentry{UTF-8}{
+\longnewglossaryentry{UTF-8}{
   name={UTF-8},
   nonumberlist,
   description={
@@ -2630,358 +3452,393 @@ TODO
 }}
 \AtBeginDocument{\glsadd{UTF-8}}
 
-\newglossaryentry{udl operator}{
-  name={Udl Operator},
-  description={
-TODO
-}}
-
-\newglossaryentry{UDL operator}{
-  name={Udl Operator},
-  description={
-TODO
-}}
-
-\newglossaryentry{udl suffix}{
-  name={Udl Suffix},
-  description={
-TODO
-}}
-
-\newglossaryentry{UDL suffix}{
-  name={Udl Suffix},
-  description={
-TODO
-}}
-
-\newglossaryentry{udl type category}{
-  name={Udl Type Category},
-  description={
-TODO
-}}
-
-\newglossaryentry{UDL type category}{
-  name={Udl Type Category},
-  description={
-TODO
-}}
-
-\newglossaryentry{undefined}{
+\longnewglossaryentry{undefined}{
   name={Undefined},
   description={
-TODO
+%LORI: This is from one reference in noreturn where the phrase "that behavior is \emcppsgloss{undefined}" is used.  Please change the markup to "that behavior is \emcppsgloss[undefined behavior]{undefined}", then this entry can go away.
 }}
 
-\newglossaryentry{undefined behavior}{
+\longnewglossaryentry{undefined behavior}{
   name={Undefined Behavior},
   description={
-TODO
+%DRAFT
+%osubbo:
+Undefined behavior is the behavior of the program that is prescribed to be undefined. Example of undefined behaviour is division by 0.
 }}
 
-\newglossaryentry{undefined symbols}{
+\longnewglossaryentry{undefined symbols}{
   name={Undefined Symbols},
   description={
-TODO
+%DRAFT
+%osubbo:
+Undefined symbols are symbol references in an object file that are not bound to a symbol definition. 
 }}
 
-\newglossaryentry{underlying type}{
+\longnewglossaryentry{underlying type}{
   name={Underlying Type},
   description={
-TODO
+%DRAFT
+%osubbo:
+An integral type used to represent values of an enumeration.
 }}
 
-\newglossaryentry{underlying type (UT)}{
-  name={Underlying Type (Ut)},
+\longnewglossaryentry{underlying type (UT)}{
+  name={Underlying Type (UT)},
   description={
 TODO
 }}
 
-\newglossaryentry{unevaluated contexts}{
+\longnewglossaryentry{unevaluated contexts}{
   name={Unevaluated Contexts},
   description={
 TODO
 }}
 
-\newglossaryentry{unification}{
+\longnewglossaryentry{unification}{
   name={Unification},
   description={
 TODO
 }}
 
-\newglossaryentry{uniform initialization}{
+\longnewglossaryentry{uniform initialization}{
   name={Uniform Initialization},
   description={
 TODO
 }}
 
-\newglossaryentry{unnamed namespace}{
+\longnewglossaryentry{unnamed namespace}{
   name={Unnamed Namespace},
   description={
 TODO
 }}
 
-\newglossaryentry{unqualified name lookup}{
+\longnewglossaryentry{unqualified name lookup}{
   name={Unqualified Name Lookup},
   description={
 TODO
 }}
 
-\newglossaryentry{usable literal type}{
+\longnewglossaryentry{usable literal type}{
   name={Usable Literal Type},
   description={
 TODO
 }}
 
-\newglossaryentry{user defined literal (UDL)}{
-  name={User Defined Literal (Udl)},
-  description={
-TODO
-}}
-
-\newglossaryentry{user defined type}{
-  name={User Defined Type},
-  description={
-TODO
-}}
-
-\newglossaryentry{user defined type (UDT)}{
-  name={User Defined Type (Udt)},
-  description={
-TODO
-}}
-
-\newglossaryentry{user provided}{
+\longnewglossaryentry{user provided}{
   name={User Provided},
   description={
-TODO
+%DRAFT
+%osubbo:
+Definition of a function or class methods written by a programmer.
+
 }}
 
 \longnewglossaryentry{user provided special member function}{
   name={User Provided Special Member Function},
   description={
-In the C++11 standard, a special member function is considered \emcppsglossgloss{user-provided} if it has been explicitly declared by the programmer and not explicitly defaulted or deleted in its first declaration:
-
-%begin{emcppslisting}
-%struct S0
-%{
-%    S0(); // User-provided
-%};
-%
-%struct S1
-%{
-%    S1() = default; // Not user-provided
-%};
-%\end{emcppslisting}
-
-One of the requirement for a special member function to be considered \emcppsglossgloss{trivial} is that it is not user-provided. Trivial classes (i.e. with all special member function being trivial) have special semantics (e.g. they can be safely used with \lstinline!std::memcpy!, or copied into a suitable array of \lstinline!char! and back). See %[Generalized PODs]{.xref} for more information.
+In the C++11 standard, a special member function is considered \emcppsglossgloss{user-provided} if it has been explicitly declared by the programmer and not explicitly defaulted or deleted in its first declaration. One of the requirement for a special member function to be considered \emcppsglossgloss{trivial} is that it is not user-provided. Trivial classes (i.e. with all special member function being trivial) have special semantics (e.g. they can be safely used with \texttt{std::memcpy}, or copied into a suitable array of \texttt{char} and back). See \featureref{\locationc}{gpods} for more information.
 }}
 
-\newglossaryentry{user provided special member functions}{
-  name={User Provided Special Member Functions},
+\longnewglossaryentry{user defined literal (UDL)}{
+  name={User-Defined Literal (UDL)},
   description={
 TODO
 }}
 
-\newglossaryentry{user provied}{
-  name={User Provied},
+\longnewglossaryentry{user defined type (UDT)}{
+  name={User-Defined Type (UDT)},
   description={
-TODO
+%DRAFT
+%osubbo:
+A user-defined data type (UDT) is a data type that derived from an existing data type.
 }}
 
-\newglossaryentry{using declaration}{
-  name={Using Declaration},
-  description={
-TODO
-}}
-
-\newglossaryentry{using directive}{
-  name={Using Directive},
-  description={
-TODO
-}}
-
-\newglossaryentry{value}{
+\longnewglossaryentry{value}{
   name={Value},
   description={
-TODO
+%DRAFT
+%osubbo:
+A value is the representation of some entity that can be manupulated by a program.
 }}
 
-\newglossaryentry{value category}{
+\longnewglossaryentry{value category}{
   name={Value Category},
   description={
 TODO
 }}
 
-\newglossaryentry{value constructor}{
+\longnewglossaryentry{value constructor}{
   name={Value Constructor},
   description={
-TODO
+%DRAFT
+%osubbo:
+A constructor that initializes object's data members from the constructor arguments.
 }}
 
-\newglossaryentry{value initialization}{
+\longnewglossaryentry{value initialization}{
   name={Value Initialization},
   description={
 TODO
 }}
 
-\newglossaryentry{value initialized}{
+\longnewglossaryentry{value initialized}{
   name={Value Initialized},
   description={
 TODO
 }}
 
-\newglossaryentry{value semantic}{
+\longnewglossaryentry{value semantic}{
   name={Value Semantic},
   description={
 TODO
 }}
 
-\newglossaryentry{value semantic type}{
-  name={Value Semantic Type},
+\longnewglossaryentry{value semantics}{
+  name={Value Semantics},
+  alts={{value value value},
+       },
+  nonumberlist,
+  description={
+a property of the type
+}}
+\AtBeginDocument{\glsadd{value semantics}}
+
+\longnewglossaryentry{value semantic type (VST)}{
+  name={Value-Semantic Type (VST)},
   description={
 TODO
 }}
 
-\newglossaryentry{variable}{
+\longnewglossaryentry{variable}{
   name={Variable},
   description={
 TODO
 }}
 
-\newglossaryentry{variadic class template}{
+\longnewglossaryentry{variable template}{
+  name={Variable Template},
+  description={
+TODO
+}}
+
+\longnewglossaryentry{variadic class template}{
   name={Variadic Class Template},
   description={
 TODO
 }}
 
-\newglossaryentry{variadic function template}{
+\longnewglossaryentry{variadic function template}{
   name={Variadic Function Template},
   description={
 TODO
 }}
 
-\newglossaryentry{variadic macros}{
-  name={Variadic Macros},
-  description={
-TODO
-}}
-
-\newglossaryentry{variadic member function template}{
+\longnewglossaryentry{variadic member function template}{
   name={Variadic Member Function Template},
   description={
 TODO
 }}
 
-\newglossaryentry{vocabulary types}{
-  name={Vocabulary Type},
+\longnewglossaryentry{variadic macros}{
+  name={Variadic Pack},
   description={
 TODO
 }}
 
-\newglossaryentry{vocabulary type}{
-  name={Vocabulary Type},
+\longnewglossaryentry{variadic pack}{
+  name={Variadic Pack},
   description={
 TODO
 }}
 
-\newglossaryentry{well formed}{
+\longnewglossaryentry{vocabulary type}{
+  name={Vocabulary Type},
+  description={
+%DRAFT
+%osubbo:
+A vocabulary type is a type that holds a value or performs a service that is used widely in the interface of classes and/or free functions.
+}}
+
+\longnewglossaryentry{vocabulary types}{
+  name={Vocabulary Types},
+  description={
+TODO
+}}
+
+\longnewglossaryentry{well formed}{
   name={Well Formed},
   description={
 TODO
 }}
 
-\newglossaryentry{with parentheses}{
+\longnewglossaryentry{with parentheses}{
   name={With Parentheses},
   description={
 TODO
 }}
 
-\newglossaryentry{without parentheses}{
+\longnewglossaryentry{without parentheses}{
   name={Without Parentheses},
   description={
 TODO
 }}
 
-\newglossaryentry{witness}{
+\longnewglossaryentry{witness}{
   name={Witness},
   description={
 TODO
 }}
 
-\newglossaryentry{witness argument}{
+\longnewglossaryentry{witness argument}{
   name={Witness Argument},
   description={
 TODO
 }}
 
-\newglossaryentry{working set}{
+\longnewglossaryentry{working set}{
   name={Working Set},
   description={
 TODO
 }}
 
-\newglossaryentry{zero initialized}{
+\longnewglossaryentry{zero initialized}{
   name={Zero Initialized},
   description={
-TODO
+%DRAFT
+%osubbo:
+Object whose initial value is set to zero.
+
+The effects of zero initialization of an object of type T are:
+*   If T is a scalar type, the object's initial value is the integral constant zero explicitly converted to T.
+*   If T is an non-union class type, all base classes and non-static data members are zero-initialized, and all padding is initialized to zero bits. The constructors, if any, are ignored.
+*   If T is a union type, the first non-static named data member is zero-initialized and all padding is initialized to zero bits.
+*   If T is array type, each element is zero-initialized.
 }}
 
-\newglossaryentry{copy initialization}{
-  name={copy initialization},
+\longnewglossaryentry{lvalue reference}{
+  name={lvalue Reference},
   description={
 TODO
 }}
 
-\newglossaryentry{expression template}{
-  name={expression template},
+\longnewglossaryentry{rvalue reference}{
+  name={rvalue reference},
   description={
 TODO
 }}
 
-\newglossaryentry{function template argument type deduction}{
-  name={function template argument type deduction},
+\longnewglossaryentry{lvalue}{
+  name={lvalue},
+  nonumberlist,
+  description={
+TODO
+}}
+\AtBeginDocument{\glsadd{lvalue}}
+
+\longnewglossaryentry{prvalue}{
+  name={prvalue},
+  nonumberlist,
+  description={
+TODO
+}}
+\AtBeginDocument{\glsadd{prvalue}}
+
+\longnewglossaryentry{rvalue}{
+  name={rvalue},
   description={
 TODO
 }}
 
-\newglossaryentry{inline namespace}{
+\longnewglossaryentry{explicit specifier}{
+  name={explicit Specifier},
+  description={
+%DRAFT
+%bchapman:
+The 'explicit' keyword, when specified on a constructor, means that the
+constructor will not be called implicitly, and must be specifically called.
+
+}}
+
+\longnewglossaryentry{inline namespace}{
   name={inline namespace},
   description={
-TODO
+%DRAFT
+%bchapman:
+In C++11 and beyond, inline namespaces are available.  Objects defined within
+an inline namespace can be accessed without specifying the name of the inline
+namespace.  
 }}
 
-\newglossaryentry{integral constant}{
-  name={integral constant},
+\longnewglossaryentry{new handler}{
+  name={new Handler},
   description={
 TODO
 }}
 
-\newglossaryentry{placeholder type}{
-  name={placeholder type},
+
+\longnewglossaryentry{std::uniqueptr}{
+  name={std::unique\_ptr},
+  description={
+%LORI: This is put in lambdacapture twice as a glossary term, but nowhere else have we made a standard library type a glossary term.  The emcppsgloss should be taken off those uses (2 in lambdacapture) and then this entry should go away.
+}}
+
+\longnewglossaryentry{using declaration}{
+  name={using Declaration},
+  description={
+%DRAFT
+%osubbo:
+Using-declarations is used to introduce namespace members into other namespaces and block scopes, 
+or to introduce base class members into derived class definitions, or to introduce enumerators 
+into namespaces, block, and class scopes (since C++20).
+}}
+
+\longnewglossaryentry{using directive}{
+  name={using Directive},
+  description={
+%DRAFT
+%osubbo:
+using namespace <ns-name> 
+Makes every name from ns-name visible in the nearest enclosing namespace for the purposes of unqualified name lookup.
+
+}}
+
+\longnewglossaryentry{automatic variable}{
+  name={automatic variable},
+  nonumberlist,
+  description={
+TODO
+}}
+\AtBeginDocument{\glsadd{automatic variable}}
+
+\longnewglossaryentry{const default constructible}{
+  name={const Default Constructible},
   description={
 TODO
 }}
 
-\newglossaryentry{recursion}{
-  name={recursion},
+\longnewglossaryentry{false sharing}{
+  name={false sharing},
   description={
 TODO
 }}
 
-\newglossaryentry{storage class specifier}{
-  name={storage class specifier},
+\longnewglossaryentry{in-process}{
+  name={in-process},
+  nonumberlist,
+  description={
+TODO
+}}
+\AtBeginDocument{\glsadd{in-process}}
+
+\longnewglossaryentry{lambda introducer}{
+  name={lambda introducer (adj)},
   description={
 TODO
 }}
 
-\newglossaryentry{trivially destructible}{
-  name={trivially destructible},
+\longnewglossaryentry{TLB}{
+  name={t=Translation-Lookaside Buffer (TLB)},
   description={
 TODO
 }}
 
-\newglossaryentry{variable template}{
-  name={variable template},
-  description={
-TODO
-}}

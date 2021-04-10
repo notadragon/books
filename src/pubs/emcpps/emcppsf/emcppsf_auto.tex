@@ -680,13 +680,23 @@ In fairness, a better solution for this particular problem would be to declare \
 \begin{emcppslisting}
 template <typename R1, typename P1, typename R2, typename P2>
 std::chrono::seconds combine_durations(std::chrono::duration<R1, P1> d1,
-                                       std::chrono::duration<R2, P2> d2) {
-    auto d = std::chrono::seconds{d1 + d2};
-    // ...
+                                       std::chrono::duration<R2, P2> d2)
+{
+    auto d = std::chrono::seconds{d1 + d2};
+    // ...
 }
 \end{emcppslisting}
 
-%\begin{emcppslisting} %template <typename R1, typename P1, typename R2, typename P2> %std::chrono::seconds combine_durations(std::chrono::duration<R1, P1> d1, %                                       std::chrono::duration<R2, P2> d2) %{ %    auto d = std::chrono::seconds{d1 + d2}; %    // ... %} %\end{emcppslisting}
+%\begin{emcppslisting}
+
+%template <typename R1, typename P1, typename R2, typename P2>
+%std::chrono::seconds combine_durations(std::chrono::duration<R1, P1> d1,
+%                                       std::chrono::duration<R2, P2> d2)
+%{
+%    auto d = std::chrono::seconds{d1 + d2};
+%    // ...
+%}
+%\end{emcppslisting}
 
 \noindent The definition above obviates any possible risks related to the use of \lstinline!auto! because calls with undesirable argument types are not accepted in the first place.
 
