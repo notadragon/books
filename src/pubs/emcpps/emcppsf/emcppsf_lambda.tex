@@ -1274,6 +1274,7 @@ void f1()
 {
     int a;
     auto c1 = [a](short* a){ /* ... */ };  // Error, parameter shadows captured (ù{\codeincomments{a}}ù).
+    auto c1 = [a](short* a){ /*...*/ };  // Error, parameter shadows captured a.
     auto c2 = [](short* a){ /* ... */ };   // OK, parameter hides local (ù{\codeincomments{a}}ù).
     auto c3 = [=](short* a){ /* ... */ };  // OK, local (ù{\codeincomments{a}}ù) is not captured.
 }
