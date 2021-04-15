@@ -1,0 +1,1196 @@
+% 14 April 2021, LaTeX cleanup and command update; sent to Josh for code check 
+
+
+
+
+
+\emcppsFeature{
+    short={Ref-Qualifiers},
+    long={Reference-Qualified Member Functions},
+}{refqualifiers}
+\label{ref-qualified-member-functions}
+\setcounter{table}{0}
+\setcounter{footnote}{0}
+\setcounter{lstlisting}{0}
+%\section[Ref-Qualifiers]{Reference Qualified Member Functions}\label{refqualifiers}
+% \subsection[Ref-Qualified Member Functions]{Ref-Qualified Member Functions}\label{ref-qualified-member-functions}
+
+Ref-qualifiers allow developers to overload a nonstatic member function
+based on the \emcppsgloss{value category} of the class object.
+
+\subsection[Description]{Description}\label{description}
+
+Even before standardization, C++ supported decorating nonstatic member
+functions with cv-qualifiers and allowed overloading on those
+qualifiers:
+
+\begin{emcppslisting}
+struct Class1
+{
+    void member1() const;     // (1) (ù{\codeincomments{const}}ù)-qualified member
+    void member2();           // (2) no qualifiers
+    void member2() volatile;  // (3) (ù{\codeincomments{volatile}}ù)-qualified overload of (2)
+};
+
+void f1()
+{
+    Class1          v1;
+    const Class1    v2;
+    volatile Class1 v3;
+
+    v1.member1();  // Calls function (1).
+    v2.member1();  // Calls function (1).
+
+    v1.member2();  // Calls overloaded function (2).
+    v3.member2();  // Calls overloaded function (3).
+
+    v3.member1();  // Error, no (ù{\codeincomments{member1}}ù) overload matches a (ù{\codeincomments{volatile}}ù) object.
+    v2.member2();  // Error,  " (ù{\codeincomments{member2}}ù)     "       "    " (ù{\codeincomments{const}}ù)       "
+}
+\end{emcppslisting}
+    
+
+\noindent The \emcppsgloss[cv qualifiers]{cv-qualifiers}, \lstinline!const! and/or \lstinline!volatile!,
+appearing after the parameter list in the member function prototype
+apply to the object on which the member is called and allow us to
+overload on the cv-qualification of that object. Overload resolution
+will select the closest match whose \emcppsgloss[cv qualifiers]{cv-qualifiers} are the same
+as, or more restrictive than, the object's cv-qualification; hence,
+\lstinline!v1.member1()! calls a \lstinline!const!-qualified member even
+though \lstinline!v1! is not \lstinline!const!. A qualifier cannot be dropped
+during overload resolution, however, so \lstinline!v3.member1()! and
+\lstinline!v2.member2()! are ill formed.
+
+C++11 introduced a similar feature, adding optional qualifiers that
+indicate the valid \emcppsgloss[value category]{value categories} for the expression a member
+function may be invoked on. Declaring a member function overload
+specifically for \romeovalue{rvalue} expressions, for example, allows library
+writers to make better use of move semantics. Note that readers of this
+feature are presumed to be familiar with \emcppsgloss[value category]{value categories} (see \ref{appendix-value-categories}) and, in
+particular, the distinction between \romeovalue{lvalue} and \romeovalue{rvalue}
+references (see \featureref{\locationc}{Rvalue-References}:
+
+\begin{emcppslisting}
+struct Class2
+{
+    void member() &;   // (1)
+    void member() &&;  // (2)
+};
+\end{emcppslisting}
+    
+
+\noindent Each member function with a trailing \lstinline!&! or \lstinline!&&! is
+said to be \emcppsgloss[ref-qualifiers]{ref-qualified}; the trailing \lstinline!&! or
+\lstinline!&&! symbols are called \emcppsgloss{ref-qualifiers}. The
+\lstinline!&! \emcppsgloss[ref-qualifiers]{ref-qualifier} on overload (1), above, restricts
+that overload to \romeovalue{lvalue} expressions. The \lstinline!&&!
+\emcppsgloss[ref-qualifiers]{ref-qualifier} on overload (2) restricts that overload to
+\romeovalue{rvalue} expressions:
+
+\begin{emcppslisting}
+void f1()
+{
+    Class2 v;
+    v.member();         // Calls overloaded function (1)
+    Class2().member();  // Calls overloaded function (2)
+}
+\end{emcppslisting}
+    
+
+\noindent The expression, \lstinline!v!, is an \romeovalue{lvalue}, so \lstinline!v.member()!
+calls the \romeovalue{lvalue}-qualified overload of \lstinline!member!, whereas
+the expression, \lstinline!Class2()!, is an \romeovalue{rvalue}, so calling
+\lstinline!member! on it chooses the \romeovalue{rvalue}-qualified overload.
+
+At the heart of understanding both \emcppsgloss[cv qualifiers]{cv-qualifiers} and
+\emcppsgloss{ref-qualifiers} on member functions is recognizing the existence
+of an implicit parameter by which the class object is passed to the
+function:
+
+\begin{emcppslisting}
+class Class3
+{
+    // ...
+public:
+    void mf(int) &;         // Two parameters: [(ù{\codeincomments{Class3\&}}ù)       ], (ù{\codeincomments{int}}ù)
+    void mf(int) &&;        //  "       "    : [(ù{\codeincomments{Class3\&\&}}ù)      ],   "
+    void mf(int) const &;   //  "       "    : [(ù{\codeincomments{const Class3\&}}ù) ],   "
+    void mf(int) const &&;  //  "       "    : [(ù{\codeincomments{const Class3\&\&}}ù)],   "
+};
+\end{emcppslisting}
+    
+
+\noindent In each of the four overloads of \lstinline!mf!, there is a hidden
+reference parameter (shown in square brackets in the comments) in
+addition to the explicitly declared \lstinline!int! parameter. The
+qualifiers at the end of the declarator, i.e., after the parameter list,
+specify the \emcppsgloss[cv qualifiers]{cv-qualifiers} and \emcppsgloss[ref-qualifiers]{ref-qualifier} for this
+implicit reference. The \lstinline!this! pointer holds the address of the
+object passed for this implicit parameter:
+
+\begin{emcppslisting}
+void Class3::mf(/* [Class3& __self,] */ int i) &
+{
+    // Implicit (ù{\codeincomments{Class3 *const this = \&\_\_self}}ù)
+    // ...
+}
+
+void Class3::mf(/* [Class3&& __self,] */ int i) &&
+{
+    // Implicit (ù{\codeincomments{Class3 *const this = \&\_\_self}}ù)
+    // ...
+}
+
+void Class3::mf(/* [const Class3& __self,] */ int i) const &
+{
+    // Implicit (ù{\codeincomments{const Class3 *const this = \&\_\_self}}ù)
+    // ...
+}
+
+void Class3::mf(/* [const Class3&& __self,] */ int i) const &&
+{
+    // Implicit (ù{\codeincomments{const Class3 *const this = \&\_\_self}}ù)
+    // ...
+}
+\end{emcppslisting}
+    
+
+\noindent For descriptive purposes, we will refer to the implicit reference
+parameter as \lstinline!__self! throughout this section; in reality, it
+has no name and cannot be accessed from code. The \lstinline!this! pointer
+within the function is, therefore, the address of \lstinline!__self!.
+Note that the type of \lstinline!this! does not reflect whether
+\lstinline!__self! is an \romeovalue{lvalue} reference or an \romeovalue{rvalue}
+reference; pointer types do not convey the \emcppsgloss{value category} of
+the pointed-to object.
+
+When a member function of an object is called, overload resolution finds
+the best match for the \emcppsgloss{value category} and cv-qualification of
+all of its arguments, including the implicit \lstinline!__self! argument:
+
+\begin{emcppslisting}
+#include <utility>  // (ù{\codeincomments{std::move}}ù)
+
+Class3 makeObj();
+
+void f2()
+{
+    Class3          obj1;
+    const Class3    obj2;
+    volatile Class3 obj3;
+    const Class3&   r1 = obj1;
+    Class3&&        r2 = std::move(obj1);  // Note: (ù{\codeincomments{r2}}ù) is an (ù{\emphincomments{lvalue}}ù)
+
+    obj1.mf(0);  // Call (ù{\codeincomments{mf(int) \&}}ù)
+    obj2.mf(0);  // Call (ù{\codeincomments{mf(int) const \&}}ù)
+    obj3.mf(0);  // Error, no overload, (ù{\codeincomments{mf(int) volatile \&}}ù)
+    r1.mf(0);    // Call (ù{\codeincomments{mf(int) const \&}}ù)
+    r2.mf(0);    // Call (ù{\codeincomments{mf(int) \&}}ù)
+
+    makeObj().mf(0);        // Call (ù{\codeincomments{mf(int) \&\&}}ù)
+    std::move(obj1).mf(0);  // Call (ù{\codeincomments{mf(int) \&\&}}ù)
+    std::move(obj2).mf(0);  // Call (ù{\codeincomments{mf(int) const \&\&}}ù)
+}
+\end{emcppslisting}
+    
+
+\noindent The three objects, \lstinline!obj1!, \lstinline!obj2!, and \lstinline!obj3!, are
+\romeovalue{lvalues}, so calls to \lstinline!mf! will match only the
+\romeovalue{lvalue} reference overloads, i.e., those with a \lstinline!&!
+\emcppsgloss[ref-qualifiers]{ref-qualifier}. As always, overload resolution will pick the
+version of \lstinline!mf! that best matches the cv-qualification of the
+object, without dropping any qualifiers. Thus, the call to
+\lstinline!obj2.mf(0)! selects the \lstinline!const! overload whereas the call
+to \lstinline!obj3.mf(0)! fails because all candidate functions would
+require dropping the \lstinline!volatile! qualifier. The \lstinline!const!
+\romeovalue{lvalue} reference \lstinline!r1! matches the \lstinline!const!
+\romeovalue{lvalue}-qualified \lstinline!__self! even though the object to
+which \lstinline!r1! is bound is not \lstinline!const!. Though declared as an
+\romeovalue{rvalue} reference, a named reference such as \lstinline!r2! is always
+an \romeovalue{lvalue} when used in an expression; hence, \lstinline!r2.mf(0)!
+calls the non\lstinline!const! \romeovalue{lvalue}-qualified overload of
+\lstinline!mf!.
+
+The function \lstinline!makeObj! returns an \romeovalue{rvalue} of type
+\lstinline!Class3!. When \lstinline!mf! is called on that \romeovalue{rvalue}, the
+non\lstinline!const! \romeovalue{rvalue} reference overload is selected. The
+expression \lstinline!std::move(obj1)! also binds to an \romeovalue{rvalue}
+reference and thus selects the same overload. An \romeovalue{rvalue} reference
+to \lstinline!const! occurs relatively rarely in real code, but when it
+happens, it is usually the result of calling \lstinline!std::move! on a
+\lstinline!const! object (e.g., \lstinline!obj2!), especially in generic code.
+Note, however, that a \lstinline!const! \romeovalue{lvalue} reference can be
+bound to an \romeovalue{rvalue}; thus, if a matching \romeovalue{rvalue} reference
+overload is not found, and a \lstinline!const! \romeovalue{lvalue} reference
+overload exists, then the latter will match an \romeovalue{rvalue} reference
+to the class object:
+
+\begin{emcppslisting}
+class Class4
+{
+    // ...
+public:
+    void mf1() &;
+    void mf1() const &;
+    void mf1() &&;
+    // No (ù{\codeincomments{void mf1() const \&\&}}ù) overload.
+
+    void mf2() &;
+    void mf2() const &;
+    // No (ù{\codeincomments{void mf2() \&\&}}ù) overload.
+    // No (ù{\codeincomments{void mf2() const \&\&}}ù) overload.
+};
+
+void f3()
+{
+    const Class4 obj1;
+    Class4       obj2;
+
+    std::move(obj1).mf1();  // Calls (ù{\codeincomments{mf1() const \&}}ù)
+    std::move(obj2).mf2();  // Calls (ù{\codeincomments{mf2() const \&}}ù)
+}
+\end{emcppslisting}
+    
+
+\subsubsection[Syntax and restrictions]{Syntax and restrictions}\label{syntax-and-restrictions}
+
+A \emcppsgloss[ref-qualifiers]{ref-qualifier} is an optional part of a nonstatic member
+function declaration. If present, it must come after any
+\emcppsgloss[cv qualifiers]{cv-qualifiers} and before any exception specification. A
+constructor or destructor may not have a \emcppsgloss[ref-qualifiers]{ref-qualifier}:
+
+\begin{emcppslisting}
+void f1(Class1&) &;  // Error, ref-qualifier on a nonmember function
+
+class Class1
+{
+    // ...
+public:
+    Class1() &&;          // Error, ref-qualifier on constructor.
+    ~Class1() &;          // Error, ref-qualifier on destructor.
+    void mf() & const;    // Error, ref-qualifier before cv-qualification
+    void mf() noexcept&;  // Error, ref-qualifier after exception specification
+    void mf() & &&;       // Error, two ref-qualifiers
+    static void smf() &;  // Error, ref-qualifier on static member
+
+    void mf(int) const && noexcept;  // OK, ref-qualifier correctly placed.
+};
+\end{emcppslisting}
+    
+
+\noindent A member function that does not have a \emcppsgloss[ref-qualifiers]{ref-qualifier} can be
+called for \emph{either} an \romeovalue{lvalue} or an \romeovalue{rvalue}. Thus,
+C++03 code continues to compile and work as before:
+
+\begin{emcppslisting}
+class Class2
+{
+    // ...
+public:
+    void mf();
+    void mf() const;
+};
+
+void f2()
+{
+    Class2       obj1;
+    const Class2 obj2;
+
+    obj1.mf();             // Calls (ù{\codeincomments{mf()}}ù)
+    obj2.mf();             // Calls (ù{\codeincomments{mf() const}}ù)
+    std::move(obj1).mf();  // Calls (ù{\codeincomments{mf()}}ù)
+    std::move(obj2).mf();  // Calls (ù{\codeincomments{mf() const}}ù)
+}
+\end{emcppslisting}
+    
+
+\noindent For a set of overloads having the same name and the same parameter
+types, \emcppsgloss[ref-qualifiers]{ref-qualifiers} must be provided for \emph{all} members
+in that set or for \emph{none} of them:
+
+\begin{emcppslisting}
+class Class3
+{
+    // ...
+public:
+    void mf1(int*);
+    int  mf1(int*) const &;  // Error, prior (ù{\codeincomments{mf1(int*)}}ù) is not ref-qualified
+
+    int  mf2(int) const;
+    void mf2(int);           // OK, neither (ù{\codeincomments{mf2(int)}}ù) is ref-qualified
+
+    int&        mf3() &;
+    const int&  mf3() const &;
+    int&&       mf3() &&;    // OK, *all* (ù{\codeincomments{mf3()}}ù) overloads are ref-qualified
+
+    void mf4(int);
+    void mf4(char*) &&;      // OK, (ù{\codeincomments{mf4(int)}}ù) and (ù{\codeincomments{mf4(char*)}}ù) are different.
+
+    int mf5(int) &;          // OK, not overloaded
+
+    int&& mf6() &&;          // OK, not overloaded
+};
+\end{emcppslisting}
+    
+
+\noindent Note that the overload of \lstinline!mf1! is ill formed even though the
+unqualified and \emcppsgloss[ref-qualifiers]{ref-qualified} versions have different return
+types and different \emcppsgloss[cv qualifiers]{cv-qualifiers}.
+
+Member function templates may also have \emcppsgloss{ref-qualifiers}:
+
+\begin{emcppslisting}
+class Class4
+{
+    // ...
+public:
+    template <typename T> Class4&  mf(const T&) &;
+    template <typename T> Class4&& mf(const T&) &&;
+};
+\end{emcppslisting}
+    
+
+\noindent Within a member function's body, regardless of whether the member has a
+\lstinline!&! \emcppsgloss[ref-qualifiers]{ref-qualifier}, a \lstinline!&&!
+\emcppsgloss[ref-qualifiers]{ref-qualifier}, or no \emcppsgloss[ref-qualifiers]{ref-qualifier} at all, uses of
+\lstinline!*this! and of any nonstatic data members yield \romeovalue{lvalues}.
+Although arguably counterintuitive, this behavior is identical to the
+way that other reference parameters work:
+
+\begin{emcppslisting}
+#include <cassert>  // Standard C (ù{\codeincomments{assert}}ù) macro
+
+template <typename T> bool isLvalue(T&)  { return true; }
+template <typename T> bool isLvalue(T&&) { return false; }
+
+class Class5
+{
+    int d_data;
+public:
+    void mf(int&& arg) &&
+    {
+        assert(isLvalue(arg));     // OK, named reference is an (ù{\codeincomments{lvalue}}ù)
+        assert(isLvalue(*this));   // OK, pointer dereference is an (ù{\codeincomments{lvalue}}ù)
+        assert(isLvalue(d_data));  // OK, member of an (ù{\codeincomments{lvalue}}ù) is an (ù{\codeincomments{lvalue}}ù)
+    }
+
+    void mf(int& arg) &
+    {
+        assert(isLvalue(arg));     // OK, named reference is an (ù{\codeincomments{lvalue}}ù)
+        assert(isLvalue(*this));   // OK, pointer dereference is an (ù{\codeincomments{lvalue}}ù)
+        assert(isLvalue(d_data));  // OK, member of an (ù{\codeincomments{lvalue}}ù) is an (ù{\codeincomments{lvalue}}ù)
+    }
+};
+\end{emcppslisting}
+    
+
+\noindent If a member function calls another member function on the same object,
+only the \romeovalue{lvalue}-qualified overloads are considered:
+
+\begin{emcppslisting}
+struct Class6
+{
+    bool mf1() &  { return false; }  // Return (ù{\codeincomments{false}}ù) if called on (ù{\emphincomments{lvalue}}ù)
+    bool mf1() && { return true; }   //    "   (ù{\codeincomments{true}}ù)   "    "    " (ù{\emphincomments{rvalue}}ù)
+
+    void mf2() && { assert(false == mf1()); }  // Calls (ù{\emphincomments{lvalue}}ù) overload
+};
+\end{emcppslisting}
+    
+
+\noindent Function \lstinline!mf2!, although \romeovalue{rvalue}-qualified, nevertheless
+calls the \romeovalue{lvalue}-qualified overload of \lstinline!mf1! because
+\lstinline!*this! is an \romeovalue{lvalue}. If the desired behavior is to
+propagate the \emcppsgloss{value category} of the object on which it was
+called, \lstinline!std::move! (or another reference cast) must be used:
+
+\begin{emcppslisting}
+#include <utility>  // std::move
+
+class Class7
+{
+    int d_data;
+
+public:
+    bool mf1() &  { return false; }  // Return (ù{\codeincomments{false}}ù) if called on (ù{\emphincomments{lvalue}}ù)
+    bool mf1() && { return true; }   //    "   (ù{\codeincomments{true}}ù)   "    "    " (ù{\emphincomments{rvalue}}ù)
+
+    void mf2(int&& arg) &&
+    {
+        assert(! isLvalue(std::move(arg)));
+        assert(! isLvalue(std::move(*this)));
+        assert(! isLvalue(std::move(d_data)));
+
+        assert(std::move(*this).mf1());
+    }
+};
+\end{emcppslisting}
+    
+
+\noindent In this example, each call to \lstinline!std::move! \emph{reconstitutes}
+the \emcppsgloss{value category} of the original object. Note that we must
+mention \lstinline!*this! explicitly in order to call the
+\romeovalue{rvalue}-qualified overload of \lstinline!mf1!.
+
+The \emcppsgloss[ref-qualifiers]{ref-qualifier}, if any, is part of a member function's
+signature and is, therefore, part of its type and the type of a
+corresponding pointer to member function:
+
+\begin{emcppslisting}
+struct Class8
+{
+    void mf1(int) &;   // (1)
+    void mf1(int) &&;  // (2)
+
+    void mf2(int);     // (3)
+};
+
+using Plqf = void (Class8::*)(int)&;   // pointer to (ù{\emphincomments{lvalue}}ù)-qualified function
+using Prqf = void (Class8::*)(int)&&;  //    "     " (ù{\emphincomments{rvalue}}ù)-qualified     "
+using Puqf = void (Class8::*)(int);    //    "     " unqualified            "
+
+void f8()
+{
+    Plqf lq = &Class8::mf1;  // OK, pointer to member function (1)
+    Prqf rq = &Class8::mf1;  // OK,    "     "    "       "    (2)
+    Puqf xq = &Class8::mf1;  // Error, mf1 is ref-qualified but (ù{\codeincomments{Puqf}}ù) is not.
+
+    Puqf uq = &Class8::mf2;  // OK, pointer to member function (3)
+    Plqf yq = &Class8::mf2;  // Error, (ù{\codeincomments{mf2}}ù) is not ref-qualified but (ù{\codeincomments{Plqf}}ù) is.
+
+    Class8 v;
+    (v.*lq)(0);         // Call (ù{\codeincomments{v.mf1(int)}}ù), overload (1)
+    (Class8{}.*rq)(1);  // Call (ù{\codeincomments{Class8\{\}.mf1(int)}}ù), overload (2)
+    (v.*rq)(2);         // Error, (ù{\codeincomments{rq}}ù) expects an (ù{\emphincomments{rvalue}}ù) object.
+}
+\end{emcppslisting}
+    
+
+\noindent Note that \lstinline!Plqf!, \lstinline!Prqf!, and \lstinline!Puqf! are three
+different, mutually-incompatible, types that reflect the
+\emcppsgloss[ref-qualifiers]{ref-qualifier} of the member function they each point to.
+
+\subsection[Use Cases]{Use Cases}\label{use-cases-refqualifier}
+
+\subsubsection[Returning a subobject of an \romeovalue{rvalue}]{Returning a subobject of an {\sfbsubsubsecitalRomeo rvalue}}\label{returning-a-subobject-of-an-rvalue}
+
+Many classes provide accessors that return a reference to a member of
+the class. We can gain performance benefits if those accessors returned
+\romeovalue{rvalue} references when called on an \romeovalue{rvalue} object:
+
+\begin{emcppslisting}
+#include <utility>  // std::move
+
+class RedString
+{
+   std::string d_value;
+
+public:
+    RedString(const char* s = "") : d_value("Red: ") { d_value += s; }
+
+    std::string&        value() &       { return d_value; }
+    std::string const&  value() const & { return d_value; }
+    std::string&&       value() &&      { return std::move(d_value); }
+
+    // ...
+};
+
+void f2()
+{
+    RedString       rs1("hello");
+    const RedString rs2("world");
+
+    std::string h1 = rs1.value();                   // "Red: hello"
+    std::string h2 = rs2.value();                   // "Red: world"
+    std::string h3 = RedString("goodbye").value();  // "Red: goodbye"
+
+    std::string h4 = std::move(rs1).value();        // "Red: hello"
+    std::string h5 = rs1.value();                   // Bug, *unspecified*
+
+    std::string h6 = std::move(rs2).value();        // "Red: world"
+    std::string h7 = rs2.value();                   // OK, "Red: world"
+}
+\end{emcppslisting}
+    
+
+\noindent The \lstinline!RedString! class provides three \emcppsgloss[ref-qualifiers]{ref-qualified}
+overloads of \lstinline!value!. When \lstinline!value! is called on
+\lstinline!rs1! and \lstinline!rs2!, the non\lstinline!const! and \lstinline!const!
+\romeovalue{lvalue}-qualified overloads, respectively, are selected. Both
+return an \romeovalue{lvalue} reference to \lstinline!std::string!, so
+\lstinline!h1! and \lstinline!h2! are constructed using the copy constructor,
+as usual. In the case of the temporary variable created by
+\lstinline!RedString("goodbye")!, however, the \romeovalue{rvalue}-qualified
+overload of \lstinline!value! is selected. It returns an \romeovalue{rvalue}
+reference, so \lstinline!h3! is invoked using the move constructor, which
+is more efficient.
+
+As in the case of most such code, it is assumed that an \romeovalue{rvalue}
+reference refers to an object whose state no longer matters after
+evaluation of the expression. When that assumption doesn't hold,
+unexpected results may occur, as in the case of \lstinline!h5!, which is
+initialized from a moved-from string, yielding a valid but unspecified
+string value.
+
+The \lstinline!value! method is not overloaded for a \lstinline!const!
+\romeovalue{rvalue}-qualified object. Invoking it for such a (rarely
+encountered) type selects the \lstinline!const! \romeovalue{lvalue}-qualified
+overload, as \romeovalue{rvalues} can always be bound to \lstinline!const!
+\romeovalue{lvalue} references. As a result, \lstinline!h6! is initialized from a
+\lstinline!const!~\lstinline!std::string&!, invoking the copy constructor and
+leaving \lstinline!rs2! unmodified.
+
+One danger of this design is that the reference returned from the
+\romeovalue{rvalue}-qualified overload could outlive the \lstinline!RedString!
+object:
+
+\begin{emcppslisting}
+void f3()
+{
+    std::string&& s = RedString("goodbye").value();
+    char c = s[0];  // Bug, (ù{\codeincomments{s}}ù) refers to a deleted string
+}
+\end{emcppslisting}
+    
+
+\noindent The temporary variable created by the expression
+\lstinline!RedString("goodbye")! is destroyed at the end of the statement;
+\emcppsgloss{lifetime extension} does not come into play because \lstinline!s!
+is not bound to the temporary object itself, but to a reference returned
+by the \lstinline!value! method. This situation can be avoided by returning
+by \romeovalue{value} rather than by reference:
+
+\begin{emcppslisting}
+class BlueString
+{
+   std::string d_value;
+
+public:
+    BlueString(const char* s = "") : d_value("Blue: ") { d_value += s; }
+
+    std::string&        value() &       { return d_value; }
+    std::string const&  value() const & { return d_value; }
+    std::string         value() &&      { return std::move(d_value); }
+
+    // ...
+};
+
+void f4()
+{
+    std::string h = BlueString("hello").value();
+
+    std::string&& s = BlueString("goodbye").value();
+    char c = s[0];  // OK, lifetime of (ù{\codeincomments{s}}ù) has been extended
+}
+\end{emcppslisting}
+    
+
+\noindent The expression \lstinline!BlueString("hello").value()! yields a temporary
+\lstinline!std::string! initialized via move-construction from the member
+variable \lstinline!d_value!. The variable \lstinline!h! is, in turn,
+move-constructed from the temporary variable. Compared to the
+\lstinline!RedString! version of \lstinline!value! that returned an
+\romeovalue{rvalue} reference, this sequence logically has one extra move
+operation (two move-constructor calls instead of one). This extra move
+does not pose a problem in practice because (a) move construction of
+\lstinline!std::string! objects is cheap and (b) most C++11 and C++14
+compilers will \emph{elide} the extra move anyway, yielding equivalent
+code to the \lstinline!RedString! case.{\cprotect\footnote{Beginning with
+C++17, the description of the way return values are initialized
+changed so as to no longer \emph{materialize} a temporary variable in
+this situation. This change is sometimes referred to as
+\emph{mandatory copy/move elision} because, in addition to defining a
+more consistent and portable semantic, it effectively legislates the
+  optimization that was previously optional.}}
+
+Similarly, the expression \lstinline!BlueString("goodbye").value()! yields
+a temporary \lstinline!std::string!, but in this case the temporary
+variable is bound to the reference, \lstinline!s!, which causes its
+lifetime to be extended until \lstinline!s! goes out of scope. Thus,
+\lstinline!s[0]! safely indexes a string that is still live.
+
+Note one more, rather subtle, difference between the behavior of
+\lstinline!value! for \lstinline!RedString! versus \lstinline!BlueString!:
+
+\begin{emcppslisting}
+void f5()
+{
+    RedString  rs("hello");
+    BlueString bs("hello");
+
+    std::move(rs).value();  // (ù{\codeincomments{rs.d\_value}}ù) is unchanged
+    std::move(bs).value();  // (ù{\codeincomments{bs.d\_value}}ù) is moved from
+}
+\end{emcppslisting}
+    
+
+\noindent Calling \lstinline!value! on an \romeovalue{rvalue} of type \lstinline!RedString!
+doesn't actually change the value of \lstinline!d_value!; it is not until
+the returned \romeovalue{rvalue} reference is actually used (e.g., in a move
+constructor) that \lstinline!d_value! is changed. Thus, if the return
+value is ignored, nothing happens. Conversely, for \lstinline!BlueString!,
+the return of \lstinline!value! is always move constructed, causing
+\lstinline!d_value! to end up in a moved-from state, even if the return
+value is ultimately ignored. This difference in behavior is seldom
+important in practice, as reasonable code will assume nothing about the
+value of a variable after it was used as the argument to
+\lstinline!std::move!.
+
+\subsubsection[Forbidding modifying operations on \romeovalue{rvalues}]{Forbidding modifying operations on {\sfbsubsubsecitalRomeo rvalues}}\label{forbidding-modifying-operations-on-rvalues}
+
+Modifying an \romeovalue{rvalue} means modifying a temporary object that is
+about to go out of scope. A common example of a bug resulting from this
+behavior is accidental assignment to a temporary object. Consider a
+simple \lstinline!Employee! class with a \lstinline!name! accessor and a
+function that attempts to set the name:
+
+\begin{emcppslisting}
+class Employee
+{
+public:
+    // ...
+    std::string name() const;
+    // ...
+};
+
+void f1(Employee& e)
+{
+    e.name() = "Fred";
+}
+\end{emcppslisting}
+    
+
+\noindent The programmer probably thought that the assignment to \lstinline!e.name()!
+would result in updating the name of the \lstinline!Employee! object
+referenced by \lstinline!e!. Instead, it modifies the temporary string
+returned by \lstinline!e.name()!, having no effect whatsoever except,
+possibly, to consume CPU resources.
+
+One way to prevent these sorts of accidents is to design a class
+interface with \emcppsgloss[ref-qualifiers]{ref-qualified} modifiers that are callable only
+for non\lstinline!const! \romeovalue{lvalues}:
+
+\begin{emcppslisting}
+class Name
+{
+    std::string d_value;
+
+public:
+    Name() = default;
+    Name(const char* s) : d_value(s) {}
+    Name(const Name&) = default;
+    Name(Name&&) = default;
+
+    Name& operator=(const Name&) & = default;
+    Name& operator=(Name&&) &      = default;
+    // ...
+};
+\end{emcppslisting}
+    
+
+\noindent Note that both the copy- and move-assignment operators for \lstinline!Name!
+are \emcppsgloss[ref-qualifiers]{ref-qualified} for \romeovalue{lvalues} only. Overload resolution
+will not find an appropriate match for assignment to an \romeovalue{rvalue} of
+type \lstinline!Name!:
+
+\begin{emcppslisting}
+class Employee2
+{
+    Name d_name;
+
+public:
+    // ...
+    Name name() const { return d_name; }
+    // ...
+};
+
+void f2(Employee2& e)
+{
+    e.name() = "Fred";  // Error, cannot assign to (ù{\emphincomments{rvalue}}ù) of type (ù{\codeincomments{Name}}ù)
+}
+\end{emcppslisting}
+    
+
+\noindent Now, assignment to the temporary returned by \lstinline!e.name()! fails to
+find a matching assignment operator, so the accidental assignment is
+avoided by an error message. The same approach can be used to avoid many
+other accidental modifications on \romeovalue{rvalues}, including inserting
+elements, erasing elements, etc. Note, however, that modifying a
+temporary is not always a bug; see \intraref{potential-pitfalls-refqualifier}{forbidding-modifications-to-rvalues-breaks-legitimate-use-cases}.
+
+\subsubsection[Forbidding operations on \romeovalue{lvalues}]{Forbidding operations on {\sfbsubsubsecitalRomeo lvalues}}\label{forbidding-operations-on-lvalues}
+
+If an instance of a class is intended to exist only for the duration of
+a single expression, then it might be desirable to disable most
+operations on \romeovalue{lvalues} of that type. For example, an object of
+type \lstinline!LockableStream!, below, works like an \lstinline!std::ostream!
+except that it acquires a mutex for the duration of a single streaming
+expression. It does this by creating a proxy object,
+\lstinline!LockedStream!, that is useful only as an \romeovalue{rvalue}:
+
+\begin{emcppslisting}
+#include <iostream>  // std::ostream, std::cout, std::endl
+#include <mutex>     // std::mutex
+#include <cassert>   // Standard C (ù{\codeincomments{assert}}ù) macro
+
+class LockableStream;  // forward reference
+
+class LockedStream
+{
+    friend class LockableStream;
+
+    LockableStream* d_lockable;
+
+    explicit LockedStream(LockableStream* ls) : d_lockable(ls) { }
+
+public:
+    LockedStream(const LockedStream&) = delete;
+    LockedStream(LockedStream&& other) : d_lockable(other.d_lockable)
+    {
+        other.d_lockable = nullptr;
+    }
+
+    LockedStream& operator=(const LockedStream&) = delete;
+    LockedStream& operator=(LockedStream&&) = delete;
+
+    ~LockedStream();
+
+    template <typename T> LockedStream operator<<(const T& v) &&;
+};
+\end{emcppslisting}
+    
+
+\noindent A \lstinline!LockedStream! object holds a pointer to a
+\lstinline!LockableStream!. It is move-only (not copyable) and not
+assignable. Its move constructor transfers ownership of the
+\lstinline!LockableStream!, which, as we shall see, implicitly transfers
+ownership of the mutex. The streaming operator, \lstinline!operator<<!, can
+be invoked only on an \romeovalue{rvalue}. Note that the only way to construct
+a \lstinline!LockedStream! is through a private constructor that is invoked
+by the \lstinline!friend! class, \lstinline!LockableStream!:
+
+\begin{emcppslisting}
+class LockableStream
+{
+    std::mutex    d_mutex;
+    std::ostream& d_os;
+
+    friend class LockedStream;
+
+public:
+    LockableStream(std::ostream& os) : d_os(os) { }
+
+    void lock()   { d_mutex.lock(); }
+    void unlock() { d_mutex.unlock(); }
+
+    template <typename T> LockedStream operator<<(const T& v)
+    {
+        lock();
+        return LockedStream(this) << v;
+    }
+};
+\end{emcppslisting}
+    
+
+\noindent A \lstinline!LockableStream! holds an \lstinline!std::mutex! and a reference
+to an \lstinline!std::ostream! object. The streaming operator,
+\lstinline!operator<<!, locks the mutex, constructs a \lstinline!LockedStream!
+object, and delegates the actual streaming operation to the
+\lstinline!LockedStream!. The return value of \lstinline!operator<<! is an
+\romeovalue{rvalue} of type \lstinline!LockedStream!.
+
+Each invocation of \lstinline!operator<<! on a \lstinline!LockedStream!
+outputs to the stored \lstinline!std::ostream!, then returns \lstinline!*this!
+by move construction:
+
+\begin{emcppslisting}
+template <typename T>
+LockedStream LockedStream::operator<<(const T& v) &&
+{
+    assert(d_lockable);  // assert (ù{\codeincomments{*this}}ù) is not in moved-from state
+    d_lockable->d_os << v;
+    return std::move(*this);
+}
+\end{emcppslisting}
+    
+
+\noindent When the last invocation of \lstinline!operator<<! in a chain of such
+invocations completes, the returned \lstinline!LockedStream! has ownership
+of the \lstinline!LockableStream!. Its destructor then unlocks the mutex:
+
+\begin{emcppslisting}
+LockedStream::~LockedStream()
+{
+    if (d_lockable)
+    {
+        d_lockable->unlock();
+    }
+}
+\end{emcppslisting}
+    
+
+\noindent Note that \lstinline!d_lockable! will be \lstinline!nullptr! if the
+\lstinline!LockedStream! is in the moved-from state, as most of the
+temporary \lstinline!LockedStream! objects in the chain will be. Finally,
+we can create a \lstinline!LockableStream! and print to it:
+
+\begin{emcppslisting}
+LockableStream lockableCout(std::cout);
+
+void f5()
+{
+    lockableCout << "Hello, " << 2021 << "\n";
+
+    LockedStream ls(lockableCout << "Hello, ");
+    ls << 2021;  // Error, can't stream to (ù{\emphincomments{lvalue}}ù)
+}
+\end{emcppslisting}
+    
+
+\noindent Similar code in other threads can print to \lstinline!lockableCout!
+concurrently; the locking protocol will prevent them from creating a
+race condition. The first statement in \lstinline!f5! acquires the lock,
+prints \lstinline!"Hello,!~\lstinline!2021"! followed by a newline, then
+releases the lock automatically. An attempt to break this sequence into
+multiple statements fails because an \romeovalue{lvalue} of type
+\lstinline!LockedStream! cannot be used for streaming.
+
+Note that this idiom is intended to protect the user from casual errors
+only. If the user is intent on doing so, they can cast an \romeovalue{lvalue}
+of \lstinline!LockedStream! to an \romeovalue{rvalue} using \lstinline!std::move!,
+and they can prevent a \lstinline!LockedStream! from going out of scope by
+using \emcppsgloss{lifetime extension}. These workarounds can be used safely,
+if applied consciously, so it is not necessary to protect against such
+usage.
+
+\subsubsection[Optimizing immutable types and builder classes]{Optimizing immutable types and builder classes}\label{optimizing-immutable-types-and-builder-classes}
+
+An \emcppsgloss{immutable type} is a type that has no modifying operations
+except for assignment. Among other benefits, the representation of an
+\emcppsgloss{immutable type} can be shared by all objects that have the same
+value, including in concurrent threads. Every object that logically
+``modifies'' an object of \emcppsgloss{immutable type} does so by returning a
+new object having the modified value; the original object remains
+unchanged. An \lstinline!ImmutableString! class, for example, might have an
+\lstinline!insert! method that takes a second string argument and returns a
+copy of the original string with the second string inserted in the
+specified location:
+
+\begin{emcppslisting}
+#include <memory>  // std::shared_ptr
+#include <string>  // std::string
+
+class ImmutableString
+{
+    std::shared_ptr<std::string> d_dataPtr;
+
+    static const std::string s_emptyString;
+
+public:
+    using size_type = std::string::size_type;
+
+    ImmutableString() {}
+
+    ImmutableString(const char* s)
+        : d_dataPtr(std::make_shared<std::string>(s)) { }
+
+    ImmutableString(std::string s)
+        : d_dataPtr(std::make_shared<std::string>(std::move(s))) { }
+
+    ImmutableString insert(size_type pos, const ImmutableString& s) const
+    {
+        std::string dataCopy(asStdString());    // Copy string from this object.
+        dataCopy.insert(pos, s.asStdString());  // Do insert.
+        return std::move(dataCopy);             // Move into return value.
+    }
+
+    const std::string& asStdString() const
+    {
+        return d_dataPtr ? *d_dataPtr : s_emptyString;
+    }
+
+    friend std::ostream& operator<<(std::ostream& os, const ImmutableString& s)
+    {
+        return os << s.asStdString();
+    }
+    // ...
+};
+
+const std::string ImmutableString::s_emptyString{};
+\end{emcppslisting}
+    
+
+\noindent The internal representation of an \lstinline!ImmutableString! is an
+\lstinline!std::string! object allocated on the heap and accessed via an
+instantiation of the C++ Standard reference-counted smart pointer,
+\lstinline!std::shared_ptr!. The copy and move constructors and assignment
+operators are defaulted; when an \lstinline!ImmutableString! is copied or
+moved, only the smart pointer member is affected. Thus, even large
+string values can be copied in constant time.
+
+Note that the \lstinline!insert! method begins by making a copy of the
+\emph{internal representation} of the immutable string. The copy is
+modified then returned; the representation in the original
+\lstinline!ImmutableString! is not modified:
+
+\begin{emcppslisting}
+void f1()
+{
+    ImmutableString is("hello world");
+    std::cout << is << std::endl;                 // Print "hello world"
+    std::cout << is.insert(5, ",") << std::endl;  // Print "hello, world"
+    std::cout << is << std::endl;                 // Print "hello world"
+}
+\end{emcppslisting}
+    
+
+\noindent Immutable types are often paired with \emph{builder} classes --- mutable
+types that are used to ``build up'' a value, which is then ``frozen''
+into an object of the immutable type. Let's define a
+\lstinline!StringBuilder! class with mutating \lstinline!append! and
+\lstinline!erase! methods that modify its internal state, and a conversion
+operator that returns an \lstinline!ImmutableString! containing the
+built-up value:
+
+\begin{emcppslisting}
+class StringBuilder
+{
+    std::string d_string;
+
+public:
+    using size_type = std::string::size_type;
+
+    StringBuilder&  append(const char* s) &  { d_string += s; return *this; }
+    StringBuilder&& append(const char* s) && { return std::move(append(s)); }
+
+    StringBuilder&  erase(size_type pos, size_type n) &
+    {
+        d_string.erase(pos, n);
+        return *this;
+    }
+    StringBuilder&& erase(size_type pos, size_type n) &&
+    {
+        return std::move(erase(pos, n));
+    }
+
+    operator ImmutableString() && { return std::move(d_string); }
+};
+\end{emcppslisting}
+    
+
+\noindent The \lstinline!append! and \lstinline!erase! methods are each
+\emcppsgloss[ref-qualifiers]{ref-qualified} and overloaded for both \romeovalue{lvalues} and
+\romeovalue{rvalues}. The only difference between the overloads is that the
+\romeovalue{lvalue} overloads each return an \romeovalue{lvalue} reference and the
+\romeovalue{rvalue} overloads each return an \romeovalue{rvalue} reference. In fact,
+in each case, the \romeovalue{rvalue} overload simply calls the corresponding
+\romeovalue{lvalue} overload, then calls \lstinline!std::move! on the result.
+This technique works, and does not cause infinite recursion within the
+\romeovalue{rvalue} overload, because \lstinline!*this! is always an
+\romeovalue{lvalue}, just as a parameter of \romeovalue{rvalue} reference is always
+an \romeovalue{lvalue} within a function.
+
+The operator to convert from \lstinline!StringBuilder! to
+\lstinline!ImmutableString! is \emph{destructive} in that it moves the
+built-up value out of the builder into the returned string. It is
+\emcppsgloss[ref-qualifiers]{ref-qualified} for \romeovalue{rvalue} references only --- if the
+builder is not an \romeovalue{rvalue}, then the user must deliberately call
+\lstinline!std::move!. This protocol acts a signal to the future maintainer
+that the builder object is in a moved-from state after the conversion
+and cannot be reused after its value has been extracted:
+
+\begin{emcppslisting}
+void f2()
+{
+    StringBuilder builder;
+    builder.append("apples, pears, bananas");
+    builder.erase(8, 7);
+    ImmutableString s1 = builder;             // Error, can't convert (ù{\emphincomments{lvalue}}ù)
+    ImmutableString s2 = std::move(builder);  // OK, convert (ù{\emphincomments{rvalue}}ù) reference
+    std::cout << s2 << std::endl;             // print "apples, bananas"
+
+    ImmutableString s3 = StringBuilder()      // modify builder (ù{\emphincomments{rvalue}}ù)
+        .append("apples, pears, bananas")
+        .erase(8, 7);                         // OK, convert pure (ù{\emphincomments{rvalue}}ù)
+    std::cout << s3 << std::endl;             // print "apples, bananas"
+}
+\end{emcppslisting}
+    
+
+\noindent The \lstinline!builder! object is an \romeovalue{lvalue} and is intended to be
+modified several times before yielding a built-up
+\lstinline!ImmutableString! value. After it is modified using
+\lstinline!append! and \lstinline!erase! --- selecting the \romeovalue{lvalue}
+overloads in both cases --- attempting to convert it directly to
+\lstinline!ImmutableString! fails because there is no such conversion from
+an \romeovalue{lvalue} \lstinline!builder!. The initialization of \lstinline!s2!,
+conversely, succeeds, \emph{moving} the value from the
+\lstinline!StringBuilder! into the result.
+
+The expression \lstinline!StringBuilder()! constructs an \romeovalue{rvalue},
+which is then modified by a chain of calls to \lstinline!append! and
+\lstinline!erase!. The \romeovalue{rvalue} overload of \lstinline!append! is
+selected, which returns an \romeovalue{rvalue} reference that, in turn, drives
+the selection of the \romeovalue{rvalue} overload of \lstinline!erase!. Because
+the result of the chain of modifiers is an \romeovalue{rvalue} reference,
+\lstinline!operator!~\lstinline!ImmutableString! can be invoked without
+calling \lstinline!std::move!. This usage is safe because the temporary
+\lstinline!StringBuilder! object is destroyed immediately afterward, so
+there is no opportunity for improperly reusing the builder object.
+
+\subsection[Potential Pitfalls]{Potential Pitfalls}\label{potential-pitfalls-refqualifer}
+
+\subsubsection[Forbidding modifications to \romeovalue{rvalues} breaks legitimate use cases]{Forbidding modifications to {\sfbsubsubsecitalRomeo rvalues} breaks legitimate use cases}\label{forbidding-modifications-to-rvalues-breaks-legitimate-use-cases}
+
+An earlier use case, \intraref{use-cases-refqualifier}{forbidding-modifying-operations-on-rvalues}, is
+also the subject of a potential pitfall. Consider a string class with a
+\lstinline!toLower! modifier method:
+
+\begin{emcppslisting}
+class String
+{
+    // ...
+    String& toLower();
+        // Convert all uppercase letters to lowercase, then return modified
+        // (ù{\codeincomments{*this}}ù) object.
+};
+
+String x{ /*...*/ };  // Variable of type (ù{\codeincomments{String}}ù)
+String f();           // Function returning (ù{\codeincomments{String}}ù)
+
+String& a = x.toLower();    // OK, (ù{\codeincomments{a}}ù) refers to (ù{\codeincomments{x}}ù)
+f().toLower();              // Bug (1), modifies temporary variable; no-op
+String& b = f().toLower();  // Bug (2), (ù{\codeincomments{b}}ù) is a dangling reference
+\end{emcppslisting}
+    
+
+\noindent Bug (1) is a statement that modifies a temporary variable and, hence,
+has no effect. Bug (2) illustrates how \lstinline!toLower! unintentionally
+acts as an \romeovalue{rvalue}-to-\romeovalue{lvalue} reference cast because it
+returns an \romeovalue{lvalue} reference to a (possibly \romeovalue{rvalue}) object.
+The \romeovalue{lvalue} reference, \lstinline!b!, is bound to the modified
+temporary \lstinline!String! returned by \lstinline!f()!, after it is modified
+by \lstinline!toLower!. At the end of the statement, the temporary object
+is destroyed, causing \lstinline!b! to become a \emcppsgloss{dangling
+reference}.
+
+Given these issues, it is tempting to add a \emcppsgloss[ref-qualifiers]{ref-qualifier} to
+\lstinline!toLower! so that it can be called only on \romeovalue{lvalues}:
+
+\begin{emcppslisting}
+class String
+{
+    // ...
+    String& toLower() &;
+};
+\end{emcppslisting}
+    
+
+\noindent Although this ref-qualification prevents do-nothing modifications to a
+temporary \lstinline!String!, it also prevents legitimate uses of
+\lstinline!toLower! on an \romeovalue{rvalue}:
+
+\begin{emcppslisting}
+String c = f().toLower();  // Error, (ù{\codeincomments{toLower}}ù) cannot be called on an (ù{\emphincomments{rvalue}}ù)
+\end{emcppslisting}
+    
+
+\noindent Here, the return value of \lstinline!toLower! would be used to initialize
+\lstinline!c! to a copy of the modified \lstinline!String!. Unfortunately,
+we've prohibited calling \lstinline!toLower! with an \romeovalue{rvalue}, so the
+call is ill formed. This pitfall might manifest any time we suppress
+modification of \romeovalue{rvalues} for a method that returns a value or has
+a side effect.
+
+We could, of course, create \emcppsgloss[ref-qualifiers]{ref-qualified} overloads for
+\emph{both} \romeovalue{lvalue} and \romeovalue{rvalue} objects, returning by
+\emph{lvalue}-reference or \emph{by value}, respectively, as we saw in
+the \lstinline!BlueString! class in \intraref{use-cases-refqualifier}{returning-a-subobject-of-an-rvalue} {Returning a subobject of an
+rvalue}{xref}, but doing so ubiquitously can become a maintenance
+burden; see \intraref{annoyances-refqualifier}{providing-ref-qualified-overloads-may-be-a-maintenance-burden}.
+
+\subsection[Annoyances]{Annoyances}\label{annoyances-refqualifier}
+
+\subsubsection[Providing ref-qualified overloads may be a maintenance burden]{Providing ref-qualified overloads may be a maintenance burden}\label{providing-ref-qualified-overloads-may-be-a-maintenance-burden}
+
+Having two or more \emcppsgloss[ref-qualifiers]{ref-qualified} overloads of a member function
+can confer expressiveness and safety to a class. The trade-off is that
+these overloads expand the class interface and usually require code
+duplication, which can become a maintenance burden:
+
+\begin{emcppslisting}
+#include <string>  // std::string
+#include <vector>  // std::vector
+
+class Thing
+{
+    std::string      d_name;
+    std::vector<int> d_data;
+    // ...
+
+public:
+    // ...
+
+    std::string const& name() const & { return d_name; }
+    std::string        name() &&      { return std::move(d_name); }
+
+    std::vector<int>      &  data()       &  { return d_data; }
+    std::vector<int> const&  data() const &  { return d_data; }
+    std::vector<int>      && data()       && { return std::move(d_data); }
+    std::vector<int> const&& data() const && { return std::move(d_data); }
+
+    Thing& rename(const std::string& n) &  { d_name = n; return *this; }
+    Thing& rename(std::string&& n) &  { d_name = std::move(n); return *this; }
+    Thing  rename(const std::string& n) &&
+    {
+        d_name = n;
+        return *this;  // Bug, should be (ù{\codeincomments{return std::move(*this)}}ù).
+    }
+    Thing  rename(std::string&& n) &&
+    {
+        return std::move(rename(std::move(n)));  // Delegate to (ù{\emphincomments{lvalue}}ù) overload
+    }
+};
+\end{emcppslisting}
+    
+
+\noindent The \lstinline!name! member is a classic accessor. Overloading it based on
+\emcppsgloss[ref-qualifiers]{ref-qualification} provides an optimization so that the
+\lstinline!d_name! string can be moved instead of copied when the
+\lstinline!Thing! object is expiring. Because it is an accessor, only the
+\lstinline!const! \romeovalue{lvalue} and non\lstinline!const! \romeovalue{rvalue}
+overloads are needed; other cv-qualifications do not make sense.
+
+A modifiable \lstinline!Thing! object can be modified via the return type
+of its \lstinline!data! member function, but a \lstinline!const!
+\lstinline!Thing! cannot. We are used to overloading based on
+\lstinline!const!, but adding \emcppsgloss[ref-qualifiers]{ref-qualification} doubles the number
+of overload combinations.
+
+Finally, the \lstinline!rename! member illustrates a different kind of
+combinatorial overload set. This member is overloaded on the
+\emcppsgloss{value category} of both the \lstinline!Thing! argument and the
+\lstinline!n! argument. In addition to the total number of overloads for a
+single function, this example illustrates a potential performance bug
+that occurs easily when cutting-and-pasting numerous similar function
+bodies: by returning \lstinline!*this! instead of \lstinline!std::move(*this)!
+in the first \romeovalue{rvalue}-qualified overload, the return value is copy
+constructed instead of move constructed.
+
+One way to mitigate the maintenance burden of having many overloads is
+for the \romeovalue{rvalue}-qualified overloads to delegate to the the
+\romeovalue{lvalue}-qualified ones, as seen in the last
+\romeovalue{rvalue}-qualified overload of \lstinline!rename!. Note that
+\lstinline!*this! is \emph{always} an \romeovalue{lvalue}, even within the
+\romeovalue{rvalue}-qualified overloads, so the call to \lstinline!rename! within
+the \romeovalue{rvalue}-qualified version does not result in a recursive call
+to itself but instead results in a call to the \romeovalue{lvalue}-qualified
+version.
+
+\subsection{See Also}
+
+\hspace{\fill}
+
+\subsection{Further Reading}
+
+\hspace{\fill}
