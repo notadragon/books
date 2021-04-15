@@ -1,5 +1,5 @@
     i                                                                                       i
-                                   “emcpps-internal” — 2021/4/15 — 2:20 — page 1 — #1
+                                   “emcpps-internal” — 2021/4/15 — 2:31 — page 1 — #1
 
 i
 
@@ -23,7 +23,7 @@ i
 
     i                                                                                       i
      i                                                                                    i
-                         “emcpps-internal” — 2021/4/15 — 2:20 — page 2 — #2
+                         “emcpps-internal” — 2021/4/15 — 2:31 — page 2 — #2
 
 i
 
@@ -45,7 +45,7 @@ i
 
      i                                                                                    i
           i                                                                                        i
-                                          “emcpps-internal” — 2021/4/15 — 2:20 — page 3 — #3
+                                          “emcpps-internal” — 2021/4/15 — 2:31 — page 3 — #3
 
 i
 
@@ -69,7 +69,7 @@ i
 
           i                                                                                        i
         i                                                                                     i
-                            “emcpps-internal” — 2021/4/15 — 2:20 — page 4 — #4
+                            “emcpps-internal” — 2021/4/15 — 2:31 — page 4 — #4
 
 i
 
@@ -91,7 +91,7 @@ i
 
         i                                                                                     i
      i                                                                                        i
-                                     “emcpps-internal” — 2021/4/15 — 2:20 — page 5 — #5
+                                     “emcpps-internal” — 2021/4/15 — 2:31 — page 5 — #5
 
 i
 
@@ -115,7 +115,7 @@ i
 
      i                                                                                        i
         i                                                                                                                  i
-                                          “emcpps-internal” — 2021/4/15 — 2:20 — page 6 — #6
+                                          “emcpps-internal” — 2021/4/15 — 2:31 — page 6 — #6
 
 i
 
@@ -181,7 +181,7 @@ i
 
         i                                                                                                                  i
     i                                                                                                       i
-                       “emcpps-internal” — 2021/4/15 — 2:20 — page 7 — #7
+                       “emcpps-internal” — 2021/4/15 — 2:31 — page 7 — #7
 
 i
 
@@ -247,7 +247,7 @@ i
 
     i                                                                                                       i
     i                                                                                                       i
-                          “emcpps-internal” — 2021/4/15 — 2:20 — page 8 — #8
+                          “emcpps-internal” — 2021/4/15 — 2:31 — page 8 — #8
 
 i
 
@@ -314,7 +314,7 @@ i
 
     i                                                                                                       i
         i                                                                                                                    i
-                                        “emcpps-internal” — 2021/4/15 — 2:20 — page 9 — #9
+                                        “emcpps-internal” — 2021/4/15 — 2:31 — page 9 — #9
 
 i
 
@@ -380,7 +380,7 @@ i
 
         i                                                                                                                    i
     i                                                                                                i
-                          “emcpps-internal” — 2021/4/15 — 2:20 — page 10 — #10
+                          “emcpps-internal” — 2021/4/15 — 2:31 — page 10 — #10
 
 i
 
@@ -448,7 +448,7 @@ i
 
     i                                                                                                i
     i                                                                                                    i
-                     “emcpps-internal” — 2021/4/15 — 2:20 — page 11 — #11
+                     “emcpps-internal” — 2021/4/15 — 2:31 — page 11 — #11
 
 i
 
@@ -515,7 +515,7 @@ i
 
     i                                                                                                    i
     i                                                                                                     i
-                          “emcpps-internal” — 2021/4/15 — 2:20 — page 12 — #12
+                          “emcpps-internal” — 2021/4/15 — 2:31 — page 12 — #12
 
 i
 
@@ -537,8 +537,6 @@ i
         Function mf2, although rvalue-qualified, nevertheless calls the lvalue-qualified overload of
         mf1 because *this is an lvalue. If the desired behavior is to propagate the value category
         of the object on which it was called, std::move (or another reference cast) must be used:
-          #include <utility>     // std::move
-
           class Class7
           {
               int d_data;
@@ -574,6 +572,8 @@ i
           using Prqf = void (Class8::*)(int)&&;        //    "     " rvalue­qualified     "
           using Puqf = void (Class8::*)(int);          //    "     " unqualified            "
 
+          void f8()
+
         12
 
 i
@@ -582,7 +582,7 @@ i
 
     i                                                                                                     i
         i                                                                                                                  i
-                                       “emcpps-internal” — 2021/4/15 — 2:20 — page 13 — #13
+                                       “emcpps-internal” — 2021/4/15 — 2:31 — page 13 — #13
 
 i
 
@@ -591,12 +591,10 @@ i
                           C++11                                                                           Ref-Qualifiers
 
 
-
-                            void f8()
                             {
-                                Plqf lq = &Class8::mf1;     // OK, pointer to member function (1)
-                                Prqf rq = &Class8::mf1;     // OK,    "     "    "       "    (2)
-                                Puqf xq = &Class8::mf1;     // Error, mf1 is ref­qualified but Puqf is not.
+                                  Plqf lq = &Class8::mf1;   // OK, pointer to member function (1)
+                                  Prqf rq = &Class8::mf1;   // OK,    "     "    "       "    (2)
+                                  Puqf xq = &Class8::mf1;   // Error, mf1 is ref­qualified but Puqf is not.
 
                                   Puqf uq = &Class8::mf2;   // OK, pointer to member function (3)
                                   Plqf yq = &Class8::mf2;   // Error, mf2 is not ref­qualified but Plqf is.
@@ -641,6 +639,9 @@ i
 
                                   std::string h1 = rs1.value();                        // "Red: hello"
                                   std::string h2 = rs2.value();                        // "Red: world"
+                                  std::string h3 = RedString("goodbye").value();       // "Red: goodbye"
+
+
 
                                                                                                                      13
 
@@ -650,7 +651,7 @@ i
 
         i                                                                                                                  i
     i                                                                                                      i
-                          “emcpps-internal” — 2021/4/15 — 2:20 — page 14 — #14
+                          “emcpps-internal” — 2021/4/15 — 2:31 — page 14 — #14
 
 i
 
@@ -658,8 +659,6 @@ i
 
          Ref-Qualifiers                                               Chapter 3     Unsafe Features
 
-
-               std::string h3 = RedString("goodbye").value();          // "Red: goodbye"
 
                std::string h4 = std::move(rs1).value();                // "Red: hello"
                std::string h5 = rs1.value();                           // Bug, unspecifiedvalue
@@ -708,6 +707,8 @@ i
                // ...
           };
 
+          void f4()
+
         14
 
 i
@@ -716,7 +717,7 @@ i
 
     i                                                                                                      i
         i                                                                                                                                i
-                                         “emcpps-internal” — 2021/4/15 — 2:20 — page 15 — #15
+                                         “emcpps-internal” — 2021/4/15 — 2:31 — page 15 — #15
 
 i
 
@@ -725,10 +726,8 @@ i
                           C++11                                                                                        Ref-Qualifiers
 
 
-
-                            void f4()
                             {
-                                std::string h = BlueString("hello").value();
+                                  std::string h = BlueString("hello").value();
 
                                   std::string&& s = BlueString("goodbye").value();
                                   char c = s[0]; // OK, lifetime of s has been extended
@@ -768,6 +767,8 @@ i
 g­operations­on­rvalues
                           Modifying an rvalue means modifying a temporary object that is about to go out of scope.
                           A common example of a bug resulting from this behavior is accidental assignment to a
+                          temporary object. Consider a simple Employee class with a name accessor and a function
+                          that attempts to set the name:
 
                               1 Beginning with C++17, the description of the way return values are initialized changed so as to no
 
@@ -784,7 +785,7 @@ i
 
         i                                                                                                                                i
     i                                                                                                       i
-                          “emcpps-internal” — 2021/4/15 — 2:20 — page 16 — #16
+                          “emcpps-internal” — 2021/4/15 — 2:31 — page 16 — #16
 
 i
 
@@ -793,8 +794,6 @@ i
          Ref-Qualifiers                                               Chapter 3      Unsafe Features
 
 
-        temporary object. Consider a simple Employee class with a name accessor and a function
-        that attempts to set the name:
           #include <string>      // std::string
 
           class Employee
@@ -841,6 +840,10 @@ i
           public:
               // ...
               Name name() const { return d_name; }
+              // ...
+          };
+
+
 
         16
 
@@ -850,7 +853,7 @@ i
 
     i                                                                                                       i
         i                                                                                                                     i
-                                       “emcpps-internal” — 2021/4/15 — 2:20 — page 17 — #17
+                                       “emcpps-internal” — 2021/4/15 — 2:31 — page 17 — #17
 
 i
 
@@ -858,9 +861,6 @@ i
 
                           C++11                                                                              Ref-Qualifiers
 
-
-                                  // ...
-                            };
 
                             void f2(Employee2& e)
                             {
@@ -909,6 +909,9 @@ g­operations­on­lvalues
                                   template <typename T> LockedStream operator<<(const T& v) &&;
                             };
 
+                          A LockedStream object holds a pointer to a LockableStream. It is move-only (not copy-
+                          able) and not assignable. Its move constructor transfers ownership of the LockableStream,
+
                                                                                                                         17
 
 i
@@ -917,7 +920,7 @@ i
 
         i                                                                                                                     i
     i                                                                                               i
-                          “emcpps-internal” — 2021/4/15 — 2:20 — page 18 — #18
+                          “emcpps-internal” — 2021/4/15 — 2:31 — page 18 — #18
 
 i
 
@@ -926,8 +929,6 @@ i
          Ref-Qualifiers                                          Chapter 3    Unsafe Features
 
 
-        A LockedStream object holds a pointer to a LockableStream. It is move-only (not copy-
-        able) and not assignable. Its move constructor transfers ownership of the LockableStream,
         which, as we shall see, implicitly transfers ownership of the mutex. The streaming opera-
         tor, operator<<, can be invoked only on an rvalue. Note that the only way to construct
         a LockedStream is through a private constructor that is invoked by the friend class,
@@ -974,6 +975,8 @@ i
               if (d_lockable)
               {
                   d_lockable­>unlock();
+              }
+          }
 
         18
 
@@ -983,7 +986,7 @@ i
 
     i                                                                                               i
         i                                                                                                                    i
-                                       “emcpps-internal” — 2021/4/15 — 2:20 — page 19 — #19
+                                       “emcpps-internal” — 2021/4/15 — 2:31 — page 19 — #19
 
 i
 
@@ -992,12 +995,10 @@ i
                           C++11                                                                             Ref-Qualifiers
 
 
-                                  }
-                            }
-
                           Note that d_lockable will be nullptr if the LockedStream is in the moved-from state, as
                           most of the temporary LockedStream objects in the chain will be. Finally, we can create a
                           LockableStream and print to it:
+
                             LockableStream lockableCout(std::cout);
 
                             void f5()
@@ -1041,6 +1042,8 @@ pes­and­builder­classes
                             public:
                                 using size_type = std::string::size_type;
 
+                                  ImmutableString() {}
+
                                                                                                                        19
 
 i
@@ -1049,7 +1052,7 @@ i
 
         i                                                                                                                    i
     i                                                                                                   i
-                          “emcpps-internal” — 2021/4/15 — 2:20 — page 20 — #20
+                          “emcpps-internal” — 2021/4/15 — 2:31 — page 20 — #20
 
 i
 
@@ -1058,8 +1061,6 @@ i
          Ref-Qualifiers                                             Chapter 3    Unsafe Features
 
 
-
-               ImmutableString() {}
 
                ImmutableString(const char* s)
                    : d_dataPtr(std::make_shared<std::string>(s)) { }
@@ -1107,6 +1108,8 @@ i
         Immutable types are often paired with builder classes — mutable types that are used to
         “build up” a value, which is then “frozen” into an object of the immutable type. Let’s define
         a StringBuilder class with mutating append and erase methods that modify its internal
+        state, and a conversion operator that returns an ImmutableString containing the built-up
+        value:
 
         20
 
@@ -1116,7 +1119,7 @@ i
 
     i                                                                                                   i
     i                                                                                                       i
-                     “emcpps-internal” — 2021/4/15 — 2:20 — page 21 — #21
+                     “emcpps-internal” — 2021/4/15 — 2:31 — page 21 — #21
 
 i
 
@@ -1125,8 +1128,6 @@ i
         C++11                                                                              Ref-Qualifiers
 
 
-        state, and a conversion operator that returns an ImmutableString containing the built-up
-        value:
           class StringBuilder
           {
               std::string d_string;
@@ -1173,6 +1174,8 @@ i
               std::cout << s2 << std::endl;             // print "apples, bananas"
 
                 ImmutableString s3 = StringBuilder()            // modify builder rvalue
+                    .append("apples, pears, bananas")
+                    .erase(8, 7);                               // OK, convert pure rvalue
 
                                                                                                       21
 
@@ -1182,7 +1185,7 @@ i
 
     i                                                                                                       i
         i                                                                                                               i
-                                          “emcpps-internal” — 2021/4/15 — 2:20 — page 22 — #22
+                                          “emcpps-internal” — 2021/4/15 — 2:31 — page 22 — #22
 
 i
 
@@ -1191,8 +1194,6 @@ i
                          Ref-Qualifiers                                             Chapter 3    Unsafe Features
 
 
-                                   .append("apples, pears, bananas")
-                                   .erase(8, 7);                              // OK, convert pure rvalue
                                std::cout << s3 << std::endl;                  // print "apples, bananas"
                           }
 
@@ -1240,6 +1241,8 @@ i
                         illustrates how toLower unintentionally acts as an rvalue-to-lvalue reference cast because it
                         returns an lvalue reference to a (possibly rvalue) object. The lvalue reference, b, is bound
                         to the modified temporary String returned by f(), after it is modified by toLower. At the
+                        end of the statement, the temporary object is destroyed, causing b to become a dangling
+                        reference.
 
                         22
 
@@ -1249,7 +1252,7 @@ i
 
         i                                                                                                               i
         i                                                                                                                i
-                                       “emcpps-internal” — 2021/4/15 — 2:20 — page 23 — #23
+                                       “emcpps-internal” — 2021/4/15 — 2:31 — page 23 — #23
 
 i
 
@@ -1258,8 +1261,6 @@ i
                           C++11                                                                         Ref-Qualifiers
 
 
-                          end of the statement, the temporary object is destroyed, causing b to become a dangling
-                          reference.
                               Given these issues, it is tempting to add a ref-qualifier to toLower so that it can be
                           called only on lvalues:
                            class String
@@ -1305,7 +1306,9 @@ be­a­maintenance­burden
                                   std::string const& name() const & { return d_name; }
                                   std::string        name() &&      { return std::move(d_name); }
 
-                                  std::vector<int>      &   data()        &   { return d_data; }
+                                  std::vector<int>      & data()       & { return d_data; }
+                                  std::vector<int> const& data() const & { return d_data; }
+                                  std::vector<int>      && data()      && { return std::move(d_data); }
 
                                                                                                                    23
 
@@ -1315,7 +1318,7 @@ i
 
         i                                                                                                                i
     i                                                                                                    i
-                          “emcpps-internal” — 2021/4/15 — 2:20 — page 24 — #24
+                          “emcpps-internal” — 2021/4/15 — 2:31 — page 24 — #24
 
 i
 
@@ -1324,8 +1327,6 @@ i
          Ref-Qualifiers                                             Chapter 3     Unsafe Features
 
 
-               std::vector<int> const& data() const & { return d_data; }
-               std::vector<int>      && data()       && { return std::move(d_data); }
                std::vector<int> const&& data() const && { return std::move(d_data); }
 
                Thing& rename(const std::string& n) & { d_name = n; return *this; }
@@ -1376,7 +1377,7 @@ i
 
     i                                                                                                    i
      i                                                                                                 i
-                               “emcpps-internal” — 2021/4/15 — 2:20 — page 25 — #25
+                               “emcpps-internal” — 2021/4/15 — 2:31 — page 25 — #25
 
 i
 
@@ -1398,7 +1399,7 @@ i
 
      i                                                                                                 i
     i                                                          i
-        “emcpps-internal” — 2021/4/15 — 2:20 — page 26 — #26
+        “emcpps-internal” — 2021/4/15 — 2:31 — page 26 — #26
 
 i
 
