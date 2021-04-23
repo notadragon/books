@@ -1,0 +1,1224 @@
+\emcppsFeature{
+    short={\lstinline!initializer_list!},
+    tocshort={\TOCCode initializer\_list},
+    long={List Initialization: {\SecCode std::initializer\_list<T>}},
+    toclong={List Initialization: \lstinline!std::initializer_list<T>!},
+    rhshort={\RHCode initializer\_list},
+}{initlist}
+\label{list-initialization:-std::initializer_list<t>}
+\setcounter{table}{0}
+\setcounter{footnote}{0}
+\setcounter{lstlisting}{0}
+%\section[{\tt initializer\_list}]{List Initialization: {\SecCode std::initializer\_list<T>}}%\label{}
+%\subsection[List Initialization: \tt{std::initializer\_list<T>}]{List Initialization: {\SubsecCode std::initializer\_list<T>}}\label{list-initialization:-std::initializer_list<t>}
+
+The C++ Standard Library's \lstinline!std::initializer_list! class
+template supports lightweight, compiler-generated arrays of values that
+are initialized in source code similarly to built-in, C-style arrays
+using the generalized braced initialization syntax.
+
+\subsection[Description]{Description}\label{description}
+
+C++, and even C before it, allowed built-in arrays to be initialized via
+brace-enclosed lists of values:
+
+\begin{emcppslisting}
+int data[] = { 0, 1, 1, 2, 3, 5, 8, 13 };  // initializer list of 8 (ù{\codeincomments{int}}ù) values
+\end{emcppslisting}
+    
+
+\noindent C++11 extends this concept to allow such lists of values to be provided
+to \emcppsgloss[user defined type (UDT)]{user-defined types (UDTs)} in a variety of circumstances. The
+compiler arranges for the values to be stored in an unnamed C-style
+array, and nonmodifiable access to that array is provided via the
+\lstinline!std::initializer_list! class template. This template provides a
+programmer-accessible API and semantics inspired by a nonmodifiable, C++
+standard container but having reference semantics rather than ownership
+of the underlying array. The C++ Standard provides a reference
+definition that comprises \lstinline!typedef!s, accessors, and an
+explicitly declared default constructor, along with implicit definitions
+of the other five \emcppsgloss[special member function]{special member functions}; see \featureref{\locationa}{Defaulted-Special-Member-Functions}: 
+
+\begin{emcppslisting}
+namespace std
+{
+
+template <typename E>
+class initializer_list  // illustration of programmer-accessible interface
+{
+    const E* d_begin_p;  // pointer to the beginning of a contiguous array
+    const E* d_end_p;    // pointer to one past the end of the array (or 0)
+                         // could have used (ù{\codeincomments{size\_t}}ù) as an offset instead.
+
+    // ... (inaccessible, used by the compiler to initialize this object)
+public:
+    typedef E value_type;               // C++ type of each array element
+    typedef const E& reference;         // There is no (ù{\emphincomments{non}}ù)const reference.
+    typedef const E& const_reference;   // (ù{\codeincomments{const}}ù) (ù{\codeincomments{lvalue}}ù) reference type
+    typedef size_t size_type;           // type returned by (ù{\codeincomments{size()}}ù)
+
+    typedef const E* iterator;          // There is no (ù{\codeincomments{non}}ù)const iterator.
+    typedef const E* const_iterator;    // (ù{\codeincomments{const}}ù) element-iterator type
+
+    constexpr initializer_list() noexcept;  // default constructor
+
+    constexpr size_t size() const noexcept;     // number of elements
+    constexpr const E* begin() const noexcept;  // beginning iterator
+    constexpr const E* end() const noexcept;    // one-past-the-last iterator
+};
+
+// initializer list range access
+template <typename E> constexpr const E* begin(initializer_list<E> il) noexcept;
+template <typename E> constexpr const E* end(initializer_list<E> il) noexcept;
+
+}  // close (ù{\codeincomments{std}}ù) namespace
+\end{emcppslisting}
+    
+
+\noindent The reference implementation in the code example above illustrates the
+public functionality available for direct use by the compiler and
+programmers alike and elides the private machinery used by the compiler
+to initialize objects other than an empty initializer list. Objects of
+this template, instantiated for element type \lstinline!E!, act as
+lightweight proxies for the compiler supplied arrays that, when copied
+or assigned, do not copy the underlining elements. Access to the
+elements is provided by the member and/or free functions \lstinline!begin!
+and \lstinline!end!, which satisfy the Standard Library requirements of a
+range with random access iterators.
+
+The accessible interface of the \lstinline!std::initializer_list! class
+template, in the code example above, also employs two other C++11
+language features: \lstinline!constexpr! and \lstinline!noexcept!. The
+\lstinline!constexpr! keyword allows the compiler to consider using a
+function so decorated as part of a \emcppsgloss{constant expression}; see \featureref{\locationc}{constexprfunc}. The \lstinline!noexcept!
+specifier indicates that this function is not allowed to throw an
+exception; see \featureref{\locatione}{noexcept-specifier}.
+
+As an introductory example, consider a function, \lstinline!printMembers!,
+that will print the elements of a given sequence of integers that is
+represented by its \lstinline!std::initializer_list<int>! parameter,
+\lstinline!il!:
+
+\begin{emcppslisting}
+#include <initializer_list>  // (ù{\codeincomments{std::initializer\_list}}ù)
+#include <iostream>          // (ù{\codeincomments{std::cout}}ù)
+
+void printNumbers(std::initializer_list<int> il)  // prints given list of (ù{\codeincomments{int}}ù)s
+{
+    std::cout << "{";
+    for (const int* ip = il.begin(); ip != il.end(); ++ip)  // classic (ù{\codeincomments{for}}ù) loop
+    {
+        std::cout << ' ' << *ip;  // output each element in given list of (ù{\codeincomments{int}}ù)s
+    }
+    std::cout << " } [size = " << il.size() << ']';
+}
+\end{emcppslisting}
+    
+
+\noindent Using member functions \lstinline!begin! and \lstinline!end!, the
+\lstinline!printNumbers! function in the code snippet above employs, for
+exposition purposes, the classic \lstinline!for! loop to iterate through
+the supplied initializer list, printing each of the elements in turn to
+\lstinline!stdout!, eventually followed by the size of the list. Note that
+\lstinline!il! is passed by value rather than by \lstinline!const! reference;
+this style of parameter passing is used purely as a matter of
+convention, because \lstinline!std::initializer_list! is designed to be a
+small \emph{trivial} type that many C++ implementations can optimize by
+efficiently passing such function arguments using CPU registers.
+
+We can now write a \lstinline!test! function to, in turn, invoke this
+\lstinline!printNumbers! function on an initializer list denoted using
+braced-initialization syntax; see \featureref{\locationc}{bracedinit}: 
+
+\begin{emcppslisting}
+void test()
+{
+    printNumbers({ 1, 2, 3, 4 });  // prints "{ 1 2 3 4 } [size = 4]"
+}
+\end{emcppslisting}
+    
+
+\noindent In the \lstinline!test! function above, the compiler transforms the braced
+expression
+\lstinline!{!~\lstinline!1,!~\lstinline!2,!~\lstinline!3,!~\lstinline!4!~\lstinline!}!
+into a \emcppsgloss{temporary} unnamed C-style array of nonmodifiable values
+of type \lstinline!int!, which is then passed via an
+\lstinline!std::initializer_list<int>! to \lstinline!printNumber! for
+processing. While the \lstinline!std::initializer_list! temporary does not
+own the temporary array, their lifetimes are the same, so there is no
+risk of a dangling reference.
+
+\subsubsection[Using the \lstinline!initializer_list! class template]{Using the {\SubsubsecCode initializer\_list} class template}\label{using-the-initializer_list-class-template}
+
+When a program uses a \lstinline!std::initializer_list!, either by
+mentioning it explicitly or having it implicitly created by the
+compiler, the program must include --- directly or indirectly --- the
+\lstinline!<initializer\_list>! header, or else the program is ill formed:
+
+\begin{emcppslisting}
+std::initializer_list<int> x = { };  // Error, (ù{\codeincomments{<initializer\_list>}}ù) not included
+void f(std::initializer_list<double>);  // Error,    "         "      "      "
+auto ilx = {1,2,3};                     // Error,    "         "      "      "
+auto ilv { 1 };  // OK, but be aware that direct list initialization deduces (ù{\codeincomments{int}}ù)
+
+#include <initializer_list>             // provide (ù{\codeincomments{std::initializer\_list}}ù)
+
+std::initializer_list<int> y = { };     // OK
+void f(std::initializer_list<double>);  // OK
+auto ily = {1,2,3};                     // OK
+auto ilz = { };                         // Error, cannot deduce element type
+auto ilw = { 1 };                       // OK, (ù{\codeincomments{std::initializer\_list<int>}}ù)
+\end{emcppslisting}
+    
+
+\noindent In the example code above, any explicit or implicit use of the
+\lstinline!std::initializer_list! requires the compiler to have first seen
+its definition --- even when the type is deduced using \lstinline!auto!;
+see \featureref{\locationc}{auto}. Note, in particular, the
+initialization of \lstinline!ilv! omits the equal (\lstinline!=!) symbol,
+forcing \lstinline!auto! to deduce a copy of the argument rather than an
+\lstinline!std::initializer_list!; see \featureref{\locationc}{bracedinit}. 
+
+For a given element type, \lstinline!E!, the
+\lstinline!std::initializer_list<E>! class defines several type aliases,
+similar to how they are defined for standard-library containers:
+
+\begin{emcppslisting}
+#include <initializer_list>  // std::initializer_list
+
+struct E { };
+std::initializer_list<E>::size_type       ts;        // (ù{\codeincomments{ts}}ù)  of type (ù{\codeincomments{std::size\_t}}ù)
+std::initializer_list<E>::value_type      tv;        // (ù{\codeincomments{tv}}ù)  of type (ù{\codeincomments{E}}ù)
+std::initializer_list<E>::reference       tr  = tv;  // (ù{\codeincomments{tr}}ù)  of type (ù{\codeincomments{const E\&}}ù)
+std::initializer_list<E>::const_reference tcr = tv;  // (ù{\codeincomments{tcr}}ù) of type (ù{\codeincomments{const E\&}}ù)
+std::initializer_list<E>::iterator        ti;        // (ù{\codeincomments{tr}}ù)  of type (ù{\codeincomments{const E*}}ù)
+std::initializer_list<E>::const_iterator  tci;       // (ù{\codeincomments{tcr}}ù) of type (ù{\codeincomments{const E*}}ù)
+\end{emcppslisting}
+    
+
+\noindent Note that both \lstinline!reference! and \lstinline!iterator! are
+\lstinline!const!, just like \lstinline!const_reference! and
+\lstinline!const_iterator!.
+
+Compiler vendors are permitted to and often do provide alternative types
+for such aliases in general purpose containers --- e.g., ``debugging''
+iterator to assist in detecting errors such as dereferencing a
+past-the-end iterator. In the case of \lstinline!std::initializer_list!,
+however, these type aliases are fixed in the C++ Standard, so they
+cannot vary.
+
+A public default constructor is provided, which enables clients to
+create an empty initializer list:
+
+\begin{emcppslisting}
+std::initializer_list<E> x;  // (ù{\codeincomments{x}}ù) is an empty list type (ù{\codeincomments{E}}ù) elements.
+\end{emcppslisting}
+    
+
+\noindent Each of the other special member functions, such as the copy constructor
+and copy assignment operator, is implicitly generated and available to
+public clients:
+
+\begin{emcppslisting}
+std::initializer_list<E> y(x);  // copy construction
+void assignX2Y() { y = x; }     // copy assignment
+\end{emcppslisting}
+    
+
+\noindent Note that there is no public constructor for creating an
+\lstinline!std::initializer_list! in any other way; the intention is that
+\lstinline!std::initializer_list! objects are created behind the scenes
+--- \emph{by} \emph{the} \emph{compiler} --- from braced lists:
+
+\begin{emcppslisting}
+E e0, e1, e2, e3;
+std::initializer_list<E> z({e0, e1, e2, e3});   // copy construction (BAD IDEA)
+void assignTemporary2y() { y = {e3, e2, e1}; }  // copy assignment (BAD IDEA)
+\end{emcppslisting}
+    
+
+\noindent Be warned, however, that although objects of type
+\lstinline!std::initializer_list<E>! may be copied and assigned freely,
+doing so does not copy the underlying array. Importantly, creating a
+\emcppsgloss{temporary} initializer list and copy constructing (or copy
+assigning) its ``value'' to another does \emph{not} extend the lifetime
+of its underlying array beyond the end of outermost containing
+\emph{expression} in which it is used; hence, any subsequent attempt to
+access any of the \emph{data} of any of the elements of that underlying
+array will result in \emcppsgloss{undefined behavior}; see
+\emcppsgloss[pointer semantics]{Pointer semantics} and lifetimes of temporaries.
+
+The \lstinline!size()!~\lstinline!const! member function returns the number of
+elements referenced by an initializer list:
+
+\begin{emcppslisting}
+int nX = x.size();  // OK, (ù{\codeincomments{nX}}ù) == (ù{\codeincomments{0}}ù) -- (ù{\codeincomments{\{ \}}}ù)
+int nY = y.size();  // OK, (ù{\codeincomments{nY}}ù) == (ù{\codeincomments{0}}ù) -- (ù{\codeincomments{\{ \}}}ù)
+int nZ = z.size();  // BAD IDEA, (ù{\codeincomments{nZ}}ù) == (ù{\codeincomments{4}}ù) -- Oops!
+\end{emcppslisting}
+    
+
+\noindent Note that calling \lstinline!z.size()! may seem well defined even after the
+associated temporary array has expired. For implementations that choose
+a pointer and length representation, this would be true. However, for
+implementations choosing a two-pointer representation, the result of
+subtracting two invalid pointers (since the array no longer exists) is
+implementation-defined behavior and could, depending on the
+implementation's design, signal or trap to expose use of bad pointers.
+Accessing data in the underlying array is always undefined behavior at
+this point. Given that the choice of implementation is unspecified and
+left to the library vendor, it is best to avoid relying on any functions
+that query an \lstinline!std::initializer_list! outside the lifetime of
+its underlying array, just as we would not dereference an invalid
+pointer.
+
+Since \lstinline!size!, like all of the member functions of an
+\lstinline!std::initializer_list!, is declared \lstinline!constexpr! (see \featureref{\locationc}{constexprfunc}), an
+\lstinline!std::initializer_list! is considered a \emcppsgloss{literal type}
+and, hence, is eligible to be evaluated within a \emcppsgloss{constant
+expression}; see \featureref{\locationa}{compile-time-assertions-(static_assert)}: 
+
+\begin{emcppslisting}
+static_assert(std::initializer_list<int>({0, 1, 2, 3}).size() == 4, "");  // OK
+
+int a[(std::initializer_list<int>({2, 1, 0}).size()];  // (ù{\codeincomments{a}}ù) is an array of 3 (ù{\codeincomments{int}}ù).
+\end{emcppslisting}
+    
+
+\noindent Accessing the members of the underlying array of a
+\lstinline!std::initializer_list<E>! is accomplished via iterators of type
+\lstinline!E*!: two \lstinline!const! (\lstinline!constexpr!) member functions,
+\lstinline!begin()! and \lstinline!end()!, return pointers to, respectively,
+the first and the one-past-the-end array-element positions:
+
+\begin{emcppslisting}
+#include <cassert>  // C-style (ù{\codeincomments{assert}}ù) macro
+void test1()
+{
+    std::initializer_list<char> list({'A', 'B', 'C'});
+    assert(*list.begin()   == 'A');  // front element
+    assert(list.begin()[0] == 'A');  // element 0
+    assert(list.begin()[1] == 'B');  // element 1
+    assert(list.begin()[2] == 'C');  // element 2
+    assert(list.begin() + 3           == list.end());  // true in this case
+    assert(list.begin() + list.size() == list.end());  // always true
+}
+\end{emcppslisting}
+    
+
+\noindent In the \lstinline!test1! function in the code example above,
+\lstinline!list.begin()! serves as the address of both the first element
+and that of the underlying contiguous array of elements itself ---
+suitable for application of the built-in index operator (\lstinline![]!),
+although that is not how \lstinline!begin()! is typically used. While
+\lstinline!begin()! is a pointer to the first element of the range,
+\lstinline!end()! is a pointer to one-past-last element and
+\lstinline!size()!~\lstinline!==!~\lstinline!end()!~\lstinline!-!~\lstinline!begin()!.
+If \lstinline!size()!~\lstinline!==!~\lstinline!0!, the value of \lstinline!begin()!
+and \lstinline!end()! are unspecified but must be equal.
+
+The presence of the \lstinline!begin()! and \lstinline!end()! member functions
+enable an \lstinline!std::initializer_list! to be used as the source of a
+range-based \lstinline!for! loop; see \featureref{\locationc}{rangefor}:
+
+\begin{emcppslisting}
+void test2()  // print "10 20 30 " to (ù{\codeincomments{stdout}}ù)
+{
+    std::initializer_list<int> il = { 10, 20, 30 };
+
+    for (int i : il)
+    {
+        std::cout << i << ' ';
+    }
+}
+\end{emcppslisting}
+    
+
+\noindent Moreover, these member functions enable us to specify a
+\emcppsgloss[braced initializer list]{braced-initializer list} as the source range of a range-based
+\lstinline!for! loop:
+
+\begin{emcppslisting}
+void test3()  // print "100 200 300 " to (ù{\codeincomments{stdout}}ù)
+{
+    for (int i : {100, 200, 300})
+    {
+        std::cout << i << ' ';
+    }
+}
+\end{emcppslisting}
+    
+
+\noindent Note that the use of a \emcppsgloss{temporary}
+\lstinline!std::initializer-list!, as in the example above, is supported in
+a range-base \lstinline!for! loop only because life-time extension (i.e.,
+via binding to a reference as opposed to copying) of this library object
+is magically tied by the language to a corresponding lifetime extension
+of the underlying array. Without lifetime extension, this too would have
+been considered \emcppsgloss{undefined behavior}; again see \intrarefsimple{pointer-semantics-and-lifetimes-of-temporaries}.
+
+Finally, corresponding, global \lstinline!std::begin! and \lstinline!std::end!
+\emcppsgloss[free function]{free-function} templates are overloaded for
+\lstinline!std::initializer_list! objects directly in the
+\lstinline!<initializer_list>! header --- rather than relying on the more
+general templates in the \lstinline!<iterator>! header --- since
+\lstinline!<initializer_list>! is part of the minimal,
+\emcppsgloss{freestanding} subset of the C++ Standard Library and
+\lstinline!<iterator>! is not:
+
+\begin{emcppslisting}
+template <typename E>
+constexpr const E* begin(initializer_list<E> list) noexcept    // free function
+{
+    return list.begin();  // invokes member function (ù{\codeincomments{begin()}}ù)
+}
+
+template <typename E>
+constexpr const E* end(initializer_list<E> list) noexcept      // free function
+{
+    return list.end();  // invokes member function (ù{\codeincomments{end()}}ù)
+}
+\end{emcppslisting}
+    
+
+\noindent As it turns out, these functions were originally added to support
+C++11's range-based \lstinline!for! loop, but a subsequent design change
+rendered them superfluous; see \intraref{annoyances-initializerlist}{overloaded-free-function-templates-begin-and-end-are-largely-vestigial}. Their only remaining use is to
+support locally a style of generic programming whereby free, rather than
+member, functions are strongly preferred:
+
+\begin{emcppslisting}
+#include <initializer_list>  // (ù{\codeincomments{std::initializer\_list}}ù)
+#include <algorithm>         // (ù{\codeincomments{std::min}}ù), (ù{\codeincomments{std::max}}ù)
+
+template <typename T>
+T minVal(std::initializer_list<T> il)  // implemented with member functions
+{
+    return std::min(il.begin(), il.end());  // invokes member (ù{\codeincomments{begin}}ù), (ù{\codeincomments{end}}ù)
+}
+
+template <typename T>
+T maxVal(std::initializer_list<T> il)  // implemented using free functions
+{
+    return std::max(begin(il), end(il));  // invokes free (ù{\codeincomments{begin}}ù), (ù{\codeincomments{end}}ù)
+}
+\end{emcppslisting}
+    
+
+\noindent Without the locally overloaded free-function versions of \lstinline!begin!
+and \lstinline!end! in \lstinline!<initializer_list>!, it would have been
+necessary to include the \lstinline!<iterator>! header along with all that
+entails to get the implementation of \lstinline!maxVal! above to compile.
+
+\subsubsection[Pointer semantics and lifetimes of temporaries]{Pointer semantics and lifetimes of temporaries}\label{pointer-semantics-and-lifetimes-of-temporaries}
+
+An instance of \lstinline!std::initializer_list! class template is a
+lightweight proxy for a homogeneous array of values. This type does not
+itself contain any data but instead refers to the data via the address
+of that data. It is unspecified whether a
+\lstinline!std::initializer_list! is implemented as a pair of pointers or
+a pointer and a length.
+
+Any nonempty array of values to which an \lstinline!std::initializer_list!
+refers is created by the compiler in the program context in which the
+braced list of values appears. Each such compiler-generated array is ---
+at least in principle --- a \emcppsgloss{temporary} object having the same
+lifetime as other temporaries created in that context. The
+\lstinline!std::initializer_list! object itself has a special form of
+\emph{pointer semantics} understood by the compiler, such that the
+lifetime of the temporary array will be extended to the lifetime of the
+\lstinline!std::initializer_list! object for which the underlying array
+was created. Importantly, the lifetime of this underlying array is
+\emph{never} extended by copying its proxy initializer-list object.
+
+Consider a \lstinline!std::initializer<int>!, \lstinline!il!, initialized with
+three numbers, \lstinline!1!, \lstinline!2!, and \lstinline!3!:
+
+\begin{emcppslisting}
+std::initializer_list<int> il = {1, 2, 3};  // initializes (ù{\codeincomments{il}}ù) with 3 numbers
+\end{emcppslisting}
+    
+
+\noindent The compiler first creates a \emcppsgloss{temporary} array holding the three
+numbers. That array would normally be destroyed at the end of the
+outermost expression in which it appeared, but initializing \lstinline!il!
+to refer to this array extends its lifetime to be coterminous with
+\lstinline!il!. There are several other ways one might try to initialize
+such a list:
+
+\begin{emcppslisting}
+typedef std::initializer_list<int> Ili
+Ili il0 =  {1, 2, 3};   // OK, copy initialization (implicit ctors only)
+Ili iL0ne  {1, 2, 3};   // OK, direct     "        (even explicit ctors)
+Ili iL1 =  (1, 2, 3);   // Error, conversion from (ù{\codeincomments{int}}ù) to nonscalar requested
+Ili iL1ne  (1, 2, 3);   // Error, no matching function call for ((ù{\codeincomments{int}}ù), (ù{\codeincomments{int}}ù),(ù{\codeincomments{int}}ù))
+
+Ili jL2 = ({1, 2, 3});  // Error, illegal context for statement expression
+Ili jL2ne ({1, 2, 3});  // OK, direct initialization via a single init-list arg
+Ili jL3 = ((1, 2, 3));  // Error, conversion from (ù{\codeincomments{int}}ù) to nonscalar requested
+Ili jL3ne ((1, 2, 3));  // Error, no matching function call for ((ù{\codeincomments{int}}ù))
+
+Ili kL4 = {{1, 2, 3}};  // Error, conversion from brace-enclosed list requested
+Ili kL4ne {{1, 2, 3}};  // Error,    "       "     "      "      "       "
+Ili kL5 = {(1, 2, 3)};  // Bug, copy initialization to single-(ù{\codeincomments{int int}}ù) list
+Ili kL5ne {(1, 2, 3)};  // Bug, direct       "      "    "      "     "
+\end{emcppslisting}
+    
+
+\noindent As can be inferred from the code example above, the language treats
+direct and copy initialization of a \lstinline!std::initializer_list! the
+same --- i.e., as if the inaccessible constructor used by the compiler
+to populate an \lstinline!std::initializer_list! is declared
+\emph{without} the \lstinline!explicit! keyword; see \featureref{\locationc}{bracedinit}.
+
+Copying such a temporary to an \emph{existing} initializer list,
+however, would be ill advised:
+
+\begin{emcppslisting}
+il = { 4, 5, 6, 7 };  // (ù{\codeincomments{il}}ù) now refers to a temporary array that is no longer valid.
+\end{emcppslisting}
+    
+
+\noindent The temporary array created in the assignment expression above is not
+used to initialize \lstinline!il!, so that temporary array's lifetime is
+not extended; it will be destroyed at the end of the assignment
+expression, leaving \lstinline!il! as a dangling reference to a list of
+numbers that no longer exists.
+
+Some C++ implementations permit us to still access the number of
+elements that were assigned to \lstinline!il!, though note that calling
+even \lstinline!size! on an \lstinline!std::initializer_list! bound to an
+expired array does not have predictable behavior across all C++
+implementations; see \intrarefsimple{using-the-initializer_list-class-template}:
+
+\begin{emcppslisting}
+int size = il.size();  // (ù{\codeincomments{size == 4}}ù)
+\end{emcppslisting}
+    
+
+\noindent But if we were to try to access any specific element in the array, that
+behavior would be undefined:
+
+\begin{emcppslisting}
+int firstValue = *il.begin();  // undefined behavior; accessing expired value
+\end{emcppslisting}
+    
+
+\subsubsection[Initialization of \lstinline!std::initializer_list<E>! objects]{Initialization of {\SubsubsecCode std::initializer\_list<E>} objects}\label{initialization-of-std::initializer_list<e>-objects}
+
+%@LORI: BELOW ARE CROSS REFERENCES TO SPECIFIC SUBSECTIONS OF THE BRACED
+%INITIALIZATION FEATURE.
+
+The underlying array of an \lstinline!std::initializer_list<E>! is a
+\lstinline!const! array of elements of type \lstinline!E!, with length
+determined by the number of items in the braced list. Each element is
+copy initialized \intraref{description-bracedinit}{copy-list-initialization} within \featureref{\locationc}{bracedinit} 
+ by the corresponding expression in the braced list,
+and if user-defined conversions are required, they \emph{must} be
+accessible at the point of construction. Following the rules of
+\emcppsgloss[copy list initialization]{\emph{copy} list initialization}, narrowing conversions and
+explicit conversions are ill formed; see \intraref{description-bracedinit}{c++11-restrictions-on-narrowing-conversions} within \featureref{\locationc}{bracedinit}:
+
+\begin{emcppslisting}
+struct X { operator int() const; };
+void f(std::initializer_list<int>);
+
+f({ 1, '2', X() });  // OK, 1 is int.
+                     //     (ù{\codeincomments{2}}ù) has a language-defined conversion to (ù{\codeincomments{int}}ù).
+                     //     (ù{\codeincomments{X}}ù) has a user-defined conversion to (ù{\codeincomments{int}}ù).
+
+f({ 1, 2.5 });       // Error, (ù{\codeincomments{2.5}}ù) has a narrowing conversion to (ù{\codeincomments{int}}ù).
+\end{emcppslisting}
+    
+
+\noindent Note that, since the initializer is a constant expression, narrowing
+conversions from integer literal constant expressions of a wider type
+are permitted:
+
+\begin{emcppslisting}
+#include <initializer_list>
+
+constexpr long long lli = 13LL;
+const     long long llj = 17LL;
+
+void g(const long long arg)
+{
+    std::initializer_list<int> x = { 0LL };  // OK, integral constant
+    std::initializer_list<int> y = { lli };  // OK, integral constant
+    std::initializer_list<int> z = { llj };  // OK, integral constant
+    std::initializer_list<int> w = { arg };  // Error, narrowing conversion
+}
+\end{emcppslisting}
+    
+
+\subsubsection[Type deduction of \lstinline!initializer_list!]{Type deduction of {\SubsubsecCode initializer\_list}}\label{type-deduction-of-initializer_list}
+
+A \lstinline!std::initializer_list! will not be deduced for a
+braced-initializer argument to a function template with an
+\emph{unconstrained} template parameter, but a braced-initializer
+argument can be a match for a template parameter specifically declared
+as an \lstinline!std::initializer_list<E>!. In such a case, the supplied
+list must not be empty, and the type deduced must be the same for each
+item of the list; otherwise the program is ill formed.
+
+\begin{emcppslisting}
+#include <initializer_list>
+
+void f(std::initializer_list<int>);
+template <typename E> void g(std::initializer_list<E>);
+template <typename E> void h(E);
+
+void test()
+{
+    f({ });                 // OK, empty list of (ù{\codeincomments{int}}ù) requires no deduction
+    f({ 1, '2' });          // OK, all list initializers convert to (ù{\codeincomments{int}}ù).
+
+    g({ 1, 2, 3 });         // OK, (ù{\codeincomments{std::initializer\_list<int>}}ù) deduced
+    g({ });                 // Error, cannot deduce an (ù{\codeincomments{E}}ù) from an empty list
+    g({ 1, '2' });          // Error, different deduced types
+
+    h({ 1, 2, 3 });         // Error, cannot deduce an (ù{\codeincomments{std::initializer\_list}}ù)
+}
+\end{emcppslisting}
+    
+
+\noindent Note that the problem with an empty \lstinline!std::initializer_list! when
+calling \lstinline!g! is entirely due to the inability to deduce the type
+of the parameter; there is no problem passing an empty
+\lstinline!std::initializer_list! to \lstinline!f! since no type deduction is
+required. Similarly, heterogeneous lists can be passed to a known
+instantiation of \lstinline!std::initializer_list! as long as all supplied
+list elements are implicitly convertible to the element type of the
+list.
+
+Unlike an unconstrained template argument, an \lstinline!auto! variable
+(see \featureref{\locationc}{auto}) will deduce an
+\lstinline!std::initializer_list! in \emcppsgloss[copy list initialization]{\emph{copy} list
+initialization}. However, to resolve potential ambiguity in favor of a
+copy constructor, \emcppsgloss[direct list initialization]{\emph{direct} list initialization} of an
+\lstinline!auto! variable requires a list of exactly one element and is
+deduced to be a copy of the same type:
+
+\begin{emcppslisting}
+#include <initializer_list>
+
+auto a = {1, 2, 3};  // OK, (ù{\codeincomments{a}}ù) is (ù{\codeincomments{std::initializer\_list<int>}}ù).
+auto b{1, 2, 3};     // Error, too many elements in list
+auto c = {1};        // OK, (ù{\codeincomments{c}}ù) is (ù{\codeincomments{std::initializer\_list<int>}}ù).
+auto d{1};           // OK, (ù{\codeincomments{d}}ù) is (ù{\codeincomments{int}}ù).
+auto e = {};         // Error, cannot deduce element type from empty list
+auto f{};            // Error, cannot deduce variable type from empty list
+\end{emcppslisting}
+    
+
+\noindent Note that the declarations of \lstinline!b! and \lstinline!d! were interpreted
+differently in the original C++11 Standard to both be valid and deduce
+as \lstinline!std::initializer_list<int>!. However, this behavior was
+changed in C++17 with N3922 and applied retroactively to previous
+standards as a defect report. Early C++11 compilers may still display
+the original behavior, although most compilers managed to adopted the DR
+before completing their C++14 implementation.
+
+\subsection[Overload resolution and \lstinline!std::initializer_list!]{Overload resolution and {\SubsubsecCode std::initializer\_list}}\label{overload-resolution-and-std::initializer_list}
+
+When name lookup finds an overload set containing
+\lstinline!std::initializer_list! arguments, the ranking rules now prefer
+to match braced lists to the \lstinline!std::initializer_list! overloads
+rather than interpret them as other forms of list initialization, unless
+a default constructor would be selected; see \featureref{\locationc}{bracedinit}.
+
+\subsection[Use Cases]{Use Cases}\label{use-cases-initlist}
+
+\subsubsection[Convenient population of standard containers]{Convenient population of standard containers}\label{convenient-population-of-standard-containers}
+
+The original design intent of \lstinline!std::initializer_list! was to
+make initializing a container with a sequence of values as simple as
+initializing a built-in array:
+
+\begin{emcppslisting}
+#include <vector>
+
+std::vector v = {1, 2, 3, 4, 5};
+\end{emcppslisting}
+    
+
+\noindent Note that because \lstinline!std::vector! deliberately intends to make
+available this form of initialization, the \lstinline!<vector>! header is
+required to transitively
+\lstinline!#include!~\lstinline!<initializer_list>!, so that the user does
+not need to. This is the case for the header of any standard library
+container, which means we do not generally see explicit inclusion of the
+\lstinline!<initializer_list>! header in application code, since most uses
+are through standard containers.
+
+As users start to think of braced lists as stand-ins for containers, it
+was naturally expected that any standard container with a
+\lstinline!std::initializer_list! constructor would also be assignable
+from a braced list, so all such containers also provide an overload for
+the assignment operator, to avoid implicitly creating a temporary to
+pass to the move-assignment operator:
+
+\begin{emcppslisting}
+v = {2, 3, 5, 7, 11, 13, 17};
+\end{emcppslisting}
+    
+
+\noindent Finally, because \lstinline!std::initializer_list! satisfies the
+requirements of a random access range, all container member function
+templates that take a pair of iterators to denote a range were
+overloaded to also accept an \lstinline!std::initializer_list! of the
+corresponding type:
+
+\begin{emcppslisting}
+v.insert(v.end(), {23, 29, 31});
+\end{emcppslisting}
+    
+
+\noindent Note that since the rules for braced initialization are recursive, more
+complex containers can also use this syntax, which may be especially
+useful when creating \lstinline!const! containers since there is no other
+way to provide the initial data without making another copy with the
+same lifetime as the container itself:
+
+\begin{emcppslisting}
+const std::map<std::string, int> m{{"a", 1}, {"b", 2}, {"c", 3}};
+\end{emcppslisting}
+    
+
+\subsubsection[Providing support for braced lists in our own class]{Providing support for braced lists in our own class}\label{providing-support-for-braced-lists-in-our-own-class}
+
+Just as the C++ Standard Library provides extensive support for
+supplying braced lists to containers, so our client will come to expect
+the same of the classes we provide. For this example, we create a class
+that holds a dynamic array of \lstinline!int!s that can be initialized and
+set to an arbitrary list of values supplied by the user. To simplify the
+example, we implement in terms of \lstinline!std::vector! to avoid the
+distracting complexity of explicit memory management; in practice, the
+intent of such a class would be to provide a type simpler than
+\lstinline!std::vector! itself:
+
+\begin{emcppslisting}
+class DynArray
+{
+    // DATA
+    std::vector<int> d_data;
+
+    // FRIENDS
+    friend bool operator==(const DynArray&            lhs,
+                           std::initializer_list<int> rhs);
+
+  public:
+    // CREATORS
+    DynArray() : d_data() {}
+    DynArray(std::initializer_list<int> il) : d_data(il) {}
+
+    DynArray(const DynArray&) = delete;
+    DynArray& operator=(const DynArray&) = delete;
+
+    // MANIPULATORS
+    DynArray& operator=(std::initializer_list<int> il)
+    {
+        d_data = il;
+
+        return *this;
+    }
+
+    DynArray& operator+=(std::initializer_list<int> il)
+    {
+        d_data.insert(d_data.end(), il);
+
+        return *this;
+    }
+
+    void shrink(std::size_t newSize)
+    {
+        assert(newSize <= d_data.size());
+
+        d_data.resize(newSize);
+    }
+
+    // ACCESSORS
+    bool isEqual(std::initializer_list<int> rhs) const
+    {
+        // optimized with (ù{\codeincomments{memcmp}}ù)to take advantage of memory layout guarantees.
+        return d_data.size() == rhs.size()
+            && 0 == std::memcmp(d_data.data(),
+                                rhs.begin(),
+                                rhs.size() * sizeof(int));
+    }
+};
+
+inline
+bool operator==(const DynArray& lhs, std::initializer_list<int> rhs)
+{
+    return lhs.isEqual(rhs);
+}
+
+inline
+bool operator!=(const DynArray& lhs, std::initializer_list<int> rhs)
+{
+    return !lhs.isEqual(rhs);
+}
+\end{emcppslisting}
+    
+
+\noindent There are many opportunities to provide rich support for braced lists
+beyond just the constructor and assignment operator. Let's exercise this
+class in \lstinline!main!, highlighting its support for braced lists:
+
+\begin{emcppslisting}
+int main()
+{
+    DynArray x = { 1, 2, 3, 4, 5 };
+
+    std::initializer_list<int> il = { 1, 2, 3, 4, 5 };
+
+    assert(x == il);
+
+    assert((x == { 1, 2, 3, 4, 5 }));  // Error, not a (ù{\codeincomments{std::initializer\_list}}ù)
+    assert((x != { 1, 2, 3 }));        // Error, not a (ù{\codeincomments{std::initializer\_list}}ù)
+
+    assert( x.isEqual({ 1, 2, 3, 4, 5 }));
+    assert(!x.isEqual({ 1, 2, 3, 4, 6 }));
+    assert(!x.isEqual({ 1, 2, 3, 4 }));
+    assert(!x.isEqual({ }));
+
+    x += { 6 };
+
+    assert(x != il);
+    assert( x.isEqual({ 1, 2, 3, 4, 5, 6 }));
+
+    x.shrink(2);
+
+    std::initializer_list<int> ilB = { 1, 2 };
+
+    assert(!x.isEqual({ 1, 2, 3, 4, 5, 6 }));
+    assert( x.isEqual({ 1, 2 }));
+    assert( x.isEqual(ilB));
+    assert(x == ilB);
+
+    assert((x == { 1, 2 }));  // Error, not a (ù{\codeincomments{std::initializer\_list}}ù)
+
+    x += { 8, 9, 10 };
+
+    assert(!x.isEqual({ 1, 2 }));
+    assert( x.isEqual({ 1, 2, 8, 9, 10 }));}
+\end{emcppslisting}
+    
+
+\noindent Note that due to a quirk of the C++ grammar for certain operators, using
+\emph{braced-init-list} as the right-hand argument of an
+\lstinline!operator==! does not implicitly deduce an
+\emph{initializer-list}, even if the \lstinline!operator==! takes an
+\emph{initializer-list} as the parameter; see \intraref{annoyances-bracedinit}{compound-assignment-but-not-arithmetic-operators-accept-braced-lists} within \featureref{\locationc}{bracedinit}.
+
+\subsubsection[Functions consuming a variable number of arguments of the same type]{Functions consuming a variable number of arguments of the same type}\label{functions-consuming-a-variable-number-of-arguments-of-the-same-type}
+
+Suppose we want a function that takes an arbitrary number of arguments
+all of the same type. In our example, we write a function that
+concatenates a number of input strings together separated by commas:
+
+\begin{emcppslisting}
+#include <initializer_list>
+#include <string>
+
+std::string concatenate(std::initializer_list<std::string> ils)
+{
+    std::string separator;
+    std::string result;
+    for (const std::string* p = ils.begin(); p != ils.end(); ++p)
+    {
+        result.append(separator);
+        result.append(*p);
+        separator = ",";
+    }
+    return result;
+}
+
+std::string hex_digits = concatenate({"A", "B", "C", "D", "E"});
+\end{emcppslisting}
+    
+
+\noindent An example from the C++ Standard Library would be the additional
+overload for \lstinline!std::min! provided by C++11 to take a list of
+arguments:
+
+\begin{emcppslisting}
+#include <algorithm>
+#include <initializer_list>
+
+constexpr int n = std::min({3,2,7,5,-1,3,9});  // (ù{\codeincomments{min}}ù) is constexpr in C++14.
+static_assert(n == -1, "Error: wrong value?!");
+\end{emcppslisting}
+    
+
+\subsubsection[Iterating over a fixed number of objects]{Iterating over a fixed number of objects}\label{iterating-over-a-fixed-number-of-objects}
+
+\lstinline!std::initializer_list! was designed from the start to model a
+standard library range, which is the same set of requirements for a type
+to support the C++11 range-based for loop (see \featureref{\locationc}{rangefor}.
+Range-based \lstinline!for! loops acquire their meaning through a
+translation equivalence; it is instructive to examine that as an example
+of the synergy of several new language features designed to interact
+well. Suppose that the compiler encounters the following range-based
+\lstinline!for! loop:
+
+\begin{emcppslisting}
+for ((ù{\emph{declaration}}ù) : { (ù{\emph{list}}ù) }) (ù{\emph{statement}}ù)
+\end{emcppslisting}
+    
+
+%LORI: \lstinline!declaration!, \lstinline!list!, AND \lstinline!statement!
+%SHOULD BE ITALICIZED ABOVE AND THROUGH THE EXAMPLE BELOW, AS THEY DENOTE
+%GRAMMAR PRODUCTIONS RATHER THAN IDENTIFIERS
+
+\noindent Such a loop would be translated as follows:
+
+\begin{emcppslisting}
+{
+    auto &&__r = { (ù{\emph{list}}ù) };
+    for (auto __b = __r.begin(), __e = __r.end(); __b != __e; ++__b)
+    {
+        (ù{\emph{declaration}}ù) = *__b;
+        (ù{\emph{statement}}ù)
+    }
+}
+\end{emcppslisting}
+    
+
+\noindent Note the use of \lstinline!auto&&! to perfectly deduce the type of the
+argument and forward it into the following code by reference, avoiding
+the creation of unnecessary temporary objects.
+
+Thus, \lstinline!__r! is deduced to be a
+\lstinline!std::initializer_list<E>!. By the special rule for creating
+\lstinline!std::initializer_list! objects directly from a braced list and
+the corresponding lifetime extension rules for the reference
+\lstinline!__r! to the deduced \lstinline!std::initializer_list!, the
+lifetime of the array is extended to the lifetime of \lstinline!__r!,
+which also encompasses the lifetime of the loop. Ultimately, that
+extension makes things work ``as expected''; the array exists while the
+loop is executing and is destroyed immediately after.
+
+Now suppose we want to iterate over a fixed set of objects. Using
+initializer lists lets us avoid the tedious boilerplate of creating our
+own array of data for the iteration. In our example, we analyze a
+character string to see if it begins with one of the numeric base prefix
+indicators{\cprotect\footnote{To avoid unnecessary string copies, the
+standard C++17 \lstinline!std::string_view! facility could be used in
+  place of \lstinline!std::string! in the \lstinline!hasBasePrefix! example.}}:
+
+\begin{emcppslisting}
+bool hasBasePrefix(const std::string& number)
+{
+    for (const std::string& prefix : { "0x", "0X", "0b", "0B" })
+    {
+        if (number.find(prefix) == 0)
+        {
+            return true;
+        }
+    }
+
+    return false;
+}
+\end{emcppslisting}
+    
+
+\noindent Note that this pattern may often be seen feeding values to a test
+driver.
+
+\subsection[Potential Pitfalls]{Potential Pitfalls}\label{potential-pitfalls}
+
+\subsubsection[Dangling references to temporary underlying arrays]{Dangling references to temporary underlying arrays}\label{dangling-references-to-temporary-underlying-arrays}
+
+Because \lstinline!std::initializer_list! has pointer semantics, it has
+all the pitfalls associated with regular pointers with respect to
+dangling references, i.e, referring to an object after its lifetime has
+ended. These problems arise when the lifetime of the
+\lstinline!std::initializer_list! object is greater than the lifetime of
+the underlying array. As a simple example, the following risks undefined
+behavior and does not work as the user (probably) expects:
+
+\begin{emcppslisting}
+std::initializer_list<int> il;
+il = { 1, 2, 3 };  // BAD IDEA, bound to a temporary that is about to expire
+\end{emcppslisting}
+    
+
+\noindent In this example, the temporary array created for the brace-enclosed list
+does not have its lifetime extended, because \lstinline!il! is being
+assigned, not initialized. If we are lucky, the compiler will warn us:
+
+\begin{emcppslisting}[style=plain]
+warning: assignment from temporary 'initializer_list' does not extend the lifetime 
+of the underlying array
+\end{emcppslisting}
+    
+
+\noindent As is so often the case when dealing with lifetime issues in C++,
+caution is required.
+
+\subsection[Annoyances]{Annoyances}\label{annoyances-initializerlist}
+
+\subsubsection[Initializer lists must be homogeneous, sometimes]{Initializer lists must be homogeneous, sometimes}\label{initializer-lists-must-be-homogeneous,-sometimes}
+
+While a \lstinline!std::initializer_list<E>! is clearly always
+homogeneous, the initializer list used to create it in many cases can be
+a heterogeneous list of initializers convertible to the common type
+\lstinline!E!, but, in deduction contexts, the braced list must strictly be
+homogeneous too:
+
+\begin{emcppslisting}
+#include <initializer_list>
+
+void f(std::initializer_list<int>) {}
+
+template <typename E>
+void g(std::initializer_list<E>) {}
+
+int main()
+{
+    f({1, '2', 3});  // OK, heterogeneous list converts
+    g({1, '2', 3});  // Error, cannot deduce heterogeneous list
+    g({1,  2 , 3});  // OK, homogenous list
+
+    auto x = {1, '2', 3};  // Error, cannot deduce heterogeneous list
+    auto y = {1,  2 , 3};  // OK, homogenous list
+    std::initializer_list<int> z = {1, '2', 3};  // OK, converts
+}
+\end{emcppslisting}
+    
+
+\subsubsection[\lstinline!std::initializer_list! constructor suppresses the implicitly declared default]{{\SubsubsecCode std::initializer\_list} constructor suppresses the implicitly declared default}\label{std::initializer_list-constructor-suppresses-the-implicitly-declared-default}
+
+The declaration of a constructor with an \emph{initializer-list}
+argument will suppress the implicit declaration of a default
+constructor, as one would expect. Without a default constructor, the
+\lstinline!std::initializer_list! constructor will be called when the
+object is initialized from an empty list but not in other circumstances
+where a default constructor might be called. If such a type is then used
+as the type of a subobject, it would result in an implicitly declared
+default constructor of the outer object being deleted. These rules can
+make initialization from a pair of empty braces a bit counter-intuitive:
+
+\begin{emcppslisting}
+#include <vector>
+#include <cassert>
+
+struct X
+{
+    std::vector<int> d_v;
+
+    X(std::initializer_list<int> il) : d_v(il) {}
+};
+
+struct Y
+{
+    long long d_data;
+
+    Y() : d_data(-1) {}
+    Y(std::initializer_list<int> il) : d_data(il.size()) {}
+};
+
+struct Z1 : X { };
+
+struct Z2 : X
+{
+    Z2() = default;       // BAD IDEA, implicitly deleted
+};
+
+struct Z3 : X
+{
+    using X::X;
+};
+
+struct Z4
+{
+    X data;
+
+    Z4() = default;
+};
+
+void demo()
+{
+    X a;                  // Error, no default constructor
+
+    X b{};                // OK
+    assert(b.d_v.empty());
+
+    X c = {};             // OK
+    assert(c.d_v.empty());
+
+    X d = { 1, 2, 7 };    // OK
+    assert(3 == d.d_v.size() && 7 == d.d_v.back());
+
+    X ax[5];              // Error, no default constructor
+    X bx[5]{};            // OK, initializes each element with (ù{\codeincomments{\{\}}}ù)
+    X cx[5] = {};         // OK, initializes each element with (ù{\codeincomments{\{\}}}ù)
+
+    Y e;                  // OK
+    assert(-1 == e.d_data);
+
+    Y f{};                // OK, default constructor!
+    assert(-1 == f.d_data);
+
+    Y g = {};             // OK, default constructor!
+    assert(-1 == g.d_data);
+
+    Y h({});              // OK, using (ù{\codeincomments{std::initializer\_list}}ù)
+    assert(0  == h.d_data);
+
+    Y i = { 7, 8, 9 };    // OK, using (ù{\codeincomments{std::initializer\_list}}ù)
+    assert(3  == i.d_data);
+
+    Z1 j1{};       // Error, calls implicitly deleted default constructor
+    Z2 j2{};       // Error, calls deleted default constructor
+    Z3 j3{};       // Error, calls implicitly deleted default constructor
+    Z4 j4{};       // OK, aggregate initialization, empty list for (ù{\codeincomments{X}}ù)
+
+    Z1 k1 = {};    // Error, calls implicitly deleted default constructor
+    Z2 k2 = {};    // Error, calls deleted default constructor
+    Z3 k3 = {};    // Error, calls implicitly deleted default constructor
+    Z4 k4 = {};    // OK, aggregate initialization, empty list for (ù{\codeincomments{X}}ù)
+
+    Z1 m1 = {{}};  // Error, not an aggregate, no (ù{\codeincomments{initializer\_list}}ù) constructor
+    Z2 m2 = {{}};  // Error, not an aggregate, no (ù{\codeincomments{initializer\_list}}ù) constructor
+    Z3 m3 = {{}};  // OK, (ù{\codeincomments{initializer\_list}}ù) constructor with one (ù{\codeincomments{int}}ù)
+    Z4 m4 = {{}};  // OK, aggregate initialization, empty list for (ù{\codeincomments{X}}ù)
+}
+\end{emcppslisting}
+    
+
+\noindent Note that most of the \lstinline!Z*! examples will become ``OK'' in C++17
+as the definition of aggregate evolves. Some of those examples will
+become errors again in C++20 as will all of the \lstinline!Z4! examples
+above because \lstinline!Z4! ceases to be an aggregate in C++20 due to the
+user-declared default constructor.
+
+On the other hand, with regard to nondefault constructors, if a nonempty
+pair of braces is called, the \emph{initializer-list} constructor is
+favored over all others; see \intraref{potential-pitfalls-bracedinit}{inadvertently-calling-initializer-list-constructors} within \featureref{\locationc}{bracedinit}:
+
+\begin{emcppslisting}
+    std::vector<int> v{ 12, 3 };
+    assert(2 == v.size() && v.front() == 12);
+    std::vector<int> w( 12, 3 );
+    assert(12 == w.size() && w.front() == 3);
+\end{emcppslisting}
+    
+
+\subsubsection[Initializer lists represent \lstinline!const! objects]{Initializer lists represent {\SubsubsecCode const} objects}\label{initializer-lists-represent-const-objects}
+
+The underlying array of an initializer list is \lstinline!const!, so the
+objects in that list cannot be modified. In particular, it is not
+possible to \emph{move} elements out of the list that are typically
+consumed just once, despite their being temporaries.
+
+\begin{emcppslisting}
+#include <vector>
+
+std::vector<std::vector<int>> v = {{1, 2, 3},
+                                   {4, 5, 6},
+                                   {7, 8},
+                                   {9}};
+\end{emcppslisting}
+    
+
+\noindent In this example, the vector, \lstinline!v!, is initialized by an
+\romeovalue{rvalue} that is an \lstinline!std::initializer_list! comprising four
+temporary vectors, each allocating memory for their internal array.
+However, the constructor for \lstinline!v! must again copy each vector,
+allocating a fresh copy of each array, rather than take advantage of
+move-related optimizations, since each temporary is effectively
+\lstinline!const!-qualified.
+
+Another consequence of initializer lists' \lstinline!const! nature is that
+\emph{move-only} types such as \lstinline!std::unique_ptr<T>! become
+completely unusable with them.
+
+\subsubsection[Overloaded free-function templates \lstinline!begin! and \lstinline!end! are largely vestigial]{Overloaded free-function templates {\SubsubsecCode begin} and {\SubsubsecCode end} are largely vestigial}\label{overloaded-free-function-templates-begin-and-end-are-largely-vestigial}
+
+The range-based \lstinline!for! feature initially required the free
+functions \lstinline!begin! and \lstinline!end!; see \intrarefsimple{appendix-initlist} for why
+they are no longer needed. The \lstinline!begin! and \lstinline!end! free
+functions were already provided by the \lstinline!<iterator>! header, but
+because the \lstinline!<initializer_list>! header is \emcppsgloss{freestanding}
+unlike the \lstinline!<iterator>! header, it was necessary to also add
+specific overloads to the \lstinline!<initializer_list>! header.
+Historically, due to the perceived range-based \lstinline!for! dependency,
+the aforementioned free functions in the \lstinline!<iterator>! header were
+also added to many other headers, including those for all of the
+standard containers.
+
+As subsequent editions of the Standard have added to the set of related,
+free function overloads (for example, \lstinline!empty!, added in C++17),
+those additional overloads have been added to multiple headers so that
+idiomatic generic code does not need to include additional headers.
+However, due to the freestanding requirement, none of those additional
+overloads are available through the \lstinline!<initializer\_list>! header.
+
+\subsection[See Also]{See Also}\label{see-also}
+
+\begin{itemize}
+\item{\seealsoref{bracedinit}{\seealsolocationc}provides further details regarding object initialization and construction using braced lists and \lstinline!std::initializer_list!s.}
+\end{itemize}
+
+\subsection[Further Reading]{Further Reading}\label{further-reading}
+
+\begin{itemize}
+\item{\cite{stroustrup05a}[https://www.stroustrup.com/N1890-initialization.pdf]}
+\item{\cite{stroustrup05a}[https://www.stroustrup.com/N1919-initializer\_lists.pdf]}
+\item{\cite{krzemienski16}}
+\end{itemize}
+    
+
+\subsection[Appendix]{Appendix}\label{appendix-initlist}
+
+\subsubsection[A brief history of user customization to support range-based \lstinline!for!]{A brief history of user customization to support range-based {\SubsubsecCode for}}\label{a-brief-history-of-user-customization-to-support-range-based-for}
+
+The original incarnation of the range-based \lstinline!for! loop was built
+around the proposed \emcppsgloss{concepts} language feature. The range
+argument to the \lstinline!for! loop would satisfy the range
+\emcppsgloss[concepts]{concept}, which the user could customize with a
+\lstinline!concept_map! to adapt third-party libraries that did not have
+\lstinline!begin! and \lstinline!end! member functions.
+
+When concepts were pulled after the first ISO ballot, the committee did
+not want to lose range-based \lstinline!for!, so a new scheme was invented:
+The compiler would look for \lstinline!begin! and \lstinline!end! free
+functions. The Standard Library would provide the primary template for
+these functions, and \lstinline!#include!~\lstinline!<iterator>! would be
+required for the range-based \lstinline!for! loop to work, much like
+\lstinline!#include!~\lstinline!<typeinfo>! is required to enable the
+\lstinline!typeid! operator. Suggestions were made --- and rejected ---
+that the core feature should look for the member functions (just like
+the template) before looking for the free functions as the last resort.
+To make the standard library easy to use, the primary template for the
+\lstinline!begin! and \lstinline!end! functions was added to every standard
+container header, to \lstinline!<regex>!, to \lstinline!<string>!, and would
+be added on an ongoing basis to any new headers for types representing a
+range.
+
+The Core Working Group then met the original request, so that
+range-based \lstinline!for! never uses the \lstinline!<iterator>! templates
+but directly looks for member functions and, failing that, performs an
+\emcppsgloss[argument-dependent lookup (ADL)]{ADL} lookup to find \lstinline!begin! and \lstinline!end!. The need to
+scatter these templates in every header is gone, but that core language
+change was not communicated to the Library Working Group in time. The
+only reason these functions remain in so many headers today is backward
+compatibility from when they were redundantly specified in C++11.
+
+While the \lstinline!begin! and \lstinline!end! free functions are never
+required to support the range-based \lstinline!for! loop, subsequent
+evolution of the Standard Library has embraced these functions as a
+means of expressing generic code. When called in a context that supports
+ADL, arbitrary third party types can be adapted to satisfy the
+requirements of a Standard Library range. Further overloads for constant
+and reverse iterators were added for C++14 and for a broader range of
+queries, such as \lstinline!empty! and \lstinline!size!, in C++17.
+Unfortunately, due to the way the Standard Library specification is
+drafted, all of these additional overloads are scattered across the same
+set of additional headers, despite being totally unrelated to the
+vanished motivation of supporting range-based \lstinline!for!.
+
+

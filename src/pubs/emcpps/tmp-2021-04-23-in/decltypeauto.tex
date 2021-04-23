@@ -1,0 +1,549 @@
+% 23 April 2021, to Josh for code check
+
+
+
+
+
+\emcppsFeature{
+    short={\lstinline!decltype(auto)!},
+    tocshort={\TOCCode decltype(auto)},
+    long={Deducing Types Using {\SecCode decltype} Semantics},
+    toclong={Deducing Types Using \lstinline!decltype! Semantics},
+    rhshort={\RHCode decltype(auto)},
+}{decltypeauto}
+\label{deducing-types-using-decltype-semantics}
+\setcounter{table}{0}
+\setcounter{footnote}{0}
+\setcounter{lstlisting}{0}
+%\section[{\tt decltypeauto}]{Deducing Types Using {\SecCode decltype} Semantics}\label{decltypeauto}
+%\subsection[Deducing Types Using \tt{decltype} Semantics]{Deducing Types Using {\SubsecCode decltype} Semantics}\label{deducing-types-using-decltype-semantics}
+
+
+In a C++14 variable declaration, \lstinline!decltype(auto)! can act as a
+\emcppsgloss{placeholder type} that is deduced to exactly match the type of
+the variable's initializer, preserving the initializer's \emcppsgloss{value
+category}, unlike the \lstinline!auto! placeholder.
+
+\subsection[Description]{Description}\label{description}
+
+The type specifier, \lstinline!auto! (see \featureref{\locationc}{auto}),
+can be used in C++11 as a placeholder to declare a variable whose type
+is deduced from the variable's initializer:
+
+\begin{lstlisting}[language=C++]
+class C { /* ... */ };
+
+C f1();
+
+auto a1 = 0;    // deduced type (ù{\codeincomments{int}}ù)
+auto a2{f1()};  // deduced type (ù{\codeincomments{C}}ù)
+\end{lstlisting}
+    
+
+C++14 introduced a new placeholder, \lstinline!decltype(auto)!, which can
+be used in most of the same contexts as \lstinline!auto!. For the example
+above, \lstinline!decltype(auto)! behaves identically to \lstinline!auto!:
+
+\begin{lstlisting}[language=C++]
+decltype(auto) a3 = 0;    // deduced type (ù{\codeincomments{int}}ù)
+decltype(auto) a4{f1()};  // deduced type (ù{\codeincomments{C}}ù)
+\end{lstlisting}
+    
+
+The literal, \lstinline!0!, has type \lstinline!int!; initializing \lstinline!a3!
+with \lstinline!0! thus yields a variable of type \lstinline!int!. Similarly,
+the expression \lstinline!f1()! has type \lstinline!C!, yielding a variable of
+type \lstinline!C! when used to initialize \lstinline!a4!.
+
+Unlike plain \lstinline!auto!, the deduced type of a variable declared with
+type \lstinline!decltype(auto)! is determined not by using
+template-argument deduction rules, but by applying the \lstinline!decltype!
+operator to the initialization expression. In practice, this semantic
+means that the cv-qualifiers and \emcppsgloss{value category} (see Appendix~\ref{appendix-value-categories} on page~\pageref{appendix-value-categories}) of the initializer are
+preserved for \lstinline!decltype(auto)! when they would be discarded for
+plain \lstinline!auto!:
+
+\begin{lstlisting}[language=C++]
+int&    f2();
+C&&     f3();
+C       c1;
+const C cc1;
+C*      p1 = &c1;
+
+auto           i1  = 4;      // deduced as (ù{\codeincomments{int}}ù)
+decltype(auto) i2  = 4;      //    "     " (ù{\codeincomments{int}}ù)
+
+auto           c7  = f2();   //    "     " (ù{\codeincomments{int}}ù)
+decltype(auto) c8  = f2();   //    "     " (ù{\codeincomments{int\&}}ù)
+
+auto           i3  = f3();   //    "     " (ù{\codeincomments{C}}ù)
+decltype(auto) i4  = f3();   //    "     " (ù{\codeincomments{C\&\&}}ù)
+
+auto           c9  = cc1;    //    "     " (ù{\codeincomments{C}}ù)
+decltype(auto) c10 = cc1;    //    "     " (ù{\codeincomments{const C}}ù)
+
+auto           c11 = (cc1);  //    "     " (ù{\codeincomments{C}}ù)
+decltype(auto) c12 = (cc1);  //    "     " (ù{\codeincomments{const C\&}}ù)
+\end{lstlisting}
+    
+
+As with the \lstinline!decltype! operator, \lstinline!decltype(auto)! is one
+of the few constructs that preserves the distinction between the two
+categories of \romeovalue{rvalue} --- \romeovalue{prvalues} (e.g., literal
+\lstinline!4!) and \romeovalue{xvalues} (e.g., \lstinline!f3()!).
+
+Both \lstinline!auto! and \lstinline!decltype(auto)! can be used as
+placeholders for a function return type, indicating that the return type
+should be deduced from the function's \lstinline!return! statement(s). The
+deduced return-type feature is covered in its own section (see
+\featureref{\locationf}{autoreturn}). Note that the deduction rules described for
+function return types in that section refer to the ones described for
+variables here. Readers are, therefore, advised to read this section
+first.
+
+\subsubsection[Specification]{Specification}\label{specification}
+
+The \lstinline!decltype(auto)! placeholder can appear in most places where
+\lstinline!auto! can appear:
+\begin{enumerate}
+\item{As the type in the declaration of an initialized variable, including variables defined in the header of a loop or \lstinline!switch! statement}
+\item{As the type of object allocated and initialized by a \lstinline!new! expression}
+\item{As the type returned by a function or conversion operator}
+\end{enumerate}
+The last is the most common use of \lstinline!decltype(auto)! and is
+described in detail in \featureref{\locationf}{autoreturn}. Note that
+\lstinline!decltype(auto)! cannot be used to declare a parameter of a
+generic \emcppsgloss[lambda expressions]{lambda expression}; see \featureref{\locationd}{genericlambda}.
+
+For a variable, \lstinline!v!, declared with \lstinline!decltype(auto)! and
+initialized with an expression, \lstinline!expr!, the type of \lstinline!v! is
+deduced to be the type denoted by \lstinline!decltype(expr)!; see
+\featureref{\locationa}{decltype}. This semantic means that the deduced
+type might be cv-qualified and/or a reference:
+
+\begin{lstlisting}[language=C++]
+struct C1 { /* ... */ };
+
+int&     f2();
+C1&&     f3();
+C1       c1;
+const C1 cc1;
+
+decltype(f2())  i1  = f2();   // deduced as (ù{\codeincomments{int\&}}ù)
+decltype(auto)  i2  = f2();   // equivalent to (ù{\codeincomments{i1}}ù)
+
+decltype(f3())  c2  = f3();   // deduced as (ù{\codeincomments{C1\&\&}}ù)
+decltype(auto)  c3  = f3();   // equivalent to (ù{\codeincomments{c2}}ù)
+
+decltype(c1)    c4  = c1;     // deduced as (ù{\codeincomments{C1}}ù)
+decltype(auto)  c5  = c1;     // equivalent to (ù{\codeincomments{c4}}ù)
+
+decltype((c1))  c6  = c1;     // deduced as (ù{\codeincomments{C1\&}}ù)
+decltype(auto)  c7  = (c1);   // equivalent to (ù{\codeincomments{c6}}ù)
+
+decltype(cc1)   cc2 = cc1;    // deduced as (ù{\codeincomments{const C1}}ù)
+decltype(auto)  cc3 = cc1;    // equivalent to (ù{\codeincomments{cc2}}ù)
+decltype((cc1)) cc4 = cc1;    // deduced as (ù{\codeincomments{const C1\&}}ù)
+decltype(auto)  cc5 = (cc1);  // equivalent to (ù{\codeincomments{cc4}}ù)
+
+decltype({ 3 }) x1 = { 3 };   // Error, not an expression
+decltype(auto)  x2 = { 3 };   // Error, not an expression
+\end{lstlisting}
+    
+
+The semantics of the \lstinline!decltype! operator, when applied to an
+expression consisting of a single variable, cause \lstinline!decltype(c1)!
+to yield type \lstinline!C1! and \lstinline!decltype((c1))! to yield reference
+type \lstinline!C1&!, as in the definitions of \lstinline!c4! and
+\lstinline!c6!, respectively; variables \lstinline!c5! and \lstinline!c7!,
+therefore, also have the types \lstinline!C1! and \lstinline!C1&!. A
+braced-initializer list such as \lstinline!{!~\lstinline!3!~\lstinline!}! is not
+an expression; thus, \lstinline!x1! and \lstinline!x2! are both invalid.
+
+Note that functions returning scalars discard top-level cv-qualifiers on
+their return types, so a type deduced from a call to such a function
+will not reflect top-level cv-qualifiers even when defined with
+\lstinline!decltype(auto)!:
+
+\begin{lstlisting}[language=C++]
+template <typename T> T f4();
+
+decltype(auto) v1 = f4<const C1>();           // deduced as (ù{\codeincomments{const C1}}ù)
+decltype(auto) v2 = f4<const int>();          //    "     " (ù{\codeincomments{int}}ù)
+decltype(auto) v3 = f4<const int&>();         //    "     " (ù{\codeincomments{const int\&}}ù)
+decltype(auto) v4 = f4<const char* const>();  //    "     " (ù{\codeincomments{const char*}}ù)
+\end{lstlisting}
+    
+
+The top-level \lstinline!const! qualifier on the class type,
+\lstinline!const!~\lstinline!C1!, and on the reference type,
+\lstinline!const!~\lstinline!int&!, are preserved but not on the scalar type,
+\lstinline!const!~\lstinline!int!. The \lstinline!const!ness of the pointer
+itself, in \lstinline!const!~\lstinline!char*!~\lstinline!const!, is similarly
+discarded, as it is the top-level cv-qualifier on a scalar type.
+
+When a function name is used as the initializer expression, it
+automatically decays to a pointer type when initializing a variable
+declared with type \lstinline!auto! but does not decay when the variable is
+declared with type \lstinline!decltype(auto)!; thus, the deduced type of
+\lstinline!fx2! is a function type, which is not an allowed type for a
+variable. Initializer expressions having pointer-to-function type or
+reference-to-function type do not pose a problem, as seen with
+\lstinline!fx3! and \lstinline!fx4!.
+
+\begin{lstlisting}[language=C++]
+auto           fx1 = f2;     // OK, deduced as (decayed type) (ù{\codeincomments{int\& (*)()}}ù)
+decltype(auto) fx2 = f2;     // Error, cannot define variable of type (ù{\codeincomments{int\&()}}ù)
+
+auto           fx3 = &f3;    // OK, deduced as (ù{\codeincomments{C1\&\& (*)()}}ù)
+decltype(auto) fx4 = &f3;    // OK,    "     " (ù{\codeincomments{C1\&\& (*)()}}ù)
+
+auto&          fx5 = *fx3;   // OK,    "     " (ù{\codeincomments{C1\&\& (\&)()}}ù)
+decltype(auto) fx6 = *fx3;   // OK,    "     " (ù{\codeincomments{C1\&\& (\&)()}}ù)
+\end{lstlisting}
+    
+
+Note that \lstinline!fx5! uses \lstinline!&! to force the variable type to be
+a reference. The ability to add reference specifiers and cv-qualifiers
+to a placeholder is not available for \lstinline!decltype(auto)!, as
+described in the next section.
+
+\subsubsection[Syntactic restrictions]{Syntactic restrictions}\label{syntactic-restrictions}
+
+When used as a type placeholder, \lstinline!decltype(auto)! must appear
+alone, unadorned by cv-qualifiers, reference type specifiers, pointer
+type specifiers, or function parameter lists:
+
+\begin{lstlisting}[language=C++]
+int&& f1();
+int i1 = 5;
+
+decltype(auto)       i2     = f1();  // OK, deduced as (ù{\codeincomments{int\&\&}}ù)
+const decltype(auto) i3     = f1();  // Error, (ù{\codeincomments{const}}ù) qualifier not allowed
+decltype(auto)&&     i4     = f1();  // Error, reference operator "     "
+decltype(auto)*      i5     = &i1;   // Error, pointer operator   "     "
+decltype(auto)     (*fx1)() = &f1;   // Error, function parameters "    "
+\end{lstlisting}
+    
+
+All of the above definitions would be valid if \lstinline!decltype(auto)!
+were replaced with \lstinline!auto!:
+
+\begin{lstlisting}[language=C++]
+auto                 i6     = f1();  // OK, (ù{\codeincomments{i6}}ù) deduced as (ù{\codeincomments{int}}ù)
+const auto           i7     = f1();  // OK, (ù{\codeincomments{i7}}ù)    "     " (ù{\codeincomments{const int}}ù)
+auto&&               i8     = f1();  // OK, (ù{\codeincomments{i8}}ù)    "     " (ù{\codeincomments{int\&\&}}ù)
+auto*                i9     = &i1;   // OK, (ù{\codeincomments{i9}}ù)    "     " (ù{\codeincomments{int*}}ù)
+auto               (*fx2)() = &f1;   // OK, (ù{\codeincomments{fx2}}ù)   "     " (ù{\codeincomments{int\&\& (*)()}}ù)
+\end{lstlisting}
+    
+
+The \lstinline!decltype(auto)! placeholder cannot be used to define a
+variable without an initializer because there would be no way to deduce
+its type. If multiple variables are defined in a single
+\lstinline!decltype(auto)! definition, they must all have initializers of
+exactly the same type:
+
+\begin{lstlisting}[language=C++]
+#include <utility>  // (ù{\codeincomments{std::move}}ù)
+
+decltype(auto) v1;                             // Error, no initializer
+decltype(auto) v2 = f1(), v3 = std::move(i1);  // OK, deduced as (ù{\codeincomments{int\&\&}}ù)
+decltype(auto) v4 = 5, v5 = f1();              // Error, ambiguous deduction
+\end{lstlisting}
+    
+
+A non\lstinline!static! member variable cannot be declared using
+\lstinline!decltype(auto)!, even if provided with a default member
+initializer (see \featureref{\locationc}{default-member-initializers}):
+
+\begin{lstlisting}[language=C++]
+struct C1
+{
+    decltype(auto) d_data = f();  // Error, (ù{\codeincomments{decltype(auto)}}ù) for member variable
+};
+\end{lstlisting}
+    
+
+A \lstinline!constexpr! static member variable (see
+\featureref{\locationc}{constexprvar}) that is initialized at the point of
+declaration can be declared using \lstinline!decltype(auto)!, but a
+non\lstinline!constexpr! static member variable cannot, simply because
+non\lstinline!constexpr! static members cannot be inline-initialized at the
+point of declaration, independently of the \lstinline!decltype(auto)!
+feature:
+
+\begin{lstlisting}[language=C++]
+constexpr int f2() { return 5; }
+
+struct C2
+{
+    static constexpr decltype(auto) s_mem1 = f2();  // OK
+    static           decltype(auto) s_mem2 = f2();  // Error, inline init
+};
+\end{lstlisting}
+    
+
+A variable with static storage duration (either in global or class
+scope) can be declared using an explicit type then redeclared and
+initialized using \lstinline!decltype(auto)!. Note, however, that some
+popular compilers reject these redeclarations{\cprotect\footnote{GCC~10.2 and MSVC~19.28, among many other compilers, reject \lstinline!auto!
+redeclaration of previously declared variables; see
+GCC bug report~60352. However, nothing in the C++14 Standard appears
+to disallow such redeclarations, and an example in the C++20 Standard
+  indicates that they are valid.}}:
+
+\begin{lstlisting}[language=C++]
+extern int gi;  // forward declaration
+
+struct C3
+{
+    static decltype(f2()) s_mem1;  // type (ù{\codeincomments{int}}ù)
+};
+
+decltype(auto) gi =         f2();  // OK, compatible redeclaration
+decltype(auto) C3::s_mem1 = f2();  // OK, compatible redeclaration
+\end{lstlisting}
+    
+
+\subsubsection[\lstinline!new! expressions]{{\SubsubsecCode new} expressions}\label{new-expressions}
+
+When used in a \lstinline!new! expression, \lstinline!decltype(auto)! offers
+little benefit over plain \lstinline!auto! and will sometimes cause
+otherwise-valid code to not compile:
+
+\begin{lstlisting}[language=C++]
+int   i;
+int&& f1();
+
+auto* p1 = new auto(5);               // OK, equivalent to (ù{\codeincomments{new int(5)}}ù)
+auto* p2 = new decltype(auto)(5);     // OK, equivalent to (ù{\codeincomments{new int(5)}}ù)
+
+auto* p3 = new auto(i);               // OK, equivalent to (ù{\codeincomments{new int(i)}}ù)
+auto* p4 = new decltype(auto)(i);     // OK, equivalent to (ù{\codeincomments{new int(i)}}ù)
+
+auto* p5 = new auto(f1());            // OK, equivalent to (ù{\codeincomments{new int(f1())}}ù)
+auto* p6 = new decltype(auto)(f1());  // Error, equivalent to (ù{\codeincomments{new int\&\&(f1())}}ù)
+
+auto* p7 = new auto((i));             // OK, equivalent to (ù{\codeincomments{new int(i)}}ù)
+auto* p8 = new decltype(auto)((i));   // Error, equivalent to (ù{\codeincomments{new int\&(i)}}ù)
+\end{lstlisting}
+    
+
+In all of the examples above, the variable type is declared as
+\lstinline!auto*! so that it could be deduced from the return type of the
+\lstinline!new! expression; plain \lstinline!auto!, \lstinline!decltype(auto)!,
+or \lstinline!int*! would all have been equivalent. The initializers for
+\lstinline!p6! and \lstinline!p8! fail to compile because
+\lstinline!decltype(auto)! deduces to a reference type in each of those
+cases, causing the \lstinline!new! expression to generate a
+pointer-to-reference type. The \lstinline!auto! specifiers used to
+initialize \lstinline!p5! and \lstinline!p7!, conversely, discard the
+reference qualifiers, yielding valid types.
+
+\subsection[Use Cases]{Use Cases}\label{use-cases}
+
+\subsubsection[Exact capture of an expression’s type and value category]{Exact capture of an expression’s type and value category}\label{exact-capture-of-an-expression’s-type-and-value-category}
+
+Both \lstinline!auto&&! and \lstinline!decltype(auto)! can be used to
+declare a variable initialized to the result of any expression, but only
+\lstinline!decltype(auto)! will capture the exact \emcppsgloss{value category}
+of initializing expression:
+
+\begin{lstlisting}[language=C++]
+int   f1();
+int&  f2();
+int&& f3();
+int   i;
+
+auto&&         v1 = f1();  // type (ù{\codeincomments{int\&\&}}ù)
+decltype(auto) v2 = f1();  // type (ù{\codeincomments{int}}ù)
+
+auto&&         v3 = f2();  // type (ù{\codeincomments{int\&}}ù)
+decltype(auto) v4 = f2();  // type (ù{\codeincomments{int\&}}ù)
+
+auto&&         v5 = f3();  // type (ù{\codeincomments{int\&\&}}ù)
+decltype(auto) v6 = f3();  // type (ù{\codeincomments{int\&\&}}ù)
+
+auto&&         v7 = i;     // type (ù{\codeincomments{int\&}}ù)
+decltype(auto) v8 = i;     // type (ù{\codeincomments{int}}ù)
+\end{lstlisting}
+    
+
+Variables \lstinline!v1! and \lstinline!v5! have the same \emcppsgloss{value
+category} even though \lstinline!f1()! is a \romeovalue{prvalue} and
+\lstinline!f3()! is an \romeovalue{xvalue}, illustrating the limitation of
+\lstinline!auto&&!, whereas \lstinline!v2! and \lstinline!v6! correctly capture
+the distinction. In addition, \lstinline!auto&&! deduces \lstinline!v7! as a
+reference whereas \lstinline!decltype(auto)! correctly deduces it as an
+object.
+
+\subsubsection[Return type of a proxy iterator or moving iterator]{Return type of a proxy iterator or moving iterator}\label{return-type-of-a-proxy-iterator-or-moving-iterator}
+
+When an iterator is dereferenced, it usually returns an \romeovalue{lvalue}
+reference to an element within a sequence. It might, however, return an
+\romeovalue{rvalue} object of proxy type, as in the case of
+\lstinline!std::vector<bool>!. Alternatively, the iterator dereference
+operator might return an \romeovalue{rvalue} reference to a sequence element,
+as in the case of a \emph{moving iterator} --- i.e., for a sequence that
+will not be used again after it has been traversed.
+\lstinline!decltype(auto)! can be used in generic code to faithfully
+capture a dereferenced iterator when the \emcppsgloss{value category} of the
+iterator's \lstinline!reference! type is unknown:
+
+\begin{lstlisting}[language=C++]
+#include <vector>  // (ù{\codeincomments{std::vector}}ù)
+
+template <typename C, typename V>
+void fill(C& container, const V& val)
+    // Replace the value of every element in (ù{\codeincomments{container}}ù) with a copy of (ù{\codeincomments{val}}ù).
+{
+    for (typename C::iterator iter = container.begin();
+         iter != container.end();
+         ++iter)
+    {
+        // auto& element = *iter;  // won't work for proxy or moving iterators
+        decltype(auto) element = *iter;
+        element = val;
+    }
+}
+
+void f1(std::vector<bool>& v)
+{
+    fill(v, false);
+    // ...
+}
+\end{lstlisting}
+    
+
+Instead of \lstinline!decltype(auto)!, we could have used \lstinline!auto&&!
+and gotten the same effect, although the semantics of
+\lstinline!decltype(auto)! are slightly simpler to understand in this case.
+Although more verbose, it would be more descriptive to declare
+\lstinline!element! as having type
+\lstinline!typename!~\lstinline!std::iterator_traits<decltype(iter)>::reference!.
+
+\subsection[Potential Pitfalls]{Potential Pitfalls}\label{potential-pitfalls}
+
+\subsubsection[Hidden dangling references]{Hidden dangling references}\label{hidden-dangling-references}
+
+An operation on an \romeovalue{rvalue} will sometimes return an \romeovalue{rvalue}
+reference that is valid only for the lifetime of the original
+\romeovalue{rvalue}. When the returned reference is saved in a named variable,
+there is a danger of the variable binding to a temporary object that
+will go out of scope before it can be used:
+
+\begin{lstlisting}[language=C++]
+#include <list>  // (ù{\codeincomments{std::list}}ù)
+
+template <typename T>
+T&& first(std::list<T>&& s) { return std::move(*s.begin()); }
+    // Return an (ù{\emphincomments{rvalue}}ù) reference to the first element in (ù{\codeincomments{s}}ù).
+
+std::list<int> collection();
+    // Return (by value) a (ù{\codeincomments{list}}ù) of (ù{\codeincomments{int}}ù) values.
+
+void f()
+{
+    int&&          r1 = first(collection());
+    auto&&         r2 = first(collection());
+    decltype(auto) r3 = first(collection());
+
+    // Bug, (ù{\codeincomments{r1}}ù), (ù{\codeincomments{r2}}ù), and (ù{\codeincomments{r3}}ù) are all dangling references to destroyed
+    // objects.
+
+    // ...
+}
+\end{lstlisting}
+    
+
+The variables \lstinline!r1!, \lstinline!r2!, and \lstinline!r3! all have type
+\lstinline!int&&! and all are \emcppsgloss[dangling reference]{dangling references} because they
+refer to an element of a \lstinline!list! that goes out of scope
+immediately after the reference is initialized. When a reference
+variable is initialized from a reference expression, the programmer
+should be wary of the lifetime of the object being referenced. In this
+regard, \lstinline!decltype(auto)! adds no new hazard. Note, however, that
+\lstinline!r1! and \lstinline!r2! are both \emph{declared} as reference types,
+whereas \lstinline!r3! is only \emph{deduced} to be a reference type. The
+fact that the reference is \emph{hidden} makes this pitfall harder to
+avoid for \lstinline!decltype(auto)! than for the other two cases.
+
+\subsubsection[Poor signaling of intent]{Poor signaling of intent}\label{poor-signaling-of-intent}
+
+Since C++11, a common set of idioms has emerged for the use of
+\lstinline!auto! in generic code:
+
+\begin{lstlisting}[language=C++]
+auto        copyVar     = expr1;  // copy of (ù{\codeincomments{expr1}}ù)
+const auto& readonlyVar = expr2;  // read-only reference to (ù{\codeincomments{expr1}}ù)
+auto&&      mutableVar  = expr3;  // possibly mutable reference to (ù{\codeincomments{expr1}}ù)
+\end{lstlisting}
+    
+
+The \lstinline!copyVar! object will be initialized from \lstinline!expr1!
+using direct-initialization; if \lstinline!expr1! yields an \romeovalue{rvalue}
+or \romeovalue{lvalue} reference, then the copy or move constructor,
+respectively, is invoked. The \lstinline!readonlyVar! reference provides
+read-only access to the object produced by \lstinline!expr2!; if
+\lstinline!expr2! returns an \romeovalue{rvalue}, then \emcppsgloss{lifetime
+extension} ensures that it remains valid until \lstinline!readonlyVar! goes
+out of scope. Finally, \lstinline!mutableVar! allows modifying or moving
+from \lstinline!expr3! (unless \lstinline!expr3! is \lstinline!const!); as in the
+case of \lstinline!const!~\lstinline!auto&!, \emcppsgloss{lifetime extension}
+might come into play. Faithful use of these idioms provides safety and
+signals the programmer's intent regarding the expected use of the
+variable.
+
+There is no way to create a similar set of idioms for
+\lstinline!decltype(auto)! because \lstinline!decltype(auto)! cannot be
+combined with \lstinline!const! or reference type specifiers; see\linebreak%%%%
+\intraref{annoyances-decltypeauto}{decltype(auto)-stands-alone}. For variable
+declarations, therefore, using \lstinline!auto! in this idiomatic way might
+be preferable.
+
+The situation is somewhat different for \emph{function return} types,
+where the expected use of the return value is not always known at the
+point of declaration; see \featureref{\locationf}{autoreturn}.
+
+\subsection[Annoyances]{Annoyances}\label{annoyances-decltypeauto}
+
+\subsubsection[\lstinline!decltype(auto)! stands alone]{{\SubsubsecCode decltype(auto)} stands alone}\label{decltype(auto)-stands-alone}
+
+When defining a variable with \lstinline!auto!, we can add cv-qualifiers
+and reference type specifiers to the deduced type, even if the
+initializer expression has simpler qualifiers:
+
+\begin{lstlisting}[language=C++]
+int f();
+
+const auto& v1 = f();  // (ù{\codeincomments{v1}}ù) is (ù{\codeincomments{const int\&}}ù).
+\end{lstlisting}
+    
+
+Unfortunately, \lstinline!decltype(auto)! must stand alone; the type of the
+variable is always exactly that of the initializer expression, with no
+extra decorations:
+
+\begin{lstlisting}[language=C++]
+const decltype(auto) v2 = f();  // Error, (ù{\codeincomments{const}}ù) with (ù{\codeincomments{decltype(auto)}}ù)
+\end{lstlisting}
+    
+
+Thus, deducing a variable type that is always read-only, for example, is
+not possible with \lstinline!decltype(auto)!.
+
+\subsection[See Also]{See Also}\label{see-also}
+
+\begin{itemize}
+\item{\seealsoref{auto}{\seealsolocationa}describes the C++11 feature on which \lstinline!decltype(auto)! is based.}
+\item{Appendix~\ref{appendix-value-categories} describes complex world of \emcppsgloss[value category]{value categories} that distinguish\linebreak[4] \lstinline!decltype(auto)! from \lstinline!auto!.}
+\item{\seealsoref{autoreturn}{\seealsolocationf}uses the deduction rules described in this section and applies them to function return types instead of variables declarations.}
+\item{\seealsoref{decltype}{\seealsolocationa}describes the \lstinline!decltype! operator, which determines the semantics of \lstinline!decltype(auto)!.}
+\end{itemize}
+
+\subsection[Further Reading]{Further Reading}\label{further-reading}
+
+None.
+
+
