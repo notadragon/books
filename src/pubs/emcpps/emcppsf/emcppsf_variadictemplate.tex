@@ -391,8 +391,8 @@ parameter lists:
 \begin{emcppslisting}
 template <typename... Ts> class C;
     // The class template (ù{\codeincomments{C}}ù) can be instantiated with a sequence of zero or
-    // more template arguments of arbitrary type. Because this is only a
-    // declaration, the parameter name, (ù{\codeincomments{Ts}}ù) (for "types"), isn't used.
+    // more template arguments of arbitrary type. Because this declaration is 
+    // not also a definition , the parameter name, (ù{\codeincomments{Ts}}ù) (for "types"), isn't used.
 \end{emcppslisting}
     
 
@@ -1476,10 +1476,10 @@ void print(const Ts&... values);         // prints each of (ù{\codeincomments{v
 void testPrint1(const std::string& s)  // arbitrary function
 {
     print<const char*, int, std::string>("Hi", 3.14, "Oops");
-        // verbose:     specifies template arguments *and* function arguments
+        // verbose:     We specify template arguments *and* function arguments
         // Redundant:   Function arguments' types *are* the template arguments.
         // Error-prone: Mismatch may cause incorrect results (prints (ù{\codeincomments{3}}ù)).
-        // inefficient: may incur additional expensive implicit conversions
+        // inefficient: Additional expensive implicit conversions might arise.
 
     print("Hi", 3.14, s);
         // All good: Deduce template arguments from function arguments.
@@ -3208,7 +3208,7 @@ attribute, standard or user-defined:
 
 \begin{emcppslisting}[emcppsignore={gibberish}]
 template <typename... Ts>
-[[Ts()...]] void functionFromTheFuture();
+[[Ts()...]] void functionFromTheFuture();  // Error, Nonworking code.
     // NONWORKING CODE
     // Receive a number of types; instantiate them as attributes.
 \end{emcppslisting}
@@ -4244,8 +4244,8 @@ for this task --- both \lstinline!std::remove_reference_t<int>! and
 
 \begin{emcppslisting}[emcppsbatch={e38,e39}]
 template <typename T, typename... Ts>  // definition for partial specialization
-template <typename UARG>               // value constructor
-Variant<T, Ts...>::Variant(UARG&& xs)  // uses perfect forwarding
+template <typename UARG>              
+Variant<T, Ts...>::Variant(UARG&& xs)  // value ctor using perfect forwarding 
 {
     typedef std::remove_reference_t<UARG> U;
         // Remove reference from (ù{\codeincomments{UARG}}ù) if any, e.g. transform (ù{\codeincomments{int\&}}ù) into (ù{\codeincomments{int}}ù).
@@ -4333,8 +4333,7 @@ implement such an algorithm, we define two overloaded functions,
 
 \begin{emcppslisting}[emcppsbatch={e38,e39}]
 template <unsigned int>
-void destroyLinear(unsigned int, void*)      // terminates recursion
-{ }
+void destroyLinear(unsigned int, void*) { }  // terminates recursion
 
 template <unsigned int i, typename T, typename... Ts>
 void destroyLinear(unsigned int n, void* p)  // index and pointer to data
@@ -4395,7 +4394,9 @@ Defining a binary search that is a mix of compile-time and runtime
 computations is challenging, particularly because parameter packs do not
 have indexed access. However, we can implement \lstinline!destroyLog! with
 relative ease if we design the algorithm in a hybrid manner --- linear
-search during compilation and binary search at runtime. We do so by
+search during compilation and binary search at runtime.
+
+Implementing the linear search We do so by
 defining \lstinline!destroyLog! to take two integral template parameters,
 \lstinline!skip! and \lstinline!total!, that instruct the template which types
 in the pack it must look at. If \lstinline!skip! is greater than 0, the

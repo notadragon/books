@@ -1,5 +1,5 @@
     i                                                                                       i
-                                   “emcpps-internal” — 2021/4/15 — 2:31 — page 1 — #1
+                                  “emcpps-internal” — 2021/4/23 — 20:59 — page 1 — #1
 
 i
 
@@ -22,14 +22,14 @@ i
 
 
     i                                                                                       i
-     i                                                                                    i
-                         “emcpps-internal” — 2021/4/15 — 2:31 — page 2 — #2
+     i                                                                                     i
+                         “emcpps-internal” — 2021/4/23 — 20:59 — page 2 — #2
 
 i
 
 
 
-                                                              Chapter 1   Safe Features
+                                                               Chapter 1   Safe Features
 
 
     sec­safe­cpp14
@@ -43,9 +43,9 @@ i
 
 
 
-     i                                                                                    i
+     i                                                                                     i
           i                                                                                        i
-                                          “emcpps-internal” — 2021/4/15 — 2:31 — page 3 — #3
+                                         “emcpps-internal” — 2021/4/23 — 20:59 — page 3 — #3
 
 i
 
@@ -68,20 +68,65 @@ i
 
 
           i                                                                                        i
-        i                                                                                     i
-                            “emcpps-internal” — 2021/4/15 — 2:31 — page 4 — #4
+        i                                                                                                                i
+                                         “emcpps-internal” — 2021/4/23 — 20:59 — page 4 — #4
 
 i
 
 
 
-                                                    Chapter 2   Conditionally Safe Features
-
-
-sec­conditional­cpp14
+                         initializer_list                              Chapter 2     Conditionally Safe Features
 
 
 
+                        List Initialization: std::initializer_list<T>
+::initializer_list<t>
+             initlist
+                        The C++ Standard Library’s std::initializer_list class template supports lightweight,
+                        compiler-generated arrays of values that are initialized in source code similarly to built-in,
+                        C-style arrays using the generalized braced initialization syntax.
+
+                        Description
+          description
+                        C++, and even C before it, allowed built-in arrays to be initialized via brace-enclosed lists
+                        of values:
+                            int data[] = { 0, 1, 1, 2, 3, 5, 8, 13 };      // initializer list of 8 int values
+
+                        C++11 extends this concept to allow such lists of values to be provided to user-defined
+                        types (UDTs) in a variety of circumstances. The compiler arranges for the values to be
+                        stored in an unnamed C-style array, and nonmodifiable access to that array is provided
+                        via the std::initializer_list class template. This template provides a programmer-
+                        accessible API and semantics inspired by a nonmodifiable, C++ standard container but
+                        having reference semantics rather than ownership of the underlying array. The C++ Stan-
+                        dard provides a reference definition that comprises typedefs, accessors, and an explicitly
+                        declared default constructor, along with implicit definitions of the other five special mem-
+                        ber functions; see Section 1.1.“??” on page ??:
+                            namespace std
+                            {
+
+                            template <typename E>
+                            class initializer_list // illustration of programmer­accessible interface
+                            {
+                                const E* d_begin_p; // pointer to the beginning of a contiguous array
+                                const E* d_end_p;   // pointer to one past the end of the array (or 0)
+                                                    // could have used size_t as an offset instead.
+
+                                // ... (inaccessible, used by the compiler to initialize this object)
+                            public:
+                                typedef E value_type;               // C++ type of each array element
+                                typedef const E& reference;         // There is no nonconst reference.
+                                typedef const E& const_reference;   // const lvalue reference type
+                                typedef size_t size_type;           // type returned by size()
+
+                                 typedef const E* iterator;            // There is no nonconst iterator.
+                                 typedef const E* const_iterator;      // const element­iterator type
+
+                                 constexpr initializer_list() noexcept;     // default constructor
+
+                                 constexpr size_t size() const noexcept;         // number of elements
+                                 constexpr const E* begin() const noexcept;      // beginning iterator
+                                 constexpr const E* end() const noexcept;        // one­past­the­last iterator
+                            };
 
                         4
 
@@ -89,9 +134,1229 @@ i
 
 
 
-        i                                                                                     i
-     i                                                                                        i
-                                     “emcpps-internal” — 2021/4/15 — 2:31 — page 5 — #5
+        i                                                                                                                i
+    i                                                                                                        i
+                      “emcpps-internal” — 2021/4/23 — 20:59 — page 5 — #5
+
+i
+
+
+
+        C++11                                                                 initializer_list
+
+
+          // initializer list range access
+          template <typename E> constexpr const E* begin(initializer_list<E> il) noexcept;
+          template <typename E> constexpr const E* end(initializer_list<E> il) noexcept;
+
+          }   // close std namespace
+
+        The reference implementation in the code example above illustrates the public functionality
+        available for direct use by the compiler and programmers alike and elides the private ma-
+        chinery used by the compiler to initialize objects other than an empty initializer list. Objects
+        of this template, instantiated for element type E, act as lightweight proxies for the compiler
+        supplied arrays that, when copied or assigned, do not copy the underlining elements. Access
+        to the elements is provided by the member and/or free functions begin and end, which
+        satisfy the Standard Library requirements of a range with random access iterators.
+            The accessible interface of the std::initializer_list class template, in the code
+        example above, also employs two other C++11 language features: constexpr and noexcept.
+        The constexpr keyword allows the compiler to consider using a function so decorated as
+        part of a constant expression; see Section 2.1.“??” on page ??. The noexcept specifier
+        indicates that this function is not allowed to throw an exception; see Section 3.1.“??” on
+        page ??.
+            As an introductory example, consider a function, printMembers, that will print the ele-
+        ments of a given sequence of integers that is represented by its std::initializer_list<int>
+        parameter, il:
+          #include <initializer_list>       // std::initializer_list
+          #include <iostream>               // std::cout
+
+          void printNumbers(std::initializer_list<int> il) // prints given list of ints
+          {
+              std::cout << "{";
+              for (const int* ip = il.begin(); ip != il.end(); ++ip) // classic for loop
+              {
+                  std::cout << ' ' << *ip; // output each element in given list of ints
+              }
+              std::cout << " } [size = " << il.size() << ']';
+          }
+
+        Using member functions begin and end, the printNumbers function in the code snippet
+        above employs, for exposition purposes, the classic for loop to iterate through the supplied
+        initializer list, printing each of the elements in turn to stdout, eventually followed by the size
+        of the list. Note that il is passed by value rather than by const reference; this style of pa-
+        rameter passing is used purely as a matter of convention, because std::initializer_list
+        is designed to be a small trivial type that many C++ implementations can optimize by ef-
+        ficiently passing such function arguments using CPU registers.
+             We can now write a test function to, in turn, invoke this printNumbers function on an
+        initializer list denoted using braced-initialization syntax; see Section 2.1.“??” on page ??:
+          void test()
+          {
+
+                                                                                                        5
+
+i
+
+
+
+    i                                                                                                        i
+        i                                                                                                                  i
+                                        “emcpps-internal” — 2021/4/23 — 20:59 — page 6 — #6
+
+i
+
+
+
+                         initializer_list                              Chapter 2     Conditionally Safe Features
+
+
+                                printNumbers({ 1, 2, 3, 4 });    // prints "{ 1 2 3 4 } [size = 4]"
+                            }
+
+                        In the test function above, the compiler transforms the braced expression { 1, 2, 3, 4 }
+                        into a temporary unnamed C-style array of nonmodifiable values of type int, which is
+                        then passed via an std::initializer_list<int> to printNumber for processing. While
+                        the std::initializer_list temporary does not own the temporary array, their lifetimes
+                        are the same, so there is no risk of a dangling reference.
+
+                        Using the initializer_list class template
+r_list­class­template
+                        When a program uses a std::initializer_list, either by mentioning it explicitly or hav-
+                        ing it implicitly created by the compiler, the program must include — directly or indirectly
+                        — the <initializer\_list> header, or else the program is ill formed:
+                            std::initializer_list<int> x = { }; // Error, <initializer_list> not included
+                            void f(std::initializer_list<double>); // Error,    "         "      "      "
+                            auto ilx = {1,2,3};                    // Error,    "         "      "      "
+                            auto ilv { 1 }; // OK, but be aware that direct list initialization deduces int
+
+                            #include <initializer_list>                // provide std::initializer_list
+
+                            std::initializer_list<int> y = { };        //   OK
+                            void f(std::initializer_list<double>);     //   OK
+                            auto ily = {1,2,3};                        //   OK
+                            auto ilz = { };                            //   Error, cannot deduce element type
+                            auto ilw = { 1 };                          //   OK, std::initializer_list<int>
+
+                        In the example code above, any explicit or implicit use of the std::initializer_list
+                        requires the compiler to have first seen its definition — even when the type is deduced
+                        using auto; see Section 2.1.“??” on page ??. Note, in particular, the initialization of ilv
+                        omits the equal (=) symbol, forcing auto to deduce a copy of the argument rather than an
+                        std::initializer_list; see Section 2.1.“??” on page ??.
+                            For a given element type, E, the std::initializer_list<E> class defines several type
+                        aliases, similar to how they are defined for standard-library containers:
+                            #include <initializer_list>   // std::initializer_list
+
+                            struct E { };
+                            std::initializer_list<E>::size_type          ts;          //   ts    of   type   std::size_t
+                            std::initializer_list<E>::value_type         tv;          //   tv    of   type   E
+                            std::initializer_list<E>::reference          tr = tv;     //   tr    of   type   const E&
+                            std::initializer_list<E>::const_reference    tcr = tv;    //   tcr   of   type   const E&
+                            std::initializer_list<E>::iterator           ti;          //   tr    of   type   const E*
+                            std::initializer_list<E>::const_iterator     tci;         //   tcr   of   type   const E*
+
+                        Note that both reference and iterator are const, just like const_reference and
+                        const_iterator.
+                            Compiler vendors are permitted to and often do provide alternative types for such aliases
+                        in general purpose containers — e.g., “debugging” iterator to assist in detecting errors such
+
+                        6
+
+i
+
+
+
+        i                                                                                                                  i
+    i                                                                                                    i
+                      “emcpps-internal” — 2021/4/23 — 20:59 — page 7 — #7
+
+i
+
+
+
+        C++11                                                              initializer_list
+
+        as dereferencing a past-the-end iterator. In the case of std::initializer_list, however,
+        these type aliases are fixed in the C++ Standard, so they cannot vary.
+            A public default constructor is provided, which enables clients to create an empty ini-
+        tializer list:
+          std::initializer_list<E> x;      // x is an empty list type E elements.
+
+        Each of the other special member functions, such as the copy constructor and copy assign-
+        ment operator, is implicitly generated and available to public clients:
+          std::initializer_list<E> y(x);      // copy construction
+          void assignX2Y() { y = x; }         // copy assignment
+
+        Note that there is no public constructor for creating an std::initializer_list in any
+        other way; the intention is that std::initializer_list objects are created behind the
+        scenes — by the compiler — from braced lists:
+          E e0, e1, e2, e3;
+          std::initializer_list<E> z({e0, e1, e2, e3});          // copy construction (BAD IDEA)
+          void assignTemporary2y() { y = {e3, e2, e1}; }         // copy assignment (BAD IDEA)
+
+        Be warned, however, that although objects of type std::initializer_list<E> may be
+        copied and assigned freely, doing so does not copy the underlying array. Importantly, creating
+        a temporary initializer list and copy constructing (or copy assigning) its “value” to another
+        does not extend the lifetime of its underlying array beyond the end of outermost containing
+        expression in which it is used; hence, any subsequent attempt to access any of the data of any
+        of the elements of that underlying array will result in undefined behavior; see Pointer
+        semantics and lifetimes of temporaries.
+            The size() const member function returns the number of elements referenced by an
+        initializer list:
+          int nX = x.size();     // OK, nX == 0 ­­ { }
+          int nY = y.size();     // OK, nY == 0 ­­ { }
+          int nZ = z.size();     // BAD IDEA, nZ == 4 ­­ Oops!
+
+        Note that calling z.size() may seem well defined even after the associated temporary array
+        has expired. For implementations that choose a pointer and length representation, this would
+        be true. However, for implementations choosing a two-pointer representation, the result of
+        subtracting two invalid pointers (since the array no longer exists) is implementation-defined
+        behavior and could, depending on the implementation’s design, signal or trap to expose use
+        of bad pointers. Accessing data in the underlying array is always undefined behavior at this
+        point. Given that the choice of implementation is unspecified and left to the library vendor,
+        it is best to avoid relying on any functions that query an std::initializer_list outside
+        the lifetime of its underlying array, just as we would not dereference an invalid pointer.
+             Since size, like all of the member functions of an std::initializer_list, is declared
+        constexpr (see Section 2.1.“??” on page ??), an std::initializer_list is considered
+        a literal type and, hence, is eligible to be evaluated within a constant expression; see
+        Section 1.1.“??” on page ??:
+          static_assert(std::initializer_list<int>({0, 1, 2, 3}).size() == 4, "");             // OK
+
+          int a[(std::initializer_list<int>({2, 1, 0}).size()];          // a is an array of 3 int.
+
+                                                                                                    7
+
+i
+
+
+
+    i                                                                                                    i
+    i                                                                                                    i
+                        “emcpps-internal” — 2021/4/23 — 20:59 — page 8 — #8
+
+i
+
+
+
+         initializer_list                              Chapter 2    Conditionally Safe Features
+
+
+        Accessing the members of the underlying array of a std::initializer_list<E> is ac-
+        complished via iterators of type E*: two const (constexpr) member functions, begin()
+        and end(), return pointers to, respectively, the first and the one-past-the-end array-element
+        positions:
+            #include <cassert> // C­style assert macro
+            void test1()
+            {
+                std::initializer_list<char> list({'A', 'B', 'C'});
+                assert(*list.begin()   == 'A'); // front element
+                assert(list.begin()[0] == 'A'); // element 0
+                assert(list.begin()[1] == 'B'); // element 1
+                assert(list.begin()[2] == 'C'); // element 2
+                assert(list.begin() + 3           == list.end()); // true in this case
+                assert(list.begin() + list.size() == list.end()); // always true
+            }
+
+        In the test1 function in the code example above, list.begin() serves as the address
+        of both the first element and that of the underlying contiguous array of elements itself —
+        suitable for application of the built-in index operator ([]), although that is not how begin()
+        is typically used. While begin() is a pointer to the first element of the range, end() is a
+        pointer to one-past-last element and size() == end() ­ begin(). If size() == 0, the value
+        of begin() and end() are unspecified but must be equal.
+            The presence of the begin() and end() member functions enable an std::initializer_list
+        to be used as the source of a range-based for loop; see Section 2.1.“??” on page ??:
+            void test2() // print "10 20 30 " to stdout
+            {
+                std::initializer_list<int> il = { 10, 20, 30 };
+
+                for (int i : il)
+                {
+                    std::cout << i << ' ';
+                }
+            }
+
+        Moreover, these member functions enable us to specify a braced-initializer list as the
+        source range of a range-based for loop:
+            void test3() // print "100 200 300 " to stdout
+            {
+                for (int i : {100, 200, 300})
+                {
+                    std::cout << i << ' ';
+                }
+            }
+
+        Note that the use of a temporary std::initializer­list, as in the example above, is
+        supported in a range-base for loop only because life-time extension (i.e., via binding to
+        a reference as opposed to copying) of this library object is magically tied by the language
+        to a corresponding lifetime extension of the underlying array. Without lifetime extension,
+
+        8
+
+i
+
+
+
+    i                                                                                                    i
+        i                                                                                                                 i
+                                       “emcpps-internal” — 2021/4/23 — 20:59 — page 9 — #9
+
+i
+
+
+
+                          C++11                                                             initializer_list
+
+                          this too would have been considered undefined behavior; again see Pointer semantics and
+                          lifetimes of temporaries on page 9.
+                               Finally, corresponding, global std::begin and std::end free-function templates are
+                          overloaded for std::initializer_list objects directly in the <initializer_list> header
+                          — rather than relying on the more general templates in the <iterator> header — since
+                          <initializer_list> is part of the minimal, freestanding subset of the C++ Standard
+                          Library and <iterator> is not:
+                            template <typename E>
+                            constexpr const E* begin(initializer_list<E> list) noexcept            // free function
+                            {
+                                return list.begin(); // invokes member function begin()
+                            }
+
+                            template <typename E>
+                            constexpr const E* end(initializer_list<E> list) noexcept              // free function
+                            {
+                                return list.end(); // invokes member function end()
+                            }
+
+                          As it turns out, these functions were originally added to support C++11’s range-based
+                          for loop, but a subsequent design change rendered them superfluous; see Annoyances —
+                          Overloaded free-function templates begin and end are largely vestigial on page 21. Their
+                          only remaining use is to support locally a style of generic programming whereby free, rather
+                          than member, functions are strongly preferred:
+                            #include <initializer_list>     // std::initializer_list
+                            #include <algorithm>            // std::min, std::max
+
+                            template <typename T>
+                            T minVal(std::initializer_list<T> il) // implemented with member functions
+                            {
+                                return std::min(il.begin(), il.end()); // invokes member begin, end
+                            }
+
+                            template <typename T>
+                            T maxVal(std::initializer_list<T> il) // implemented using free functions
+                            {
+                                return std::max(begin(il), end(il)); // invokes free begin, end
+                            }
+
+                          Without the locally overloaded free-function versions of begin and end in <initializer_list>,
+                          it would have been necessary to include the <iterator> header along with all that entails
+                          to get the implementation of maxVal above to compile.
+
+                          Pointer semantics and lifetimes of temporaries
+ifetimes­of­temporaries
+                          An instance of std::initializer_list class template is a lightweight proxy for a homo-
+                          geneous array of values. This type does not itself contain any data but instead refers to the
+
+                                                                                                                     9
+
+i
+
+
+
+        i                                                                                                                 i
+    i                                                                                                       i
+                         “emcpps-internal” — 2021/4/23 — 20:59 — page 10 — #10
+
+i
+
+
+
+         initializer_list                                     Chapter 2   Conditionally Safe Features
+
+
+        data via the address of that data. It is unspecified whether a std::initializer_list is
+        implemented as a pair of pointers or a pointer and a length.
+            Any nonempty array of values to which an std::initializer_list refers is created by
+        the compiler in the program context in which the braced list of values appears. Each such
+        compiler-generated array is — at least in principle — a temporary object having the same
+        lifetime as other temporaries created in that context. The std::initializer_list object
+        itself has a special form of pointer semantics understood by the compiler, such that the life-
+        time of the temporary array will be extended to the lifetime of the std::initializer_list
+        object for which the underlying array was created. Importantly, the lifetime of this under-
+        lying array is never extended by copying its proxy initializer-list object.
+            Consider a std::initializer<int>, il, initialized with three numbers, 1, 2, and 3:
+          std::initializer_list<int> il = {1, 2, 3};               // initializes il with 3 numbers
+
+        The compiler first creates a temporary array holding the three numbers. That array would
+        normally be destroyed at the end of the outermost expression in which it appeared, but
+        initializing il to refer to this array extends its lifetime to be coterminous with il. There
+        are several other ways one might try to initialize such a list:
+          typedef std::initializer_list<int> Ili
+          Ili il0 = {1, 2, 3};    // OK, copy initialization (implicit ctors only)
+          Ili iL0ne {1, 2, 3};    // OK, direct     "        (even explicit ctors)
+          Ili iL1 = (1, 2, 3);    // Error, conversion from int to nonscalar requested
+          Ili iL1ne (1, 2, 3);    // Error, no matching function call for (int, int,int)
+
+          Ili   jL2 =   ({1,   2,   3});     //   Error, illegal context for statement expression
+          Ili   jL2ne   ({1,   2,   3});     //   OK, direct initialization via a single init­list arg
+          Ili   jL3 =   ((1,   2,   3));     //   Error, conversion from int to nonscalar requested
+          Ili   jL3ne   ((1,   2,   3));     //   Error, no matching function call for (int)
+
+          Ili   kL4 =   {{1,   2,   3}};     //   Error, conversion from brace­enclosed list requested
+          Ili   kL4ne   {{1,   2,   3}};     //   Error,    "       "     "       "      "      "
+          Ili   kL5 =   {(1,   2,   3)};     //   Bug, copy initialization to single­int int list
+          Ili   kL5ne   {(1,   2,   3)};     //   Bug, direct       "       "   "      "     "
+
+        As can be inferred from the code example above, the language treats direct and copy initial-
+        ization of a std::initializer_list the same — i.e., as if the inaccessible constructor used
+        by the compiler to populate an std::initializer_list is declared without the explicit
+        keyword; see Section 2.1.“??” on page ??.
+            Copying such a temporary to an existing initializer list, however, would be ill advised:
+          il = { 4, 5, 6, 7 };             // il now refers to a temporary array that is no longer valid.
+
+        The temporary array created in the assignment expression above is not used to initialize
+        il, so that temporary array’s lifetime is not extended; it will be destroyed at the end of
+        the assignment expression, leaving il as a dangling reference to a list of numbers that no
+        longer exists.
+            Some C++ implementations permit us to still access the number of elements that were
+        assigned to il, though note that calling even size on an std::initializer_list bound
+
+        10
+
+i
+
+
+
+    i                                                                                                       i
+        i                                                                                                                     i
+                                      “emcpps-internal” — 2021/4/23 — 20:59 — page 11 — #11
+
+i
+
+
+
+                          C++11                                                                    initializer_list
+
+                          to an expired array does not have predictable behavior across all C++ implementations; see
+                          Using the initializer_list class template on page 6:
+                            int size = il.size();     // size == 4
+
+                          But if we were to try to access any specific element in the array, that behavior would be
+                          undefined:
+                            int firstValue = *il.begin();      // undefined behavior; accessing expired value
+
+
+                          Initialization of std::initializer_list<E> objects
+ializer_list<e>­objects
+                          The underlying array of an std::initializer_list<E> is a const array of elements of
+                          type E, with length determined by the number of items in the braced list. Each element is
+                          copy initialized ?? — ?? on page ?? within Section 2.1.“??” on page ?? by the corresponding
+                          expression in the braced list, and if user-defined conversions are required, they must be
+                          accessible at the point of construction. Following the rules of copy list initialization,
+                          narrowing conversions and explicit conversions are ill formed; see ?? — ?? on page ??
+                          within Section 2.1.“??” on page ??:
+                            struct X { operator int() const; };
+                            void f(std::initializer_list<int>);
+
+                            f({ 1, '2', X() });     // OK, 1 is int.
+                                                    //     2 has a language­defined conversion to int.
+                                                    //     X has a user­defined conversion to int.
+
+                            f({ 1, 2.5 });          // Error, 2.5 has a narrowing conversion to int.
+
+                          Note that, since the initializer is a constant expression, narrowing conversions from integer
+                          literal constant expressions of a wider type are permitted:
+                            #include <initializer_list>
+
+                            constexpr long long lli = 13LL;
+                            const     long long llj = 17LL;
+
+                            void g(const long long arg)
+                            {
+                                std::initializer_list<int>     x   =   {   0LL   };   //   OK, integral constant
+                                std::initializer_list<int>     y   =   {   lli   };   //   OK, integral constant
+                                std::initializer_list<int>     z   =   {   llj   };   //   OK, integral constant
+                                std::initializer_list<int>     w   =   {   arg   };   //   Error, narrowing conversion
+                            }
+
+
+                          Type deduction of initializer_list
+ion­of­initializer_list
+                          A std::initializer_list will not be deduced for a braced-initializer argument to a func-
+                          tion template with an unconstrained template parameter, but a braced-initializer argument
+                          can be a match for a template parameter specifically declared as an std::initializer_list<E>.
+
+                                                                                                                         11
+
+i
+
+
+
+        i                                                                                                                     i
+    i                                                                                                    i
+                        “emcpps-internal” — 2021/4/23 — 20:59 — page 12 — #12
+
+i
+
+
+
+         initializer_list                              Chapter 2     Conditionally Safe Features
+
+
+        In such a case, the supplied list must not be empty, and the type deduced must be the same
+        for each item of the list; otherwise the program is ill formed.
+
+          #include <initializer_list>
+
+          void f(std::initializer_list<int>);
+          template <typename E> void g(std::initializer_list<E>);
+          template <typename E> void h(E);
+
+          void test()
+          {
+              f({ });                      // OK, empty list of int requires no deduction
+              f({ 1, '2' });               // OK, all list initializers convert to int.
+
+                 g({ 1, 2, 3 });           // OK, std::initializer_list<int> deduced
+                 g({ });                   // Error, cannot deduce an E from an empty list
+                 g({ 1, '2' });            // Error, different deduced types
+
+                 h({ 1, 2, 3 });           // Error, cannot deduce an std::initializer_list
+          }
+
+
+        Note that the problem with an empty std::initializer_list when calling g is entirely
+        due to the inability to deduce the type of the parameter; there is no problem passing
+        an empty std::initializer_list to f since no type deduction is required. Similarly,
+        heterogeneous lists can be passed to a known instantiation of std::initializer_list as
+        long as all supplied list elements are implicitly convertible to the element type of the list.
+            Unlike an unconstrained template argument, an auto variable (see Section 2.1.“??” on
+        page ??) will deduce an std::initializer_list in copy list initialization. However, to
+        resolve potential ambiguity in favor of a copy constructor, direct list initialization of an
+        auto variable requires a list of exactly one element and is deduced to be a copy of the same
+        type:
+
+          #include <initializer_list>
+
+          auto    a = {1, 2, 3};   //   OK, a is std::initializer_list<int>.
+          auto    b{1, 2, 3};      //   Error, too many elements in list
+          auto    c = {1};         //   OK, c is std::initializer_list<int>.
+          auto    d{1};            //   OK, d is int.
+          auto    e = {};          //   Error, cannot deduce element type from empty list
+          auto    f{};             //   Error, cannot deduce variable type from empty list
+
+
+        Note that the declarations of b and d were interpreted differently in the original C++11
+        Standard to both be valid and deduce as std::initializer_list<int>. However, this
+        behavior was changed in C++17 with N3922 and applied retroactively to previous standards
+        as a defect report. Early C++11 compilers may still display the original behavior, although
+        most compilers managed to adopted the DR before completing their C++14 implementation.
+
+        12
+
+i
+
+
+
+    i                                                                                                    i
+        i                                                                                                                   i
+                                      “emcpps-internal” — 2021/4/23 — 20:59 — page 13 — #13
+
+i
+
+
+
+                          C++11                                                               initializer_list
+
+                          Overload resolution and std::initializer_list
+d­std::initializer_list
+                          When name lookup finds an overload set containing std::initializer_list arguments,
+                          the ranking rules now prefer to match braced lists to the std::initializer_list overloads
+                          rather than interpret them as other forms of list initialization, unless a default constructor
+                          would be selected; see Section 2.1.“??” on page ??.
+
+     use­cases­initlist
+                          Use Cases
+                          Convenient population of standard containers
+­of­standard­containers
+                          The original design intent of std::initializer_list was to make initializing a container
+                          with a sequence of values as simple as initializing a built-in array:
+                            #include <vector>
+
+                            std::vector v = {1, 2, 3, 4, 5};
+
+                          Note that because std::vector deliberately intends to make available this form of initial-
+                          ization, the <vector> header is required to transitively #include <initializer_list>,
+                          so that the user does not need to. This is the case for the header of any standard library con-
+                          tainer, which means we do not generally see explicit inclusion of the <initializer_list>
+                          header in application code, since most uses are through standard containers.
+                              As users start to think of braced lists as stand-ins for containers, it was naturally ex-
+                          pected that any standard container with a std::initializer_list constructor would also
+                          be assignable from a braced list, so all such containers also provide an overload for the as-
+                          signment operator, to avoid implicitly creating a temporary to pass to the move-assignment
+                          operator:
+                            v = {2, 3, 5, 7, 11, 13, 17};
+
+                          Finally, because std::initializer_list satisfies the requirements of a random access
+                          range, all container member function templates that take a pair of iterators to denote a
+                          range were overloaded to also accept an std::initializer_list of the corresponding
+                          type:
+                            v.insert(v.end(), {23, 29, 31});
+
+                          Note that since the rules for braced initialization are recursive, more complex containers
+                          can also use this syntax, which may be especially useful when creating const containers
+                          since there is no other way to provide the initial data without making another copy with
+                          the same lifetime as the container itself:
+                            const std::map<std::string, int> m{{"a", 1}, {"b", 2}, {"c", 3}};
+
+
+                          Providing support for braced lists in our own class
+­lists­in­our­own­class
+                          Just as the C++ Standard Library provides extensive support for supplying braced lists to
+                          containers, so our client will come to expect the same of the classes we provide. For this
+                          example, we create a class that holds a dynamic array of ints that can be initialized and set
+                          to an arbitrary list of values supplied by the user. To simplify the example, we implement in
+
+                                                                                                                      13
+
+i
+
+
+
+        i                                                                                                                   i
+    i                                                                                                 i
+                      “emcpps-internal” — 2021/4/23 — 20:59 — page 14 — #14
+
+i
+
+
+
+         initializer_list                             Chapter 2    Conditionally Safe Features
+
+
+        terms of std::vector to avoid the distracting complexity of explicit memory management;
+        in practice, the intent of such a class would be to provide a type simpler than std::vector
+        itself:
+
+         class DynArray
+         {
+             // DATA
+             std::vector<int> d_data;
+
+               // FRIENDS
+               friend bool operator==(const DynArray&            lhs,
+                                      std::initializer_list<int> rhs);
+
+             public:
+               // CREATORS
+               DynArray() : d_data() {}
+               DynArray(std::initializer_list<int> il) : d_data(il) {}
+
+               DynArray(const DynArray&) = delete;
+               DynArray& operator=(const DynArray&) = delete;
+
+               // MANIPULATORS
+               DynArray& operator=(std::initializer_list<int> il)
+               {
+                   d_data = il;
+
+                   return *this;
+               }
+
+               DynArray& operator+=(std::initializer_list<int> il)
+               {
+                   d_data.insert(d_data.end(), il);
+
+                   return *this;
+               }
+
+               void shrink(std::size_t newSize)
+               {
+                   assert(newSize <= d_data.size());
+
+                   d_data.resize(newSize);
+               }
+
+               // ACCESSORS
+               bool isEqual(std::initializer_list<int> rhs) const
+               {
+                   // optimized with memcmpto take advantage of memory layout guarantees.
+                   return d_data.size() == rhs.size()
+                       && 0 == std::memcmp(d_data.data(),
+
+        14
+
+i
+
+
+
+    i                                                                                                 i
+    i                                                                                                   i
+                     “emcpps-internal” — 2021/4/23 — 20:59 — page 15 — #15
+
+i
+
+
+
+        C++11                                                             initializer_list
+
+                                              rhs.begin(),
+                                              rhs.size() * sizeof(int));
+                }
+          };
+
+          inline
+          bool operator==(const DynArray& lhs, std::initializer_list<int> rhs)
+          {
+              return lhs.isEqual(rhs);
+          }
+
+          inline
+          bool operator!=(const DynArray& lhs, std::initializer_list<int> rhs)
+          {
+              return !lhs.isEqual(rhs);
+          }
+
+        There are many opportunities to provide rich support for braced lists beyond just the con-
+        structor and assignment operator. Let’s exercise this class in main, highlighting its support
+        for braced lists:
+          int main()
+          {
+              DynArray x = { 1, 2, 3, 4, 5 };
+
+                std::initializer_list<int> il = { 1, 2, 3, 4, 5 };
+
+                assert(x == il);
+
+                assert((x == { 1, 2, 3, 4, 5 }));     // Error, not a std::initializer_list
+                assert((x != { 1, 2, 3 }));           // Error, not a std::initializer_list
+
+                assert( x.isEqual({   1, 2, 3, 4, 5 }));
+                assert(!x.isEqual({   1, 2, 3, 4, 6 }));
+                assert(!x.isEqual({   1, 2, 3, 4 }));
+                assert(!x.isEqual({   }));
+
+                x += { 6 };
+
+                assert(x != il);
+                assert( x.isEqual({ 1, 2, 3, 4, 5, 6 }));
+
+                x.shrink(2);
+
+                std::initializer_list<int> ilB = { 1, 2 };
+
+                assert(!x.isEqual({ 1, 2, 3, 4, 5, 6 }));
+                assert( x.isEqual({ 1, 2 }));
+                assert( x.isEqual(ilB));
+                assert(x == ilB);
+
+                                                                                                  15
+
+i
+
+
+
+    i                                                                                                   i
+        i                                                                                                             i
+                                      “emcpps-internal” — 2021/4/23 — 20:59 — page 16 — #16
+
+i
+
+
+
+                         initializer_list                             Chapter 2    Conditionally Safe Features
+
+
+
+                              assert((x == { 1, 2 }));     // Error, not a std::initializer_list
+
+                              x += { 8, 9, 10 };
+
+                              assert(!x.isEqual({ 1, 2 }));
+                              assert( x.isEqual({ 1, 2, 8, 9, 10 }));}
+
+                        Note that due to a quirk of the C++ grammar for certain operators, using braced-init-list
+                        as the right-hand argument of an operator== does not implicitly deduce an initializer-list,
+                        even if the operator== takes an initializer-list as the parameter; see ?? — ?? on page ??
+                        within Section 2.1.“??” on page ??.
+
+                        Functions consuming a variable number of arguments of the same type
+ents­of­the­same­type
+                        Suppose we want a function that takes an arbitrary number of arguments all of the same
+                        type. In our example, we write a function that concatenates a number of input strings
+                        together separated by commas:
+                         #include <initializer_list>
+                         #include <string>
+
+                         std::string concatenate(std::initializer_list<std::string> ils)
+                         {
+                             std::string separator;
+                             std::string result;
+                             for (const std::string* p = ils.begin(); p != ils.end(); ++p)
+                             {
+                                 result.append(separator);
+                                 result.append(*p);
+                                 separator = ",";
+                             }
+                             return result;
+                         }
+
+                         std::string hex_digits = concatenate({"A", "B", "C", "D", "E"});
+
+                        An example from the C++ Standard Library would be the additional overload for std::min
+                        provided by C++11 to take a list of arguments:
+                         #include <algorithm>
+                         #include <initializer_list>
+
+                         constexpr int n = std::min({3,2,7,5,­1,3,9}); // min is constexpr in C++14.
+                         static_assert(n == ­1, "Error: wrong value?!");
+
+
+                        Iterating over a fixed number of objects
+xed­number­of­objects
+                        std::initializer_list was designed from the start to model a standard library range,
+                        which is the same set of requirements for a type to support the C++11 range-based for loop
+
+                        16
+
+i
+
+
+
+        i                                                                                                             i
+    i                                                                                                             i
+                      “emcpps-internal” — 2021/4/23 — 20:59 — page 17 — #17
+
+i
+
+
+
+        C++11                                                                    initializer_list
+
+        (see Section 2.1.“??” on page ??. Range-based for loops acquire their meaning through a
+        translation equivalence; it is instructive to examine that as an example of the synergy of
+        several new language features designed to interact well. Suppose that the compiler encounters
+        the following range-based for loop:
+          for (declaration : { list }) statement
+
+        Such a loop would be translated as follows:
+          {
+                auto &&__r = { list };
+                for (auto __b = __r.begin(), __e = __r.end(); __b != __e; ++__b)
+                {
+                    declaration = *__b;
+                    statement
+                }
+          }
+
+        Note the use of auto&& to perfectly deduce the type of the argument and forward it into
+        the following code by reference, avoiding the creation of unnecessary temporary objects.
+            Thus, __r is deduced to be a std::initializer_list<E>. By the special rule for
+        creating std::initializer_list objects directly from a braced list and the corresponding
+        lifetime extension rules for the reference __r to the deduced std::initializer_list, the
+        lifetime of the array is extended to the lifetime of __r, which also encompasses the lifetime
+        of the loop. Ultimately, that extension makes things work “as expected”; the array exists
+        while the loop is executing and is destroyed immediately after.
+            Now suppose we want to iterate over a fixed set of objects. Using initializer lists lets
+        us avoid the tedious boilerplate of creating our own array of data for the iteration. In our
+        example, we analyze a character string to see if it begins with one of the numeric base prefix
+        indicators1 :
+          bool hasBasePrefix(const std::string& number)
+          {
+              for (const std::string& prefix : { "0x", "0X", "0b", "0B" })
+              {
+                  if (number.find(prefix) == 0)
+                  {
+                      return true;
+                  }
+              }
+
+                return false;
+          }
+
+        Note that this pattern may often be seen feeding values to a test driver.
+
+
+
+
+            1 To avoid unnecessary string copies, the standard C++17 std::string_view facility could be used in
+
+        place of std::string in the hasBasePrefix example.
+
+
+                                                                                                            17
+
+i
+
+
+
+    i                                                                                                             i
+         i                                                                                                                  i
+                                        “emcpps-internal” — 2021/4/23 — 20:59 — page 18 — #18
+
+i
+
+
+
+                          initializer_list                               Chapter 2     Conditionally Safe Features
+
+
+    potential­pitfalls
+                         Potential Pitfalls
+                         Dangling references to temporary underlying arrays
+ary­underlying­arrays
+                         Because std::initializer_list has pointer semantics, it has all the pitfalls associated
+                         with regular pointers with respect to dangling references, i.e, referring to an object after its
+                         lifetime has ended. These problems arise when the lifetime of the std::initializer_list
+                         object is greater than the lifetime of the underlying array. As a simple example, the following
+                         risks undefined behavior and does not work as the user (probably) expects:
+
+                           std::initializer_list<int> il;
+                           il = { 1, 2, 3 }; // BAD IDEA, bound to a temporary that is about to expire
+
+                         In this example, the temporary array created for the brace-enclosed list does not have its
+                         lifetime extended, because il is being assigned, not initialized. If we are lucky, the compiler
+                         will warn us:
+
+                           warning: assignment from temporary 'initializer_list' does not extend the lifetime
+                           of the underlying array
+
+                         As is so often the case when dealing with lifetime issues in C++, caution is required.
+
+
+                         Annoyances
+ances­initializerlist
+                         Initializer lists must be homogeneous, sometimes
+omogeneous,­sometimes
+                         While a std::initializer_list<E> is clearly always homogeneous, the initializer list
+                         used to create it in many cases can be a heterogeneous list of initializers convertible to the
+                         common type E, but, in deduction contexts, the braced list must strictly be homogeneous
+                         too:
+
+                           #include <initializer_list>
+
+                           void f(std::initializer_list<int>) {}
+
+                           template <typename E>
+                           void g(std::initializer_list<E>) {}
+
+                           int main()
+                           {
+                               f({1, '2', 3});     // OK, heterogeneous list converts
+                               g({1, '2', 3});     // Error, cannot deduce heterogeneous list
+                               g({1, 2 , 3});      // OK, homogenous list
+
+                               auto x = {1, '2', 3}; // Error, cannot deduce heterogeneous list
+                               auto y = {1, 2 , 3}; // OK, homogenous list
+                               std::initializer_list<int> z = {1, '2', 3}; // OK, converts
+                           }
+
+
+
+                         18
+
+i
+
+
+
+         i                                                                                                                  i
+        i                                                                                                                  i
+                                       “emcpps-internal” — 2021/4/23 — 20:59 — page 19 — #19
+
+i
+
+
+
+                          C++11                                                              initializer_list
+
+                          std::initializer_list constructor suppresses the implicitly declared de-
+icitly­declared­default
+                          fault
+                          The declaration of a constructor with an initializer-list argument will suppress the implicit
+                          declaration of a default constructor, as one would expect. Without a default constructor,
+                          the std::initializer_list constructor will be called when the object is initialized from
+                          an empty list but not in other circumstances where a default constructor might be called. If
+                          such a type is then used as the type of a subobject, it would result in an implicitly declared
+                          default constructor of the outer object being deleted. These rules can make initialization
+                          from a pair of empty braces a bit counter-intuitive:
+
+                            #include <vector>
+                            #include <cassert>
+
+                            struct X
+                            {
+                                std::vector<int> d_v;
+
+                                  X(std::initializer_list<int> il) : d_v(il) {}
+                            };
+
+                            struct Y
+                            {
+                                long long d_data;
+
+                                  Y() : d_data(­1) {}
+                                  Y(std::initializer_list<int> il) : d_data(il.size()) {}
+                            };
+
+                            struct Z1 : X { };
+
+                            struct Z2 : X
+                            {
+                                Z2() = default;          // BAD IDEA, implicitly deleted
+                            };
+
+                            struct Z3 : X
+                            {
+                                using X::X;
+                            };
+
+                            struct Z4
+                            {
+                                X data;
+
+                                  Z4() = default;
+                            };
+
+                            void demo()
+
+                                                                                                                     19
+
+i
+
+
+
+        i                                                                                                                  i
+    i                                                                                                i
+                            “emcpps-internal” — 2021/4/23 — 20:59 — page 20 — #20
+
+i
+
+
+
+         initializer_list                                 Chapter 2   Conditionally Safe Features
+
+
+         {
+              X a;                           // Error, no default constructor
+
+              X b{};                 // OK
+              assert(b.d_v.empty());
+
+              X c = {};              // OK
+              assert(c.d_v.empty());
+
+              X d = { 1, 2, 7 };    // OK
+              assert(3 == d.d_v.size() && 7 == d.d_v.back());
+
+              X ax[5];                       // Error, no default constructor
+              X bx[5]{};                     // OK, initializes each element with {}
+              X cx[5] = {};                  // OK, initializes each element with {}
+
+              Y e;                  // OK
+              assert(­1 == e.d_data);
+
+              Y f{};                // OK, default constructor!
+              assert(­1 == f.d_data);
+
+              Y g = {};             // OK, default constructor!
+              assert(­1 == g.d_data);
+
+              Y h({});                    // OK, using std::initializer_list
+              assert(0        == h.d_data);
+
+              Y i = { 7, 8, 9 };   // OK, using std::initializer_list
+              assert(3 == i.d_data);
+
+              Z1   j1{};            //   Error, calls implicitly deleted default constructor
+              Z2   j2{};            //   Error, calls deleted default constructor
+              Z3   j3{};            //   Error, calls implicitly deleted default constructor
+              Z4   j4{};            //   OK, aggregate initialization, empty list for X
+
+              Z1   k1   =   {};     //   Error, calls implicitly deleted default constructor
+              Z2   k2   =   {};     //   Error, calls deleted default constructor
+              Z3   k3   =   {};     //   Error, calls implicitly deleted default constructor
+              Z4   k4   =   {};     //   OK, aggregate initialization, empty list for X
+
+              Z1   m1   =   {{}};   //   Error, not an aggregate, no initializer_list constructor
+              Z2   m2   =   {{}};   //   Error, not an aggregate, no initializer_list constructor
+              Z3   m3   =   {{}};   //   OK, initializer_list constructor with one int
+              Z4   m4   =   {{}};   //   OK, aggregate initialization, empty list for X
+         }
+
+
+        Note that most of the Z* examples will become “OK” in C++17 as the definition of aggregate
+        evolves. Some of those examples will become errors again in C++20 as will all of the Z4
+
+        20
+
+i
+
+
+
+    i                                                                                                i
+        i                                                                                                                   i
+                                       “emcpps-internal” — 2021/4/23 — 20:59 — page 21 — #21
+
+i
+
+
+
+                          C++11                                                               initializer_list
+
+                          examples above because Z4 ceases to be an aggregate in C++20 due to the user-declared
+                          default constructor.
+                              On the other hand, with regard to nondefault constructors, if a nonempty pair of braces
+                          is called, the initializer-list constructor is favored over all others; see ?? — ?? on page ??
+                          within Section 2.1.“??” on page ??:
+
+                                  std::vector<int> v{ 12, 3 };
+                                  assert(2 == v.size() && v.front() == 12);
+                                  std::vector<int> w( 12, 3 );
+                                  assert(12 == w.size() && w.front() == 3);
+
+
+
+
+                          Initializer lists represent const objects
+represent­const­objects
+                          The underlying array of an initializer list is const, so the objects in that list cannot be
+                          modified. In particular, it is not possible to move elements out of the list that are typically
+                          consumed just once, despite their being temporaries.
+
+                            #include <vector>
+
+                            std::vector<std::vector<int>> v = {{1, 2, 3},
+                                                               {4, 5, 6},
+                                                               {7, 8},
+                                                               {9}};
+
+                          In this example, the vector, v, is initialized by an rvalue that is an std::initializer_list
+                          comprising four temporary vectors, each allocating memory for their internal array. However,
+                          the constructor for v must again copy each vector, allocating a fresh copy of each array,
+                          rather than take advantage of move-related optimizations, since each temporary is effectively
+                          const-qualified.
+                              Another consequence of initializer lists’ const nature is that move-only types such as
+                          std::unique_ptr<T> become completely unusable with them.
+
+
+                          Overloaded free-function templates begin and end are largely vestigial
+d­are­largely­vestigial
+                          The range-based for feature initially required the free functions begin and end; see Appendix
+                          on page 22 for why they are no longer needed. The begin and end free functions were al-
+                          ready provided by the <iterator> header, but because the <initializer_list> header is
+                          freestanding unlike the <iterator> header, it was necessary to also add specific overloads
+                          to the <initializer_list> header. Historically, due to the perceived range-based for de-
+                          pendency, the aforementioned free functions in the <iterator> header were also added to
+                          many other headers, including those for all of the standard containers.
+                              As subsequent editions of the Standard have added to the set of related, free function
+                          overloads (for example, empty, added in C++17), those additional overloads have been
+                          added to multiple headers so that idiomatic generic code does not need to include additional
+                          headers. However, due to the freestanding requirement, none of those additional overloads
+                          are available through the <initializer\_list> header.
+
+                                                                                                                      21
+
+i
+
+
+
+        i                                                                                                                   i
+        i                                                                                                              i
+                                        “emcpps-internal” — 2021/4/23 — 20:59 — page 22 — #22
+
+i
+
+
+
+                         initializer_list                             Chapter 2     Conditionally Safe Features
+
+
+             see­also
+                        See Also
+                             • “??” (§2.1, p. ??) ♦ provides further details regarding object initialization and
+                               construction using braced lists and std::initializer_lists.
+
+                        Further Reading
+      further­reading
+                             • ?[https://www.stroustrup.com/N1890-initialization.pdf]
+                             • ?[https://www.stroustrup.com/N1919-initializer_lists.pdf]
+                             • ?
+
+                        Appendix
+    appendix­initlist
+                        A brief history of user customization to support range-based for
+pport­range­based­for
+                        The original incarnation of the range-based for loop was built around the proposed con-
+                        cepts language feature. The range argument to the for loop would satisfy the range concept,
+                        which the user could customize with a concept_map to adapt third-party libraries that did
+                        not have begin and end member functions.
+                            When concepts were pulled after the first ISO ballot, the committee did not want to lose
+                        range-based for, so a new scheme was invented: The compiler would look for begin and end
+                        free functions. The Standard Library would provide the primary template for these functions,
+                        and #include <iterator> would be required for the range-based for loop to work, much
+                        like #include <typeinfo> is required to enable the typeid operator. Suggestions were
+                        made — and rejected — that the core feature should look for the member functions (just
+                        like the template) before looking for the free functions as the last resort. To make the
+                        standard library easy to use, the primary template for the begin and end functions was
+                        added to every standard container header, to <regex>, to <string>, and would be added
+                        on an ongoing basis to any new headers for types representing a range.
+                            The Core Working Group then met the original request, so that range-based for never
+                        uses the <iterator> templates but directly looks for member functions and, failing that,
+                        performs an ADL lookup to find begin and end. The need to scatter these templates in
+                        every header is gone, but that core language change was not communicated to the Library
+                        Working Group in time. The only reason these functions remain in so many headers today
+                        is backward compatibility from when they were redundantly specified in C++11.
+                            While the begin and end free functions are never required to support the range-based
+                        for loop, subsequent evolution of the Standard Library has embraced these functions as a
+                        means of expressing generic code. When called in a context that supports ADL, arbitrary
+                        third party types can be adapted to satisfy the requirements of a Standard Library range.
+                        Further overloads for constant and reverse iterators were added for C++14 and for a broader
+                        range of queries, such as empty and size, in C++17. Unfortunately, due to the way the
+                        Standard Library specification is drafted, all of these additional overloads are scattered
+                        across the same set of additional headers, despite being totally unrelated to the vanished
+                        motivation of supporting range-based for.
+
+
+
+
+                        22
+
+i
+
+
+
+        i                                                                                                              i
+          i                                                                                       i
+                                    “emcpps-internal” — 2021/4/23 — 20:59 — page 23 — #23
+
+i
+
+
+
+                            C++14                                              initializer_list
+
+    sec­conditional­cpp14
+
+
+
+
+                                                                                             23
+
+i
+
+
+
+          i                                                                                       i
+    i                                                           i
+        “emcpps-internal” — 2021/4/23 — 20:59 — page 24 — #24
+
+i
+
+
+
+
+i
+
+
+
+    i                                                           i
+     i                                                                                          i
+                                   “emcpps-internal” — 2021/4/23 — 20:59 — page 25 — #25
 
 i
 
@@ -106,1284 +1371,22 @@ i
 
 
 
-                                                                                          5
+                                                                                           25
 
 
 i
 
 
 
-     i                                                                                        i
-        i                                                                                                                  i
-                                          “emcpps-internal” — 2021/4/15 — 2:31 — page 6 — #6
+     i                                                                                          i
+       i                                                                                      i
+                            “emcpps-internal” — 2021/4/23 — 20:59 — page 26 — #26
 
 i
 
 
 
-                         Ref-Qualifiers                                               Chapter 3     Unsafe Features
-
-
-
-                        Reference-Qualified Member Functions
-fied­member­functions
-        refqualifiers
-                        Ref-qualifiers allow developers to overload a nonstatic member function based on the value
-                        category of the class object.
-
-                        Description
-          description
-                        Even before standardization, C++ supported decorating nonstatic member functions with
-                        cv-qualifiers and allowed overloading on those qualifiers:
-                            struct Class1
-                            {
-                                void member1() const;        // (1) const­qualified member
-                                void member2();              // (2) no qualifiers
-                                void member2() volatile;     // (3) volatile­qualified overload of (2)
-                            };
-
-                            void f1()
-                            {
-                                Class1          v1;
-                                const Class1    v2;
-                                volatile Class1 v3;
-
-                                v1.member1();   // Calls function (1).
-                                v2.member1();   // Calls function (1).
-
-                                v1.member2();   // Calls overloaded function (2).
-                                v3.member2();   // Calls overloaded function (3).
-
-                                v3.member1();   // Error, no member1 overload matches a volatile object.
-                                v2.member2();   // Error, " member2      "       "    " const       "
-                            }
-
-                        The cv-qualifiers, const and/or volatile, appearing after the parameter list in the mem-
-                        ber function prototype apply to the object on which the member is called and allow us to
-                        overload on the cv-qualification of that object. Overload resolution will select the clos-
-                        est match whose cv-qualifiers are the same as, or more restrictive than, the object’s cv-
-                        qualification; hence, v1.member1() calls a const-qualified member even though v1 is not
-                        const. A qualifier cannot be dropped during overload resolution, however, so v3.member1()
-                        and v2.member2() are ill formed.
-                            C++11 introduced a similar feature, adding optional qualifiers that indicate the valid
-                        value categories for the expression a member function may be invoked on. Declaring a
-                        member function overload specifically for rvalue expressions, for example, allows library
-                        writers to make better use of move semantics. Note that readers of this feature are presumed
-                        to be familiar with value categories (see ??) and, in particular, the distinction between lvalue
-                        and rvalue references (see Section 2.1.“??” on page ??:
-                            struct Class2
-
-                        6
-
-i
-
-
-
-        i                                                                                                                  i
-    i                                                                                                       i
-                       “emcpps-internal” — 2021/4/15 — 2:31 — page 7 — #7
-
-i
-
-
-
-        C++11                                                                              Ref-Qualifiers
-
-
-          {
-                void member() &;     // (1)
-                void member() &&;    // (2)
-          };
-
-        Each member function with a trailing & or && is said to be ref-qualified; the trailing & or
-        && symbols are called ref-qualifiers. The & ref-qualifier on overload (1), above, restricts that
-        overload to lvalue expressions. The && ref-qualifier on overload (2) restricts that overload to
-        rvalue expressions:
-          void f2()
-          {
-              Class2 v;
-              v.member();             // Calls overloaded function (1)
-              Class2().member();      // Calls overloaded function (2)
-          }
-
-        The expression, v, is an lvalue, so v.member() calls the lvalue-qualified overload of member,
-        whereas the expression, Class2(), is an rvalue, so calling member on it chooses the rvalue-
-        qualified overload.
-            At the heart of understanding both cv-qualifiers and ref-qualifiers on member functions
-        is recognizing the existence of an implicit parameter by which the class object is passed to
-        the function:
-          class Class3
-          {
-              // ...
-          public:
-              void mf(int)    &;           // Two parameters: [Class3&       ], int
-              void mf(int)    &&;          // "        "    : [Class3&&      ],   "
-              void mf(int)    const &;     // "        "    : [const Class3& ],   "
-              void mf(int)    const &&;    // "        "    : [const Class3&&],   "
-          };
-
-        In each of the four overloads of mf, there is a hidden reference parameter (shown in square
-        brackets in the comments) in addition to the explicitly declared int parameter. The quali-
-        fiers at the end of the declarator, i.e., after the parameter list, specify the cv-qualifiers and
-        ref-qualifier for this implicit reference. The this pointer holds the address of the object
-        passed for this implicit parameter:
-          void Class3::mf(/* [Class3& __self,] */ int i) &
-          {
-              // Implicit Class3 *const this = &__self
-              // ...
-          }
-
-          void Class3::mf(/* [Class3&& __self,] */ int i) &&
-          {
-              // Implicit Class3 *const this = &__self
-              // ...
-          }
-
-                                                                                                       7
-
-i
-
-
-
-    i                                                                                                       i
-    i                                                                                                       i
-                          “emcpps-internal” — 2021/4/15 — 2:31 — page 8 — #8
-
-i
-
-
-
-         Ref-Qualifiers                                               Chapter 3      Unsafe Features
-
-
-
-            void Class3::mf(/* [const Class3& __self,] */ int i) const &
-            {
-                // Implicit const Class3 *const this = &__self
-                // ...
-            }
-
-            void Class3::mf(/* [const Class3&& __self,] */ int i) const &&
-            {
-                // Implicit const Class3 *const this = &__self
-                // ...
-            }
-
-        For descriptive purposes, we will refer to the implicit reference parameter as __self through-
-        out this section; in reality, it has no name and cannot be accessed from code. The this
-        pointer within the function is, therefore, the address of __self. Note that the type of this
-        does not reflect whether __self is an lvalue reference or an rvalue reference; pointer types
-        do not convey the value category of the pointed-to object.
-            When a member function of an object is called, overload resolution finds the best match
-        for the value category and cv-qualification of all of its arguments, including the implicit
-        __self argument:
-            #include <utility>       // std::move
-
-            Class3 makeObj();
-
-            void f3()
-            {
-                Class3               obj1;
-                const Class3         obj2;
-                volatile Class3      obj3;
-                const Class3&        r1 = obj1;
-                Class3&&             r2 = std::move(obj1);   // Note: r2 is an lvalue
-
-                obj1.mf(0);     //   Call mf(int) &
-                obj2.mf(0);     //   Call mf(int) const &
-                obj3.mf(0);     //   Error, no overload, mf(int) volatile &
-                r1.mf(0);       //   Call mf(int) const &
-                r2.mf(0);       //   Call mf(int) &
-
-                makeObj().mf(0);             // Call mf(int) &&
-                std::move(obj1).mf(0);       // Call mf(int) &&
-                std::move(obj2).mf(0);       // Call mf(int) const &&
-            }
-
-        The three objects, obj1, obj2, and obj3, are lvalues, so calls to mf will match only the lvalue
-        reference overloads, i.e., those with a & ref-qualifier. As always, overload resolution will pick
-        the version of mf that best matches the cv-qualification of the object, without dropping
-        any qualifiers. Thus, the call to obj2.mf(0) selects the const overload whereas the call
-        to obj3.mf(0) fails because all candidate functions would require dropping the volatile
-
-        8
-
-i
-
-
-
-    i                                                                                                       i
-        i                                                                                                                    i
-                                        “emcpps-internal” — 2021/4/15 — 2:31 — page 9 — #9
-
-i
-
-
-
-                          C++11                                                                             Ref-Qualifiers
-
-
-                          qualifier. The const lvalue reference r1 matches the const lvalue-qualified __self even
-                          though the object to which r1 is bound is not const. Though declared as an rvalue reference,
-                          a named reference such as r2 is always an lvalue when used in an expression; hence, r2.mf(0)
-                          calls the nonconst lvalue-qualified overload of mf.
-                              The function makeObj returns an rvalue of type Class3. When mf is called on that rvalue,
-                          the nonconst rvalue reference overload is selected. The expression std::move(obj1) also
-                          binds to an rvalue reference and thus selects the same overload. An rvalue reference to const
-                          occurs relatively rarely in real code, but when it happens, it is usually the result of calling
-                          std::move on a const object (e.g., obj2), especially in generic code. Note, however, that
-                          a const lvalue reference can be bound to an rvalue; thus, if a matching rvalue reference
-                          overload is not found, and a const lvalue reference overload exists, then the latter will
-                          match an rvalue reference to the class object:
-                            class Class4
-                            {
-                                // ...
-                            public:
-                                void mf1()     &;
-                                void mf1()     const &;
-                                void mf1()     &&;
-                                // No void     mf1() const && overload.
-
-                                  void mf2()   &;
-                                  void mf2()   const &;
-                                  // No void   mf2() && overload.
-                                  // No void   mf2() const && overload.
-                            };
-
-                            void f4()
-                            {
-                                const Class4 obj1;
-                                Class4       obj2;
-
-                                  std::move(obj1).mf1();    // Calls mf1() const &
-                                  std::move(obj2).mf2();    // Calls mf2() const &
-                            }
-
-
-                          Syntax and restrictions
-syntax­and­restrictions
-                          A ref-qualifier is an optional part of a nonstatic member function declaration. If present, it
-                          must come after any cv-qualifiers and before any exception specification. A constructor or
-                          destructor may not have a ref-qualifier:
-                            void f1() &;    // Error, ref­qualifier on a nonmember function
-
-                            class Class1
-                            {
-                                // ...
-                            public:
-
-                                                                                                                        9
-
-i
-
-
-
-        i                                                                                                                    i
-    i                                                                                                i
-                          “emcpps-internal” — 2021/4/15 — 2:31 — page 10 — #10
-
-i
-
-
-
-         Ref-Qualifiers                                              Chapter 3   Unsafe Features
-
-
-               Class1() &&;            //    Error,   ref­qualifier on constructor.
-               ~Class1() &;            //    Error,   ref­qualifier on destructor.
-               void mf() & const;      //    Error,   ref­qualifier before cv­qualification
-               void mf() noexcept&;    //    Error,   ref­qualifier after exception specification
-               void mf() & &&;         //    Error,   two ref­qualifiers
-               static void smf() &;    //    Error,   ref­qualifier on static member
-
-               void mf(int) const && noexcept;         // OK, ref­qualifier correctly placed.
-          };
-
-        A member function that does not have a ref-qualifier can be called for either an lvalue or
-        an rvalue. Thus, C++03 code continues to compile and work as before:
-          #include <utility>     // std::move
-
-          class Class2
-          {
-              // ...
-          public:
-              void mf();
-              void mf() const;
-          };
-
-          void f2()
-          {
-              Class2       obj1;
-              const Class2 obj2;
-
-               obj1.mf();               //    Calls   mf()
-               obj2.mf();               //    Calls   mf() const
-               std::move(obj1).mf();    //    Calls   mf()
-               std::move(obj2).mf();    //    Calls   mf() const
-          }
-
-        For a set of overloads having the same name and the same parameter types, ref-qualifiers
-        must be provided for all members in that set or for none of them:
-          class Class3
-          {
-              // ...
-          public:
-              void mf1(int*);
-              int mf1(int*) const &;         // Error, prior mf1(int*) is not ref­qualified
-
-               int mf2(int) const;
-               void mf2(int);                // OK, neither mf2(int) is ref­qualified
-
-               int&          mf3() &;
-               const int&    mf3() const &;
-               int&&         mf3() &&;    // OK, all mf3() overloads are ref­qualified
-
-
-
-        10
-
-i
-
-
-
-    i                                                                                                i
-    i                                                                                                    i
-                     “emcpps-internal” — 2021/4/15 — 2:31 — page 11 — #11
-
-i
-
-
-
-        C++11                                                                           Ref-Qualifiers
-
-
-                void mf4(int);
-                void mf4(char*) &&;       // OK, mf4(int) and mf4(char*) are different.
-
-                int mf5(int) &;           // OK, not overloaded
-
-                int&& mf6() &&;           // OK, not overloaded
-          };
-
-        Note that the overload of mf1 is ill formed even though the unqualified and ref-qualified
-        versions have different return types and different cv-qualifiers.
-           Member function templates may also have ref-qualifiers:
-          class Class4
-          {
-              // ...
-          public:
-              template <typename T> Class4& mf(const T&) &;
-              template <typename T> Class4&& mf(const T&) &&;
-          };
-
-        Within a member function’s body, regardless of whether the member has a & ref-qualifier, a
-        && ref-qualifier, or no ref-qualifier at all, uses of *this and of any nonstatic data members
-        yield lvalues. Although arguably counterintuitive, this behavior is identical to the way that
-        other reference parameters work:
-          #include <cassert>      // standard C assert macro
-
-          template <typename T> bool isLvalue(T&) { return true; }
-          template <typename T> bool isLvalue(T&&) { return false; }
-
-          class Class5
-          {
-              int d_data;
-          public:
-              void mf(int&& arg) &&
-              {
-                  assert(isLvalue(arg));         // OK, named reference is an lvalue
-                  assert(isLvalue(*this));       // OK, pointer dereference is an lvalue
-                  assert(isLvalue(d_data));      // OK, member of an lvalue is an lvalue
-              }
-
-                void mf(int& arg) &
-                {
-                    assert(isLvalue(arg));       // OK, named reference is an lvalue
-                    assert(isLvalue(*this));     // OK, pointer dereference is an lvalue
-                    assert(isLvalue(d_data));    // OK, member of an lvalue is an lvalue
-                }
-          };
-
-        If a member function calls another member function on the same object, only the lvalue-
-        qualified overloads are considered:
-
-                                                                                                   11
-
-i
-
-
-
-    i                                                                                                    i
-    i                                                                                                     i
-                          “emcpps-internal” — 2021/4/15 — 2:31 — page 12 — #12
-
-i
-
-
-
-         Ref-Qualifiers                                              Chapter 3     Unsafe Features
-
-
-          #include <cassert>     // standard C assert macro
-
-          struct Class6
-          {
-              bool mf1() & { return false; }         // Return false if called on lvalue
-              bool mf1() && { return true; }         //    "   true   "    "    " rvalue
-
-               void mf2() && { assert(false == mf1()); }        // Calls lvalue overload
-          };
-
-        Function mf2, although rvalue-qualified, nevertheless calls the lvalue-qualified overload of
-        mf1 because *this is an lvalue. If the desired behavior is to propagate the value category
-        of the object on which it was called, std::move (or another reference cast) must be used:
-          class Class7
-          {
-              int d_data;
-
-          public:
-              bool mf1() & { return false; }         // Return false if called on lvalue
-              bool mf1() && { return true; }         //    "   true   "    "    " rvalue
-
-               void mf2(int&& arg) &&
-               {
-                   assert(! isLvalue(std::move(arg)));
-                   assert(! isLvalue(std::move(*this)));
-                   assert(! isLvalue(std::move(d_data)));
-
-                    assert(std::move(*this).mf1());
-               }
-          };
-
-        In this example, each call to std::move reconstitutes the value category of the original
-        object. Note that we must mention *this explicitly in order to call the rvalue-qualified
-        overload of mf1.
-            The ref-qualifier, if any, is part of a member function’s signature and is, therefore, part
-        of its type and the type of a corresponding pointer to member function:
-          struct Class8
-          {
-              void mf1(int) &;      // (1)
-              void mf1(int) &&;     // (2)
-
-               void mf2(int);       // (3)
-          };
-
-          using Plqf = void (Class8::*)(int)&;         // pointer to lvalue­qualified function
-          using Prqf = void (Class8::*)(int)&&;        //    "     " rvalue­qualified     "
-          using Puqf = void (Class8::*)(int);          //    "     " unqualified            "
-
-          void f8()
-
-        12
-
-i
-
-
-
-    i                                                                                                     i
-        i                                                                                                                  i
-                                       “emcpps-internal” — 2021/4/15 — 2:31 — page 13 — #13
-
-i
-
-
-
-                          C++11                                                                           Ref-Qualifiers
-
-
-                            {
-                                  Plqf lq = &Class8::mf1;   // OK, pointer to member function (1)
-                                  Prqf rq = &Class8::mf1;   // OK,    "     "    "       "    (2)
-                                  Puqf xq = &Class8::mf1;   // Error, mf1 is ref­qualified but Puqf is not.
-
-                                  Puqf uq = &Class8::mf2;   // OK, pointer to member function (3)
-                                  Plqf yq = &Class8::mf2;   // Error, mf2 is not ref­qualified but Plqf is.
-
-                                  Class8 v;
-                                  (v.*lq)(0);          // Call v.mf1(int), overload (1)
-                                  (Class8{}.*rq)(1);   // Call Class8{}.mf1(int), overload (2)
-                                  (v.*rq)(2);          // Error, rq expects an rvalue object.
-                            }
-
-                          Note that Plqf, Prqf, and Puqf are three different, mutually-incompatible, types that reflect
-                          the ref-qualifier of the member function they each point to.
-
- use­cases­refqualifier
-                          Use Cases
-                          Returning a subobject of an rvalue
-­subobject­of­an­rvalue
-                          Many classes provide accessors that return a reference to a member of the class. We can
-                          gain performance benefits if those accessors returned rvalue references when called on an
-                          rvalue object:
-                            #include <utility>    // std::move
-                            #include <string>     // std::string
-
-                            class RedString
-                            {
-                               std::string d_value;
-
-                            public:
-                                RedString(const char* s = "") : d_value("Red: ") { d_value += s; }
-
-                                  std::string&         value() &       { return d_value; }
-                                  std::string const&   value() const & { return d_value; }
-                                  std::string&&        value() &&      { return std::move(d_value); }
-
-                                  // ...
-                            };
-
-                            void f2()
-                            {
-                                RedString       rs1("hello");
-                                const RedString rs2("world");
-
-                                  std::string h1 = rs1.value();                        // "Red: hello"
-                                  std::string h2 = rs2.value();                        // "Red: world"
-                                  std::string h3 = RedString("goodbye").value();       // "Red: goodbye"
-
-
-
-                                                                                                                     13
-
-i
-
-
-
-        i                                                                                                                  i
-    i                                                                                                      i
-                          “emcpps-internal” — 2021/4/15 — 2:31 — page 14 — #14
-
-i
-
-
-
-         Ref-Qualifiers                                               Chapter 3     Unsafe Features
-
-
-               std::string h4 = std::move(rs1).value();                // "Red: hello"
-               std::string h5 = rs1.value();                           // Bug, unspecifiedvalue
-
-               std::string h6 = std::move(rs2).value();                // "Red: world"
-               std::string h7 = rs2.value();                           // OK, "Red: world"
-          }
-
-        The RedString class provides three ref-qualified overloads of value. When value is called
-        on rs1 and rs2, the nonconst and const lvalue-qualified overloads, respectively, are se-
-        lected. Both return an lvalue reference to std::string, so h1 and h2 are constructed
-        using the copy constructor, as usual. In the case of the temporary variable created by
-        RedString("goodbye"), however, the rvalue-qualified overload of value is selected. It re-
-        turns an rvalue reference, so h3 is invoked using the move constructor, which is more eﬀicient.
-            As in the case of most such code, it is assumed that an rvalue reference refers to an object
-        whose state no longer matters after evaluation of the expression. When that assumption
-        doesn’t hold, unexpected results may occur, as in the case of h5, which is initialized from a
-        moved-from string, yielding a valid but unspecified string value.
-            The value method is not overloaded for a const rvalue-qualified object. Invoking it
-        for such a (rarely encountered) type selects the const lvalue-qualified overload, as rval-
-        ues can always be bound to const lvalue references. As a result, h6 is initialized from a
-        const std::string&, invoking the copy constructor and leaving rs2 unmodified.
-            One danger of this design is that the reference returned from the rvalue-qualified overload
-        could outlive the RedString object:
-          void f3()
-          {
-              std::string&& s = RedString("goodbye").value();
-              char c = s[0]; // Bug, s refers to a deleted string
-          }
-
-        The temporary variable created by the expression RedString("goodbye") is destroyed at
-        the end of the statement; lifetime extension does not come into play because s is not
-        bound to the temporary object itself, but to a reference returned by the value method.
-        This situation can be avoided by returning by value rather than by reference:
-          class BlueString
-          {
-             std::string d_value;
-
-          public:
-              BlueString(const char* s = "") : d_value("Blue: ") { d_value += s; }
-
-               std::string&           value() &       { return d_value; }
-               std::string const&     value() const & { return d_value; }
-               std::string            value() &&      { return std::move(d_value); }
-
-               // ...
-          };
-
-          void f4()
-
-        14
-
-i
-
-
-
-    i                                                                                                      i
-        i                                                                                                                                i
-                                         “emcpps-internal” — 2021/4/15 — 2:31 — page 15 — #15
-
-i
-
-
-
-                          C++11                                                                                        Ref-Qualifiers
-
-
-                            {
-                                  std::string h = BlueString("hello").value();
-
-                                  std::string&& s = BlueString("goodbye").value();
-                                  char c = s[0]; // OK, lifetime of s has been extended
-                            }
-
-                          The expression BlueString("hello").value() yields a temporary std::string initial-
-                          ized via move-construction from the member variable d_value. The variable h is, in turn,
-                          move-constructed from the temporary variable. Compared to the RedString version of
-                          value that returned an rvalue reference, this sequence logically has one extra move opera-
-                          tion (two move-constructor calls instead of one). This extra move does not pose a problem
-                          in practice because (a) move construction of std::string objects is cheap and (b) most
-                          C++11 and C++14 compilers will elide the extra move anyway, yielding equivalent code
-                          to the RedString case.1
-                              Similarly, the expression BlueString("goodbye").value() yields a temporary std::string,
-                          but in this case the temporary variable is bound to the reference, s, which causes its lifetime
-                          to be extended until s goes out of scope. Thus, s[0] safely indexes a string that is still live.
-                              Note one more, rather subtle, difference between the behavior of value for RedString
-                          versus BlueString:
-                            void f5()
-                            {
-                                RedString rs("hello");
-                                BlueString bs("hello");
-
-                                  std::move(rs).value();         // rs.d_value is unchanged
-                                  std::move(bs).value();         // bs.d_value is moved from
-                            }
-
-                          Calling value on an rvalue of type RedString doesn’t actually change the value of d_value;
-                          it is not until the returned rvalue reference is actually used (e.g., in a move constructor)
-                          that d_value is changed. Thus, if the return value is ignored, nothing happens. Conversely,
-                          for BlueString, the return of value is always move constructed, causing d_value to end
-                          up in a moved-from state, even if the return value is ultimately ignored. This difference in
-                          behavior is seldom important in practice, as reasonable code will assume nothing about the
-                          value of a variable after it was used as the argument to std::move.
-
-                          Forbidding modifying operations on rvalues
-g­operations­on­rvalues
-                          Modifying an rvalue means modifying a temporary object that is about to go out of scope.
-                          A common example of a bug resulting from this behavior is accidental assignment to a
-                          temporary object. Consider a simple Employee class with a name accessor and a function
-                          that attempts to set the name:
-
-                              1 Beginning with C++17, the description of the way return values are initialized changed so as to no
-
-                          longer materialize a temporary variable in this situation. This change is sometimes referred to as mandatory
-                          copy/move elision because, in addition to defining a more consistent and portable semantic, it effectively
-                          legislates the optimization that was previously optional.
-
-
-                                                                                                                                   15
-
-i
-
-
-
-        i                                                                                                                                i
-    i                                                                                                       i
-                          “emcpps-internal” — 2021/4/15 — 2:31 — page 16 — #16
-
-i
-
-
-
-         Ref-Qualifiers                                               Chapter 3      Unsafe Features
-
-
-          #include <string>      // std::string
-
-          class Employee
-          {
-          public:
-              // ...
-              std::string name() const;
-              // ...
-          };
-
-          void f1(Employee& e)
-          {
-              e.name() = "Fred";
-          }
-
-        The programmer probably thought that the assignment to e.name() would result in up-
-        dating the name of the Employee object referenced by e. Instead, it modifies the temporary
-        string returned by e.name(), having no effect whatsoever except, possibly, to consume CPU
-        resources.
-            One way to prevent these sorts of accidents is to design a class interface with ref-qualified
-        modifiers that are callable only for nonconst lvalues:
-          class Name
-          {
-              std::string d_value;
-
-          public:
-              Name() = default;
-              Name(const char* s) : d_value(s) {}
-              Name(const Name&) = default;
-              Name(Name&&) = default;
-
-               Name& operator=(const Name&) & = default;
-               Name& operator=(Name&&) &      = default;
-               // ...
-          };
-
-        Note that both the copy- and move-assignment operators for Name are ref-qualified for lvalues
-        only. Overload resolution will not find an appropriate match for assignment to an rvalue of
-        type Name:
-          class Employee2
-          {
-              Name d_name;
-
-          public:
-              // ...
-              Name name() const { return d_name; }
-              // ...
-          };
-
-
-
-        16
-
-i
-
-
-
-    i                                                                                                       i
-        i                                                                                                                     i
-                                       “emcpps-internal” — 2021/4/15 — 2:31 — page 17 — #17
-
-i
-
-
-
-                          C++11                                                                              Ref-Qualifiers
-
-
-                            void f2(Employee2& e)
-                            {
-                                e.name() = "Fred";      // Error, cannot assign to rvalue of type Name
-                            }
-
-                          Now, assignment to the temporary returned by e.name() fails to find a matching assignment
-                          operator, so the accidental assignment is avoided by an error message. The same approach
-                          can be used to avoid many other accidental modifications on rvalues, including inserting
-                          elements, erasing elements, etc. Note, however, that modifying a temporary is not always a
-                          bug; see ?? — Forbidding modifications to rvalues breaks legitimate use cases on page 22.
-
-                          Forbidding operations on lvalues
-g­operations­on­lvalues
-                          If an instance of a class is intended to exist only for the duration of a single expression, then
-                          it might be desirable to disable most operations on lvalues of that type. For example, an
-                          object of type LockableStream, below, works like an std::ostream except that it acquires
-                          a mutex for the duration of a single streaming expression. It does this by creating a proxy
-                          object, LockedStream, that is useful only as an rvalue:
-                            #include <iostream>      // std::ostream, std::cout, std::endl
-                            #include <mutex>         // std::mutex
-                            #include <cassert>       // standard C assert macro
-
-                            class LockableStream;      // forward reference
-
-                            class LockedStream
-                            {
-                                friend class LockableStream;
-
-                                  LockableStream* d_lockable;
-
-                                  explicit LockedStream(LockableStream* ls) : d_lockable(ls) { }
-
-                            public:
-                                LockedStream(const LockedStream&) = delete;
-                                LockedStream(LockedStream&& other) : d_lockable(other.d_lockable)
-                                {
-                                    other.d_lockable = nullptr;
-                                }
-
-                                  LockedStream& operator=(const LockedStream&) = delete;
-                                  LockedStream& operator=(LockedStream&&) = delete;
-
-                                  ~LockedStream();
-
-                                  template <typename T> LockedStream operator<<(const T& v) &&;
-                            };
-
-                          A LockedStream object holds a pointer to a LockableStream. It is move-only (not copy-
-                          able) and not assignable. Its move constructor transfers ownership of the LockableStream,
-
-                                                                                                                        17
-
-i
-
-
-
-        i                                                                                                                     i
-    i                                                                                               i
-                          “emcpps-internal” — 2021/4/15 — 2:31 — page 18 — #18
-
-i
-
-
-
-         Ref-Qualifiers                                          Chapter 3    Unsafe Features
-
-
-        which, as we shall see, implicitly transfers ownership of the mutex. The streaming opera-
-        tor, operator<<, can be invoked only on an rvalue. Note that the only way to construct
-        a LockedStream is through a private constructor that is invoked by the friend class,
-        LockableStream:
-          class LockableStream
-          {
-              std::mutex    d_mutex;
-              std::ostream& d_os;
-
-               friend class LockedStream;
-
-          public:
-              LockableStream(std::ostream& os) : d_os(os) { }
-
-               void lock()   { d_mutex.lock(); }
-               void unlock() { d_mutex.unlock(); }
-
-               template <typename T> LockedStream operator<<(const T& v)
-               {
-                   lock();
-                   return LockedStream(this) << v;
-               }
-          };
-
-        A LockableStream holds an std::mutex and a reference to an std::ostream object.
-        The streaming operator, operator<<, locks the mutex, constructs a LockedStream object,
-        and delegates the actual streaming operation to the LockedStream. The return value of
-        operator<< is an rvalue of type LockedStream.
-           Each invocation of operator<< on a LockedStream outputs to the stored std::ostream,
-        then returns *this by move construction:
-          template <typename T>
-          LockedStream LockedStream::operator<<(const T& v) &&
-          {
-              assert(d_lockable); // assert *this is not in moved­from state
-              d_lockable­>d_os << v;
-              return std::move(*this);
-          }
-
-        When the last invocation of operator<< in a chain of such invocations completes, the
-        returned LockedStream has ownership of the LockableStream. Its destructor then unlocks
-        the mutex:
-          LockedStream::~LockedStream()
-          {
-              if (d_lockable)
-              {
-                  d_lockable­>unlock();
-              }
-          }
-
-        18
-
-i
-
-
-
-    i                                                                                               i
-        i                                                                                                                    i
-                                       “emcpps-internal” — 2021/4/15 — 2:31 — page 19 — #19
-
-i
-
-
-
-                          C++11                                                                             Ref-Qualifiers
-
-
-                          Note that d_lockable will be nullptr if the LockedStream is in the moved-from state, as
-                          most of the temporary LockedStream objects in the chain will be. Finally, we can create a
-                          LockableStream and print to it:
-
-                            LockableStream lockableCout(std::cout);
-
-                            void f5()
-                            {
-                                lockableCout << "Hello, " << 2021 << "\n";
-
-                                  LockedStream ls(lockableCout << "Hello, ");
-                                  ls << 2021; // Error, can't stream to lvalue
-                            }
-
-                          Similar code in other threads can print to lockableCout concurrently; the locking protocol
-                          will prevent them from creating a race condition. The first statement in f5 acquires the
-                          lock, prints "Hello, 2021" followed by a newline, then releases the lock automatically.
-                          An attempt to break this sequence into multiple statements fails because an lvalue of type
-                          LockedStream cannot be used for streaming.
-                              Note that this idiom is intended to protect the user from casual errors only. If the user is
-                          intent on doing so, they can cast an lvalue of LockedStream to an rvalue using std::move,
-                          and they can prevent a LockedStream from going out of scope by using lifetime extension.
-                          These workarounds can be used safely, if applied consciously, so it is not necessary to protect
-                          against such usage.
-
-                          Optimizing immutable types and builder classes
-pes­and­builder­classes
-                          An immutable type is a type that has no modifying operations except for assignment.
-                          Among other benefits, the representation of an immutable type can be shared by all ob-
-                          jects that have the same value, including in concurrent threads. Every object that logically
-                          “modifies” an object of immutable type does so by returning a new object having the modi-
-                          fied value; the original object remains unchanged. An ImmutableString class, for example,
-                          might have an insert method that takes a second string argument and returns a copy of
-                          the original string with the second string inserted in the specified location:
-                            #include <memory>       // std::shared_ptr
-                            #include <string>       // std::string
-                            #include <iostream>     // std::ostream, std::cout, std::endl
-
-                            class ImmutableString
-                            {
-                                std::shared_ptr<std::string> d_dataPtr;
-
-                                  static const std::string s_emptyString;
-
-                            public:
-                                using size_type = std::string::size_type;
-
-                                  ImmutableString() {}
-
-                                                                                                                       19
-
-i
-
-
-
-        i                                                                                                                    i
-    i                                                                                                   i
-                          “emcpps-internal” — 2021/4/15 — 2:31 — page 20 — #20
-
-i
-
-
-
-         Ref-Qualifiers                                             Chapter 3    Unsafe Features
-
-
-
-               ImmutableString(const char* s)
-                   : d_dataPtr(std::make_shared<std::string>(s)) { }
-
-               ImmutableString(std::string s)
-                   : d_dataPtr(std::make_shared<std::string>(std::move(s))) { }
-
-               ImmutableString insert(size_type pos, const      ImmutableString& s) const
-               {
-                   std::string dataCopy(asStdString());         // Copy string from this object.
-                   dataCopy.insert(pos, s.asStdString());       // Do insert.
-                   return std::move(dataCopy);                  // Move into return value.
-               }
-
-               const std::string& asStdString() const
-               {
-                   return d_dataPtr ? *d_dataPtr : s_emptyString;
-               }
-
-               friend std::ostream& operator<<(std::ostream& os, const ImmutableString& s)
-               {
-                   return os << s.asStdString();
-               }
-               // ...
-          };
-
-          const std::string ImmutableString::s_emptyString{};
-
-        The internal representation of an ImmutableString is an std::string object allocated on
-        the heap and accessed via an instantiation of the C++ Standard reference-counted smart
-        pointer, std::shared_ptr. The copy and move constructors and assignment operators are
-        defaulted; when an ImmutableString is copied or moved, only the smart pointer member
-        is affected. Thus, even large string values can be copied in constant time.
-            Note that the insert method begins by making a copy of the internal representation of
-        the immutable string. The copy is modified then returned; the representation in the original
-        ImmutableString is not modified:
-          void f1()
-          {
-              ImmutableString is("hello world");
-              std::cout << is << std::endl;                       // Print "hello world"
-              std::cout << is.insert(5, ",") << std::endl;        // Print "hello, world"
-              std::cout << is << std::endl;                       // Print "hello world"
-          }
-
-        Immutable types are often paired with builder classes — mutable types that are used to
-        “build up” a value, which is then “frozen” into an object of the immutable type. Let’s define
-        a StringBuilder class with mutating append and erase methods that modify its internal
-        state, and a conversion operator that returns an ImmutableString containing the built-up
-        value:
-
-        20
-
-i
-
-
-
-    i                                                                                                   i
-    i                                                                                                       i
-                     “emcpps-internal” — 2021/4/15 — 2:31 — page 21 — #21
-
-i
-
-
-
-        C++11                                                                              Ref-Qualifiers
-
-
-          class StringBuilder
-          {
-              std::string d_string;
-
-          public:
-              using size_type = std::string::size_type;
-
-                StringBuilder& append(const char* s) & { d_string += s; return *this; }
-                StringBuilder&& append(const char* s) && { return std::move(append(s)); }
-
-                StringBuilder& erase(size_type pos, size_type n) &
-                {
-                    d_string.erase(pos, n);
-                    return *this;
-                }
-                StringBuilder&& erase(size_type pos, size_type n) &&
-                {
-                    return std::move(erase(pos, n));
-                }
-
-                operator ImmutableString() && { return std::move(d_string); }
-          };
-
-        The append and erase methods are each ref-qualified and overloaded for both lvalues and
-        rvalues. The only difference between the overloads is that the lvalue overloads each return
-        an lvalue reference and the rvalue overloads each return an rvalue reference. In fact, in
-        each case, the rvalue overload simply calls the corresponding lvalue overload, then calls
-        std::move on the result. This technique works, and does not cause infinite recursion within
-        the rvalue overload, because *this is always an lvalue, just as a parameter of rvalue reference
-        is always an lvalue within a function.
-            The operator to convert from StringBuilder to ImmutableString is destructive in
-        that it moves the built-up value out of the builder into the returned string. It is ref-qualified
-        for rvalue references only — if the builder is not an rvalue, then the user must deliberately
-        call std::move. This protocol acts a signal to the future maintainer that the builder object
-        is in a moved-from state after the conversion and cannot be reused after its value has been
-        extracted:
-          void f2()
-          {
-              StringBuilder builder;
-              builder.append("apples, pears, bananas");
-              builder.erase(8, 7);
-              ImmutableString s1 = builder;             // Error, can't convert lvalue
-              ImmutableString s2 = std::move(builder); // OK, convert rvalue reference
-              std::cout << s2 << std::endl;             // print "apples, bananas"
-
-                ImmutableString s3 = StringBuilder()            // modify builder rvalue
-                    .append("apples, pears, bananas")
-                    .erase(8, 7);                               // OK, convert pure rvalue
-
-                                                                                                      21
-
-i
-
-
-
-    i                                                                                                       i
-        i                                                                                                               i
-                                          “emcpps-internal” — 2021/4/15 — 2:31 — page 22 — #22
-
-i
-
-
-
-                         Ref-Qualifiers                                             Chapter 3    Unsafe Features
-
-
-                               std::cout << s3 << std::endl;                  // print "apples, bananas"
-                          }
-
-                        The builder object is an lvalue and is intended to be modified several times before yielding
-                        a built-up ImmutableString value. After it is modified using append and erase — selecting
-                        the lvalue overloads in both cases — attempting to convert it directly to ImmutableString
-                        fails because there is no such conversion from an lvalue builder. The initialization of s2,
-                        conversely, succeeds, moving the value from the StringBuilder into the result.
-                            The expression StringBuilder() constructs an rvalue, which is then modified by a chain
-                        of calls to append and erase. The rvalue overload of append is selected, which returns an
-                        rvalue reference that, in turn, drives the selection of the rvalue overload of erase. Because
-                        the result of the chain of modifiers is an rvalue reference, operator ImmutableString can be
-                        invoked without calling std::move. This usage is safe because the temporary StringBuilder
-                        object is destroyed immediately afterward, so there is no opportunity for improperly reusing
-                        the builder object.
-
-
-­pitfalls­refqualifer
-                        Potential Pitfalls
-                        Forbidding modifications to rvalues breaks legitimate use cases
-­legitimate­use­cases
-                        An earlier use case, Use Cases — Forbidding modifying operations on rvalues on page 15,
-                        is also the subject of a potential pitfall. Consider a string class with a toLower modifier
-                        method:
-                          class String
-                          {
-                          public:
-                              // ...
-                              String& toLower();
-                                  // Convert all uppercase letters to lowercase, then return modified
-                                  // *this object.
-                          };
-
-                          void test()
-                          {
-                              String x{ /*...*/ };     // Variable of type String
-                              String f();              // Function returning String
-
-                               String& a = x.toLower();       // OK, a refers to x
-                               f().toLower();                 // Bug (1), modifies temporary variable; no­op
-                               String& b = f().toLower();     // Bug (2), b is a dangling reference
-                          }
-
-                        Bug (1) is a statement that modifies a temporary variable and, hence, has no effect. Bug (2)
-                        illustrates how toLower unintentionally acts as an rvalue-to-lvalue reference cast because it
-                        returns an lvalue reference to a (possibly rvalue) object. The lvalue reference, b, is bound
-                        to the modified temporary String returned by f(), after it is modified by toLower. At the
-                        end of the statement, the temporary object is destroyed, causing b to become a dangling
-                        reference.
-
-                        22
-
-i
-
-
-
-        i                                                                                                               i
-        i                                                                                                                i
-                                       “emcpps-internal” — 2021/4/15 — 2:31 — page 23 — #23
-
-i
-
-
-
-                          C++11                                                                         Ref-Qualifiers
-
-
-                              Given these issues, it is tempting to add a ref-qualifier to toLower so that it can be
-                          called only on lvalues:
-                           class String
-                           {
-                           public:
-                               // ...
-                               String& toLower() &;
-                           };
-
-                          Although this ref-qualification prevents do-nothing modifications to a temporary String,
-                          it also prevents legitimate uses of toLower on an rvalue:
-                           String c = f().toLower();      // Error, toLower cannot be called on an rvalue
-
-                          Here, the return value of toLower would be used to initialize c to a copy of the modified
-                          String. Unfortunately, we’ve prohibited calling toLower with an rvalue, so the call is ill
-                          formed. This pitfall might manifest any time we suppress modification of rvalues for a
-                          method that returns a value or has a side effect.
-                              We could, of course, create ref-qualified overloads for both lvalue and rvalue objects,
-                          returning by lvalue-reference or by value, respectively, as we saw in the BlueString class
-                          in Use Cases — Returning a subobject of an rvalue on page 13 Returning a subobject of an
-                          rvaluexref, but doing so ubiquitously can become a maintenance burden; see Annoyances —
-                          Providing ref-qualified overloads may be a maintenance burden on page 23.
-
-                          Annoyances
-annoyances­refqualifier
-                          Providing ref-qualified overloads may be a maintenance burden
-be­a­maintenance­burden
-                          Having two or more ref-qualified overloads of a member function can confer expressiveness
-                          and safety to a class. The trade-off is that these overloads expand the class interface and
-                          usually require code duplication, which can become a maintenance burden:
-                           #include <string>     // std::string
-                           #include <vector>     // std::vector
-
-                           class Thing
-                           {
-                               std::string      d_name;
-                               std::vector<int> d_data;
-                               // ...
-
-                           public:
-                               // ...
-
-                                  std::string const& name() const & { return d_name; }
-                                  std::string        name() &&      { return std::move(d_name); }
-
-                                  std::vector<int>      & data()       & { return d_data; }
-                                  std::vector<int> const& data() const & { return d_data; }
-                                  std::vector<int>      && data()      && { return std::move(d_data); }
-
-                                                                                                                   23
-
-i
-
-
-
-        i                                                                                                                i
-    i                                                                                                    i
-                          “emcpps-internal” — 2021/4/15 — 2:31 — page 24 — #24
-
-i
-
-
-
-         Ref-Qualifiers                                             Chapter 3     Unsafe Features
-
-
-               std::vector<int> const&& data() const && { return std::move(d_data); }
-
-               Thing& rename(const std::string& n) & { d_name = n; return *this; }
-               Thing& rename(std::string&& n) & { d_name = std::move(n); return *this; }
-               Thing rename(const std::string& n) &&
-               {
-                   d_name = n;
-                   return *this; // Bug, should be return std::move(*this).
-               }
-               Thing rename(std::string&& n) &&
-               {
-                   return std::move(rename(std::move(n))); // Delegate to lvalue overload
-               }
-          };
-
-        The name member is a classic accessor. Overloading it based on ref-qualification provides
-        an optimization so that the d_name string can be moved instead of copied when the Thing
-        object is expiring. Because it is an accessor, only the const lvalue and nonconst rvalue
-        overloads are needed; other cv-qualifications do not make sense.
-            A modifiable Thing object can be modified via the return type of its data member
-        function, but a const Thing cannot. We are used to overloading based on const, but
-        adding ref-qualification doubles the number of overload combinations.
-            Finally, the rename member illustrates a different kind of combinatorial overload set.
-        This member is overloaded on the value category of both the Thing argument and the n
-        argument. In addition to the total number of overloads for a single function, this example
-        illustrates a potential performance bug that occurs easily when cutting-and-pasting numer-
-        ous similar function bodies: by returning *this instead of std::move(*this) in the first
-        rvalue-qualified overload, the return value is copy constructed instead of move constructed.
-            One way to mitigate the maintenance burden of having many overloads is for the rvalue-
-        qualified overloads to delegate to the the lvalue-qualified ones, as seen in the last rvalue-
-        qualified overload of rename. Note that *this is always an lvalue, even within the rvalue-
-        qualified overloads, so the call to rename within the rvalue-qualified version does not result
-        in a recursive call to itself but instead results in a call to the lvalue-qualified version.
-
-        See Also
-
-
-        Further Reading
-
-
-
-
-        24
-
-i
-
-
-
-    i                                                                                                    i
-     i                                                                                                 i
-                               “emcpps-internal” — 2021/4/15 — 2:31 — page 25 — #25
-
-i
-
-
-
-                       C++14                                                          Ref-Qualifiers
+                                                                Chapter 3   Unsafe Features
 
 
     sec­unsafe­cpp14
@@ -1391,24 +1394,11 @@ i
 
 
 
-                                                                                                 25
+                       26
 
 i
 
 
 
-     i                                                                                                 i
-    i                                                          i
-        “emcpps-internal” — 2021/4/15 — 2:31 — page 26 — #26
-
-i
-
-
-
-
-i
-
-
-
-    i                                                          i
+       i                                                                                      i
 

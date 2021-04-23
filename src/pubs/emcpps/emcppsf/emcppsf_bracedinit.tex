@@ -582,7 +582,8 @@ members without a specific initializer value in the braced list are
 ``as-if'' \emcppsgloss{copy initialized} from \lstinline!{}!
 {\cprotect\footnote{From C++ 14 onwards, if the member doesn't have an
 initializer value, but has a default member initializer, it is
-initialized from the default member initializer (see \featureref{\locationc}{aggregate-member-initialization-relaxation}).}}. This will result in an error when
+initialized from the default member initializer (see \featureref{\locationc}{aggregate-member-initialization-relaxation}).}}.
+This will result in an error when
 initializing a member that has an \lstinline!explicit! default constructor
 according to the new \emcppsgloss[copy list initialization]{copy \emph{list} initialization} rules in
 the next section, which give a meaning for explicit constructors. Note
