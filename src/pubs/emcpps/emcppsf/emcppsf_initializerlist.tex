@@ -39,7 +39,13 @@ definition that comprises \lstinline!typedef!s, accessors, and an
 explicitly declared default constructor, along with implicit definitions
 of the other five \emcppsgloss[special member function]{special member functions}; see \featureref{\locationa}{Defaulted-Special-Member-Functions}: 
 
-\begin{emcppslisting}
+\begin{emcppshiddenlisting}[emcppsbatch=e1]
+#define std FOO // we don't want to try to compile an actual redefintiion of std;:initializer_list
+namespace std {
+   using size_t = unsigned long long;
+}
+\end{emcppshiddenlisting}
+\begin{emcppslisting}[emcppsbatch=e1]
 namespace std
 {
 
@@ -99,7 +105,7 @@ that will print the elements of a given sequence of integers that is
 represented by its \lstinline!std::initializer_list<int>! parameter,
 \lstinline!il!:
 
-\begin{emcppslisting}
+\begin{emcppslisting}[emcppsbatch=e2]
 #include <initializer_list>  // (ù{\codeincomments{std::initializer\_list}}ù)
 #include <iostream>          // (ù{\codeincomments{std::cout}}ù)
 
@@ -130,7 +136,7 @@ We can now write a \lstinline!test! function to, in turn, invoke this
 \lstinline!printNumbers! function on an initializer list denoted using
 braced-initialization syntax; see \featureref{\locationc}{bracedinit}: 
 
-\begin{emcppslisting}
+\begin{emcppslisting}[emcppsbatch=e2]
 void test()
 {
     printNumbers({ 1, 2, 3, 4 });  // prints "{ 1 2 3 4 } [size = 4]"
@@ -183,8 +189,8 @@ For a given element type, \lstinline!E!, the
 \lstinline!std::initializer_list<E>! class defines several type aliases,
 similar to how they are defined for standard-library containers:
 
-\begin{emcppslisting}
-#include <initializer_list>  // std::initializer_list
+\begin{emcppslisting}[emcppsbatch=e3]
+#include <initializer_list>  // (ù{\codeincomments{std::initializer\_list}}ù)
 
 struct E { };
 std::initializer_list<E>::size_type       ts;        // (ù{\codeincomments{ts}}ù)  of type (ù{\codeincomments{std::size\_t}}ù)
@@ -210,7 +216,7 @@ cannot vary.
 A public default constructor is provided, which enables clients to
 create an empty initializer list:
 
-\begin{emcppslisting}
+\begin{emcppslisting}[emcppsbatch=e3]
 std::initializer_list<E> x;  // (ù{\codeincomments{x}}ù) is an empty list type (ù{\codeincomments{E}}ù) elements.
 \end{emcppslisting}
     
@@ -219,7 +225,7 @@ std::initializer_list<E> x;  // (ù{\codeincomments{x}}ù) is an empty list type
 and copy assignment operator, is implicitly generated and available to
 public clients:
 
-\begin{emcppslisting}
+\begin{emcppslisting}[emcppsbatch=e3]
 std::initializer_list<E> y(x);  // copy construction
 void assignX2Y() { y = x; }     // copy assignment
 \end{emcppslisting}
@@ -230,7 +236,7 @@ void assignX2Y() { y = x; }     // copy assignment
 \lstinline!std::initializer_list! objects are created behind the scenes
 --- \emph{by} \emph{the} \emph{compiler} --- from braced lists:
 
-\begin{emcppslisting}
+\begin{emcppslisting}[emcppsbatch=e3]
 E e0, e1, e2, e3;
 std::initializer_list<E> z({e0, e1, e2, e3});   // copy construction (BAD IDEA)
 void assignTemporary2y() { y = {e3, e2, e1}; }  // copy assignment (BAD IDEA)
@@ -251,7 +257,7 @@ array will result in \emcppsgloss{undefined behavior}; see
 The \lstinline!size()!~\lstinline!const! member function returns the number of
 elements referenced by an initializer list:
 
-\begin{emcppslisting}
+\begin{emcppslisting}[emcppsbatch=e3]
 int nX = x.size();  // OK, (ù{\codeincomments{nX}}ù) == (ù{\codeincomments{0}}ù) -- (ù{\codeincomments{\{ \}}}ù)
 int nY = y.size();  // OK, (ù{\codeincomments{nY}}ù) == (ù{\codeincomments{0}}ù) -- (ù{\codeincomments{\{ \}}}ù)
 int nZ = z.size();  // BAD IDEA, (ù{\codeincomments{nZ}}ù) == (ù{\codeincomments{4}}ù) -- Oops!
@@ -278,10 +284,10 @@ Since \lstinline!size!, like all of the member functions of an
 and, hence, is eligible to be evaluated within a \emcppsgloss{constant
 expression}; see \featureref{\locationa}{compile-time-assertions-(static_assert)}: 
 
-\begin{emcppslisting}
+\begin{emcppslisting}[emcppsbatch=e3]
 static_assert(std::initializer_list<int>({0, 1, 2, 3}).size() == 4, "");  // OK
 
-int a[(std::initializer_list<int>({2, 1, 0}).size()];  // (ù{\codeincomments{a}}ù) is an array of 3 (ù{\codeincomments{int}}ù).
+int a[(std::initializer_list<int>({2, 1, 0}).size())];  // (ù{\codeincomments{a}}ù) is an array of 3 (ù{\codeincomments{int}}ù).
 \end{emcppslisting}
     
 
@@ -291,15 +297,17 @@ int a[(std::initializer_list<int>({2, 1, 0}).size()];  // (ù{\codeincomments{a}
 \lstinline!begin()! and \lstinline!end()!, return pointers to, respectively,
 the first and the one-past-the-end array-element positions:
 
-\begin{emcppslisting}
-#include <cassert>  // C-style (ù{\codeincomments{assert}}ù) macro
+\begin{emcppslisting}[emcppsbatch=e3]
+#include <cassert>   // standard C (ù{\codeincomments{assert}}ù) macro
+#include <iostream>  // (ù{\codeincomments{std::cout}}ù)
+
 void test1()
 {
     std::initializer_list<char> list({'A', 'B', 'C'});
-    assert(*list.begin()   == 'A');  // front element
-    assert(list.begin()[0] == 'A');  // element 0
-    assert(list.begin()[1] == 'B');  // element 1
-    assert(list.begin()[2] == 'C');  // element 2
+    assert(*list.begin()   == 'A');                    // front element
+    assert(list.begin()[0] == 'A');                    // element 0
+    assert(list.begin()[1] == 'B');                    // element 1
+    assert(list.begin()[2] == 'C');                    // element 2
     assert(list.begin() + 3           == list.end());  // true in this case
     assert(list.begin() + list.size() == list.end());  // always true
 }
@@ -321,7 +329,7 @@ The presence of the \lstinline!begin()! and \lstinline!end()! member functions
 enable an \lstinline!std::initializer_list! to be used as the source of a
 range-based \lstinline!for! loop; see \featureref{\locationc}{rangefor}:
 
-\begin{emcppslisting}
+\begin{emcppslisting}[emcppsbatch=e3]
 void test2()  // print "10 20 30 " to (ù{\codeincomments{stdout}}ù)
 {
     std::initializer_list<int> il = { 10, 20, 30 };
@@ -338,7 +346,7 @@ void test2()  // print "10 20 30 " to (ù{\codeincomments{stdout}}ù)
 \emcppsgloss[braced initializer list]{braced-initializer list} as the source range of a range-based
 \lstinline!for! loop:
 
-\begin{emcppslisting}
+\begin{emcppslisting}[emcppsbatch=e3]
 void test3()  // print "100 200 300 " to (ù{\codeincomments{stdout}}ù)
 {
     for (int i : {100, 200, 300})
@@ -366,15 +374,15 @@ general templates in the \lstinline!<iterator>! header --- since
 \emcppsgloss{freestanding} subset of the C++ Standard Library and
 \lstinline!<iterator>! is not:
 
-\begin{emcppslisting}
+\begin{emcppslisting}[emcppsbatch=e3]
 template <typename E>
-constexpr const E* begin(initializer_list<E> list) noexcept    // free function
+constexpr const E* begin(std::initializer_list<E> list) noexcept
 {
     return list.begin();  // invokes member function (ù{\codeincomments{begin()}}ù)
 }
 
 template <typename E>
-constexpr const E* end(initializer_list<E> list) noexcept      // free function
+constexpr const E* end(std::initializer_list<E> list) noexcept
 {
     return list.end();  // invokes member function (ù{\codeincomments{end()}}ù)
 }
@@ -434,7 +442,10 @@ was created. Importantly, the lifetime of this underlying array is
 Consider a \lstinline!std::initializer<int>!, \lstinline!il!, initialized with
 three numbers, \lstinline!1!, \lstinline!2!, and \lstinline!3!:
 
-\begin{emcppslisting}
+\begin{emcppshiddenlisting}[emcppsbatch=e4]
+#include <initializer_list>  // (ù{\codeincomments{std::initializer\_list}}ù)
+\end{emcppshiddenlisting}
+\begin{emcppslisting}[emcppsbatch=e4]
 std::initializer_list<int> il = {1, 2, 3};  // initializes (ù{\codeincomments{il}}ù) with 3 numbers
 \end{emcppslisting}
     
@@ -446,8 +457,8 @@ to refer to this array extends its lifetime to be coterminous with
 \lstinline!il!. There are several other ways one might try to initialize
 such a list:
 
-\begin{emcppslisting}
-typedef std::initializer_list<int> Ili
+\begin{emcppslisting}[emcppsbatch=e4]
+typedef std::initializer_list<int> Ili;
 Ili il0 =  {1, 2, 3};   // OK, copy initialization (implicit ctors only)
 Ili iL0ne  {1, 2, 3};   // OK, direct     "        (even explicit ctors)
 Ili iL1 =  (1, 2, 3);   // Error, conversion from (ù{\codeincomments{int}}ù) to nonscalar requested
@@ -474,8 +485,11 @@ to populate an \lstinline!std::initializer_list! is declared
 Copying such a temporary to an \emph{existing} initializer list,
 however, would be ill advised:
 
-\begin{emcppslisting}
-il = { 4, 5, 6, 7 };  // (ù{\codeincomments{il}}ù) now refers to a temporary array that is no longer valid.
+\begin{emcppslisting}[emcppsbatch=e4]
+void assign3InitializerList()  // BAD IDEA
+{
+    il = { 4, 5, 6, 7 };  // (ù{\codeincomments{il}}ù) has dangling reference to a temporary array
+}
 \end{emcppslisting}
     
 
@@ -491,7 +505,7 @@ even \lstinline!size! on an \lstinline!std::initializer_list! bound to an
 expired array does not have predictable behavior across all C++
 implementations; see \intrarefsimple{using-the-initializer_list-class-template}:
 
-\begin{emcppslisting}
+\begin{emcppslisting}[emcppsbatch=e4]
 int size = il.size();  // (ù{\codeincomments{size == 4}}ù)
 \end{emcppslisting}
     
@@ -499,7 +513,7 @@ int size = il.size();  // (ù{\codeincomments{size == 4}}ù)
 \noindent But if we were to try to access any specific element in the array, that
 behavior would be undefined:
 
-\begin{emcppslisting}
+\begin{emcppslisting}[emcppsbatch=e4]
 int firstValue = *il.begin();  // undefined behavior; accessing expired value
 \end{emcppslisting}
     
@@ -519,15 +533,18 @@ accessible at the point of construction. Following the rules of
 \emcppsgloss[copy list initialization]{\emph{copy} list initialization}, narrowing conversions and
 explicit conversions are ill formed; see \intraref{description-bracedinit}{c++11-restrictions-on-narrowing-conversions} within \featureref{\locationc}{bracedinit}:
 
-\begin{emcppslisting}
+\begin{emcppslisting}[emcppsbatch=e4]
 struct X { operator int() const; };
 void f(std::initializer_list<int>);
 
-f({ 1, '2', X() });  // OK, 1 is int.
-                     //     (ù{\codeincomments{2}}ù) has a language-defined conversion to (ù{\codeincomments{int}}ù).
-                     //     (ù{\codeincomments{X}}ù) has a user-defined conversion to (ù{\codeincomments{int}}ù).
+void testCallF()
+{
+    f({ 1, '2', X() });  // OK, 1 is int.
+                         //     (ù{\codeincomments{2}}ù) has a language-defined conversion to (ù{\codeincomments{int}}ù).
+                         //     (ù{\codeincomments{X}}ù) has a user-defined conversion to (ù{\codeincomments{int}}ù).
 
-f({ 1, 2.5 });       // Error, (ù{\codeincomments{2.5}}ù) has a narrowing conversion to (ù{\codeincomments{int}}ù).
+    f({ 1, 2.5 });       // Error, (ù{\codeincomments{2.5}}ù) has a narrowing conversion to (ù{\codeincomments{int}}ù).
+}
 \end{emcppslisting}
     
 
@@ -536,7 +553,7 @@ conversions from integer literal constant expressions of a wider type
 are permitted:
 
 \begin{emcppslisting}
-#include <initializer_list>
+#include <initializer_list>  // (ù{\codeincomments{std::initializer\_list}}ù)
 
 constexpr long long lli = 13LL;
 const     long long llj = 17LL;
@@ -562,7 +579,7 @@ list must not be empty, and the type deduced must be the same for each
 item of the list; otherwise the program is ill formed.
 
 \begin{emcppslisting}
-#include <initializer_list>
+#include <initializer_list>  // (ù{\codeincomments{std::initializer\_list}}ù)
 
 void f(std::initializer_list<int>);
 template <typename E> void g(std::initializer_list<E>);
@@ -600,7 +617,7 @@ copy constructor, \emcppsgloss[direct list initialization]{\emph{direct} list in
 deduced to be a copy of the same type:
 
 \begin{emcppslisting}
-#include <initializer_list>
+#include <initializer_list>  // (ù{\codeincomments{std::initializer\_list}}ù)
 
 auto a = {1, 2, 3};  // OK, (ù{\codeincomments{a}}ù) is (ù{\codeincomments{std::initializer\_list<int>}}ù).
 auto b{1, 2, 3};     // Error, too many elements in list
@@ -635,10 +652,10 @@ The original design intent of \lstinline!std::initializer_list! was to
 make initializing a container with a sequence of values as simple as
 initializing a built-in array:
 
-\begin{emcppslisting}
-#include <vector>
+\begin{emcppslisting}[emcppsbatch=e5]
+#include <vector>  // (ù{\codeincomments{std::vector}}ù)
 
-std::vector v = {1, 2, 3, 4, 5};
+std::vector<int> v = {1, 2, 3, 4, 5};
 \end{emcppslisting}
     
 
@@ -658,8 +675,11 @@ from a braced list, so all such containers also provide an overload for
 the assignment operator, to avoid implicitly creating a temporary to
 pass to the move-assignment operator:
 
-\begin{emcppslisting}
-v = {2, 3, 5, 7, 11, 13, 17};
+\begin{emcppslisting}[emcppsbatch=e5]
+void test1()
+{
+    v = {2, 3, 5, 7, 11, 13, 17};
+}
 \end{emcppslisting}
     
 
@@ -669,8 +689,11 @@ templates that take a pair of iterators to denote a range were
 overloaded to also accept an \lstinline!std::initializer_list! of the
 corresponding type:
 
-\begin{emcppslisting}
-v.insert(v.end(), {23, 29, 31});
+\begin{emcppslisting}[emcppsbatch=e5]
+void test2()
+{
+    v.insert(v.end(), {23, 29, 31});
+}
 \end{emcppslisting}
     
 
@@ -681,6 +704,9 @@ way to provide the initial data without making another copy with the
 same lifetime as the container itself:
 
 \begin{emcppslisting}
+#include <map>     // (ù{\codeincomments{std::map}}ù)
+#include <string>  // (ù{\codeincomments{std::string}}ù)
+
 const std::map<std::string, int> m{{"a", 1}, {"b", 2}, {"c", 3}};
 \end{emcppslisting}
     
@@ -697,7 +723,12 @@ distracting complexity of explicit memory management; in practice, the
 intent of such a class would be to provide a type simpler than
 \lstinline!std::vector! itself:
 
-\begin{emcppslisting}
+\begin{emcppshiddenlisting}[emcppsbatch=e6]
+#include <vector>  // (ù{\codeincomments{std::vector}}ù)
+#include <cassert>  // standard C (ù{\codeincomments{assert}}ù) macro
+#include <cstring>  // (ù{\codeincomments{std::memcmp}}ù)
+\end{emcppshiddenlisting}
+\begin{emcppslisting}[emcppsbatch=e6]
 class DynArray
 {
     // DATA
@@ -766,7 +797,7 @@ bool operator!=(const DynArray& lhs, std::initializer_list<int> rhs)
 beyond just the constructor and assignment operator. Let's exercise this
 class in \lstinline!main!, highlighting its support for braced lists:
 
-\begin{emcppslisting}
+\begin{emcppslisting}[emcppsbatch=e6]
 int main()
 {
     DynArray x = { 1, 2, 3, 4, 5 };
@@ -802,7 +833,8 @@ int main()
     x += { 8, 9, 10 };
 
     assert(!x.isEqual({ 1, 2 }));
-    assert( x.isEqual({ 1, 2, 8, 9, 10 }));}
+    assert( x.isEqual({ 1, 2, 8, 9, 10 }));
+}
 \end{emcppslisting}
     
 
@@ -819,8 +851,8 @@ all of the same type. In our example, we write a function that
 concatenates a number of input strings together separated by commas:
 
 \begin{emcppslisting}
-#include <initializer_list>
-#include <string>
+#include <initializer_list>  // (ù{\codeincomments{std::initializer\_list}}ù)
+#include <string>            // (ù{\codeincomments{std::string}}ù)
 
 std::string concatenate(std::initializer_list<std::string> ils)
 {
@@ -843,9 +875,9 @@ std::string hex_digits = concatenate({"A", "B", "C", "D", "E"});
 overload for \lstinline!std::min! provided by C++11 to take a list of
 arguments:
 
-\begin{emcppslisting}
-#include <algorithm>
-#include <initializer_list>
+\begin{emcppslisting}[emcppsstandards={c++14}]
+#include <algorithm>         // (ù{\codeincomments{std::min}}ù)
+#include <initializer_list>  // (ù{\codeincomments{std::initializer\_list}}ù)
 
 constexpr int n = std::min({3,2,7,5,-1,3,9});  // (ù{\codeincomments{min}}ù) is constexpr in C++14.
 static_assert(n == -1, "Error: wrong value?!");
@@ -863,7 +895,7 @@ of the synergy of several new language features designed to interact
 well. Suppose that the compiler encounters the following range-based
 \lstinline!for! loop:
 
-\begin{emcppslisting}
+\begin{emcppslisting}[emcppsignore={pseudocode}]
 for ((ù{\emph{declaration}}ù) : { (ù{\emph{list}}ù) }) (ù{\emph{statement}}ù)
 \end{emcppslisting}
     
@@ -874,7 +906,7 @@ for ((ù{\emph{declaration}}ù) : { (ù{\emph{list}}ù) }) (ù{\emph{statement}}
 
 \noindent Such a loop would be translated as follows:
 
-\begin{emcppslisting}
+\begin{emcppslisting}[emcppsignore={pseudocode}]
 {
     auto &&__r = { (ù{\emph{list}}ù) };
     for (auto __b = __r.begin(), __e = __r.end(); __b != __e; ++__b)
@@ -908,7 +940,11 @@ indicators{\cprotect\footnote{To avoid unnecessary string copies, the
 standard C++17 \lstinline!std::string_view! facility could be used in
   place of \lstinline!std::string! in the \lstinline!hasBasePrefix! example.}}:
 
-\begin{emcppslisting}
+\begin{emcppshiddenlisting}[emcppsbatch=e7]
+#include <initializer_list>  // (ù{\codeincomments{std::initializer\_list}}ù)
+#include <string>  // (ù{\codeincomments{std::string}}ù)
+\end{emcppshiddenlisting}
+\begin{emcppslisting}[emcppsbatch=e7]
 bool hasBasePrefix(const std::string& number)
 {
     for (const std::string& prefix : { "0x", "0X", "0b", "0B" })
@@ -939,9 +975,15 @@ ended. These problems arise when the lifetime of the
 the underlying array. As a simple example, the following risks undefined
 behavior and does not work as the user (probably) expects:
 
-\begin{emcppslisting}
-std::initializer_list<int> il;
-il = { 1, 2, 3 };  // BAD IDEA, bound to a temporary that is about to expire
+\begin{emcppshiddenlisting}[emcppsbatch=e8]
+#include <initializer_list>  // (ù{\codeincomments{std::initializer\_list}}ù)
+\end{emcppshiddenlisting}
+\begin{emcppslisting}[emcppsbatch=e8]
+void test()
+{
+    std::initializer_list<int> il;
+    il = { 1, 2, 3 };  // BAD IDEA, bound to a temporary that is about to expire
+}
 \end{emcppslisting}
     
 
@@ -949,10 +991,10 @@ il = { 1, 2, 3 };  // BAD IDEA, bound to a temporary that is about to expire
 does not have its lifetime extended, because \lstinline!il! is being
 assigned, not initialized. If we are lucky, the compiler will warn us:
 
-\begin{emcppslisting}[style=plain]
+\begin{lstlisting}[style=plain]
 warning: assignment from temporary 'initializer_list' does not extend the lifetime 
 of the underlying array
-\end{emcppslisting}
+\end{lstlisting}
     
 
 \noindent As is so often the case when dealing with lifetime issues in C++,
@@ -969,7 +1011,7 @@ a heterogeneous list of initializers convertible to the common type
 homogeneous too:
 
 \begin{emcppslisting}
-#include <initializer_list>
+#include <initializer_list>  // (ù{\codeincomments{std::initializer\_list}}ù)
 
 void f(std::initializer_list<int>) {}
 
@@ -1002,8 +1044,8 @@ default constructor of the outer object being deleted. These rules can
 make initialization from a pair of empty braces a bit counter-intuitive:
 
 \begin{emcppslisting}
-#include <vector>
-#include <cassert>
+#include <vector>   // (ù{\codeincomments{std::vector}}ù)
+#include <cassert>  // standard C (ù{\codeincomments{assert}}ù) macro
 
 struct X
 {
@@ -1099,11 +1141,18 @@ On the other hand, with regard to nondefault constructors, if a nonempty
 pair of braces is called, the \emph{initializer-list} constructor is
 favored over all others; see \intraref{potential-pitfalls-bracedinit}{inadvertently-calling-initializer-list-constructors} within \featureref{\locationc}{bracedinit}:
 
-\begin{emcppslisting}
+\begin{emcppshiddenlisting}[emcppsbatch=e9]
+#include <cassert>   // standard C (ù{\codeincomments{assert}}ù) macro
+#include <vector>  // (ù{\codeincomments{std::vector}}ù)
+\end{emcppshiddenlisting}
+\begin{emcppslisting}[emcppsbatch=e9]
+void test()
+{
     std::vector<int> v{ 12, 3 };
     assert(2 == v.size() && v.front() == 12);
     std::vector<int> w( 12, 3 );
     assert(12 == w.size() && w.front() == 3);
+}
 \end{emcppslisting}
     
 
@@ -1115,7 +1164,7 @@ possible to \emph{move} elements out of the list that are typically
 consumed just once, despite their being temporaries.
 
 \begin{emcppslisting}
-#include <vector>
+#include <vector>   // (ù{\codeincomments{std::vector}}ù)
 
 std::vector<std::vector<int>> v = {{1, 2, 3},
                                    {4, 5, 6},
