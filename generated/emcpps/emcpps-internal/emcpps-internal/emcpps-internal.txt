@@ -1,5 +1,5 @@
-    i                                                                                       i
-                                   “emcpps-internal” — 2021/4/24 — 0:40 — page 1 — #1
+    i                                                                                      i
+                                   “emcpps-internal” — 2021/5/1 — 4:11 — page 1 — #1
 
 i
 
@@ -14,16 +14,16 @@ i
 
 
 
-                                                                                        1
+                                                                                       1
 
 
 i
 
 
 
-    i                                                                                       i
+    i                                                                                      i
      i                                                                                    i
-                         “emcpps-internal” — 2021/4/24 — 0:40 — page 2 — #2
+                         “emcpps-internal” — 2021/5/1 — 4:11 — page 2 — #2
 
 i
 
@@ -44,8 +44,8 @@ i
 
 
      i                                                                                    i
-          i                                                                                        i
-                                          “emcpps-internal” — 2021/4/24 — 0:40 — page 3 — #3
+          i                                                                                       i
+                                          “emcpps-internal” — 2021/5/1 — 4:11 — page 3 — #3
 
 i
 
@@ -60,1315 +60,22 @@ i
 
 
 
-                                                                                               3
+                                                                                              3
 
 
 i
 
 
 
-          i                                                                                        i
-        i                                                                                                                i
-                                         “emcpps-internal” — 2021/4/24 — 0:40 — page 4 — #4
+          i                                                                                       i
+        i                                                                                     i
+                            “emcpps-internal” — 2021/5/1 — 4:11 — page 4 — #4
 
 i
 
 
 
-                         initializer_list                              Chapter 2     Conditionally Safe Features
-
-
-
-                        List Initialization: std::initializer_list<T>
-::initializer_list<t>
-             initlist
-                        The C++ Standard Library’s std::initializer_list class template supports lightweight,
-                        compiler-generated arrays of values that are initialized in source code similarly to built-in,
-                        C-style arrays using the generalized braced initialization syntax.
-
-                        Description
-          description
-                        C++, and even C before it, allowed built-in arrays to be initialized via brace-enclosed lists
-                        of values:
-                            int data[] = { 0, 1, 1, 2, 3, 5, 8, 13 };      // initializer list of 8 int values
-
-                        C++11 extends this concept to allow such lists of values to be provided to user-defined
-                        types (UDTs) in a variety of circumstances. The compiler arranges for the values to be
-                        stored in an unnamed C-style array, and nonmodifiable access to that array is provided
-                        via the std::initializer_list class template. This template provides a programmer-
-                        accessible API and semantics inspired by a nonmodifiable, C++ standard container but
-                        having reference semantics rather than ownership of the underlying array. The C++ Stan-
-                        dard provides a reference definition that comprises typedefs, accessors, and an explicitly
-                        declared default constructor, along with implicit definitions of the other five special mem-
-                        ber functions; see Section 1.1.“??” on page ??:
-                            namespace std
-                            {
-
-                            template <typename E>
-                            class initializer_list // illustration of programmer­accessible interface
-                            {
-                                const E* d_begin_p; // pointer to the beginning of a contiguous array
-                                const E* d_end_p;   // pointer to one past the end of the array (or 0)
-                                                    // could have used size_t as an offset instead.
-
-                                // ... (inaccessible, used by the compiler to initialize this object)
-                            public:
-                                typedef E value_type;               // C++ type of each array element
-                                typedef const E& reference;         // There is no nonconst reference.
-                                typedef const E& const_reference;   // const lvalue reference type
-                                typedef size_t size_type;           // type returned by size()
-
-                                 typedef const E* iterator;            // There is no nonconst iterator.
-                                 typedef const E* const_iterator;      // const element­iterator type
-
-                                 constexpr initializer_list() noexcept;     // default constructor
-
-                                 constexpr size_t size() const noexcept;         // number of elements
-                                 constexpr const E* begin() const noexcept;      // beginning iterator
-                                 constexpr const E* end() const noexcept;        // one­past­the­last iterator
-                            };
-
-                        4
-
-i
-
-
-
-        i                                                                                                                i
-    i                                                                                                        i
-                       “emcpps-internal” — 2021/4/24 — 0:40 — page 5 — #5
-
-i
-
-
-
-        C++11                                                                 initializer_list
-
-
-          // initializer list range access
-          template <typename E> constexpr const E* begin(initializer_list<E> il) noexcept;
-          template <typename E> constexpr const E* end(initializer_list<E> il) noexcept;
-
-          }   // close std namespace
-
-        The reference implementation in the code example above illustrates the public functionality
-        available for direct use by the compiler and programmers alike and elides the private ma-
-        chinery used by the compiler to initialize objects other than an empty initializer list. Objects
-        of this template, instantiated for element type E, act as lightweight proxies for the compiler
-        supplied arrays that, when copied or assigned, do not copy the underlining elements. Access
-        to the elements is provided by the member and/or free functions begin and end, which
-        satisfy the Standard Library requirements of a range with random access iterators.
-            The accessible interface of the std::initializer_list class template, in the code
-        example above, also employs two other C++11 language features: constexpr and noexcept.
-        The constexpr keyword allows the compiler to consider using a function so decorated as
-        part of a constant expression; see Section 2.1.“??” on page ??. The noexcept specifier
-        indicates that this function is not allowed to throw an exception; see Section 3.1.“??” on
-        page ??.
-            As an introductory example, consider a function, printMembers, that will print the ele-
-        ments of a given sequence of integers that is represented by its std::initializer_list<int>
-        parameter, il:
-          #include <initializer_list>       // std::initializer_list
-          #include <iostream>               // std::cout
-
-          void printNumbers(std::initializer_list<int> il) // prints given list of ints
-          {
-              std::cout << "{";
-              for (const int* ip = il.begin(); ip != il.end(); ++ip) // classic for loop
-              {
-                  std::cout << ' ' << *ip; // output each element in given list of ints
-              }
-              std::cout << " } [size = " << il.size() << ']';
-          }
-
-        Using member functions begin and end, the printNumbers function in the code snippet
-        above employs, for exposition purposes, the classic for loop to iterate through the supplied
-        initializer list, printing each of the elements in turn to stdout, eventually followed by the size
-        of the list. Note that il is passed by value rather than by const reference; this style of pa-
-        rameter passing is used purely as a matter of convention, because std::initializer_list
-        is designed to be a small trivial type that many C++ implementations can optimize by ef-
-        ficiently passing such function arguments using CPU registers.
-             We can now write a test function to, in turn, invoke this printNumbers function on an
-        initializer list denoted using braced-initialization syntax; see Section 2.1.“??” on page ??:
-          void test()
-          {
-
-                                                                                                        5
-
-i
-
-
-
-    i                                                                                                        i
-        i                                                                                                                  i
-                                        “emcpps-internal” — 2021/4/24 — 0:40 — page 6 — #6
-
-i
-
-
-
-                         initializer_list                              Chapter 2     Conditionally Safe Features
-
-
-                                printNumbers({ 1, 2, 3, 4 });    // prints "{ 1 2 3 4 } [size = 4]"
-                            }
-
-                        In the test function above, the compiler transforms the braced expression { 1, 2, 3, 4 }
-                        into a temporary unnamed C-style array of nonmodifiable values of type int, which is
-                        then passed via an std::initializer_list<int> to printNumber for processing. While
-                        the std::initializer_list temporary does not own the temporary array, their lifetimes
-                        are the same, so there is no risk of a dangling reference.
-
-                        Using the initializer_list class template
-r_list­class­template
-                        When a program uses a std::initializer_list, either by mentioning it explicitly or hav-
-                        ing it implicitly created by the compiler, the program must include — directly or indirectly
-                        — the <initializer\_list> header, or else the program is ill formed:
-                            std::initializer_list<int> x = { }; // Error, <initializer_list> not included
-                            void f(std::initializer_list<double>); // Error,    "         "      "      "
-                            auto ilx = {1,2,3};                    // Error,    "         "      "      "
-                            auto ilv { 1 }; // OK, but be aware that direct list initialization deduces int
-
-                            #include <initializer_list>                // provide std::initializer_list
-
-                            std::initializer_list<int> y = { };        //   OK
-                            void f(std::initializer_list<double>);     //   OK
-                            auto ily = {1,2,3};                        //   OK
-                            auto ilz = { };                            //   Error, cannot deduce element type
-                            auto ilw = { 1 };                          //   OK, std::initializer_list<int>
-
-                        In the example code above, any explicit or implicit use of the std::initializer_list
-                        requires the compiler to have first seen its definition — even when the type is deduced
-                        using auto; see Section 2.1.“??” on page ??. Note, in particular, the initialization of ilv
-                        omits the equal (=) symbol, forcing auto to deduce a copy of the argument rather than an
-                        std::initializer_list; see Section 2.1.“??” on page ??.
-                            For a given element type, E, the std::initializer_list<E> class defines several type
-                        aliases, similar to how they are defined for standard-library containers:
-                            #include <initializer_list>   // std::initializer_list
-
-                            struct E { };
-                            std::initializer_list<E>::size_type          ts;          //   ts    of   type   std::size_t
-                            std::initializer_list<E>::value_type         tv;          //   tv    of   type   E
-                            std::initializer_list<E>::reference          tr = tv;     //   tr    of   type   const E&
-                            std::initializer_list<E>::const_reference    tcr = tv;    //   tcr   of   type   const E&
-                            std::initializer_list<E>::iterator           ti;          //   tr    of   type   const E*
-                            std::initializer_list<E>::const_iterator     tci;         //   tcr   of   type   const E*
-
-                        Note that both reference and iterator are const, just like const_reference and
-                        const_iterator.
-                            Compiler vendors are permitted to and often do provide alternative types for such aliases
-                        in general purpose containers — e.g., “debugging” iterator to assist in detecting errors such
-
-                        6
-
-i
-
-
-
-        i                                                                                                                  i
-    i                                                                                                    i
-                      “emcpps-internal” — 2021/4/24 — 0:40 — page 7 — #7
-
-i
-
-
-
-        C++11                                                              initializer_list
-
-        as dereferencing a past-the-end iterator. In the case of std::initializer_list, however,
-        these type aliases are fixed in the C++ Standard, so they cannot vary.
-            A public default constructor is provided, which enables clients to create an empty ini-
-        tializer list:
-          std::initializer_list<E> x;      // x is an empty list type E elements.
-
-        Each of the other special member functions, such as the copy constructor and copy assign-
-        ment operator, is implicitly generated and available to public clients:
-          std::initializer_list<E> y(x);      // copy construction
-          void assignX2Y() { y = x; }         // copy assignment
-
-        Note that there is no public constructor for creating an std::initializer_list in any
-        other way; the intention is that std::initializer_list objects are created behind the
-        scenes — by the compiler — from braced lists:
-          E e0, e1, e2, e3;
-          std::initializer_list<E> z({e0, e1, e2, e3});          // copy construction (BAD IDEA)
-          void assignTemporary2y() { y = {e3, e2, e1}; }         // copy assignment (BAD IDEA)
-
-        Be warned, however, that although objects of type std::initializer_list<E> may be
-        copied and assigned freely, doing so does not copy the underlying array. Importantly, creating
-        a temporary initializer list and copy constructing (or copy assigning) its “value” to another
-        does not extend the lifetime of its underlying array beyond the end of outermost containing
-        expression in which it is used; hence, any subsequent attempt to access any of the data of any
-        of the elements of that underlying array will result in undefined behavior; see Pointer
-        semantics and lifetimes of temporaries.
-            The size() const member function returns the number of elements referenced by an
-        initializer list:
-          int nX = x.size();     // OK, nX == 0 ­­ { }
-          int nY = y.size();     // OK, nY == 0 ­­ { }
-          int nZ = z.size();     // BAD IDEA, nZ == 4 ­­ Oops!
-
-        Note that calling z.size() may seem well defined even after the associated temporary array
-        has expired. For implementations that choose a pointer and length representation, this would
-        be true. However, for implementations choosing a two-pointer representation, the result of
-        subtracting two invalid pointers (since the array no longer exists) is implementation-defined
-        behavior and could, depending on the implementation’s design, signal or trap to expose use
-        of bad pointers. Accessing data in the underlying array is always undefined behavior at this
-        point. Given that the choice of implementation is unspecified and left to the library vendor,
-        it is best to avoid relying on any functions that query an std::initializer_list outside
-        the lifetime of its underlying array, just as we would not dereference an invalid pointer.
-             Since size, like all of the member functions of an std::initializer_list, is declared
-        constexpr (see Section 2.1.“??” on page ??), an std::initializer_list is considered
-        a literal type and, hence, is eligible to be evaluated within a constant expression; see
-        Section 1.1.“??” on page ??:
-          static_assert(std::initializer_list<int>({0, 1, 2, 3}).size() == 4, "");             // OK
-
-          int a[(std::initializer_list<int>({2, 1, 0}).size())];          // a is an array of 3 int.
-
-                                                                                                    7
-
-i
-
-
-
-    i                                                                                                    i
-    i                                                                                                    i
-                        “emcpps-internal” — 2021/4/24 — 0:40 — page 8 — #8
-
-i
-
-
-
-         initializer_list                              Chapter 2    Conditionally Safe Features
-
-
-        Accessing the members of the underlying array of a std::initializer_list<E> is ac-
-        complished via iterators of type E*: two const (constexpr) member functions, begin()
-        and end(), return pointers to, respectively, the first and the one-past-the-end array-element
-        positions:
-            #include <cassert>    // standard C assert macro
-            #include <iostream>   // std::cout
-
-            void test1()
-            {
-                std::initializer_list<char> list({'A', 'B', 'C'});
-                assert(*list.begin()   == 'A');                         //   front element
-                assert(list.begin()[0] == 'A');                         //   element 0
-                assert(list.begin()[1] == 'B');                         //   element 1
-                assert(list.begin()[2] == 'C');                         //   element 2
-                assert(list.begin() + 3           == list.end());       //   true in this case
-                assert(list.begin() + list.size() == list.end());       //   always true
-            }
-
-        In the test1 function in the code example above, list.begin() serves as the address
-        of both the first element and that of the underlying contiguous array of elements itself —
-        suitable for application of the built-in index operator ([]), although that is not how begin()
-        is typically used. While begin() is a pointer to the first element of the range, end() is a
-        pointer to one-past-last element and size() == end() ­ begin(). If size() == 0, the value
-        of begin() and end() are unspecified but must be equal.
-            The presence of the begin() and end() member functions enable an std::initializer_list
-        to be used as the source of a range-based for loop; see Section 2.1.“??” on page ??:
-            void test2() // print "10 20 30 " to stdout
-            {
-                std::initializer_list<int> il = { 10, 20, 30 };
-
-                for (int i : il)
-                {
-                    std::cout << i << ' ';
-                }
-            }
-
-        Moreover, these member functions enable us to specify a braced-initializer list as the
-        source range of a range-based for loop:
-            void test3() // print "100 200 300 " to stdout
-            {
-                for (int i : {100, 200, 300})
-                {
-                    std::cout << i << ' ';
-                }
-            }
-
-        Note that the use of a temporary std::initializer­list, as in the example above, is
-        supported in a range-base for loop only because life-time extension (i.e., via binding to
-
-        8
-
-i
-
-
-
-    i                                                                                                    i
-    i                                                                                                   i
-                      “emcpps-internal” — 2021/4/24 — 0:40 — page 9 — #9
-
-i
-
-
-
-        C++11                                                            initializer_list
-
-        a reference as opposed to copying) of this library object is magically tied by the language
-        to a corresponding lifetime extension of the underlying array. Without lifetime extension,
-        this too would have been considered undefined behavior; again see Pointer semantics and
-        lifetimes of temporaries on page 10.
-             Finally, corresponding, global std::begin and std::end free-function templates are
-        overloaded for std::initializer_list objects directly in the <initializer_list> header
-        — rather than relying on the more general templates in the <iterator> header — since
-        <initializer_list> is part of the minimal, freestanding subset of the C++ Standard
-        Library and <iterator> is not:
-
-         template <typename E>
-         constexpr const E* begin(std::initializer_list<E> list) noexcept
-         {
-             return list.begin(); // invokes member function begin()
-         }
-
-         template <typename E>
-         constexpr const E* end(std::initializer_list<E> list) noexcept
-         {
-             return list.end(); // invokes member function end()
-         }
-
-
-        As it turns out, these functions were originally added to support C++11’s range-based
-        for loop, but a subsequent design change rendered them superfluous; see Annoyances —
-        Overloaded free-function templates begin and end are largely vestigial on page 22. Their
-        only remaining use is to support locally a style of generic programming whereby free, rather
-        than member, functions are strongly preferred:
-
-         #include <initializer_list>      // std::initializer_list
-         #include <algorithm>             // std::min, std::max
-
-         template <typename T>
-         T minVal(std::initializer_list<T> il) // implemented with member functions
-         {
-             return std::min(il.begin(), il.end()); // invokes member begin, end
-         }
-
-         template <typename T>
-         T maxVal(std::initializer_list<T> il) // implemented using free functions
-         {
-             return std::max(begin(il), end(il)); // invokes free begin, end
-         }
-
-
-        Without the locally overloaded free-function versions of begin and end in <initializer_list>,
-        it would have been necessary to include the <iterator> header along with all that entails
-        to get the implementation of maxVal above to compile.
-
-                                                                                                  9
-
-i
-
-
-
-    i                                                                                                   i
-        i                                                                                                                i
-                                         “emcpps-internal” — 2021/4/24 — 0:40 — page 10 — #10
-
-i
-
-
-
-                         initializer_list                                   Chapter 2   Conditionally Safe Features
-
-
-                        Pointer semantics and lifetimes of temporaries
-etimes­of­temporaries
-                        An instance of std::initializer_list class template is a lightweight proxy for a homo-
-                        geneous array of values. This type does not itself contain any data but instead refers to the
-                        data via the address of that data. It is unspecified whether a std::initializer_list is
-                        implemented as a pair of pointers or a pointer and a length.
-                            Any nonempty array of values to which an std::initializer_list refers is created by
-                        the compiler in the program context in which the braced list of values appears. Each such
-                        compiler-generated array is — at least in principle — a temporary object having the same
-                        lifetime as other temporaries created in that context. The std::initializer_list object
-                        itself has a special form of pointer semantics understood by the compiler, such that the life-
-                        time of the temporary array will be extended to the lifetime of the std::initializer_list
-                        object for which the underlying array was created. Importantly, the lifetime of this under-
-                        lying array is never extended by copying its proxy initializer-list object.
-                            Consider a std::initializer<int>, il, initialized with three numbers, 1, 2, and 3:
-                                std::initializer_list
-
-                          std::initializer_list<int> il = {1, 2, 3};             // initializes il with 3 numbers
-
-                        The compiler first creates a temporary array holding the three numbers. That array would
-                        normally be destroyed at the end of the outermost expression in which it appeared, but
-                        initializing il to refer to this array extends its lifetime to be coterminous with il. There
-                        are several other ways one might try to initialize such a list:
-                          typedef std::initializer_list<int> Ili;
-                          Ili il0 = {1, 2, 3};    // OK, copy initialization (implicit ctors only)
-                          Ili iL0ne {1, 2, 3};    // OK, direct     "        (even explicit ctors)
-                          Ili iL1 = (1, 2, 3);    // Error, conversion from int to nonscalar requested
-                          Ili iL1ne (1, 2, 3);    // Error, no matching function call for (int, int,int)
-
-                          Ili   jL2 =   ({1,   2,   3});   //   Error, illegal context for statement expression
-                          Ili   jL2ne   ({1,   2,   3});   //   OK, direct initialization via a single init­list arg
-                          Ili   jL3 =   ((1,   2,   3));   //   Error, conversion from int to nonscalar requested
-                          Ili   jL3ne   ((1,   2,   3));   //   Error, no matching function call for (int)
-
-                          Ili   kL4 =   {{1,   2,   3}};   //   Error, conversion from brace­enclosed list requested
-                          Ili   kL4ne   {{1,   2,   3}};   //   Error,    "       "     "       "      "      "
-                          Ili   kL5 =   {(1,   2,   3)};   //   Bug, copy initialization to single­int int list
-                          Ili   kL5ne   {(1,   2,   3)};   //   Bug, direct       "       "   "      "     "
-
-                        As can be inferred from the code example above, the language treats direct and copy initial-
-                        ization of a std::initializer_list the same — i.e., as if the inaccessible constructor used
-                        by the compiler to populate an std::initializer_list is declared without the explicit
-                        keyword; see Section 2.1.“??” on page ??.
-                            Copying such a temporary to an existing initializer list, however, would be ill advised:
-                          void assign3InitializerList() // BAD IDEA
-                          {
-                              il = { 4, 5, 6, 7 }; // il has dangling reference to a temporary array
-                          }
-
-                        10
-
-i
-
-
-
-        i                                                                                                                i
-        i                                                                                                                 i
-                                       “emcpps-internal” — 2021/4/24 — 0:40 — page 11 — #11
-
-i
-
-
-
-                          C++11                                                             initializer_list
-
-                          The temporary array created in the assignment expression above is not used to initialize
-                          il, so that temporary array’s lifetime is not extended; it will be destroyed at the end of
-                          the assignment expression, leaving il as a dangling reference to a list of numbers that no
-                          longer exists.
-                              Some C++ implementations permit us to still access the number of elements that were
-                          assigned to il, though note that calling even size on an std::initializer_list bound
-                          to an expired array does not have predictable behavior across all C++ implementations; see
-                          Using the initializer_list class template on page 6:
-                            int size = il.size();     // size == 4
-
-                          But if we were to try to access any specific element in the array, that behavior would be
-                          undefined:
-                            int firstValue = *il.begin();      // undefined behavior; accessing expired value
-
-
-                          Initialization of std::initializer_list<E> objects
-ializer_list<e>­objects
-                          The underlying array of an std::initializer_list<E> is a const array of elements of
-                          type E, with length determined by the number of items in the braced list. Each element is
-                          copy initialized ?? — ?? on page ?? within Section 2.1.“??” on page ?? by the corresponding
-                          expression in the braced list, and if user-defined conversions are required, they must be
-                          accessible at the point of construction. Following the rules of copy list initialization,
-                          narrowing conversions and explicit conversions are ill formed; see ?? — ?? on page ??
-                          within Section 2.1.“??” on page ??:
-                            struct X { operator int() const; };
-                            void f(std::initializer_list<int>);
-
-                            void testCallF()
-                            {
-                                f({ 1, '2', X() });     // OK, 1 is int.
-                                                        //     2 has a language­defined conversion to int.
-                                                        //     X has a user­defined conversion to int.
-
-                                  f({ 1, 2.5 });        // Error, 2.5 has a narrowing conversion to int.
-                            }
-
-                          Note that, since the initializer is a constant expression, narrowing conversions from integer
-                          literal constant expressions of a wider type are permitted:
-                            #include <initializer_list>     // std::initializer_list
-
-                            constexpr long long lli = 13LL;
-                            const     long long llj = 17LL;
-
-                            void g(const long long arg)
-                            {
-                                std::initializer_list<int> x = { 0LL };        // OK, integral constant
-                                std::initializer_list<int> y = { lli };        // OK, integral constant
-
-                                                                                                                    11
-
-i
-
-
-
-        i                                                                                                                 i
-        i                                                                                                                i
-                                        “emcpps-internal” — 2021/4/24 — 0:40 — page 12 — #12
-
-i
-
-
-
-                         initializer_list                              Chapter 2     Conditionally Safe Features
-
-
-                                 std::initializer_list<int> z = { llj };     // OK, integral constant
-                                 std::initializer_list<int> w = { arg };     // Error, narrowing conversion
-                          }
-
-
-                        Type deduction of initializer_list
-n­of­initializer_list
-                        A std::initializer_list will not be deduced for a braced-initializer argument to a func-
-                        tion template with an unconstrained template parameter, but a braced-initializer argument
-                        can be a match for a template parameter specifically declared as an std::initializer_list<E>.
-                        In such a case, the supplied list must not be empty, and the type deduced must be the same
-                        for each item of the list; otherwise the program is ill formed.
-                          #include <initializer_list>       // std::initializer_list
-
-                          void f(std::initializer_list<int>);
-                          template <typename E> void g(std::initializer_list<E>);
-                          template <typename E> void h(E);
-
-                          void test()
-                          {
-                              f({ });                      // OK, empty list of int requires no deduction
-                              f({ 1, '2' });               // OK, all list initializers convert to int.
-
-                                 g({ 1, 2, 3 });           // OK, std::initializer_list<int> deduced
-                                 g({ });                   // Error, cannot deduce an E from an empty list
-                                 g({ 1, '2' });            // Error, different deduced types
-
-                                 h({ 1, 2, 3 });           // Error, cannot deduce an std::initializer_list
-                          }
-
-                        Note that the problem with an empty std::initializer_list when calling g is entirely
-                        due to the inability to deduce the type of the parameter; there is no problem passing
-                        an empty std::initializer_list to f since no type deduction is required. Similarly,
-                        heterogeneous lists can be passed to a known instantiation of std::initializer_list as
-                        long as all supplied list elements are implicitly convertible to the element type of the list.
-                            Unlike an unconstrained template argument, an auto variable (see Section 2.1.“??” on
-                        page ??) will deduce an std::initializer_list in copy list initialization. However, to
-                        resolve potential ambiguity in favor of a copy constructor, direct list initialization of an
-                        auto variable requires a list of exactly one element and is deduced to be a copy of the same
-                        type:
-                          #include <initializer_list>       // std::initializer_list
-
-                          auto    a = {1, 2, 3};   //   OK, a is std::initializer_list<int>.
-                          auto    b{1, 2, 3};      //   Error, too many elements in list
-                          auto    c = {1};         //   OK, c is std::initializer_list<int>.
-                          auto    d{1};            //   OK, d is int.
-                          auto    e = {};          //   Error, cannot deduce element type from empty list
-                          auto    f{};             //   Error, cannot deduce variable type from empty list
-
-                        12
-
-i
-
-
-
-        i                                                                                                                i
-        i                                                                                                                   i
-                                       “emcpps-internal” — 2021/4/24 — 0:40 — page 13 — #13
-
-i
-
-
-
-                          C++11                                                               initializer_list
-
-                          Note that the declarations of b and d were interpreted differently in the original C++11
-                          Standard to both be valid and deduce as std::initializer_list<int>. However, this
-                          behavior was changed in C++17 with N3922 and applied retroactively to previous standards
-                          as a defect report. Early C++11 compilers may still display the original behavior, although
-                          most compilers managed to adopted the DR before completing their C++14 implementation.
-
-                          Overload resolution and std::initializer_list
-d­std::initializer_list
-                          When name lookup finds an overload set containing std::initializer_list arguments,
-                          the ranking rules now prefer to match braced lists to the std::initializer_list overloads
-                          rather than interpret them as other forms of list initialization, unless a default constructor
-                          would be selected; see Section 2.1.“??” on page ??.
-
-
-     use­cases­initlist
-                          Use Cases
-                          Convenient population of standard containers
-­of­standard­containers
-                          The original design intent of std::initializer_list was to make initializing a container
-                          with a sequence of values as simple as initializing a built-in array:
-                            #include <vector>     // std::vector
-
-                            std::vector<int> v = {1, 2, 3, 4, 5};
-
-                          Note that because std::vector deliberately intends to make available this form of initial-
-                          ization, the <vector> header is required to transitively #include <initializer_list>,
-                          so that the user does not need to. This is the case for the header of any standard library con-
-                          tainer, which means we do not generally see explicit inclusion of the <initializer_list>
-                          header in application code, since most uses are through standard containers.
-                              As users start to think of braced lists as stand-ins for containers, it was naturally ex-
-                          pected that any standard container with a std::initializer_list constructor would also
-                          be assignable from a braced list, so all such containers also provide an overload for the as-
-                          signment operator, to avoid implicitly creating a temporary to pass to the move-assignment
-                          operator:
-                            void test1()
-                            {
-                                v = {2, 3, 5, 7, 11, 13, 17};
-                            }
-
-                          Finally, because std::initializer_list satisfies the requirements of a random access
-                          range, all container member function templates that take a pair of iterators to denote a
-                          range were overloaded to also accept an std::initializer_list of the corresponding
-                          type:
-                            void test2()
-                            {
-                                v.insert(v.end(), {23, 29, 31});
-                            }
-
-
-
-                                                                                                                      13
-
-i
-
-
-
-        i                                                                                                                   i
-        i                                                                                                               i
-                                       “emcpps-internal” — 2021/4/24 — 0:40 — page 14 — #14
-
-i
-
-
-
-                         initializer_list                              Chapter 2    Conditionally Safe Features
-
-
-                        Note that since the rules for braced initialization are recursive, more complex containers
-                        can also use this syntax, which may be especially useful when creating const containers
-                        since there is no other way to provide the initial data without making another copy with
-                        the same lifetime as the container itself:
-                          #include <map>       // std::map
-                          #include <string>    // std::string
-
-                          const std::map<std::string, int> m{{"a", 1}, {"b", 2}, {"c", 3}};
-
-
-                        Providing support for braced lists in our own class
-ists­in­our­own­class
-                        Just as the C++ Standard Library provides extensive support for supplying braced lists to
-                        containers, so our client will come to expect the same of the classes we provide. For this
-                        example, we create a class that holds a dynamic array of ints that can be initialized and set
-                        to an arbitrary list of values supplied by the user. To simplify the example, we implement in
-                        terms of std::vector to avoid the distracting complexity of explicit memory management;
-                        in practice, the intent of such a class would be to provide a type simpler than std::vector
-                        itself:
-                              std::vectorassertstd::memcmp
-
-                          class DynArray
-                          {
-                              // DATA
-                              std::vector<int> d_data;
-
-                               // FRIENDS
-                               friend bool operator==(const DynArray&            lhs,
-                                                      std::initializer_list<int> rhs);
-
-                             public:
-                               // CREATORS
-                               DynArray() : d_data() {}
-                               DynArray(std::initializer_list<int> il) : d_data(il) {}
-
-                               DynArray(const DynArray&) = delete;
-                               DynArray& operator=(const DynArray&) = delete;
-
-                               // MANIPULATORS
-                               DynArray& operator=(std::initializer_list<int> il)
-                               {
-                                   d_data = il;
-
-                                   return *this;
-                               }
-
-                               DynArray& operator+=(std::initializer_list<int> il)
-                               {
-                                   d_data.insert(d_data.end(), il);
-
-                        14
-
-i
-
-
-
-        i                                                                                                               i
-    i                                                                                                   i
-                     “emcpps-internal” — 2021/4/24 — 0:40 — page 15 — #15
-
-i
-
-
-
-        C++11                                                             initializer_list
-
-
-                    return *this;
-                }
-
-                void shrink(std::size_t newSize)
-                {
-                    assert(newSize <= d_data.size());
-
-                    d_data.resize(newSize);
-                }
-
-                // ACCESSORS
-                bool isEqual(std::initializer_list<int> rhs) const
-                {
-                    // optimized with memcmpto take advantage of memory layout guarantees.
-                    return d_data.size() == rhs.size()
-                        && 0 == std::memcmp(d_data.data(),
-                                            rhs.begin(),
-                                            rhs.size() * sizeof(int));
-                }
-          };
-
-          inline
-          bool operator==(const DynArray& lhs, std::initializer_list<int> rhs)
-          {
-              return lhs.isEqual(rhs);
-          }
-
-          inline
-          bool operator!=(const DynArray& lhs, std::initializer_list<int> rhs)
-          {
-              return !lhs.isEqual(rhs);
-          }
-
-        There are many opportunities to provide rich support for braced lists beyond just the con-
-        structor and assignment operator. Let’s exercise this class in main, highlighting its support
-        for braced lists:
-          int main()
-          {
-              DynArray x = { 1, 2, 3, 4, 5 };
-
-                std::initializer_list<int> il = { 1, 2, 3, 4, 5 };
-
-                assert(x == il);
-
-                assert((x == { 1, 2, 3, 4, 5 }));     // Error, not a std::initializer_list
-                assert((x != { 1, 2, 3 }));           // Error, not a std::initializer_list
-
-                assert( x.isEqual({ 1, 2, 3, 4, 5 }));
-
-                                                                                                  15
-
-i
-
-
-
-    i                                                                                                   i
-        i                                                                                                             i
-                                       “emcpps-internal” — 2021/4/24 — 0:40 — page 16 — #16
-
-i
-
-
-
-                         initializer_list                             Chapter 2    Conditionally Safe Features
-
-
-                              assert(!x.isEqual({ 1, 2, 3, 4, 6 }));
-                              assert(!x.isEqual({ 1, 2, 3, 4 }));
-                              assert(!x.isEqual({ }));
-
-                              x += { 6 };
-
-                              assert(x != il);
-                              assert( x.isEqual({ 1, 2, 3, 4, 5, 6 }));
-
-                              x.shrink(2);
-
-                              std::initializer_list<int> ilB = { 1, 2 };
-
-                              assert(!x.isEqual({ 1, 2, 3, 4, 5, 6 }));
-                              assert( x.isEqual({ 1, 2 }));
-                              assert( x.isEqual(ilB));
-                              assert(x == ilB);
-
-                              assert((x == { 1, 2 }));     // Error, not a std::initializer_list
-
-                              x += { 8, 9, 10 };
-
-                              assert(!x.isEqual({ 1, 2 }));
-                              assert( x.isEqual({ 1, 2, 8, 9, 10 }));
-                         }
-
-                        Note that due to a quirk of the C++ grammar for certain operators, using braced-init-list
-                        as the right-hand argument of an operator== does not implicitly deduce an initializer-list,
-                        even if the operator== takes an initializer-list as the parameter; see ?? — ?? on page ??
-                        within Section 2.1.“??” on page ??.
-
-                        Functions consuming a variable number of arguments of the same type
-ents­of­the­same­type
-                        Suppose we want a function that takes an arbitrary number of arguments all of the same
-                        type. In our example, we write a function that concatenates a number of input strings
-                        together separated by commas:
-                         #include <initializer_list>      // std::initializer_list
-                         #include <string>                // std::string
-
-                         std::string concatenate(std::initializer_list<std::string> ils)
-                         {
-                             std::string separator;
-                             std::string result;
-                             for (const std::string* p = ils.begin(); p != ils.end(); ++p)
-                             {
-                                 result.append(separator);
-                                 result.append(*p);
-                                 separator = ",";
-                             }
-
-                        16
-
-i
-
-
-
-        i                                                                                                             i
-        i                                                                                                                           i
-                                        “emcpps-internal” — 2021/4/24 — 0:40 — page 17 — #17
-
-i
-
-
-
-                          C++11                                                                    initializer_list
-
-                                  return result;
-                            }
-
-                            std::string hex_digits = concatenate({"A", "B", "C", "D", "E"});
-
-                          An example from the C++ Standard Library would be the additional overload for std::min
-                          provided by C++11 to take a list of arguments:
-                            #include <algorithm>                // std::min
-                            #include <initializer_list>         // std::initializer_list
-
-                            constexpr int n = std::min({3,2,7,5,­1,3,9}); // min is constexpr in C++14.
-                            static_assert(n == ­1, "Error: wrong value?!");
-
-
-                          Iterating over a fixed number of objects
-fixed­number­of­objects
-                          std::initializer_list was designed from the start to model a standard library range,
-                          which is the same set of requirements for a type to support the C++11 range-based for loop
-                          (see Section 2.1.“??” on page ??. Range-based for loops acquire their meaning through a
-                          translation equivalence; it is instructive to examine that as an example of the synergy of
-                          several new language features designed to interact well. Suppose that the compiler encounters
-                          the following range-based for loop:
-                            for (declaration : { list }) statement
-
-                          Such a loop would be translated as follows:
-                            {
-                                  auto &&__r = { list };
-                                  for (auto __b = __r.begin(), __e = __r.end(); __b != __e; ++__b)
-                                  {
-                                      declaration = *__b;
-                                      statement
-                                  }
-                            }
-
-                          Note the use of auto&& to perfectly deduce the type of the argument and forward it into
-                          the following code by reference, avoiding the creation of unnecessary temporary objects.
-                              Thus, __r is deduced to be a std::initializer_list<E>. By the special rule for
-                          creating std::initializer_list objects directly from a braced list and the corresponding
-                          lifetime extension rules for the reference __r to the deduced std::initializer_list, the
-                          lifetime of the array is extended to the lifetime of __r, which also encompasses the lifetime
-                          of the loop. Ultimately, that extension makes things work “as expected”; the array exists
-                          while the loop is executing and is destroyed immediately after.
-                              Now suppose we want to iterate over a fixed set of objects. Using initializer lists lets
-                          us avoid the tedious boilerplate of creating our own array of data for the iteration. In our
-                          example, we analyze a character string to see if it begins with one of the numeric base prefix
-                          indicators1 :
-                              1 To avoid unnecessary string copies, the standard C++17 std::string_view facility could be used in
-
-                          place of std::string in the hasBasePrefix example.
-
-
-                                                                                                                              17
-
-i
-
-
-
-        i                                                                                                                           i
-         i                                                                                                                  i
-                                        “emcpps-internal” — 2021/4/24 — 0:40 — page 18 — #18
-
-i
-
-
-
-                          initializer_list                               Chapter 2     Conditionally Safe Features
-
-
-                               std::initializer_liststd::string
-
-                           bool hasBasePrefix(const std::string& number)
-                           {
-                               for (const std::string& prefix : { "0x", "0X", "0b", "0B" })
-                               {
-                                   if (number.find(prefix) == 0)
-                                   {
-                                       return true;
-                                   }
-                               }
-
-                               return false;
-                           }
-
-                         Note that this pattern may often be seen feeding values to a test driver.
-
-    potential­pitfalls
-                         Potential Pitfalls
-                         Dangling references to temporary underlying arrays
-ary­underlying­arrays
-                         Because std::initializer_list has pointer semantics, it has all the pitfalls associated
-                         with regular pointers with respect to dangling references, i.e, referring to an object after its
-                         lifetime has ended. These problems arise when the lifetime of the std::initializer_list
-                         object is greater than the lifetime of the underlying array. As a simple example, the following
-                         risks undefined behavior and does not work as the user (probably) expects:
-                               std::initializer_list
-
-                           void test()
-                           {
-                               std::initializer_list<int> il;
-                               il = { 1, 2, 3 }; // BAD IDEA, bound to a temporary that is about to expire
-                           }
-
-                         In this example, the temporary array created for the brace-enclosed list does not have its
-                         lifetime extended, because il is being assigned, not initialized. If we are lucky, the compiler
-                         will warn us:
-                           warning: assignment from temporary 'initializer_list' does not extend the lifetime
-                           of the underlying array
-
-                         As is so often the case when dealing with lifetime issues in C++, caution is required.
-
-                         Annoyances
-ances­initializerlist
-                         Initializer lists must be homogeneous, sometimes
-omogeneous,­sometimes
-                         While a std::initializer_list<E> is clearly always homogeneous, the initializer list
-                         used to create it in many cases can be a heterogeneous list of initializers convertible to the
-                         common type E, but, in deduction contexts, the braced list must strictly be homogeneous
-                         too:
-                           #include <initializer_list>       // std::initializer_list
-
-                         18
-
-i
-
-
-
-         i                                                                                                                  i
-        i                                                                                                                  i
-                                       “emcpps-internal” — 2021/4/24 — 0:40 — page 19 — #19
-
-i
-
-
-
-                          C++11                                                              initializer_list
-
-
-                            void f(std::initializer_list<int>) {}
-
-                            template <typename E>
-                            void g(std::initializer_list<E>) {}
-
-                            int main()
-                            {
-                                f({1, '2', 3});     // OK, heterogeneous list converts
-                                g({1, '2', 3});     // Error, cannot deduce heterogeneous list
-                                g({1, 2 , 3});      // OK, homogenous list
-
-                                  auto x = {1, '2', 3}; // Error, cannot deduce heterogeneous list
-                                  auto y = {1, 2 , 3}; // OK, homogenous list
-                                  std::initializer_list<int> z = {1, '2', 3}; // OK, converts
-                            }
-
-
-                          std::initializer_list constructor suppresses the implicitly declared de-
-icitly­declared­default
-                          fault
-                          The declaration of a constructor with an initializer-list argument will suppress the implicit
-                          declaration of a default constructor, as one would expect. Without a default constructor,
-                          the std::initializer_list constructor will be called when the object is initialized from
-                          an empty list but not in other circumstances where a default constructor might be called. If
-                          such a type is then used as the type of a subobject, it would result in an implicitly declared
-                          default constructor of the outer object being deleted. These rules can make initialization
-                          from a pair of empty braces a bit counter-intuitive:
-                            #include <vector>      // std::vector
-                            #include <cassert>     // standard C assert macro
-
-                            struct X
-                            {
-                                std::vector<int> d_v;
-
-                                  X(std::initializer_list<int> il) : d_v(il) {}
-                            };
-
-                            struct Y
-                            {
-                                long long d_data;
-
-                                  Y() : d_data(­1) {}
-                                  Y(std::initializer_list<int> il) : d_data(il.size()) {}
-                            };
-
-                            struct Z1 : X { };
-
-                            struct Z2 : X
-
-                                                                                                                     19
-
-i
-
-
-
-        i                                                                                                                  i
-    i                                                                                         i
-                       “emcpps-internal” — 2021/4/24 — 0:40 — page 20 — #20
-
-i
-
-
-
-        initializer_list                            Chapter 2   Conditionally Safe Features
-
-
-         {
-              Z2() = default;          // BAD IDEA, implicitly deleted
-         };
-
-         struct Z3 : X
-         {
-             using X::X;
-         };
-
-         struct Z4
-         {
-             X data;
-
-              Z4() = default;
-         };
-
-         void demo()
-         {
-             X a;                      // Error, no default constructor
-
-              X b{};                 // OK
-              assert(b.d_v.empty());
-
-              X c = {};              // OK
-              assert(c.d_v.empty());
-
-              X d = { 1, 2, 7 };    // OK
-              assert(3 == d.d_v.size() && 7 == d.d_v.back());
-
-              X ax[5];                 // Error, no default constructor
-              X bx[5]{};               // OK, initializes each element with {}
-              X cx[5] = {};            // OK, initializes each element with {}
-
-              Y e;                  // OK
-              assert(­1 == e.d_data);
-
-              Y f{};                // OK, default constructor!
-              assert(­1 == f.d_data);
-
-              Y g = {};             // OK, default constructor!
-              assert(­1 == g.d_data);
-
-              Y h({});               // OK, using std::initializer_list
-              assert(0   == h.d_data);
-
-              Y i = { 7, 8, 9 };   // OK, using std::initializer_list
-              assert(3 == i.d_data);
-
-              Z1 j1{};          // Error, calls implicitly deleted default constructor
-
-
-        20
-
-i
-
-
-
-    i                                                                                         i
-        i                                                                                                                   i
-                                            “emcpps-internal” — 2021/4/24 — 0:40 — page 21 — #21
-
-i
-
-
-
-                          C++11                                                                initializer_list
-
-                                  Z2 j2{};              // Error, calls deleted default constructor
-                                  Z3 j3{};              // Error, calls implicitly deleted default constructor
-                                  Z4 j4{};              // OK, aggregate initialization, empty list for X
-
-                                  Z1   k1   =   {};     //   Error, calls implicitly deleted default constructor
-                                  Z2   k2   =   {};     //   Error, calls deleted default constructor
-                                  Z3   k3   =   {};     //   Error, calls implicitly deleted default constructor
-                                  Z4   k4   =   {};     //   OK, aggregate initialization, empty list for X
-
-                                  Z1   m1   =   {{}};   //   Error, not an aggregate, no initializer_list constructor
-                                  Z2   m2   =   {{}};   //   Error, not an aggregate, no initializer_list constructor
-                                  Z3   m3   =   {{}};   //   OK, initializer_list constructor with one int
-                                  Z4   m4   =   {{}};   //   OK, aggregate initialization, empty list for X
-                            }
-
-                          Note that most of the Z* examples will become “OK” in C++17 as the definition of aggregate
-                          evolves. Some of those examples will become errors again in C++20 as will all of the Z4
-                          examples above because Z4 ceases to be an aggregate in C++20 due to the user-declared
-                          default constructor.
-                              On the other hand, with regard to nondefault constructors, if a nonempty pair of braces
-                          is called, the initializer-list constructor is favored over all others; see ?? — ?? on page ??
-                          within Section 2.1.“??” on page ??:
-                                assertstd::vector
-
-                            void test()
-                            {
-                                std::vector<int> v{ 12, 3 };
-                                assert(2 == v.size() && v.front() == 12);
-                                std::vector<int> w( 12, 3 );
-                                assert(12 == w.size() && w.front() == 3);
-                            }
-
-
-                          Initializer lists represent const objects
-represent­const­objects
-                          The underlying array of an initializer list is const, so the objects in that list cannot be
-                          modified. In particular, it is not possible to move elements out of the list that are typically
-                          consumed just once, despite their being temporaries.
-                            #include <vector>           // std::vector
-
-                            std::vector<std::vector<int>> v = {{1, 2, 3},
-                                                               {4, 5, 6},
-                                                               {7, 8},
-                                                               {9}};
-
-                          In this example, the vector, v, is initialized by an rvalue that is an std::initializer_list
-                          comprising four temporary vectors, each allocating memory for their internal array. However,
-                          the constructor for v must again copy each vector, allocating a fresh copy of each array,
-                          rather than take advantage of move-related optimizations, since each temporary is effectively
-                          const-qualified.
-
-                                                                                                                      21
-
-i
-
-
-
-        i                                                                                                                   i
-        i                                                                                                               i
-                                        “emcpps-internal” — 2021/4/24 — 0:40 — page 22 — #22
-
-i
-
-
-
-                         initializer_list                              Chapter 2    Conditionally Safe Features
-
-
-                           Another consequence of initializer lists’ const nature is that move-only types such as
-                        std::unique_ptr<T> become completely unusable with them.
-
-                        Overloaded free-function templates begin and end are largely vestigial
-are­largely­vestigial
-                        The range-based for feature initially required the free functions begin and end; see Appendix
-                        on page 22 for why they are no longer needed. The begin and end free functions were al-
-                        ready provided by the <iterator> header, but because the <initializer_list> header is
-                        freestanding unlike the <iterator> header, it was necessary to also add specific overloads
-                        to the <initializer_list> header. Historically, due to the perceived range-based for de-
-                        pendency, the aforementioned free functions in the <iterator> header were also added to
-                        many other headers, including those for all of the standard containers.
-                            As subsequent editions of the Standard have added to the set of related, free function
-                        overloads (for example, empty, added in C++17), those additional overloads have been
-                        added to multiple headers so that idiomatic generic code does not need to include additional
-                        headers. However, due to the freestanding requirement, none of those additional overloads
-                        are available through the <initializer\_list> header.
-
-             see­also
-                        See Also
-                             • “??” (§2.1, p. ??) ♦ provides further details regarding object initialization and
-                               construction using braced lists and std::initializer_lists.
-
-                        Further Reading
-      further­reading
-                             • ?[https://www.stroustrup.com/N1890-initialization.pdf]
-
-                             • ?[https://www.stroustrup.com/N1919-initializer_lists.pdf]
-
-                             • ?
-
-                        Appendix
-    appendix­initlist
-                        A brief history of user customization to support range-based for
-pport­range­based­for
-                        The original incarnation of the range-based for loop was built around the proposed con-
-                        cepts language feature. The range argument to the for loop would satisfy the range concept,
-                        which the user could customize with a concept_map to adapt third-party libraries that did
-                        not have begin and end member functions.
-                            When concepts were pulled after the first ISO ballot, the committee did not want to lose
-                        range-based for, so a new scheme was invented: The compiler would look for begin and end
-                        free functions. The Standard Library would provide the primary template for these functions,
-                        and #include <iterator> would be required for the range-based for loop to work, much
-                        like #include <typeinfo> is required to enable the typeid operator. Suggestions were
-                        made — and rejected — that the core feature should look for the member functions (just
-                        like the template) before looking for the free functions as the last resort. To make the
-                        standard library easy to use, the primary template for the begin and end functions was
-                        added to every standard container header, to <regex>, to <string>, and would be added
-                        on an ongoing basis to any new headers for types representing a range.
-
-                        22
-
-i
-
-
-
-        i                                                                                                               i
-    i                                                                                                 i
-                     “emcpps-internal” — 2021/4/24 — 0:40 — page 23 — #23
-
-i
-
-
-
-        C++11                                                            initializer_list
-
-            The Core Working Group then met the original request, so that range-based for never
-        uses the <iterator> templates but directly looks for member functions and, failing that,
-        performs an ADL lookup to find begin and end. The need to scatter these templates in
-        every header is gone, but that core language change was not communicated to the Library
-        Working Group in time. The only reason these functions remain in so many headers today
-        is backward compatibility from when they were redundantly specified in C++11.
-            While the begin and end free functions are never required to support the range-based
-        for loop, subsequent evolution of the Standard Library has embraced these functions as a
-        means of expressing generic code. When called in a context that supports ADL, arbitrary
-        third party types can be adapted to satisfy the requirements of a Standard Library range.
-        Further overloads for constant and reverse iterators were added for C++14 and for a broader
-        range of queries, such as empty and size, in C++17. Unfortunately, due to the way the
-        Standard Library specification is drafted, all of these additional overloads are scattered
-        across the same set of additional headers, despite being totally unrelated to the vanished
-        motivation of supporting range-based for.
-
-
-
-
-                                                                                                23
-
-i
-
-
-
-    i                                                                                                 i
-        i                                                                                          i
-                                “emcpps-internal” — 2021/4/24 — 0:40 — page 24 — #24
-
-i
-
-
-
-                        initializer_list                 Chapter 2   Conditionally Safe Features
+                                                    Chapter 2   Conditionally Safe Features
 
 
 sec­conditional­cpp14
@@ -1376,15 +83,1076 @@ sec­conditional­cpp14
 
 
 
-                        24
+                        4
 
 i
 
 
 
-        i                                                                                          i
-     i                                                                                          i
-                                    “emcpps-internal” — 2021/4/24 — 0:40 — page 25 — #25
+        i                                                                                     i
+    i                                                                                                                 i
+                                      “emcpps-internal” — 2021/5/1 — 4:11 — page 5 — #5
+
+i
+
+
+
+                      C++14                                                                       Generic Lambdas
+
+
+
+
+                      Lambdas Having a Templated Call Operator
+    generic­lambdas
+      genericlambda
+                      C++14 extends the lambda expression syntax of C++11 to allow a templated definition
+                      of the function-call operator belonging to the closure type.
+
+                      Description
+        description
+                      Generic lambdas are a C++14 extension of C++11 lambda expressions (see .“??” on
+                      page ??[ AUs: We have Lambdas or Lambda Captures. There is no Lambda
+                      Expressions]). The relationship between a generic lambda and a nongeneric lambda ex-
+                      pression is the same as that between a function template and a nontemplate function: The
+                      argument types are deduced at the point of invocation rather than at definition.
+                         Consider two lambda expressions, each of which simply returns its argument:
+                        auto identityInt = [](int a) { return a; };           // nongeneric lambda
+                        auto identity =    [](auto a) { return a; };          // generic lambda
+
+                      Generic lambdas are characterized by the presence of one or more auto parameters, accept-
+                      ing arguments of any type. In the example above, the first version is a nongeneric lambda
+                      having a parameter of concrete type int. The second version is a generic lambda because
+                      its parameter uses the placeholder type auto. Unlike identityInt, which is callable only
+                      for int arguments, identity can be applied to any type that can be passed by value:
+                        int           a1   =   identityInt(42);     //   OK, a1 == 42
+                        double        a2   =   identityInt(3.14);   //   Bug, a2 == 3, truncation warning
+                        const char*   a3   =   identityInt("hi");   //   Error, cannot pass "hi" as int
+                        int           a4   =   identity(42);        //   OK, a4 == 42
+                        double        a5   =   identity(3.14);      //   OK, a5 == 3.14
+                        const char*   a6   =   identity("hi");      //   OK, strcmp(a6, "hi") == 0
+
+                      Generic lambdas accomplish this compile-time polymorphism by defining their function call
+                      operator — operator() — as a template. Recall that the result of a lambda expression is
+                      a closure object, an object of unique type having a function call operator; i.e., the closure
+                      type is a unique functor class. The arguments defined in the lambda expression become
+                      the arguments to the function call operator. The following code transformation is roughly
+                      equivalent to the definitions of the identityInt and identity closure objects from the
+                      example above:
+                        struct __lambda_1 // compiler­generated name; not visible to the user
+                        {
+                            int operator()(int x) const { return x; }
+                            // ...
+                        };
+
+                        struct __lambda_2 // compiler­generated name; not visible to the user
+                        {
+                            template <typename __T>
+                            __T operator()(__T x) const { return x; }
+                            // ...
+
+                                                                                                                 5
+
+i
+
+
+
+    i                                                                                                                 i
+        i                                                                                                                 i
+                                          “emcpps-internal” — 2021/5/1 — 4:11 — page 6 — #6
+
+i
+
+
+
+                         Generic Lambdas                                Chapter 2     Conditionally Safe Features
+
+
+                            };
+
+                            __lambda_1 identityInt = __lambda_1();
+                            __lambda_2 identity    = __lambda_2();
+
+                        Note that the names __lambda_1, __lambda_2, and __T are for only descriptive purposes
+                        and are not available to the user; the compiler may choose any name or no name for these
+                        entities.
+                            A generic lambda is any lambda expression having one or more parameters declared
+                        using the placeholder type auto. The compiler generates a template parameter type for
+                        each auto parameter in the generic lambda and that type is substituted for auto in the
+                        function call operator’s parameter list. In the identity example above, auto x is replaced
+                        with __T x, where __T is a new template parameter type. When user code subsequently calls,
+                        e.g., identity(42), normal template type deduction takes place and operator()<int> is
+                        instantiated.
+
+                        Lambda capture and mutable closures
+­and­mutable­closures
+                        The closure type produced by a generic lambda is not a class template. Rather, its function
+                        call operator and its conversion-to-function-pointer operator (as we’ll see later in Conversion
+                        to a pointer to function on page 10) are function templates. In particular, the lambda
+                        capture, which creates member variables within the closure type, is treated no differently
+                        than any other lambda expression. Similarly, the mutable qualifier has the same effect for
+                        generic lambdas as for nongeneric lambdas:
+                            #include <algorithm>   // std::for_each
+                            #include <iterator>    // std::next
+
+                            template <typename FwdIter>
+                            auto secondBiggest(FwdIter begin, FwdIter end)
+                                // Return the second­largest element in the range [begin, end),
+                                // assuming at least two elements and that all values in the range
+                                // are distinct.
+                            {
+                                auto ret = *std::next(begin); // Set to 2nd element
+                                std::for_each(begin, end,
+                                    [biggest = *begin, &ret](const auto& element) mutable
+                                    {
+                                        if (element < biggest) { return; }
+                                        ret = biggest;
+                                        biggest = element;
+                                    }
+                                );
+
+                                 return ret;
+                            }
+
+                        The ret declaration uses the placeholder auto (see Section 2.1.“??” on page ??) to deduce
+                        the variable’s type to be *std::next(begin), i.e., the element type for the input range.
+
+                        6
+
+i
+
+
+
+        i                                                                                                                 i
+        i                                                                                                                   i
+                                             “emcpps-internal” — 2021/5/1 — 4:11 — page 7 — #7
+
+i
+
+
+
+                          C++14                                                                         Generic Lambdas
+
+
+                          The return type of secondBiggest is also declared auto and is deduced from the type of
+                          ret (see Section 3.2.“??” on page ??). The generic lambda being passed to std::for_each
+                          uses the C++14 initialized capture (see Section 2.2.“??” on page ??) to initialize biggest
+                          to the largest value known so far. Because the lambda is declared mutable, it can update
+                          biggest each time a larger element is encountered. The ret variable is also captured —
+                          by reference — and is updated with the previous biggest value when a new biggest value
+                          is encountered. Note that, at the point where ret appears in the lambda capture, its type
+                          has already been deduced. When for_each invokes the function call operator, the type of
+                          the auto parameter element is conveniently deduced to be the element type for the input
+                          range and is thus the same reference type as ret except with an added const qualifier.
+
+                          Constraints on deduced parameters
+s­on­deduced­parameters
+                          A generic lambda may accept any mix of auto and nonauto parameters:
+                           void g1()
+                           {
+                               auto y1 = [](auto& a, int b, auto c) { a += b * c; };
+
+                                  int    i = 5;
+                                  double d = 1;
+
+                                  y1(i, 2, 2);        // i is now 9
+                                  y1(d, 3, 0.5);      // d is now 2.5
+                           }
+
+                          If the auto placeholder in a generic lambda parameter is part of a type declaration that
+                          forms a potentially cv-qualified reference, pointer, pointer-to-member, pointer-to-function,
+                          or reference-to-function type, then the allowable arguments will be restricted accordingly:
+                           struct C1 { double d_i; };
+                           double f1(int i);
+
+                           auto    y1   =   [](const auto& r)   {   };   // match anything (read only)
+                           auto    y2   =   [](auto&& r)        {   };   //   "   anything (forwarding reference)
+                           auto    y3   =   [](auto& r)         {   };   //   "   only lvalues
+                           auto    y4   =   [](auto* p)         {   };   //   "     " pointers
+                           auto    y5   =   [](auto(*p)(int))   {   };   //   "     "      "    to functions
+                           auto    y6   =   [](auto C1::* pm)   {   };   //   "     "      "    to data members of C1
+
+                           void g2()
+                           {
+                               int       i1 = 0;
+                               const int i2 = 1;
+
+                                  y1(i1);            // OK, r has type const int&
+                                  y2(i1);            // OK, r has type int&
+
+                                  y3(5);             // Error, argument is not an lvalue
+                                  y3(i1);            // OK, r has type int&
+
+                                                                                                                        7
+
+i
+
+
+
+        i                                                                                                                   i
+    i                                                                                                   i
+                            “emcpps-internal” — 2021/5/1 — 4:11 — page 8 — #8
+
+i
+
+
+
+         Generic Lambdas                                  Chapter 2    Conditionally Safe Features
+
+
+                 y3(i2);         // OK, r has type const int&
+
+                 y4(i2);         // Error, i2 is not a pointer
+                 y4(&i2);        // OK, p has type const int*
+
+                 y5(&f1);        // OK, p has type double (*)(int)
+
+                 y6(&C1::d_i);   // OK, pm has type double C1::*
+            }
+
+        To understand how y1 and y2 match any argument type, recall that auto is a placeholder
+        for a template type argument, say, __T. As usual, const __T& r can bind to a const or
+        nonconst lvalue or a temporary value created from an rvalue. The argument __T&& r is a
+        forwarding reference (see Section 2.1.“??” on page ??); __T will be deduced to an rvalue
+        if the argument is an rvalue and to an lvalue reference otherwise. Because the parameter
+        type for r is unnamed — we invented the name __T for descriptive purposes only — we
+        must use decltype(r) to refer to the deduced type:
+            #include <utility>    // std::move, std::forward
+            #include <cassert>    // standard C assert macro
+
+            struct C2
+            {
+                int d_value;
+
+                 explicit C2(int i)     : d_value(i)                { }
+                 C2(const C2& original) : d_value(original.d_value) { }
+                 C2(C2&& other)         : d_value(other.d_value)    { other.d_value = 99; }
+            };
+
+            void g3()
+            {
+                auto y1 = [](const auto& a) { C2 v(a); };
+                auto y2 = [](auto&&      a) { C2 v(std::forward<decltype(a)>(a)); };
+
+                 C2 a(1);
+
+                 y1(a);              assert(1    ==   a.d_value);   // Copies from a
+                 y1(std::move(a));   assert(1    ==   a.d_value);   //    "     " a
+                 y2(a);              assert(1    ==   a.d_value);   //    "     " a
+                 y2(std::move(a));   assert(99   ==   a.d_value);   // Moves    " a
+            }
+
+        In this example, y1 always invokes the copy constructor for C2 because a has type const C2&
+        regardless of whether we instantiate it with an lvalue or rvalue reference to C2. Conversely,
+        y2 forwards the value category of its argument to the C2 constructor using std::forward
+        according to the common idiom for forwarding references. If passed an lvalue reference, the
+        copy constructor is invoked; otherwise, the move constructor is invoked. We can tell the
+        difference because C2 has a move constructor that puts the special value 99 into the moved-
+        from object.
+
+        8
+
+i
+
+
+
+    i                                                                                                   i
+    i                                                                                                              i
+                        “emcpps-internal” — 2021/5/1 — 4:11 — page 9 — #9
+
+i
+
+
+
+        C++14                                                                                Generic Lambdas
+
+
+           The auto placeholder in a generic lambda parameter cannot be a type argument in a
+        template specialization, a parameter type in the prototype of a function reference or function
+        pointer, or the class type in a pointer to member1 :
+          #include <vector> // std::vector
+          auto y7 = [](const std::vector<auto>& x) { };               // Error, invalid use of auto
+          auto y8 = [](double (*f)(auto)) { };                        // Error,    "     "   "    "
+          auto y9 = [](int auto::* m) { };                            // Error,    "     "   "    "
+
+        Because of this restriction, there are no contexts where more than one auto is allowed to
+        appear in the declaration of a single lambda parameter. Template parameters are allowed
+        in these contexts for regular function templates, so generic lambdas are less expressive than
+        handwritten functor objects in this respect:
+          struct manualY7
+          {
+              template <typename T>
+              void operator()(const std::vector<T>& x) const { }                 // OK, can deduce T
+          };
+
+          struct manualY8
+          {
+              template <typename T>
+              void operator()(double (*f)(T)) const { }               // OK, can deduce T
+          };
+
+          struct manualY9
+          {
+              template <typename R, typename T>
+              void operator()(R T::* m) const { }             // OK, can deduce R and T
+          };
+
+        Not only do manualY7, manualY8, and manualY9 successfully deduce T where y7, y8, and
+        y9 could not deduce auto, manualY9 deduces two template arguments for a single function
+        parameter. There is a trade-off between the benefits of lambda expressions, such as defining
+        the function in place at the point of use, and the pattern-matching power of manually
+        written function templates. See Annoyances — Cannot use full power of template-argument
+        deduction.
+           A default value on an auto parameter, while allowed, is not useful because it defaults only
+        the value and not the type of the template parameter. Invocation of such a generic lambda
+        requires the programmer to either supply a value for the argument, which defeats the point of
+        a defaulted argument, or explicitly instantiate operator(), which is gratuitously awkward:
+          void g1()
+          {
+              auto y = [](auto a = 3) { return a * 2; };
+              y(5);                // OK, returns 10
+           1 GCC   10.2 does allow auto in both template arguments and function prototype parameters and deduces
+        the template parameter type in the same way as for a regular function template. MSVC 19.28 allows auto
+        in the parameter list for a function reference or function pointer but not in the other two contexts.
+
+
+                                                                                                              9
+
+i
+
+
+
+    i                                                                                                              i
+        i                                                                                                              i
+                                       “emcpps-internal” — 2021/5/1 — 4:11 — page 10 — #10
+
+i
+
+
+
+                         Generic Lambdas                              Chapter 2     Conditionally Safe Features
+
+
+                              y();                 // Error, cannot deduce type for parameter a
+                              y.operator()<int>(); // OK, returns 6
+                         }
+
+
+                        Variadic generic lambdas
+iadic­generic­lambdas
+                        If a placeholder argument to a generic lambda is followed by an ellipsis (...), then the
+                        parameter becomes a variadic parameter pack and the function call operator becomes a
+                        variadic function template; see Section 2.1.“??” on page ??:
+                         #include <tuple> // std::tuple, std::make_tuple
+                         auto y11 = [](int i, auto&&... args)
+                         {
+                             return std::make_tuple(i, std::forward<decltype(args)>(args)...);
+                         };
+
+                         std::tuple<int, const char*, double> tpl1 = y11(3, "hello", 1.2);
+
+                        The y11 closure object forwards all of its arguments to std::make_tuple. The first argu-
+                        ment must have type convertible to int, but the remaining arguments can have any type.
+                        Assuming the invented name __T for the template type parameter, the generated function
+                        call operator for y11 would have a variadic template parameter list:
+                         struct __lambda_3
+                         {
+                             template <typename... __T> void operator()(int, __T&&... args) const
+                             {
+                                 /* ... */
+                             }
+                         };
+
+                        The standard limitations on variadic function templates apply. For example, only a variadic
+                        parameter pack at the end of the argument list will match function-call arguments at the
+                        point of invocation. In addition, because auto is not permitted in a template-specialization
+                        parameter, the usual methods of defining function templates with multiple variadic param-
+                        eter packs do not work for generic lambdas:
+                         // Attempt to define a lambda expression with two variadic parameter packs.
+                         auto y12 = [](std::tuple<auto...>&, auto...args) { };
+                             // Error, auto is a template argument in tuple specialization.
+
+
+                        Conversion to a pointer to function
+a­pointer­to­function
+                        A nongeneric lambda expression with an empty lambda capture can be converted implicitly
+                        to a function pointer with the same signature. A generic lambda with an empty lambda
+                        capture can similarly be converted to a regular function pointer, where the parameters in
+                        the prototype of the target pointer type drive deduction of the appropriate auto parameters
+                        in the generic lambda signature:
+                         auto y1 = [](int a, char b) { return a; };         // nongeneric lambda
+
+                        10
+
+i
+
+
+
+        i                                                                                                              i
+        i                                                                                                                  i
+                                        “emcpps-internal” — 2021/5/1 — 4:11 — page 11 — #11
+
+i
+
+
+
+                          C++14                                                                        Generic Lambdas
+
+
+                            int (*f1)(int, char) = y1;                         // OK, conversion to pointer
+
+                            auto y2 = [](auto a, auto    b) { return a; }; // generic lambda
+                            int    (*f2)(int, int)       = y2; // OK, instantiates operator()<int, int>
+                            double (*f3)(double, int)    = y2; // OK, instantiates operator()<double, int>
+                            char   (*f4)(int, char)      = y2; // Error, incorrect return type
+
+                          If the function target pointer is a variable template (see Section 1.2.“??” on page ??), then
+                          the deduction of the arguments is delayed until the variable template itself is instantiated:
+
+                            template <typename T> int (*f5)(int, T) = y2;         // variable template
+                            int (*f6)(int, short) = f5<short>;                    // instantiate f5
+
+                          Each function pointer is produced by calling a conversion operator on the closure object.
+                          In the case of the generic lambda, the conversion operator is also a template. Template-
+                          argument deduction and return-type deduction are performed on the conversion operator,
+                          then the conversion operator instantiates the function call operator. Intuitively, it is as
+                          though the function call operator were a static member function template of the closure and
+                          the conversion operator returned a pointer to it.
+
+
+              use­cases
+                          Use Cases
+                          Reusable lambda expressions
+able­lambda­expressions
+                          One of the benefits of lambda expressions is that they can be defined within a function, close
+                          to the point of use. Saving a lambda expression in a variable allows it to be reused within
+                          the function. This reusability is greater for generic lambdas than for nongeneric lambdas,
+                          just as function templates are more reusable than ordinary functions. Consider, for example,
+                          a function that partitions a vector of strings and a vector of vectors based on the length of
+                          each element:
+
+                            #include <vector>        // std::vector
+                            #include <string>        // std::string
+                            #include <algorithm>     // std::partition
+
+                            void partitionByLength(std::size_t                    pivotLen,
+                                                   std::vector<std::vector<int>>& v1,
+                                                   std::vector<std::string>&      v2)
+                            {
+                                auto condition = [pivotLen](const auto& e) { return e.size() < pivotLen; };
+
+                                  std::partition(v1.begin(), v1.end(), condition);
+                                  std::partition(v2.begin(), v2.end(), condition);
+                            }
+
+                          The condition generic lambda can be used to partition both vectors because its func-
+                          tion call operator can be instantiated on either element type. The capture of pivotLen is
+                          performed only once, when the lambda expression is evaluated to yield condition.
+
+                                                                                                                     11
+
+i
+
+
+
+        i                                                                                                                  i
+        i                                                                                                                              i
+                                          “emcpps-internal” — 2021/5/1 — 4:11 — page 12 — #12
+
+i
+
+
+
+                         Generic Lambdas                                      Chapter 2       Conditionally Safe Features
+
+
+                        Applying a lambda to each element of a tuple
+ch­element­of­a­tuple
+                        An std::tuple is a collection of objects having heterogeneous types. We can apply a
+                        functor to each element of a tuple by using some metaprogramming features of the C++14
+                        Standard Library:
+                          #include <utility>        // std:::index_sequence, std::make_index_sequence
+                          #include <tuple>          // std::tuple, std::tuple_size, std::get
+
+                          template <typename Tpl, typename F, std::size_t... I>
+                          void visitTupleImpl(Tpl& t, F& f, std::index_sequence<I...>)
+                          {
+                              auto discard = { (f(std::get<I>(t)), 0)... };
+                          }
+
+                          template <typename Tpl, typename F>
+                          void visitTuple(Tpl& t, F f)
+                          {
+                              visitTupleImpl(t, f,
+                                             std::make_index_sequence<std::tuple_size<Tpl>::value>());
+                          }
+
+                        The visitTuple function uses make_index_sequence to generate a compile-time pack of
+                        sequential indexes, from 0 up to, but not including, the number of elements in the tuple-
+                        like argument t. The original arguments, along with this pack of indexes, are passed to
+                        visitTupleImpl, which applies each index to t and then calls the functor f on the resulting
+                        element.2 The implementation uses an idiom that discards the sequence of return values (if
+                        any) from the calls to f: Regardless of the type of value returned by f(std::get<I>(t)),
+                        even if it’s void, the comma expression (f(std::get<I>(t)), 0) always yields the integer
+                        0. The order of evaluation of elements in an initializer_list is guaranteed left to right.
+                        The result of this expansion is an initializer_list used to initialize discard, which, as
+                        its name suggests, is then discarded.
+                            Once we have a visitTuple function, we can use it to apply a generic lambda to the
+                        elements of a tuple:
+                          #include <ostream> // std::ostream, std::endl
+                          void f1(std::ostream& os)
+                          {
+                              std::tuple<int, float, const char*> t{3, 4.5, "six"};
+                              visitTuple(t, [&os](const auto& v){ os << v << ' '; });
+                              os << std::endl;
+                          }
+
+                        The first line constructs a tuple with three different element types. The second line then
+                        calls visitTuple to visit each element of t and apply a lambda function to it. The lambda
+                        capture stores a reference to the output stream, and the lambda body prints the current
+
+                             2 This
+                                  pattern for using make_index_sequence with tuple-like objects is explained in a number of places
+                        on the Internet (see ?), and a basic knowledge of variadic templates Section 2.1.“??” on page ?? is critical
+                        to understanding this idiom.
+
+
+                        12
+
+i
+
+
+
+        i                                                                                                                              i
+          i                                                                                                                 i
+                                         “emcpps-internal” — 2021/5/1 — 4:11 — page 13 — #13
+
+i
+
+
+
+                            C++14                                                                       Generic Lambdas
+
+
+                            element to the output stream. This code would not work if the lambda were not generic
+                            because the type of v is different for each element in t.
+
+                            Terse, robust lambdas
+    terse,­robust­lambdas
+                            Often, function objects are more convenient to write as generic lambdas, rather than non-
+                            generic lambdas, even if they are used only once and their genericity is not fully exploited.
+                            Consider the case where a lambda’s parameters have long, elaborate types:
+                              #include <iterator>      // std::iterator_traits
+                              #include <algorithm>     // std::sort
+
+                              template <typename Iterator>
+                              void f1(Iterator begin, Iterator end)
+                                  // Sort [begin, end) using a nongeneric lambda
+                              {
+                                  std::sort(begin, end,
+                                            [](typename std::iterator_traits<Iterator>::reference a,
+                                                typename std::iterator_traits<Iterator>::reference b)
+                                            {
+                                                 return a < b;
+                                            });
+                              }
+
+                            The types for parameters a and b of the comparison lambda expression are not easy to type
+                            or read. Compare this code with similar code using generic lambdas:
+                              template <typename Iterator>
+                              void f2(Iterator begin, Iterator end)
+                                  // Sort [begin, end) using a generic lambda
+                              {
+                                  std::sort(begin, end,
+                                            [](const auto& a, const auto& b) { return a < b; });
+                              }
+
+                            The code is simpler to write and read because it takes advantage of the lambda expression’s
+                            being defined at the point of use; even though the argument types are not written out, their
+                            meaning is still clear. A generic lambda is also more robust when the types involved change,
+                            even in a small way, as it adapts to changes in argument types as long as they support the
+                            same interface.
+
+        recursive­lambdas
+                            Recursive lambdas
+                            Since neither generic nor nongeneric lambda expressions have names, defining a lambda that
+                            calls itself recursively is tricky. One way to accomplish recursion is by passing the lambda
+                            as a parameter to itself. This technique requires a generic lambda so that it can deduce its
+                            own type from its argument:
+                              auto fib = [](auto self, int n) ­> int       // Compute the nth Fibonacci number.
+                              {
+                                  if (n < 2) { return n; }
+
+                                                                                                                      13
+
+i
+
+
+
+          i                                                                                                                 i
+    i                                                                                                     i
+                          “emcpps-internal” — 2021/5/1 — 4:11 — page 14 — #14
+
+i
+
+
+
+         Generic Lambdas                               Chapter 2   Conditionally Safe Features
+
+
+                  return self(self, n ­ 1) + self(self, n ­ 2);
+         };
+
+         int fib7 = fib(fib, 7);       // returns 13
+
+        Notice that when we invoke the recursive lambda, we pass it as an argument to itself, both
+        to the external call and to the internal recursive calls. To avoid this somewhat awkward
+        interface, a special function object called a Y Combinator can be used.3 The Y Combinator
+        object holds the closure object to be invoked recursively and passes it to itself:
+         #include <utility>       // std::move, std::forward
+
+         template <typename Lambda>
+         class Y_Combinator {
+             Lambda d_lambda;
+
+         public:
+             Y_Combinator(Lambda&& lambda) : d_lambda(std::move(lambda)) { }
+
+                  template <typename... Args>
+                  decltype(auto) operator()(Args&&...args) const
+                  {
+                      return d_lambda(*this, std::forward<Args>(args)...);
+                  }
+         };
+
+         template <typename Lambda>
+         Y_Combinator<Lambda> Y(Lambda&& lambda) { return std::move(lambda); }
+
+        The function call operator for Y_Combinator is a variadic function template (see Sec-
+        tion 2.1.“??” on page ??) that passes itself to the stored closure object, d_lambda, along
+        with zero or more additional arguments supplied by the caller. Thus, d_lambda and the
+        Y_Combinator are mutually-recursive functors. The Y function template constructs a Y_Combinator
+        from a lambda expression.
+            To use a Y_Combinator, pass a recursive generic lambda to Y; the resulting object is the
+        one that you would call from code:
+         auto fib2 = Y([](auto self, int n) ­> int
+         {
+             if (n < 2) { return n; }
+             return self(n ­ 1) + self(n ­ 2);
+         });
+
+         int fib8 = fib2(8);       // returns 21
+
+        Note that the recursive lambda still needs to take self as an argument, but, because self
+        is a Y_Combinator, it does not need to pass self to itself. Unfortunately, we must now
+        specify the return type of the lambda because the compiler cannot deduce the return type
+        of the mutually recursive invocations of self. The usefulness of a Y Combinator in C++ is
+             3?
+
+
+
+        14
+
+i
+
+
+
+    i                                                                                                     i
+        i                                                                                                                           i
+                                         “emcpps-internal” — 2021/5/1 — 4:11 — page 15 — #15
+
+i
+
+
+
+                          C++14                                                                               Generic Lambdas
+
+
+                          debatable given alternative, often simpler ways to achieve recursion, including using ordinary
+                          function templates instead of lambda expressions.4
+
+nditional­instantiation
+                          Conditional instantiation
+                          Because a generic lambda defines a function template that is not instantiated unless it is
+                          called, it is possible to put code into a generic lambda that would not compile for certain
+                          argument types. We can, thus, selectively instantiate calls to generic lambdas based on
+                          some compile-time conditional expression similar to the if constexpr feature introduced
+                          in C++17:
+                            #include   <iostream>         //   std::cout
+                            #include   <type_traits>      //   std::is_pointer
+                            #include   <functional>       //   std::reference_wrapper
+                            #include   <cassert>          //   standard C assert macro
+
+                            // Identity functor: Each call to operator() returns its argument unchanged.
+                            struct Identity
+                            {
+                                template <typename T>
+                                decltype(auto) operator()(T&& x) { return std::forward<T>(x); }
+                            };
+
+                            template <typename F1, typename F2>
+                            decltype(auto) ifConstexprImpl(std::true_type, F1&& f1, F2&&)
+                                // call f1, which is the "then" branch of ifConstexpr
+                            {
+                                return std::forward<F1>(f1)(Identity{});
+                            }
+
+                            template <typename F1, typename F2>
+                            decltype(auto) ifConstexprImpl(std::false_type, F1&&, F2&& f2)
+                                // call f2, which is the "else" branch of ifConstexpr
+                            {
+                                return std::forward<F2>(f2)(Identity{});
+                            }
+
+                            template <bool Cond, typename F1, typename F2>
+                            decltype(auto) ifConstexpr(F1&& f1, F2&& f2)
+                                // If the compile­time condition Cond is true, return the result of
+                                // invoking f1, else return the result of invoking f2. The
+                                // invocations of f1 and f2 are each passed an instance of Identity
+                                // as their sole argument.
+                            {
+                                using CondT = std::integral_constant<bool, Cond>;
+                                return ifConstexprImpl(CondT{}, std::forward<F1>(f1), std::forward<F2>(f2));
+                            }
+
+                             4 Derevenets suggested that y_combinator should be part of the C++ Standard Library (see ?), but the
+
+                          proposal was rejected for addressing a problem deemed not worth solving.
+
+
+                                                                                                                              15
+
+i
+
+
+
+        i                                                                                                                           i
+    i                                                                                                        i
+                       “emcpps-internal” — 2021/5/1 — 4:11 — page 16 — #16
+
+i
+
+
+
+         Generic Lambdas                              Chapter 2     Conditionally Safe Features
+
+
+        The Identity functor class, as its name suggests, returns its argument unchanged, pre-
+        serving both its type and value category (lvalue or rvalue). This functor exists solely to be
+        passed to a generic lambda, which will then invoke it as described below.
+            The two overloads of ifConstexprImpl each take two functor arguments, only one of
+        which is used. The first overload invokes only its first argument; the second overload invokes
+        only its second argument. In both cases, an Identity object is passed as the only argument
+        to the functor invocation.
+            The ifConstexpr function template, in addition to taking two functor arguments,
+        must be instantiated with an explicit compile-time Boolean value. It calls one of the two
+        ifConstexprImpl functions such that its first argument is instantiated and invoked if the
+        condition is true — the “then” clause of the simulated if constexpr — and the second
+        argument is instantiated and invoked otherwise — the “else” clause of the simulated if
+        constexpr.
+            To see how ifConstexpr achieves conditional instantiation, let’s write a function that
+        dereferences an object. The object being dereferenced can be a pointer, an std::reference_wrapper,
+        or a class that behaves like reference_wrapper. We present both a C++17 version that
+        uses if constexpr and a C++14 version that uses ifConstexpr, above:
+         template <typename T>
+         decltype(auto) objectAt(T ref)
+             // Generalized dereference for pointers and reference_wrapper­like
+             // objects: If T is a pointer type, return *ref; otherwise, return
+             // ref.get().
+         {
+         #if __cplusplus >= 201703
+             // C++17 version
+             if constexpr (std::is_pointer<T>::value) { return *ref; }
+             else                                     { return ref.get(); }
+         #else
+             // C++14 version
+             return ifConstexpr<std::is_pointer<T>::value>(
+                 [=](auto dependent) ­> decltype(auto) { return *dependent(ref); },
+                 [=](auto dependent) ­> decltype(auto) { return dependent(ref).get(); });
+         #endif
+         }
+
+        Looking at the C++17 version first, we see that if ref is a pointer, then we return *ref;
+        otherwise, we return ref.get(). In both cases, the code would not compile if the branch
+        not taken were instantiated; i.e., *ref is ill formed for std::reference_wrapper, and
+        ref.get() is ill formed for pointers. The code depends on the ill-formed branch being
+        discarded at compile time.
+            The C++14 version needs to follow a very specific idiom whereby each conditional branch
+        is represented as a generic lambda with one auto parameter that is expected to be an
+        Identity object. Because it is a template parameter, dependent is a dependent type.
+        In C++ template parlance, a dependent type is one that cannot be known until template
+        instantiation. Critically, the compiler will not check semantic correctness of an expression
+        containing a value of dependent type unless and until the template is instantiated with a
+        concrete type. Any such expression that uses a value of dependent type also has dependent
+
+        16
+
+i
+
+
+
+    i                                                                                                        i
+        i                                                                                                                            i
+                                         “emcpps-internal” — 2021/5/1 — 4:11 — page 17 — #17
+
+i
+
+
+
+                          C++14                                                                                Generic Lambdas
+
+
+                          type. By wrapping ref in a call to dependent, therefore, we ensure that the compiler
+                          will not test if *ref or ref.get() is valid until the generic lambda is instantiated. Our
+                          implementation of ifConstexpr ensures that only the correct lambda is instantiated, thus
+                          preventing a compiler error.5
+                              A simple test for objectAt instantiates it with both pointer and reference_wrapper
+                          arguments and verifies that the value returned has both the correct value and address:
+                            void f1()
+                            {
+                                int i = 8;
+
+                                  int&       i1 = objectAt(&i);
+                                  int&       i2 = objectAt(std::reference_wrapper<int>(i));
+                                  const int& i3 = objectAt(std::reference_wrapper<const int>(i));
+
+                                  assert(8 == i1);
+                                  assert(&i1 == &i);
+                                  assert(&i2 == &i);
+                                  assert(&i3 == &i);
+                            }
+
+
+
+     potential­pitfalls
+                          Potential Pitfalls
+                          Although the generic feature is generally safe, generic lambdas are an incremental advance
+                          over regular lambda expressions. All pitfalls of the nongeneric feature apply to this feature
+                          as well; see Section 2.1.“??” on page ??.
+
+                          Annoyances
+             annoyances
+                          Cannot use full power of template-argument deduction
+late­argument­deduction
+                          A normal function template can constrain template parameters to patterns that include
+                          argument prototypes and template instantiations:
+                            #include <vector> // std::vector
+                            template <typename T> void f1(std::vector<T>& v) { }                // T is the element type
+
+                          Not only is the argument v constrained to being a vector, but the deduced element type T
+                          is available for use within the function. The same sort of pattern matching is not available
+                          portably for generic lambdas:
+                            auto y1 = [](std::vector<auto>& v) { };             // Error, auto as template parameter
+
+                          Constraining an auto parameter using metaprogramming, e.g., through the use of std::enable_if,
+                          is sometimes possible:
+                            #include <type_traits>  // std::enable_if_t, std::is_same,
+                                                    // std::remove_reference_t
+                            auto y2 = [](auto& v) ­> std::enable_if_t<
+                             5 Paul Fultz suggested the idea for using an identity functor to mark expressions as having dependent
+
+                          type (?).
+
+
+                                                                                                                               17
+
+i
+
+
+
+        i                                                                                                                            i
+        i                                                                                                                   i
+                                        “emcpps-internal” — 2021/5/1 — 4:11 — page 18 — #18
+
+i
+
+
+
+                         Generic Lambdas                                 Chapter 2     Conditionally Safe Features
+
+
+                              std::is_same<
+                                  std::vector<typename std::remove_reference_t<decltype(v)>::value_type>&,
+                                  decltype(v)
+                              >::value> { };
+
+                        The y2 closure can be called only with a vector. Any other type will fail substitution
+                        because is_same will return false if substitution even gets that far; substitution might fail
+                        earlier if the type for v does not have a nested value_type. Passing nonvector arguments
+                        to this constrained lambda will now fail at the call site, rather than, presumably, failing
+                        during instantiation of y2(v):
+                          void g1()
+                          {
+                              int                i;
+                              std::vector<int>   v1;
+                              std::vector<float> v2;
+
+                              y2(i);     // Error, cannot call y2 on a nonvector
+                              y2(v1);    // OK, v1 is a vector
+                              y2(v2);    // OK, v2 is a vector
+                          }
+
+                        For all of the additional complication on y2, the element type for our vector is still not avail-
+                        able within the lambda body, as it was for the function body for f1, above; we would need to
+                        repeat the type name typename std::remove_reference_t<decltype(v)>::value_type
+                        if the element type became necessary.
+                            This annoyance is mitigated, however, because lambda expressions cannot be overloaded.
+                        In the absence of overloading, there is little benefit to removing a call from the overload set
+                        compared to simply letting the instantiation fail, especially as most lambda expressions are
+                        defined at the point of use, making it comparatively easy to diagnose a compilation problem
+                        if one occurs. Moreover, this point-of-use definition is already tuned to its expected use case,
+                        so constraints are often redundant, adding little additional safety to the code.
+
+                        Difficulty in constraining multiple arguments
+ng­multiple­arguments
+                        Often, we want to restrict function template arguments such that two or more arguments
+                        have related types. For example, an operation might require two iterators of the same type
+                        or one argument to be a pointer to the type of the other argument. Generic lambdas provide
+                        only limited support for interargument patterns. Each parameter to a generic lambda that
+                        contains auto is completely independent of the other parameters, so the normal mechanism
+                        used for function templates — using the same named type parameter (e.g., T or U) in multiple
+                        places — is unavailable:
+                          void g1()
+                          {
+                              auto y = [](auto a, auto b) { }; // No interargument constraints
+                              y(1, 2);          // OK, arguments of type int and int
+                              y("one", "two"); // OK,      "      "   " const char* and const char*
+                              y(1, "two");      // OK,     "      "   " int and const char*
+                          }
+
+                        18
+
+i
+
+
+
+        i                                                                                                                   i
+    i                                                                                                        i
+                      “emcpps-internal” — 2021/5/1 — 4:11 — page 19 — #19
+
+i
+
+
+
+        C++14                                                                      Generic Lambdas
+
+
+        Limited constraints are possible — e.g., requiring that arguments have the same type —
+        by using the decltype operator to declare later parameters based on the types of earlier
+        parameters; see Section 1.1.“??” on page ??:
+         void g2()
+         {
+             auto y = [](auto a, decltype(a) b) { }; // a and b have the same type.
+             y(1, 2);          // OK, both arguments are of type int.
+             y("one", "two"); // OK,    "      "      "   "   " const char*.
+             y(1, "two");      // Error, mixed argument types int and const char*
+         }
+
+        If the relationship between the parameter types is even slightly different than an exact
+        match, expressing it can become complicated. For example, if parameter a is a pointer and
+        we want parameter b to be a value of the type pointed to by a, our first approach might be
+        to try decltype(*a):
+         int i = 0;
+
+         void g3()
+         {
+             auto y = [](auto* a, decltype(*a) b) { *a = b; };
+             y(&i, 5); // Error, can't bind rvalue 5 to int& b
+         }
+
+        Unfortunately, as we see, decltype(*a) yields a nonconst lvalue reference, which cannot
+        bind to the rvalue 5. Our next attempt is to const-qualify b, since const references can
+        bind to rvalues:
+         void g4()
+         {
+             auto y = [](auto* a, const decltype(*a) b) { *a = b; };
+             y(&i, 5); // Error, const applied to reference is ignored.
+         }
+
+        This approach fails because const can be applied only to the referred-to type; applying
+        const to the reference has no effect. If we use the standard metafunction std::remove_reference_t,
+        we can finally get to the type to which a points, without any reference specifiers:
+         #include <type_traits>     // std::remove_reference_t
+
+         void g5()
+         {
+             auto y = [](auto* a, std::remove_reference_t<decltype(*a)> b)
+             {
+                 *a = b;
+             };
+             y(&i, 5); // OK, pass 5 by value for int b.
+         }
+
+        Note that y takes argument b by value, which can be ineﬀicient for types having an expensive
+        copy constructor. When the type of an argument is unknown, we usually pass it by const
+        reference:
+
+                                                                                                 19
+
+i
+
+
+
+    i                                                                                                        i
+      i                                                                                                                 i
+                                       “emcpps-internal” — 2021/5/1 — 4:11 — page 20 — #20
+
+i
+
+
+
+                       Generic Lambdas                                Chapter 2     Conditionally Safe Features
+
+
+                        void g6()
+                        {
+                            auto y = [](auto* a, const std::remove_reference_t<decltype(*a)>& b)
+                            {
+                                *a = b;
+                            };
+                            y(&i, 5); // OK, bind 5 to const int& b.
+                        }
+
+                      In the last example, parameter b is always a const lvalue reference, never an rvalue reference.
+                      When constraining a type this way, we forfeit the possibility of perfect forwarding.
+
+           see­also
+                      See Also
+                           • “??” (§1.1, p. ??) ♦ provides the only way to name the type of an auto parameter
+                             in a generic lambda.
+                           • “??” (§2.1, p. ??) ♦ allows a lambda expression, which has unnamed type, to be
+                             saved in a variable and also details the rules for deducing an auto parameter from its
+                             argument expression.
+                           • “??” (§2.1, p. ??) ♦ provide the most general way to declare a generic lambda’s
+                             parameters, preserving both the parameters’ types and their value categories.
+                           • “??” (§2.1, p. ??) ♦ introduced the facility for locally defined anonymous function
+                             objects that generic lambdas expand on.
+                           • “??” (§2.1, p. ??) ♦ allow a template, including a generic lambda, to have a variable
+                             number of parameters.
+                           • “??” (§2.2, p. ??) ♦ describes the initialized capture syntax added to lambda captures
+                             in C++14.
+
+                           • “??” (§3.2, p. ??) ♦ describes how a function, including the function call operator
+                             for a lambda expression, can deduce its return type from its return statements.
+
+                      Further Reading
+    further­reading
+                           • ?
+                           • ?
+
+                           • ?
+
+
+
+
+                      20
+
+i
+
+
+
+      i                                                                                                                 i
+     i                                                                                         i
+                                    “emcpps-internal” — 2021/5/1 — 4:11 — page 21 — #21
 
 i
 
@@ -1399,22 +1167,22 @@ i
 
 
 
-                                                                                           25
+                                                                                          21
 
 
 i
 
 
 
-     i                                                                                          i
-       i                                                                                      i
-                            “emcpps-internal” — 2021/4/24 — 0:40 — page 26 — #26
+     i                                                                                         i
+       i                                                                                     i
+                            “emcpps-internal” — 2021/5/1 — 4:11 — page 22 — #22
 
 i
 
 
 
-                                                                Chapter 3   Unsafe Features
+                                                               Chapter 3   Unsafe Features
 
 
     sec­unsafe­cpp14
@@ -1422,582 +1190,11 @@ i
 
 
 
-                       26
+                       22
 
 i
 
 
 
-       i                                                                                      i
-        i                                                                                                                    i
-                                       “emcpps-internal” — 2021/4/24 — 0:40 — page 27 — #27
-
-i
-
-
-
-                          C++14                                                                   decltype(auto)
-
-
-
-                          Deducing Types Using decltype Semantics
-sing­decltype­semantics
-           decltypeauto
-                          In a C++14 variable declaration, decltype(auto) can act as a placeholder type that is
-                          deduced to exactly match the type of the variable’s initializer, preserving the initializer’s
-                          value category, unlike the auto placeholder.
-
-                          Description
-            description
-                          The type specifier, auto (see Section 2.1.“??” on page ??), can be used in C++11 as a
-                          placeholder to declare a variable whose type is deduced from the variable’s initializer:
-                            class C { /*...*/ };
-
-                            C f1();
-
-                            auto a1 = 0;      // deduced type int
-                            auto a2{f1()};    // deduced type C
-
-                             C++14 introduced a new placeholder, decltype(auto), which can be used in most of
-                          the same contexts as auto. For the example above, decltype(auto) behaves identically to
-                          auto:
-                            decltype(auto) a3 = 0;          // deduced type int
-                            decltype(auto) a4{f1()};        // deduced type C
-
-                              The literal, 0, has type int; initializing a3 with 0 thus yields a variable of type int.
-                          Similarly, the expression f1() has type C, yielding a variable of type C when used to initialize
-                          a4.
-                              Unlike plain auto, the deduced type of a variable declared with type decltype(auto) is
-                          determined not by using template-argument deduction rules, but by applying the decltype
-                          operator to the initialization expression. In practice, this semantic means that the cv-
-                          qualifiers and value category (see Appendix ?? on page ??) of the initializer are preserved
-                          for decltype(auto) when they would be discarded for plain auto:
-                            int&    f2();
-                            C&&     f3();
-                            C       c1;
-                            const C cc1;
-                            C*      p1 = &c1;
-
-                            auto           i1     = 4;        // deduced as int
-                            decltype(auto) i2     = 4;        //    "     " int
-
-                            auto           c7     = f2();     //     "      " int
-                            decltype(auto) c8     = f2();     //     "      " int&
-
-                            auto           i3     = f3();     //     "      " C
-                            decltype(auto) i4     = f3();     //     "      " C&&
-
-
-
-                                                                                                                       27
-
-i
-
-
-
-        i                                                                                                                    i
-    i                                                                                                                   i
-                                     “emcpps-internal” — 2021/4/24 — 0:40 — page 28 — #28
-
-i
-
-
-
-                     decltype(auto)                                                 Chapter 3     Unsafe Features
-
-
-                     auto           c9 = cc1;            //     "      " C
-                     decltype(auto) c10 = cc1;           //     "      " const C
-
-                     auto           c11 = (cc1);         //     "      " C
-                     decltype(auto) c12 = (cc1);         //     "      " const C&
-
-                        As with the decltype operator, decltype(auto) is one of the few constructs that
-                    preserves the distinction between the two categories of rvalue — prvalues (e.g., literal 4)
-                    and xvalues (e.g., f3()).
-                        Both auto and decltype(auto) can be used as placeholders for a function return type,
-                    indicating that the return type should be deduced from the function’s return statement(s).
-                    The deduced return-type feature is covered in its own section (see Section 3.2.“??” on
-                    page ??). Note that the deduction rules described for function return types in that sec-
-                    tion refer to the ones described for variables here. Readers are, therefore, advised to read
-                    this section first.
-
-                    Specification
-    specification
-                    The decltype(auto) placeholder can appear in most places where auto can appear:
-                         1. As the type in the declaration of an initialized variable, including variables defined in
-                            the header of a loop or switch statement
-                         2. As the type of object allocated and initialized by a new expression
-                         3. As the type returned by a function or conversion operator
-                    The last is the most common use of decltype(auto) and is described in detail in Sec-
-                    tion 3.2.“??” on page ??. Note that decltype(auto) cannot be used to declare a parameter
-                    of a generic lambda expression; see Section 2.2.“??” on page ??.
-                        For a variable, v, declared with decltype(auto) and initialized with an expression,
-                    expr, the type of v is deduced to be the type denoted by decltype(expr); see Sec-
-                    tion 1.1.“??” on page ??. This semantic means that the deduced type might be cv-qualified
-                    and/or a reference:
-                     struct C1 { /*...*/ };
-
-                     int&         f2();
-                     C1&&         f3();
-                     C1           c1;
-                     const C1     cc1;
-
-                     decltype(f2())       i1   = f2();    // deduced as int&
-                     decltype(auto)       i2   = f2();    // equivalent to i1
-
-                     decltype(f3())       c2   = f3();    // deduced as C1&&
-                     decltype(auto)       c3   = f3();    // equivalent to c2
-
-                     decltype(c1)         c4   = c1;      // deduced as C1
-                     decltype(auto)       c5   = c1;      // equivalent to c4
-
-                    28
-
-i
-
-
-
-    i                                                                                                                   i
-    i                                                                                                       i
-                     “emcpps-internal” — 2021/4/24 — 0:40 — page 29 — #29
-
-i
-
-
-
-        C++14                                                                       decltype(auto)
-
-
-          decltype((c1))     c6     = c1;         // deduced as C1&
-          decltype(auto)     c7     = (c1);       // equivalent to c6
-
-          decltype(cc1)      cc2    =   cc1;      //   deduced as   const C1
-          decltype(auto)     cc3    =   cc1;      //   equivalent   to cc2
-          decltype((cc1))    cc4    =   cc1;      //   deduced as   const C1&
-          decltype(auto)     cc5    =   (cc1);    //   equivalent   to cc4
-
-          decltype({ 3 }) x1 = { 3 };             // Error, not an expression
-          decltype(auto) x2 = { 3 };              // Error, not an expression
-
-            The semantics of the decltype operator, when applied to an expression consisting of a
-        single variable, cause decltype(c1) to yield type C1 and decltype((c1)) to yield reference
-        type C1&, as in the definitions of c4 and c6, respectively; variables c5 and c7, therefore,
-        also have the types C1 and C1&. A braced-initializer list such as { 3 } is not an expression;
-        thus, x1 and x2 are both invalid.
-            Note that functions returning scalars discard top-level cv-qualifiers on their return types,
-        so a type deduced from a call to such a function will not reflect top-level cv-qualifiers even
-        when defined with decltype(auto):
-          template <typename T> T f4();
-
-          decltype(auto)   v1   =   f4<const     C1>();               // deduced as const C1
-          decltype(auto)   v2   =   f4<const     int>();              //    "     " int
-          decltype(auto)   v3   =   f4<const     int&>();             //    "     " const int&
-          decltype(auto)   v4   =   f4<const     char* const>();      //    "     " const char*
-
-           The top-level const qualifier on the class type, const C1, and on the reference type,
-        const int&, are preserved but not on the scalar type, const int. The constness of the
-        pointer itself, in const char* const, is similarly discarded, as it is the top-level cv-qualifier
-        on a scalar type.
-            When a function name is used as the initializer expression, it automatically decays to
-        a pointer type when initializing a variable declared with type auto but does not decay
-        when the variable is declared with type decltype(auto); thus, the deduced type of fx2 is
-        a function type, which is not an allowed type for a variable. Initializer expressions having
-        pointer-to-function type or reference-to-function type do not pose a problem, as seen with
-        fx3 and fx4.
-          auto           fx1 = f2;               // OK, deduced as (decayed type) int& (*)()
-          decltype(auto) fx2 = f2;               // Error, cannot define variable of type int&()
-
-          auto           fx3 = &f3;              // OK, deduced as C1&& (*)()
-          decltype(auto) fx4 = &f3;              // OK,    "     " C1&& (*)()
-
-          auto&          fx5 = *fx3;             // OK,      "       " C1&& (&)()
-          decltype(auto) fx6 = *fx3;             // OK,      "       " C1&& (&)()
-
-            Note that fx5 uses & to force the variable type to be a reference. The ability to add
-        reference specifiers and cv-qualifiers to a placeholder is not available for decltype(auto),
-
-                                                                                                      29
-
-i
-
-
-
-    i                                                                                                       i
-        i                                                                                                               i
-                                        “emcpps-internal” — 2021/4/24 — 0:40 — page 30 — #30
-
-i
-
-
-
-                         decltype(auto)                                                   Chapter 3   Unsafe Features
-
-
-                        as described in the next section.
-
-                        Syntactic restrictions
-yntactic­restrictions
-                        When used as a type placeholder, decltype(auto) must appear alone, unadorned by cv-
-                        qualifiers, reference type specifiers, pointer type specifiers, or function parameter lists:
-                          int&& f1();
-                          int i1 = 5;
-
-                          decltype(auto)       i2           =   f1();   //   OK, deduced as int&&
-                          const decltype(auto) i3           =   f1();   //   Error, const qualifier not allowed
-                          decltype(auto)&&     i4           =   f1();   //   Error, reference operator "     "
-                          decltype(auto)*      i5           =   &i1;    //   Error, pointer operator   "     "
-                          decltype(auto)     (*fx1)()       =   &f1;    //   Error, function parameters "    "
-
-                             All of the above definitions would be valid if decltype(auto) were replaced with auto:
-                          auto                    i6        =   f1();   //   OK,   i6 deduced as int
-                          const auto              i7        =   f1();   //   OK,   i7    "     " const int
-                          auto&&                  i8        =   f1();   //   OK,   i8    "     " int&&
-                          auto*                   i9        =   &i1;    //   OK,   i9    "     " int*
-                          auto                  (*fx2)()    =   &f1;    //   OK,   fx2   "     " int&& (*)()
-
-                            The decltype(auto) placeholder cannot be used to define a variable without an initial-
-                        izer because there would be no way to deduce its type. If multiple variables are defined in a
-                        single decltype(auto) definition, they must all have initializers of exactly the same type:
-                          #include <utility>     // std::move
-
-                          decltype(auto) v1;                                         // Error, no initializer
-                          decltype(auto) v2 = f1(), v3 = std::move(i1);              // OK, deduced as int&&
-                          decltype(auto) v4 = 5, v5 = f1();                          // Error, ambiguous deduction
-
-                           A nonstatic member variable cannot be declared using decltype(auto), even if pro-
-                        vided with a default member initializer (see Section 2.1.“??” on page ??):
-                          struct C1
-                          {
-                              decltype(auto) d_data = f();          // Error, decltype(auto) for member variable
-                          };
-
-                            A constexpr static member variable (see Section 2.1.“??” on page ??) that is initialized
-                        at the point of declaration can be declared using decltype(auto), but a nonconstexpr
-                        static member variable cannot, simply because nonconstexpr static members cannot be
-                        inline-initialized at the point of declaration, independently of the decltype(auto) feature:
-                          constexpr int f2() { return 5; }
-
-                          struct C2
-                          {
-                              static constexpr decltype(auto) s_mem1 = f2();              // OK
-                              static           decltype(auto) s_mem2 = f2();              // Error, inline init
-                          };
-
-                        30
-
-i
-
-
-
-        i                                                                                                               i
-        i                                                                                                                            i
-                                        “emcpps-internal” — 2021/4/24 — 0:40 — page 31 — #31
-
-i
-
-
-
-                          C++14                                                                         decltype(auto)
-
-                             A variable with static storage duration (either in global or class scope) can be declared
-                          using an explicit type then redeclared and initialized using decltype(auto). Note, however,
-                          that some popular compilers reject these redeclarations1 :
-                            extern int gi;      // forward declaration
-
-                            struct C3
-                            {
-                                static decltype(f2()) s_mem1;           // type int
-                            };
-
-                            decltype(auto) gi =         f2();           // OK, compatible redeclaration
-                            decltype(auto) C3::s_mem1 = f2();           // OK, compatible redeclaration
-
-
-                          new expressions
-        new­expressions
-                          When used in a new expression, decltype(auto) offers little benefit over plain auto and
-                          will sometimes cause otherwise-valid code to not compile:
-                            int   i;
-                            int&& f1();
-
-                            auto* p1 = new auto(5);                         // OK, equivalent to new int(5)
-                            auto* p2 = new decltype(auto)(5);               // OK, equivalent to new int(5)
-
-                            auto* p3 = new auto(i);                         // OK, equivalent to new int(i)
-                            auto* p4 = new decltype(auto)(i);               // OK, equivalent to new int(i)
-
-                            auto* p5 = new auto(f1());                      // OK, equivalent to new int(f1())
-                            auto* p6 = new decltype(auto)(f1());            // Error, equivalent to new int&&(f1())
-
-                            auto* p7 = new auto((i));                       // OK, equivalent to new int(i)
-                            auto* p8 = new decltype(auto)((i));             // Error, equivalent to new int&(i)
-
-                              In all of the examples above, the variable type is declared as auto* so that it could
-                          be deduced from the return type of the new expression; plain auto, decltype(auto), or
-                          int* would all have been equivalent. The initializers for p6 and p8 fail to compile because
-                          decltype(auto) deduces to a reference type in each of those cases, causing the new expres-
-                          sion to generate a pointer-to-reference type. The auto specifiers used to initialize p5 and
-                          p7, conversely, discard the reference qualifiers, yielding valid types.
-
-
-              use­cases
-                          Use Cases
-                          Exact capture of an expression’s type and value category
-type­and­value­category
-                          Both auto&& and decltype(auto) can be used to declare a variable initialized to the
-                          result of any expression, but only decltype(auto) will capture the exact value category of
-                             1 GCC   10.2 and MSVC 19.28, among many other compilers, reject auto redeclaration of previously
-                          declared variables; see GCC bug report 60352. However, nothing in the C++14 Standard appears to disallow
-                          such redeclarations, and an example in the C++20 Standard indicates that they are valid.
-
-
-                                                                                                                               31
-
-i
-
-
-
-        i                                                                                                                            i
-        i                                                                                                               i
-                                          “emcpps-internal” — 2021/4/24 — 0:40 — page 32 — #32
-
-i
-
-
-
-                         decltype(auto)                                             Chapter 3    Unsafe Features
-
-
-                        initializing expression:
-                          int     f1();
-                          int&    f2();
-                          int&&   f3();
-                          int     i;
-
-                          auto&&         v1 = f1();       // type int&&
-                          decltype(auto) v2 = f1();       // type int
-
-                          auto&&         v3 = f2();       // type int&
-                          decltype(auto) v4 = f2();       // type int&
-
-                          auto&&         v5 = f3();       // type int&&
-                          decltype(auto) v6 = f3();       // type int&&
-
-                          auto&&         v7 = i;          // type int&
-                          decltype(auto) v8 = i;          // type int
-
-                           Variables v1 and v5 have the same value category even though f1() is a prvalue and
-                        f3() is an xvalue, illustrating the limitation of auto&&, whereas v2 and v6 correctly capture
-                        the distinction. In addition, auto&& deduces v7 as a reference whereas decltype(auto)
-                        correctly deduces it as an object.
-
-                        Return type of a proxy iterator or moving iterator
-or­or­moving­iterator
-                        When an iterator is dereferenced, it usually returns an lvalue reference to an element within
-                        a sequence. It might, however, return an rvalue object of proxy type, as in the case of
-                        std::vector<bool>. Alternatively, the iterator dereference operator might return an rvalue
-                        reference to a sequence element, as in the case of a moving iterator — i.e., for a sequence
-                        that will not be used again after it has been traversed. decltype(auto) can be used in
-                        generic code to faithfully capture a dereferenced iterator when the value category of the
-                        iterator’s reference type is unknown:
-                          #include <vector>        // std::vector
-
-                          template <typename C, typename V>
-                          void fill(C& container, const V& val)
-                              // Replace the value of every element in container with a copy of val.
-                          {
-                              for (typename C::iterator iter = container.begin();
-                                   iter != container.end();
-                                   ++iter)
-                              {
-                                  // auto& element = *iter; // won't work for proxy or moving iterators
-                                  decltype(auto) element = *iter;
-                                  element = val;
-                              }
-                          }
-
-
-
-                        32
-
-i
-
-
-
-        i                                                                                                               i
-        i                                                                                                                   i
-                                       “emcpps-internal” — 2021/4/24 — 0:40 — page 33 — #33
-
-i
-
-
-
-                          C++14                                                                  decltype(auto)
-
-                            void f1(std::vector<bool>& v)
-                            {
-                                fill(v, false);
-                                // ...
-                            }
-
-                              Instead of decltype(auto), we could have used auto&& and gotten the same effect,
-                          although the semantics of decltype(auto) are slightly simpler to understand in this case.
-                          Although more verbose, it would be more descriptive to declare element as having type
-                          typename std::iterator_traits<decltype(iter)>::reference.
-
-
-
-     potential­pitfalls
-                          Potential Pitfalls
-                          Hidden dangling references
-den­dangling­references
-                          An operation on an rvalue will sometimes return an rvalue reference that is valid only for
-                          the lifetime of the original rvalue. When the returned reference is saved in a named variable,
-                          there is a danger of the variable binding to a temporary object that will go out of scope
-                          before it can be used:
-
-                            #include <list>    // std::list
-
-                            template <typename T>
-                            T&& first(std::list<T>&& s) { return std::move(*s.begin()); }
-                                // Return an rvalue reference to the first element in s.
-
-                            std::list<int> collection();
-                                // Return (by value) a list of int values.
-
-                            void f()
-                            {
-                                int&&          r1 = first(collection());
-                                auto&&         r2 = first(collection());
-                                decltype(auto) r3 = first(collection());
-
-                                  // Bug, r1, r2, and r3 are all dangling references to destroyed
-                                  // objects.
-
-                                  // ...
-                            }
-
-                              The variables r1, r2, and r3 all have type int&& and all are dangling references
-                          because they refer to an element of a list that goes out of scope immediately after the
-                          reference is initialized. When a reference variable is initialized from a reference expression,
-                          the programmer should be wary of the lifetime of the object being referenced. In this regard,
-                          decltype(auto) adds no new hazard. Note, however, that r1 and r2 are both declared as
-                          reference types, whereas r3 is only deduced to be a reference type. The fact that the reference
-                          is hidden makes this pitfall harder to avoid for decltype(auto) than for the other two cases.
-
-                                                                                                                      33
-
-i
-
-
-
-        i                                                                                                                   i
-        i                                                                                                                 i
-                                        “emcpps-internal” — 2021/4/24 — 0:40 — page 34 — #34
-
-i
-
-
-
-                         decltype(auto)                                               Chapter 3    Unsafe Features
-
-
-                        Poor signaling of intent
-r­signaling­of­intent
-                        Since C++11, a common set of idioms has emerged for the use of auto in generic code:
-                         auto        copyVar     = expr1;         // copy of expr1
-                         const auto& readonlyVar = expr2;         // read­only reference to expr1
-                         auto&&      mutableVar = expr3;          // possibly mutable reference to expr1
-
-                            The copyVar object will be initialized from expr1 using direct-initialization; if expr1
-                        yields an rvalue or lvalue reference, then the copy or move constructor, respectively, is
-                        invoked. The readonlyVar reference provides read-only access to the object produced by
-                        expr2; if expr2 returns an rvalue, then lifetime extension ensures that it remains valid
-                        until readonlyVar goes out of scope. Finally, mutableVar allows modifying or moving from
-                        expr3 (unless expr3 is const); as in the case of const auto&, lifetime extension might come
-                        into play. Faithful use of these idioms provides safety and signals the programmer’s intent
-                        regarding the expected use of the variable.
-                            There is no way to create a similar set of idioms for decltype(auto) because decltype(auto)
-                        cannot     be    combined       with     const      or     reference type   specifiers;  see
-                        Annoyances — decltype(auto) stands alone on page 34. For variable declarations, there-
-                        fore, using auto in this idiomatic way might be preferable.
-                            The situation is somewhat different for function return types, where the expected use
-                        of the return value is not always known at the point of declaration; see Section 3.2.“??” on
-                        page ??.
-
-                        Annoyances
-noyances­decltypeauto
-                        decltype(auto) stands alone
-pe(auto)­stands­alone
-                        When defining a variable with auto, we can add cv-qualifiers and reference type specifiers
-                        to the deduced type, even if the initializer expression has simpler qualifiers:
-                         int f();
-
-                         const auto& v1 = f();       // v1 is const int&.
-
-                           Unfortunately, decltype(auto) must stand alone; the type of the variable is always
-                        exactly that of the initializer expression, with no extra decorations:
-                         const decltype(auto) v2 = f();         // Error, const with decltype(auto)
-
-                             Thus, deducing a variable type that is always read-only, for example, is not possible with
-                        decltype(auto).
-
-
-             see­also
-                        See Also
-                             • “??” (§1.1, p. ??) ♦ describes the C++11 feature on which decltype(auto) is
-                               based.
-                             • Appendix ?? describes complex world of value categories that distinguish
-                               decltype(auto) from auto.
-
-                             • “??” (§3.2, p. ??) ♦ uses the deduction rules described in this section and applies
-                               them to function return types instead of variables declarations.
-
-                        34
-
-i
-
-
-
-        i                                                                                                                 i
-    i                                                                                                            i
-                                 “emcpps-internal” — 2021/4/24 — 0:40 — page 35 — #35
-
-i
-
-
-
-                      C++14                                                             decltype(auto)
-
-                        • “??” (§1.1, p. ??) ♦ describes the decltype operator, which determines the semantics
-                          of decltype(auto).
-
-                      Further Reading
-    further­reading
-                      None.
-
-
-
-
-                                                                                                           35
-
-i
-
-
-
-    i                                                                                                            i
-    i                                                          i
-        “emcpps-internal” — 2021/4/24 — 0:40 — page 36 — #36
-
-i
-
-
-
-
-i
-
-
-
-    i                                                          i
+       i                                                                                     i
 

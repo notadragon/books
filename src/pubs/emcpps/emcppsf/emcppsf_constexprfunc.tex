@@ -353,9 +353,10 @@ const int  j = 10;  // unmodifiable (ù{\codeincomments{int}}ù) variable (impli
 constexpr int f(bool b) { return b ? i : 5; }  // sometimes works as (ù{\codeincomments{constexpr}}ù)
 constexpr int g(bool b) { return b ? j : 5; }  //    always works as (ù{\codeincomments{constexpr}}ù)
 
-static_assert(f(mb), "");  // Error, (ù{\codeincomments{mb}}ù) is not usable in a constant expression.
-static_assert(f(0),  "");  // OK
-static_assert(f(1),  "");  // Error, (ù{\codeincomments{i}}ù) is (ù{\emphincomments{not}}ù) usable in a constant expression.
+static_assert(f(mb),    "");  // Error, (ù{\codeincomments{mb}}ù) is not usable in a constant expression.
+static_assert(f(mb),    "");  // Error, mb is not usable in a constant expression.
+static_assert(f(false),  "");  // OK
+static_assert(f(true), "");  // Error, (ù{\codeincomments{i}}ù) is (ù{\emphincomments{not}}ù) usable in a constant expression.
 
 static_assert(g(mb), "");  // Error, (ù{\codeincomments{mb}}ù) is not usable in a constant expression.
 static_assert(g(0),  "");  // OK
@@ -426,11 +427,11 @@ differ across translation units, the program is \emcppsgloss{ill formed, no
 diagnostic required (IFNDR)}:
 
 \begin{emcppslisting}
-// file1.h
+// file1.h:
           inline int f2() { return 0; }
        constexpr int f3() { return 0; }
 
-// file2.h
+// file2.h:
           inline int f2() { return 1; }  // Error, no diagnostic required
        constexpr int f3() { return 1; }  // Error, no diagnostic required
 \end{emcppslisting}
