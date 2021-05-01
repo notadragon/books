@@ -1,0 +1,1041 @@
+% 30 April 2021, cleaned up LaTeX and updated commands; to Josh for code check
+
+
+\emcppsFeature{
+    short={{\itshape Generic} Lambdas},
+    long={Lambdas Having a Templated Call Operator},
+}{genericlambda}
+\label{generic-lambdas}
+\setcounter{table}{0}
+\setcounter{footnote}{0}
+\setcounter{lstlisting}{0}
+%\section[{\itshape Generic} Lambdas]{Lambdas Having a Templated Call Operator}\label{genericlambda}
+%\subsection[Generic Lambdas]{Generic Lambdas}\label{generic-lambdas}
+
+
+
+C++14 extends the \emcppsgloss[lambda expressions]{lambda expression} syntax of C++11 to allow a
+\emph{templated} definition of the function-call operator belonging to
+the \emcppsgloss{closure type}.
+
+\subsection[Description]{Description}\label{description}
+
+\emcppsgloss[generic lambda]{Generic lambdas} are a C++14 extension of C++11 lambda
+expressions (see \featureref{}{}\textbf{[ AUs: We have Lambdas or Lambda Captures. There is no Lambda Expressions])}. The relationship
+between a \emcppsgloss{generic lambda} and a nongeneric \emcppsgloss[lambda expressions]{lambda
+expression} is the same as that between a function template and a
+nontemplate function: The argument types are deduced at the point of
+invocation rather than at definition.
+
+Consider two \emcppsgloss{lambda expressions}, each of which simply returns
+its argument:
+
+\begin{emcppslisting}
+auto identityInt = [](int  a) { return a; };  // nongeneric lambda
+auto identity =    [](auto a) { return a; };  // generic lambda
+\end{emcppslisting}
+    
+
+\noindent Generic lambdas are characterized by the presence of one or more
+\lstinline!auto! parameters, accepting arguments of any type. In the
+example above, the first version is a nongeneric lambda having a
+parameter of concrete type \lstinline!int!. The second version is a
+\emcppsgloss{generic lambda} because its parameter uses the placeholder type
+\lstinline!auto!. Unlike \lstinline!identityInt!, which is callable only for
+\lstinline!int! arguments, \lstinline!identity! can be applied to any type
+that can be passed by value:
+
+\begin{emcppslisting}
+int         a1 = identityInt(42);    // OK, (ù{\codeincomments{a1 == 42}}ù)
+double      a2 = identityInt(3.14);  // Bug, (ù{\codeincomments{a2 == 3}}ù), truncation warning
+const char* a3 = identityInt("hi");  // Error, cannot pass (ù{\codeincomments{"hi"}}ù) as (ù{\codeincomments{int}}ù)
+int         a4 = identity(42);       // OK, (ù{\codeincomments{a4 == 42}}ù)
+double      a5 = identity(3.14);     // OK, (ù{\codeincomments{a5 == 3.14}}ù)
+const char* a6 = identity("hi");     // OK, (ù{\codeincomments{strcmp(a6, "hi") == 0}}ù)
+\end{emcppslisting}
+    
+
+\noindent \emcppsgloss[generic lambda]{Generic lambdas} accomplish this compile-time polymorphism by
+defining their function call operator --- \lstinline!operator()! --- as a
+\emph{template}. Recall that the result of a \emcppsgloss[lambda expressions]{lambda expression} 
+is a \emcppsgloss{closure object}, an object of unique type having a function
+call operator; i.e., the \emcppsgloss{closure type} is a unique
+\emcppsgloss{functor} class. The arguments defined in the \emcppsgloss[lambda expressions]{lambda
+expression} become the arguments to the function call operator. The
+following code transformation is roughly equivalent to the definitions
+of the \lstinline!identityInt! and \lstinline!identity! \emcppsgloss[closure object]{closure
+objects} from the example above:
+
+\begin{emcppslisting}
+struct __lambda_1  // compiler-generated name; not visible to the user
+{
+    int operator()(int x) const { return x; }
+    // ...
+};
+
+struct __lambda_2  // compiler-generated name; not visible to the user
+{
+    template <typename __T>
+    __T operator()(__T x) const { return x; }
+    // ...
+};
+
+__lambda_1 identityInt = __lambda_1();
+__lambda_2 identity    = __lambda_2();
+\end{emcppslisting}
+    
+
+\noindent Note that the names \lstinline!__lambda_1!, \lstinline!__lambda_2!, and
+\lstinline!__T! are for only descriptive purposes and are not available
+to the user; the compiler may choose any name or no name for these
+entities.
+
+A \emcppsgloss{generic lambda} is any \emcppsgloss[lambda expressions]{lambda expression} having one
+or more parameters declared using the placeholder type \lstinline!auto!.
+The compiler generates a template parameter type for each \lstinline!auto!
+parameter in the \emcppsgloss{generic lambda} and that type is substituted
+for \lstinline!auto! in the function call operator's parameter list. In the
+\lstinline!identity! example above, \lstinline!auto! \lstinline!x! is replaced
+with \lstinline!__T! \lstinline!x!, where \lstinline!__T! is a new template
+parameter type. When user code subsequently calls, e.g.,
+\lstinline!identity(42)!, normal template type deduction takes place and
+\lstinline!operator()<int>! is instantiated.
+
+\subsubsection[Lambda capture and mutable closures]{Lambda capture and mutable closures}\label{lambda-capture-and-mutable-closures}
+
+The \emcppsgloss{closure type} produced by a \emcppsgloss{generic lambda} is not a
+class template. Rather, its function call operator and its
+conversion-to-function-pointer operator (as we'll see later in \intrarefsimple{conversion-to-a-pointer-to-function}) are function templates. In
+particular, the \emcppsgloss{lambda capture}, which creates member variables
+within the \emcppsgloss{closure type}, is treated no differently than any
+other \emcppsgloss[lambda expressions]{lambda expression}. Similarly, the \lstinline!mutable!
+qualifier has the same effect for \emcppsgloss[generic lambda]{generic lambdas} as for
+nongeneric lambdas:
+
+\begin{emcppslisting}
+#include <algorithm>  // (ù{\codeincomments{std::for\_each}}ù)
+#include <iterator>   // (ù{\codeincomments{std::next}}ù)
+
+template <typename FwdIter>
+auto secondBiggest(FwdIter begin, FwdIter end)
+    // Return the second-largest element in the range [(ù{\codeincomments{begin}}ù), (ù{\codeincomments{end}}ù)),
+    // assuming at least two elements and that all values in the range
+    // are distinct.
+{
+    auto ret = *std::next(begin);  // Set to 2nd element
+    std::for_each(begin, end,
+        [biggest = *begin, &ret](const auto& element) mutable
+        {
+            if (element < biggest) { return; }
+            ret = biggest;
+            biggest = element;
+        }
+    );
+
+    return ret;
+}
+\end{emcppslisting}
+    
+
+\noindent The \lstinline!ret! declaration uses the placeholder \lstinline!auto! (see
+\featureref{\locationc}{auto}) to deduce the variable's type to be
+\lstinline!*std::next(begin)!, i.e., the element type for the input range.
+The return type of \lstinline!secondBiggest! is also declared \lstinline!auto!
+and is deduced from the type of \lstinline!ret! (see
+\featureref{\locationf}{autoreturn}). The \emcppsgloss{generic lambda} being passed to
+\lstinline!std::for_each! uses the C++14 initialized capture (see
+\featureref{\locationd}{lambda-capture-expressions}) to initialize \lstinline!biggest! to the
+largest value known so far. Because the lambda is declared
+\lstinline!mutable!, it can update \lstinline!biggest! each time a larger
+element is encountered. The \lstinline!ret! variable is also captured ---
+by reference --- and is updated with the previous biggest value when a
+new biggest value is encountered. Note that, at the point where
+\lstinline!ret! appears in the \emcppsgloss{lambda capture}, its type has
+already been deduced. When \lstinline!for_each! invokes the function call
+operator, the type of the \lstinline!auto! parameter \lstinline!element! is
+conveniently deduced to be the element type for the input range and is
+thus the same reference type as \lstinline!ret! except with an added
+\lstinline!const! qualifier.
+
+\subsubsection[Constraints on deduced parameters]{Constraints on deduced parameters}\label{constraints-on-deduced-parameters}
+
+A \emcppsgloss{generic lambda} may accept any mix of \lstinline!auto! and
+non\lstinline!auto! parameters:
+
+\begin{emcppslisting}
+void g1()
+{
+    auto y1 = [](auto& a, int b, auto c) { a += b * c; };
+
+    int    i = 5;
+    double d = 1;
+
+    y1(i, 2, 2);    // i is now 9
+    y1(d, 3, 0.5);  // d is now 2.5
+}
+\end{emcppslisting}
+    
+
+\noindent If the \lstinline!auto! placeholder in a \emcppsgloss{generic lambda} parameter
+is part of a type declaration that forms a potentially cv-qualified
+reference, pointer, pointer-to-member, pointer-to-function, or
+reference-to-function type, then the allowable arguments will be
+restricted accordingly:
+
+\begin{emcppslisting}
+struct C1 { double d_i; };
+double f1(int i);
+
+auto y1 = [](const auto& r) { };  // match anything (read only)
+auto y2 = [](auto&& r)      { };  //   "   anything (forwarding reference)
+auto y3 = [](auto& r)       { };  //   "   only (ù{\emphincomments{lvalues}}ù)
+auto y4 = [](auto* p)       { };  //   "     "  pointers
+auto y5 = [](auto(*p)(int)) { };  //   "     "      "    to functions
+auto y6 = [](auto C1::* pm) { };  //   "     "      "    to data members of (ù{\codeincomments{C1}}ù)
+
+void g2()
+{
+    int       i1 = 0;
+    const int i2 = 1;
+
+    y1(i1);        // OK, (ù{\codeincomments{r}}ù) has type (ù{\codeincomments{const int\&}}ù)
+    y2(i1);        // OK, (ù{\codeincomments{r}}ù) has type (ù{\codeincomments{int\&}}ù)
+
+    y3(5);         // Error, argument is not an (ù{\emphincomments{lvalue}}ù)
+    y3(i1);        // OK, (ù{\codeincomments{r}}ù) has type (ù{\codeincomments{int\&}}ù)
+    y3(i2);        // OK, (ù{\codeincomments{r}}ù) has type (ù{\codeincomments{const int\&}}ù)
+
+    y4(i2);        // Error, (ù{\codeincomments{i2}}ù) is not a pointer
+    y4(&i2);       // OK, (ù{\codeincomments{p}}ù) has type (ù{\codeincomments{const int*}}ù)
+
+    y5(&f1);       // OK, (ù{\codeincomments{p}}ù) has type (ù{\codeincomments{double (*)(int)}}ù)
+
+    y6(&C1::d_i);  // OK, (ù{\codeincomments{pm}}ù) has type (ù{\codeincomments{double C1::*}}ù)
+}
+\end{emcppslisting}
+    
+
+\noindent To understand how \lstinline!y1! and \lstinline!y2! match any argument type,
+recall that \lstinline!auto! is a placeholder for a template type argument,
+say, \lstinline!__T!. As usual, \lstinline!const! \lstinline!__T&!
+\lstinline!r! can bind to a \lstinline!const! or non\lstinline!const!
+\romeovalue{lvalue} or a temporary value created from an \romeovalue{rvalue}. The
+argument \lstinline!__T&&! \lstinline!r! is a \emcppsgloss{forwarding
+reference} (see {\featureref{\locationc}{forwardingref}); \lstinline!__T! will be
+deduced to an \romeovalue{rvalue} if the argument is an \romeovalue{rvalue} and to
+an \romeovalue{lvalue} reference otherwise. Because the parameter type for
+\lstinline!r! is unnamed --- we invented the name \lstinline!__T! for
+descriptive purposes only --- we must use \lstinline!decltype(r)! to refer
+to the deduced type:
+
+\begin{emcppslisting}
+#include <utility>  // (ù{\codeincomments{std::move}}ù), (ù{\codeincomments{std::forward}}ù)
+#include <cassert>  // standard C (ù{\codeincomments{assert}}ù) macro
+
+struct C2
+{
+    int d_value;
+
+    explicit C2(int i)     : d_value(i)                { }
+    C2(const C2& original) : d_value(original.d_value) { }
+    C2(C2&& other)         : d_value(other.d_value)    { other.d_value = 99; }
+};
+
+void g3()
+{
+    auto y1 = [](const auto& a) { C2 v(a); };
+    auto y2 = [](auto&&      a) { C2 v(std::forward<decltype(a)>(a)); };
+
+    C2 a(1);
+
+    y1(a);            assert(1  == a.d_value);  // Copies from (ù{\codeincomments{a}}ù)
+    y1(std::move(a)); assert(1  == a.d_value);  //    "     "  (ù{\codeincomments{a}}ù)
+    y2(a);            assert(1  == a.d_value);  //    "     "  (ù{\codeincomments{a}}ù)
+    y2(std::move(a)); assert(99 == a.d_value);  // Moves    "  (ù{\codeincomments{a}}ù)
+}
+\end{emcppslisting}
+    
+
+\noindent In this example, \lstinline!y1! always invokes the copy constructor for
+\lstinline!C2! because \lstinline!a! has type \lstinline!const! \lstinline!C2&!
+regardless of whether we instantiate it with an \romeovalue{lvalue} or
+\romeovalue{rvalue} reference to \lstinline!C2!. Conversely, \lstinline!y2! forwards
+the \emcppsgloss{value category} of its argument to the \lstinline!C2!
+constructor using \lstinline!std::forward! according to the common idiom
+for forwarding references. If passed an \romeovalue{lvalue} reference, the
+copy constructor is invoked; otherwise, the move constructor is invoked.
+We can tell the difference because \lstinline!C2! has a move constructor
+that puts the special value \lstinline!99! into the moved-from object.
+
+The \lstinline!auto! placeholder in a \emcppsgloss{generic lambda} parameter
+cannot be a type argument in a template specialization, a parameter type
+in the prototype of a function reference or function pointer, or the
+class type in a pointer to member{\cprotect\footnote{GCC 10.2 does allow
+\lstinline!auto! in both template arguments and function prototype
+parameters and deduces the template parameter type in the same way as
+for a regular function template. MSVC 19.28 allows \lstinline!auto! in
+the parameter list for a function reference or function pointer but
+  not in the other two contexts.}}:
+
+\begin{emcppslisting}
+#include <vector>  // (ù{\codeincomments{std::vector}}ù)
+auto y7 = [](const std::vector<auto>& x) { };  // Error, invalid use of (ù{\codeincomments{auto}}ù)
+auto y8 = [](double (*f)(auto)) { };           // Error,    "     "   "    "
+auto y9 = [](int auto::* m) { };               // Error,    "     "   "    "
+\end{emcppslisting}
+    
+
+\noindent Because of this restriction, there are no contexts where more than one
+\lstinline!auto! is allowed to appear in the declaration of a single lambda
+parameter. Template parameters \emph{are} allowed in these contexts for
+regular function templates, so \emcppsgloss[generic lambda]{generic lambdas} are less
+expressive than handwritten functor objects in this respect:
+
+\begin{emcppslisting}
+struct manualY7
+{
+    template <typename T>
+    void operator()(const std::vector<T>& x) const { }  // OK, can deduce (ù{\codeincomments{T}}ù)
+};
+
+struct manualY8
+{
+    template <typename T>
+    void operator()(double (*f)(T)) const { }  // OK, can deduce (ù{\codeincomments{T}}ù)
+};
+
+struct manualY9
+{
+    template <typename R, typename T>
+    void operator()(R T::* m) const { }  // OK, can deduce (ù{\codeincomments{R}}ù) and (ù{\codeincomments{T}}ù)
+};
+\end{emcppslisting}
+    
+
+\noindent Not only do \lstinline!manualY7!, \lstinline!manualY8!, and \lstinline!manualY9!
+successfully deduce \lstinline!T! where \lstinline!y7!, \lstinline!y8!, and
+\lstinline!y9! could not deduce \lstinline!auto!, \lstinline!manualY9! deduces
+two template arguments for a single function parameter. There is a
+trade-off between the benefits of \emcppsgloss{lambda expressions}, such as
+defining the function in place at the point of use, and the
+pattern-matching power of manually written function templates. See
+{Annoyances --- Cannot use full power of template-argument deduction}.
+
+A default value on an \lstinline!auto! parameter, while allowed, is not
+useful because it defaults only the \emph{value} and not the \emph{type}
+of the template parameter. Invocation of such a \emcppsgloss{generic lambda}
+requires the programmer to either supply a value for the argument, which
+defeats the point of a defaulted argument, or explicitly instantiate
+\lstinline!operator()!, which is gratuitously awkward:
+
+\begin{emcppslisting}
+void g1()
+{
+    auto y = [](auto a = 3) { return a * 2; };
+    y(5);                // OK, returns 10
+    y();                 // Error, cannot deduce type for parameter (ù{\codeincomments{a}}ù)
+    y.operator()<int>(); // OK, returns 6
+}
+\end{emcppslisting}
+    
+
+\subsubsection[Variadic generic lambdas]{Variadic generic lambdas}\label{variadic-generic-lambdas}
+
+If a placeholder argument to a \emcppsgloss{generic lambda} is followed by an
+ellipsis (\lstinline!...!), then the parameter becomes a variadic parameter
+pack and the function call operator becomes a variadic function
+template; see \featureref{\locationc}{variadictemplate}:
+
+\begin{emcppslisting}
+#include <tuple>  // (ù{\codeincomments{std::tuple}}ù), (ù{\codeincomments{std::make\_tuple}}ù)
+auto y11 = [](int i, auto&&... args)
+{
+    return std::make_tuple(i, std::forward<decltype(args)>(args)...);
+};
+
+std::tuple<int, const char*, double> tpl1 = y11(3, "hello", 1.2);
+\end{emcppslisting}
+    
+
+\noindent The \lstinline!y11! \emcppsgloss{closure object} forwards all of its arguments
+to \lstinline!std::make_tuple!. The first argument must have type
+convertible to \lstinline!int!, but the remaining arguments can have any
+type. Assuming the invented name \lstinline!__T! for the template type
+parameter, the generated function call operator for \lstinline!y11! would
+have a variadic template parameter list:
+
+\begin{emcppslisting}
+struct __lambda_3
+{
+    template <typename... __T> void operator()(int, __T&&... args) const
+    {
+        /* ... */
+    }
+};
+\end{emcppslisting}
+    
+
+\noindent The standard limitations on variadic function templates apply. For
+example, only a variadic parameter pack at the end of the argument list
+will match function-call arguments at the point of invocation. In
+addition, because \lstinline!auto! is not permitted in a
+template-specialization parameter, the usual methods of defining
+function templates with multiple variadic parameter packs do not work
+for \emcppsgloss[generic lambda]{generic lambdas}:
+
+\begin{emcppslisting}
+// Attempt to define a lambda expression with two variadic parameter packs.
+auto y12 = [](std::tuple<auto...>&, auto...args) { };
+    // Error, (ù{\codeincomments{auto}}ù) is a template argument in (ù{\codeincomments{tuple}}ù) specialization.
+\end{emcppslisting}
+    
+
+\subsubsection[Conversion to a pointer to function]{Conversion to a pointer to function}\label{conversion-to-a-pointer-to-function}
+
+A nongeneric \emcppsgloss[lambda expressions]{lambda expression} with an empty \emcppsgloss{lambda
+capture} can be converted implicitly to a function pointer with the same
+signature. A \emcppsgloss{generic lambda} with an empty \emcppsgloss{lambda
+capture} can similarly be converted to a regular function pointer, where
+the parameters in the prototype of the target pointer type drive
+deduction of the appropriate \lstinline!auto! parameters in the
+\emcppsgloss{generic lambda} signature:
+
+\begin{emcppslisting}
+auto y1 = [](int a, char b) { return a; };   // nongeneric lambda
+int (*f1)(int, char) = y1;                   // OK, conversion to pointer
+
+auto y2 = [](auto a, auto b) { return a; };  // generic lambda
+int    (*f2)(int, int)    = y2;  // OK, instantiates (ù{\codeincomments{operator()<int, int>}}ù)
+double (*f3)(double, int) = y2;  // OK, instantiates (ù{\codeincomments{operator()<double, int>}}ù)
+char   (*f4)(int, char)   = y2;  // Error, incorrect return type
+\end{emcppslisting}
+    
+
+\noindent If the function target pointer is a variable template (see
+\featureref{\locationb}{variable-templates}), then the deduction of the arguments is
+delayed until the variable template itself is instantiated:
+
+\begin{emcppslisting}
+template <typename T> int (*f5)(int, T) = y2;  // variable template
+int (*f6)(int, short) = f5<short>;             // instantiate (ù{\codeincomments{f5}}ù)
+\end{emcppslisting}
+    
+
+\noindent Each function pointer is produced by calling a conversion operator on
+the \emcppsgloss{closure object}. In the case of the \emcppsgloss{generic lambda},
+the conversion operator is also a template. Template-argument deduction
+and return-type deduction are performed on the conversion operator, then
+the conversion operator instantiates the function call operator.
+Intuitively, it is as though the function call operator were a static
+member function template of the closure and the conversion operator
+returned a pointer to it.
+
+\subsection[Use Cases]{Use Cases}\label{use-cases}
+
+\subsubsection[Reusable lambda expressions]{Reusable lambda expressions}\label{reusable-lambda-expressions}
+
+One of the benefits of \emcppsgloss{lambda expressions} is that they can be
+defined within a function, close to the point of use. Saving a
+\emcppsgloss[lambda expressions]{lambda expression} in a variable allows it to be reused within
+the function. This reusability is greater for \emcppsgloss[generic lambda]{generic lambdas}
+than for nongeneric lambdas, just as function templates are more
+reusable than ordinary functions. Consider, for example, a function that
+partitions a vector of strings and a vector of vectors based on the
+length of each element:
+
+\begin{emcppslisting}
+#include <vector>     // (ù{\codeincomments{std::vector}}ù)
+#include <string>     // (ù{\codeincomments{std::string}}ù)
+#include <algorithm>  // (ù{\codeincomments{std::partition}}ù)
+
+void partitionByLength(std::size_t                    pivotLen,
+                       std::vector<std::vector<int>>& v1,
+                       std::vector<std::string>&      v2)
+{
+    auto condition = [pivotLen](const auto& e) { return e.size() < pivotLen; };
+
+    std::partition(v1.begin(), v1.end(), condition);
+    std::partition(v2.begin(), v2.end(), condition);
+}
+\end{emcppslisting}
+    
+
+\noindent The \lstinline!condition! \emcppsgloss{generic lambda} can be used to partition
+both \lstinline!vector!s because its function call operator can be
+instantiated on either element type. The capture of \lstinline!pivotLen! is
+performed only once, when the \emcppsgloss[lambda expressions]{lambda expression} is evaluated to
+yield \lstinline!condition!.
+
+\subsubsection[Applying a lambda to each element of a tuple]{Applying a lambda to each element of a tuple}\label{applying-a-lambda-to-each-element-of-a-tuple}
+
+An \lstinline!std::tuple! is a collection of objects having heterogeneous
+types. We can apply a functor to each element of a \lstinline!tuple! by
+using some metaprogramming features of the C++14 Standard Library:
+
+\begin{emcppslisting}
+#include <utility>  // (ù{\codeincomments{std:::index\_sequence}}ù), (ù{\codeincomments{std::make\_index\_sequence}}ù)
+#include <tuple>    // (ù{\codeincomments{std::tuple}}ù), (ù{\codeincomments{std::tuple\_size}}ù), (ù{\codeincomments{std::get}}ù)
+
+template <typename Tpl, typename F, std::size_t... I>
+void visitTupleImpl(Tpl& t, F& f, std::index_sequence<I...>)
+{
+    auto discard = { (f(std::get<I>(t)), 0)... };
+}
+
+template <typename Tpl, typename F>
+void visitTuple(Tpl& t, F f)
+{
+    visitTupleImpl(t, f,
+                   std::make_index_sequence<std::tuple_size<Tpl>::value>());
+}
+\end{emcppslisting}
+    
+
+\noindent The \lstinline!visitTuple! function uses \lstinline!make_index_sequence! to
+generate a compile-time pack of sequential indexes, from 0 up to, but
+not including, the number of elements in the \lstinline!tuple!-like
+argument \lstinline!t!. The original arguments, along with this pack of
+indexes, are passed to \lstinline!visitTupleImpl!, which applies each index
+to \lstinline!t! and then calls the functor \lstinline!f! on the resulting
+element.{\cprotect\footnote{This pattern for using
+\lstinline!make_index_sequence! with \lstinline!tuple!-like objects is
+explained in a number of places on the Internet (see \cite{prowl13}),
+and a basic knowledge of variadic templates
+  \featureref{\locationc}{variadictemplate} is critical to understanding this
+  idiom.}} The implementation uses an idiom that discards the sequence
+of return values (if any) from the calls to \lstinline!f!: Regardless of
+the type of value returned by \lstinline!f(std::get<I>(t))!, even if it's
+\lstinline!void!, the comma expression \lstinline!(f(std::get<I>(t)),!
+\lstinline!0)! always yields the integer \lstinline!0!. The order of
+evaluation of elements in an \lstinline!initializer_list! is guaranteed
+left to right. The result of this expansion is an
+\lstinline!initializer_list! used to initialize \lstinline!discard!, which,
+as its name suggests, is then discarded.
+
+Once we have a \lstinline!visitTuple! function, we can use it to apply a
+\emcppsgloss{generic lambda} to the elements of a \lstinline!tuple!:
+
+\begin{emcppslisting}
+#include <ostream>  // (ù{\codeincomments{std::ostream}}ù), (ù{\codeincomments{std::endl}}ù)
+void f1(std::ostream& os)
+{
+    std::tuple<int, float, const char*> t{3, 4.5, "six"};
+    visitTuple(t, [&os](const auto& v){ os << v << ' '; });
+    os << std::endl;
+}
+\end{emcppslisting}
+    
+
+\noindent The first line constructs a \lstinline!tuple! with three different element
+types. The second line then calls \lstinline!visitTuple! to visit each
+element of \lstinline!t! and apply a lambda function to it. The
+\emcppsgloss{lambda capture} stores a reference to the output stream, and the
+\emcppsgloss{lambda body} prints the current element to the output stream.
+This code would not work if the lambda were not generic because the type
+of \lstinline!v! is different for each element in \lstinline!t!.
+
+\subsubsection[Terse, robust lambdas]{Terse, robust lambdas}\label{terse,-robust-lambdas}
+
+Often, function objects are more convenient to write as \emcppsgloss[generic lambda]{generic
+lambdas}, rather than nongeneric lambdas, even if they are used only
+once and their genericity is not fully exploited. Consider the case
+where a lambda's parameters have long, elaborate types:
+
+\begin{emcppslisting}
+#include <iterator>   // (ù{\codeincomments{std::iterator\_traits}}ù)
+#include <algorithm>  // (ù{\codeincomments{std::sort}}ù)
+
+template <typename Iterator>
+void f1(Iterator begin, Iterator end)
+    // Sort [(ù{\codeincomments{begin}}ù), (ù{\codeincomments{end}}ù)) using a nongeneric lambda
+{
+    std::sort(begin, end,
+              [](typename std::iterator_traits<Iterator>::reference a,
+                 typename std::iterator_traits<Iterator>::reference b)
+              {
+                  return a < b;
+              });
+}
+\end{emcppslisting}
+    
+
+\noindent The types for parameters \lstinline!a! and \lstinline!b! of the comparison
+\emcppsgloss[lambda expressions]{lambda expression}
+ are not easy to type or read. Compare this
+code with similar code using \emcppsgloss[generic lambda]{generic lambdas}:
+
+\begin{emcppslisting}
+template <typename Iterator>
+void f2(Iterator begin, Iterator end)
+    // Sort [(ù{\codeincomments{begin}}ù), (ù{\codeincomments{end}}ù)) using a generic lambda
+{
+    std::sort(begin, end,
+              [](const auto& a, const auto& b) { return a < b; });
+}
+\end{emcppslisting}
+    
+
+\noindent The code is simpler to write and read because it takes advantage of the
+\emcppsgloss[lambda expressions]{lambda expression}'s being defined at the point of use; even
+though the argument types are not written out, their meaning is still
+clear. A \emcppsgloss{generic lambda} is also more robust when the types
+involved change, even in a small way, as it adapts to changes in
+argument types as long as they support the same interface.
+
+\subsubsection[Recursive lambdas]{Recursive lambdas}\label{recursive-lambdas}
+
+Since neither generic nor nongeneric \emcppsgloss{lambda expressions} have
+names, defining a lambda that calls itself recursively is tricky. One
+way to accomplish recursion is by passing the lambda as a parameter to
+itself. This technique requires a \emcppsgloss{generic lambda} so that it can
+deduce its own type from its argument:
+
+\begin{emcppslisting}
+auto fib = [](auto self, int n) -> int  // Compute the (ù{\codeincomments{n}}ù)th Fibonacci number.
+{
+    if (n < 2) { return n; }
+    return self(self, n - 1) + self(self, n - 2);
+};
+
+int fib7 = fib(fib, 7);  // returns 13
+\end{emcppslisting}
+    
+
+\noindent Notice that when we invoke the recursive lambda, we pass it as an
+argument to itself, both to the external call and to the internal
+recursive calls. To avoid this somewhat awkward interface, a special
+function object called a \emcppsgloss[y combinator]{Y Combinator} can be
+used.{\cprotect\footnote{\cite{hindley86}}} The \emcppsgloss[y combinator]{Y Combinator}
+object holds the \emcppsgloss{closure object} to be invoked recursively and
+passes it to itself:
+
+\begin{emcppslisting}
+#include <utility>  // (ù{\codeincomments{std::move}}ù), (ù{\codeincomments{std::forward}}ù)
+
+template <typename Lambda>
+class Y_Combinator {
+    Lambda d_lambda;
+
+public:
+    Y_Combinator(Lambda&& lambda) : d_lambda(std::move(lambda)) { }
+
+    template <typename... Args>
+    decltype(auto) operator()(Args&&...args) const
+    {
+        return d_lambda(*this, std::forward<Args>(args)...);
+    }
+};
+
+template <typename Lambda>
+Y_Combinator<Lambda> Y(Lambda&& lambda) { return std::move(lambda); }
+\end{emcppslisting}
+    
+
+\noindent The function call operator for \lstinline!Y_Combinator! is a
+\emcppsgloss{variadic function template} (see
+\featureref{\locationc}{variadictemplate}) that passes itself to the stored
+\emcppsgloss{closure object}, \lstinline!d_lambda!, along with zero or more
+additional arguments supplied by the caller. Thus, \lstinline!d_lambda!
+and the \lstinline!Y_Combinator! are mutually-recursive functors. The
+\lstinline!Y! function template constructs a \lstinline!Y_Combinator! from a
+\emcppsgloss[lambda expressions]{lambda expression}.
+
+To use a \lstinline!Y_Combinator!, pass a recursive \emcppsgloss{generic
+lambda} to \lstinline!Y!; the resulting object is the one that you would
+call from code:
+
+\begin{emcppslisting}
+auto fib2 = Y([](auto self, int n) -> int
+{
+    if (n < 2) { return n; }
+    return self(n - 1) + self(n - 2);
+});
+
+int fib8 = fib2(8);  // returns 21
+\end{emcppslisting}
+    
+
+\noindent Note that the recursive lambda still needs to take \lstinline!self! as an
+argument, but, because \lstinline!self! is a \lstinline!Y_Combinator!, it
+does not need to pass \lstinline!self! to itself. Unfortunately, we must
+now specify the return type of the lambda because the compiler cannot
+deduce the return type of the mutually recursive invocations of
+\lstinline!self!. The usefulness of a \emcppsgloss[y combinator]{Y Combinator} in C++ is
+debatable given alternative, often simpler ways to achieve recursion,
+including using ordinary function templates instead of \emcppsgloss{lambda
+expressions}.{\cprotect\footnote{Derevenets suggested that
+\lstinline!y_combinator! should be part of the C++ Standard Library (see
+\cite{derevenets16}), but the proposal was rejected for addressing
+  a problem deemed not worth solving.}}
+
+\subsubsection[Conditional instantiation]{Conditional instantiation}\label{conditional-instantiation}
+
+Because a \emcppsgloss{generic lambda} defines a function template that is
+not instantiated unless it is called, it is possible to put code into a
+\emcppsgloss{generic lambda} that would not compile for certain argument
+types. We can, thus, selectively instantiate calls to \emcppsgloss[generic lambda]{generic
+lambdas} based on some compile-time conditional expression similar to
+the \lstinline!if! \lstinline!constexpr! feature introduced in C++17:
+
+\begin{emcppslisting}
+#include <iostream>     // (ù{\codeincomments{std::cout}}ù)
+#include <type_traits>  // (ù{\codeincomments{std::is\_pointer}}ù)
+#include <functional>   // (ù{\codeincomments{std::reference\_wrapper}}ù)
+#include <cassert>      // standard C (ù{\codeincomments{assert}}ù) macro
+
+// Identity functor: Each call to (ù{\codeincomments{operator()}}ù) returns its argument unchanged.
+struct Identity
+{
+    template <typename T>
+    decltype(auto) operator()(T&& x) { return std::forward<T>(x); };
+};
+
+template <typename F1, typename F2>
+decltype(auto) ifConstexprImpl(std::true_type, F1&& f1, F2&&)
+    // call (ù{\codeincomments{f1}}ù), which is the "then" branch of (ù{\codeincomments{ifConstexpr}}ù)
+{
+    return std::forward<F1>(f1)(Identity{});
+}
+
+template <typename F1, typename F2>
+decltype(auto) ifConstexprImpl(std::false_type, F1&&, F2&& f2)
+    // call (ù{\codeincomments{f2}}ù), which is the "else" branch of (ù{\codeincomments{ifConstexpr}}ù)
+{
+    return std::forward<F2>(f2)(Identity{});
+}
+
+template <bool Cond, typename F1, typename F2>
+decltype(auto) ifConstexpr(F1&& f1, F2&& f2)
+    // If the compile-time condition (ù{\codeincomments{Cond}}ù) is true, return the result of
+    // invoking (ù{\codeincomments{f1}}ù), else return the result of invoking (ù{\codeincomments{f2}}ù).  The
+    // invocations of (ù{\codeincomments{f1}}ù) and (ù{\codeincomments{f2}}ù) are each passed an instance of (ù{\codeincomments{Identity}}ù)
+    // as their sole argument.
+{
+    using CondT = std::integral_constant<bool, Cond>;
+    return ifConstexprImpl(CondT{}, std::forward<F1>(f1), std::forward<F2>(f2));
+}
+\end{emcppslisting}
+    
+
+\noindent The \lstinline!Identity! functor class, as its name suggests, returns its
+argument unchanged, preserving both its type and \emcppsgloss{value category}
+(\romeovalue{lvalue} or \romeovalue{rvalue}). This functor exists solely to be
+passed to a \emcppsgloss{generic lambda}, which will then invoke it as
+described below.
+
+The two overloads of \lstinline!ifConstexprImpl! each take two functor
+arguments, only one of which is used. The first overload invokes only
+its first argument; the second overload invokes only its second
+argument. In both cases, an \lstinline!Identity! object is passed as the
+only argument to the functor invocation.
+
+The \lstinline!ifConstexpr! function template, in addition to taking two
+functor arguments, must be instantiated with an explicit compile-time
+Boolean value. It calls one of the two \lstinline!ifConstexprImpl!
+functions such that its first argument is instantiated and invoked if
+the condition is \lstinline!true! --- the ``then'' clause of the simulated
+\lstinline!if! \lstinline!constexpr! --- and the second argument is
+instantiated and invoked otherwise --- the ``else'' clause of the
+simulated \lstinline!if! \lstinline!constexpr!.
+
+To see how \lstinline!ifConstexpr! achieves conditional instantiation,
+let's write a function that dereferences an object. The object being
+dereferenced can be a pointer, an \lstinline!std::reference_wrapper!, or a
+class that behaves like \lstinline!reference_wrapper!. We present both a
+C++17 version that uses \lstinline!if! \lstinline!constexpr! and a C++14
+version that uses \lstinline!ifConstexpr!, above:
+
+\begin{emcppslisting}
+template <typename T>
+decltype(auto) objectAt(T ref)
+    // Generalized dereference for pointers and (ù{\codeincomments{reference\_wrapper}}ù)-like
+    // objects: If (ù{\codeincomments{T}}ù) is a pointer type, return (ù{\codeincomments{*ref}}ù); otherwise, return
+    // (ù{\codeincomments{ref.get()}}ù).
+{
+#if __cplusplus >= 201703
+    // C++17 version
+    if constexpr (std::is_pointer<T>::value) { return *ref; }
+    else                                     { return ref.get(); }
+#else
+    // C++14 version
+    return ifConstexpr<std::is_pointer<T>::value>(
+        [=](auto dependent) -> decltype(auto) { return *dependent(ref); },
+        [=](auto dependent) -> decltype(auto) { return dependent(ref).get(); });
+#endif
+}
+\end{emcppslisting}
+    
+
+\noindent Looking at the C++17 version first, we see that if \lstinline!ref! is a
+pointer, then we return \lstinline!*ref!; otherwise, we return
+\lstinline!ref.get()!. In both cases, the code would not compile if the
+branch not taken were instantiated; i.e., \lstinline!*ref! is ill formed
+for \lstinline!std::reference_wrapper!, and \lstinline!ref.get()! is ill
+formed for pointers. The code depends on the ill-formed branch being
+discarded at compile time.
+
+The C++14 version needs to follow a very specific idiom whereby
+each conditional branch is represented as a \emcppsgloss{generic lambda} with
+one \lstinline!auto! parameter that is expected to be an \lstinline!Identity!
+object. Because it is a template parameter, \lstinline!dependent! is a
+\emcppsgloss{dependent type}. In C++ template parlance, a \emcppsgloss{dependent
+type} is one that cannot be known until template instantiation.
+Critically, the compiler will not check semantic correctness of an
+expression containing a value of \emcppsgloss{dependent type} unless and
+until the template is instantiated with a concrete type. Any such
+expression that uses a value of \emcppsgloss{dependent type} also has
+\emcppsgloss{dependent type}. By wrapping \lstinline!ref! in a call to
+\lstinline!dependent!, therefore, we ensure that the compiler will not test
+if \lstinline!*ref! or \lstinline!ref.get()! is valid until the
+\emcppsgloss{generic lambda} is instantiated. Our implementation of
+\lstinline!ifConstexpr! ensures that only the \emph{correct} lambda is
+instantiated, thus preventing a compiler error.{\cprotect\footnote{Paul
+Fultz suggested the idea for using an identity functor to mark
+  expressions as having \emcppsgloss{dependent type} (\cite{fultz14}).}}
+
+A simple test for \lstinline!objectAt! instantiates it with both pointer
+and \lstinline!reference_wrapper! arguments and verifies that the value
+returned has both the correct value and address:
+
+\begin{emcppslisting}
+void f1()
+{
+    int i = 8;
+
+    int&       i1 = objectAt(&i);
+    int&       i2 = objectAt(std::reference_wrapper<int>(i));
+    const int& i3 = objectAt(std::reference_wrapper<const int>(i));
+
+    assert(8 == i1);
+    assert(&i1 == &i);
+    assert(&i2 == &i);
+    assert(&i3 == &i);
+}
+\end{emcppslisting}
+    
+
+\subsection[Potential Pitfalls]{Potential Pitfalls}\label{potential-pitfalls}
+
+Although the generic feature is generally safe, \emcppsgloss[generic lambda]{generic lambdas}
+are an incremental advance over regular \emcppsgloss{lambda expressions}. All
+pitfalls of the nongeneric feature apply to this feature as well; see
+\featureref{\locationc}{lambda}.
+
+\subsection[Annoyances]{Annoyances}\label{annoyances}
+
+\subsubsection[Cannot use full power of template-argument deduction]{Cannot use full power of template-argument deduction}\label{cannot-use-full-power-of-template-argument-deduction}
+
+A normal function template can constrain template parameters to patterns
+that include argument prototypes and template instantiations:
+
+\begin{emcppslisting}
+#include <vector>  // (ù{\codeincomments{std::vector}}ù)
+template <typename T> void f1(std::vector<T>& v) { }  // (ù{\codeincomments{T}}ù) is the element type
+\end{emcppslisting}
+    
+
+\noindent Not only is the argument \lstinline!v! constrained to being a
+\lstinline!vector!, but the deduced element type \lstinline!T! is available
+for use within the function. The same sort of pattern matching is not
+available portably for \emcppsgloss[generic lambda]{generic lambdas}:
+
+\begin{emcppslisting}
+auto y1 = [](std::vector<auto>& v) { };  // Error, (ù{\codeincomments{auto}}ù) as template parameter
+\end{emcppslisting}
+    
+
+\noindent Constraining an \lstinline!auto! parameter using metaprogramming, e.g.,
+through the use of \lstinline!std::enable_if!, is sometimes possible:
+
+\begin{emcppslisting}
+#include <type_traits>  // (ù{\codeincomments{std::enable\_if\_t}}ù), (ù{\codeincomments{std::is\_same}}ù),
+                        // (ù{\codeincomments{std::remove\_reference\_t}}ù)
+auto y2 = [](auto& v) -> std::enable_if_t<
+    std::is_same<
+        std::vector<typename std::remove_reference_t<decltype(v)>::value_type>&,
+        decltype(v)
+    >::value> { };
+\end{emcppslisting}
+    
+
+\noindent The \lstinline!y2! \emcppsgloss{closure} can be called only with a vector. Any
+other type will fail substitution because \lstinline!is_same! will return
+\lstinline!false! if substitution even gets that far; substitution might
+fail earlier if the type for \lstinline!v! does not have a nested
+\lstinline!value_type!. Passing non\lstinline!vector! arguments to this
+constrained lambda will now fail at the call site, rather than,
+presumably, failing during instantiation of \lstinline!y2(v)!:
+
+\begin{emcppslisting}
+void g1()
+{
+    int                i;
+    std::vector<int>   v1;
+    std::vector<float> v2;
+
+    y2(i);   // Error, cannot call (ù{\codeincomments{y2}}ù) on a non(ù{\codeincomments{vector}}ù)
+    y2(v1);  // OK, (ù{\codeincomments{v1}}ù) is a vector
+    y2(v2);  // OK, (ù{\codeincomments{v2}}ù) is a vector
+}
+\end{emcppslisting}
+    
+
+\noindent For all of the additional complication on \lstinline!y2!, the element type
+for our \lstinline!vector! is still not available within the \emcppsgloss{lambda
+body}, as it was for the function body for \lstinline!f1!, above; we would
+need to repeat the type name \lstinline!typename!
+\lstinline!std::remove_reference_t<decltype(v)>::value_type! if the
+element type became necessary.
+
+This annoyance is mitigated, however, because \emcppsgloss{lambda
+expressions} cannot be overloaded. In the absence of overloading, there
+is little benefit to removing a call from the overload set compared to
+simply letting the instantiation fail, especially as most \emcppsgloss{lambda
+expressions} are defined at the point of use, making it comparatively
+easy to diagnose a compilation problem if one occurs. Moreover, this
+point-of-use definition is already tuned to its expected use case, so
+constraints are often redundant, adding little additional safety to the
+code.
+
+\subsubsection[Difficulty in constraining multiple arguments]{Difficulty in constraining multiple arguments}\label{difficulty-in-constraining-multiple-arguments}
+
+Often, we want to restrict function template arguments such that two or
+more arguments have related types. For example, an operation might
+require two iterators of the same type or one argument to be a pointer
+to the type of the other argument. \emcppsgloss[generic lambda]{Generic lambdas} provide only
+limited support for interargument patterns. Each parameter to a
+\emcppsgloss{generic lambda} that contains \lstinline!auto! is completely
+independent of the other parameters, so the normal mechanism used for
+function templates --- using the same named type parameter (e.g.,
+\lstinline!T! or \lstinline!U!) in multiple places --- is unavailable:
+
+\begin{emcppslisting}
+void g1()
+{
+    auto y = [](auto a, auto b) { };  // No interargument constraints
+    y(1, 2);          // OK, arguments of type (ù{\codeincomments{int}}ù) and (ù{\codeincomments{int}}ù)
+    y("one", "two");  // OK,     "      "   "  (ù{\codeincomments{const char*}}ù) and (ù{\codeincomments{const char*}}ù)
+    y(1, "two");      // OK,     "      "   "  (ù{\codeincomments{int}}ù) and (ù{\codeincomments{const char*}}ù)
+}
+\end{emcppslisting}
+    
+
+\noindent Limited constraints are possible --- e.g., requiring that arguments have
+the same type --- by using the \lstinline!decltype! operator to declare
+later parameters based on the types of earlier parameters; see
+\featureref{\locationa}{decltype}:
+
+\begin{emcppslisting}
+void g2()
+{
+    auto y = [](auto a, decltype(a) b) { };  // (ù{\codeincomments{a}}ù) and (ù{\codeincomments{b}}ù) have the same type.
+    y(1, 2);          // OK, both arguments are of type (ù{\codeincomments{int}}ù).
+    y("one", "two");  // OK,   "      "      "   "   "  (ù{\codeincomments{const char*}}ù).
+    y(1, "two");      // Error, mixed argument types (ù{\codeincomments{int}}ù) and (ù{\codeincomments{const char*}}ù)
+}
+\end{emcppslisting}
+    
+
+\noindent If the relationship between the parameter types is even slightly
+different than an exact match, expressing it can become complicated. For
+example, if parameter \lstinline!a! is a pointer and we want parameter
+\lstinline!b! to be a value of the type pointed to by \lstinline!a!, our first
+approach might be to try \lstinline!decltype(*a)!:
+
+\begin{emcppslisting}
+int i = 0;
+
+void g3()
+{
+    auto y = [](auto* a, decltype(*a) b) { *a = b; };
+    y(&i, 5);  // Error, can't bind (ù{\emphincomments{rvalue}}ù) (ù{\codeincomments{5}}ù) to (ù{\codeincomments{int\& b}}ù)
+}
+\end{emcppslisting}
+    
+
+\noindent Unfortunately, as we see, \lstinline!decltype(*a)! yields a
+non\lstinline!const! \romeovalue{lvalue} reference, which cannot bind to the
+\romeovalue{rvalue} \lstinline!5!. Our next attempt is to \lstinline!const!-qualify
+\lstinline!b!, since \lstinline!const! references \emph{can} bind to
+\romeovalue{rvalues}:
+
+\begin{emcppslisting}
+void g4()
+{
+    auto y = [](auto* a, const decltype(*a) b) { *a = b; };
+    y(&i, 5);  // Error, (ù{\codeincomments{const}}ù) applied to reference is ignored.
+}
+\end{emcppslisting}
+    
+
+\noindent This approach fails because \lstinline!const! can be applied only to the
+\emph{referred-to} type; applying \lstinline!const! to the reference has no
+effect. If we use the standard metafunction
+\lstinline!std::remove_reference_t!, we can finally get to the type to
+which \lstinline!a! points, without any reference specifiers:
+
+\begin{emcppslisting}
+#include <type_traits>  // (ù{\codeincomments{std::remove\_reference\_t}}ù)
+
+void g5()
+{
+    auto y = [](auto* a, std::remove_reference_t<decltype(*a)> b)
+    {
+        *a = b;
+    };
+    y(&i, 5); // OK, pass (ù{\codeincomments{5}}ù) by value for (ù{\codeincomments{int b}}ù).
+}
+\end{emcppslisting}
+    
+
+\noindent Note that \lstinline!y! takes argument \lstinline!b! by value, which can be
+inefficient for types having an expensive copy constructor. When the
+type of an argument is unknown, we usually pass it by \lstinline!const!
+reference:
+
+\begin{emcppslisting}
+void g6()
+{
+    auto y = [](auto* a, const std::remove_reference_t<decltype(*a)>& b)
+    {
+        *a = b;
+    };
+    y(&i, 5); // OK, bind (ù{\codeincomments{5}}ù) to (ù{\codeincomments{const int\& b}}ù).
+}
+\end{emcppslisting}
+    
+
+\noindent In the last example, parameter \lstinline!b! is always a \lstinline!const!
+\romeovalue{lvalue} reference, never an \romeovalue{rvalue} reference. When
+constraining a type this way, we forfeit the possibility of perfect
+forwarding.
+
+\subsection[See Also]{See Also}\label{see-also}
+
+\begin{itemize}
+\item{\seealsoref{decltype}{\seealsolocationa}provides the only way to name the type of an \lstinline!auto! parameter in a \emcppsgloss{generic lambda}.}
+%
+\item{\seealsoref{auto}{\seealsolocationc}allows a \emcppsgloss[lambda expressions]{lambda expression}, which has unnamed type, to be saved in a variable and also details the rules for deducing an \lstinline!auto! parameter from its argument expression.}
+%
+\item{\seealsoref{forwardingref}{\seealsolocationc}provide the most general way to declare a \emcppsgloss{generic lambda}’s parameters, preserving both the parameters’ types and their \emcppsgloss[value category]{value categories}.}
+%
+\item{\seealsoref{lambda}{\seealsolocationc}introduced the facility for locally defined anonymous function objects that \emcppsgloss[generic lambda]{generic lambdas} expand on.}
+%
+\item{\seealsoref{variadictemplate}{\seealsolocationc} allow a template, including a \emcppsgloss{generic lambda}, to have a variable number of parameters.}
+%
+\item{\seealsoref{lambda-capture-expressions}{\seealsolocationd}describes the initialized capture syntax added to \emcppsgloss[lambda capture]{lambda captures} in C++14.}
+%
+\item{\seealsoref{autoreturn}{\seealsolocationf}describes how a function, including the function call operator for a \emcppsgloss[lambda expressions]{lambda expression}, can deduce its return type from its \lstinline!return! statements.}
+\end{itemize}
+
+\subsection[Further Reading]{Further Reading}\label{further-reading}
+
+%@LORI: please ask Pablo or Andrei for these sources, these are mentioned in the Markdown but could not find the actual refs
+
+\begin{itemize}
+\item{\cite{hindley86}}
+\item{\cite{derevenets16}}
+\item{\cite{fultz14}}
+\end{itemize}
+
+
