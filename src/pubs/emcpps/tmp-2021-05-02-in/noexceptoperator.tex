@@ -1,0 +1,2830 @@
+% 30 April 2021, cleaning up and updating commands
+% 2 May 2021, to Josh for code check
+
+
+\emcppsFeature{
+    short={\lstinline!noexcept! Operator},
+    tocshort={{\TOCCode noexcept} Operator},
+    long={Asking if an Expression Cannot {\SecCode throw}},
+    toclong={Asking if an Expression Cannot \lstinline!throw!},
+    rhshort={{\RHCode noexcept} Operator},
+}{noexceptoperator}
+\label{asking-if-an-expression-cannot-throw-(noexcept-operator)}
+\setcounter{table}{0}
+\setcounter{footnote}{0}
+\setcounter{lstlisting}{0}
+%\section[{\tt noexcept} Operator]{The {\SecCode noexcept} Operator}%\label{noexcept}
+%\section[Asking if an Expression Cannot \tt{throw} (\tt{noexcept} Operator)]{Asking if an Expression Cannot {\SecCode throw} ({\SecCode noexcept} Operator)}\label{asking-if-an-expression-cannot-throw-(noexcept-operator)}
+
+
+
+
+The \lstinline!noexcept! operator provides a standard programmatic means of
+querying, at \emph{compile time}, whether a given expression ---
+typically involving a function call --- can be relied upon never to emit
+a C++ exception.
+
+\subsection[Description]{Description}\label{description}
+
+Some operations can choose significantly more efficient algorithms
+(e.g., by an order of magnitude) if they can identify that the
+expressions they will use will never emit
+exceptions.{\cprotect\footnote{Note that the \lstinline!noexcept! operator
+does not appertain to operating-system-level signals such as a
+  floating-point exception, segmentation fault, and so on.}} The ability
+to query an expression for this property facilitates \emcppsgloss{generic
+programming}, especially with respect to \emph{move} operations.
+
+C++11 introduces a compile-time operator, \lstinline!noexcept!, that, when
+applied to an arbitrary expression, evaluates to \lstinline!true! if and
+only if \emph{no} \emcppsgloss{potentially evaluated} subexpression within that
+expression \emph{is allowed to} emit a C++ exception:
+
+\begin{emcppslisting}
+static_assert(noexcept(0), "");  // OK, (ù{\codeincomments{0}}ù) doesn't throw.
+\end{emcppslisting}
+    
+
+\noindent The \lstinline!noexcept! operator is intentionally conservative in that the
+compiler must consider any \emcppsgloss{potentially evaluated} subexpression
+of its operand. Consider a \emcppsgloss{ternary operator} with a compile-time
+constant as its \emcppsgloss{conditional expression}:
+
+\begin{emcppslisting}
+static_assert(noexcept(1 ? throw : 0), "");  // Error, (ù{\codeincomments{throw}}ù) throws.
+\end{emcppslisting}
+    
+
+\noindent Clearly, this expression will always throw, so it is unsurprising that
+\lstinline!noexcept! informs us of that. Perhaps counterintuitively,
+however, the similar expression that would never evaluate the
+\lstinline!throw! at run time is also identified by the \lstinline!noexcept!
+operator as potentially throwing:
+
+\begin{emcppslisting}
+static_assert(noexcept(0 ? throw : 0), "");  // Error, (ù{\codeincomments{throw}}ù) throws.
+\end{emcppslisting}
+    
+
+\noindent This inspection of subexpressions does not, thankfully, extend to
+\emcppsgloss{unevaluated operands} within the expression, such as those that
+are arguments of the \lstinline!sizeof! operator:
+
+\begin{emcppslisting}
+static_assert(noexcept(sizeof(throw, 1)), "");  // OK
+\end{emcppslisting}
+    
+
+\noindent In other words, if \emph{any} individual potentially evaluated
+subexpression is capable of throwing, then the entire expression
+\emph{must} be reported as potentially throwing.
+
+\subsubsection[Operator produced exceptions]{Operator produced exceptions}\label{operator-produced-exceptions}
+
+In addition to functions (see \intrarefsimple{introducing-noexcept-exception-specifications-for-functions}), certain operators in classical C++ have
+edge cases that might throw. Consider the familiar \lstinline!new!
+operator{\cprotect\footnote{Note that when we say ``the \lstinline!new!
+operator,'' we are taking about the C++ language construct that first
+calls the underlying function known as global
+\lstinline!::operator!~\lstinline!new! and then invokes the appropriate
+constructor. The terminology is analogous to other operators such as
+the infix \lstinline!+! operator, which in turn calls the appropriate,
+overloaded \lstinline!operator+! function, passing it the infix
+  operator's \lstinline!lhs! and \lstinline!rhs! arguments.}} used to allocate
+dynamic memory. The \emcppsgloss{contract} for \lstinline!new! states that it
+will either allocate and return a pointer to the requested integral
+number of bytes or throw an \lstinline!std::bad_alloc! exception defined
+in \lstinline!<new>!. There is an overload of the underlying global
+\lstinline!operator!~\lstinline!new! --- and also the corresponding
+\lstinline!operator!~\lstinline!new[]! --- that takes an argument of type
+\lstinline!std::nothrow_t! defined in \lstinline!<new>!. This overload of
+\lstinline!new! ignores the value of its \lstinline!std::nothrow_t! argument
+but, instead of throwing on allocation failure, returns a \emph{null}
+address value:
+
+\begin{emcppslisting}
+char* cp1 = new               char[1000LL*1000*1000*1000];  // might throw
+char* cp2 = new(std::nothrow) char[1000LL*1000*1000*1000];  // will (ù{\emphincomments{not}}ù) throw
+
+static_assert(noexcept(new               int[1000]), "");   // Error, can throw
+static_assert(noexcept(new(std::nothrow) int[1000]), "");   // OK, cannot throw
+\end{emcppslisting}
+    
+
+\noindent Invoking a \lstinline!dynamic_cast! on a reference (but not a pointer) to
+a \emcppsgloss{polymorphic type} will result in a runtime exception of type
+\lstinline!std::bad_cast! if the referent is not of a class type that is
+publicly and unambiguously derived from the target type of the cast
+operation:
+
+\begin{emcppslisting}
+struct B
+{
+   virtual ~B() {}
+};
+
+struct BB
+{
+   virtual ~BB() {}
+};
+
+struct D1 : B     { };  // one base class
+struct D2 : B, BB { };  // two base classes
+
+D1 x;
+D2 y;
+
+B& bx = x;  // reference to (ù{\codeincomments{B}}ù) base class
+B& by = y;  // another reference to (ù{\codeincomments{B}}ù) base class
+
+D1& d1x = dynamic_cast<D1&>(bx);    // OK
+D1& d1y = dynamic_cast<D1&>(by);    // throws (ù{\codeincomments{std::bad\_cast}}ù)
+D2& d2x = dynamic_cast<D2&>(bx);    // throws (ù{\codeincomments{std::bad\_cast}}ù)
+D2& d2y = dynamic_cast<D2&>(by);    // OK
+
+BB& b1 = dynamic_cast<BB&>(bx);     // throws (ù{\codeincomments{std::bad\_cast}}ù)
+BB& b2 = dynamic_cast<BB&>(by);     // OK
+
+// (ù{\codeincomments{dynamic\_cast}}ù) to a pointer never throws
+B*  bp   = 0;
+D1* dp   = dynamic_cast<D1*>( bp);  // (ù{\codeincomments{dp == nullptr}}ù)
+D1* d1xp = dynamic_cast<D1*>(&bx);  // OK
+D1* d1yp = dynamic_cast<D1*>(&by);  // (ù{\codeincomments{d1yp == nullptr}}ù)
+D2* d2xp = dynamic_cast<D2*>(&bx);  // (ù{\codeincomments{d2xp == nullptr}}ù)
+D2* d2yp = dynamic_cast<D2*>(&by);  // OK
+
+BB* b1p = dynamic_cast<BB*>(&bx);   // (ù{\codeincomments{b1p == nullptr}}ù)
+BB* b2p = dynamic_cast<BB*>(&by);   // OK
+\end{emcppslisting}
+    
+
+\noindent Observe that for \lstinline!b2!, although \lstinline!by! is a reference to
+\lstinline!B&! that has no apparent relationship with class \lstinline!BB!,
+the object that it refers to, \lstinline!y!, is of class \lstinline!D2! that
+is derived from \emph{both} classes \lstinline!B! and \lstinline!BB!, which
+are both \emcppsgloss[polymorphic type]{polymorphic types}, so the dynamic cast succeeds at run
+time, where other strictly compile-time casts would fail.
+
+Because it is possible for a \lstinline!dynamic_cast! to throw
+\lstinline!std::bad_cast!, which is defined in \lstinline!<typeinfo>!, on a
+reference but not a pointer, the \lstinline!noexcept! operator
+discriminates between these two kinds of expressions:
+
+\begin{emcppslisting}
+static_assert( noexcept(dynamic_cast<C*>(bp)), "");  // OK, never throws
+static_assert(!noexcept(dynamic_cast<C&>(br)), "");  // OK, can throw
+
+static_assert( noexcept(dynamic_cast<D*>(bp)), "");  // OK, never throws
+static_assert(!noexcept(dynamic_cast<D&>(br)), "");  // OK, can throw
+\end{emcppslisting}
+    
+
+\noindent In the example above, when the dynamic cast fails on a pointer, a
+\emph{null} pointer value is returned. When the dynamic cast fails on a
+reference, however, the only other option would be to return a
+\emph{null} reference, which is not allowed by the language, so throwing
+an exception is the only reasonable way of indicating a failure to the
+caller.
+
+Runtime type identification (\emcppsgloss{RTTI}) exhibits similar behavior
+with respect to reference types. The \lstinline!typeid! operator returns a
+\lstinline!const! \romeovalue{lvalue} reference to an \lstinline!std::type_info!
+object. If \lstinline!typeid! queries a reference, it returns a reference
+to the \lstinline!type_info! of the referenced object, and if the
+reference is to a polymorphic class, it returns a reference to the
+\lstinline!type_info! of the complete object that is queried rather than
+to the base-class subobject. A special rule allows for dereferencing a
+null pointer, which otherwise has undefined behavior, as the target of a
+\lstinline!typeid! query. As such a dereference would involve a runtime
+query of the \emcppsgloss{vtable} if the declared type of the pointer points
+to a polymorphic class, invoking \lstinline!typeid! on a null pointer
+throws a \lstinline!std::bad_cast! exception. Note that this is true even
+if the pointer refers to a nonpolymorphic class. Hence, invoking
+\lstinline!noexcept! on the \lstinline!typeid! operator will return
+\lstinline!false! if the target is a pointer and \lstinline!true! otherwise:
+
+\begin{emcppslisting}
+#include <typeinfo>  // (ù{\codeincomments{typeid}}ù), (ù{\codeincomments{std::typeinfo}}ù), (ù{\codeincomments{std::bad\_typeid}}ù)
+
+class B { virtual ~B() { } };
+class C { };
+
+B* bp = 0;
+C* cp = 0;
+
+static_assert(noexcept(typeid( cp)), "");  // OK, returns valid (ù{\codeincomments{type\_info}}ù)
+static_assert(noexcept(typeid( bp)), "");  // OK, a null pointer is a valid type.
+static_assert(noexcept(typeid(*cp)), "");  // OK, never a need to evaluate (ù{\codeincomments{*cp}}ù)
+static_assert(noexcept(typeid(*bp)), "");  // Error, can throw (ù{\codeincomments{std::bad\_typeid}}ù)
+\end{emcppslisting}
+    
+
+\subsubsection[Deprecated, dynamic exception specifications for functions]{Deprecated, dynamic exception specifications for functions}\label{deprecated,-dynamic-exception-specifications-for-functions}
+
+Classic C++ provided what has now been renamed \emcppsgloss[dynamic exception
+specification]{dynamic exception
+specifications}, which could be used to decorate a function with the
+types of exception objects that a function was permitted to throw:
+
+\begin{emcppslisting}
+int f()                      // Function (ù{\codeincomments{f}}ù) (ù{\emphincomments{may}}ù) throw anything.
+int g() throw(const char*);  // Function (ù{\codeincomments{g}}ù) (ù{\emphincomments{may}}ù) throw a (ù{\emphincomments{string literal}}ù).
+int h() throw();             // Function (ù{\codeincomments{h}}ù) is (ù{\emphincomments{not}}ù) allowed to throw anything.
+\end{emcppslisting}
+    
+
+\noindent The \lstinline!noexcept! operator looks \emph{only} at the function
+declaration:
+
+\begin{emcppslisting}
+static_assert(noexcept(f()) == false, "");  // (ù{\emphincomments{may}}ù) throw anything
+static_assert(noexcept(g()) == false, "");  // (ù{\emphincomments{may}}ù) throw a (ù{\codeincomments{const char*}}ù)
+static_assert(noexcept(h()),  "");  // (ù{\emphincomments{may not}}ù) throw anything
+\end{emcppslisting}
+    
+
+\noindent Providing a \emph{dynamic} exception specification does not prevent a
+function from \emph{attempting} to throw or rethrow a caught exception
+object. When an exception is thrown from within a function, the runtime
+system automatically checks to see if that function has an associated
+\emcppsgloss{dynamic exception specification} and, if so, looks up the type
+of the thrown exception. If the type of the thrown exception is listed,
+the exception is allowed to propagate outside of the function body;
+otherwise,
+\lstinline![[noreturn]]!~\lstinline!void!~\lstinline!std::unexpected()! is
+invoked, which calls \lstinline!std::terminate! unless a user-supplied
+handler exits the program first. \lstinline![[noreturn]]! is an attribute
+that indicates the function will not return but may throw; see
+\featureref{\locationa}{attributes} and \featureref{\locationa}{the-noreturn-attribute}:
+
+\begin{emcppslisting}
+void f0()                    { throw 5;   }  // throws (ù{\codeincomments{int}}ù)
+void f1()                    { throw 5.0; }  // throws (ù{\codeincomments{double}}ù)
+
+void f2() throw(int)         { throw 5;   }  // throws (ù{\codeincomments{int}}ù)
+void f3() throw(int)         { throw 5.0; }  // calls (ù{\codeincomments{std::unexpected()}}ù)
+
+void f4() throw(double)      { throw 5;   }  // calls (ù{\codeincomments{std::unexpected()}}ù)
+void f5() throw(double)      { throw 5.0; }  // throws (ù{\codeincomments{double}}ù)
+
+void f6() throw(int, double) { throw 5;   }  // throws (ù{\codeincomments{int}}ù)
+void f7() throw(int, double) { throw 5.0; }  // throws (ù{\codeincomments{double}}ù)
+
+void f8() throw()            { throw 5;   }  // calls (ù{\codeincomments{std::unexpected()}}ù)
+void f9() throw()            { throw 5.0; }  // calls (ù{\codeincomments{std::unexpected()}}ù)
+\end{emcppslisting}
+    
+
+\noindent The \lstinline!noexcept! operator is unconcerned with the type of
+exceptions that might be thrown, reporting back only as to whether an
+exception of \emph{any} type may escape the body of the function:
+
+\begin{emcppslisting}
+static_assert(noexcept(f0()) == false, "");  // doesn't say it doesn't throw
+static_assert(noexcept(f1()) == false, "");  //   "      "   "    "      "
+
+static_assert(noexcept(f2()) == false, "");  // (ù{\codeincomments{f2}}ù) may throw an (ù{\codeincomments{int}}ù).
+static_assert(noexcept(f3()) == false, "");  // (ù{\codeincomments{f3}}ù)  "    "    "   "
+
+static_assert(noexcept(f4()) == false, "");  // (ù{\codeincomments{f4}}ù) may throw a (ù{\codeincomments{double}}ù).
+static_assert(noexcept(f5()) == false, "");  // (ù{\codeincomments{f5}}ù)  "    "   "    "
+
+static_assert(noexcept(f6()) == false, "");  // (ù{\codeincomments{f6}}ù) may throw (ù{\codeincomments{int}}ù) or (ù{\codeincomments{double}}ù).
+static_assert(noexcept(f7()) == false, "");  // (ù{\codeincomments{f7}}ù)  "    "     "    "    "
+
+static_assert(noexcept(f8()), "");   // (ù{\codeincomments{f8}}ù) may not throw.
+static_assert(noexcept(f9()), "");   // (ù{\codeincomments{f9}}ù)  "    "     "
+\end{emcppslisting}
+    
+
+\noindent There are, however, practical drawbacks to \emcppsgloss[dynamic exception
+specification]{dynamic exception
+specifications}.
+\begin{enumerate}
+\item{\emph{Brittle} — These classic, fine-grained exception specifications attempt to provide excessively detailed information that is not programmatically useful and is subject to frequent changes due to otherwise inconsequential updates to the implementation.}
+\item{\emph{Expensive} — When an exception is thrown, a \emph{dynamic}-exception list must be searched at run time to determine if that specific exception type is allowed.}
+\item{\emph{Disruptive} — When an exception reaches a \emph{dynamic}-exception specification, the stack must be unwound, whether or not the exception is permitted by that specification, losing useful stack-trace information if the program is about to terminate.}
+\end{enumerate}
+These deficiencies proved, over time, to be insurmountable, and
+\emcppsgloss[dynamic exception
+specification]{dynamic exception specifications} other than \lstinline!throw()!
+were largely unused in practice.
+
+As of C++11, \emcppsgloss[dynamic exception
+specification]{dynamic exception specifications} are officially
+deprecated{\cprotect\footnote{C++17 removes all \emcppsgloss[dynamic exception
+specification]{dynamic
+exception specifications} other than \lstinline!throw()!, which becomes a
+  synonym for \lstinline!noexcept! before it too is removed by C++20.}} in
+favor of the more streamlined \lstinline!noexcept! specifier (see \featureref{\locatione}{noexcept-specifier}), which we introduce briefly in the next section.
+
+\subsubsection[Introducing \lstinline!noexcept! exception specifications for functions]{Introducing {\SubsubsecCode noexcept} exception specifications for functions}\label{introducing-noexcept-exception-specifications-for-functions}
+
+C++11 introduces an alternative exception-specification mechanism for
+arbitrary functions, member functions, and lambda expressions (see
+\featureref{}{} \textbf{[AUs: there is no feature called lambda expressions; what did you intend? ]}):
+
+\begin{emcppslisting}
+void f() noexcept(expr);  // (ù{\codeincomments{expr}}ù) is a boolean constant expression.
+void f() noexcept;        // same as (ù{\codeincomments{void f() noexcept(true)}}ù)
+\end{emcppslisting}
+    
+
+\noindent Instead of specifying a \emph{list} of exceptions that may be thrown,
+whether \emph{any} exception may be thrown is specified. As with C++03,
+no annotation is the equivalent of saying anything might be thrown:
+
+\begin{emcppslisting}
+#include <exception>  // (ù{\codeincomments{std::bad\_exception}}ù)
+// old (C++03)                         // modern (C++11) equivalent
+
+void f0();                             void g0();
+void f1() throw();                     void g1() noexcept;
+void f2() throw(std::bad_exception);   void g2() noexcept(false);
+void f3() throw(int, double);          void g3() noexcept(false);
+
+static_assert(noexcept(f0()), "");  // Error, (ù{\codeincomments{f0()}}ù) defaults to throwing.
+static_assert(noexcept(g0()), "");  // Error, (ù{\codeincomments{g0()}}ù)     "     "     "
+static_assert(noexcept(f1()), "");  // OK,    (ù{\codeincomments{f1()}}ù) claims (ù{\emphincomments{not}}ù) to throw.
+static_assert(noexcept(g1()), "");  // OK,    (ù{\codeincomments{g1()}}ù)    "    "   "   "
+static_assert(noexcept(f2()), "");  // Error,(ù{\codeincomments{ f2()}}ù) claims it (ù{\emphincomments{can}}ù) throw.
+static_assert(noexcept(g2()), "");  // Error,(ù{\codeincomments{ g2()}}ù)    "    "  "    "
+static_assert(noexcept(f3()), "");  // Error,(ù{\codeincomments{ f3()}}ù)    "    "  "    "
+static_assert(noexcept(g3()), "");  // Error,(ù{\codeincomments{ g3()}}ù)    "    "  "    "
+\end{emcppslisting}
+    
+
+\noindent The principle advantage of this approach is analogous to that of the
+Unix return-status convention of returning 0 on success and a non-zero
+value otherwise. This convention leverages the realization that there
+can be many ways to fail, but typically only one way to succeed. By
+consistently returning 0 on success, we enable an easy and efficient,
+\emph{uniform} way to discriminate programmatically between typically
+two primary code paths corresponding, respectively, to success and
+failure:
+
+\begin{emcppslisting}
+void func(/* ... */)
+{
+    int status = doSomething(/* ... */);
+
+    if (0 != status)  // Quickly check that it didn't fail.
+    {
+        // failure branch: handle, return, abort, etc.
+    }
+
+    // All good; Continue on the good path.
+
+    // ...
+}
+\end{emcppslisting}
+    
+
+\noindent Much like a return status, generic libraries might need to choose from
+among just two algorithms having substantially different performance
+characteristics based solely on whether a given operation can be
+depended upon never to throw. By distilling the details of
+\emcppsgloss[dynamic exception
+specification]{dynamic exception specifications} down to a simple binary
+\lstinline!noexcept! specification, we sidestep most of the brittleness
+while preserving the ability to query programmatically for the essential
+information:
+
+\begin{emcppslisting}
+template <typename T>
+void doSomething(T t)
+{
+    if (noexcept(t.someFunction()))
+    {
+        // Use a faster algorithm that assumes no exception will be thrown.
+    }
+    else
+    {
+        // Use a slower algorithm that can handle a thrown exception.
+    }
+}
+\end{emcppslisting}
+    
+
+\noindent Notice that the primary, compile-time branch in the example above
+depends on \emph{only} whether it can be reliably assumed that calling
+\lstinline!someFunction! on an object of type \lstinline!T! will never throw
+anything.
+
+Although syntactically trivial, safe and effective use of the
+\lstinline!noexcept! specifier fairly deserves substantial elaboration; see
+\featureref{\locatione}{noexcept-specifier}.
+
+\subsubsection[Compatibility of dynamic and \lstinline!noexcept! exception specifications]{Compatibility of dynamic and {\SubsubsecCode noexcept} exception specifications}\label{compatibility-of-dynamic-and-noexcept-exception-specifications}
+
+\emph{Dynamic} exception specifications are required to unwind the
+program stack --- a.k.a. \emcppsgloss{stack unwinding} --- when an unexpected
+exception is encountered, whereas that behavior is left unspecified for
+violations of \lstinline!noexcept! specifications:
+
+\begin{emcppslisting}
+#include <iostream>  // (ù{\codeincomments{std::cout}}ù)
+
+struct S { ~S() { std::cout << "Unwound!" << std::endl; } };
+
+int f() throw()  { S s; throw 0; }  // (ù{\codeincomments{\texttt{\~{}}S}}ù) is invoked.
+int g() noexcept { S s; throw 0; }  // (ù{\codeincomments{\texttt{\~{}}S}}ù) (ù{\emphincomments{may}}ù) be invoked.
+\end{emcppslisting}
+    
+
+\noindent As of C++11, the \emph{syntactic} meaning of \lstinline!throw()! was made
+identical to \lstinline!noexcept! and, hence, can coexist on declarations
+within the same translation unit:
+
+\begin{emcppslisting}
+int f() throw();    // OK
+int f() noexcept;   // OK, redeclaration of same syntactic entity
+\end{emcppslisting}
+    
+
+\noindent If we now \emph{define} the function, \lstinline!f!, the nature of the
+\emcppsgloss{stack unwinding} behavior is left unspecified by the
+Standard.{\cprotect\footnote{On GCC, for example, the first declaration
+and, in fact, all pure declarations must be consistent (i.e., either
+all \lstinline!noexcept! or all \lstinline!throw()!), but they make no
+difference with respect to behavior. It is \emph{only} the declaration
+on the function \emph{definition} that governs. If the specification
+is dynamic and \lstinline!--std=c++17! is not specified, then
+\emcppsgloss{stack unwinding} will occur; otherwise, it will not. On Clang,
+\emcppsgloss{stack unwinding} always occurs. MSVC has never implemented
+specifying handlers with \lstinline!std::set_unexpected! and doesn't
+perform stack unwinding. Intel (EDG) always calls the handler
+  specified by \lstinline!std::set_unexpected! and unwinds the stack.}}
+
+\subsubsection[Compiler-generated special member functions]{Compiler-generated special member functions}\label{compiler-generated-special-member-functions}
+
+In C++11, exception specification on implicitly declared special member
+functions is still defined in terms of dynamic exception specification;
+this purely theoretical distinction is, however, unobservable via the
+\lstinline!noexcept! operator. We will therefore ignore this distinction
+and speak only in terms of the observable binary property:
+\lstinline!noexcept(true)! or \lstinline!noexcept(false)!. For example,
+consider a class, \lstinline!A!, containing only fundamental, ``built-in''
+types such as \lstinline!int!, \lstinline!double!, and \lstinline!char*!:
+
+\begin{emcppslisting}
+// original: struct A { int i; double d; char* cp; ~A() } a, a2;  // built-ins only
+struct A { int i; double d; char* cp; } a, a2;  // built-ins only
+
+static_assert(noexcept( A()       ), "");  // OK, (ù{\emphincomments{default}}ù) constructor
+static_assert(noexcept( A(a)      ), "");  // OK, (ù{\emphincomments{copy}}ù) constructor
+static_assert(noexcept( a = a2    ), "");  // OK, (ù{\emphincomments{copy}}ù) assignment
+static_assert(noexcept( A(A())    ), "");  // OK, (ù{\emphincomments{move}}ù) constructor
+static_assert(noexcept( a = A()   ), "");  // OK, (ù{\emphincomments{move}}ù) assignment
+static_assert(noexcept( a.A::~A() ), "");  // OK, destructor
+\end{emcppslisting}
+    
+
+\noindent Since this type neither contains nor inherits from other
+\emcppsgloss[user defined type (UDT)]{user-defined types (UDTs)}, the compiler is authorized to treat
+each of these implicit declarations as if they had been specified
+\lstinline!noexcept!.
+
+If a special member function is declared explicitly, then that
+declaration defines whether the function is to be considered
+\lstinline!noexcept! irrespective of its definition (except when using
+\lstinline!=!\,\lstinline!default! on first declaration). Consider, for example, an empty
+class, \lstinline!B!, that declares each of the six standard special member
+functions:
+
+\begin{emcppslisting}
+struct B  // empty class with all special members declared w/o exception spec.
+{
+    B();                     // default constructor: (ù{\codeincomments{noexcept(false)}}ù)
+    B(const B&);             // copy constructor:    (ù{\codeincomments{noexcept(false)}}ù)
+    B& operator=(const B&);  // copy assignment:     (ù{\codeincomments{noexcept(false)}}ù)
+    B(B&&);                  // move constructor:    (ù{\codeincomments{noexcept(false)}}ù)
+    B& operator=(B&&);       // move assignment:     (ù{\codeincomments{noexcept(false)}}ù)
+    ~B();                    // destructor:          (ù{\codeincomments{noexcept(true)}}ù)
+};
+\end{emcppslisting}
+    
+
+\noindent Without regard for their corresponding definitions, the
+\lstinline!noexcept! operator will report each of these explicitly declared
+special member functions as being \lstinline!noexcept(false)! with the lone
+exception of the \lstinline!destructor!, which defaults to
+\lstinline!noexcept(true)!; see \intraref{annoyances-noexceptoperator}{destructors-but-not-move-constructors-are-noexcept-by-default}. More generally, all explicitly declared
+destructors default to \lstinline!noexcept(true)! unless they have a base
+class or member with a \lstinline!noexcept(false)! destructor. To indicate
+that the destructor of a class (e.g., \lstinline!BadIdea! in the example
+below) may throw, it must be declared explicitly using the syntax
+\lstinline!noexcept(false)! or a nonempty \emph{dynamic} exception
+specification; see \featureref{\locatione}{noexcept-specifier}:
+
+\begin{emcppslisting}
+struct BadIdea
+{
+    ~BadIdea() noexcept(false);  // destructor may throw
+};
+\end{emcppslisting}
+    
+
+\noindent C++11 allows the user to declare a special member function and then
+request the compiler to provide its default implementation using the
+\lstinline!=!\,\lstinline!default! syntax; see \featureref{\locationa}{defaulted-special-member-functions}. The
+resulting implementation will be \emph{identical} to what it would have
+been had the special member function declaration been omitted rather
+than implicitly suppressed through the declaration of other special
+member functions:
+
+\begin{emcppslisting}
+struct C  // empty class declaring all of its special members to be (ù{\codeincomments{=default}}ù)
+{
+    C()                    = default;  // default constructor: (ù{\codeincomments{noexcept(true)}}ù)
+    C(const C&)            = default;  // copy constructor:    (ù{\codeincomments{noexcept(true)}}ù)
+    C& operator=(const C&) = default;  // copy assignment:     (ù{\codeincomments{noexcept(true)}}ù)
+    C(C&&)                 = default;  // move constructor:    (ù{\codeincomments{noexcept(true)}}ù)
+    C& operator=(C&&)      = default;  // move assignment:     (ù{\codeincomments{noexcept(true)}}ù)
+    ~C()                   = default;  // destructor:          (ù{\codeincomments{noexcept(true)}}ù)
+};
+\end{emcppslisting}
+    
+
+\noindent When a user-defined type (e.g., \lstinline!D! in the example below)
+contains or derives from types whose corresponding special member
+functions are all \lstinline!noexcept(true)!, then so too will any
+implicitly defined special member functions of that type:
+
+\begin{emcppslisting}
+struct D : A { A v; } d, d2;  // All special members of (ù{\codeincomments{A}}ù) are (ù{\codeincomments{noexcept(true)}}ù).
+
+static_assert(noexcept( D()       ), "");  // OK, (ù{\emphincomments{default}}ù) constructor
+static_assert(noexcept( D(d)      ), "");  // OK, (ù{\emphincomments{copy}}ù) constructor
+static_assert(noexcept( d = d2    ), "");  // OK, (ù{\emphincomments{copy}}ù) assignment
+static_assert(noexcept( D(D())    ), "");  // OK, (ù{\emphincomments{move}}ù) constructor
+static_assert(noexcept( d = D()   ), "");  // OK, (ù{\emphincomments{move}}ù) assignment
+static_assert(noexcept( d.D::~D() ), "");  // OK, destructor
+\end{emcppslisting}
+    
+
+\noindent If, however, a special member function in any base or member type of a
+class (e.g., \lstinline!E! in the example code below) is
+\lstinline!noexcept(false)!, then the corresponding special member function
+of that class will be as well:
+
+\begin{emcppslisting}
+struct E { B b; } e, e2;  // All special members of (ù{\codeincomments{B}}ù) are (ù{\codeincomments{noexcept(false)}}ù) apart
+                          // from the destructor.
+
+static_assert(noexcept( E()       ), "");  // Error, default constructor
+static_assert(noexcept( E(e)      ), "");  // Error, copy constructor
+static_assert(noexcept( e = e2    ), "");  // Error, copy assignment
+static_assert(noexcept( E(E())    ), "");  // Error, move constructor
+static_assert(noexcept( e = E()   ), "");  // Error, move assignment
+static_assert(noexcept( e.E::~E() ), "");  // OK, destructor
+\end{emcppslisting}
+    
+
+\noindent It is permitted for an explicit \lstinline!noexcept! specification to be
+placed on a special member of a class and then to use the
+\lstinline!=!\,\lstinline!default! syntax on first declaration to implement it. The
+explicit \lstinline!noexcept! specification must then match that of the
+implicitly generated definition, else that special member function will
+be implicitly deleted:
+
+\begin{emcppslisting}
+struct F : B  // All special members of (ù{\codeincomments{B}}ù) are (ù{\codeincomments{noexcept(false)}}ù) apart
+              // from the destructor.
+{
+    F() noexcept(false)    =default;  // default constructor: OK
+    F(const F&) noexcept   =default;  // copy constructor:    (deleted)
+    F& operator=(const F&) =default;  // copy assignment:     OK
+    F(F&&) noexcept(true)  =default;  // move constructor:    (deleted)
+    F& operator=(F&&)      =default;  // move assignment:     OK
+    ~F() noexcept(true)    =default;  // destructor:          OK
+} f, f2;
+\end{emcppslisting}
+    
+
+\noindent Notice that, in class \lstinline!F! in the code snippet above, both the
+\emph{copy} and \emph{move} constructors are mislabeled as being
+\lstinline!noexcept(true)! when the defaulted declaration would have made
+them \lstinline!noexcept(false)!. Such inconsistency is not in and of
+itself an error until an attempt is made to access that function, which
+is still declared but rendered inaccessible in all contexts; see
+\featureref{\locationa}{deleted-functions}:
+
+\begin{emcppslisting}
+static_assert(!noexcept( F()       ), "");   // OK,    default constructor
+static_assert( noexcept( F(f)      ),  "");  // Error, copy constructor
+static_assert(!noexcept( f = f2    ), "");   // OK,    copy assignment
+static_assert(!noexcept( F(F())    ), "");   // Error, move constructor
+static_assert(!noexcept( f = F()   ), "");   // OK,    move assignment
+static_assert( noexcept( f.F::~F() ),  "");  // OK,    destructor
+\end{emcppslisting}
+    
+
+\noindent Note that the need for an \emph{exact} match between explicitly declared
+and defaulted \lstinline!noexcept! specifications is unforgiving in
+\emph{either} direction. That is, had we, say, attempted to restrict the
+contract of the class by decorating the destructor of class, \lstinline!F!
+in the example above, with \lstinline!noexcept(false)! when the defaulted
+implementation would have happened to have been \lstinline!noexcept(true)!,
+that destructor would have nonetheless been implicitly deleted, severely
+crippling use of the class.
+
+Finally, the C++11 specification does not address directly the implicit
+exception specification for inheriting constructors (see
+\featureref{\locationc}{ctorinheriting}), yet most popular compilers
+handle them correctly in that they take into account the exceptions
+thrown by the inherited constructor and all the member initialization
+involved in invocation of the inherited constructor.
+
+In C++14, all implicitly declared special member functions, including
+inheriting constructors, are \lstinline!noexcept(false)! if any function
+they invoke directly has an exception specification that allows all
+exceptions; otherwise, if any of these directly invoked functions has a
+dynamic exception specification, then the implicit member will have a
+dynamic exception specification that comprises all of the types that may
+be thrown by functions it invokes directly. In particular, when a
+constructor is inherited, its exception specification is nonthrowing if
+the base class constructor is nonthrowing, and the expressions
+initializing each of the derived class's additional bases and members
+are also nonthrowing. Otherwise, an inheriting constructor has a
+potentially throwing exception specification. Although the original text
+in the C++11 Standard was worded subtly differently, the wording was
+repaired via a defect report and incorporated directly into C++14. Note
+that all known implementations of the feature, even early prototypes,
+follow these corrected rules of C++14.
+
+As a concrete example, let's suppose that we have a base class,
+\lstinline!BB!, that has two \romeovalue{value} constructors, one throwing and
+the other \emph{non}throwing:
+
+\begin{emcppslisting}
+struct BB  // base class having two overloaded value constructors
+{
+    BB(int)  noexcept(false);  //    throwing (ù{\codeincomments{int}}ù)  value constructor
+    BB(char) noexcept(true);   // nonthrowing (ù{\codeincomments{char}}ù) value constructor
+};
+\end{emcppslisting}
+    
+
+\noindent Invoking these value constructors, respectively, on an \lstinline!int! and
+a \lstinline!char! produces the expected results:
+
+\begin{emcppslisting}
+int i;
+char c;
+
+static_assert(!noexcept( BB(i) ), "");  // (ù{\codeincomments{noexcept(false)}}ù)
+static_assert( noexcept( BB(c) ), "");  // (ù{\codeincomments{noexcept(true)}}ù)
+    // uses just base constructors' exception specifications
+\end{emcppslisting}
+    
+
+\noindent Next suppose we derive an empty class, \lstinline!D1!, from \lstinline!BB!
+that inherits \lstinline!BB!'s base class's constructors:
+
+\begin{emcppslisting}
+struct D1 : BB  // empty derived class inheriting base class (ù{\codeincomments{BB}}ù)s ctors
+{
+    using BB::BB;  // inherits (ù{\codeincomments{BB}}ù)'s ctors along with exception specs
+};
+\end{emcppslisting}
+    
+
+\noindent Because the inherited constructors of the derived class are not required
+to invoke any other constructors, the exception specifications propagate
+unchanged:
+
+\begin{emcppslisting}
+static_assert(!noexcept( D1(i) ), "");  // (ù{\codeincomments{noexcept(false)}}ù)
+static_assert( noexcept( D1(c) ),  "");  // (ù{\codeincomments{noexcept(true)}}ù)
+    // uses just the inherited constructors' exception specifications
+\end{emcppslisting}
+    
+
+\noindent Now imagine that we have some legacy class, \lstinline!SS!, whose default
+constructor is implemented with a deprecated, dynamic exception
+specification that explicitly allows it to throw only an
+\lstinline!SSException! (assumed defined elsewhere):
+
+\begin{emcppslisting}
+struct SS  // old-fashioned type having deprecated, dynamic exception specs.
+{
+    SS() throw(SSException);  // This default ctor is allowed to throw only an (ù{\codeincomments{SSException}}ù).
+};
+\end{emcppslisting}
+    
+
+\noindent The \lstinline!noexcept! operator, not caring about the flavor of
+exceptions that are thrown coarsely, reports \lstinline!noexcept(false)!:
+
+\begin{emcppslisting}
+static_assert(!noexcept( SS() ),  "");  // (ù{\codeincomments{throw(SSException)}}ù)
+    // uses the dynamic exception specification of the default constructor
+\end{emcppslisting}
+    
+
+\noindent Now suppose we derive a second type, \lstinline!D2!, from base class
+\lstinline!BB! but this time having, as a data member, \lstinline!ss!, an
+object of type \lstinline!SS! whose default constructor may throw an
+\lstinline!SSException!:
+
+\begin{emcppslisting}
+struct D2 : BB  // (ù{\emphincomments{non}}ù)empty derived class inheriting base class (ù{\codeincomments{BB}}ù)'s ctors
+{
+    SS ss;         // data member having default ctor that may throw an (ù{\codeincomments{SSException}}ù)
+    using BB::BB;  // inherits (ù{\codeincomments{BB}}ù)'s ctors along with exception specs
+};
+\end{emcppslisting}
+    
+
+\noindent Both inherited constructors are now implicitly obliged to invoke the
+default constructor of \lstinline!ss!, which may throw; hence, both
+inherited constructors are now throwing constructors:
+
+\begin{emcppslisting}
+static_assert(!noexcept( D2(i) ), "");  // (ù{\codeincomments{BB(int)}}ù) is (ù{\codeincomments{noexcept(false)}}ù)
+static_assert(!noexcept( D2(c) ), "");  // (ù{\codeincomments{SS()}}ù) is (ù{\codeincomments{throw(SSException)}}ù)
+    // Uses both the inherited constructors' exception specifications and
+    // the exception specification of the data member's default constructor.
+\end{emcppslisting}
+    
+
+\noindent In the example above, the implicit exception specification of the
+\lstinline!D2(int)! and \lstinline!D2(char)! constructors are, respectively,
+\lstinline!noexcept(false)! and \lstinline!throw(SSException)!. Implicit
+dynamic exception specifications, despite being deprecated, are
+plausible since the invocation of an implicitly declared special member
+function, say, \lstinline!D2(char)!, will necessarily invoke all the other
+special member functions --- i.e., \lstinline!BB(char)! and \lstinline!SS()!
+--- that contribute to its implicit exception specification. If any of
+these implicitly invoked functions throws, the exception specification
+that will be checked first is that of the more restrictive invoked
+subfunction --- i.e., that of \lstinline!SS()! --- and not the potentially
+more permissive caller.
+
+Widening the exception specification of the implicitly declared special
+member functions, say, from \lstinline!throw(SSException)! to
+\lstinline!noexcept(false)!, would make no difference. Even if we changed
+\lstinline!BB(char)! to \lstinline!noexcept(false)!, which would give
+\lstinline!D2(char)! an implicit exception specification of
+\lstinline!noexcept(false)! and allow exceptions of all types to pass, no
+other exception type thrown by \lstinline!SS()! would ever propagate to a
+\lstinline!D2(char)! constructor's potential exception specification check.
+Instead, the rogue exception would be stopped by the nonmatching
+exception specification of the subfunction
+\lstinline!SS()!~\lstinline!throw(SSException)! invoked by the implicitly
+defined constructor.
+
+\subsubsection[Applying the \lstinline!noexcept! operator to compound expressions]{Applying the {\SubsubsecCode noexcept} operator to compound expressions}\label{applying-the-noexcept-operator-to-compound-expressions}
+
+Recall from earlier in this feature section that the \lstinline!noexcept!
+operator is applied to an expression, which may itself comprise other
+subexpressions. For example, consider two functions on integers,
+\lstinline!f! and \lstinline!g!, that are and are not, respectively,
+\lstinline!noexcept!:
+
+\begin{emcppslisting}
+int f(int i) noexcept { return i; }  // Function (ù{\codeincomments{f}}ù) is (ù{\codeincomments{noexcept(true)}}ù).
+int g(int i)          { return i; }  // Function (ù{\codeincomments{g}}ù) is (ù{\codeincomments{noexcept(false)}}ù).
+
+static_assert(noexcept( f(17) ), "");  // OK,    (ù{\codeincomments{f}}ù) is (ù{\codeincomments{noexcept(true)}}ù).
+static_assert(noexcept( g(17) ), "");  // Error, (ù{\codeincomments{g}}ù) is (ù{\codeincomments{noexcept(false)}}ù).
+\end{emcppslisting}
+    
+
+\noindent Now suppose that we have two function calls within a single expression:
+
+\begin{emcppslisting}
+static_assert(noexcept( f(1) + f(2) ), "");  // OK,    (ù{\codeincomments{f}}ù) is (ù{\codeincomments{noexcept(true)}}ù).
+static_assert(noexcept( g(1) + g(2) ), "");  // Error, (ù{\codeincomments{g}}ù) is (ù{\codeincomments{noexcept(false)}}ù).
+static_assert(noexcept( g(1) + f(2) ), "");  // Error,  "   "      "      "
+static_assert(noexcept( f(1) + g(2) ), "");  // Error,  "   "      "      "
+\end{emcppslisting}
+    
+
+\noindent When we consider composing two functions, the overall expression is
+\lstinline!noexcept! if and only if both functions are \lstinline!noexcept!:
+
+\begin{emcppslisting}
+static_assert(noexcept( f(f(17)) ), "");  // OK,    (ù{\codeincomments{f}}ù) is (ù{\codeincomments{noexcept(true)}}ù).
+static_assert(noexcept( g(g(17)) ), "");  // Error, (ù{\codeincomments{g}}ù) is (ù{\codeincomments{noexcept(false)}}ù).
+static_assert(noexcept( g(f(17)) ), "");  // Error,  "   "      "      "
+static_assert(noexcept( f(g(17)) ), "");  // Error,  "   "      "      "
+\end{emcppslisting}
+    
+
+\noindent The same applies to other forms of composition; recall from earlier that
+the specific operators applied in the expression do not matter, only
+whether any \emcppsgloss{potentially evaluated} subexpression might throw:
+
+\begin{emcppslisting}
+static_assert(noexcept( f(1) || f(2) ), "");  // OK,    (ù{\codeincomments{f}}ù) is (ù{\codeincomments{noexcept(true)}}ù).
+static_assert(noexcept( g(1) || g(2) ), "");  // Error, (ù{\codeincomments{g}}ù) is (ù{\codeincomments{noexcept(false)}}ù).
+static_assert(noexcept( g(1) || f(2) ), "");  // Error,  "   "      "      "
+static_assert(noexcept( f(1) || g(2) ), "");  // Error, note (ù{\codeincomments{g}}ù) is never called!
+\end{emcppslisting}
+    
+
+\noindent Importantly, note that the final expression in the example above is
+\emph{not} \lstinline!noexcept! even though the only subexpression that
+might throw is never evaluated. This deliberate language design decision
+eliminates variations in implementation that would trade off
+compile-time speed for determining whether the detailed logic of a given
+expression might throw, but see \intraref{annoyances-noexceptoperator}{older-compilers-invade-the-bodies-of-constexpr-functions}.
+
+\subsubsection[Applying the \lstinline!noexcept! operator to move expressions]{Applying the {\SubsubsecCode noexcept} operator to move expressions}\label{applying-the-noexcept-operator-to-move-expressions}
+
+Finally we come to the quintessential application of the
+\lstinline!noexcept! operator. C++11 introduces the notion of a
+\emcppsgloss[move operations]{move operation} --- typically an adjunct to a \emcppsgloss[copy operations]{copy
+operation} --- as a fundamentally new way in which to propagate the
+value of one object to another; see \featureref{\locationc}{Rvalue-References}. For objects that have well-defined \emcppsgloss{copy
+semantics} (e.g., \emcppsgloss{value semantics}), a valid \emcppsgloss[copy operations]{copy
+operation} typically satisfies \emph{all} of the contractual
+requirements of the corresponding \emcppsgloss[move operations]{move operation}, the only
+difference being that a requested \emph{move} operation doesn't require
+that the value of the source object be preserved:
+
+\begin{emcppslisting}
+struct S  // Class (ù{\codeincomments{S}}ù) supports both copy and move operations.
+{
+   // ...
+   S(const S&);      // copy constructor; declared (ù{\codeincomments{noexcept(false)}}ù)
+   S(S&&) noexcept;  // move constructor; declared (ù{\codeincomments{noexcept(true)}}ù)
+   // ...
+};
+\end{emcppslisting}
+    
+
+\noindent When a value-preserving \emcppsgloss[copy operations]{copy operation} is not specifically
+needed, requesting that the value of an object be just \emph{moved}
+could lead to a more runtime-efficient program.{\cprotect\footnote{Importantly,
+\emph{move} operations can lead to \emcppsgloss{memory diffusion}, which in
+turn can severely impact the runtime performance of large,
+long-running programs; see Meredith, Graham Bleaney, Lakos17
+  MeetingC++. \textbf{[AUs: from VR: LORI NOT SURE WHAT THE LINK SHOULD BE HERE, ASK JOHN]}}} For example, a function that takes an argument by \romeovalue{rvalue}
+reference or by value is capable of exploiting a potentially more
+efficient move operation if one is available:
+
+\begin{emcppslisting}
+void f(const S&);  // passing object of type (ù{\codeincomments{S}}ù) by (ù{\codeincomments{const}}ù) (ù{\emphincomments{lvalue}}ù) reference
+void f(S&&)        // passing object of type (ù{\codeincomments{S}}ù) by (ù{\emphincomments{rvalue}}ù) reference
+\end{emcppslisting}
+    
+
+\noindent There are times when the compiler will automatically prefer a
+\emph{move} operation over a \emph{copy} --- i.e., when it knows that
+the source object, e.g., a \emcppsgloss{temporary}, is no longer separately
+reachable:
+
+\begin{emcppslisting}
+S h();  // function returning an (ù{\codeincomments{S}}ù) by value
+S s1;
+
+void test()
+{
+    f(S());  // The compiler requests a move automatically.
+    f(h());  //  "     "         "    "    "         "
+
+    S s2;
+    f(s1);   // The compiler will (ù{\emphincomments{not}}ù) try to move automatically.
+    f(s2);   //  "      "      "   "   "   "    "         "
+}
+\end{emcppslisting}
+    
+
+\noindent For objects whose lifetimes are expiring (e.g., temporary objects), the
+compiler will automatically attempt to \emph{move} rather than copy the
+value where applicable.
+
+When an object such as \lstinline!s1! or \lstinline!s2! in the example code
+above is separately reachable, however, the programmer --- knowing the
+value will no longer be needed --- can request of the compiler that the
+object be moved:
+
+\begin{emcppslisting}
+void test2()
+{
+    S s2;
+    f(std::move(s1));   // The compiler will now try to move from (ù{\codeincomments{s1}}ù).
+    f(std::move(s2));   //  "     "      "    "   "  "    "   "   (ù{\codeincomments{s2}}ù).
+}
+\end{emcppslisting}
+    
+
+\noindent When the programmer uses \lstinline!std::move!, as shown in the code
+snippet above, to tell the compiler that the value of an object --- such
+as \lstinline!s1! or \lstinline!s2! --- is no longer needed, the compiler will
+invoke the constructor variant taking \lstinline!S! as an \emph{rvalue}
+reference if \emph{reachable}.
+
+Not every class necessarily provides a distinct move operation:
+
+\begin{emcppslisting}
+struct C  // Class (ù{\codeincomments{C}}ù) supports (ù{\codeincomments{copy}}ù) but not (ù{\codeincomments{move}}ù) operations.
+{
+    C();                     // default constructor
+    C(const C&);             // copy constructor
+    C& operator=(const C&);  // copy assignment
+    ~C();                    // destructor
+};
+\end{emcppslisting}
+    
+
+\noindent Merely requesting that an object be moved might have no effect on the
+generated code --- for example, when, as shown in the code snippet
+above, a proper copy operation is all that is available:
+
+\begin{emcppslisting}
+void f(C);
+
+void test4()
+{
+    C c;
+
+    C c1(c);             // invokes (ù{\codeincomments{C}}ù)'s copy constructor
+    C c2(std::move(c));  //    "      "     "       "
+
+    f(c);                // invokes (ù{\codeincomments{C}}ù)'s copy constructor
+    f(std::move(c));     //    "      "     "       "
+}
+\end{emcppslisting}
+    
+
+\noindent Because class \lstinline!C! in the example above has no distinct
+\lstinline!move! operations, normal overload resolution selects
+\lstinline!C!'s \emph{copy} constructor as the best match even when a
+\emph{move} is requested explicitly.
+
+When using \lstinline!noexcept! in conjunction with \lstinline!std::move!,
+however, all that matters is whether the \emph{move} operation ---
+whatever it might turn out to be -- will be \lstinline!noexcept(true)!; if
+so, we can perhaps exploit that information to safely employ a more
+efficient algorithm that requires a nonthrowing move:
+
+\begin{emcppslisting}
+template <typename T>
+void doSomething(T t)
+{
+    if (noexcept(T(std::move(t))))
+    {
+        // may assume no exception will be thrown during a move operation
+    }
+    else
+    {
+        // must use an algorithm that can handle a thrown exception
+    }
+}
+\end{emcppslisting}
+    
+
+\noindent Alternatively, we can simply \emph{require} that any supplied type have
+a nonthrowing \emph{move} operation:
+
+\begin{emcppslisting}
+template <typename T>
+void doOrDie(T t)
+{
+    // may assume no exception will be thrown during a move operation
+
+    static_assert(noexcept(T(std::move(t))), "");  // ill formed otherwise
+}
+\end{emcppslisting}
+    
+
+\noindent Both class \lstinline!S! and class \lstinline!C! in the code snippet above
+have copy constructors that are declared \lstinline!noexcept(false)!;
+however, class \lstinline!S! also has a move constructor defined that is
+\lstinline!noexcept(true)!, whereas \lstinline!C! declared no \lstinline!move!
+constructor at all:
+
+\begin{emcppslisting}
+S s1;  // declares a (ù{\codeincomments{noexcept(true)}}ù) move constructor
+static_assert(noexcept(S(std::move(s1))), "");    // OK
+
+C c1;  // declares only a (ù{\codeincomments{noexcept(false)}}ù) copy constructor
+static_assert(!noexcept(C(std::move(c1))), "");   // OK
+\end{emcppslisting}
+    
+
+\noindent Although not recommended, we could define a class, \lstinline!S2!, that is
+the same as \lstinline!S! except that the \emph{move} constructor is
+declared to be \lstinline!noexcept(false)!:
+
+\begin{emcppslisting}
+S2 {/* ... */} s2;  // declares (ù{\codeincomments{noexcept(false)}}ù) copy and move constructors
+static_assert(!noexcept(S2(std::move(s2))), "");  // OK
+\end{emcppslisting}
+    
+
+\noindent Similarly, we could imagine a class, \lstinline!C2!, that is the same as
+\lstinline!C! except that the \emph{copy} constructor is declared
+explicitly with \lstinline!throw()!, making it \lstinline!noexcept(true)!:
+
+\begin{emcppslisting}
+C2 {/* ... */} c2;  // declares only a copy constructor decorated with (ù{\codeincomments{throw()}}ù)
+static_assert(noexcept(C(std::move(c2))), "");    // OK
+\end{emcppslisting}
+    
+
+\noindent There are many ways in which an object might or might not provide a
+nonthrowing \emph{move} operation. As \lstinline!C2! in the example above
+suggests, even a C++03 class that happened to decorate its explicitly
+declared copy constructor with \lstinline!throw()! would automatically
+satisfy the requirements of a nonthrowing \emph{move}. A more likely
+scenario for a class designed prior to C++11 to wind up with a
+nonthrowing \emph{move} operation is that it followed the \emcppsgloss{rule
+of zero}, thereby allowing each of the special member functions to be
+generated. In this case, all that might be needed to generate a nonthrow
+\emph{move} constructor is simply to recompile it under C++11! The
+takeaway here is that, irrespective of how a type is implemented, we can
+use the \lstinline!noexcept! operator in combination with
+\lstinline!std::move! to reliably determine, at compile time, whether an
+object of a given type \emph{may} throw when we ask it to move. Note
+that while it is typical for C++03 code to either have both copy and
+move constructors nonthrowing, or both potentially throwing, a C++03
+template instantiated with a C++11 move-optimized type may still have
+exception specifications that match this behavior:
+
+\begin{emcppslisting}
+template <typename T>
+struct NamedValue
+{
+    std::string d_name;
+    T           d_value;
+};
+\end{emcppslisting}
+    
+
+\noindent While \lstinline!NamedValue! may be a class template shipping from a
+C++03-authored library, the copy constructor for this class will clearly
+be \lstinline!noexcept(false)!, but the move constructor may be throwing or
+not based solely on the properties of the template argument, \lstinline!T!.
+
+\subsubsection[Applying the \lstinline!noexcept! operator to functions in the C Standard Library]{Applying the {\SubsubsecCode noexcept} operator to functions in the C Standard Library}\label{applying-the-noexcept-operator-to-functions-in-the-c-standard-library}
+
+According to the C++03 Standard{\cprotect\footnote{\textbf{[AUs: please elaborate on this citation. We don't have anything called cpp03.]} cpp03,[lib.res.on.exception.handling], p2, pp.~331--332.}}:
+\begin{quote}
+None of the functions from the Standard C library shall report an error by
+ throwing an exception, unless it calls a program-supplied function that
+ throws an exception.
+\end{quote}
+This paragraph is accompanied by a handy footnote:
+\begin{quote}
+That is, the C library functions all have a \lstinline!throw()! exception-specification.
+ This allows implementations to make performance optimizations based on the
+ absence of exceptions at runtime.
+\end{quote}
+Note that this footnote applies only to functions in the C Standard
+Library, not to arbitrary functions having \lstinline!extern!~\lstinline!"C"!
+linkage. It is not clear what the normative implications of the footnote
+might be, as it seems to be a non-normative note clarifying something
+not obviously implied by the normative text. Given the extra costs
+associated with C++98 exception specifications, there are no known
+implementations that took advantage of this freedom.
+
+For C++11, the footnote was revised to refer only to permitting the use
+of the new \lstinline!noexcept! exception specification, without further
+clarification of the normative text. There is, however, also general
+permission to add a nonthrowing exception specification to any
+nonvirtual C++ Standard Library function, and it might be inferred that
+this provision gives implementations freedom to add such specifications
+to their C library wrappers too. Also note that functions taking
+callbacks, such as \lstinline!bsearch! and \lstinline!qsort!, are still
+specified to have nonthrowing exception specifications.
+
+Again, there are no known implementations taking advantage of this
+freedom to add a nonthrowing exception specification to C library
+functions, although all of the functions in the \lstinline!<atomic>! header
+intended for C interoperability are declared as \lstinline!noexcept!,
+exploiting an arguable interpretation of the intent of this footnote.
+
+\subsubsection[Constraints on the \lstinline!noexcept! specification imposed for \lstinline!virtual! functions]{Constraints on the {\SubsubsecCode noexcept} specification imposed for {\SubsubsecCode virtual} functions}\label{constraints-on-the-noexcept-specification-imposed-for-virtual-functions}
+
+You will no doubt have noticed that all of the \lstinline!noexcept!
+functions in the examples above have been non\lstinline!virtual!.
+
+When using C++03-style \emcppsgloss[dynamic exception specification]{dynamic exception specifications}, the
+exception specification of any function override cannot be wider than
+that of the function being overridden. This is perhaps best illustrated
+by means of a simple example:
+
+\begin{emcppslisting}
+struct BB03
+{
+    void n() throw();
+    virtual void f();
+    virtual void g1() throw();
+    virtual void g2() throw();
+    virtual void g3() throw();
+    virtual void h() throw(int, double);
+};
+
+struct DD03 : public BB03
+{
+    void n() throw(int);                // OK, not (ù{\codeincomments{virtual}}ù)
+    void n(const SomeType&) throw(int); // OK, hiding non(ù{\codeincomments{virtual}}ù) function
+    virtual void f();                   // OK, base has no exception spec.
+    virtual void g1() throw();          // OK, same exception spec.
+    virtual void g2() throw(int);       // Error, wider exception spec. ((ù{\codeincomments{int}}ù))
+    virtual void g3();                  // Error, wider exception spec. (all)
+    virtual void h() throw(int);        // OK, tighter exception spec.
+};
+\end{emcppslisting}
+    
+
+\noindent Interestingly, the rules relating to \lstinline!virtual! functions and
+\lstinline!noexcept! are still defined by the C++11 and C++14 Standards in
+terms of dynamic exception specifications, despite the fact that
+\emcppsgloss[dynamic exception specification]{dynamic exception specifications} are deprecated. It states that
+``If a virtual function has an \emph{exception-specification}, all
+declarations, including the definition, of any function that overrides
+that virtual function in any derived class shall only allow exceptions
+that are allowed by the \emph{exception-specification} of the base class
+virtual function.''{\cprotect\footnote{\cite{iso11}, section~15.4, ``Exception specifications," paragraph~5, p.~406}}
+
+From a \lstinline!noexcept! perspective, this means the rules are very
+straightforward. If the base function forbids exceptions by specifying
+\lstinline!noexcept! or \lstinline!noexcept(true)!, then the override must
+forbid exceptions by specifying one of \lstinline!noexcept!,
+\lstinline!noexcept(true)!, or \lstinline!throw()!. In other words, if a base
+class virtual functions is \lstinline!noexcept(true)!, then no derived
+class override of that function can have a throwing exception
+specification:
+
+\begin{emcppslisting}
+struct BB11
+{
+    void n() noexcept;
+    virtual void f();
+    virtual void g1() noexcept(true);
+    virtual void g2() noexcept;
+    virtual void g3() noexcept(true);
+    virtual void g4() noexcept(true);
+};
+
+struct DD11 : public BB11
+{
+    void n();                           // OK, not (ù{\codeincomments{virtual}}ù)
+    void n(const BB11*);                // OK, hiding non(ù{\codeincomments{virtual}}ù) function
+    void f() override;                  // OK, base has no exception spec.
+    void g1() noexcept override;        // OK, (ù{\codeincomments{override}}ù) is (ù{\codeincomments{noexcept}}ù)
+    void g2() throw() override;         // OK, (ù{\codeincomments{override}}ù) is (ù{\codeincomments{noexcept}}ù)
+    void g3() override;                 // Error, (ù{\codeincomments{override}}ù) allows exceptions
+    void g4() noexcept(false) override; // Error, (ù{\codeincomments{override}}ù) allows exceptions
+};
+\end{emcppslisting}
+    
+
+\noindent One final thing to note is that these rules also apply to defaulted
+virtual functions, most notably destructors:
+
+\begin{emcppslisting}
+struct BB11
+{
+    virtual ~BB11() = default;  // (ù{\codeincomments{noexcept(true)}}ù)
+};
+
+struct DD11 : public BB11
+{
+    virtual ~DD11() noexcept(false);  // Error, (ù{\codeincomments{BB11::\texttt{\~{}}BB11()}}ù) is (ù{\codeincomments{noexcept(true)}}ù)
+};
+\end{emcppslisting}
+    
+
+\noindent Essentially, the envelope of what can be thrown from a virtual function
+in a derived class is constrained to be a subset of what can be thrown
+in the base class. This constraint can be quite restrictive since, in
+real-world systems, there are times when a base-class contract can serve
+a syntactic role and have a semantic approximation that can be relaxed
+if both the consumer and the supplier are in agreement regarding said
+relaxation. This is further expounded in \intraref{annoyances-noexceptoperator}{exception-specification-constraints-in-class-hierarchies}.
+
+\subsection[Use Cases]{Use Cases}\label{use-cases-noexceptoperator}
+
+\subsubsection[Appending an element to an \lstinline!std::vector!]{Appending an element to an {\SubsubsecCode std::vector}}\label{appending-an-element-to-an-std::vector}
+
+There are certain cases where it is useful to know whether an
+expression, specifically one involving \emph{copy} operations,
+\emph{may} throw so that an optimal algorithmic decision can be made,
+often involving \emph{move} operations. In fact, the very reason
+\emph{move} operations were thoughtfully added to C++11 was to support
+more efficient insertion of \emcppsgloss{allocating objects} into an
+\lstinline!std::vector!; see {Inserting an element into an
+\texttt{std::vector} efficiently}. But insertion into an arbitrary
+location within a \lstinline!std::vector! would \emph{not} have been
+sufficient justification for hastily adding the \lstinline!noexcept!
+operator just prior to shipping C++11; see \intraref{appendix-noexceptoperator}{genesis-of-the-noexcept-operator:-move-operations}.
+
+First, the original C++ Standard provided the \emcppsgloss{strong
+exception-safety guarantee} for any element ``inserted'' at the
+\emph{end} of an \lstinline!std::vector!, whether it be via the
+\lstinline!insert! member function or the more popular \lstinline!push_back!.
+Second, backward compatibility with C++03 meant that any type having
+explicitly defined copy operations would \emph{not} be given implicit
+move operations, throwing or otherwise. Hence, when asked to move, any
+legacy C++ type would instead fall back on its copy operation, which,
+when it doesn't throw, satisfies all the requirements of an optimizing
+move operation.
+
+Next, consider that some legacy code, having previously been promised
+the \emcppsgloss{strong guarantee}, fairly depends \emph{at run time} on
+\lstinline!std::vector::push_back!'s either succeeding or else throwing
+with no effect whatsoever on the state of the vector. To illustrate what
+is meant by the \emcppsgloss{strong exception-safety guarantee}, let's
+suppose we have a class, \lstinline!S!, that has an explicitly declared
+copy constructor that \emph{may} throw, thereby precluding an implicitly
+generated move constructor. For our purely pedagogical example, we will
+force the copy constructor to throw the third time the program attempts
+to copy an \lstinline!S! object in the current process:
+
+\begin{emcppslisting}
+#include <cassert>  // standard C (ù{\codeincomments{assert}}ù) macro
+#include <vector>   // (ù{\codeincomments{std::vector}}ù)
+
+struct S
+{
+    static int s_nCopy;  // number of objects that have been copied
+    int        d_uid;    // unique identifier for each copied object
+
+    S()         : d_uid(-1) { }     // default constructor
+    S(const S&) : d_uid(++s_nCopy)  // copy constructor
+    {
+        if (s_nCopy > 2) throw s_nCopy;  // throws on third attempt to copy
+    }
+};
+
+int S::s_nCopy = 0; // initialization of (ù{\codeincomments{static}}ù) data member of class (ù{\codeincomments{S}}ù)
+\end{emcppslisting}
+    
+
+\noindent When inserting copies of \lstinline!S! into an \lstinline!std::vector<S>!, the
+\emcppsgloss{strong guarantee} ensures that the \emph{entire} state of the
+vector --- i.e., not just its \emcppsgloss{salient values} --- remains
+unchanged despite the \lstinline!throw!s occurring within the
+\lstinline!push_back! operation. Pointers and references to the existing
+elements remain valid since the vector has not yet expanded, and the
+entire internal state of those elements too is unaltered:
+
+\begin{emcppslisting}
+int main()
+{
+    const S s;                  // default-constructed object ((ù{\codeincomments{d\_uid}}ù): -1)
+    std::vector<S> v;           // container to fill
+
+    v.reserve(2);               // Do not reallocate until third (ù{\codeincomments{push\_back}}ù)!
+    assert(v.capacity() == 2);  // assert that (ù{\codeincomments{capacity}}ù) isn't rounded higher
+
+    v.push_back(s);
+    v.push_back(s);
+
+    // before:
+    assert(v[0].d_uid == 1);
+    assert(v[1].d_uid == 2);
+    assert(v.capacity() == 2);  // assert that (ù{\codeincomments{capacity}}ù) is still the same
+
+    // insert third (throwing) element:
+    try
+    {
+        v.push_back(s);          // expected to throw constructing new element
+        assert(!!"Should have thrown an exception");
+    }
+    catch(int n)
+    {
+        assert(n == 3);         // verify the expected exception value
+    }
+
+    // after:
+    assert(v[0].d_uid == 1);
+    assert(v[1].d_uid == 2);
+    assert(v.capacity() == 2);  // even the vector's (ù{\codeincomments{capacity}}ù) is unchanged
+}
+\end{emcppslisting}
+    
+
+\noindent Importantly, when the exception is finally thrown, the entire state of
+the vector prior to attempting to add the third element remains
+unchanged, thus delivering on the \emcppsgloss{strong exception-safety
+guarantee} as has been required for \lstinline!std::vector::push_back! by
+the C++ Standard since its inception. Had the third \lstinline!push_back!
+not thrown, the \emph{resize} would have occurred successfully, and each
+of the elements would have been \emph{copied} into the newly allocated
+storage, which satisfies the letter of the original C++03 contract, but
+see \intraref{annoyances-noexceptoperator}{change-in-unspecified-behavior-when-an-std::vector-grows}.
+
+The question now becomes how we should implement
+\lstinline!std::vector::push_back! efficiently in modern C++.
+
+Ignoring, for simplicity, C++11 memory allocators, recall that a
+standard vector maintains (1) the \lstinline!data()! address of its
+dynamically allocated element storage, (2) the maximum
+\lstinline!capacity()! of elements it can hold before having to resize, and
+(3) the \lstinline!size()!, i.e., number of elements it currently holds.
+When the \lstinline!size()! is either 0 or less than the current
+\lstinline!capacity()!, there is no issue: An attempt is made to append the
+element after first allocating dynamic storage if the
+\lstinline!capacity()! too was 0, and, if an exception is thrown either
+during memory allocation or directly by the element's constructor, there
+is no effect on the state of the vector object. So far, so good.
+
+Let's now consider what happens when the \lstinline!size()! is not 0 and
+there is no more \lstinline!capacity()! left, that is
+\lstinline!size()!~\lstinline!>!~\lstinline!0!~\lstinline!&&!~\lstinline!size()!~\lstinline!==!~\lstinline!capacity()!.
+The first step, as ever, is to allocate a larger block of dynamic
+memory. If that allocation throws, there's nothing to do and the
+\emcppsgloss{strong guarantee} is automatically satisfied. But what happens
+if that allocation succeeds? If we try to move an existing element to
+the newly allocated slab of memory and the move operation throws, we
+have no guarantee that the state of the element is unchanged in its
+original location. If the first move succeeds, then, when we go to move
+a second element, we're past the point of no return: if the second move
+operation fails by throwing an exception, we have no way to go forward
+and similarly no guaranteed way to revert since attempting to move the
+first one back might throw as well. If this were to happen, then the
+\emcppsgloss{strong exception-safety guarantee} would necessarily be violated
+and in the worst possible way: not at compile time, link time, or start
+up and not just under a heavy load, but nondeterministically at run time
+when the vector needs to grow and moving an existing element throws
+during that operation.
+
+Alternatively, we could take the same conservative approach as in C++03
+before move operations were standardized. That is, instead of even
+trying to efficiently move existing elements from the old dynamically
+allocated block to the new one, each element would instead be
+\emph{copied}, e.g., using the \emcppsgloss[copy swap idiom]{copy/swap idiom}, but now we are
+making a full copy of every existing element of the vector every time
+its capacity grows. The complexity of the operation could technically
+still be considered \emcppsgloss{amortized constant time}; depending on the
+complexity of the elements (e.g., whether or not they might allocate),
+however, the latency cost of a single \lstinline!push_back! at a memory
+boundary could still be prohibitive. Unwilling to give up the
+\emcppsgloss{strong guarantee} or optimal performance in the increasingly
+typical case (support for nonthrowing move operations), the Standards
+committee chose a third alternative: the \lstinline!noexcept!
+operator}.
+
+Let's now consider how we might use the \lstinline!noexcept! operator to
+implement an \lstinline!std::vector!-like \lstinline!push_back! member
+function that safely exploits the new \emph{move} operations on
+potential elements, again, for simplicity of exposition, ignoring C++11
+memory allocators. Let's start by assuming a heavily elided definition
+of our class, \lstinline!vector!:
+
+\begin{emcppslisting}
+#include <cstddef>  // (ù{\codeincomments{std::size\_t}}ù)
+
+template <typename T>
+class vector
+{
+    T*          d_array_p;   // dynamic memory for elements of type (ù{\codeincomments{T}}ù)
+    std::size_t d_capacity;  // maximum number of elements before resize
+    std::size_t d_size;      // current number of elements in this array
+public:
+    vector() : d_array_p(0), d_capacity(0), d_size(0) { }  // created empty
+    // ...
+    void push_back(const T& value);  // safe, efficient implementation
+    // ...
+    void reserve(std::size_t capacity);  // make more space (might throw)
+    void swap(vector& other) throw();    // swap state with other (ù{\codeincomments{vector<T>}}ù)
+};                        // ^^^^^^^        (Today, we would use (ù{\codeincomments{noexcept}}ù).)
+\end{emcppslisting}
+    
+
+\noindent Assuming the existence of just the member functions in the example code
+above, let's look at implementing an efficient, exception-safe
+\lstinline!push_back! method that preserves the \emcppsgloss{strong
+exception-safety guarantee} even for a type that, when asked just to
+\lstinline!move!, \emph{may} nonetheless throw:
+
+\begin{emcppslisting}
+#include <new>      // placement (ù{\codeincomments{new}}ù)
+#include <utility>  // (ù{\codeincomments{std::move}}ù)
+
+template <typename T>
+void vector<T>::push_back(const T& value)  // safe, efficient implementation
+{
+    if (d_size < d_capacity)  // sufficient capacity in allocated memory
+    {
+        void* address = d_array_p + d_size;  // implicit conversion to (ù{\codeincomments{void*}}ù)
+        ::new(address) T(value);             // (ù{\emphincomments{may}}ù) throw on copy
+        ++d_size;                            // no throw
+        return;                              // early return
+    }
+
+    // If we know that attempting to move an object may not throw, we can
+    // improve performance compared to relying on a classically throwing copy.
+
+    const std::size_t nextCapacity = d_capacity ? d_capacity * 2
+                                                : 1;              // no throw
+
+    if (noexcept(::new((void*)0) T(std::move(*d_array_p))))  // no throw (move)
+    {
+        vector<T> tmp;                             // may throw
+        tmp.reserve(nextCapacity);                 // may throw
+
+        void* address = tmp.d_array_p + d_size;    // no throw
+        ::new(address) T(value);                   // may throw (last)
+
+        for (std::size_t i = 0; i != d_size; ++i)  // for each existing element
+        {
+            void* addr = tmp.d_array_p + i;          // no throw
+            ::new(addr) T(std::move(d_array_p[i]));  // no throw (move)
+        }
+
+        tmp.d_size = d_size + 1;  // no throw
+        tmp.swap(*this);          // no throw, committed
+    }
+    else                             // otherwise employ the (ù{\emphincomments{copy/swap idiom}}ù)
+    {
+        vector<T> copy;              // may throw
+        copy.reserve(nextCapacity);  // may throw
+        copy = *this;                // may throw
+        copy.push_back(value);       // may throw on copy; capacity's good
+        copy.swap(*this);            // no throw, committed
+    }
+}
+\end{emcppslisting}
+    
+
+\noindent As the code snippet above illustrates, as long as there is sufficient
+capacity in the current block of dynamic memory, there is no need for
+the \lstinline!noexcept! operator. Only when it becomes necessary to
+reallocate to a larger capacity does the need for the \lstinline!noexcept!
+operator arise. At that point, we will need to know if, when we ask the
+object of type \lstinline!T! to move-construct, it \emph{may} throw, but
+see \intraref{potential-pitfalls-noexceptoperator}{using-the-noexcept-operator-directly}:
+
+\begin{emcppslisting}
+ if (noexcept(::new((void*)0) T(std::move(*d_array_p))))  // no throw (move)
+ //           ^^^^^^^^^^^^^^^ avoids (ù{\codeincomments{noexcept}}ù) operator's considering (ù{\codeincomments{T}}ù)'s dtor
+\end{emcppslisting}
+    
+
+\noindent If copying \emph{may} throw, we must revert to the C++03 algorithm in
+the \lstinline!else! clause, which exploits the familiar \emcppsgloss[copy swap idiom]{copy/swap
+idiom}; notice that we call \lstinline!reserve! to pre-allocate memory in a
+\lstinline!copy!, rather than the current vector, to avoid problems with
+\emcppsgloss{aliasing} and redundant allocations.
+
+But if we can know that moving (or copying) an object \emph{may not}
+throw, then we might be able to avoid having to \emph{copy} all the
+objects over to the newly allocated memory. First, we create a temporary
+vector and then reserve whatever the next larger capacity is intended to
+be. If either of these operations were to throw, then there would be no
+state change in the original vector, and, thus, the \emcppsgloss{strong
+exception-safety guarantee} would be preserved. Then we call
+\emcppsgloss[placement new]{placement \lstinline!new!} to construct the new element at the
+intended address. Note the specific syntax we use when calling
+\emcppsgloss{placement new}: Employing \lstinline!::! ensures that overloads of
+\lstinline!new! in only the global namespace are considered, thus avoiding
+\emcppsgloss[argument-dependent lookup (ADL)]{ADL}'s finding any ill-advised, class-specific overloads.
+Moreover, we deliberately allow the address pointer to \emcppsgloss{decay},
+preferring that to an explicit cast, to a plain \lstinline!void!~\lstinline!*!
+to match exactly the specific, Standard-mandated overload of
+\emcppsgloss{placement new} we desire, thus preventing our accidentally
+calling any other, more specific overload in the global namespace. If,
+when invoking the constructor for the new element, an exception is
+thrown, no new element will be created, the partially constructed
+temporary object will be destroyed as the exception leaves block scope,
+the temporary vector destructor will reclaim allocated memory, and again
+the \emcppsgloss{strong guarantee} is preserved. Note that the order of
+operations allows this member function to work properly even if the
+argument to \lstinline!value! turns out to be a reference into this vector
+(a.k.a. \emcppsgloss{aliasing}).
+
+We are now past the point at which it is possible for an exception to be
+thrown, so we proceed accordingly to move constructing each of the
+original elements over to the new slab of memory with impunity. Once
+we're done moving all the elements over, we manually set the
+\lstinline!d_size! data member of the temporary \lstinline!vector!,
+\lstinline!tmp!, and efficiently (no-throw) \lstinline!swap! all of its
+members with those of the current vector. When \lstinline!tmp! goes out of
+scope, it first destroys the moved-from carcass of the original elements
+before deleting the old, dynamically allocated block.
+
+Use of the \lstinline!noexcept! operator above, although correct, is subtle
+and not particularly\linebreak[4] easy to maintain. Almost all uses outside of
+\emcppsgloss[conditional noexcept specifications]{conditional \lstinline!noexcept! specifications}\linebreak[4] (see
+\featureref{\locatione}{noexcept-specifier}) involve move operations, the
+most\linebreak[4] common of which require even more arcane, metaprogramming
+shenanigans to make work properly; see \intrarefsimple{implementing-std::move_if_noexcept} and\linebreak[4] \intrarefsimple{implementing-std::vector::push_back(t&&)}.
+
+\subsubsection[Enforcing a \lstinline!noexcept! contract using \lstinline!static_assert!]{Enforcing a {\SubsubsecCode noexcept} contract using {\SubsubsecCode static\_assert}}\label{enforcing-a-noexcept-contract-using-static_assert}
+
+When writing a function template, the possibility of throwing an
+exception might be determined entirely by operations dependent on the
+template parameters. In such cases, we may want to have a contract that
+never throws an exception, so we use the \lstinline!noexcept!
+specification. However, this would lead to runtime enforcement of the
+contract, calling \lstinline!std::terminate! if an exception is thrown from
+any of those operations involving the template parameters. If we want to
+enforce the contract at compile time, we would additionally use a
+\lstinline!static_assert! testing the relevant expressions with the
+\lstinline!noexcept! operator:
+
+\begin{emcppslisting}
+template <typename T>
+T sine(T const& a, T const& b) noexcept
+{
+   static_assert(noexcept( T(a / std::sqrt(a * a + b * b)) ), "throwing expr");
+   return a / std::sqrt(a * a + b * b);
+}
+\end{emcppslisting}
+    
+
+\noindent Note that this will reject otherwise valid code that does not throw
+exceptions but is not yet marked up with an exception specification.
+
+Consider the earlier example of preserving the \emcppsgloss{strong
+exception-safety guarantee} in\linebreak[4] \lstinline!std::vector! if the move
+constructor could throw. An alternative design, rejected for concerns of
+breaking existing code, would be to require all elements inserted into a
+vector have a nonthrowing move constructor. This restriction could be
+similarly enforced with a \lstinline!static_assert! and might be a
+reasonable design choice for a custom container:
+
+\begin{emcppslisting}
+#include <new>      // placement (ù{\codeincomments{new}}ù)
+#include <utility>  // (ù{\codeincomments{std::move}}ù)
+
+template <typename T>
+void vector<T>::push_back(const T& value)  // efficient implementation
+{
+    static_assert(noexcept(::new((void*)0) T(std::move(*d_array_p))),
+                 "The element type must have a (ù{\codeincomments{noexcept}}ù) move constructor");
+
+    if (d_size < d_capacity)  // sufficient capacity in allocated memory
+    {
+        void* address = d_array_p + d_size;  // implicit conversion to (ù{\codeincomments{void*}}ù)
+        ::new(address) T(value);             // may throw on copy
+        ++d_size;                            // no throw
+        return;                              // early return
+    }
+
+    // We know that attempting to move an object may not throw, so we can
+    // safely move rather than copy elements into the new storage.
+
+    const std::size_t nextCapacity = d_capacity ? d_capacity * 2
+                                                : 1;              // no throw
+
+    vector<T> tmp;                                  // may throw
+    tmp.reserve(nextCapacity);                   // may throw
+
+    void* address = tmp.d_array_p + d_size;      // no throw
+    ::new(address) T(value);                     // may throw (last)
+
+    for (std::size_t i = 0; i != d_size; ++i)    // for each existing element
+    {
+        void* addr = tmp.d_array_p + i;          // no throw
+        ::new(addr) T(std::move(d_array_p[i]));  // no throw (move)
+    }
+
+    tmp.d_size = d_size + 1;  // no throw
+    tmp.swap(*this);          // no throw, committed
+}
+\end{emcppslisting}
+    
+
+\subsubsection[Implementing \lstinline!std::move_if_noexcept!]{Implementing {\SubsubsecCode std::move\_if\_noexcept}}\label{implementing-std::move_if_noexcept}
+
+The need for the \lstinline!noexcept! operator is all but exclusively tied
+to \emph{move} operations and yet --- even for that purpose --- direct
+use of this operator is almost always problematic. C++11 provides an
+extensive library of type traits that can precisely determine important,
+relevant properties of a type, such as whether it has an accessible
+constructor; see \intraref{potential-pitfalls-noexceptoperator}{using-the-noexcept-operator-directly}.
+
+Consider the broken implementation of a function intended to construct a
+new object at a given address, where the \emph{move} constructor will be
+called if it can be determined that exceptions \emph{may not} be thrown;
+otherwise, if the object type has an accessible copy constructor, call
+that, or, as a last resort, call the \emph{move} constructor regardless
+since the type is simply not copyable (a.k.a. \emcppsgloss[move only]{move-only} type):
+
+\begin{emcppslisting}
+template <typename T>
+void construct(void* address, T& object)
+     // (ù{\codeincomments{object}}ù) passed by modifiable lvalue to enable both copy and move
+{
+    if (noexcept(::new(address) T(std::move(object))))  // (ù{\codeincomments{noexcept}}ù) move
+    {
+        ::new(address) T(std::move(object));   // OK, no-throw movable
+    }
+    else if (std::is_copy_constructible<T>::value)
+    {
+        ::new(address) T(object);  // Oops, compile-time error if not copyable
+    }
+    else // (ù{\codeincomments{T}}ù) is not declared copyable, is movable, and may throw.
+    {
+        ::new(address) T(std::move(object));  // move move-only type anyway
+    }
+}
+\end{emcppslisting}
+    
+
+\noindent The naive, straightforward implementation above fails to compile for
+move-only types because the copy branch of the \lstinline!if! statement
+needs to compile even when the \lstinline!else! branch is taken, as
+\emph{all} branches are compiled for each template
+instantiation.{\cprotect\footnote{In C++17, the
+\lstinline!if!~\lstinline!constexpr! language feature is a direct solution
+to such problems:
+
+\begin{emcppslisting}[style=footcode]
+template <typename T>
+void construct(void* address, T& object)
+{
+    if constexpr (noexcept(::new(address) T(std::move(object))))
+    {
+        ::new(address) T(std::move(object));
+    }
+    else if constexpr (std::is_copy_constructible<T>::value)
+    {
+        ::new(address) T(object);  // discarded if this branch is not taken
+    }
+    else // (ù{\fncodeincomments{T}}ù) is not declared copyable, is movable, and may throw.
+    {
+        ::new(address) T(std::move(object));
+    }
+}
+\end{emcppslisting}
+      }} We need to force only one of each of the potential branches to
+be evaluated at compile time, which requires selecting the chosen
+function through partial template specialization, rather than runtime
+branching in the function body itself. If it were allowed, we would opt
+to ``partially specialize'' the two-parameter \lstinline!moveParameter! and
+\lstinline!copyParameter! functions with respect to the value of its
+second, boolean argument. As partial template specialization of
+functions is \emph{not} permitted, we must \emph{hoist} (represent) the
+parameter to the would-be partially specialized function in a class
+template sporting the \lstinline!static! template function to be called:
+
+\begin{emcppslisting}
+template <bool SHOULD_MOVE>
+struct ImplementMoveOrCopy  // general declaration/definition of class template
+{
+    template <typename T>
+    static void construct(void* address, T& object)
+    {
+        ::new(address) T(object); // copy
+    }
+};
+
+template <>
+struct ImplementMoveOrCopy<true>  // explicit specialization of class template
+{
+    template <typename T>
+    static void construct(void* address, T& object)
+    {
+        ::new(address) T(std::move(object));   // move
+    }
+};
+
+template <typename T>
+void construct(void* address, T& object)
+     // (ù{\codeincomments{object}}ù) passed by modifiable lvalue to enable both copy and move
+{
+    ImplementMoveOrCopy<std::is_nothrow_move_constructible<T>::value ||
+        !std::is_copy_constructible<T>::value>::construct(address, object);
+}
+\end{emcppslisting}
+    
+
+\noindent The example code above splits the once cohesive \lstinline!construct!
+function template into three parts, two of which are intended as only
+private implementation details and hosted in a class template.
+
+The C++ Standard Library provides the \lstinline!std::move_if_noexcept!
+function to\linebreak[4] encapsulate such baroque metaprogramming code, which turns
+out to be surprisingly useful; see \intrarefsimple{implementing-std::vector::push_back(t&&)} and\linebreak[4]
+\intrarefsimple{implementing-std::vector::emplace_back(args&&...-args)}:
+
+\begin{emcppslisting}
+template <typename T>
+constexpr
+typename std::conditional<!std::is_nothrow_move_constructible<T>::value
+                          && std::is_copy_constructible<T>::value,
+                          const T&,
+                          T&&>::type
+move_if_noexcept(T& x) noexcept
+{
+    return std::move(x);
+}
+\end{emcppslisting}
+    
+
+\noindent There's a lot to unpack from the definition in the code snippet above,
+but the principle is simple: all of the ``clever'' work is done
+computing the return type of the function. The \lstinline!std::conditional!
+return type is a standard library \emcppsgloss{metafunction} that evaluates a
+predicate and produces the second template parameter for its result type
+if the predicate is \lstinline!true! and the final template parameter for
+its result type if the predicate is \lstinline!false!. In this case, the
+predicate is using type traits to examine properties of the deduced type
+\lstinline!T! to determine which result should be preferred. If a type is
+not copy constructible, indicated by the
+\lstinline!std::is_copy_constructible! type trait, the
+\lstinline!std::conditional! function should always return an \emph{rvalue}
+reference. If a type is copy constructible, it should not return an
+\emph{rvalue} reference unless the move constructor is
+\lstinline!noexcept!. We wisely use the type trait
+\lstinline!is_nothrow_move_constructible! to determine whether a type
+has a \lstinline!noexcept! \emph{move} constructor, rather than attempting
+ourselves to implement some clever metaprogramming trickery inside a
+\lstinline!noexcept! operator to avoid consideration of ancillary
+subexpressions.
+
+A naive attempt to implement the
+\lstinline!std::is_nothrow_move_constructible! trait using the
+\lstinline!noexcept! operator might be:
+
+\begin{emcppslisting}
+#include <utility>  // (ù{\codeincomments{std::declval}}ù)
+template <typename T>
+struct is_nothrow_move_constructible
+    : std::integral_constant<bool,
+                             noexcept(::new((void*)0) T(std::declval<T>()))>
+{
+};
+\end{emcppslisting}
+    
+
+\noindent Here, \lstinline!std::declval! is a declared but not defined function that
+always returns an \emph{rvalue} reference to the type of the template
+argument, avoiding the need to know of a valid constructor for an
+arbitrary type. However, this is still an approximation as we must use
+more obscure template metaprogramming tricks to return \lstinline!false!
+when the move constructor is not public or is deleted.
+
+Once we have the \lstinline!move_if_noexcept! function, the
+\lstinline!construct! example can be written even more simply and, this
+time, will compile without error:
+
+\begin{emcppslisting}
+template <typename T>
+void construct(void* address, T& object)
+     // (ù{\codeincomments{object}}ù) passed by modifiable lvalue to enable both copy and move
+{
+    ::new(address) T(std::move_if_noexcept(object));  // factored implementation
+}
+\end{emcppslisting}
+    
+
+\noindent Note that a production form would also use a conditional
+\lstinline!noexcept! specification to indicate no exceptions when
+\lstinline!T! is a move-only type; see \featureref{\locatione}{noexcept-specifier}.
+
+\subsubsection[Implementing \lstinline!std::vector::push_back(T&&)!]{Implementing {\SubsubsecCode std::vector::push\_back(T\&\&)}}\label{implementing-std::vector::push_back(t&&)}
+
+In \intrarefsimple{appending-an-element-to-an-std::vector}, we discussed the primary motivation for having
+a \lstinline!noexcept! operator, and in \intrarefsimple{implementing-std::move_if_noexcept}, we demonstrated how we could
+implement fully factored functionality that is eminently useful in a
+variety of \emph{move}-related operations.
+
+In addition to inserting a \emph{copy} of a value into a vector, C++11
+adds an overload to permit \emph{moving} an element when inserting into
+the back of a vector, using the overload
+\lstinline!void!~\lstinline!vector<T>::push_back(T&&!~\lstinline!value)! (see
+\featureref{\locationc}{Rvalue-References}). This function offers the same
+\emcppsgloss{strong exception-safety guarantee} as the ``push-a-copy''
+overload but has to consider the additional case of a \emcppsgloss[move only type]{move-only
+type} --- i.e., a type having a \lstinline!public! \emph{move} constructor
+but no \emcppsgloss[accessible copy constructor]{accessible \emph{copy} constructor} --- where the \emph{move} constructor \emph{may} throw. In such cases, \lstinline!push_back! offers
+only the \emcppsgloss{basic exception-safety guarantee}; that is, no
+resources will be leaked and no invariants will be broken, but the state
+of the vector after the exception is thrown is otherwise unknown.
+
+In addition to weakening the \emcppsgloss{strong exception-safety guarantee}
+in specific circumstances, the \lstinline!push_back! of an \emph{xvalue}
+--- made possible by an \emph{rvalue} reference (see Appendix~\ref{appendix-value-categories} on page~\pageref{appendix-value-categories} \textbf{[AUs: Is Appendix I: Genesis of a New Value Category in Modern C++: \emph{xvalues} the book appendix? The only info I have is that the title is Value Categories.]}) --- adds the complication of implementing a function
+template that in some circumstances wants to make a copy but in
+attempting to do so in other circumstances will fail to compile. This
+conundrum is precisely the problem the \lstinline!std::move_if_noexcept!
+library function was designed to address.
+
+Before digging into the implementation of the \emph{rvalue}-reference
+overload of a vector-like container's \lstinline!push_back!, we need to
+introduce the notion of being \emcppsgloss{exception agnostic}. C++ code is
+\emcppsgloss{exception safe} if it provides the \emcppsgloss{basic guarantee}
+that, if an exception is thrown out of a function, no resources are
+leaked and no invariants are broken; it is \emcppsgloss{exception agnostic}
+if it is considered \emcppsgloss{exception safe} without having to resort to
+the use of exception-specific constructs, such as \lstinline!try!,
+\lstinline!catch!, or \lstinline!throw!, that, in an exception-disabled build,
+might fail to compile. Striving for \emcppsgloss[exception agnostic]{exception agnosticism} in a
+library means relying on \emcppsgloss{RAII} as the means of avoiding resource
+leaks when an exception is injected into the code via, for example, a
+user-supplied callback function, a virtual function in a user-derived
+class, or an object of user-defined type supplied as a template
+parameter.
+
+The term \emcppsgloss{scoped guard} is widely recognized as a category of
+object whose only purpose is to manage the lifetime of some other
+object, typically supplied at construction. When the guard object is
+destroyed, typically by dint of being an automatic variable leaving
+lexical scope, it destroys the object in its charge:
+
+\begin{emcppslisting}
+template <typename T>
+struct ScopedGuard
+{
+   T* d_obj_p;
+
+   ScopedGuard(T* obj) : d_obj_p(obj) { }
+   ~ScopedGuard() { delete d_obj_p; }
+};
+\end{emcppslisting}
+    
+
+\noindent Even this overly simplified \lstinline!ScopedGuard! can be used
+beneficially to make sure that an object allocated using global
+\lstinline!new! early in a function invocation will always be cleaned up,
+even when control flow leaves the function through an exception or an
+early return:
+
+\begin{emcppslisting}
+#include <vector>  // (ù{\codeincomments{std::vector}}ù)
+
+void test()
+{
+    ScopedGuard sg(new std::vector<int>);  // Create guarded object.
+    sg.d_obj_p->push_back(123);
+    // ...
+    // ...              (Something might throw.)
+
+}  // guarded object will be released automatically as guard leaves scope
+\end{emcppslisting}
+    
+
+\noindent A special-case use for a scoped guard is one where it acts as an
+insurance policy up until some commit point, after which the guard is
+disabled. Consider a function, \lstinline!evilFactory!, that dynamically
+allocates an \lstinline!std::vector<int>!, populates it, and eventually
+returns a raw pointer to it, which is not recommended, unless an
+exception is thrown:
+
+\begin{emcppslisting}
+std::vector<int>* evilFactory()  // return raw address of dynamic memory (BAD)
+{
+    ScopedGuard sg(new std::vector<int>);  // Create guarded object.
+
+    // ...              (something might throw)
+
+    std::vector<int>* tmp = sg.d_obj_p;  // Extract address of managed object.
+    sg.d_obj_p = 0;                      // Release ownership to client.
+    return tmp;                          // Return ownership of allocated object.
+}
+\end{emcppslisting}
+    
+
+\noindent In this second example, the client makes use of the guard while the
+object is being configured. During that period, if an exception is
+thrown, the guard will automatically destroy and deallocate the
+dynamically allocated object entrusted to it as the exception exits
+scope. If, as would be the typical case, no exception is thrown, the
+object's address is extracted from the guard, the guard's pointer is
+zeroed out (releasing it from its guard responsibilities), and the raw
+address of the fully configured dynamic object is returned. (Note this
+is a pedagogical example and is not recommended). We refer to a scoped
+guard that provides a way to release ownership of the managed object,
+typically via a \lstinline!release! member function, as a \emcppsgloss{proctor}.
+
+Let's now return to the principle task of implementing an
+\emph{rvalue}-reference overload of a \lstinline!push_back! member
+function for an \lstinline!std::vector!-like container but, again for
+simplicity, ignoring memory allocators. First, we will need a simple
+\emcppsgloss{proctor class} that can own a dynamic object and ensure it is
+destroyed at the end of scope --- such as when an exception is thrown
+--- unless ownership is adopted by another object:
+
+\begin{emcppslisting}
+template <typename T>
+class DestructorProctor  // generic "scoped guard" class with (ù{\codeincomments{release}}ù) method
+{
+    T* d_obj_p;  // address of object whose destructor might need to be called
+
+public:
+    explicit DestructorProctor(T* p) : d_obj_p(p) { }        // initialize
+    ~DestructorProctor() { if (d_obj_p) { d_obj_p->~T(); } } // clean up
+    void release() { d_obj_p = 0; }                          // disengage
+};
+\end{emcppslisting}
+    
+
+\noindent With this \lstinline!DestructorProctor! in hand, we can proceed to
+implement our \lstinline!push_back! designed specifically for temporary
+values. Note that there is no longer a branch on the \lstinline!noexcept!
+operator as all the necessary logic is handled by
+\lstinline!move_if_noexcept! returning the right kind of reference:
+
+\begin{emcppslisting}
+template <typename T>
+void vector<T>::push_back(T&& value)  // safe, efficient implementation
+{
+    if (d_size < d_capacity)  // if sufficient capacity in allocated memory...
+    {
+        void* address = d_array_p + d_size;  // implicit conversion to (ù{\codeincomments{void*}}ù)
+        ::new(address) T(std::move(value));  // may throw on construction
+        ++d_size;                            // no throw
+        return;                              // early return
+    }                                        // else...
+
+    vector<T> tmp;                                 // may throw
+    tmp.reserve(d_capacity ? d_capacity * 2 : 1);  // may throw
+
+    void* address = tmp.d_array_p + d_size;              // no throw
+    T* newElement = ::new(address) T(std::move(value));  // ctor may throw
+    DestructorProctor<T> guard(newElement);        // defend against exception
+
+    for ( ; tmp.d_size != d_size; ++tmp.d_size)    // for each current element
+    {
+        void* addr = tmp.d_array_p + tmp.d_size;   // no throw
+        ::new(addr) T(std::move_if_noexcept(d_array_p[tmp.d_size]));
+            // may throw only if move is not (ù{\codeincomments{noexcept}}ù)
+            // Move if either move is (ù{\codeincomments{noexcept}}ù) or (ù{\codeincomments{T}}ù) is not copyable;
+            // otherwise, copy to preserve strong exception-safety guarantee.
+    }
+
+    guard.release();  // no throw
+    ++tmp.d_size;     // no throw
+    swap(tmp);        // no throw, committed
+}
+\end{emcppslisting}
+    
+
+\noindent Note that if the above function copies, rather than moves, \lstinline!T!
+and an exception is thrown, \lstinline!tmp! will go out of scope, and the
+vector's destructor will take care of destroying all of the
+already-copied objects and deallocating the memory at
+\lstinline!tmp.d_array_p!. As a result, the \lstinline!DestructorProctor! is
+required to call only the destructor for the in-place-constructed
+object.
+
+This same implementation strategy exploiting
+\lstinline!move_if_noexcept!, used here for\linebreak[4]
+\lstinline!std::vector::push_back(T&&)!, could have also been used for
+the \emph{lvalue}-reference version (see \intrarefsimple{appending-an-element-to-an-std::vector}), the only
+differences being that we would construct the new element without
+calling \lstinline!std::move! --- as\linebreak[4]
+\lstinline!::new(address)!~\lstinline!T(value);! --- in two places. The use of
+\lstinline!std::move_if_noexcept! would not be changed, as its purpose is
+to move construct the existing elements rather than necessarily copy
+construct the newly inserted element. Note that the loop variable to
+track the elements that are moved or copied is the \lstinline!d_size!
+member of the \lstinline!tmp! vector to ensure that any \emph{copied} or
+\emph{moved} objects are destroyed by the destructor of \lstinline!tmp! if
+a subsequent move or copy operation throws. While the set of operations
+looks very different because the two branches of the
+\lstinline!if!~\lstinline!(noexcept(...))! statement in the original
+formulation of \lstinline!push_back! appear incompatible, in fact the
+sequence of operations in this new version is almost identical since we
+have effectively inlined the \lstinline!reserve! and copy-assignment
+operations of the original. The only difference is that, in the case of
+the nonthrowing move, the loop count is incrementing a member variable
+of the temporary vector rather than a local variable, and this
+difference should not be observable in practice.
+
+This generally useful pattern can also be pressed into service to
+implement the \lstinline!emplace! member functions; see the next section,\linebreak[4]
+\intrarefsimple{implementing-std::vector::emplace_back(args&&...-args)}.
+
+\subsubsection[Implementing \lstinline!std::vector::emplace_back(Args&&... args)!]{Implementing {\SubsubsecCode std::vector::emplace\_back(Args\&\&... args)}}\label{implementing-std::vector::emplace_back(args&&...-args)}
+
+Another useful way to append an element to a vector is the
+\lstinline!emplace_back! function that creates the new element directly in
+the vector's storage using \emcppsgloss{perfect forwarding} of
+\emph{rvalue}-reference parameters, avoiding the need for an additional
+temporary object that would be needed as the argument for a
+\lstinline!push_back! function.
+
+For example, consider appending to a vector of strings:
+
+\begin{emcppslisting}
+std::vector<std::string> vs;
+vs.push_back("A string long enough to defeat a small string optimization");
+vs.emplace_back("A string long enough to defeat a small string optimization");
+\end{emcppslisting}
+    
+
+\noindent In the case of calling \lstinline!push_back!, first a temporary
+\lstinline!std::string! object is constructed and then passed by-value as
+an argument for the \lstinline!push_back! function. In the case of
+\lstinline!emplace_back!, a \lstinline!const!~\lstinline!char*! pointer to the
+string literal is passing into the \lstinline!emplace_back! function,
+which will construct the new \lstinline!std::string! object directly in
+place, without need for the intervening temporary.
+
+The general implementation approach requires surprisingly little change
+from the one proposed for \lstinline!std::vector::push_back! on an
+\emph{rvalue} reference; see\linebreak[4] \intrarefsimple{implementing-std::vector::emplace_back(args&&...-args)}.
+
+We have provided here, for reference, a complete implementation of the
+\lstinline!emplace_back! method that comprises several other modern
+features of C++; see \featureref{\locationc}{variadictemplate} and
+\featureref{\locationc}{forwardingref}:
+
+\begin{emcppslisting}
+template <typename T>
+template <typename... Args>
+void vector<T>::emplace_back(Args&&... args)  // safe, efficient implementation
+{
+    if (d_size < d_capacity)  // if sufficient capacity in allocated memory...
+    {
+        void* address = d_array_p + d_size;  // implicit conversion to (ù{\codeincomments{void*}}ù)
+        ::new(address) T(std::forward<Args>(args)...);  // may throw on ctor
+        ++d_size;                            // no throw
+        return;                              // early return
+    }
+
+    vector<T> tmp;                                 // may throw
+    tmp.reserve(d_capacity ? d_capacity * 2 : 1);  // may throw
+
+    void* address = tmp.d_array_p + d_size;        // no throw
+    T* newElement = ::new(address) T(std::forward<Args>(args)...); // may throw
+    DestructorProctor<T> guard(newElement);        // defend against exception
+
+    for ( ; tmp.d_size != d_size; ++tmp.d_size)    // for each current element
+    {
+        void* addr = tmp.d_array_p + tmp.d_size;   // no throw
+        ::new(addr) T(std::move_if_noexcept(d_array_p[tmp.d_size]));
+            // may throw only if move is not (ù{\codeincomments{noexcept}}ù)
+            // move if either move is (ù{\codeincomments{noexcept}}ù), or (ù{\codeincomments{T}}ù) is not copyable,
+            // otherwise copy to preserve strong exception-safety guarantee
+    }
+
+    guard.release();  // no throw
+    ++tmp.d_size;     // no throw
+    swap(tmp);        // no throw, committed
+}
+\end{emcppslisting}
+    
+
+\noindent As you can see, the only two lines that change are those for
+constructing the new element in place (marked with \lstinline![Note]! in
+the code snippet above), in both the sufficient-capacity branch and the
+exceeding-capacity branch:
+
+\begin{emcppslisting}
+::new(address) T(std::forward<Args>(args)...);
+\end{emcppslisting}
+    
+
+\noindent The constructor called here is the \emcppsgloss{perfect forwarding}
+constructor that can consume an arbitrary number of arguments using a
+\emcppsgloss{function parameter pack}, where each different set of types of
+arguments will produce a different instantiation of the template. The
+\lstinline!emplace_back! function is another example of such a
+\emcppsgloss{perfect forwarding} function, called a \emcppsgloss{variadic function
+template}. The supplied \emcppsgloss{function parameter pack} is denoted by
+use of an ellipsis, which is again used when passing that pack onto the
+next function in our example above. The \lstinline!std::forward! function
+template must always be called by explicitly specifying the template
+argument. It is intended for use with \emcppsgloss[forwarding reference]{forwarding references}
+that are a \lstinline!T&&! template parameter, where \lstinline!T! will be
+implicitly deduced from the caller. Following the rules for
+\emcppsgloss{reference collapsing}, \lstinline!T! will either deduce to be an
+\emph{lvalue} reference or an \emph{xvalue}, so the call to
+\lstinline!std::forward<T>! will preserve the category of the supplied
+arguments when passing through this function call to the constructor for
+the new element.
+
+\subsubsection[Implementing \lstinline!std::vector::insert!]{Implementing {\SubsubsecCode std::vector::insert}}\label{implementing-std::vector::insert}
+
+To complete the study of vector insert operations, let us consider the
+case of inserting at an arbitrary position of a vector. If the insertion
+position happens to be the end of the vector, then the \emcppsgloss{strong
+exception-safety guarantee} holds. If we insert into the middle, then
+the \emcppsgloss{strong guarantee} holds unless a copy or move constructor
+throws, but, as we shall see, a safe implementation will avoid
+unnecessary copies and so provide undocumented the \emcppsgloss{strong
+guarantee} if the \emph{move} constructor does not throw. This
+implementation detail falls out of the common implementation technique
+used to avoid \emph{aliasing} problems when the element to be inserted
+is a copy of an element, passed by reference, that is already in the
+vector. The easiest way to solve this problem is to simply insert all
+new elements at the back of the vector and then call
+\lstinline!std::rotate! to move elements into the correct positions. The
+\lstinline!rotate! algorithm will \lstinline!swap! elements to establish the
+correct order without allocating more storage. The default
+implementation of \lstinline!std::swap! is now implemented as three move
+operations, so if the move constructor and move-assignment operator do
+not throw, then insertion at an arbitrary position of a vector will also
+provide the \emcppsgloss{strong guarantee}:
+
+\begin{emcppslisting}
+template <typename T>
+typename vector<T>::iterator vector<T>::insert(const_iterator position, const T& value)
+{
+    std::size_t offset = position - begin();
+        // iterator may be invalidated below
+
+    push_back(value);
+    vector<T>::iterator result = begin() + offset;
+
+    std::rotate(result, end() - 1, end());
+        // rotate last element to insert position
+
+    return result;
+}
+\end{emcppslisting}
+    
+
+\noindent Notice that the call to \lstinline!std::rotate! is a null operation when
+inserting at the end, providing the necessary \emcppsgloss{strong
+exception-safety guarantee}, even if \lstinline!swap! for the element type
+throws.
+
+\subsection[Potential Pitfalls]{Potential Pitfalls}\label{potential-pitfalls-noexceptoperator}
+
+\subsubsection[Using the \lstinline!noexcept! operator directly]{Using the {\SubsubsecCode noexcept} operator directly}\label{using-the-noexcept-operator-directly}
+
+One of the early discoveries in specifying the Standard Library was
+that, as the \lstinline!noexcept! operator considers the whole expression,
+the result can be \lstinline!false! due to side effects in subexpressions
+that were not intended as a direct part of the query. Consider the
+following constructor declaration:
+
+\begin{emcppslisting}
+template <typename T>
+struct MyType
+{
+    // ...
+    MyType(MyType&& rhs) noexcept(noexcept(T(T())));  // (ù{\codeincomments{T}}ù) is type of a member
+};
+\end{emcppslisting}
+    
+
+\noindent This seems like a reasonable way to write an exception specification
+that is conditional on whether a member of type \lstinline!T! has a
+nonthrowing move constructor. The expression under test creates a
+temporary object of type \lstinline!T! from another default-constructed,
+temporary object of type \lstinline!T!. How could this not return the
+expected result?
+
+First, this code assumes that \lstinline!T! has an accessible default
+constructor. This is a best-effort attempt to create an \emph{rvalue} of
+type \lstinline!T! without knowing anything about it and specifically not
+knowing the syntax for an accessible constructor to initialize a
+temporary object. The Standard solves this problem by introducing the
+\lstinline!declval! function into the \lstinline!<utility>! header:
+
+\begin{emcppslisting}
+template <typename T>
+typename std::add_rvalue_reference<T>::type std::declval() noexcept;
+\end{emcppslisting}
+    
+
+\noindent While this function is declared by the Standard Library, using it in a
+context where it might be evaluated --- i.e., outside a
+\lstinline!decltype!, \lstinline!noexcept!, \lstinline!sizeof!, or similar --- is
+an error. Note that the function is declared unconditionally
+\lstinline!noexcept! to support its intended use in the \lstinline!noexcept!
+operator without impacting the final result. This function generally
+returns an \emph{rvalue} reference, but the use of the
+\lstinline!add_rvalue_reference! type trait handles several corner cases.
+If called with an \emph{lvalue} reference, the reference-collapsing
+rules will be applied, and the result will be an \emph{lvalue}
+reference. If called with a type that does not support references, such
+as \lstinline!void!, the type trait will simply return that same type. Note
+that as the function signature simply returns a reference but the
+function itself never defined, the question of how to create the
+returned \emph{xvalue} at run time is avoided.
+
+With the \lstinline!declval! function in hand, we can rewrite our exception
+specification:
+
+\begin{emcppslisting}
+MyType::MyType(MyType&&) noexcept(noexcept(T(std::declval<T>())));
+\end{emcppslisting}
+    
+
+\noindent The use of \lstinline!std::declval! solved the problem of type \lstinline!T!
+not being default constructible, but this approach still has a subtle
+hidden problem. In addition to testing whether the move constructor for
+the temporary object of type \lstinline!T! will not throw, we are also
+testing the destructor of that temporary, since, by their nature,
+temporaries are destroyed at the end of the expression that creates
+them. This insight led to destructors having special rules, different
+from every other function, when declared without an exception
+specification (see \intraref{annoyances-noexceptoperator}{destructors-but-not-move-constructors-are-noexcept-by-default} below), which was important when
+recompiling code originally developed, tested, and validated against
+C++03. However, changing the rules for exception specifications on
+destructors still does not solve the problem when the destructor is
+explicitly declared as potentially throwing in new code. The workaround
+for this is to defer destruction of the temporary by use of the
+\lstinline!new! operator. As discussed in \intraref{use-cases-noexceptoperator}{appending-an-element-to-an-std::vector}, this can be
+resolved by careful use of the placement \lstinline!new! operator:
+
+\begin{emcppslisting}
+MyType::MyType(MyType&&) noexcept(noexcept(::new((T*)0) T(std::declval<T>())));
+\end{emcppslisting}
+    
+
+\noindent The use of the null pointer as the target address does not have
+undefined behavior here, as the expression is an \emcppsgloss[unevaluated
+operands]{unevaluated
+operand} passed as an argument to the \lstinline!noexcept! operator, so
+only the types involved in the expression, not the values, matter.
+
+The simple attempt to write the strongly motivating use case of a
+nonthrowing move constructor has turned into a complicated experts-only
+metaprogram. This is generally the pattern observed by direct use of the
+\lstinline!noexcept! operator, and typically such metaprograms are packaged
+up as clearly named \emcppsgloss[type trait]{type traits} where they can be developed,
+tested, and deployed just once.
+
+\subsubsection[The \lstinline!noexcept! operator doesn’t consider function bodies]{The {\SubsubsecCode noexcept} operator doesn’t consider function bodies}\label{the-noexcept-operator-doesn’t-consider-function-bodies}
+
+One source of confusion when first learning about the \lstinline!noexcept!
+specification is assuming that the specification is determined by the
+expressions in the function body. This misconception is enhanced by the
+rules for implicitly declared, or \emcppsgloss{defaulted}, functions (see
+\featureref{\locationa}{defaulted-special-member-functions}) producing an exception specification
+based upon the corresponding exception specification of the bases and
+members of the class.
+
+Similarly, some people are concerned that the compiler does not enforce
+\lstinline!noexcept! by parsing the function definition and rejecting
+expressions that may throw. This was a deliberate language choice (see
+\intraref{appendix-noexceptoperator}{genesis-of-the-noexcept-operator:-move-operations}) that throwing out of a \lstinline!noexcept!
+function be a runtime failure, not a compile-time error, given the
+history of C++ and other languages attempting to statically enforce an
+exception markup. Exception specifications for function templates would
+have become particularly difficult for library authors, and it would be
+challenging to adopt any use of \lstinline!noexcept! for projects compiling
+against C code or with legacy C++03 code. However, some compilers will
+issue warnings in cases where an exception is known to be thrown through
+a \lstinline!noexcept! specification, i.e., in the case where all code
+paths lead to an exception and there is no regular return path:
+
+\begin{emcppslisting}
+void does_not_throw() noexcept
+{
+    throw "Oops!";  // OK, calls (ù{\codeincomments{std::terminate}}ù), but a good compiler will warn
+}
+
+void should_not_throw(bool lie) noexcept
+{
+    if (lie)
+    {
+        throw "Fooled you!";  // OK, but conditional so compilers will not warn
+    }
+}
+\end{emcppslisting}
+    
+
+\subsubsection[Conflating \lstinline!noexcept! with the no-fail guarantee]{Conflating {\SubsubsecCode noexcept} with the no-fail guarantee}\label{conflating-noexcept-with-the-no-fail-guarantee}
+
+A common source of misunderstanding is conflating the \emph{no-throw}
+guarantee with the \emph{no-fail} guarantee. A \lstinline!noexcept!
+specification does not guarantee that the decorated function cannot
+fail, but rather that if it does fail --- that is, if it cannot satisfy
+its documented postconditions --- then it will terminate the program and
+not return control flow to the caller. In either case, the caller does
+not have to worry about failure emitting an exception, but if we do not
+provide additional documentation that the function provides the
+\emph{no-fail} guarantee, then the user should be aware that calling the
+function may terminate the program, and the larger system that the
+program is part of should be prepared to handle that and restart the
+program if necessary. An example where this has been used to create
+robust software is in vehicle-control systems that may run three or more
+processes as a ``voting system'' to determine the best course of action
+or to decide whether to trust some surprising sensor data. The software
+is designed to fail any program hard when it becomes unreliable and to
+restart quickly and smoothly, as the redundant processes can continue
+voting and maintain control of the vehicle systems.
+
+When writing our functions that are decorated with \lstinline!noexcept!, it
+is important to document whether they offer the no-fail guarantee as
+well. When reading and maintaining code that calls a \lstinline!noexcept!
+function, we must understand whether \lstinline!noexcept! also conveys a
+no-fail guarantee, which should be documented by the library. Note that
+conflating a no-fail guarantee and \lstinline!noexcept! occurs frequently
+enough that a convention is arising that \lstinline!noexcept! might imply a
+no-fail guarantee unless the potential for failure is also documented,
+i.e., documenting by omission. It is generally important to understand
+the implicit defaults of the documentation of any library being used and
+to aspire to be explicit about default assumptions in our own
+documentation.
+
+\subsection[Annoyances]{Annoyances}\label{annoyances-noexceptoperator}
+
+\subsubsection[The \lstinline!noexcept! operator is too sensitive for direct use]{The {\SubsubsecCode noexcept} operator is too sensitive for direct use}\label{the-noexcept-operator-is-too-sensitive-for-direct-use}
+
+As the \lstinline!noexcept! operator takes account of whole expressions, it
+can be surprisingly difficult to test just the operations about which
+the code is concerned. The C++ Standard Library provides a number of
+type traits that effectively package up the metafunctions necessary to
+determine such results in reusable components:
+
+\begin{emcppslisting}
+#include <type_traits>  // all of the (ù{\codeincomments{std::*}}ù) traits below
+
+struct S { };  // trivial object, all implicit operations are (ù{\codeincomments{noexcept}}ù)
+
+static_assert(std::is_nothrow_assignable<S>::value, "");             // OK
+static_assert(std::is_nothrow_constructible<S>::value, "");          // OK
+static_assert(std::is_nothrow_copy_assignable<S,S>::value, "");      // OK
+static_assert(std::is_nothrow_copy_constructible<S>::value, "");     // OK
+static_assert(std::is_nothrow_default_constructible<S>::value, "");  // OK
+static_assert(std::is_nothrow_destructible<S>::value, "");           // OK
+static_assert(std::is_nothrow_move_assignable<S>::value, "");        // OK
+static_assert(std::is_nothrow_move_constructible<S>::value, "");     // OK
+\end{emcppslisting}
+    
+
+\noindent A sample implementation might look something like:
+
+\begin{emcppslisting}
+template <typename T, bool = is_move_constructible<T>::value>
+struct is_nothrow_move_constructible__impl
+    : integral_constant<bool, false> { };
+
+template <typename T>
+struct is_nothrow_move_constructible__impl<true>
+    : integral_constant<bool, noexcept(::new((void*)0) T(declval<T>()))> { };
+
+template <typename T>
+struct is_nothrow_move_constructible
+    : is_nothrow_move_constructible__impl<T> { };
+\end{emcppslisting}
+    
+
+\noindent See \intraref{potential-pitfalls-noexceptoperator}{using-the-noexcept-operator-directly}. Notice that even this
+simple trait requires a level of indirection through a support class to
+avoid evaluating a \lstinline!noexcept! expression that would not compile
+for a type that is not move constructible at all.
+
+In addition to the traits supplied with C++11, a particular concern
+arose determining whether a \lstinline!swap! operation has a nonthrowing
+exception specification. The popular copy/swap idiom relies on a
+nonthrowing \lstinline!swap! operation that is called relying on argument
+dependent lookup (ADL) with the primary \lstinline!std::swap! template also
+found by ordinary name lookup. This is generally achieved with a
+\lstinline!using! declaration within the scope of the code calling
+\lstinline!swap!, but it is not possible to inject
+\lstinline!using!~\lstinline!std::swap! within the single expression being
+tested by use of a \lstinline!noexcept! operator. This issue was missed
+when specifying the Standard Library as the library components
+themselves are all in namespace \lstinline!std!, so they find the
+\lstinline!std::swap! overload without requiring an additional
+\lstinline!using!.{\cprotect\footnote{This oversight was addressed in C++17
+with the addition of two more type traits:
+
+\begin{emcppslisting}[style=footcode]
+static_assert(std::is_nothrow_swappable<S>::value);            // OK, in C++17
+static_assert(std::is_nothrow_swappable_with<S&, S&>::value);  // OK, in C++17
+\end{emcppslisting}
+      }}
+
+However, unlike the C++11 traits, it is not possible for users to
+provide the equivalent functionality themselves without invading
+namespace \lstinline!std!, something explicitly prohibited by the C++
+Standard. These traits can be implemented \emph{only} by the Standard
+Library itself.
+
+In practice, use of the \lstinline!noexcept! operator is often delegated to
+type traits, provided by either the Standard Library or user code, that
+can implement, test, debug, and package up the precise metaprogram
+clearly named for its intended usage.
+
+\subsubsection[The strong exception-safety guarantee itself]{The strong exception-safety guarantee itself}\label{the-strong-exception-safety-guarantee-itself}
+
+A lot of effort has gone into maintaining support for the \emcppsgloss{strong
+exception-safety guarantee}, and whether this guarantee buys significant
+benefit over the \emcppsgloss{basic exception-safety guarantee} to justify
+the cost is unclear. If an operation has failed such than an exception
+is thrown, the error recovery path typically catches at a granularity
+that will reattempt the whole transaction, including re-creating the
+objects that were providing the \emcppsgloss{strong exception-safety
+guarantee} for their use.
+
+The intended benefit of the \emcppsgloss{strong exception-safety guarantee}
+is to apply transactional reasoning about code, where an operation must
+succeed, or leave the system in a good state. The \emcppsgloss{strong
+guarantee} requires that the ``good state'' be the state prior to
+starting the transaction, which raises the question of what is likely to
+change such that re-attempting the transaction would succeed on the
+second attempt. Generally, the fine-grained transactional guarantees
+give way to abandoning the whole transaction and starting over, in which
+case the state preserved by the \emcppsgloss{strong guarantee} is also lost.
+Note that fine-grained transactional reasoning does turn out to be
+important to atomic operations on concurrent code, but that is entirely
+distinct from the exception safety guarantees.
+
+In practice, the \emcppsgloss{strong guarantee} can prove useful when trying
+to diagnose problems in software, as it helps the debugging process to
+know that we can rely on inspecting an object to return the same state
+as before an operation was attempted. Of course, that relies on the
+assumption that the bug being diagnosed is not also impacting on the
+\emcppsgloss{strong exception-safety guarantee} of the constituent code.
+
+\subsubsection[Change in unspecified behavior when an \lstinline!std::vector! grows]{Change in unspecified behavior when an {\SubsubsecCode std::vector} grows}\label{change-in-unspecified-behavior-when-an-std::vector-grows}
+
+One of the lesser known corner cases of C++03 is that when a vector
+grows, as it copies all of its elements into a new, larger array, state
+that is not copied by default is lost. For example, the capacity of a
+vector is generally not preserved when a vector is copied, even if the
+user has explicitly called \lstinline!reserve! to ensure that the original
+vector object can grow without reallocating. This becomes an issue when
+trying to prepopulate a vector so that subsequent use in the program
+should not force a reallocation:
+
+\begin{emcppslisting}
+void safe_append(std::vector<std::vector<int>>* target)
+{
+    assert(target);
+    target->push_back(std::vector<int>());
+    target->back().reserve(100);
+}
+\end{emcppslisting}
+    
+
+\noindent This function ensures that every new \lstinline!vector<int>! inserted into
+the \lstinline!target! vector has a capacity of at least 100. However, if
+\lstinline!target! itself is forced to grow, then all of the existing
+vectors in \lstinline!target! will be copied and have a new capacity
+computed to reasonably hold the elements they already hold, which could
+well be a lower capacity, forcing new allocations to happen on later
+use, which this code was explicitly attempting to avoid.
+
+This is resolved by C++11 for the common case that the move constructor
+for the element of a vector is \lstinline!noexcept!, as the vector will
+\emph{move} rather than \emph{copy} each element into the new array, and
+move operations frequently preserve more information about the state of
+the original object, including, in our example, the capacity of a
+vector.
+
+Note that some programmers might think \lstinline!std::vector<std::string>!
+would be a more common example to encounter this problem, but a
+confluence of fortunate design choices mean that this does not happen in
+practice. The design of \lstinline!std::string! for C++03 enabled the
+copy-on-write optimization, which we believe all Standard Libraries
+implemented. This design means that when we copy a string, we share a
+reference-counted implementation and only make a real copy when either
+string calls a modifying operation (such as appending more characters)
+when the string being modified finally implements the deferred copy.
+However, manipulating a hidden shared state turns out to be a real
+performance problem for concurrent code, which was a major design goal
+for C++11, so the design of \lstinline!std::string! changed to support the
+``short string'' optimization instead. A vector of this redesigned
+string would indeed display the original issue, if we had not
+simultaneously fixed \lstinline!std::vector! to sidestep the problem using
+moves.
+
+\subsubsection[Destructors, but not move constructors, are \lstinline!noexcept! by default]{Destructors, but not move constructors, are {\SubsubsecCode noexcept} by default}\label{destructors-but-not-move-constructors-are-noexcept-by-default}
+
+Once implementations of the \lstinline!noexcept! operator were available
+with early compilers, it quickly became apparent that there were issues
+with common expressions involving temporary objects. These issues
+occurred because the \lstinline!noexcept! operator included the whole
+lifetime of temporary objects, expressions involving temporaries would
+call their destructors, and the vast majority of existing C++03 code was
+written without exception specifications on their destructors.
+
+In fact, the C++03 language did implicitly provide an exception
+specification for implicitly declared destructors, based upon the
+exception specification of their bases and members. Clearly the language
+was already trying to help us out, but as soon as the user wrote their
+own destructor, which is a common thing to do, that user would have to
+explicitly mark up that destructor as \lstinline!noexcept!, or many
+potential uses of the \lstinline!noexcept! operator would become irrelevant
+as it would always return \lstinline!false!. The solution for this problem
+was to make destructors --- \emph{only} destructors --- special, so that
+if there is no explicitly declared exception specification on a
+user-supplied destructor, it will be given the same exception
+specification as though it were implicitly declared. Note that many
+programmers misstate this rule as ``destructors are implicitly
+\lstinline!noexcept!''. While it is the overwhelmingly common case that
+destructors are implicitly \lstinline!noexcept!, the rule allows for a
+class to explicitly mark its destructor as potentially throwing:
+
+\begin{emcppslisting}
+struct Bad
+{
+   ~Bad() noexcept(false) { }
+};
+\end{emcppslisting}
+    
+
+\noindent Any class that had a \lstinline!Bad! base or member would also have an
+implicitly throwing destructor. However, unless someone explicitly
+writes a class like \lstinline!Bad! in the first place, the misstated rule
+holds that destructors generally have nonthrowing exception
+specifications.
+
+The next question to arise is why move constructors do not get the same
+treatment as destructors and take the exception specification on an
+implicitly declared move constructor if there is no explicitly supplied
+specification. The simplest answer may be that nobody suggested it at
+the time.
+
+\lstinline!noexcept! arrived extremely late in the C++11 standardization
+process, and the need to address destructors was discovered only with
+eager implementations of the new language feature interacting with the
+vast majority of existing code. Destructors are extremely common, and a
+part of almost every object's lifetime. Move constructors were a new
+feature that required new code to be written so there was no large
+legacy of incompatible code to address. Move constructors are but one
+constructor of many, whereas a class could have only one destructor, so
+the rule that ``destructors are special'' was relatively easy to learn,
+whereas a new rule that ``move constructors are an extra special
+constructor in the grammar'' was less obvious. Also, there were more
+common cases where an implicit exception specification based upon the
+exception specification of the bases and members would give the wrong
+result for user-defined types. For example, the move constructor is
+responsible for restoring the invariants of any object whose state it
+consumes, and if one invariant is that an empty object always has an
+allocated object (e.g., a sentinel node in an implementation of
+\lstinline!std::list!), then the user would be responsible for explicitly
+marking up that move constructor as \lstinline!noexcept(false)!, or else
+the program would have a hidden termination condition, which did not
+seem as useful a default as one that merely misses a library
+optimization opportunity. Finally, without the large body of
+pre-existing code, it is not clear that even destructors would have been
+deemed special enough to have a different default to every other
+function in the language.
+
+\subsubsection[Older compilers invade the bodies of \lstinline!constexpr! functions]{Older compilers invade the bodies of {\SubsubsecCode constexpr} functions}\label{older-compilers-invade-the-bodies-of-constexpr-functions}
+
+It has always been clear that the \lstinline!noexcept! operator was not
+permitted to infer from the body of an ordinary function, even an empty
+one, whether it would throw. However, for C++11 and C++14, the behavior
+for a function declared \lstinline!constexpr! (see \featureref{\locationc}{constexprfunc}) was underspecified, which meant that some compilers, such
+as GCC prior to version 9.1, would inspect the body of a
+\lstinline!constexpr! function when evaluating \lstinline!noexcept!.
+
+A clarification was made in C++17, and the specification is retroactive
+to C++11 and C++14, so we would expect all of the assertions in the
+following example to succeed on conforming compilers. Such is the case
+for all versions of Clang and for GCC version 9.1 and later, but, for
+GCC versions before 9.1 and MSVC up to 2019, some of these cases have
+nonconforming results:
+
+\begin{emcppslisting}
+          int f0()          { return 0; }
+constexpr int f1()          { return 0; }
+constexpr int f2(bool e)    { if (e) throw std::runtime_error(""); return 0; }
+          int f3() noexcept { return 0; }
+constexpr int f4() noexcept { return 0; }
+
+static_assert(!noexcept(f0()),      "");  // OK
+static_assert(!noexcept(f1()),      "");  // OK, but fails on old GCC and MSVC
+static_assert(!noexcept(f2(false)), "");  // OK, but fails on old GCC and MSVC
+static_assert(!noexcept(f2(true)),  "");  // OK
+static_assert( noexcept(f3()),      "");  // OK
+static_assert( noexcept(f4()),      "");  // OK
+\end{emcppslisting}
+    
+
+\subsubsection[Exception-specification constraints in class hierarchies]{Exception-specification constraints in class hierarchies}\label{exception-specification-constraints-in-class-hierarchies}
+
+There are occasions when we might want to legitimately override a
+function that never throws with a function that \emph{can} throw. This
+is, perhaps, best illustrated by means of an example.
+
+As background, a number of mathematical models using correlation
+matrices require that those matrices are \emcppsgloss{positive semidefinite},
+a description of which is outside the scope of this book but can be
+found in most texts on statistics and matrix algebra.\footnote{See, for example, \cite{vandenbos17}.} Testing
+whether a matrix meets this requirement is a computationally expensive
+process for matrices of rank greater than 2, and this property
+automatically holds true for all rank 1, i.e., trivial, and rank 2
+correlation matrices.
+
+Suppose, as a hypothetical example, we have some form of mathematical
+model that depends on a matrix of correlation values requiring that that
+correlation matrix is ``positive semidefinite.'' For 2x2 matrices, the
+calculations are straightforward, and there is no need to check the
+validity of the input matrix.
+
+When a more enhanced model is created that can handle arbitrarily large
+matrices, we have to check those matrices for validity:
+
+\begin{emcppslisting}
+class MySimpleCalculator
+{
+    // a mathematical model that can handle the simple case of only 1 or 2
+    // assets
+
+    virtual void setCorrelations(const SquareMatrix& correlations) noexcept
+        // This function takes a correlation matrix that must be a valid 1x1
+        // or 2x2 matrix.  If the matrix is larger than 2x2, then the behavior
+        // is undefined.
+    {
+        // This simple calculator can handle only 2x2 correlations.
+        assert(correlations.rank() <= 2);
+        d_correlations = correlations;
+    }
+};
+
+class MyEnhancedCalculator : public MySimpleCalculator
+{
+    // an enhancement that can handle arbitrarily large numbers of assets
+
+    void setCorrelations(const SquareMatrix& correlations) override
+        // This function takes an arbitrarily large correlation matrix,
+        // satisfying a positive semidefiniteness constraint.  If the matrix
+        // is not positive semidefinite, then an exception will be thrown.
+    {
+        // Check positive semidefiniteness only if rank > 2 because it is an expensive
+        // calculation and is, by definition, true for correlations when rank<=2.
+        if (correlations.rank() > 2 && !correlations.isPositiveSemiDefinite())
+        {
+            throw MyCorrelationExceptionClass();
+        }
+
+        d_correlations = correlations;
+    }
+};
+
+\end{emcppslisting}
+    
+
+\noindent We might think it would be a good idea to put \lstinline!noexcept! on the
+base class function, knowing that it can never throw. However, those
+plans would be foiled by the rules, which would force us to remove
+exception throwing from any overrides of this function.
+
+So, given the above scenario, what are our options? There are,
+unfortunately, only three, none of which are ideal.
+\begin{enumerate}
+\item{Remove the \lstinline!noexcept! specifier from the base class. This is the easiest option, but we may sacrifice some compiler optimizations as a result of doing so or surprise clients who have come to depend on that function being \lstinline!noexcept! in some way. Unfortunately, for base classes contained in third-party libraries, this may not be viable.}
+\item{Make the override function \lstinline!noexcept! and change the \lstinline!throw! into an \lstinline!assert!. This would be effectively kicking the problem of data validation upstream of the function call, saying to every caller, ``If you don’t want the program to die, don’t pass bad data.'' It also means that unit testing could be done only by using ``death tests,'' which has performance implications for the compilation/testing cycle.}
+\item{Make the override function \lstinline!noexcept! and simply fail to produce a useful result when given an invalid matrix, possibly with some other derived-class specific state to indicate being in an invalid state. This is, likewise, effectively kicking the problem upstream through very indirect error reporting and handling and has added complications when it comes to unit testing.}
+\end{enumerate}
+Generally, if we are writing a class and there is any possibility that
+we or a client might consider inheriting from that class now or in the
+future and we are considering making any of the \lstinline!virtual! member
+functions \lstinline!noexcept!, we must consider carefully whether the
+benefits of \lstinline!noexcept! outweigh the disadvantages.
+
+Note that when we choose to remove a \lstinline!noexcept! specifier from a
+base-class function, there may be cascading consequences:
+
+\begin{emcppslisting}
+class DataTable
+{
+    // This class has some data and appropriate virtual accessors.
+
+    virtual Data getValue(/* ... */) const noexcept;
+        // Return some of the held data based on arguments passed in.
+};
+
+class Calculator
+{
+    virtual double getUsefulStatistic(const DataTable& dt) noexcept;
+        // given a (ù{\codeincomments{DataTable dt}}ù), makes one or more calls to (ù{\codeincomments{dt.getValue}}ù) and
+        // performs some calculation to generate a result
+};
+\end{emcppslisting}
+    
+
+\noindent Suppose we want to do the same calculation on data in a database:
+
+\begin{emcppslisting}
+class LazyLoadingDataTable : public DataTable
+{
+    // holds a database connection and a mutable data cache
+
+    Data getValue(/* ... */) const override;
+        // queries the database for values not in cache and throws
+        // (ù{\codeincomments{DatabaseException}}ù) in the event of any issues
+};
+\end{emcppslisting}
+    
+
+\noindent Given the rules around \lstinline!noexcept!, this will give us a
+compilation error. The compilation error can be resolved by removing the
+\lstinline!noexcept! specifier on the \lstinline!DataTable::getValue!
+function. This will now compile, so presumably all is well.
+
+Let's examine what could happen if we have, for example, network
+congestion.
+\begin{enumerate}
+\item{The program constructs a \lstinline!LazyLoadingDataTable! with appropriate database connection information.}
+\item{The program passes that into \lstinline!Calculator::getUsefulStatistic!.}
+\item{\lstinline!Calculator::getUsefulStatistic! calls into \lstinline!LazyLoadingDataTable::getValue!.}
+\item{There is a database timeout, and an exception of type \lstinline!DatabaseException! is thrown.}
+\item{Because \lstinline!getUsefulStatistic! is \lstinline!noexcept!, the exception cannot propagate.}
+\item{The program terminates.}
+\end{enumerate}
+This can be an issue not just in production systems, but also in unit
+testing. For example, suppose we want to test the above class with a
+mock database connection, which throws an exception; we would have to
+again resort to death testing.
+
+\subsubsection[Functions declared \lstinline!noexcept! must be bulletproof]{Functions declared {\SubsubsecCode noexcept} must be bulletproof}\label{functions-declared-noexcept-must-be-bulletproof}
+
+If we mark any function \lstinline!noexcept!, then we risk terminating the
+program unexpectedly. For that reason, we need to not only avoid
+throwing exceptions ourselves, but also be absolutely certain that
+anything we call and anything we depend on is guaranteed to not throw
+any exceptions. When designing mission critical production systems, it
+is important that any failure case will result in ``graceful
+degradation'' rather than a cataclysmic outage.{\cprotect\footnote{\textbf{[AUs: Please provide this source]} See
+  O'Reilly, Site Reliability Engineering by various authors at Google.}}
+
+Suppose, hypothetically, an application writer links in a poorly tested,
+third-party library that sends status information to a central dashboard
+display. If, for whatever reason, that library fails to open a socket to
+the dashboard server, then an exception is thrown. If that were to
+happen, then the core functionality of the application may be able to
+continue without the dashboard reporting features, the exception having
+been caught and logged.
+
+If, on the other hand, that exception were to hit a \lstinline!noexcept!
+barrier somewhere within its call stack, then the application would
+terminate. A worst-case scenario is that multiple applications reporting
+their status into the same dashboard would all require a fast, risky
+deployment of new versions with the third-party library dependency
+completely excised to reinstate the production systems.
+
+\subsection[See Also]{See Also}\label{see-also}
+
+TODO
+
+\subsection[Further Reading]{Further Reading}\label{further-reading}
+
+\begin{itemize}
+\item{\cite{krzemienski11}}
+\end{itemize}
+
+\subsection[Appendix]{Appendix}\label{appendix-noexceptoperator}
+
+\subsubsection[Genesis of the \lstinline!noexcept! operator: move operations]{Genesis of the {\SubsubsecCode noexcept} operator: move operations}\label{genesis-of-the-noexcept-operator:-move-operations}
+
+Late in the C++11 standardization process, a problem was discovered with
+the library optimizations that motivated the addition of \emph{move}
+operations into C++. The problem was deemed serious enough to adopt a
+proposal for a new language feature at the Pittsburgh meeting, March
+2010, over a year after the cut-off for new features for C++11. \textbf{[AUs: from VR: LORI, 
+PLEASE ASK JOHN FOR THE CITATION HERE, I COULDN'T FIND IT.]} That problem
+was breaking the \emcppsgloss{strong exception-safety guarantee} when
+inserting an element into a vector; see \intraref{use-cases-noexceptoperator}{appending-an-element-to-an-std::vector}. Much code has
+been written and tested expecting this guarantee to hold.
+
+A simple fix would be to require that types provide a nonthrowing
+\emph{move} constructor to establish the \emcppsgloss{strong exception-safety
+guarantee}. It is relatively simple to provide this guarantee when
+implementing a \emph{move} constructor for our type, but that involves
+writing new code. What happens for code from the C++03 era when we
+recompile under the new rules? This code does not have any \emph{move}
+constructors defined, as the C++03 language did not support them.
+Instead, when the vector tries to move each element, overload resolution
+will find the \emph{copy} constructor and make copies. While we can
+expect a specially written \emph{move} constructor to provide a no-throw
+guarantee, we cannot expect the same of \emph{copy} constructors, which
+often need to allocate memory, such as when a type has a
+\lstinline!std::vector! or \lstinline!std::string! data member.
+
+There are two parts to solving this problem for C++11, and both were
+adopted at the March 2010 meeting. The first part is an attempt to
+implicitly upgrade the existing C++03 code. Paper N3053\footnote{\cite{stroustrup10}} provides implicitly declared \emph{move} constructors and
+\emph{move}-assignment operators for classes that follow the
+\emcppsgloss{rule of zero}, i.e., for classes that rely on the implicit
+declaration of the \emph{copy} constructor, \emph{copy}-assignment
+operator, and destructor. Implicit declaration was \emph{not} desired in
+cases where users have themselves defined any of these functions though,
+as that suggests that there is some internal state management that must
+be performed, such as releasing owned resources. The implicit
+definitions for the move operations are simple member-wise
+\emph{move}-construct or \emph{move}-assign operations, just as the
+implicitly defined copy operations call copy constructors/assignment
+operators. Note that C++03 code for the implicitly defined move
+operations will generally just \emph{copy}, as the pre-existing C++03
+code could not itself provide \emph{move} overloads. However, C++03
+class templates instantiated with C++11 move-optimized types will
+\emph{move} correctly for their implicitly declared \emph{move}
+operations. The important point is that move-optimized types rarely
+throw on move construction or move assignment, providing the guarantee
+that \lstinline!std::vector! requires but for only that subset of
+user-supplied class types with optimized move.
+
+The second part was the introduction of the \lstinline!noexcept! operator
+in paper N3050.\footnote{\cite{abrahams10}} This
+operator acts upon the types returned by expressions, much like the
+\lstinline!sizeof! operator, to query whether \emph{any} of the
+subexpressions that comprise the full expression \emph{are allowed to}
+emit an exception rather than return. If it is known that calling a
+\emph{move} constructor for the template parameter type, \lstinline!T!,
+cannot throw, then there is no need to maintain a duplicate copy of each
+element when populating the new array after a vector grows to satisfy a
+new capacity. This guarantee allows the vector to attempt all the
+potentially throwing operations first (allocating the new array and
+constructing any new elements) and only then safely moving all the
+existing elements, preserving the \emcppsgloss{strong exception-safety
+guarantee}, even for old code recompiled with the new library
+optimization. Otherwise, as we know that a \emph{move can} throw, the
+library falls back on the old nonoptimized behavior that makes a copy of
+each element into the array before updating the internal pointers to
+take ownership. Note that paper N3053 even guarantees that library
+optimization is available for some subset of C++03 types, but most such
+types will need updating to support nonthrowing \emph{moves} to gain the
+benefit.
+
+The final part of the puzzle is the \lstinline!noexcept! exception
+specification that fuels the \lstinline!noexcept! operator, added by the
+same paper N3050\footnote{\cite{abrahams10}}; see \featureref{\locatione}{noexcept-specifier}.
+
+
