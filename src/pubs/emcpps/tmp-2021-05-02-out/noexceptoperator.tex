@@ -1,5 +1,6 @@
 % 30 April 2021, cleaning up and updating commands
 % 2 May 2021, to Josh for code check
+% 2 May 2021 JMB, code cleanup complete
 
 
 \emcppsFeature{
@@ -103,6 +104,7 @@ but, instead of throwing on allocation failure, returns a \emph{null}
 address value:
 
 \begin{emcppslisting}
+#include <new>  // (ù{\codeincomments{std::nothrow}}ù)
 char* cp1 = new               char[1000LL*1000*1000*1000];  // might throw
 char* cp2 = new(std::nothrow) char[1000LL*1000*1000*1000];  // will (ù{\emphincomments{not}}ù) throw
 
@@ -117,7 +119,7 @@ a \emcppsgloss{polymorphic type} will result in a runtime exception of type
 publicly and unambiguously derived from the target type of the cast
 operation:
 
-\begin{emcppslisting}
+\begin{emcppslisting}[emcppsbatch=e1]
 struct B
 {
    virtual ~B() {}
@@ -170,12 +172,12 @@ Because it is possible for a \lstinline!dynamic_cast! to throw
 reference but not a pointer, the \lstinline!noexcept! operator
 discriminates between these two kinds of expressions:
 
-\begin{emcppslisting}
-static_assert( noexcept(dynamic_cast<C*>(bp)), "");  // OK, never throws
-static_assert(!noexcept(dynamic_cast<C&>(br)), "");  // OK, can throw
+\begin{emcppslisting}[emcppsbatch=e1]
+static_assert( noexcept(dynamic_cast<D1*>(bp)), "");  // OK, never throws
+static_assert(!noexcept(dynamic_cast<D1&>(bx)), "");  // OK, can throw
 
-static_assert( noexcept(dynamic_cast<D*>(bp)), "");  // OK, never throws
-static_assert(!noexcept(dynamic_cast<D&>(br)), "");  // OK, can throw
+static_assert( noexcept(dynamic_cast<D2*>(bp)), "");  // OK, never throws
+static_assert(!noexcept(dynamic_cast<D2&>(bx)), "");  // OK, can throw
 \end{emcppslisting}
     
 
@@ -226,8 +228,8 @@ specification]{dynamic exception
 specifications}, which could be used to decorate a function with the
 types of exception objects that a function was permitted to throw:
 
-\begin{emcppslisting}
-int f()                      // Function (ù{\codeincomments{f}}ù) (ù{\emphincomments{may}}ù) throw anything.
+\begin{emcppslisting}[emcppsbatch=e2]
+int f();                     // Function (ù{\codeincomments{f}}ù) (ù{\emphincomments{may}}ù) throw anything.
 int g() throw(const char*);  // Function (ù{\codeincomments{g}}ù) (ù{\emphincomments{may}}ù) throw a (ù{\emphincomments{string literal}}ù).
 int h() throw();             // Function (ù{\codeincomments{h}}ù) is (ù{\emphincomments{not}}ù) allowed to throw anything.
 \end{emcppslisting}
@@ -236,7 +238,7 @@ int h() throw();             // Function (ù{\codeincomments{h}}ù) is (ù{\emph
 \noindent The \lstinline!noexcept! operator looks \emph{only} at the function
 declaration:
 
-\begin{emcppslisting}
+\begin{emcppslisting}[emcppsbatch=e2]
 static_assert(noexcept(f()) == false, "");  // (ù{\emphincomments{may}}ù) throw anything
 static_assert(noexcept(g()) == false, "");  // (ù{\emphincomments{may}}ù) throw a (ù{\codeincomments{const char*}}ù)
 static_assert(noexcept(h()),  "");  // (ù{\emphincomments{may not}}ù) throw anything
@@ -257,7 +259,7 @@ handler exits the program first. \lstinline![[noreturn]]! is an attribute
 that indicates the function will not return but may throw; see
 \featureref{\locationa}{attributes} and \featureref{\locationa}{the-noreturn-attribute}:
 
-\begin{emcppslisting}
+\begin{emcppslisting}[emcppsbatch=e3]
 void f0()                    { throw 5;   }  // throws (ù{\codeincomments{int}}ù)
 void f1()                    { throw 5.0; }  // throws (ù{\codeincomments{double}}ù)
 
@@ -279,7 +281,7 @@ void f9() throw()            { throw 5.0; }  // calls (ù{\codeincomments{std::u
 exceptions that might be thrown, reporting back only as to whether an
 exception of \emph{any} type may escape the body of the function:
 
-\begin{emcppslisting}
+\begin{emcppslisting}[emcppsbatch=e3]
 static_assert(noexcept(f0()) == false, "");  // doesn't say it doesn't throw
 static_assert(noexcept(f1()) == false, "");  //   "      "   "    "      "
 
@@ -324,7 +326,10 @@ C++11 introduces an alternative exception-specification mechanism for
 arbitrary functions, member functions, and lambda expressions (see
 \featureref{}{} \textbf{[AUs: there is no feature called lambda expressions; what did you intend? ]}):
 
-\begin{emcppslisting}
+\begin{emcppshiddenlisting}[emcppsbatch=e4]
+constexpr bool expr = true;
+\end{emcppshiddenlisting}
+\begin{emcppslisting}[emcppsbatch=e4]
 void f() noexcept(expr);  // (ù{\codeincomments{expr}}ù) is a boolean constant expression.
 void f() noexcept;        // same as (ù{\codeincomments{void f() noexcept(true)}}ù)
 \end{emcppslisting}
@@ -363,10 +368,13 @@ consistently returning 0 on success, we enable an easy and efficient,
 two primary code paths corresponding, respectively, to success and
 failure:
 
-\begin{emcppslisting}
-void func(/* ... */)
+\begin{emcppshiddenlisting}[emcppsbatch=e5]
+int doSomething();
+\end{emcppshiddenlisting}
+\begin{emcppslisting}[emcppsbatch=e5]
+void func(/*...*/)
 {
-    int status = doSomething(/* ... */);
+    int status = doSomething(/*...*/);
 
     if (0 != status)  // Quickly check that it didn't fail.
     {
@@ -467,7 +475,7 @@ and speak only in terms of the observable binary property:
 consider a class, \lstinline!A!, containing only fundamental, ``built-in''
 types such as \lstinline!int!, \lstinline!double!, and \lstinline!char*!:
 
-\begin{emcppslisting}
+\begin{emcppslisting}[emcppsbatch=e6]
 // original: struct A { int i; double d; char* cp; ~A() } a, a2;  // built-ins only
 struct A { int i; double d; char* cp; } a, a2;  // built-ins only
 
@@ -492,7 +500,7 @@ declaration defines whether the function is to be considered
 class, \lstinline!B!, that declares each of the six standard special member
 functions:
 
-\begin{emcppslisting}
+\begin{emcppslisting}[emcppsbatch=e6]
 struct B  // empty class with all special members declared w/o exception spec.
 {
     B();                     // default constructor: (ù{\codeincomments{noexcept(false)}}ù)
@@ -517,7 +525,7 @@ below) may throw, it must be declared explicitly using the syntax
 \lstinline!noexcept(false)! or a nonempty \emph{dynamic} exception
 specification; see \featureref{\locatione}{noexcept-specifier}:
 
-\begin{emcppslisting}
+\begin{emcppslisting}[emcppsbatch=e6]
 struct BadIdea
 {
     ~BadIdea() noexcept(false);  // destructor may throw
@@ -533,7 +541,7 @@ been had the special member function declaration been omitted rather
 than implicitly suppressed through the declaration of other special
 member functions:
 
-\begin{emcppslisting}
+\begin{emcppslisting}[emcppsbatch=e6]
 struct C  // empty class declaring all of its special members to be (ù{\codeincomments{=default}}ù)
 {
     C()                    = default;  // default constructor: (ù{\codeincomments{noexcept(true)}}ù)
@@ -551,7 +559,7 @@ contains or derives from types whose corresponding special member
 functions are all \lstinline!noexcept(true)!, then so too will any
 implicitly defined special member functions of that type:
 
-\begin{emcppslisting}
+\begin{emcppslisting}[emcppsbatch=e6]
 struct D : A { A v; } d, d2;  // All special members of (ù{\codeincomments{A}}ù) are (ù{\codeincomments{noexcept(true)}}ù).
 
 static_assert(noexcept( D()       ), "");  // OK, (ù{\emphincomments{default}}ù) constructor
@@ -568,7 +576,7 @@ class (e.g., \lstinline!E! in the example code below) is
 \lstinline!noexcept(false)!, then the corresponding special member function
 of that class will be as well:
 
-\begin{emcppslisting}
+\begin{emcppslisting}[emcppsbatch=e6]
 struct E { B b; } e, e2;  // All special members of (ù{\codeincomments{B}}ù) are (ù{\codeincomments{noexcept(false)}}ù) apart
                           // from the destructor.
 
@@ -588,7 +596,7 @@ explicit \lstinline!noexcept! specification must then match that of the
 implicitly generated definition, else that special member function will
 be implicitly deleted:
 
-\begin{emcppslisting}
+\begin{emcppslisting}[emcppsbatch=e6]
 struct F : B  // All special members of (ù{\codeincomments{B}}ù) are (ù{\codeincomments{noexcept(false)}}ù) apart
               // from the destructor.
 {
@@ -610,7 +618,7 @@ itself an error until an attempt is made to access that function, which
 is still declared but rendered inaccessible in all contexts; see
 \featureref{\locationa}{deleted-functions}:
 
-\begin{emcppslisting}
+\begin{emcppslisting}[emcppsbatch=e6]
 static_assert(!noexcept( F()       ), "");   // OK,    default constructor
 static_assert( noexcept( F(f)      ),  "");  // Error, copy constructor
 static_assert(!noexcept( f = f2    ), "");   // OK,    copy assignment
@@ -657,7 +665,7 @@ As a concrete example, let's suppose that we have a base class,
 \lstinline!BB!, that has two \romeovalue{value} constructors, one throwing and
 the other \emph{non}throwing:
 
-\begin{emcppslisting}
+\begin{emcppslisting}[emcppsbatch=e7]
 struct BB  // base class having two overloaded value constructors
 {
     BB(int)  noexcept(false);  //    throwing (ù{\codeincomments{int}}ù)  value constructor
@@ -669,7 +677,7 @@ struct BB  // base class having two overloaded value constructors
 \noindent Invoking these value constructors, respectively, on an \lstinline!int! and
 a \lstinline!char! produces the expected results:
 
-\begin{emcppslisting}
+\begin{emcppslisting}[emcppsbatch=e7]
 int i;
 char c;
 
@@ -682,7 +690,7 @@ static_assert( noexcept( BB(c) ), "");  // (ù{\codeincomments{noexcept(true)}}�
 \noindent Next suppose we derive an empty class, \lstinline!D1!, from \lstinline!BB!
 that inherits \lstinline!BB!'s base class's constructors:
 
-\begin{emcppslisting}
+\begin{emcppslisting}[emcppsbatch=e7]
 struct D1 : BB  // empty derived class inheriting base class (ù{\codeincomments{BB}}ù)s ctors
 {
     using BB::BB;  // inherits (ù{\codeincomments{BB}}ù)'s ctors along with exception specs
@@ -694,7 +702,7 @@ struct D1 : BB  // empty derived class inheriting base class (ù{\codeincomments
 to invoke any other constructors, the exception specifications propagate
 unchanged:
 
-\begin{emcppslisting}
+\begin{emcppslisting}[emcppsbatch=e7]
 static_assert(!noexcept( D1(i) ), "");  // (ù{\codeincomments{noexcept(false)}}ù)
 static_assert( noexcept( D1(c) ),  "");  // (ù{\codeincomments{noexcept(true)}}ù)
     // uses just the inherited constructors' exception specifications
@@ -706,7 +714,8 @@ constructor is implemented with a deprecated, dynamic exception
 specification that explicitly allows it to throw only an
 \lstinline!SSException! (assumed defined elsewhere):
 
-\begin{emcppslisting}
+\begin{emcppslisting}[emcppsbatch=e7]
+class SSException { /*...*/ };
 struct SS  // old-fashioned type having deprecated, dynamic exception specs.
 {
     SS() throw(SSException);  // This default ctor is allowed to throw only an (ù{\codeincomments{SSException}}ù).
@@ -717,7 +726,7 @@ struct SS  // old-fashioned type having deprecated, dynamic exception specs.
 \noindent The \lstinline!noexcept! operator, not caring about the flavor of
 exceptions that are thrown coarsely, reports \lstinline!noexcept(false)!:
 
-\begin{emcppslisting}
+\begin{emcppslisting}[emcppsbatch=e7]
 static_assert(!noexcept( SS() ),  "");  // (ù{\codeincomments{throw(SSException)}}ù)
     // uses the dynamic exception specification of the default constructor
 \end{emcppslisting}
@@ -728,7 +737,7 @@ static_assert(!noexcept( SS() ),  "");  // (ù{\codeincomments{throw(SSException
 object of type \lstinline!SS! whose default constructor may throw an
 \lstinline!SSException!:
 
-\begin{emcppslisting}
+\begin{emcppslisting}[emcppsbatch=e7]
 struct D2 : BB  // (ù{\emphincomments{non}}ù)empty derived class inheriting base class (ù{\codeincomments{BB}}ù)'s ctors
 {
     SS ss;         // data member having default ctor that may throw an (ù{\codeincomments{SSException}}ù)
@@ -741,7 +750,7 @@ struct D2 : BB  // (ù{\emphincomments{non}}ù)empty derived class inheriting ba
 default constructor of \lstinline!ss!, which may throw; hence, both
 inherited constructors are now throwing constructors:
 
-\begin{emcppslisting}
+\begin{emcppslisting}[emcppsbatch=e7]
 static_assert(!noexcept( D2(i) ), "");  // (ù{\codeincomments{BB(int)}}ù) is (ù{\codeincomments{noexcept(false)}}ù)
 static_assert(!noexcept( D2(c) ), "");  // (ù{\codeincomments{SS()}}ù) is (ù{\codeincomments{throw(SSException)}}ù)
     // Uses both the inherited constructors' exception specifications and
@@ -783,7 +792,7 @@ subexpressions. For example, consider two functions on integers,
 \lstinline!f! and \lstinline!g!, that are and are not, respectively,
 \lstinline!noexcept!:
 
-\begin{emcppslisting}
+\begin{emcppslisting}[emcppsbatch=e8]
 int f(int i) noexcept { return i; }  // Function (ù{\codeincomments{f}}ù) is (ù{\codeincomments{noexcept(true)}}ù).
 int g(int i)          { return i; }  // Function (ù{\codeincomments{g}}ù) is (ù{\codeincomments{noexcept(false)}}ù).
 
@@ -794,7 +803,7 @@ static_assert(noexcept( g(17) ), "");  // Error, (ù{\codeincomments{g}}ù) is (
 
 \noindent Now suppose that we have two function calls within a single expression:
 
-\begin{emcppslisting}
+\begin{emcppslisting}[emcppsbatch=e8]
 static_assert(noexcept( f(1) + f(2) ), "");  // OK,    (ù{\codeincomments{f}}ù) is (ù{\codeincomments{noexcept(true)}}ù).
 static_assert(noexcept( g(1) + g(2) ), "");  // Error, (ù{\codeincomments{g}}ù) is (ù{\codeincomments{noexcept(false)}}ù).
 static_assert(noexcept( g(1) + f(2) ), "");  // Error,  "   "      "      "
@@ -805,7 +814,7 @@ static_assert(noexcept( f(1) + g(2) ), "");  // Error,  "   "      "      "
 \noindent When we consider composing two functions, the overall expression is
 \lstinline!noexcept! if and only if both functions are \lstinline!noexcept!:
 
-\begin{emcppslisting}
+\begin{emcppslisting}[emcppsbatch=e8]
 static_assert(noexcept( f(f(17)) ), "");  // OK,    (ù{\codeincomments{f}}ù) is (ù{\codeincomments{noexcept(true)}}ù).
 static_assert(noexcept( g(g(17)) ), "");  // Error, (ù{\codeincomments{g}}ù) is (ù{\codeincomments{noexcept(false)}}ù).
 static_assert(noexcept( g(f(17)) ), "");  // Error,  "   "      "      "
@@ -817,7 +826,7 @@ static_assert(noexcept( f(g(17)) ), "");  // Error,  "   "      "      "
 the specific operators applied in the expression do not matter, only
 whether any \emcppsgloss{potentially evaluated} subexpression might throw:
 
-\begin{emcppslisting}
+\begin{emcppslisting}[emcppsbatch=e8]
 static_assert(noexcept( f(1) || f(2) ), "");  // OK,    (ù{\codeincomments{f}}ù) is (ù{\codeincomments{noexcept(true)}}ù).
 static_assert(noexcept( g(1) || g(2) ), "");  // Error, (ù{\codeincomments{g}}ù) is (ù{\codeincomments{noexcept(false)}}ù).
 static_assert(noexcept( g(1) || f(2) ), "");  // Error,  "   "      "      "
@@ -845,10 +854,14 @@ requirements of the corresponding \emcppsgloss[move operations]{move operation},
 difference being that a requested \emph{move} operation doesn't require
 that the value of the source object be preserved:
 
-\begin{emcppslisting}
+\begin{emcppshiddenlisting}[emcppsbatch={e9,e10,e11}]
+#include <utility>  // (ù{\codeincomments{std::move}}ù)
+\end{emcppshiddenlisting}
+\begin{emcppslisting}[emcppsbatch=e9]
 struct S  // Class (ù{\codeincomments{S}}ù) supports both copy and move operations.
 {
    // ...
+   S();              // default constructor
    S(const S&);      // copy constructor; declared (ù{\codeincomments{noexcept(false)}}ù)
    S(S&&) noexcept;  // move constructor; declared (ù{\codeincomments{noexcept(true)}}ù)
    // ...
@@ -866,9 +879,9 @@ long-running programs; see Meredith, Graham Bleaney, Lakos17
 reference or by value is capable of exploiting a potentially more
 efficient move operation if one is available:
 
-\begin{emcppslisting}
+\begin{emcppslisting}[emcppsbatch=e9]
 void f(const S&);  // passing object of type (ù{\codeincomments{S}}ù) by (ù{\codeincomments{const}}ù) (ù{\emphincomments{lvalue}}ù) reference
-void f(S&&)        // passing object of type (ù{\codeincomments{S}}ù) by (ù{\emphincomments{rvalue}}ù) reference
+void f(S&&);       // passing object of type (ù{\codeincomments{S}}ù) by (ù{\emphincomments{rvalue}}ù) reference
 \end{emcppslisting}
     
 
@@ -877,7 +890,7 @@ void f(S&&)        // passing object of type (ù{\codeincomments{S}}ù) by (ù{\
 the source object, e.g., a \emcppsgloss{temporary}, is no longer separately
 reachable:
 
-\begin{emcppslisting}
+\begin{emcppslisting}[emcppsbatch=e9]
 S h();  // function returning an (ù{\codeincomments{S}}ù) by value
 S s1;
 
@@ -902,7 +915,7 @@ above is separately reachable, however, the programmer --- knowing the
 value will no longer be needed --- can request of the compiler that the
 object be moved:
 
-\begin{emcppslisting}
+\begin{emcppslisting}[emcppsbatch=e9]
 void test2()
 {
     S s2;
@@ -920,7 +933,7 @@ reference if \emph{reachable}.
 
 Not every class necessarily provides a distinct move operation:
 
-\begin{emcppslisting}
+\begin{emcppslisting}[emcppsbatch=e10]
 struct C  // Class (ù{\codeincomments{C}}ù) supports (ù{\codeincomments{copy}}ù) but not (ù{\codeincomments{move}}ù) operations.
 {
     C();                     // default constructor
@@ -935,7 +948,7 @@ struct C  // Class (ù{\codeincomments{C}}ù) supports (ù{\codeincomments{copy}
 generated code --- for example, when, as shown in the code snippet
 above, a proper copy operation is all that is available:
 
-\begin{emcppslisting}
+\begin{emcppslisting}[emcppsbatch=e10]
 void f(C);
 
 void test4()
@@ -962,7 +975,7 @@ whatever it might turn out to be -- will be \lstinline!noexcept(true)!; if
 so, we can perhaps exploit that information to safely employ a more
 efficient algorithm that requires a nonthrowing move:
 
-\begin{emcppslisting}
+\begin{emcppslisting}[emcppsbatch=e11]
 template <typename T>
 void doSomething(T t)
 {
@@ -981,7 +994,7 @@ void doSomething(T t)
 \noindent Alternatively, we can simply \emph{require} that any supplied type have
 a nonthrowing \emph{move} operation:
 
-\begin{emcppslisting}
+\begin{emcppslisting}[emcppsbatch=e11]
 template <typename T>
 void doOrDie(T t)
 {
@@ -998,7 +1011,27 @@ however, class \lstinline!S! also has a move constructor defined that is
 \lstinline!noexcept(true)!, whereas \lstinline!C! declared no \lstinline!move!
 constructor at all:
 
-\begin{emcppslisting}
+\begin{emcppshiddenlisting}[emcppsbatch=e12]
+#include <utility>  // (ù{\codeincomments{std::move}}ù)
+struct S {
+    S() = default;
+    S(S&&) noexcept(true) {}
+};
+struct C {
+    C() = default;
+    C(const C&) noexcept(false) {}
+};
+struct S2 {
+    S2() = default;
+    S2(const S2&) noexcept(false) {}
+    S2(S2&&) noexcept(false) {}
+};
+struct C2 {
+    C2() = default;
+    C2(const C2&) throw() {}
+};
+\end{emcppshiddenlisting}
+\begin{emcppslisting}[emcppsbatch=e12]
 S s1;  // declares a (ù{\codeincomments{noexcept(true)}}ù) move constructor
 static_assert(noexcept(S(std::move(s1))), "");    // OK
 
@@ -1011,8 +1044,8 @@ static_assert(!noexcept(C(std::move(c1))), "");   // OK
 the same as \lstinline!S! except that the \emph{move} constructor is
 declared to be \lstinline!noexcept(false)!:
 
-\begin{emcppslisting}
-S2 {/* ... */} s2;  // declares (ù{\codeincomments{noexcept(false)}}ù) copy and move constructors
+\begin{emcppslisting}[emcppsbatch=e12]
+S2 s2;  // declares (ù{\codeincomments{noexcept(false)}}ù) copy and move constructors
 static_assert(!noexcept(S2(std::move(s2))), "");  // OK
 \end{emcppslisting}
     
@@ -1021,9 +1054,9 @@ static_assert(!noexcept(S2(std::move(s2))), "");  // OK
 \lstinline!C! except that the \emph{copy} constructor is declared
 explicitly with \lstinline!throw()!, making it \lstinline!noexcept(true)!:
 
-\begin{emcppslisting}
-C2 {/* ... */} c2;  // declares only a copy constructor decorated with (ù{\codeincomments{throw()}}ù)
-static_assert(noexcept(C(std::move(c2))), "");    // OK
+\begin{emcppslisting}[emcppsbatch=e12]
+C2 c2;  // declares only a copy constructor decorated with (ù{\codeincomments{throw()}}ù)
+static_assert(noexcept(C2(std::move(c2))), "");   // OK
 \end{emcppslisting}
     
 
@@ -1046,7 +1079,10 @@ move constructors nonthrowing, or both potentially throwing, a C++03
 template instantiated with a C++11 move-optimized type may still have
 exception specifications that match this behavior:
 
-\begin{emcppslisting}
+\begin{emcppshiddenlisting}[emcppsbatch=e13]
+#include <string>  // (ù{\codeincomments{std::string}}ù)
+\end{emcppshiddenlisting}
+\begin{emcppslisting}[emcppsbatch=e13]
 template <typename T>
 struct NamedValue
 {
@@ -1109,7 +1145,10 @@ exception specification of any function override cannot be wider than
 that of the function being overridden. This is perhaps best illustrated
 by means of a simple example:
 
-\begin{emcppslisting}
+\begin{emcppshiddenlisting}[emcppsbatch=e14]
+struct SomeType {};
+\end{emcppshiddenlisting}
+\begin{emcppslisting}[emcppsbatch=e14]
 struct BB03
 {
     void n() throw();
@@ -1238,7 +1277,7 @@ generated move constructor. For our purely pedagogical example, we will
 force the copy constructor to throw the third time the program attempts
 to copy an \lstinline!S! object in the current process:
 
-\begin{emcppslisting}
+\begin{emcppslisting}[emcppsbatch=e15]
 #include <cassert>  // standard C (ù{\codeincomments{assert}}ù) macro
 #include <vector>   // (ù{\codeincomments{std::vector}}ù)
 
@@ -1266,7 +1305,7 @@ unchanged despite the \lstinline!throw!s occurring within the
 elements remain valid since the vector has not yet expanded, and the
 entire internal state of those elements too is unaltered:
 
-\begin{emcppslisting}
+\begin{emcppslisting}[emcppsbatch=e15]
 int main()
 {
     const S s;                  // default-constructed object ((ù{\codeincomments{d\_uid}}ù): -1)
@@ -1361,7 +1400,7 @@ boundary could still be prohibitive. Unwilling to give up the
 \emcppsgloss{strong guarantee} or optimal performance in the increasingly
 typical case (support for nonthrowing move operations), the Standards
 committee chose a third alternative: the \lstinline!noexcept!
-operator}.
+operator.
 
 Let's now consider how we might use the \lstinline!noexcept! operator to
 implement an \lstinline!std::vector!-like \lstinline!push_back! member
@@ -1370,7 +1409,7 @@ potential elements, again, for simplicity of exposition, ignoring C++11
 memory allocators. Let's start by assuming a heavily elided definition
 of our class, \lstinline!vector!:
 
-\begin{emcppslisting}
+\begin{emcppslisting}[emcppsbatch={e16,e17}]
 #include <cstddef>  // (ù{\codeincomments{std::size\_t}}ù)
 
 template <typename T>
@@ -1396,7 +1435,7 @@ above, let's look at implementing an efficient, exception-safe
 exception-safety guarantee} even for a type that, when asked just to
 \lstinline!move!, \emph{may} nonetheless throw:
 
-\begin{emcppslisting}
+\begin{emcppslisting}[emcppsbatch=e16]
 #include <new>      // placement (ù{\codeincomments{new}}ù)
 #include <utility>  // (ù{\codeincomments{std::move}}ù)
 
@@ -1454,7 +1493,7 @@ operator arise. At that point, we will need to know if, when we ask the
 object of type \lstinline!T! to move-construct, it \emph{may} throw, but
 see \intraref{potential-pitfalls-noexceptoperator}{using-the-noexcept-operator-directly}:
 
-\begin{emcppslisting}
+\begin{emcppslisting}[emcppsignore={extracted from above code}]
  if (noexcept(::new((void*)0) T(std::move(*d_array_p))))  // no throw (move)
  //           ^^^^^^^^^^^^^^^ avoids (ù{\codeincomments{noexcept}}ù) operator's considering (ù{\codeincomments{T}}ù)'s dtor
 \end{emcppslisting}
@@ -1523,6 +1562,7 @@ enforce the contract at compile time, we would additionally use a
 \lstinline!noexcept! operator:
 
 \begin{emcppslisting}
+#include <cmath>  // (ù{\codeincomments{std::sqrt}}ù)
 template <typename T>
 T sine(T const& a, T const& b) noexcept
 {
@@ -1543,7 +1583,7 @@ vector have a nonthrowing move constructor. This restriction could be
 similarly enforced with a \lstinline!static_assert! and might be a
 reasonable design choice for a custom container:
 
-\begin{emcppslisting}
+\begin{emcppslisting}[emcppsbatch=e17]
 #include <new>      // placement (ù{\codeincomments{new}}ù)
 #include <utility>  // (ù{\codeincomments{std::move}}ù)
 
@@ -1601,7 +1641,11 @@ otherwise, if the object type has an accessible copy constructor, call
 that, or, as a last resort, call the \emph{move} constructor regardless
 since the type is simply not copyable (a.k.a. \emcppsgloss[move only]{move-only} type):
 
-\begin{emcppslisting}
+\begin{emcppshiddenlisting}[emcppsbatch={e18,e19,e20}]
+#include <new>      // placement (ù{\codeincomments{new}}ù)
+#include <utility>  // (ù{\codeincomments{std::move}}ù)
+\end{emcppshiddenlisting}
+\begin{emcppslisting}[emcppsbatch=e18]
 template <typename T>
 void construct(void* address, T& object)
      // (ù{\codeincomments{object}}ù) passed by modifiable lvalue to enable both copy and move
@@ -1630,7 +1674,7 @@ instantiation.{\cprotect\footnote{In C++17, the
 \lstinline!if!~\lstinline!constexpr! language feature is a direct solution
 to such problems:
 
-\begin{emcppslisting}[style=footcode]
+\begin{emcppslisting}[style=footcode,emcppsbatch=e19,emcppsstandards={c++17}]
 template <typename T>
 void construct(void* address, T& object)
 {
@@ -1659,7 +1703,7 @@ functions is \emph{not} permitted, we must \emph{hoist} (represent) the
 parameter to the would-be partially specialized function in a class
 template sporting the \lstinline!static! template function to be called:
 
-\begin{emcppslisting}
+\begin{emcppslisting}[emcppsbatch=e20]
 template <bool SHOULD_MOVE>
 struct ImplementMoveOrCopy  // general declaration/definition of class template
 {
@@ -1699,7 +1743,11 @@ function to\linebreak[4] encapsulate such baroque metaprogramming code, which tu
 out to be surprisingly useful; see \intrarefsimple{implementing-std::vector::push_back(t&&)} and\linebreak[4]
 \intrarefsimple{implementing-std::vector::emplace_back(args&&...-args)}:
 
-\begin{emcppslisting}
+\begin{emcppshiddenlisting}[emcppsbatch=e21]
+#include <utility>  // (ù{\codeincomments{std::move}}ù)
+#include <type_traits>  // (ù{\codeincomments{std::conditional}}ù), (ù{\codeincomments{std::is\_nothrow\_move\_constructible}}ù), (ù{\codeincomments{std::is\_copy\_constructible}}ù)
+\end{emcppshiddenlisting}
+\begin{emcppslisting}[emcppsbatch=e21]
 template <typename T>
 constexpr
 typename std::conditional<!std::is_nothrow_move_constructible<T>::value
@@ -1760,7 +1808,7 @@ Once we have the \lstinline!move_if_noexcept! function, the
 \lstinline!construct! example can be written even more simply and, this
 time, will compile without error:
 
-\begin{emcppslisting}
+\begin{emcppslisting}[emcppsbatch=e21]
 template <typename T>
 void construct(void* address, T& object)
      // (ù{\codeincomments{object}}ù) passed by modifiable lvalue to enable both copy and move
@@ -1824,7 +1872,7 @@ object, typically supplied at construction. When the guard object is
 destroyed, typically by dint of being an automatic variable leaving
 lexical scope, it destroys the object in its charge:
 
-\begin{emcppslisting}
+\begin{emcppslisting}[emcppsbatch=e22]
 template <typename T>
 struct ScopedGuard
 {
@@ -1842,12 +1890,12 @@ beneficially to make sure that an object allocated using global
 even when control flow leaves the function through an exception or an
 early return:
 
-\begin{emcppslisting}
+\begin{emcppslisting}[emcppsbatch=e22]
 #include <vector>  // (ù{\codeincomments{std::vector}}ù)
 
 void test()
 {
-    ScopedGuard sg(new std::vector<int>);  // Create guarded object.
+    ScopedGuard<std::vector<int>> sg(new std::vector<int>);  // Guarded object.
     sg.d_obj_p->push_back(123);
     // ...
     // ...              (Something might throw.)
@@ -1863,10 +1911,10 @@ allocates an \lstinline!std::vector<int>!, populates it, and eventually
 returns a raw pointer to it, which is not recommended, unless an
 exception is thrown:
 
-\begin{emcppslisting}
+\begin{emcppslisting}[emcppsbatch=e22]
 std::vector<int>* evilFactory()  // return raw address of dynamic memory (BAD)
 {
-    ScopedGuard sg(new std::vector<int>);  // Create guarded object.
+    ScopedGuard<std::vector<int>> sg(new std::vector<int>);  // Guarded object.
 
     // ...              (something might throw)
 
@@ -1897,7 +1945,7 @@ simplicity, ignoring memory allocators. First, we will need a simple
 destroyed at the end of scope --- such as when an exception is thrown
 --- unless ownership is adopted by another object:
 
-\begin{emcppslisting}
+\begin{emcppslisting}[emcppsbatch={e23,e25}]
 template <typename T>
 class DestructorProctor  // generic "scoped guard" class with (ù{\codeincomments{release}}ù) method
 {
@@ -1917,7 +1965,41 @@ values. Note that there is no longer a branch on the \lstinline!noexcept!
 operator as all the necessary logic is handled by
 \lstinline!move_if_noexcept! returning the right kind of reference:
 
-\begin{emcppslisting}
+\begin{emcppshiddenlisting}[emcppsbatch={e23,e25}]
+#include <cstddef>  // (ù{\codeincomments{std::size\_t}}ù)
+#include <new>      // placement (ù{\codeincomments{new}}ù)
+#include <utility>  // (ù{\codeincomments{std::move}}ù)
+
+template <typename T>
+class vector
+{
+    T*          d_array_p;   // dynamic memory for elements of type (ù{\codeincomments{T}}ù)
+    std::size_t d_capacity;  // maximum number of elements before resize
+    std::size_t d_size;      // current number of elements in this array
+
+    using iterator = T*;
+    using const_iterator = const T*;
+public:
+    vector() : d_array_p(0), d_capacity(0), d_size(0) { }  // created empty
+    // ...
+    void push_back(const T& value);  // safe, efficient implementation
+    void push_back(T&& value);  // safe, efficient implementation
+
+    template <typename...Args>
+    void emplace_back(Args&&... args);  // safe, efficient implementation
+
+    iterator begin();
+    iterator end();
+    const_iterator begin() const;
+    const_iterator end() const;
+    iterator insert(const_iterator position, const T& value);
+
+    // ...
+    void reserve(std::size_t capacity);  // make more space (might throw)
+    void swap(vector& other) throw();    // swap state with other (ù{\codeincomments{vector<T>}}ù)
+};                        // ^^^^^^^        (Today, we would use (ù{\codeincomments{noexcept}}ù).)
+\end{emcppshiddenlisting}
+\begin{emcppslisting}[emcppsbatch=e23]
 template <typename T>
 void vector<T>::push_back(T&& value)  // safe, efficient implementation
 {
@@ -1999,10 +2081,17 @@ temporary object that would be needed as the argument for a
 
 For example, consider appending to a vector of strings:
 
-\begin{emcppslisting}
-std::vector<std::string> vs;
-vs.push_back("A string long enough to defeat a small string optimization");
-vs.emplace_back("A string long enough to defeat a small string optimization");
+\begin{emcppshiddenlisting}[emcppsbatch=e24]
+#include <vector>  // (ù{\codeincomments{std::vector}}ù)
+#include <string>  // (ù{\codeincomments{std::string}}ù)
+\end{emcppshiddenlisting}
+\begin{emcppslisting}[emcppsbatch=e24]
+void testEmplace()
+{
+    std::vector<std::string> vs;
+    vs.push_back("A long string to defeat a small string optimization");
+    vs.emplace_back("A long string to defeat a small string optimization");
+}
 \end{emcppslisting}
     
 
@@ -2023,7 +2112,7 @@ We have provided here, for reference, a complete implementation of the
 features of C++; see \featureref{\locationc}{variadictemplate} and
 \featureref{\locationc}{forwardingref}:
 
-\begin{emcppslisting}
+\begin{emcppslisting}[emcppsbatch=e25]
 template <typename T>
 template <typename... Args>
 void vector<T>::emplace_back(Args&&... args)  // safe, efficient implementation
@@ -2064,7 +2153,7 @@ constructing the new element in place (marked with \lstinline![Note]! in
 the code snippet above), in both the sufficient-capacity branch and the
 exceeding-capacity branch:
 
-\begin{emcppslisting}
+\begin{emcppslisting}[emcppsignore={extracted from above code}]
 ::new(address) T(std::forward<Args>(args)...);
 \end{emcppslisting}
     
@@ -2111,7 +2200,8 @@ operations, so if the move constructor and move-assignment operator do
 not throw, then insertion at an arbitrary position of a vector will also
 provide the \emcppsgloss{strong guarantee}:
 
-\begin{emcppslisting}
+\begin{emcppslisting}[emcppsbatch=e25]
+#include <algorithm>  // (ù{\codeincomments{std::rotate}}ù)
 template <typename T>
 typename vector<T>::iterator vector<T>::insert(const_iterator position, const T& value)
 {
@@ -2168,7 +2258,14 @@ knowing the syntax for an accessible constructor to initialize a
 temporary object. The Standard solves this problem by introducing the
 \lstinline!declval! function into the \lstinline!<utility>! header:
 
-\begin{emcppslisting}
+\begin{emcppshiddenlisting}[emcppsbatch={e26,e27}]
+#include <type_traits>
+namespace std {
+template <typename T>
+typename std::add_rvalue_reference<T>::type declval() noexcept;
+}
+\end{emcppshiddenlisting}
+\begin{emcppslisting}[emcppsbatch={e26,e27}]
 template <typename T>
 typename std::add_rvalue_reference<T>::type std::declval() noexcept;
 \end{emcppslisting}
@@ -2193,8 +2290,13 @@ returned \emph{xvalue} at run time is avoided.
 With the \lstinline!declval! function in hand, we can rewrite our exception
 specification:
 
-\begin{emcppslisting}
-MyType::MyType(MyType&&) noexcept(noexcept(T(std::declval<T>())));
+\begin{emcppslisting}[emcppsbatch=e26]
+template <typename T>
+struct MyType
+{
+    // ...
+    MyType(MyType&&) noexcept(noexcept(T(std::declval<T>())));
+};
 \end{emcppslisting}
     
 
@@ -2215,8 +2317,13 @@ for this is to defer destruction of the temporary by use of the
 \lstinline!new! operator. As discussed in \intraref{use-cases-noexceptoperator}{appending-an-element-to-an-std::vector}, this can be
 resolved by careful use of the placement \lstinline!new! operator:
 
-\begin{emcppslisting}
-MyType::MyType(MyType&&) noexcept(noexcept(::new((T*)0) T(std::declval<T>())));
+\begin{emcppslisting}[emcppsbatch=e27]
+template <typename T>
+struct MyType
+{
+    // ...
+    MyType(MyType&&) noexcept(noexcept(::new((T*)0) T(std::declval<T>())));
+};
 \end{emcppslisting}
     
 
@@ -2322,9 +2429,9 @@ determine such results in reusable components:
 
 struct S { };  // trivial object, all implicit operations are (ù{\codeincomments{noexcept}}ù)
 
-static_assert(std::is_nothrow_assignable<S>::value, "");             // OK
+static_assert(std::is_nothrow_assignable<S,S>::value, "");           // OK
 static_assert(std::is_nothrow_constructible<S>::value, "");          // OK
-static_assert(std::is_nothrow_copy_assignable<S,S>::value, "");      // OK
+static_assert(std::is_nothrow_copy_assignable<S>::value, "");        // OK
 static_assert(std::is_nothrow_copy_constructible<S>::value, "");     // OK
 static_assert(std::is_nothrow_default_constructible<S>::value, "");  // OK
 static_assert(std::is_nothrow_destructible<S>::value, "");           // OK
@@ -2335,14 +2442,19 @@ static_assert(std::is_nothrow_move_constructible<S>::value, "");     // OK
 
 \noindent A sample implementation might look something like:
 
-\begin{emcppslisting}
-template <typename T, bool = is_move_constructible<T>::value>
+\begin{emcppshiddenlisting}[emcppsbatch=e28]
+#include <type_traits>
+#include <new>
+\end{emcppshiddenlisting}
+\begin{emcppslisting}[emcppsbatch=e28]
+template <typename T, bool = std::is_move_constructible<T>::value>
 struct is_nothrow_move_constructible__impl
-    : integral_constant<bool, false> { };
+    : std::integral_constant<bool, false> { };
 
 template <typename T>
-struct is_nothrow_move_constructible__impl<true>
-    : integral_constant<bool, noexcept(::new((void*)0) T(declval<T>()))> { };
+struct is_nothrow_move_constructible__impl<T,true>
+    : std::integral_constant<bool,
+          noexcept(::new((void*)0) T(std::declval<T>()))> { };
 
 template <typename T>
 struct is_nothrow_move_constructible
@@ -2371,7 +2483,11 @@ themselves are all in namespace \lstinline!std!, so they find the
 \lstinline!using!.{\cprotect\footnote{This oversight was addressed in C++17
 with the addition of two more type traits:
 
-\begin{emcppslisting}[style=footcode]
+\begin{emcppshiddenlisting}[emcppsbatch=e29]
+#include <type_traits>
+struct S{};
+\end{emcppshiddenlisting}
+\begin{emcppslisting}[style=footcode,emcppsbatch=e29,emcppsstandards={c++17}]
 static_assert(std::is_nothrow_swappable<S>::value);            // OK, in C++17
 static_assert(std::is_nothrow_swappable_with<S&, S&>::value);  // OK, in C++17
 \end{emcppslisting}
@@ -2431,6 +2547,9 @@ trying to prepopulate a vector so that subsequent use in the program
 should not force a reallocation:
 
 \begin{emcppslisting}
+#include <cassert>  // standard C (ù{\codeincomments{assert}}ù) macro
+#include <vector>   // (ù{\codeincomments{std::vector}}ù)
+
 void safe_append(std::vector<std::vector<int>>* target)
 {
     assert(target);
@@ -2561,7 +2680,8 @@ for all versions of Clang and for GCC version 9.1 and later, but, for
 GCC versions before 9.1 and MSVC up to 2019, some of these cases have
 nonconforming results:
 
-\begin{emcppslisting}
+\begin{emcppslisting}[emcppsstandards={c++14}]
+#include <stdexcept>  // (ù{\codeincomments{std::runtime\_error}}ù)
           int f0()          { return 0; }
 constexpr int f1()          { return 0; }
 constexpr int f2(bool e)    { if (e) throw std::runtime_error(""); return 0; }
@@ -2601,9 +2721,17 @@ validity of the input matrix.
 When a more enhanced model is created that can handle arbitrarily large
 matrices, we have to check those matrices for validity:
 
-\begin{emcppslisting}
+\begin{emcppshiddenlisting}[emcppsbatch=e30]
+#include <cassert>  // standard C (ù{\codeincomments{assert}}ù) macro
+struct SquareMatrix{
+    int rank() const;
+    bool isPositiveSemiDefinite() const;
+};
+\end{emcppshiddenlisting}
+\begin{emcppslisting}[emcppsbatch=e30,emcppserrorlines={14,31,34},emcppsignore={too broken to fix}]
 class MySimpleCalculator
 {
+
     // a mathematical model that can handle the simple case of only 1 or 2
     // assets
 
@@ -2637,7 +2765,6 @@ class MyEnhancedCalculator : public MySimpleCalculator
         d_correlations = correlations;
     }
 };
-
 \end{emcppslisting}
     
 
@@ -2662,12 +2789,15 @@ benefits of \lstinline!noexcept! outweigh the disadvantages.
 Note that when we choose to remove a \lstinline!noexcept! specifier from a
 base-class function, there may be cascading consequences:
 
-\begin{emcppslisting}
+\begin{emcppshiddenlisting}[emcppsbatch=e31]
+struct Data {} ;
+\end{emcppshiddenlisting}
+\begin{emcppslisting}[emcppsbatch=e31]
 class DataTable
 {
     // This class has some data and appropriate virtual accessors.
 
-    virtual Data getValue(/* ... */) const noexcept;
+    virtual Data getValue(/*...*/) const noexcept;
         // Return some of the held data based on arguments passed in.
 };
 
@@ -2682,12 +2812,12 @@ class Calculator
 
 \noindent Suppose we want to do the same calculation on data in a database:
 
-\begin{emcppslisting}
+\begin{emcppslisting}[emcppsbatch=e31,emcppserrorlines={5}]
 class LazyLoadingDataTable : public DataTable
 {
     // holds a database connection and a mutable data cache
 
-    Data getValue(/* ... */) const override;
+    Data getValue(/*...*/) const override;
         // queries the database for values not in cache and throws
         // (ù{\codeincomments{DatabaseException}}ù) in the event of any issues
 };
