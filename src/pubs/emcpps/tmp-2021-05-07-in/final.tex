@@ -1,0 +1,1455 @@
+% 6 May 2021, cleaned up LaTeX and updated commands; to Josh for code check
+
+
+
+\emcppsFeature{
+    short={\lstinline!final!},
+    tocshort={\TOCCode final},
+    long={Preventing Overriding and Derivation},
+    rhshort={\RHCode final},
+}{final}
+\label{preventing-overriding-and-derivation}
+\setcounter{table}{0}
+\setcounter{footnote}{0}
+\setcounter{lstlisting}{0}
+%\section[{\tt final}]{Preventing Overriding and Derivation}\label{final}
+% \subsection[Preventing Overriding and Derivation]{Preventing Overriding and Derivation}\label{preventing-overriding-and-derivation}
+
+
+
+The \lstinline!final! specifier can be used to disallow either (1)
+overriding one or more virtual member functions from within derived
+types or (2) deriving from a type altogether.
+
+\subsection[Description]{Description}\label{description}
+
+The ability to extend an arbitrary (\lstinline!class! or \lstinline!struct!)
+user-defined type (\emcppsgloss{UDT}) via inheritance and then to override
+any virtual functions declared therein is a hallmark of the C++
+object-oriented model. There may, however, be cases where the author of
+such a \emcppsgloss{UDT} will find a legitimate need to intentionally
+restrict clients' abilities in this regard. The \lstinline!final! specifier
+serves such a purpose.
+
+When applied to a virtual-function declaration, \lstinline!final! prevents
+derived-class authors from overriding that specific function. When used
+on a virtual function, \lstinline!final! is syntactically similar to the
+override specifier (see \featureref{\locationa}{override}) but
+with different semantics. Separately, \lstinline!final! can be applied to
+the declaration of a user-defined type as a whole, thereby preventing
+prospective clients from deriving from it. Finally, note that
+\lstinline!final!, like \lstinline!override!, is only a \emcppsgloss{contextual
+keyword} --- i.e., an identifier with special meaning --- and can still
+be used as a C++ identifier wherever other identifiers can be
+syntactically used, e.g., to name types, objects, functions, and so on:
+
+%@LORI: Note for typesetting: this code snippet is the one that should
+%have final typeset as normal code and not a keyword. Exactly two of the
+%uses of final here should end up bold.
+%
+%@LORI: THE `FINAL' IN UPPERCASE SHOULD BE CHANGED TO A LOWERCASE
+%\texttt{final} THAT LOOKS LIKE LIKE ANY GENERIC CODE WORD, THE ONE IN
+%LOWERCASE SHOULD LOOK LIKE A KEYWORD (SAME AS \texttt{override} or
+%\texttt{virtual} or \texttt{const}):
+
+[NOTE TO REVIEWERS: THE EXAMPLE BELOW DOES NOT COMPILE, BECAUSE \texttt{final}
+INTRODUCES MULTIPLE NAMES THAT CONFLICT WITH EACH OTHER. IT WOULD
+COMPILE IF WE HAD SEPARATE CLASSES SHOWING THE VARIOUS WAYS FINAL CAN BE
+USED. SEE https://gcc.godbolt.org/z/zfvKenKz4 -- PLEASE ADJUST AS YOU
+SEE FIT.]
+
+
+%%%%% JOSH,  do you want to keep the quotes around "final" in the comments? 
+\begin{emcppslisting}
+struct (ù{\texttt{final}}ù) final                  // class named "final"
+{
+    (ù{\texttt{final}}ù) *(ù{\texttt{final}}ù);                   // data member named "final"
+    virtual ::(ù{\texttt{final}}ù) (ù{\texttt{final}}ù)() final;  // function named "final"
+} (ù{\texttt{final}}ù);                            // object named "final"
+\end{emcppslisting}
+    
+
+\noindent The example above is syntactically legal but not recommended. The
+example defines a type that cannot be derived from and that has a data
+member that is a pointer to that type; a virtual function that cannot be
+overridden and that returns that type; and an object of that type, all
+of which are named \lstinline!final!.
+
+\subsubsection[\lstinline!final! virtual member functions]{{\SubsubsecCode final} virtual member functions}\label{final-virtual-member-functions}
+
+When applied to a \lstinline!virtual!-function declaration, the
+\lstinline!final! specifier prevents derived-class authors from
+\emph{overriding} that function, i.e., from within a derived class:
+
+\begin{emcppslisting}
+struct B0  // Each function in (ù{\codeincomments{B0}}ù) is explicitly declared (ù{\codeincomments{virtual}}ù).
+{
+    virtual void f();
+    virtual void g() final;  // prevents overriding in derived classes
+    virtual void g() const;
+};
+
+struct D0 : B0       // (ù{\codeincomments{D0}}ù) inherits (publicly) from (ù{\codeincomments{B0}}ù).
+{
+    void f();        // OK, explicitly overrides (ù{\codeincomments{void B0::f()}}ù)
+    void g();        // Error, (ù{\codeincomments{void B0::g()}}ù) is (ù{\codeincomments{final}}ù).
+    void g() const;  // OK, (ù{\codeincomments{void B0::g() const}}ù) is (ù{\emphincomments{not}}ù) (ù{\codeincomments{final}}ù).
+};
+\end{emcppslisting}
+    
+
+\noindent As the simple example above illustrates, decorating a virtual member
+function --- e.g., \lstinline!B::g()! --- with \lstinline!final! precludes
+overriding only that specific function signature. Note that when
+redeclaring a \lstinline!final! function (e.g., to define it), the
+\lstinline!final! specifier is not permitted:
+
+\begin{emcppslisting}
+void B0::g() final { }  // Error, (ù{\codeincomments{final}}ù) not permitted outside class definition
+void B0::g() { }        // OK
+\end{emcppslisting}
+    
+
+\subsubsection[\lstinline!final! on destructors]{{\SubsubsecCode final} on destructors}\label{final-on-destructors}
+
+The use of \lstinline!final! on a virtual destructor precludes inheritance
+entirely, as any derived class must have either an implicit or explicit
+destructor, which will attempt to override the \lstinline!final! base class
+destructor:
+
+\begin{emcppslisting}
+struct B1
+{
+    virtual ~B1() final;
+};
+
+struct D1a : B1 { };    // Error, implicitly tries to override (ù{\codeincomments{B1::\texttt{\~{}}B1()}}ù)
+
+struct D1b : B1
+{
+    virtual ~D1b() { }  // Error, explicitly tries to override (ù{\codeincomments{B1::\texttt{\~{}}B1()}}ù)
+};
+\end{emcppslisting}
+    
+
+\noindent Any attempt to suppress the destructor in the derived class, e.g., using
+\lstinline!=!\,\lstinline!delete! (see {\featureref{\locationa}{delete}), will
+be in vain. If the intent is to suppress derivation entirely, a more
+expressive way would be to declare the type itself \lstinline!final!; see
+{\featureref{\locatione}{final}.
+
+\subsubsection[\lstinline!final! pure virtual functions]{{\SubsubsecCode final} pure virtual functions}\label{final-pure-virtual-functions}
+
+Although declaring a \emcppsgloss{pure virtual function} \lstinline!final! is
+valid, doing so makes the type an \emcppsgloss{abstract class} and also
+prevents making any derived type a \emcppsgloss{concrete class}:
+
+\begin{emcppslisting}
+struct B2  // abstract class
+{
+    virtual void f() final = 0;  // OK, but probably not useful
+};
+
+B2 b;  // Error, (ù{\codeincomments{B2}}ù) is an abstract type
+
+struct D2a : B2  // also an abstract class
+{
+};
+
+D2a d;  // Error, (ù{\codeincomments{D2a}}ù) is an abstract type.
+
+struct D2b : B2
+{
+    void f() {};  // Error, (ù{\codeincomments{void B2::f()}}ù) is (ù{\codeincomments{final}}ù).
+};
+\end{emcppslisting}
+    
+
+\noindent By declaring the pure \lstinline!virtual! member function, \lstinline!B2::f()!
+in the example above, to be \lstinline!final!, we have effectively
+precluded ever extending the uninstantiable \emcppsgloss{abstract class},
+\lstinline!B2!, to \emph{any} instantiable \emcppsgloss{concrete class}.
+
+\subsubsection[\lstinline!final! and its interactions with \lstinline!virtual! and \lstinline!override!]{{\SubsubsecCode final} and its interactions with {\SubsubsecCode virtual} and {\SubsubsecCode override}}\label{final-and-its-interactions-with-virtual-and-override}
+
+In contrast, when we apply \lstinline!final! to non\lstinline!virtual!
+functions, the \lstinline!final! specifier will always force a compilation
+error:
+
+\begin{emcppslisting}
+struct B3a
+{
+    void f() final;  // Error, (ù{\codeincomments{f}}ù) is not (ù{\codeincomments{virtual}}ù).
+};
+
+struct B3b
+{
+    void g(); // OK, (ù{\codeincomments{g}}ù) is (ù{\emphincomments{not}}ù) virtual.
+};
+
+struct D3 : B3b
+{
+    void g() final; // Error, (ù{\codeincomments{g}}ù) is not (ù{\codeincomments{virtual}}ù) and hides (ù{\codeincomments{B3b::g}}ù).
+};
+\end{emcppslisting}
+    
+
+\noindent The \lstinline!final! keyword combines with the \lstinline!virtual! and
+\lstinline!override! keywords to produce various effects. For example,
+functions that are declared virtual in a base class, e.g., all of the
+functions below in \lstinline!B4!, are automatically considered virtual by
+a function having the same signature in a derived class, e.g., the
+corresponding functions in \lstinline!D4!, irrespective of whether the
+\lstinline!virtual! keyword is repeated:
+
+\begin{emcppslisting}
+struct B4  // Each of the functions in (ù{\codeincomments{B4}}ù) is explicitly declared virtual.
+{
+    virtual void f();  // explicitly declared virtual
+    virtual void g();  //      "        "       "
+    virtual void h();  //      "        "       "
+};
+
+struct D4 : B4  // Each of the functions in (ù{\codeincomments{D4}}ù) is explicitly declared (ù{\codeincomments{final}}ù).
+{
+    void f() final;          // OK, because (ù{\codeincomments{B4::f}}ù) is declared virtual
+    virtual void g() final;  // OK, explicitly declared virtual (no effect)
+    void h() final override; // OK, because (ù{\codeincomments{B4::h}}ù) is declared virtual
+    virtual void i() final;  // OK, explicitly declared virtual (necessary)
+    void j() final;          // Error, nonvirtual function (ù{\codeincomments{j}}ù) declared (ù{\codeincomments{final}}ù)
+};
+\end{emcppslisting}
+    
+
+\noindent Notice that \lstinline!D4::g()! is annotated with the keyword
+\lstinline!virtual! but \lstinline!D4::f()! is not. Adding \lstinline!virtual! to
+the declaration of a function in a derived class when there is a
+matching function declared \lstinline!virtual! in a base class has no
+effect. In a manner similar to \lstinline!override!, leaving off the
+explicit \lstinline!virtual! will prevent removing the base class function
+or altering its signature.
+
+Given the availability of the override specifier (see
+\featureref{\locationa}{override}), however, a common coding
+standard has emerged: Use \lstinline!virtual! only to \emph{introduce} a
+\lstinline!virtual! function in a class hierarchy and then \emph{require}
+that any functions attempting to \emph{override} a \lstinline!virtual!
+function in a derived class be decorated with \emph{either}
+\lstinline!override! or \lstinline!final! and explicitly \emph{not}
+\lstinline!virtual!:
+
+\begin{emcppslisting}
+struct B5  // base class consisting of virtual and nonvirtual functions
+{
+    virtual void f1();  // OK, (ù{\codeincomments{virtual}}ù) function
+    virtual void f2();  // OK, (ù{\codeincomments{virtual}}ù) function
+            void g1();  // OK, non(ù{\codeincomments{virtual}}ù) function
+            void g2();  // OK, non(ù{\codeincomments{virtual}}ù) function
+};
+
+struct D5  // "derived class" attempting to override virtual functions (ù{\codeincomments{f1}}ù) and (ù{\codeincomments{f2}}ù)
+{
+    void f1() override;  // Error, (ù{\codeincomments{f1}}ù) marked (ù{\codeincomments{override}}ù) but doesn't override.
+    void f2() final;     // Error, (ù{\codeincomments{f2}}ù) marked (ù{\codeincomments{final}}ù) but isn't virtual
+};
+\end{emcppslisting}
+    
+
+\noindent The astute reader will have already noticed that in the example above we
+failed to make \lstinline!D5! inherit publicly from \lstinline!B5!. Catching
+this flaw early is one of the awesome benefits of always following this
+convention. If we try again, this time with \lstinline!D5b!, we will
+observe a second benefit of always supplying either \lstinline!override! or
+\lstinline!final!:
+
+\begin{emcppslisting}
+struct D5b : B5  // This time we remembered to inherit from (ù{\codeincomments{B5}}ù).
+{
+    void f1() override;  // OK
+    void f2() final;     // OK
+    void g1() override;  // Error, (ù{\codeincomments{g1}}ù) marked (ù{\codeincomments{override}}ù) but doesn't override
+    void g2() final;     // Error, (ù{\codeincomments{g2}}ù) marked (ù{\codeincomments{final}}ù) but isn't virtual
+};
+\end{emcppslisting}
+    
+
+\noindent Finally, one could imagine deliberately declaring a base-class function
+to be both \lstinline!virtual! and \lstinline!final! --- e.g., just to prevent
+a derived class from hiding it:
+
+\begin{emcppslisting}
+struct B6
+{
+    virtual void f() final;  // OK
+};
+
+static_assert(sizeof(B6) == 1, "");  // Error, (ù{\codeincomments{B6}}ù) holds a vtable pointer.
+
+struct D6a : B6
+{
+    void f() const;     // OK, (ù{\codeincomments{D6a::f}}ù) doesn't override.
+    void f();           // Error, (ù{\codeincomments{B6::f}}ù) is (ù{\codeincomments{final}}ù).
+};
+
+struct D6b : B6
+{
+    void f(int i = 0);  // OK, even though it hides (ù{\codeincomments{B6::f}}ù)
+};
+\end{emcppslisting}
+    
+
+\noindent Declaring, for the first time, the member function \lstinline!B6::f! in the
+example above to be both \lstinline!virtual! and \lstinline!final! has limited
+practical effect. Attempts to hide \lstinline!f! in a subclass will be
+blocked but only when the hiding function has \emph{exactly} the same
+signature; a function that hides \lstinline!f! can still be written with
+different member function qualifiers or even slightly different,
+possibly optional parameters. Adding \lstinline!virtual! to \lstinline!f! also
+makes \lstinline!B6! a \emcppsgloss{polymorphic type}, bringing with it the need
+for a \emcppsgloss{vtable pointer} in every object and making it
+non-\emcppsgloss{trivial}; see \featureref{\locationc}{gpods}. Even
+though the compiler will likely be able to \emcppsgloss{devirtualize} calls
+to \lstinline!B6::f!, that it will not is still possible, and there will be
+the additional overhead of \emcppsgloss{dynamic dispatch} when invoking calls
+to \lstinline!B6::f!; see \intraref{potential-pitfalls-final}{attempting-to-defend-against-the-hiding-of-a-nonvirtual-function}.
+
+\subsubsection[\lstinline!final! user-defined types]{{\SubsubsecCode final} user-defined types}\label{final-user-defined-types}
+
+The use of \lstinline!final! is not limited to individual member functions
+and can also be applied to an entire user-defined type to explicitly
+disallow \emph{any} other type from inheriting from it. Preventing a
+type from being inheritable closes the gap between what is possible with
+built-in types, such as \lstinline!int! and \lstinline!double!, and what can
+additionally be done with typical user-defined ones --- specifically,
+inherit from them. See \intraref{use-cases-final}{suppressing-derivation-to-ensure-portability}, i.e., Hyrum's Law.
+
+Although other uses are plausible, widespread use can run afoul of
+stable \emcppsgloss{reuse} in general and \emcppsgloss{hierarchical reuse} in
+particular; see \intraref{potential-pitfalls-final}{systemic-lost-opportunities-for-reuse}. Hence the decision
+to use \lstinline!final! on an entire class even rarely --- let alone
+routinely --- is not to be taken lightly.
+
+Prior to C++11's introduction of the \lstinline!final! specifier, there was
+no convenient way to ensure that a user-defined type (UDT) was
+\emph{uninheritable}, although some byzantine idioms to approximate this
+existed. For example, a virtual base class needs to be initialized in
+each constructor of all concrete derived types, and that can be levered
+to prevent useful inheritance. Consider a trio of classes, the first of
+which, \lstinline!UninheritableGuard!, has a private constructor and
+befriends its only intended derived class; the second,
+\lstinline!Uninheritable!, derives privately and virtually from
+\lstinline!UninheritableGuard!; and the third, \lstinline!Inheriting!, is a
+misguided class that tries in vain to inherit from
+\lstinline!Uninheritable!:
+
+\begin{emcppslisting}
+struct UninheritableGuard  // private, virtual base class
+{
+private:
+    UninheritableGuard();         // private constructor
+    friend struct Uninheritable;  // constructible only by (ù{\codeincomments{Uninheritable}}ù)
+};
+
+struct Uninheritable : private virtual UninheritableGuard
+{
+    Uninheritable() : UninheritableGuard() { /* ... */ }
+};
+
+struct Inheriting : Uninheritable  // (ù{\codeincomments{Uninheritable}}ù) is effectively (ù{\codeincomments{final}}ù).
+{
+    Inheriting()
+    : UninheritableGuard()  // Error, (ù{\codeincomments{UninheritableGuard()}}ù) is inaccessible.
+    { /* ... */ }
+};
+\end{emcppslisting}
+    
+
+\noindent Any attempt to define --- either implicitly or explicitly --- a
+constructor for \lstinline!Inheriting! will fail with the same error due to
+the inaccessibility of the constructor for \lstinline!UninheritableGuard!.
+Using \lstinline!virtual! inheritance typically requires each object of
+type \lstinline!Uninheritable! to maintain a virtual table pointer; hence,
+this solution does not come without overhead. Note also that this
+workaround prior to \lstinline!final! does not prevent the derivation
+itself, but merely the instantiation of any ill-fated derived classes.
+
+In the special case where all of the data members of the type are
+\emcppsgloss{trivial}, i.e., have no user-provided \emcppsgloss{special member
+functions} (see \featureref{\locationc}{gpods}), we could have
+instead created a type, e.g., \lstinline!Uninheritable2!, that is
+implemented as a \lstinline!union! consisting of just a single
+\lstinline!struct!:
+
+\begin{emcppslisting}
+union Uninheritable2  // C++ does not yet permit inheritance from (ù{\codeincomments{union}}ù) types.
+{
+    struct  // anonymous class type
+    {
+        int    i;
+        double d;
+    } s;
+
+    Uninheritable2()
+    {
+       s.i = 0;
+       s.d = 0;
+    }
+};
+
+struct S : Uninheritable2 { };  // Error, unions cannot be base classes.
+\end{emcppslisting}
+    
+
+\noindent With the introduction of the \lstinline!final! specifier, no such
+contortions are needed. When added to the \emph{definition} of either a
+\lstinline!class! or \lstinline!struct!, the \lstinline!final! specifier adeptly
+prevents prospective clients from deriving from that type:
+
+\begin{emcppslisting}
+struct S1 { };        // non(ù{\codeincomments{final}}ù) user-defined type
+struct S2 final { };  // (ù{\codeincomments{final}}ù) user-defined type
+
+struct D1 : S1 { };   // OK, S1 is not declared (ù{\codeincomments{final}}ù).
+struct D2 : S2 { };   // Error, S2 is declared (ù{\codeincomments{final}}ù).
+\end{emcppslisting}
+    
+
+\noindent The \lstinline!final! specifier may be applied to a type's declaration as
+long as that declaration is a definition:
+
+\begin{emcppslisting}
+class C1;            // OK,    (ù{\codeincomments{C1}}ù) is (as of now) an incomplete type.
+class C1 final;      // Error, attempt to declare variable of incomplete type
+class C1 final { };  // OK, (ù{\codeincomments{C1}}ù) is now a complete type.
+class C1;            // OK, (ù{\codeincomments{C1}}ù) is known to be a (ù{\codeincomments{final}}ù) type.
+\end{emcppslisting}
+    
+
+\noindent Once a type is complete, an attempt to redeclare the type using the
+final specifier will be a valid declaration of an object of that type
+named \lstinline!final!. This also means that once a type has been defined
+as \emph{non}\/\lstinline!final!, it cannot subsequently be redeclared as
+\lstinline!final!:
+
+\begin{emcppslisting}
+class C2 { };        // OK, (ù{\codeincomments{C2}}ù) is a non(ù{\codeincomments{final}}ù) (ù{\emphincomments{complete}}ù) type.
+class C2 final;      // Bug??, (ù{\codeincomments{C2}}ù) object named (ù{\codeincomments{final}}ù).
+\end{emcppslisting}
+    
+
+\noindent As the final line above illustrates, \lstinline!final!, being a contextual
+keyword, is a valid name for a object of non\lstinline!final! class
+\lstinline!C2!; see \intraref{potential-pitfalls-final}{contextual-keywords-are-contextual}.
+
+\pagebreak%%%%%  to keep fn on one page so reviewers don't freak out
+
+The \lstinline!final! specifier, in addition to decorating a \lstinline!class!
+or \lstinline!struct!, can also be applied to a \lstinline!union!. Since
+derivation from a \lstinline!union! isn't permitted anyway, declaring a
+union to be \lstinline!final! has no effect.{\cprotect\footnote{In C++14,
+the Standard Library header \lstinline!<type_traits>! defines the trait
+\lstinline!std::is_final!, which can be used to determine whether a
+given user-defined, class type is specified as \lstinline!final!. This
+trait can be used to distinguish between a non\lstinline!final! and
+\lstinline!final!~\lstinline!union!. The argument to this trait, however,
+  must be a complete type.}}
+
+\subsection[Use Cases]{Use Cases}\label{use-cases-final}
+
+\subsubsection[Suppressing derivation to ensure portability]{Suppressing derivation to ensure portability}\label{suppressing-derivation-to-ensure-portability}
+
+A rare but compelling use of \lstinline!final! for a user-defined type as a
+whole occurs when that type is used to simulate a feature that is or
+might some day be implemented as a \emcppsgloss{fundamental type} on this or
+some other platform. By specifying the user-defined type to be
+\lstinline!final!, we avoid locking ourselves into forever being
+represented as a user-defined type.
+
+As a concrete and very real-world example, consider an early
+implementation of a family of floating-point decimal types:
+\lstinline!Decimal32_t!, \lstinline!Decimal64_t!, and
+\lstinline!Decimal128_t!. Initially these types (as type aliases) are
+implemented in terms of user-defined types:
+
+\begin{emcppslisting}
+class DecimalFloatingPoint32  { /* ... */ };
+class DecimalFloatingPoint64  { /* ... */ };
+class DecimalFloatingPoint128 { /* ... */ };
+
+typedef DecimalFloatingPoint32  Decimal32_t;
+typedef DecimalFloatingPoint64  Decimal64_t;
+typedef DecimalFloatingPoint128 Decimal128_t;
+\end{emcppslisting}
+    
+
+\noindent Once released in this form, there is nothing to stop users from
+inheriting from these \lstinline!typedef!s to derive their own custom
+types, and, in fact, \emcppsgloss[Hyrum's law]{Hyrum's Law} all but guarantees that such
+inheritance will happen:
+
+\begin{emcppslisting}
+class MyDecimal32     : public Decimal32_t     { /* ... */ };
+class YourDecimal64   : private Decimal64_t    { /* ... */ };
+class TheirDecimal128 : protected Decimal128_t { /* ... */ };
+\end{emcppslisting}
+    
+
+\noindent Hardware support will someday arrive --- and on some platforms it
+already has --- that will likely allow these \lstinline!typedef!s to become
+aliases to fundamental types rather than aliases to user-defined types:
+
+\begin{emcppslisting}
+typedef __decimal32_t  Decimal32_t;
+typedef __decimal64_t  Decimal64_t;
+typedef __decimal128_t Decimal128_t;
+\end{emcppslisting}
+    
+
+\noindent When that day comes and we try to leverage the possibly huge performance
+benefits of using a natively supported type, a small number of bad
+actors amongst clients of this library will prevent the majority of
+users from benefitting from the new platform. The end result is that
+person years of effort might be required to unravel the code that now
+depends on inheritance. This effort is a price that could have been
+avoided had we just declared our \emph{not necessarily} user-defined
+types \lstinline!final! from the start:
+
+\begin{emcppslisting}
+class DecimalFloatingPoint32 final  { /* ... */ };
+class DecimalFloatingPoint64 final  { /* ... */ };
+class DecimalFloatingPoint128 final { /* ... */ };
+\end{emcppslisting}
+    
+
+\noindent Using \lstinline!final! here would have avoided advertising more than we
+were prepared to support in perpetuity.
+
+\subsubsection[Improving performance of concrete classes]{Improving performance of concrete classes}\label{improving-performance-of-concrete-classes}
+
+Object-Oriented programming (OOP) comprises two important aspects of
+software design: (1) inheritance and (2) \emcppsgloss{dynamic binding}. For a
+language to claim that it supports OOP, it must support
+both.{\cprotect\footnote{\cite{stroustrup91}, section~0.x, pp.~y--z}} No
+overhead is associated with inheritance \emph{per se}, but the same
+cannot be said in general for dynamic binding (a.k.a., \emcppsgloss{virtual
+dispatch}).
+
+Without commenting on the wisdom of an implementation consisting of a
+mixture of \emph{interface}, \emph{implementation}, and
+\emph{structural} inheritance, consider the classic \lstinline!Shape!,
+\lstinline!Circle!, and \lstinline!Rectangle! example illustrating
+\emcppsgloss{object orientation}:
+
+\begin{emcppslisting}
+class Shape  // abstract base class
+{
+    int d_x;  // x-coordinate of origin
+    int d_y;  // y-coordinate of origin
+
+public:
+    Shape(int x, int y) : d_x(x), d_y(y) { }    // value constructor
+
+    void move(int dx, int dy) { d_x += dx; d_y += dy; }
+                                                // concrete manipulator
+
+    int xOrigin() const { return d_x; }         // concrete accessor
+    int yOrigin() const { return d_y; }         // concrete accessor
+
+    virtual double area() const = 0;            // (ù{\emphincomments{abstract}}ù) accessor
+};
+
+class Circle : public Shape  // concrete derived class
+{
+    int d_radius;  // radius of this circle
+
+public:
+    Circle(int x, int y, int radius) : Shape(x, y), d_radius(radius) { }
+                                                // value constructor
+
+    double area() const { return 3.14 * d_radius; }
+                                                // (ù{\emphincomments{concrete}}ù) accessor
+};
+
+class Rectangle: public Shape   // concrete derived class
+{
+    int d_length;  // length of this rectangle
+    int d_width;   // width of this rectangle
+
+public:
+    Rectangle(int x, int y, int length, int width) :
+                       Shape(x, y), d_length(length), d_width(width) { }
+                                                // value constructor
+
+    double area() const final { return d_length * d_width; }
+                                                // (ù{\emphincomments{concrete}}ù) accessor
+};
+\end{emcppslisting}
+    
+
+\noindent Note that \lstinline!Shape! acts as both an interface and as a base class
+offering a proper value constructor. Inheriting classes have to override
+\lstinline!Shape::area! to provide a \emph{concrete accessor} for their
+respective area values. The two classes inheriting from \lstinline!Shape!,
+namely \lstinline!Circle! and \lstinline!Rectangle!, differ substantially in
+just one aspect: \lstinline!Rectangle::area()! is annotated with
+\lstinline!final! whereas \lstinline!Circle::area()! is not.
+
+Now imagine a client accessing the \emph{concrete implementations} of
+\lstinline!Shape::area! through a base-class reference:
+
+\begin{emcppslisting}
+void client1(const Shape& shape)
+{
+    int x = shape.xOrigin();     // inlines (e.g., Clang -O2, GCC -O1)
+    double area = shape.area();  // inline requires whole program optimization
+}
+\end{emcppslisting}
+    
+
+\noindent The call to \lstinline!Shape::xOrigin! can be inlined at a fairly low level
+of optimization whereas the call to \lstinline!Shape::area! cannot because
+it is subject to \emph{virtual dispatch}. The same ability to inline the
+call to get the \lstinline!xOrigin! applies for objects of either derived
+type --- \lstinline!Circle! as well as \lstinline!Rectangle! --- irrespective
+of whether the type's implementation of \lstinline!Shape::area! has been
+annotated with \lstinline!final!.
+
+If the compiler can somehow locally infer the runtime type of the
+derived object, the function calls can be inlined at a fairly low
+optimization level too, again irrespective of any annotation with
+\lstinline!final!:
+
+\begin{emcppslisting}
+void client2()
+{
+    Circle c(3, 2, 1);
+    Rectangle r(4, 3, 2, 1);
+    const Shape& s1 = c;
+    const Shape& s2 = r;
+
+    double cArea = c.area();  // inlines (e.g., Clang -O2, GCC -O1)
+    double rArea = r.area();  // inlines (e.g., Clang -O2, GCC -O1)
+
+    double s1Area = s1.area();  // inlines (e.g., Clang -O2, GCC -O1)
+    double s2Area = s2.area();  // inlines (e.g., Clang -O2, GCC -O1)
+}
+\end{emcppslisting}
+    
+
+\noindent The real difference comes to light when accepting references of these
+types in a separate function. As only \lstinline!Rectangle! prohibits
+further overriding of the \lstinline!area! function, it is the only one of
+the three types that can know at compile time the runtime type of its
+object and therefore bypass virtual dispatch:
+
+\begin{emcppslisting}
+void client3(const Shape& s, const Circle& c, const Rectangle& r)
+{
+    double sArea = s.area();  // must undergo virtual dispatch
+    double cArea = c.area();  // must undergo virtual dispatch
+    double rArea = r.area();  // inlines (Clang -O2, GCC -O1)
+}
+\end{emcppslisting}
+    
+
+\noindent Note that a compilation system that is aware of the entirety of a
+program might be able to turn that into knowledge that \lstinline!Circle!
+is effectively final --- e.g., by observing that no other classes derive
+from it --- and thus similarly bypass virtual dispatch in
+\lstinline!client3!. Such optimization, however, is expensive, doesn't
+scale, and would be thwarted by common practices, such as the
+possibility of loading shared objects at run time, which might contain
+classes derived from \lstinline!Circle! that are then passed to
+\lstinline!client3!.
+
+\subsubsection[Restoring performance lost to mocking]{Restoring performance lost to mocking}\label{restoring-performance-lost-to-mocking}
+
+In most cases, a component cannot be fully isolated from its
+dependencies in order to be able to test it in complete isolation. An
+object-oriented approach widely used to artificially circumvent such
+limitations is often colloquially referred to as \emcppsgloss{mocking}.
+
+As an example, consider a custom file-handling class, \lstinline!File!,
+that depends on a custom local file system, \lstinline!LocalFS!:
+
+\begin{emcppslisting}
+class LocalFS  // lower-level file system
+{
+public:
+    FileHandle* open(const char* path, int* errorStatus = 0);
+};
+
+class File  // higher-level file representation
+{
+    LocalFS* d_lfs;  // pointer to concrete filesystem object
+
+public:
+    File(LocalFS* lfs) : d_lfs(lfs) { }
+
+    int open(const char *path);
+    unsigned long long sizeInBytes() const;
+    // ...
+};
+\end{emcppslisting}
+    
+
+\noindent In the testing-resistant design suggested above, class \lstinline!File!
+depends directly on a local file system; hence, there is no convenient
+way for us to test what happens when rarely seen (e.g., error) events
+occur within the file system.
+
+To be able to test our \lstinline!File! class thoroughly, we will need some
+way to control what the \lstinline!File! class does when it receives input
+back from what it thinks is the local file system. One approach would be
+to extract a pure abstract (a.k.a. \emcppsgloss{protocol}) class, e.g.,
+\lstinline!AbstractFileSystem!, from \lstinline!LocalFS!. We can then make our
+\lstinline!File! class depend on the protocol instead of \lstinline!LocalFS!
+and make \lstinline!LocalFS! implement it:
+
+\begin{emcppslisting}
+class AbstractFileSystem  // lower-level pure abstract interface
+{
+public:
+    virtual FileHandle *open(const char *path, int *errorStatus = 0) = 0;
+};
+
+
+class File  // uses lower-level abstract file system
+{
+    AbstractFileSystem *d_afs;  // pointer to abstract filesystem object
+
+public:
+    File(AbstractFileSystem *afs) : d_afs(afs) { }
+
+    // ...
+};
+
+class LocalFS : public AbstractFileSystem  // implements abstract interface
+{
+public:
+    FileHandle *open(const char *path, int *errorStatus = 0);
+};
+\end{emcppslisting}
+    
+
+\noindent With this artificially complicated design, we are now able to create an
+independent concrete, ``mock'' implementation derived from
+\lstinline!AbstractFileSystem!, which we can then use to orchestrate
+arbitrary behavior, thereby enabling us to test \lstinline!File! both (1)
+in isolation and (2) under abnormal circumstances:
+
+\begin{emcppslisting}
+class MockedFS : public AbstractFileSystem  // test-engineer-controllable class
+{
+public:
+    FileHandle *open(const char *path, int *errorStatus = 0) { /* mocked */ }
+};
+
+void test()  // test driver that orchestrates mock implementation to test (ù{\codeincomments{File}}ù)
+{
+    MockedFS mfs;  // mock AbstractFileSystem used to thoroughly test (ù{\codeincomments{File}}ù)
+    File f(&mfs);  // (ù{\codeincomments{f}}ù) installed with (ù{\emphincomments{mock}}ù) instead of actual (ù{\codeincomments{LocalFS}}ù)
+
+    FileHandle* fh = f.open("dummyPath");  // (ù{\emphincomments{mock}}ù) used to supply handle
+    // ...
+}
+\end{emcppslisting}
+    
+
+\noindent Although this technique does enable independent testing, it comes with
+the performance cost of dynamic dispatch on all calls to the underlying
+\lstinline!AbstractFileSystem! object. In certain situations where the
+concrete implementation doesn't have to be exchangeable for the mock,
+performance can be recovered by declaring some or all of the concrete,
+now-virtual functions of \lstinline!localFS!~\lstinline!final!. This way, when
+we pass the concrete implementation --- e.g., \lstinline!LocalFS! --- to a
+function explicitly, at least the functions that are declared
+\lstinline!final! and were previously inline can again be inline:
+
+%%%%% JOSH,  "final" here was set like it is in a comment, so it's blue; that doesn't seem right. If you want it to be black but not bold, just change it to (ù{\texttt{final}}ù)
+\begin{emcppslisting}
+client          Client  MockMechanism   Mechanism   ((ù{\codeincomments{final}}ù) virtual functions)
+   o                 o        |          /
+   |       =>         \       |         /
+   |                   \      V        V
+Mechanism             MechanismInterface
+
+--> implies an *Is-A* relationship
+o-- implies a *Uses-In-The-Interface* relationship
+\end{emcppslisting}
+    
+
+\noindent Alternatively, we might create a new component that adapts an existing
+library to a new interface suitable for mocking without having to alter
+it in any way:
+
+\begin{emcppslisting}
+client          Client   MockLibrary      Adapter
+   o                 o        |          /       *
+   |       =>         \       |         /         \
+   |                   \      V        V           \
+Library                 LibraryInterface         Library   (left unmodified)
+
+*-- implies a *Uses-In-The-Implementation* (only) relationship
+\end{emcppslisting}
+    
+
+\noindent Sadly, it has become commonplace in the industry ``to make a mockery of
+one's design through mocking''{\cprotect\footnote{Jonathan Wakely has
+expressed to John Lakos that indiscriminate and excessive use of
+  mocking ``is to make a mockery of one's design.''}} by artificially
+declaring all nonconstructor member functions of a class virtual
+(without extracting a protocol) just to be able to provide a ``mock''
+implementation derived from the original concrete class:
+
+\pagebreak%%%%%%% to keep image on one page so reviewers don't freak out
+
+%%%%% JOSH,  "final" here was set like it is in a comment, so it's blue; that doesn't seem right. If you want it to be black but not bold, just change it to (ù{\texttt{final}}ù)
+\begin{emcppslisting}
+client          Client  MockMechanism  (making these (ù{\codeincomments{final}}ù) is pointless)
+   o                 o       |
+   |       =>         \      |  (BAD IDEA)
+   |                   \     V
+Mechanism             Mechanism   (now with all public virtual functions)
+\end{emcppslisting}
+    
+
+\noindent As the previous diagrams above suggest, much of the virtual function
+overhead associated with mocking can be reduced significantly by
+\emph{not} deriving the mock from the original class. Instead, we can
+either (1) extract a \emcppsgloss{protocol} for all of the public
+nonconstructor member functions of that class and mark those specific
+functions \lstinline!final! or (2) adapt the original concrete
+implementation unchanged to the new protocol for use by \lstinline!File!
+and any other facilities that choose to opt in for the purposes of
+thoroughly testing their code. With either of these approaches, all
+clients that continue to use the concrete, possibly now-derived class by
+its original name do not need to pay for \emph{any} virtual function
+overhead to support the ability to mock that class's interface where
+needed.
+
+\subsubsection[Improving performance in a protocol hierarchy]{Improving performance in a protocol hierarchy}\label{improving-performance-in-a-protocol-hierarchy}
+
+A \emcppsgloss{protocol
+hierarchy}{\cprotect\footnote{\cite{lakos96}, Appendix~A, pp.~737--768}}{\cprotect\footnote{\cite{lakos2y}, section~2.7 [AUs: The citation is lakos2y, do you mean Vol II of Large-Scale C++?]}} is a generalization of the \emcppsgloss{composite
+pattern}{\cprotect\footnote{\cite{gamma95}, Chapter 2, section ``Composite,''
+  pp.~163--174}} in which a pure abstract interface (a.k.a.
+\emcppsgloss{protocol}) sits at the root (\lstinline!leve!}~\lstinline!1!) of a
+public inheritance hierarchy (\emph{Is-A} relationship) of abstract
+interfaces:
+
+\begin{emcppslisting}
+   level 3          ( yet wider interface )
+                             |         f(x), g(y), h(z)
+                             |
+                             |
+                             | *Is-A*
+                             V
+   level 2:           ( wider interface )
+                             |         f(x), g(y) [[ y >= 0 ]]
+                             |
+                             |
+                             | *Is-A*
+                             V
+   level 1:            ( interface )
+                                       f(x)
+\end{emcppslisting}
+    
+
+\noindent At each successive level, the \emph{pure} interface is a proper superset
+of the one at the previous level from which it derives. None of the
+classes in the hierarchy contributes any implementation; each member
+function --- except for the destructor --- is implemented as
+\emcppsgloss[pure virtual function]{pure virtual}. In particular, observe that \lstinline!g(y)! is not
+accessible at \lstinline!level!~\lstinline!1!, can be used only with
+non-negative values at \lstinline!level!~\lstinline!2! (i.e., \lstinline!g(y)!
+has a \emcppsgloss{narrow contract}), and is usable with all syntactically
+legal values at \lstinline!level!~\lstinline!3! (i.e., \lstinline!g(y)! has a
+\emcppsgloss{wide contract}). Note that this same sort of interface widening
+can apply in the absence of virtual functions through judicious use of
+hiding nonvirtual functions; see \intraref{potential-pitfalls-final}{systemic-lost-opportunities-for-reuse}.
+
+Concrete leaf nodes can then be derived from the protocol hierarchy to
+implement the desired level of service as efficiently as practical. In
+cases where multiple concrete nodes need to share the same
+implementation of one or more functions, we can derive an intermediate
+node from the appropriate \emph{protocol} that doesn't widen the
+interface at all but does implement one or more of the pure abstract
+functions; such an \emph{impure} abstract node is known as a
+\emcppsgloss{partial implementation}. When the implementation of one of these
+functions is trivial, declaring that \lstinline!virtual! function to be
+\lstinline!inline! in addition might make sense. Since there will, by
+design, be no need to further override that function, we can declare it
+to be \lstinline!final! as well.
+
+For performance-critical clients that would otherwise consume the
+concrete object via the pure abstract interface from which this partial
+implementation derives, we might decide to instead take the partial
+implementation itself as the reference type. Because one or more
+functions are both \lstinline!inline! and \lstinline!final!, the client can
+dispense with runtime dispatch and inline the virtual functions directly
+as discussed in {Restoring performance lost to mocking}.
+
+As a real-world example, consider a simplified \emcppsgloss{protocol
+hierarchy} for memory allocation:
+
+\begin{emcppslisting}
+struct Allocator
+{
+    virtual void *allocate(std::size_t numBytes) = 0;
+        // Allocate a block of memory of at least the specified (ù{\codeincomments{numBytes}}ù).
+
+    virtual void deallocate(void *address) = 0;
+        // Deallocate the block at the specified (ù{\codeincomments{address}}ù).
+};
+
+struct ManagedAllocator : Allocator
+{
+    void *allocate(std::size_t numBytes) = 0;
+        // Allocate a block of memory of at least the specified (ù{\codeincomments{numBytes}}ù).
+
+    void deallocate(void *address) = 0;
+        // Deallocate the block at the specified (ù{\codeincomments{address}}ù).
+
+    virtual void release() = 0;
+        // Reclaim all memory currently allocated from this allocator.
+};
+\end{emcppslisting}
+    
+
+\noindent A \emcppsgloss{monotonic allocator} is a kind of \emcppsgloss{managed allocator}
+that allocates memory sequentially in a buffer subject to alignment
+requirements. In this class of allocators, the \lstinline!deallocate!
+method is always a no-op; memory is reclaimed only when the managed
+allocator is destroyed or its \lstinline!release! method is invoked:
+
+\begin{emcppslisting}
+struct MonotonicAllocatorPartialImp : ManagedAllocator
+{
+    void *allocate(std::size_t numBytes) = 0;
+        // Allocate a block of memory of at least the specified (ù{\codeincomments{numBytes}}ù).
+
+    inline void deallocate(void *address) final { /* empty */ }
+        // Deallocate the block at the specified (ù{\codeincomments{address}}ù).
+
+    void release() = 0;
+        // Reclaim all memory currently allocated from this allocator.
+};
+\end{emcppslisting}
+    
+
+\noindent Notice that we have specified the empty
+\lstinline!inline!~\lstinline!deallocate! member function of\linebreak[4]
+\lstinline!MonotonicAllocatorPartialImp! to be \lstinline!final!. A concrete
+monotonic allocator --- e.g., a \lstinline!BufferedSequentialAllocator! ---
+can then derive from this partial implementation:
+
+\begin{emcppslisting}
+class BufferedSequentialAllocator : public MonotonicAllocatorPartialImp
+{
+    BufferedSequentialAllocator();
+        // Create a default version of a buffered-sequential allocator.
+
+    void *allocate(std::size_t numBytes);
+        // Allocate a block of memory of at least the specified (ù{\codeincomments{numBytes}}ù).
+
+    void release();
+        // Reclaim all memory currently allocated from this allocator.
+};
+\end{emcppslisting}
+    
+
+\noindent Now consider two allocator-aware types, \lstinline!TypeA! and
+\lstinline!TypeB!, each of which is always constructed with some flavor of
+monotonic managed allocator:
+
+\begin{emcppslisting}
+class TypeA
+{
+    TypeA(ManagedAllocator *a);
+    // ...
+};
+
+class TypeB
+{
+    TypeB(MonotonicAllocatorPartialImp *a);
+    // ...
+};
+\end{emcppslisting}
+    
+
+\enlargethispage{2ex}%%%% so the close bracket is not on the next page       
+\noindent We now construct each of the types using the same concrete allocator
+object:
+
+\begin{emcppslisting}
+void client()
+{
+    BufferedSequentialAllocator a;  // Concrete monotonic allocator object
+
+    TypeA(&a);  // (ù{\codeincomments{deallocate}}ù) is an empty (ù{\codeincomments{virtual}}ù) function call.
+    TypeB(&a);  // (ù{\codeincomments{deallocate}}ù) is an empty (ù{\codeincomments{inline}}ù) function call.
+}
+\end{emcppslisting}
+    
+
+\noindent When \lstinline!TypeA! invokes \lstinline!deallocate!, it goes through the
+non\lstinline!final!, \lstinline!virtual! function interface of
+\lstinline!ManagedAllocator! and is subject to the runtime overhead of
+dynamic dispatch. Note that even if the virtual \lstinline!deallocate!
+function were inline, unless it is declared \lstinline!final! or the
+runtime type is somehow known at compile time, there is no sure way for
+the compiler to know that the function isn't overridden by a derived
+type.
+
+In the case of \lstinline!TypeB!, however, the function is both
+\emph{declared} \lstinline!final! and \emph{defined} \lstinline!inline!; hence
+the virtual dispatch can be reliably sidestepped, the empty function can
+be inlined, and a true no-op is achieved with absolutely no runtime
+overhead.
+
+\subsection[Potential Pitfalls]{Potential Pitfalls}\label{potential-pitfalls-final}
+
+\subsubsection[Contextual keywords are contextual]{Contextual keywords are contextual}\label{contextual-keywords-are-contextual}
+
+The Standards Committee has, historically, taken very different
+approaches to adding new keywords to the language. C++11 added ten new
+keywords to the language --- \lstinline!alignas!, \lstinline!alignof!,
+\lstinline!char16_t!, \lstinline!char32_t!, \lstinline!constexpr!,
+\lstinline!decltype!, \lstinline!noexcept!, \lstinline!nullptr!,
+\lstinline!static_assert!, and
+\lstinline!thread_local!{\cprotect\footnote{C++14 and C++17 added exactly
+zero new keywords in total. C++20 added \lstinline!char8_t!,
+\lstinline!co_await!, \lstinline!co_return!, \lstinline!co_yield!,
+\lstinline!concept!, \lstinline!consteval!, \lstinline!constinit!, and
+\lstinline!requires!, notably mixing some potentially already used
+identifiers (\lstinline!concept! and \lstinline!requires!) with a collection
+of more obscure new words that had little chance of significantly
+  conflicting with existing codebases.}} --- and thus made ten potential
+tokens no longer usable as identifiers. When considering new keywords, a
+great deal of effort is generally extended to determine the impact of
+this change in status on existing codebases. Two identifiers,
+\lstinline!override! and \lstinline!final!, were not made keywords and were
+instead given special meaning when used in contexts where previously
+identifiers were not syntactically allowed. This approach avoided
+possible code breakage for any existing codebases using these words as
+identifiers, at the cost of occasional confusion.
+
+When used after a function declaration, \lstinline!override! and
+\lstinline!final! do not add any significant parsing ambiguity to the
+language; arbitrary identifiers were not syntactically valid in that
+position anyway, so confusion is minimal. When used on a \lstinline!class!
+declaration, however, \lstinline!final!'s meaning is not determined until
+tokens after it are parsed to distinguish between a variable declaration
+and a class definition:
+
+\begin{emcppslisting}
+struct S1 final;      // Error, variable named (ù{\codeincomments{final}}ù) of (ù{\emphincomments{incomplete}}ù) type
+struct S2 final { };  // OK, (ù{\codeincomments{final}}ù) class definition
+struct S2 final;      // OK, variable named (ù{\codeincomments{final}}ù) of (ù{\emphincomments{complete}}ù) type (ù{\codeincomments{S2}}ù)
+\end{emcppslisting}
+    
+
+\noindent Notice that the variable declarations in the example above both look
+like they might be an attempt to forward-declare a \lstinline!struct! that
+is final but are instead a totally different language construct.
+
+\subsubsection[Systemic lost opportunities for reuse]{Systemic lost opportunities for reuse}\label{systemic-lost-opportunities-for-reuse}
+
+Both \lstinline!final! and \lstinline!override! are similar in their
+complexity yet very different in the potential adverse implications that
+widespread use can impose. Such ubiquitous use will depend heavily on
+the scale and nature of the development process employed. In some
+development environments, such as a small organization overseeing a
+closed-source codebase where clients are able to request timely code
+changes, encouraging liberal use of \lstinline!final! might not be
+problematic. Instead of promising everything up front, even when much of
+what is offered is not immediately useful, the default development
+approach might reasonably be to provide only what is immediately
+necessary and then quickly expose more if and as needed.
+
+For some organizations, however, request-based code changes may not be a
+viable option and can result in unacceptable delays in responding to
+client needs. The extensive use of \lstinline!final! inherently prevents
+clients from reusing library components in unanticipated ways and can
+therefore lead to redundant and highly undesirable forks, often through
+thoughtless copying and pasting the original code. Gratuitously
+forbidding clients from doing what they feel they need to do and would
+otherwise be able to do might be perceived as unnecessary
+nannyism.{\cprotect\footnote{``Unnecessary nannyism'' is a phrase Bjarne
+Stroustrup used to characterize his initial decision to restrict
+operators \lstinline![]!, \lstinline!()!, and \lstinline!->! to be members; see
+\cite{stroustrup94}, Chapter~x, section~3.6.2, ``Overloading: Members and
+Friends,'' pp.~81--83, particularly p.~83.
+%  
+% LORI
+%section 3 is ``The Birth of C++'', 3.6 is ``Overloading'', 3.6.2 is
+%``Members and Friends''. Just saying ``members and friends'' is silly to
+%me, it amounts to a page title\ldots{} maybe ``Overloading - members and
+%friends'' or leave the section title out entirely.
+}}
+
+Consider, for example, the Standard Template Library (STL) and, in
+particular, \lstinline!std::vector!. One might argue that
+\lstinline!std:vector! was designed to facilitate generic programming, has
+no virtual functions, and therefore should be specified as
+\lstinline!final! to ensure its ``proper'' use and no other. Suppose, on
+the other hand, that teachers wanting to teach their students the value
+of \emcppsgloss{defensive programming} were to create an exercise to
+implement a \lstinline!CheckedVector<T>!, derived publicly from
+\lstinline!std::vector<T>!.{\cprotect\footnote{Bjarne Stroustrup himself
+has employed as a class exercise in which the only two functions in
+the derived type (that he typically calls ``Vector'') hide the
+\lstinline!operator[]! overloads of \lstinline!std::vector!. These
+implementations perform additional checking so that if they are ever
+called out of their valid range, instead of resulting in
+\emcppsgloss{undefined behavior}, they do something sensible, e.g., throw
+an exception or, even better, print an error message and then call
+\lstinline!abort! to terminate the program. By not employing
+\lstinline!assert!, as we do in our example, Stroustrup avoids using
+conditional compilation, which is not essential to the didactic
+  purpose of this exercise.}} By inheriting constructors (see
+\featureref{\locationc}{ctorinheriting}), it is very simple to implement
+this derived class with an alternate implementation for just
+\lstinline!operator[]!:
+
+\begin{emcppslisting}
+#include <vector>   // (ù{\codeincomments{std::vector}}ù)
+#include <cassert>  // standard C (ù{\codeincomments{assert}}ù) macro
+
+template <typename T>
+class CheckedVector : public std::vector<T>
+{
+public:
+    using std::vector<T>::vector;  // Inherit all ctors of (ù{\codeincomments{std::vector<T>}}ù).
+
+    using reference       = typename std::vector<T>::reference;
+    using const_reference = typename std::vector<T>::const_reference;
+    using size_type       = typename std::vector<T>::size_type;
+
+    reference operator[](size_type pos)              // hide base class function
+    {
+        assert(pos >= 0 && pos < this->size());      // Check bounds.
+        return this->std::vector<T>::operator[](pos);
+    }
+
+    const_reference operator[](size_type pos) const  // hide base class function
+    {
+        assert(pos >= 0 && pos < this->size());      // Check bounds.
+        return this->std::vector<T>::operator[](pos);
+    }
+};
+\end{emcppslisting}
+    
+
+\noindent In the implementation above, we have chosen to use the standard
+\lstinline!C!~\lstinline!assert! macro instead of hard-coding the check and
+then, if needed, explicitly printing a message and calling
+\lstinline!abort!. Note that this check will occur in only certain build
+modes, i.e., when \lstinline!NDEBUG! is not defined for the current
+translation unit. Note also that the checking for
+\lstinline!pos!~\lstinline!>=!~\lstinline!0! can be omitted here as
+\lstinline!std::vector::size! returns an integral value of type
+\lstinline!std::size_t!, which is guaranteed to be of some
+implementation-defined \lstinline!unsigned! integral type on all conforming
+platforms. Finally the use of \lstinline!this->! is purely stylistic to
+show that we are invoking a member function on this object and can be
+omitted in every case above where it is used with no change in defined
+behavior.
+
+For local use with the goal of exploring and learning, allowing such
+\emcppsgloss{structural inheritance} --- involving no virtual functions ---
+can be an expeditious way of uncovering client misuse. This disciplined
+use of \emcppsgloss{structural inheritance} adds no data members; it merely
+widens some of the narrow interfaces in the base class, thereby benignly
+enhancing the defined behavior already provided yet leaving unchanged
+the behavior of all other functions of \lstinline!vector!. We can now
+deploy our derived \lstinline!CheckedVector! by replacing instances of
+\lstinline!std::vector! with those of our derived \lstinline!CheckedVector!,
+including those in interfaces where potential misuse might occur; simple
+interaction with the parts of the system not so modified will continue
+to operate as before. Functions that take an \lstinline!std::vector! passed
+by value are not recommended but will continue to work as before via
+\emcppsgloss{slicing}, as will those passed by pointer or reference via
+implicit standard conversion to base type:
+
+\begin{emcppslisting}
+void myApi(const CheckedVector<int> &data);       // checked local API
+void otherApi1(const std::vector<int> &data);     // by-reference standard API
+void otherApi2(std::vector<int> data);            // by-value standard API
+template <typename T> genericApi(const T& data);  // generic API
+
+void myFunction()
+{
+    CheckedVector<int> myData;
+    // ...                  ( populate (ù{\codeincomments{myData}}ù) )
+
+    otherApi1(myData);   // normal usage, unchecked operation
+    otherApi2(myData);   // normal usage, unchecked operation, slices on copy
+    myApi(myData);       // checked operations within implementation
+
+    std::vector<int>&  uncheckedData = myData;
+    genericApi(myData);        // checked call to templated API
+    genericApi(uncheckedData); // unchecked call to same API
+}
+\end{emcppslisting}
+    
+
+\noindent Were \lstinline!std::vector! declared \lstinline!final!, this form of
+investigation would be entirely prevented, harming those who wished to
+learn or needed to diagnose defects in their systems using
+\lstinline!std::vector!. Such compulsive use of \lstinline!final!, even in
+local libraries, often leads to what is arguably the worst possible
+result: The client makes a local copy of the library class. Such
+gratuitously forced duplication of source code systemically exacerbates
+the already high cost of software maintenance and denies the use of any
+future enhancements or bug fixes made to that library class.
+
+Finally, contrary to popular belief, the strict notion of
+substitutability afforded by \emcppsgloss{structural inheritance} is far more
+in keeping with those characterized by Barbara Liskov in her pioneering
+work on subtyping {\cprotect\footnote{\cite{liskov87}}} than the
+\emph{variation in behavior}{\cprotect\footnote{Tom Cargill observed
+that data members are for variation in value, whereas virtual
+functions are for variation in behavior; see \cite{cargill92}, section ``Value versus
+Behavior,'' pp.~16--19, specifically p.~17 (see also p.~83 and p.~182)}}
+ afforded by virtual functions. Thinking that a
+class has no business being derived from just because it doesn't sport a
+virtual destructor is misguided. Much of what is done in metaprogramming
+relies heavily on structural inheritance; for example, the class
+template \lstinline!std::integral_constant! serves as the base class for
+most C++ type traits. Structurally inheriting a \lstinline!const_iterator!
+from an \lstinline!iterator! achieves implicit convertibility without
+consuming a user-defined conversion and thereby avoids needless
+asymmetry; see \intraref{annoyances-final}{making-empty-types-final-precludes-the-empty-base-class-optimization}.
+
+The decision to make systemic use of \lstinline!final! the default ---
+absent any specific engineering reason --- is dubious as it directly
+precludes \emcppsgloss{reuse} in general and \emcppsgloss{hierarchical reuse} in
+particular. In any event, such a policy, to achieve its intended
+purpose, fairly belongs with an organization as a whole rather than with
+each individual developer within that organization. If, however, some
+specific reason precludes overriding a virtual function or inheritance
+in general, then use of \lstinline!final! is indicated if only to actively
+document our intent. Lacking such forceful documentation initially,
+\emcppsgloss{Hyrum's law} will ultimately subvert our ability to make the
+choice to prevent overriding and/or inheritance at a later date.
+
+\subsubsection[Attempting to defend against the hiding of a non\lstinline!virtual! function]{Attempting to defend against the hiding of a non{\SubsubsecCode virtual} function}\label{attempting-to-defend-against-the-hiding-of-a-nonvirtual-function}
+
+Deliberately hiding virtual functions is not typically
+recommended{\cprotect\footnote{\cite{meyers96}, Chapter~6, item~37, ``Avoid
+  Hiding Inherited Names,'' pp.~131--132}}; when it is done, it is often
+by accident. Declaring an otherwise nonvirtual function to be both
+virtual and final does in fact prevent a derived class author from
+overriding that specific function; a derived class's version of the
+function will never be invoked through dynamic dispatch. \texttt{final}
+does \emph{not}, however, prevent a function of the same name having any
+distinct signature from inadvertently hiding it.
+
+As an illustrative example, suppose we were to have a simple
+output-device type, \texttt{Printer}, that contains a set of overloaded
+non\texttt{virtual} print functions to display various types of
+information on a common device:
+
+\begin{emcppslisting}
+struct Printer
+{
+    void print(int number);
+    void print(bool boolean);
+};
+\end{emcppslisting}
+    
+
+\noindent Now suppose an inexperienced programmer is about to extend that type to
+support another parameter type and accidentally hides the base-class
+functions:
+
+\begin{emcppslisting}
+struct ExtendedPrinter : public Printer
+{
+    void print(long c);
+};
+\end{emcppslisting}
+    
+
+\noindent Calling \lstinline!ExtendedPrinter::print! with a parameter having a type
+that is implicitly convertible to \lstinline!long! --- such as both of the
+existing supported types of \lstinline!int! and \lstinline!bool! --- will
+still compile but fail to lead to the expected results.
+
+To defend against such misuse, we might incorrectly try to defend
+against such misuse by declaring all functions of the base class both
+\lstinline!virtual! and \lstinline!final! as well:
+
+\begin{emcppslisting}
+struct Printer0
+{
+    virtual void print(int number) final;
+    virtual void print(bool boolean) final;
+};
+\end{emcppslisting}
+    
+\enlargethispage*{2ex}%% so reviewers don't freak about code
+\noindent Such machinations do, in fact, make it a compile-time error should we
+accidentally supply a function matching \emph{exactly} that signature in
+a derived class, but it does not prevent a function of the same name
+having any other signature from doing so:
+
+\begin{emcppslisting}
+struct ExtendedPrinter0 : public Printer0
+{
+    void print(int number);    // Error, (ù{\codeincomments{Printer0::print(int)}}ù) is (ù{\codeincomments{final}}ù)
+    void print(char c) const;  // OK, still hides base-class functions
+};
+\end{emcppslisting}
+    
+
+\noindent Making a function virtual in a class where previously there was none
+also forces the compiler to maintain a pointer to a \lstinline!static!
+virtual-function table in each object. Consequently, \emph{any} use of
+\lstinline!virtual! and \lstinline!final! to decorate the same function with a
+class is contraindicated.
+
+\subsection[Annoyances]{Annoyances}\label{annoyances-final}
+
+\subsubsection[Making empty types \lstinline!final! precludes the empty base-class optimization]{Making empty types {\SubsubsecCode final} precludes the empty base-class optimization}\label{making-empty-types-final-precludes-the-empty-base-class-optimization}
+
+Whenever a user-defined type derives from another that has no data
+members, that base type does not typically consume any additional memory
+in the derived type. This optimization is called \emcppsgloss[empty base optimization]{empty
+base-class optimization (EBO)} and is often exploited when applying
+policy-based design. Consider this slightly modified version of a
+classic example{\cprotect\footnote{\cite{alexandrescu01}, Chapter~1, section~1.5, ``Policies and Policy Classes,'' pp.~8--11}} in which an
+\lstinline!ObjectCreator! relies on a specific \lstinline!CreationPolicy! type
+for implementing the acquisition of memory and construction of objects:
+
+\begin{emcppslisting}
+template<class TYPE, template<class> class CreationPolicy>
+class ObjectCreator : CreationPolicy<TYPE>
+{
+    std::size_t objectCount = 0;  // Keep track of allocated objects.
+
+public:
+    TYPE *create()
+    {
+        ++objectCount;
+        return CreationPolicy<TYPE>().create();  // Delegate to (ù{\codeincomments{CreationPolicy}}ù).
+    }
+};
+\end{emcppslisting}
+    
+
+\noindent Each of the associated policies are implemented as empty classes, i.e.,
+classes having no data members:
+
+\begin{emcppslisting}
+#include <cstddef>  // (ù{\codeincomments{std::size\_t}}ù)
+
+template<class TYPE>
+class OpNewCreator // (ù{\codeincomments{sizeof(OpNewCreator)}}ù) by itself is 1 byte.
+{
+public:
+    TYPE *create()
+    {
+        // Allocate memory using placement new and return address.
+    }
+};
+
+template<class TYPE>
+class MallocCreator // (ù{\codeincomments{sizeof(MallocCreator)}}ù) by itself is 1 byte.
+{
+public:
+    TYPE *create()
+    {
+        // Allocate memory using malloc and return address.
+    }
+};
+
+static_assert(sizeof(ObjectCreator<int, OpNewCreator>)  == sizeof(std::size_t));
+static_assert(sizeof(ObjectCreator<int, MallocCreator>) == sizeof(std::size_t));
+\end{emcppslisting}
+    
+
+\noindent Since \lstinline!OpNewCreator! and \lstinline!MallocCreator! do not have any
+data members, inheriting from either of them does not increase the size
+of \lstinline!ObjectCreator!. If someone later decides to declare them as
+\lstinline!final!, inheriting becomes impossible, even if just privately as
+an optimization:
+
+\begin{emcppslisting}
+class OpNewCreator final { /* ... */ };   // subsequently declared (ù{\codeincomments{final}}ù)
+class MallocCreator final { /* ... */ };  //      "           "       "
+
+template<class TYPE, template<class> class CreationPolicy>
+
+class ObjectCreator : CreationPolicy<TYPE>  // Error, derivation is disallowed.
+{ /* ... */ };
+\end{emcppslisting}
+    
+
+\noindent By declaring the empty bases class \lstinline!final!, a valid use case is
+needlessly prevented. Using containment instead of \emcppsgloss{private
+inheritance} consumes at least one extra byte in the footprint of
+\lstinline!ObjectCreator!,{\cprotect\footnote{C++20 adds a new
+attribute, \lstinline![[no_unique_address]]!, that allows the compiler
+to avoid consuming addition storage for data objects of empty classes:
+
+\begin{emcppslisting}[style=footcode]
+struct A final { /* no data members */ };
+struct S {
+    [[no_unique_address]] A a;  static_assert(sizeof(a) == 1, "");
+    int x;                      static_assert(sizeof(x) == 4, "");
+};                              static_assert(sizeof(S) == 4, "");
+\end{emcppslisting}
+      }} which will inevitably also come at the cost of additional
+padding imposed by alignment requirements:
+
+\begin{emcppslisting}
+template<class TYPE, template<class> class CreationPolicy>
+class LargeObjectCreator
+{
+    CreationPolicy<TYPE> policy;  // now consumes an extra byte &
+    std::size_t allocCount = 0;   // with padding 8 extra bytes
+
+public:
+    static TYPE *create()
+    {
+        ++objetCount;
+        return policy.allocate();
+    }
+};
+
+static_assert(
+    sizeof(LargeObjectCreator<int, OpNewCreator>) > sizeof(std::size_t), "");
+
+static_assert(
+    sizeof(LargeObjectCreator<int, MallocCreator>) > sizeof(std::size_t), "");
+\end{emcppslisting}
+    
+
+\noindent Alternatively, the author of \lstinline!OpNewCreator! and
+\lstinline!MallocCreator! might reconsider and remove \lstinline!final!.
+
+\subsection[See Also]{See Also}\label{see-also}
+
+\begin{itemize}
+\item{\seealsoref{override}{\seealsolocationa} is a related contextual
+keyword that verifies the existence of matching virtual functions in
+base classes instead of preventing matching virtual functions in derived
+classes.}
+\end{itemize}
+
+\subsection[Further Reading]{Further Reading}\label{further-reading}
+
+\begin{itemize}
+\item{Barbra Liskov discusses in her seminal 1987 keynote paper a remarkable number of issues relevant to the ongoing design and development of modern C++; see \cite{liskov87}.}
+\item{Barbara Liskov and Jeanette Wing followed up with a precise notion of subtyping in which any property provable about objects of a supertype would necessarily hold for objects of proper subtypes; see \cite{liskov94}. This notion of proper subtyping (which is manifestly distinct from C++-style inheritance) would later come to be know as the Liskov Substitution Principal (LSP)\cprotect\footnote{\cite{liskov94}, section~1, ``Introduction,'' p.~1812}:
+\begin{quote}
+Let φ(x) be a property provable about objects x of type T.
+Then φ(y) should be true for objects y of type S where S is a subtype of T.
+\end{quote}
+}
+\end{itemize}
+    
+

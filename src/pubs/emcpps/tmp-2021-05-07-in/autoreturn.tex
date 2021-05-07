@@ -1,0 +1,1292 @@
+% 6 May 2021, cleaned up LaTeX and updated commands; ready for Josh
+
+
+
+
+\emcppsFeature{
+    short={Deduced Return Type},
+    long={Function ({\SecCode auto}) Return-Type Deduction},
+    toclong={Function (\lstinline!auto!) Return-Type Deduction},
+}{Function-Return-Type-Deduction}
+\label{autoreturn}
+\label{function-(auto)-return-type-deduction}
+\setcounter{table}{0}
+\setcounter{footnote}{0}
+\setcounter{lstlisting}{0}
+%\section[Deduced Return Type]{Function ({\SecCode auto}) {\SecCode return}-Type Deduction}\label{Function-Return-Type-Deduction}
+%\subsection[Function (\tt{auto}) Return-Type Deduction]{Function ({\SubsecCode auto}) Return-Type Deduction}\label{function-(auto)-return-type-deduction}
+
+
+
+
+The return type of a function can be deduced from the \lstinline!return!
+statements in its definition if a \emcppsgloss{placeholder} (e.g.,
+\lstinline!auto!) is used in place of the return type in the function's
+prototype.
+
+\subsection[Description]{Description}\label{description}
+
+C++11 provides a limited capability for determining the return type of a
+function from the function's arguments using the \lstinline!decltype!
+operator (see \featureref{\locationa}{decltype}), typically in a trailing return
+type (see \featureref{\locationa}{trailing-function-return-types}):
+
+\begin{emcppslisting}
+template <typename CONTAINER, typename KEY>
+auto search(const CONTAINER& c, const KEY& k) -> decltype(c.find(k))
+{
+    return c.find(k);
+}
+\end{emcppslisting}
+    
+
+\noindent Note that the trailing return type specification effectively repeats the
+entire implementation of the function template. As of C++14, the return
+type of a function can instead be deduced directly from the
+\lstinline!return! statements inside the function definition:
+
+\begin{emcppslisting}
+template <typename CONTAINER, typename KEY>
+auto search(const CONTAINER& c, const KEY& k)
+{
+    return c.find(k);  // Return type is deduced here.
+}
+\end{emcppslisting}
+    
+
+\noindent The return type of the \lstinline!search! function template defined above
+is determined by the type of the expression \lstinline!c.find(k)!. This
+feature provides a useful shorthand for return types that are difficult
+to name or would add unnecessary clutter. The deduced return types
+feature in C++14 is an extension of a similar feature already available
+for \emcppsgloss{lambda expressions} in C++11:
+
+\begin{emcppslisting}
+auto iadd1 = [](int i, int j) { return i + j; };  // valid since C++11
+auto iadd2(int i, int j)      { return i + j; }   // valid since C++14
+\end{emcppslisting}
+    
+
+\noindent Note that this use of \lstinline!auto! is distinct from using \lstinline!auto!
+with a trailing return type:
+
+\begin{emcppslisting}
+auto a()           { return 1; }  // deduced return type (ù{\codeincomments{int}}ù)
+auto b() -> double { return 1; }  // specified return type (ù{\codeincomments{double}}ù)
+\end{emcppslisting}
+    
+
+\subsubsection[Specification]{Specification}\label{specification}
+
+When a function's return type is specified using \lstinline!auto! or
+\lstinline!decltype(auto)! and there is no trailing return type, the return
+type of the function is deduced from the \lstinline!return! statement(s) in
+the function body following the same rules as for deducing a variable
+declaration from its initializer expression (see \featureref{\locationa}{auto}):
+
+\begin{emcppslisting}
+class C1 { /* ... */ };
+
+C1   c;
+C1   f1();
+C1&  f2();
+C1&& f3();
+
+auto           v1 = c;                 // deduced type (ù{\codeincomments{C1}}ù)
+auto           g1() { return c; }      //    "    return type (ù{\codeincomments{C1}}ù)
+
+decltype(auto) v2 = c;                 //    "    type (ù{\codeincomments{C1}}ù)
+decltype(auto) g2() { return c; }      //    "    return type (ù{\codeincomments{C1}}ù)
+
+auto           v3 = (c);               //    "    type (ù{\codeincomments{C1}}ù)
+auto           g3() { return (c); }    //    "    return type (ù{\codeincomments{C1}}ù)
+
+decltype(auto) v4 = (c);               //    "    type (ù{\codeincomments{C1\&}}ù)
+decltype(auto) g4() { return (c); }    //    "    return type (ù{\codeincomments{C1\&}}ù)
+
+auto           v5 = f1();              //    "    type (ù{\codeincomments{C1}}ù)
+auto           g5() { return f1(); }   //    "    return type (ù{\codeincomments{C1}}ù)
+
+decltype(auto) v6 = f1();              //    "    type (ù{\codeincomments{C1}}ù)
+decltype(auto) g6() { return f1(); }   //    "    return type (ù{\codeincomments{C1}}ù)
+
+auto           v7 = f2();              //    "    type (ù{\codeincomments{C1}}ù)
+auto           g7() { return f2(); }   //    "    return type (ù{\codeincomments{C1}}ù)
+
+decltype(auto) v8 = f2();              //    "    type (ù{\codeincomments{C1\&}}ù)
+decltype(auto) g8() { return f2(); }   //    "    return type (ù{\codeincomments{C1\&}}ù)
+
+auto           v9 = f3();              //    "    type (ù{\codeincomments{C1}}ù)
+auto           g9() { return f3(); }   //    "    return type (ù{\codeincomments{C1}}ù)
+
+decltype(auto) v10 = f3();             //    "    type (ù{\codeincomments{C1\&\&}}ù)
+decltype(auto) g10() { return f3(); }  //    "    return type (ù{\codeincomments{C1\&\&}}ù)
+\end{emcppslisting}
+    
+
+\noindent As with variable declarations, \lstinline!auto! (but not
+\lstinline!decltype(auto)!) can be cv-qualified and decorated to form a
+reference, pointer, pointer-to-function, reference-to-function, or
+pointer-to-member function:
+
+\begin{emcppslisting}
+const auto  g11() { return c; }     // return type (ù{\codeincomments{const C1}}ù)
+auto&       g12() { return c; }     //    "     "  (ù{\codeincomments{C1\&}}ù)
+const auto& g13() { return c; }     //    "     "  (ù{\codeincomments{const C1\&}}ù)
+auto&&      g14() { return c; }     //    "     "  (ù{\codeincomments{C1\&}}ù)
+auto&&      g15() { return f3(); }  //    "     "  (ù{\codeincomments{C1\&\&}}ù)
+auto*       g16() { return &c; }    //    "     "  (ù{\codeincomments{C1*}}ù)
+auto   (*g17())() { return &g12; }  //    "     "  (ù{\codeincomments{C1\& (*)()}}ù)
+auto&       g18() { return f3(); }  // Error, can't bind (ù{\codeincomments{C1\&\&}}ù) to (ù{\emphincomments{lvalue}}ù) ref
+\end{emcppslisting}
+    
+
+\noindent Note that \lstinline!auto&&! is a \emcppsgloss{forwarding reference}, which
+means that the \emcppsgloss{value category} of the return expression will
+determine whether an \romeovalue{lvalue} reference (in the case of
+\lstinline!g14!) or \romeovalue{rvalue} reference (in the case of \lstinline!g15!)
+will be deduced. The function declaration is ill formed if the
+specifiers added to \lstinline!auto! would cause the return-type deduction
+to fail, as in the case of \lstinline!g18!.
+
+The same restrictions apply to an \lstinline!auto! and
+\lstinline!decltype(auto)! return-type deduction as to a similar
+variable-type deduction{\cprotect\footnote{Version~10.2 and earlier
+versions of GCC that support C++14 permit
+\lstinline!const!~\lstinline!decltype(auto)! for both variable and function
+  declarations, even though the Standard forbids it.}}:
+
+\begin{emcppslisting}
+#include <vector>  // (ù{\codeincomments{std::vector}}ù)
+
+std::vector<int> v;
+
+std::vector<auto>&   g19() { return v; }  // Error, (ù{\codeincomments{auto}}ù) as template argument
+decltype(auto)&      g20() { return v; }  // Error, (ù{\codeincomments{\&}}ù) with (ù{\codeincomments{decltype(auto)}}ù)
+const decltype(auto) g21() { return v; }  // Error, (ù{\codeincomments{const}}ù) with   "
+\end{emcppslisting}
+    
+
+\noindent There is an additional restriction that an \lstinline!auto! return type
+cannot be deduced from a braced initializer list:
+
+\begin{emcppslisting}
+auto v22 = { 1, 2, 3 };            // OK, deduced type (ù{\codeincomments{initializer\_list<int>}}ù)
+auto g22() { return { 1, 2, 3 }; } // Error, braced initializer list not allowed
+\end{emcppslisting}
+    
+
+\noindent If the declaration of \lstinline!g22! deduced an initializer list return
+type instead of being disallowed, it would always return a dangling
+reference, as the initializer list would go out of scope before the
+function could return.
+
+\subsubsection[Deducing a \lstinline!void! return type]{Deducing a {\SubsubsecCode void} return type}\label{deducing-a-void-return-type}
+
+If the \lstinline!return! statement for a function having a deduced return
+type is empty (i.e., \lstinline!return;!) or if there are no
+\lstinline!return! statements at all, then the return type is deduced as
+\lstinline!void!. In such cases, the declared return type must be
+\lstinline!auto!, \lstinline!const!~\lstinline!auto!, or \lstinline!decltype(auto)!,
+without additional reference, pointer, or other specifiers:
+
+\begin{emcppslisting}
+auto           g1() { }          // OK, deduced return type (ù{\codeincomments{void}}ù)
+auto           g2() { return; }  // OK,    "       "     "     "
+decltype(auto) g3() { }          // OK,    "       "     "     "
+decltype(auto) g4() { return; }  // OK,    "       "     "     "
+const auto     g5() { }          // OK,    "       "     "     "
+auto*          g6() { return; }  // Error, no pointer returned
+auto&          g7() { return; }  // Error, no reference returned
+\end{emcppslisting}
+    
+
+\subsubsection[Multiple \lstinline!return! statements]{Multiple {\SubsubsecCode return} statements}\label{multiple-return-statements}
+
+When there are multiple \lstinline!return! statements in a function having
+a deduced return type, the return type is deduced from the textually
+first \lstinline!return! statement in the function. The second and
+subsequent \lstinline!return! statements must deduce the same return type
+as the first \lstinline!return! statement, or the program is ill
+formed{\cprotect\footnote{In C++17, discarded statements, such as in the
+body of an \lstinline!if!~\lstinline!constexpr! statement whose condition is
+\lstinline!false!, are not used for type deduction:
+
+\begin{emcppslisting}[style=footcode]
+auto f()  // deduces return type of (ù{\fncodeincomments{const char*}}ù)
+{
+    if constexpr (false) return 1;  // discarded (ù{\fncodeincomments{return}}ù) statement
+    return "hello";                 // OK, nondiscarded (ù{\fncodeincomments{return}}ù) statement
+}
+\end{emcppslisting}
+      }}:
+
+\begin{emcppslisting}
+auto g1(int i)
+{
+    if (i & 1) { return 3 * i + 1; }  // Deduce return type (ù{\codeincomments{int}}ù).
+    else       { return i / 2; }      // OK, deduce return type (ù{\codeincomments{int}}ù) again.
+}
+
+auto g2(bool b)
+{
+    if (b) { return "hello"; }  // Deduce return type (ù{\codeincomments{const char*}}ù).
+    else   { return 0.1; }      // Error, deduced (ù{\codeincomments{double}}ù) does not match.
+}
+\end{emcppslisting}
+    
+
+\noindent Type deduction on multiple \lstinline!return! statements does not take
+conversions into account; all the deduced types must be identical:
+
+\begin{emcppslisting}
+auto g3(long li)
+{
+    if (li > 0) { return li; }   // Deduce return type (ù{\codeincomments{long}}ù).
+    else        { return 0;  }   // Error, deduced (ù{\codeincomments{int}}ù) does not match (ù{\codeincomments{long}}ù).
+}
+
+auto g4(bool b)
+{
+    if (b) { return "text"; }   // Deduce return type (ù{\codeincomments{const char*}}ù).
+    else   { return nullptr; }  // Error, (ù{\codeincomments{std::nullptr\_t}}ù) does not match.
+}
+
+struct S { S(int = 0); };  // convertible from (ù{\codeincomments{int}}ù)
+
+auto g5(bool b)
+{
+    if (b) { return S(); }  // Deduced return type (ù{\codeincomments{S}}ù)
+    else   { return 2; }    // Error, conversion to (ù{\codeincomments{S}}ù) not considered
+}
+
+int& f();
+
+auto g6(int i)
+{
+    if (i > 0) { return i + 1; }  // Deduce return type (ù{\codeincomments{int}}ù).
+    else       { return f(); }    // OK, deduce return type (ù{\codeincomments{int}}ù) again.
+}
+
+decltype(auto) g7(int i)
+{
+    if (i > 0) { return i + 1; }  // Deduce return type (ù{\codeincomments{int}}ù).
+    else       { return f(); }    // Error, deduced (ù{\codeincomments{int\&}}ù) doesn't match (ù{\codeincomments{int}}ù).
+}
+\end{emcppslisting}
+    
+
+\noindent Note that the second \lstinline!return! statements in \lstinline!g3!,
+\lstinline!g4!, and \lstinline!g5! do not consider possible conversions from
+the second \lstinline!return! expression to the type deduced from the first
+\lstinline!return! expression. The bodies of functions \lstinline!g6! and
+\lstinline!g7! are identical, but the latter produces an error because
+\lstinline!decltype(auto)! preserves the \emcppsgloss{value category} of the
+expression \lstinline!f()!, resulting in a different deduced return type in
+the second \lstinline!return! statement than in the first.
+
+Unlike \lstinline!if! statements, the ternary conditional operator seeks to
+find a \emph{common type} between the \lstinline!true! and \lstinline!false!
+conditions. Thus, return-type deduction that would be invalid using
+\lstinline!if! statements might be valid when using the ternary conditional
+operator:
+
+\begin{emcppslisting}
+auto g8(long li)  // valid rewrite of (ù{\codeincomments{g3}}ù)
+{
+    return (li > 0) ? li : 0;  // OK, deduce common return type (ù{\codeincomments{long}}ù).
+}
+\end{emcppslisting}
+    
+
+\noindent Once the return type has been deduced, it can be used later in the same
+function, i.e., as the return type of a recursive call. If the return
+type would be needed before the first \lstinline!return! statement is seen,
+the program is ill formed:
+
+\begin{emcppslisting}
+decltype(auto) g9(int i)
+{
+    if (i < 1) { return 0; }              // Deduce return type (ù{\codeincomments{int}}ù).
+    else       { return i + g9(i - 1); }  // OK, use previously deduced return
+                                          // type to deduce (ù{\codeincomments{int}}ù) again.
+}
+
+decltype(auto) g10(int i)
+{
+    if (i > 1) { return i + g10(i - 1); }  // Error, return type not known yet
+    else       { return 0; }
+}
+\end{emcppslisting}
+    
+
+\noindent Perhaps surprisingly, \lstinline!g9! cannot be rewritten using the ternary
+conditional operator because return-type deduction cannot occur until
+both the \lstinline!true! and \lstinline!false! branches of the ternary
+expression have been processed by the compiler:
+
+\begin{emcppslisting}
+decltype(auto) g11(int i)  // erroneous rewrite of (ù{\codeincomments{g9}}ù)
+{
+    return i < 1 ? 0 : i + g11(i - 1);
+        // Error, (ù{\codeincomments{g11}}ù) used before return deduced
+}
+\end{emcppslisting}
+    
+
+\noindent It is legal to fall off the end of a function when the return type has
+already been deduced as non\lstinline!void!, although the compiler is
+likely to generate a warning. However, a return without an expression
+will cause a deduction conflict with a \lstinline!return! statement that
+\emph{does} return a value:
+
+\begin{emcppslisting}
+auto g12(bool b) { if (b) return 1;         }  // OK, warning
+auto g13(bool b) { if (b) return 1; return; }  // Error, deduction mismatch
+\end{emcppslisting}
+    
+
+\subsubsection[Type of a function having a deduced return type]{Type of a function having a deduced return type}\label{type-of-a-function-having-a-deduced-return-type}
+
+Deduced return types are allowed for almost every category of function,
+including free functions, static member functions, nonstatic member
+functions, function templates, member function templates, and conversion
+operators. Virtual functions, however, cannot have deduced return types:
+
+\begin{emcppslisting}
+auto free();                                   // OK, free function
+template <typename T> auto templ();            // OK, function template
+
+struct S
+{
+    static auto staticMember();                // OK, static member function
+    decltype(auto) member();                   // OK, nonstatic member function
+    template <typename T> auto memberTempl();  // OK, member function template
+    operator auto() const;                     // OK, conversion operator
+    virtual auto virtMember();                 // Error, virtual function
+};
+\end{emcppslisting}
+    
+
+\noindent When one of these functions is later defined or redeclared, it must use
+the \emph{same} placeholder for the return type, even if the actual
+return type is known at the point of definition:
+
+\begin{emcppslisting}
+auto free() { return 8; }  // OK, redeclare and define with (ù{\codeincomments{auto}}ù) return type.
+
+int S::staticMember() { return 4; }  // Error, must be declared (ù{\codeincomments{auto}}ù)
+auto S::member() { return 5; }       // Error, previously (ù{\codeincomments{decltype(auto)}}ù)
+\end{emcppslisting}
+    
+
+\noindent The return type for \lstinline!S::staticMember! is known to be \lstinline!int!
+at the point of definition because the function body returns
+4, but hard-coding the return type to be \lstinline!int! instead of
+\lstinline!auto! causes the definition not to match the declaration. In the
+case of \lstinline!S::member!, both the declaration and the definition use
+placeholders, but the declaration uses \lstinline!decltype(auto)! whereas
+the definition uses \lstinline!auto!.
+
+A function having a deduced return type has incomplete type until the
+function body has been seen; to be called or to have its address taken,
+the function's definition must appear earlier in the translation unit:
+
+\begin{emcppslisting}
+auto f1();
+
+auto caller()
+{
+    f1();       // Error, return type of (ù{\codeincomments{f1}}ù) is not known.
+    return &f1; // Error, (ù{\codeincomments{f1}}ù) has incomplete type.
+}
+
+auto f1() { return 1.2; }  // return type deduced as (ù{\codeincomments{double}}ù) but too late
+\end{emcppslisting}
+    
+
+\noindent Consequently, a function declared in a header (\lstinline!.h!) file must
+have a definition in the same header file to be usable through the
+normal \lstinline!#include! mechanism. In practice, such a function must
+be either a template or \lstinline!inline!, lest the definition be imported
+into multiple translation units, violating the \emcppsgloss[one-definition rule]{ODR}:
+
+\begin{emcppslisting}
+// file1.h
+auto func1();                        // OK, declaration only
+
+auto func2() { return 4; }           // noninline definition (dangerous)
+
+inline auto func3() { return 'a'; }  // OK, inline definition
+
+template <typename T>
+decltype(auto) func4(T* t)           // OK, function template
+{
+    return *t;
+}
+
+// file2.cpp
+#include <file1.h>            // Error, IFNDR, redefinition of (ù{\codeincomments{func2}}ù)
+double local2a = func1();     // Error, (ù{\codeincomments{func1}}ù) return type is not known.
+int    local2b = func2();     // Valid? Call one of the definitions of (ù{\codeincomments{func2}}ù).
+char   local2c = func3();     // OK, call to inline function (ù{\codeincomments{func3}}ù)
+char   local2d = func4("a");  // OK, call to instantiation (ù{\codeincomments{func4<const char>}}ù)
+
+// file3.cpp
+#include <file1.h>            // Error, IFNDR, redefinition of (ù{\codeincomments{func2}}ù)
+auto func1() { return 1.2; }  // OK, defined to return (ù{\codeincomments{double}}ù)
+double local3a = func1();     // OK
+int    local3b = func2();     // Valid? Call one of the definitions of (ù{\codeincomments{func2}}ù).
+char   local3c = func3();     // OK, call to inline function (ù{\codeincomments{func3}}ù)
+char   local3d = func4("b");  // OK, call to instantiation (ù{\codeincomments{func4<const char>}}ù)
+\end{emcppslisting}
+    
+
+\noindent Because \lstinline!func1! is declared in \lstinline!file1.h! but defined in
+\lstinline!file3.cpp!, \lstinline!file2.cpp! does not have enough information
+to deduce its return type. Conversely, \lstinline!func2! has the reverse
+problem: there is an \emcppsgloss[one-definition rule]{ODR} violation because \lstinline!func2! is
+redefined in every translation unit that has
+\lstinline!#include!~\lstinline!<file1.h>!. The compiler is not required to
+diagnose most \emcppsgloss[one-definition rule]{ODR} violations, but linkers will typically
+complain about multiply-defined public symbols. Finally, \lstinline!func3!
+is \lstinline!inline! and \lstinline!func4! is a template; unlike
+\lstinline!func1!, their definitions are visible in each translation unit,
+making the deduced return type available, but unlike \lstinline!func2!,
+they do not create an \emcppsgloss[one-definition rule]{ODR} violation.
+
+\subsubsection[Placeholders in trailing return types]{Placeholders in trailing return types}\label{placeholders-in-trailing-return-types}
+
+If \lstinline!auto! or \lstinline!decltype(auto)! is used in a trailing return
+type, the meaning is the same as using the same placeholder as a leading
+return type:
+
+\begin{emcppslisting}
+auto f1() -> auto;
+auto f2() -> decltype(auto);
+auto f3() -> const auto&;
+
+auto           f1();  // OK, compatible redeclaration of (ù{\codeincomments{f1}}ù)
+decltype(auto) f2();  // OK, compatible redeclaration of (ù{\codeincomments{f2}}ù)
+const auto&    f3();  // OK, compatible redeclaration of (ù{\codeincomments{f3}}ù)
+\end{emcppslisting}
+    
+
+\noindent When any trailing return type is specified, the leading return-type
+placeholder must be plain \lstinline!auto!:
+
+\begin{emcppslisting}
+decltype(auto) f4() -> auto;  // Error, (ù{\codeincomments{decltype(auto)}}ù) with trailing return
+auto&          f5() -> int&;  // Error, (ù{\codeincomments{auto\&}}ù) with trailing return
+\end{emcppslisting}
+    
+
+\subsubsection[Deduced return types for lambda expressions]{Deduced return types for lambda expressions}\label{deduced-return-types-for-lambda-expressions}
+
+As described in \featureref{\locationc}{lambda}, the return type of a closure call
+operator can be deduced automatically from its \lstinline!return!
+statement(s):
+
+\begin{emcppslisting}
+auto y1 = [](int i) { return i + 1; };  // Deduce (ù{\codeincomments{int}}ù).
+\end{emcppslisting}
+    
+
+\noindent The semantics of return-type deduction for \emcppsgloss{lambda expressions}
+is, by default, the same as for a function with declared return type
+\lstinline!auto!. The semantics of \lstinline!decltype(auto)! are available by
+using \lstinline!decltype(auto)! in a trailing return type:
+
+\begin{emcppslisting}
+auto y2 = [](int& i) -> decltype(auto) { return i += 1; };  // Deduce (ù{\codeincomments{int\&}}ù).
+\end{emcppslisting}
+    
+
+\noindent Note that, even though return-type deduction is available for
+\emcppsgloss{lambda expressions} in C++11, it is only since C++14 that
+\lstinline!decltype(auto)! is available. Prior to that, the preceding
+\emcppsgloss[lambda expressions]{lambda expression} would have required a more cumbersome and
+repetitious use of the \lstinline!decltype! operator:
+
+\begin{emcppslisting}
+auto y3 = [](int& i) -> decltype(i+=1) { return i += 1; };  // C++11 compatible
+\end{emcppslisting}
+    
+
+\subsubsection[Template instantiation and specialization]{Template instantiation and specialization}\label{template-instantiation-and-specialization}
+
+Function templates are instantiated when they are selected by overload
+resolution. If the function has a deduced return type, then the template
+must be fully instantiated to deduce its return type even if the
+instantiation causes the program to be ill formed. This instantiation
+behavior differs from function templates with defined return types,
+where failure to compose a valid return type will result in a
+substitution failure that will benignly remove the template from the
+overload set (\emcppsgloss{SFINAE}):
+
+\begin{emcppslisting}
+struct S { };
+
+int f1(void* p) { return 0; }       // matches any pointer type
+
+template <typename T>
+auto f1(T* p) -> decltype(*p *= 2)  // better match if (ù{\codeincomments{*=}}ù) is valid for (ù{\codeincomments{T,int}}ù)
+{
+    return *p *= 2;
+}
+
+int f2(void* p) { return 0; }       // matches any pointer type
+
+template <typename T>
+auto f2(T* p)                       // better match for non(ù{\codeincomments{void}}ù) pointer type
+{
+    return *p *= 2;                 // OK, only if (ù{\codeincomments{*=}}ù) is valid for (ù{\codeincomments{T,int}}ù)
+}
+
+void g1()
+{
+    unsigned i;
+    S        s;
+
+    auto v1 = f1(&i);  // OK, calls (ù{\codeincomments{f1<unsigned>(unsigned*)}}ù)
+    auto v2 = f1(&s);  // OK, calls (ù{\codeincomments{f1(void*)}}ù)
+
+    auto v3 = f2(&i);  // OK, calls (ù{\codeincomments{f2<unsigned>(unsigned*)}}ù)
+    auto v4 = f2(&s);  // Error, hard failure instantiating (ù{\codeincomments{f2<S>(S*)}}ù)
+}
+\end{emcppslisting}
+    
+
+\noindent The first overload for \lstinline!f1! accepts any pointer argument and
+returns integer \lstinline!0!. The second overload for \lstinline!f1! is a
+better match for a non\lstinline!void! pointer only if the return type\linebreak[4]
+\lstinline!decltype(*p!~\lstinline!*=!~\lstinline!2)! is valid. If not, then the
+template specialization is removed from the overload set. Thus,
+\lstinline!f1(&s)! will discard the \lstinline!f1! template from
+consideration and instead call the less-specific \lstinline!f1(void*)!
+function. Note that \lstinline!auto! in combination with a trailing return
+type is not a deduced return type; the return type for the \lstinline!f1!
+template is determined during overload resolution and does not require
+instantiation of the function body. The example takes advantage of the
+fact that, unlike a leading return type, the name of a function
+parameter can be used in the declaration of a trailing return type.
+
+Conversely, the prototype for the \lstinline!f2! function template will
+match \emph{any} pointer type, regardless of whether it can eventually
+deduce a valid return type. Once it has been selected as the best
+overload, the \lstinline!f2! template is fully instantiated, and its return
+type is deduced. If, during instantiation,
+\lstinline!*p!~\lstinline!*=!~\lstinline!2! fails to compile --- as it does for
+\lstinline!f2<S>! --- the program is ill formed and results in a hard
+error; overload resolution is complete, so it is too late to remove the
+template specialization from the overload set.
+
+An explicit instantiation declaration of a function template preceded by
+\lstinline!extern! suppresses implicit instantiation of that specialization
+for the rest of the translation unit (see
+\featureref{\locationc}{explicit-template-instantiations}), regardless of whether the function
+template has a deduced return type. If, however, the function template
+is used in such a way that its return type must be deduced, then the
+template is instantiated anyway:
+
+\begin{emcppslisting}
+template <typename T> auto f(T t) { return t; }
+
+extern template auto f(int);  // Suppress implicit instantiation of (ù{\codeincomments{f<int>}}ù).
+int (*p)(int) = f;            // (ù{\codeincomments{f<int>}}ù) is instantiated to deduce its return type.
+\end{emcppslisting}
+    
+
+\noindent The \lstinline!extern! explicit instantiation declaration of
+\lstinline!f(int)! does not instantiate \lstinline!f<int>!, nor does it
+determine its return type. When used to initialize \lstinline!p!, however,
+the return type must be deduced; \lstinline!f<int>! is instantiated just
+for that purpose, but that instantiation does not eliminate the
+requirement that \lstinline!f(int)! be explicitly instantiated elsewhere in
+the program, typically in a separate translation unit:
+
+\begin{emcppslisting}
+template auto f(int); // must appear somewhere in the program
+\end{emcppslisting}
+    
+
+\noindent Note that the explicit instantiation fails on some popular compilers if
+it is encountered after the implicit instantiation in the \emph{same}
+translation unit.{\cprotect\footnote{Both Clang~12.0 and GCC~10.2 have
+bugs whereby they fail to explicitly instantiate a function template
+having a deduced return type if the implicit instantiation needed to
+deduce its return type is visible. See Clang bug~19551
+(\cite{halpern21b}) and GCC bug~99799
+  (\cite{halpern21a}).}}
+
+Any specialization or explicit instantiation of a function template with
+deduced return type must use the same placeholder, even if the return
+type could be expressed simply without the placeholder:
+
+\begin{emcppslisting}
+template <typename T> auto g(T t) { return t; }
+
+template <>
+auto g(double d) { return 7; }  // OK, explicit specialization, deduced as (ù{\codeincomments{int}}ù)
+
+template auto g(int);           // OK, explicit instantiation, deduced as (ù{\codeincomments{int}}ù)
+
+template <>
+char g(char)   { return 'a'; }  // Error, must return (ù{\codeincomments{auto}}ù)
+
+template <typename T>
+T    g(T t, int) { return t; }  // OK, different template
+\end{emcppslisting}
+    
+
+\noindent Even though \lstinline!auto!~\lstinline!g(char)! and
+\lstinline!char!~\lstinline!g(char)! have the same return type, the latter is
+not a valid specialization of the former. If one of the contributors to
+this return-type mismatch occurs within a template, the error might not
+be diagnosed until the template is instantiated:
+
+\begin{emcppslisting}
+template <typename T>
+class A
+{
+    static T s_value;  // private static member variable
+    friend T h(T);     // declare friend function with known return type
+};
+
+template <typename T> T A<T>::s_value;
+
+auto h(int i)
+{
+    return A<int>::s_value;
+        // Error, (ù{\codeincomments{h}}ù) is redeclared with a different return-type specification.
+        // Error, this function is not a friend of (ù{\codeincomments{A<int>}}ù).
+}
+\end{emcppslisting}
+    
+
+\noindent When \lstinline!A<int>! is instantiated, the declaration of
+\lstinline!T!~\lstinline!h(T)! within class template \lstinline!A! fails because,
+although \lstinline!auto!~\lstinline!h(int)! has the same prototype as
+\lstinline!T!~\lstinline!h(T)!, where \lstinline!T! is \lstinline!int!, they are not
+considered the same function.
+
+\subsubsection[Placeholder conversion functions]{Placeholder conversion functions}\label{placeholder-conversion-functions}
+
+The name of a conversion operator can be a placeholder. Multiple
+conversion operators can be defined in a single class, provided that no
+two have the same declared or deduced return type:
+
+\begin{emcppslisting}
+#include <cassert>  // standard C (ù{\codeincomments{assert}}ù) macro
+
+struct S
+{
+    static const int i;
+
+    operator auto() { return 1; }
+    operator long() { return 2L; }
+    operator decltype(auto)() const { return (i); }
+    operator const auto*() { return &i; }
+};
+
+const int S::i = 3;
+
+void f1()
+{
+    S       s{};
+    const S cs{};
+
+    int         i1 = s;   // Convert to (ù{\codeincomments{int}}ù).
+    long        i2 = s;   // Convert to (ù{\codeincomments{long}}ù).
+    const int&  i3 = s;   // Convert to (ù{\codeincomments{const int\&}}ù).
+    int         i4 = cs;  // Convert to (ù{\codeincomments{const int\&}}ù).
+    long        i5 = cs;  // Convert to (ù{\codeincomments{const int\&}}ù).
+    const int&  i6 = cs;  // Convert to (ù{\codeincomments{const int\&}}ù).
+    long&       i7 = cs;  // Error, cannot convert to (ù{\codeincomments{long\&}}ù)
+    const int*  p1 = s;   // Convert to (ù{\codeincomments{int*}}ù).
+
+    assert(1  == i1);
+    assert(2L == i2);
+    assert(3  == i3);
+    assert(3  == i4);
+    assert(3  == i5);
+    assert(3  == i6);
+
+    assert(p1 == &i3);
+    assert(p1 == &i6);
+}
+\end{emcppslisting}
+    
+
+\noindent The same rules apply to these conversion operators as to placeholder
+return types of ordinary member functions. The last conversion operator,
+for example, combines \lstinline!auto! with \lstinline!const! and the pointer
+operator. Note, however, that because these operators do not have unique
+names, either their implementation must be inline within the class (as
+above), or they must be distinguishable in some other way, e.g., by
+cv-qualification:
+
+\begin{emcppslisting}
+struct R
+{
+    operator auto();        // OK, deduced type not known
+    operator auto() const;  // OK, (ù{\codeincomments{const}}ù) qualified & deduced type not known
+};
+
+R::operator auto() { return "hello"; }  // OK, deduce type (ù{\codeincomments{const char*}}ù).
+R::operator auto() const { return 4; }  // OK, deduce type (ù{\codeincomments{int}}ù).
+
+void f2()
+{
+    R r;
+
+    const char* s = r;  // OK, choose nonconst conversion to (ù{\codeincomments{const char*}}ù).
+    int         i = r;  // OK, choose const conversion to (ù{\codeincomments{int}}ù).
+}
+\end{emcppslisting}
+    
+
+\noindent In \lstinline!struct!~\lstinline!R!, the two conversion operators can coexist
+even before their return types are deduced because one is \lstinline!const!
+and the other is not. The deduced types must be known before the
+conversion operators are invoked, as usual. Note that, in the
+initialization of \lstinline!i!, the \lstinline!const! conversion to
+\lstinline!int! is preferred over the non\lstinline!const! conversion to
+\lstinline!const!~\lstinline!char*!, even though \lstinline!r! is not
+\lstinline!const!.
+
+\subsection[Use Cases]{Use Cases}\label{use-cases}
+
+\subsubsection[Complicated return types]{Complicated return types}\label{complicated-return-types}
+
+In their book \emph{Scientific and Engineering
+C++}{\cprotect\footnote{\cite{barton94}}} authors Barton and Nackman pioneered
+template techniques that are now widely used. They described a system
+for implementing SI units in which the individual unit exponents were
+held as template value parameters, e.g., a distance exponent of 3 would
+denote cubic meters. The type system was used to constrain unit
+arithmetic so that only correct combinations would compile. Addition and
+subtraction require units of the same dimensionality (e.g., square
+meters), whereas multiplication and division allow for mixed dimensions
+(e.g., dividing distance by time to get speed in meters per second).
+
+We give a simplified version here, supporting three base unit types for
+distance in meters, mass in kilograms, and time in seconds:
+
+\begin{emcppslisting}
+// unit type holding a dimensional value in the MKS system
+template <int DistanceExp, int MassExp, int TimeExp>
+class Unit
+{
+    double d_value;
+
+public:
+    Unit() : d_value(0.0) { }
+    explicit Unit(double v) : d_value(v) { }
+
+    double value() const { return d_value; }
+    Unit operator-() const { return Unit(-d_value); }
+};
+
+// predefined units, for convenience
+using Scalar    = Unit<0, 0, 0>;   // dimensionless quantity
+using Meters    = Unit<1, 0, 0>;   // distance in meters
+using Kilograms = Unit<0, 1, 0>;   // mass in Kg
+using Seconds   = Unit<0, 0, 1>;   // time in seconds
+using Mps       = Unit<1, 0, -1>;  // speed in meters per second
+\end{emcppslisting}
+    
+
+\noindent Each different dimensional unit type is a different instantiation of
+\lstinline!Unit!. The basic units for distance, mass, and time are each
+one-dimensional, whereas speed has an exponent of \lstinline!1! for
+distance and \lstinline!-1! for time, thus representing the unit,
+meters/second.
+
+Summing two dimensional quantities requires that they have the same
+dimensionality, i.e., that they be represented by the same \lstinline!Unit!
+specialization. The addition and subtraction operators are, therefore,
+straightforward to declare and implement:
+
+\begin{emcppslisting}
+template <int DD, int MD, int TD>
+Unit<DD,MD,TD> operator+(Unit<DD,MD,TD> lhs, Unit<DD,MD,TD> rhs)
+    // Add two quantities of the same dimensionality.
+{
+    return Unit<DD,MD,TD>(lhs.value() + rhs.value());
+}
+
+template <int DD, int MD, int TD>
+Unit<DD,MD,TD> operator-(Unit<DD,MD,TD> lhs, Unit<DD,MD,TD> rhs)
+    // Subtract two quantities of the same dimensionality.
+{
+    return Unit<DD,MD,TD>(lhs.value() - rhs.value());
+}
+\end{emcppslisting}
+    
+
+\noindent Multiplication and division are more complicated because it is possible
+to, for example, divide distance by time to get speed. When you multiply
+two dimensional quantities, the exponents are added; when you divide
+them, the exponents are subtracted:
+
+\begin{emcppslisting}
+template <int DD1, int MD1, int TD1, int DD2, int MD2, int TD2>
+auto operator*(Unit<DD1,MD1,TD1> lhs, Unit<DD2,MD2,TD2> rhs)
+    // multiply two dimensional quantities to produce a new
+{
+    return Unit<DD1+DD2, MD1+MD2, TD1+TD2>(lhs.value() * rhs.value());
+}
+
+template <int DD1, int MD1, int TD1, int DD2, int MD2, int TD2>
+auto operator/(Unit<DD1,MD1,TD1> lhs, Unit<DD2,MD2,TD2> rhs)
+{
+    return Unit<DD1-DD2, MD1-MD2, TD1-TD2>(lhs.value() / rhs.value());
+}
+\end{emcppslisting}
+    
+
+\noindent The return types for the multiplicative operators are somewhat awkwardly
+long, and without deduced return types, those long names would need to
+appear twice, once in the function declaration and once in the
+\lstinline!return! statement. {\cprotect\footnote{As a workaround, it is
+possible to introduce a defaulted type template parameter to avoid the
+repetition of the return type:
+
+\begin{emcppslisting}[style=footcode]
+template <int DD1, int MD1, int TD1, int DD2, int MD2, int TD2,
+        typename R = Unit<DD1+DD2, MD1+MD2, TD1+TD2>>
+R operator*(Unit<DD1,MD1,TD1> lhs, Unit<DD2,MD2,TD2> rhs)
+{
+    return R(lhs.value() * rhs.value());
+}
+\end{emcppslisting}
+      }}
+
+We can now use these operations to implement a function that returns the
+kinetic energy of a moving object:
+
+\begin{emcppslisting}
+auto kineticEnergy(Kilograms m, Mps v)
+    // Return the kinetic energy of an object of mass (ù{\codeincomments{m}}ù) moving at velocity (ù{\codeincomments{v}}ù).
+{
+    return m * (v * v) / Scalar(2);
+}
+\end{emcppslisting}
+    
+
+\noindent The return type of this formula is determined automatically, without
+expressing the \lstinline!Unit! template arguments directly. The returned
+unit is a joule, which can also be described as a $\text{kilogram}\ast
+\text{meter}^{2}/\text{second}^{2}$, as our test program illustrates:
+%(LORI: FEEL FREE TO SET THE DIMENSIONS AS MATH IN LATEX). Done. lah. 
+
+\begin{emcppslisting}
+#include <cassert>      // Standard C (ù{\codeincomments{assert}}ù) macro
+#include <type_traits>  // (ù{\codeincomments{std::is\_same}}ù)
+
+void f1()
+{
+    using Joules = Unit<2, 1, -2>;  // Energy in joules
+
+    auto ke = kineticEnergy(Kilograms(4.0), Mps(12.5));
+    static_assert(std::is_same<decltype(ke), Joules>::value, "");
+    assert(312.4999 < ke.value() && ke.value() < 312.5001);
+}
+\end{emcppslisting}
+    
+
+\noindent Because of automatic return-type deduction, naming the \lstinline!Unit!
+instantiation of each intermediate computation within
+\lstinline!kineticEnergy! was unnecessary. The \lstinline!static_assert! in
+the code above proves that our formula has returned the correct final
+unit.
+
+\subsubsection[Let the compiler apply the rules]{Let the compiler apply the rules}\label{let-the-compiler-apply-the-rules}
+
+The C++ rules for type promotion and conversion in expressions are
+complex and not easy to express in a return type. For example, many
+people could not tell you the rule for determining the return type when
+adding a value of type \lstinline!int! to a value of type
+\lstinline!unsigned!~\lstinline!int!. It is, in turn, difficult for the
+programmer to determine the correct return type for a function that
+returns the result of such an expression. This complication is
+compounded when the computation takes place in a function template. An
+explicit return type computed with \lstinline!decltype! can be used to
+determine the type of an expression, but such determination requires
+duplicating the expression in the function declaration or fabricating a
+simpler expression that hopefully has the same type. When multiple
+\lstinline!return! statements exist with different contents, there is no
+straightforward way to guarantee that they yield the same type.
+
+Using a deduced return type eliminates the need to duplicate code or
+reconcile return expressions:
+
+\begin{emcppslisting}
+template <typename T1, typename T2>
+auto add_or_subtract(bool b, T1 v1, T2 v2)
+{
+    if (b) { return v1 + v2; }
+    else   { return v1 - v2; }
+}
+\end{emcppslisting}
+    
+
+\noindent The template above deduces the return type of adding a value of type
+\lstinline!T2! to a value of type \lstinline!T1! and verifies that the same
+type is produced when subtracting a value of type \lstinline!T2! from a
+value of type \lstinline!T1!. If the two deduced types differ, an error
+diagnostic is produced rather than a silent promotion or conversion to
+the (possibly incorrect) manually determined type.
+
+\subsubsection[Returning a lambda expression]{Returning a lambda expression}\label{returning-a-lambda-expression}
+
+A \emcppsgloss[lambda expressions]{lambda expression} generates a unique \emcppsgloss{closure} type
+that cannot be named and cannot appear as the operand of the
+\lstinline!decltype! operator. The only way that a function can generate
+and return a \emcppsgloss{closure object} is through the use of a deduced
+return type. This capability lets us define functions that capture
+parameters and generate useful function objects:
+
+\begin{emcppslisting}
+#include <algorithm>  // (ù{\codeincomments{std::is\_partitioned}}ù)
+#include <vector>     // (ù{\codeincomments{std::vector}}ù)
+
+template <typename T>
+auto lessThanValue(const T& t)
+{
+    return [t](const auto& u) { return u < t; };
+}
+
+bool f1(const std::vector<int>& v, int pivot)
+    // return (ù{\codeincomments{true}}ù) if (ù{\codeincomments{v}}ù) is partitioned around the (ù{\codeincomments{pivot}}ù) value
+{
+    return std::is_partitioned(v.begin(), v.end(), lessThanValue(pivot));
+}
+\end{emcppslisting}
+    
+
+\noindent The \lstinline!lessThanValue! function generates a functor --- i.e., a
+\emcppsgloss{closure object} --- that returns \lstinline!true! if its argument
+is less than the captured \lstinline!t! value. This functor is then used as
+an argument to \lstinline!is_partitioned!.
+
+Note that it is not possible to return the result of different
+\emcppsgloss{lambda expressions} in different \lstinline!return! statements, as
+each \emcppsgloss[lambda expressions]{lambda expression} intrinsically has a different type than
+every other \emcppsgloss[lambda expressions]{lambda expression}, thus violating the requirements
+for return-type deduction:
+
+\begin{emcppslisting}
+auto comparator(bool reverse)
+{
+    if (reverse)
+    {
+        return [](int l, int r) { return l < r; };
+    }
+    else
+    {
+        return [](int l, int r) { return l > r; };  // Error, inconsistent type
+    }
+}
+\end{emcppslisting}
+    
+
+\subsubsection[Perfect returning of wrapped functions]{Perfect returning of wrapped functions}\label{perfect-returning-of-wrapped-functions}
+
+A generic wrapper that performs some task before and/or after calling
+another function needs to preserve the type and \emcppsgloss{value category}
+of the returned value of the called function. Using
+\lstinline!decltype(auto)! is the simplest method to achieve this ``perfect
+returning'' of the wrapped call. For example, a wrapper template might
+acquire a mutex lock, call an arbitrary function provided by the user,
+and return the value produced by the function:
+
+\begin{emcppslisting}
+#include <utility>  // (ù{\codeincomments{std::forward}}ù)
+#include <mutex>    // (ù{\codeincomments{std::mutex}}ù) and (ù{\codeincomments{std::lock\_guard}}ù)
+
+template <typename Func, typename... Args>
+decltype(auto) lockedInvoke(std::mutex& m, Func&& f, Args&&... args)
+{
+    std::lock_guard<std::mutex> mutexLock(m);
+    return std::forward<Func>(f)(std::forward<Args>(args)...);
+}
+\end{emcppslisting}
+    
+
+\noindent The mutex is released automatically by the destructor for
+\lstinline!mutexLock!. The return value and \emcppsgloss{value category} from
+\lstinline!f! is faithfully returned by \lstinline!lockedInvoke!. Note that
+\lstinline!lockedInvoke! relies on two other C++11 features --- forwarding
+references (see \featureref{\locationc}{forwardingref}) and variadic function
+templates (see\linebreak[4] \featureref{\locationc}{variadictemplate}) --- to achieve
+\emcppsgloss{perfect forwarding} of its arguments to \lstinline!f!.
+
+\subsubsection[Delaying return-type deduction]{Delaying return-type deduction}\label{delaying-return-type-deduction}
+
+Sometimes, determining the return type of a function template requires
+instantiating the template recursively until the base case is found. In
+certain situations, these instantiations can cause unbounded
+compile-time recursion even when, logically, the recursion should
+terminate normally. Consider the recursive function template
+\lstinline!n1!, which returns its template argument, \lstinline!N!, through
+recursive instantiation, stopping when it calls the base case of
+\lstinline!N!~\lstinline!==!~\lstinline!0!:
+
+\begin{emcppslisting}
+template <int i>  struct Int {};  // compile-time integer
+
+int n1(Int<0>) { return 0; }      // base case for terminating recursion
+
+template <int N>
+auto n1(Int<N>) -> decltype(n1(Int<N-1>{}))
+    // return (ù{\codeincomments{N}}ù) through recursive instantiation
+{
+    return n1(Int<N-1>{}) + 1;   // call to recursive instantiation
+}
+
+int result1 = n1(Int<10>{});     // Error, excessive compile-time recursion
+\end{emcppslisting}
+    
+
+\noindent On the surface, it looks like recursion should terminate after only 11
+instantiations. The problem, however, is that the compiler must
+determine the return type of \lstinline!n1! before it knows whether it will
+recurse or not. To compute return type
+\lstinline!decltype(n1(Int<N-1>{}))!, the compiler must build an overload
+set for \lstinline!n1!. The compiler finds two names that match, the base
+case \lstinline!n1(Int<0>)! and the template \lstinline!n1(Int<N>)!. Even if
+\lstinline!N! is 0, the compiler must instantiate the latter in order to
+complete building the overload set. If \lstinline!N! is 0, therefore, it
+will instantiate \lstinline!n1<-1>!, even though it will never call it.
+Hence, the recursion will not stop until \lstinline!n1! has been
+instantiated with every \lstinline!int! value (though, in practice, the
+compiler will abort long before then).
+
+When the return type is deduced using \lstinline!auto! or
+\lstinline!decltype(auto)!, the compiler adds the function to the overload
+set without having to determine its return type. Since the return type
+itself does not determine the result of overload resolution, we can use
+this fact to avoid unneeded instantiations . Return-type deduction will
+occur only for the function that is actually chosen by overload
+resolution, so the return type when \lstinline!N!~\lstinline!<!~\lstinline!0!
+will terminate recursion as expected:
+
+\begin{emcppslisting}
+int n2(Int<0>) { return 0; }     // base case for terminating recursion
+
+template <int N>
+auto n2(Int<N>)
+    // return (ù{\codeincomments{N}}ù) through recursive instantiation
+{
+    return n2(Int<N-1>{}) + 1;   // call to recursive instantiation
+}
+
+int result2 = n2(Int<10>{});     // OK, returns (ù{\codeincomments{10}}ù)
+\end{emcppslisting}
+    
+
+\noindent In the above rewrite, the call to \lstinline!n2! when \lstinline!N! is
+\lstinline!1! selects the base case (non-template) version and does not
+recursively instantiate the template version of \lstinline!n2!.
+
+\subsection[Potential Pitfalls]{Potential Pitfalls}\label{potential-pitfalls}
+
+\subsubsection[Negative impacts on abstraction and insulation]{Negative impacts on abstraction and insulation}\label{negative-impacts-on-abstraction-and-insulation}
+
+If a library function provides an abstract interface, the user needs to
+read and understand only the function's declaration and its
+documentation. Except when maintaining the library itself, the
+function's implementation details are unimportant.
+
+If a program insulates a library user from the library's implementation
+by placing the implementation code in a separate translation unit,
+compile-time coupling between library code and client code is reduced. A
+library that does not include function implementations in its header
+files can be rebuilt to provide updates without needing to recompile
+clients; only a relink is needed. Compilation times for client code are
+minimized by not needing to recompile library source code within header
+files.
+
+Deduced function return types interfere with both abstraction and
+insulation and thus with the development of large-scale, comprehensible
+software. Because the return type cannot be determined without its
+implementation being visible to the compiler, publicly visible functions
+having deduced return types cannot be insulated; they must necessarily
+appear in a header file as \lstinline!inline! functions or function
+templates, thereby being recompiled for every client translation unit.
+In this regard, a function with deduced return type is no different than
+any other \lstinline!inline! function or function template. What is new,
+however, is its impact on abstraction: To fully understand a function's
+interface --- including its return type --- the user must read its
+implementation.
+
+To mitigate the loss of abstraction from deduced return types, the
+programmer of the function can carefully document the expected
+properties of the returned object, even in the absence of a specific
+concrete type. Interestingly, understanding the return value's
+\emph{properties}, not merely its \emph{type}, may yield a resulting
+function that is \emph{more} abstract than one for which a known type
+had been specified.
+
+\subsubsection[Reduced clarity]{Reduced clarity}\label{reduced-clarity}
+
+Not having the return type of a function visible in its declaration can
+reduce the clarity of a program. Deduced return types work best when
+they appear on tiny function definitions, so that the determinative
+\lstinline!return! statement is easily visible. Functions having deduced
+return types are also well suited for situations where the particulars
+of a return type are not especially useful, as in the case of iterator
+types associated with containers.
+
+\subsection[Annoyances]{Annoyances}\label{annoyances}
+
+\subsubsection[Implementation-order sensitivity]{Implementation-order sensitivity}\label{implementation-order-sensitivity}
+
+If a deduced return type is used for a recursive function or a
+pseudo-recursive function template, the textually first \lstinline!return!
+statement must be the base case of the recursion:
+
+\begin{emcppslisting}
+auto fib(int n)
+    // Compute the (ù{\codeincomments{n}}ù)th Fibonacci number
+{
+    if (n < 2) { return n; }              // base case, deduces (ù{\codeincomments{int}}ù)
+    else { return fib(n-2) + fib(n-1); }  // OK, return type already known
+}
+\end{emcppslisting}
+    
+
+\noindent The same code can be rearranged in a way that seems functionally
+identical but which now fails to compile due to return-type deduction
+happening too late:
+
+\begin{emcppslisting}
+auto fib2(int n)
+    // Compute the (ù{\codeincomments{n}}ù)th Fibonacci number
+{
+
+    if (n >= 2) { return fib2(n-2) + fib2(n-1); }  // Error, unknown return type
+    else        { return n; }                      // OK, but too late
+}
+\end{emcppslisting}
+    
+
+\noindent Importantly, that multiple \lstinline!return! statements must all deduce
+the same return type ensures that rearranging the order of
+\lstinline!return! statements does not lead to subtle changes in the
+deduced return type of the function. For example, if the first
+\lstinline!return! deduces the type \lstinline!short! and the second
+\lstinline!return! deduces the type \lstinline!long!, it is probably
+preferable for the compiler to complain than to silently truncate the
+\lstinline!long! to a \lstinline!short!. This protection, therefore, prevents
+an occasional annoyance from becoming a dangerous pitfall.
+
+\subsubsection[No SFINAE in function body]{No SFINAE in function body}\label{no-sfinae-in-function-body}
+
+\emcppsgloss[SFINAE]{Substitution Failure Is Not An Error} is often employed to
+conditionally remove a function template from an overload
+set.{\cprotect\footnote{C++20 introduces \emcppsgloss{concepts}, a much more
+expressive system to restrict the applicability of a function template
+  that relies less on understanding the subtleties of \emcppsgloss{SFINAE}.}}
+Consider an overload set that aims to return the \lstinline!size()! of any
+container passed to it and treat all \emcppsgloss{trivial} types as a
+single-element container:
+
+\begin{emcppslisting}
+#include <cstddef>  // (ù{\codeincomments{std::size\_t}}ù)
+
+int numElements(...)  // overload for all trivial types
+{
+    return 1;
+}
+
+template <typename T>
+auto numElements(const T& container)  // overload for all classes with a
+   -> decltype(container.size())      // (ù{\codeincomments{size()}}ù) member function
+{
+    return container.size();
+}
+\end{emcppslisting}
+    
+
+\noindent This overload set depends on \emcppsgloss{SFINAE} to work properly. When
+\lstinline!numElements! is invoked on an object for which the expression
+\lstinline!container.size()! is valid, template substitution will proceed
+without error, and the resulting template specialization will be the
+best match during overload resolution. When invoked on an object of
+\emcppsgloss{trivial} type for which \lstinline!container.size()! is invalid,
+the template substitution will fail and the would-be resulting
+specialization will be dropped from the overload set, leaving the
+C-style variadic function as the best overload match:
+
+\begin{emcppslisting}
+#include <cassert>  // standard C (ù{\codeincomments{assert}}ù) macro
+#include <vector>   // (ù{\codeincomments{std::vector}}ù)
+
+void testNumElements()
+{
+   std::vector<int> v = {1,2,3};
+   assert(3 == numElements(v));
+   assert(1 == numElements("Hello"));
+}
+\end{emcppslisting}
+    
+
+\noindent Looking at the implementation of \lstinline!numElements!, one might think
+to remove the duplication of the \lstinline!container.size()! expression by
+leveraging a deduced return type. This change, however, will move the
+substitution error from the declaration to the function body, making the
+program \emcppsgloss{ill formed} rather than removing the offending template
+from the overload set:
+
+\begin{emcppslisting}
+int numElements2(...)  // overload for all trivial types
+{
+    return 1;
+}
+
+template <typename T>
+auto numElements2(const T& container)  // deduced return type
+{
+    return container.size();  // valid only if (ù{\codeincomments{container.size()}}ù) is valid
+}
+
+void testNumElements2()
+{
+    std::vector<int> v = {1,2,3};
+    assert(3 == numElements2(v));        // OK, template instantiation succeeds
+    assert(1 == numElements2("Hello"));  // Error, tries to instantiate template
+}
+\end{emcppslisting}
+    
+
+\noindent When \lstinline!numElements2("hello")! is seen, the compiler must look at
+\emph{both} overloads of\linebreak[4] \lstinline!numElements2!. Since the template
+version is the better match, it tries to instantiate it but fails upon
+seeing \lstinline!container.size()!. The error does not occur during
+overload resolution, so it is not considered a substitution failure.
+Rather than choosing the next best overload, the compilation fails.
+
+\subsection[See Also]{See Also}\label{see-also}
+
+\begin{itemize}
+\item{\seealsoref{decltype}{\seealsolocationa}describes a feature that yields the type of an expression at compile time and which is used implicitly for type deduction.}
+%
+\item{\seealsoref{trailing-function-return-types}{\seealsolocationa}describes a less flexible but more deterministic alternative to deduced return types.}
+%
+\item{\seealsoref{auto}{\seealsolocationc}describes the rules for deducing the type of an \lstinline!auto! variable, which are the same rules as for deducing a return type declared with the \lstinline!auto! placeholder.}
+%
+\item{\seealsoref{forwardingref}{\seealsolocationc}is used ubiquitously in C++11 and C++14 templates, especially function templates that wrap other function templates, often using deduced return types.}
+%
+\item{\seealsoref{lambda}{\seealsolocationc}describes \emcppsgloss{lambda expressions}, which had deduced return types in C++11 before they were introduced for regular functions in C++14.}
+%
+\item{\seealsoref{decltypeauto}{\seealsolocationf}describes the rules for deducing the type of a \lstinline!decltype(auto)! variable, which are the same rules as for deducing a return type declared with the \lstinline!decltype(auto)! placeholder.}
+\end{itemize}
+
+\subsection[Further Reading]{Further Reading}\label{further-reading}
+
+None.
+
+
