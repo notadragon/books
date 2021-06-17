@@ -2353,7 +2353,8 @@ members of the class.
 Similarly, some people are concerned that the compiler does not enforce
 \lstinline!noexcept! by parsing the function definition and rejecting
 expressions that may throw. This was a deliberate language choice (see
-\intraref{appendix-noexceptoperator}{genesis-of-the-noexcept-operator:-move-operations}) that throwing out of a \lstinline!noexcept!
+\intraref{appendix-noexceptoperator}{genesis-of-the-noexcept-operator:-move-operations}) that
+throwing out of a \lstinline!noexcept!
 function be a runtime failure, not a compile-time error, given the
 history of C++ and other languages attempting to statically enforce an
 exception markup. Exception specifications for function templates would
@@ -2843,32 +2844,6 @@ This can be an issue not just in production systems, but also in unit
 testing. For example, suppose we want to test the above class with a
 mock database connection, which throws an exception; we would have to
 again resort to death testing.
-
-\subsubsection[Functions declared \lstinline!noexcept! must be bulletproof]{Functions declared {\SubsubsecCode noexcept} must be bulletproof}\label{functions-declared-noexcept-must-be-bulletproof}
-
-If we mark any function \lstinline!noexcept!, then we risk terminating the
-program unexpectedly. For that reason, we need to not only avoid
-throwing exceptions ourselves, but also be absolutely certain that
-anything we call and anything we depend on is guaranteed to not throw
-any exceptions. When designing mission critical production systems, it
-is important that any failure case will result in ``graceful
-degradation'' rather than a cataclysmic outage.{\cprotect\footnote{\textbf{[AUs: Please provide this source]} See
-  O'Reilly, Site Reliability Engineering by various authors at Google.}}
-
-Suppose, hypothetically, an application writer links in a poorly tested,
-third-party library that sends status information to a central dashboard
-display. If, for whatever reason, that library fails to open a socket to
-the dashboard server, then an exception is thrown. If that were to
-happen, then the core functionality of the application may be able to
-continue without the dashboard reporting features, the exception having
-been caught and logged.
-
-If, on the other hand, that exception were to hit a \lstinline!noexcept!
-barrier somewhere within its call stack, then the application would
-terminate. A worst-case scenario is that multiple applications reporting
-their status into the same dashboard would all require a fast, risky
-deployment of new versions with the third-party library dependency
-completely excised to reinstate the production systems.
 
 \subsection[See Also]{See Also}\label{see-also}
 
